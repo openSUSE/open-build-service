@@ -281,8 +281,12 @@ RSpec.describe TriggerController, vcr: true do
   end
 
   describe '#set_multibuild_flavor' do
-    let(:multibuild_package) { create(:multibuild_package, name: 'package_a', project: project, flavors: ['libfoo1', 'libfoo2']) }
+    let(:multibuild_package) { create(:package, name: 'package_a', project: project) }
     let(:multibuild_flavor) { 'libfoo2' }
+
+    before do
+      allow(Backend::Api::Sources::Package).to receive(:multibuild_flavors).and_return('<directory><entry name="libfoo1"/><entry name="libfoo2"/></directory>')
+    end
 
     context 'with a token that allows multibuild' do
       let(:token) { Token::Rebuild.create(user: user) }

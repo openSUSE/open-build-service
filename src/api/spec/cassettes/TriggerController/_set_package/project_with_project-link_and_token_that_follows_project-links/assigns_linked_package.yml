@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_61
+    uri: http://backend:5352/source/project/_meta?user=user_52
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Rosemary Sutcliff</title>
+          <title>Françoise Sagan</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '143'
     body:
-      encoding: UTF-8
-      string: |
-        <project name="project">
-          <title>Rosemary Sutcliff</title>
-          <description></description>
-          <person userid="foo" role="maintainer"/>
-        </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:39 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHByb2plY3QgbmFtZT0icHJvamVjdCI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj48L2Rlc2NyaXB0aW9uPgogIDxwZXJzb24gdXNlcmlkPSJmb28iIHJvbGU9Im1haW50YWluZXIiLz4KPC9wcm9qZWN0Pgo=
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_62
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_53
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Sleep the Brave</title>
-          <description>Dolore voluptatem numquam velit.</description>
+          <title>His Dark Materials</title>
+          <description>Optio eos ducimus quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +65,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Sleep the Brave</title>
-          <description>Dolore voluptatem numquam velit.</description>
+          <title>His Dark Materials</title>
+          <description>Optio eos ducimus quia.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:39 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_63
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_54
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>Edna O'Brien</title>
+          <title>Nine Coaches Waiting</title>
           <description/>
           <link project="project"/>
           <person userid="foo" role="maintainer"/>
@@ -109,17 +105,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>Edna O'Brien</title>
+          <title>Nine Coaches Waiting</title>
           <description></description>
           <link project="project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:40 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=package_trigger
@@ -154,5 +150,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Tue, 08 Jun 2021 04:47:40 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 recorded_with: VCR 6.0.0

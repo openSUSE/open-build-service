@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_80
+    uri: http://backend:5352/source/project/_meta?user=user_33
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Daffodil Sky</title>
+          <title>The Road Less Traveled</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Daffodil Sky</title>
+          <title>The Road Less Traveled</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:56 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_81
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_34
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Moab Is My Washpot</title>
-          <description>At quidem quam molestiae.</description>
+          <title>Carrion Comfort</title>
+          <description>Reprehenderit repellat sequi quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Moab Is My Washpot</title>
-          <description>At quidem quam molestiae.</description>
+          <title>Carrion Comfort</title>
+          <description>Reprehenderit repellat sequi quia.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:56 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_82
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_35
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>Consider Phlebas</title>
+          <title>That Hideous Strength</title>
           <description/>
           <link project="project"/>
           <person userid="foo" role="maintainer"/>
@@ -109,26 +109,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '183'
+      - '188'
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>Consider Phlebas</title>
+          <title>That Hideous Strength</title>
           <description></description>
           <link project="project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:56 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_83
+    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_36
     body:
       encoding: UTF-8
       string: |
         <package name="local_package" project="project_with_a_link">
-          <title>Stranger in a Strange Land</title>
-          <description>Excepturi eius sit debitis.</description>
+          <title>That Hideous Strength</title>
+          <description>Fugiat tempore optio veniam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -149,15 +149,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="local_package" project="project_with_a_link">
-          <title>Stranger in a Strange Land</title>
-          <description>Excepturi eius sit debitis.</description>
+          <title>That Hideous Strength</title>
+          <description>Fugiat tempore optio veniam.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:56 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=local_package
@@ -192,5 +192,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Tue, 08 Jun 2021 04:47:57 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 recorded_with: VCR 6.0.0

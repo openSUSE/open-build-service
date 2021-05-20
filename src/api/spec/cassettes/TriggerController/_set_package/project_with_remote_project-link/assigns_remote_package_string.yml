@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_64
+    uri: http://backend:5352/source/project/_meta?user=user_46
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Such, Such Were the Joys</title>
+          <title>The Wings of the Dove</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Such, Such Were the Joys</title>
+          <title>The Wings of the Dove</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:40 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_65
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_47
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>It's a Battlefield</title>
-          <description>Autem et et amet.</description>
+          <title>Mother Night</title>
+          <description>Voluptatem nemo sapiente soluta.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>It's a Battlefield</title>
-          <description>Autem et et amet.</description>
+          <title>Mother Night</title>
+          <description>Voluptatem nemo sapiente soluta.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:40 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_66
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_48
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>Françoise Sagan</title>
+          <title>The House of Mirth</title>
           <description/>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
@@ -109,12 +109,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '195'
+      - '197'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHByb2plY3QgbmFtZT0icHJvamVjdF93aXRoX2FfbGluayI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj48L2Rlc2NyaXB0aW9uPgogIDxsaW5rIHByb2plY3Q9InNvbWU6cmVtb3RlOnByb2plY3QiLz4KICA8cGVyc29uIHVzZXJpZD0iZm9vIiByb2xlPSJtYWludGFpbmVyIi8+CjwvcHJvamVjdD4K
-  recorded_at: Tue, 08 Jun 2021 04:47:41 GMT
+      encoding: UTF-8
+      string: |
+        <project name="project_with_a_link">
+          <title>The House of Mirth</title>
+          <description></description>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=remote_package_trigger
@@ -149,5 +154,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Tue, 08 Jun 2021 04:47:41 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 recorded_with: VCR 6.0.0

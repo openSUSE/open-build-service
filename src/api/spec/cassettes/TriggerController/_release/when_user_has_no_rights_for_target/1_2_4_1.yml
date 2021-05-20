@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_45
+    uri: http://backend:5352/source/project/_meta?user=user_58
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Mermaids Singing</title>
+          <title>Jacob Have I Loved</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Mermaids Singing</title>
+          <title>Jacob Have I Loved</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:24 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_46
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_59
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>A Monstrous Regiment of Women</title>
-          <description>Possimus dolores optio error.</description>
+          <title>The Line of Beauty</title>
+          <description>Corrupti sit sequi cum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>A Monstrous Regiment of Women</title>
-          <description>Possimus dolores optio error.</description>
+          <title>The Line of Beauty</title>
+          <description>Corrupti sit sequi cum.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:24 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_47
+    uri: http://backend:5352/source/target_project/_meta?user=user_60
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Torment of Others</title>
+          <title>Cover Her Face</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -108,14 +108,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Torment of Others</title>
+          <title>Cover Her Face</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:24 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 recorded_with: VCR 6.0.0

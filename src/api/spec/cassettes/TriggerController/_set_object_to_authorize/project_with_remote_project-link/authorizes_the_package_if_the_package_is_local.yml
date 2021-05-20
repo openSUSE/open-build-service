@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_76
+    uri: http://backend:5352/source/project/_meta?user=user_40
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Tirra Lirra by the River</title>
+          <title>Sleep the Brave</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Tirra Lirra by the River</title>
+          <title>Sleep the Brave</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_77
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_41
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>The Green Bay Tree</title>
-          <description>Repellendus tenetur eligendi distinctio.</description>
+          <title>Of Human Bondage</title>
+          <description>Iure optio illo ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>The Green Bay Tree</title>
-          <description>Repellendus tenetur eligendi distinctio.</description>
+          <title>Of Human Bondage</title>
+          <description>Iure optio illo ex.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_78
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_42
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>In a Dry Season</title>
+          <title>The Wings of the Dove</title>
           <description/>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
@@ -109,26 +109,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '200'
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>In a Dry Season</title>
+          <title>The Wings of the Dove</title>
           <description></description>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_79
+    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_43
     body:
       encoding: UTF-8
       string: |
         <package name="local_package" project="project_with_a_link">
-          <title>Stranger in a Strange Land</title>
-          <description>Et ad fuga expedita.</description>
+          <title>Taming a Sea Horse</title>
+          <description>Dolor porro sit nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -149,15 +149,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="local_package" project="project_with_a_link">
-          <title>Stranger in a Strange Land</title>
-          <description>Et ad fuga expedita.</description>
+          <title>Taming a Sea Horse</title>
+          <description>Dolor porro sit nihil.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=local_package
@@ -192,5 +192,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:57 GMT
 recorded_with: VCR 6.0.0

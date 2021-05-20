@@ -15,7 +15,10 @@ module MultibuildPackage
   end
 
   def multibuild?
-    file_exists?('_multibuild')
+    @multibuild_flavors ||= Xmlhash.parse(Backend::Api::Sources::Package.multibuild_flavors(project, name)).elements('entry').collect { |x| x['name'] }
+    return false if @multibuild_flavors.blank?
+
+    true
   end
 
   def multibuild_flavor?(name)
@@ -24,15 +27,12 @@ module MultibuildPackage
     # Support passing both with and without prefix.
     # Like package:flavor or just flavor
     name = name.split(':', 2).last
-    multibuild_flavors.include?(name)
+    @multibuild_flavors.include?(name)
   end
 
   def multibuild_flavors
     return [] unless multibuild?
 
-    flavors = Xmlhash.parse(source_file('_multibuild'))['flavor']
-    return [flavors] if flavors.is_a?(String)
-
-    flavors
+    @mulitbuild_flavors
   end
 end
