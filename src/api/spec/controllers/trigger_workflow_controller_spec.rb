@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe TriggerWorkflowController, type: :controller do
-  let(:user) { create(:confirmed_user, login: 'foo') }
+RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
+  let(:user) { create(:confirmed_user, :in_beta, login: 'foo') }
   let(:token) { Token::Workflow.create(user: user) }
   let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
 

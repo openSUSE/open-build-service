@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Token::WorkflowPolicy do
+RSpec.describe Token::WorkflowPolicy, beta: true do
   subject { described_class }
 
   describe '#create' do
