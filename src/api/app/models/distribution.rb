@@ -76,6 +76,7 @@ end
 #  link       :string(255)
 #  name       :string(255)      not null
 #  project    :string(255)      not null
+#  remote     :boolean          default(FALSE)
 #  reponame   :string(255)      not null
 #  repository :string(255)      not null
 #  vendor     :string(255)      not null
