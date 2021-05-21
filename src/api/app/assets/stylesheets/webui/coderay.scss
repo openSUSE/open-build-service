@@ -2,17 +2,13 @@
   background: $card-bg;
   color: $body-color;
 }
-.details-with-coderay .CodeRay pre {
-  display: grid;
-  grid-template-columns: min-content [col-separator] auto;
-}
-.CodeRay pre { margin: 0; }
+.CodeRay pre { margin: 0 }
 span.CodeRay { white-space: pre }
 
 .CodeRay .line-numbers {
+  display: inline-block;
   background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
   border-right: $card-border-width solid $card-border-color;
-  grid-column-end: col-separator;
 }
 
 .CodeRay .line-numbers pre {
