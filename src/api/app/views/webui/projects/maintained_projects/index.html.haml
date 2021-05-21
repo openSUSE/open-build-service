@@ -35,6 +35,6 @@
       ajax: $('#maintained-projects-datatable').data('source'),
       columns: [
         { data: 'name' },
-        { data: 'actions' }
+        { data: 'actions', orderable: false, searchable: false }
       ]
     });
