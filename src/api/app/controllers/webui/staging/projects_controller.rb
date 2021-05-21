@@ -1,7 +1,8 @@
 module Webui
   module Staging
     class ProjectsController < WebuiController
-      before_action :require_login, except: :show
+      # TODO: Remove this when we'll refactor kerberos_auth
+      before_action :kerberos_auth, except: [:show]
       before_action :set_workflow_project
       before_action :set_staging_workflow
       after_action :verify_authorized, except: :show
