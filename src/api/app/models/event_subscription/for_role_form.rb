@@ -10,7 +10,7 @@ class EventSubscription
     end
 
     def call
-      @channels = EventSubscription.without_channel_disabled.map do |channel|
+      @channels = EventSubscription.without_disabled_or_internal_channels.map do |channel|
         channel_for_event_class_and_role(@event, name, channel)
       end
 
