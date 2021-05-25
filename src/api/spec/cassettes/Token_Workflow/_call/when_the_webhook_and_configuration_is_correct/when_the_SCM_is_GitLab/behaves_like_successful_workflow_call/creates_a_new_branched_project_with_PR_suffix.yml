@@ -1,0 +1,753 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project">
+          <title>Ah, Wilderness!</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project">
+          <title>Ah, Wilderness!</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test-package%22%20and%20linkinfo/@project=%22test-project%22%20and%20@project=%22test-project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:PR-3/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:PR-3">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '255'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:PR-3">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:PR-3/test-package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:PR-3">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:PR-3">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:PR-3/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=Iggy
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="17" vrev="17">
+          <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
+          <version>unknown</version>
+          <time>1621951325</time>
+          <user>Iggy</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:PR-3/test-package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:PR-3">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:PR-3">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:PR-3/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '430'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="17" vrev="17" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1621949508"/>
+        </directory>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:PR-3/test-package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '333'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test-package" rev="17" vrev="17" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="test-project" package="test-package"/>
+        </sourceinfo>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:PR-3/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '430'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="17" vrev="17" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1621949508"/>
+        </directory>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:PR-3/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '321'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b34dd7858e1d784725f99a6535b1d7cc">
+          <old project="test-project:PR-3" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:PR-3" package="test-package" rev="17" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:PR-3/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '354'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1c11a6cbcfb43f172da6413cb984d226">
+          <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:PR-3" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:PR-3/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:PR-3">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:PR-3">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:PR-3/test-package/_branch_request?user=Iggy
+    body:
+      encoding: UTF-8
+      string: '{"object_kind":"merge_request","project":{"http_url":null},"object_attributes":{"source":{"default_branch":null}}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="18" vrev="18">
+          <srcmd5>f14c95a8699c85b68de530c9b8060d5c</srcmd5>
+          <version>unknown</version>
+          <time>1621951325</time>
+          <user>Iggy</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:PR-3/test-package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:PR-3">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:PR-3">
+          <title>The Doors of Perception</title>
+          <description>Accusamus totam distinctio delectus.</description>
+        </package>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:PR-3/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '533'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="18" vrev="18" srcmd5="f14c95a8699c85b68de530c9b8060d5c">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="d097703241cb290c7ed6122b049dcf31" lsrcmd5="f14c95a8699c85b68de530c9b8060d5c"/>
+          <entry name="_branch_request" md5="b8cf7070f6f77f83a014c4cd5d228748" size="114" mtime="1621950801"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1621949508"/>
+        </directory>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:PR-3/test-package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '333'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test-package" rev="18" vrev="18" srcmd5="d097703241cb290c7ed6122b049dcf31" lsrcmd5="f14c95a8699c85b68de530c9b8060d5c" verifymd5="b347991eda489ac2dbd914f4b56a5b0b">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="test-project" package="test-package"/>
+        </sourceinfo>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:PR-3/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '533'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="18" vrev="18" srcmd5="f14c95a8699c85b68de530c9b8060d5c">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="d097703241cb290c7ed6122b049dcf31" lsrcmd5="f14c95a8699c85b68de530c9b8060d5c"/>
+          <entry name="_branch_request" md5="b8cf7070f6f77f83a014c4cd5d228748" size="114" mtime="1621950801"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1621949508"/>
+        </directory>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:PR-3/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '321'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="00329204ce6dcf9e9fb6f4fe4f8c95da">
+          <old project="test-project:PR-3" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:PR-3" package="test-package" rev="18" srcmd5="f14c95a8699c85b68de530c9b8060d5c"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:PR-3/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '377'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="295f3f98538a69e9f0529a5acc7bda35">
+          <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:PR-3" package="test-package" rev="d097703241cb290c7ed6122b049dcf31" srcmd5="d097703241cb290c7ed6122b049dcf31"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 25 May 2021 14:02:05 GMT
+recorded_with: VCR 6.0.0
