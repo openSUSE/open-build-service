@@ -6,10 +6,11 @@ class TriggerController < ApplicationController
   # Authentication happens with tokens, so no login is required
   skip_before_action :require_login
   # GitLab/Github send data as parameters which are not strings
-  skip_before_action :validate_params
+  # e.g. integer PR number (GitHub) and project hash (GitLab)
+  skip_before_action :validate_params, if: :scm_webhook?
   after_action :verify_authorized
 
-  before_action :validate_gitlab_event
+  before_action :validate_gitlab_event, if: :gitlab_webhook?
   before_action :set_token
   before_action :set_project
   before_action :set_package
@@ -28,9 +29,19 @@ class TriggerController < ApplicationController
 
   private
 
-  def validate_gitlab_event
-    return unless request.env['HTTP_X_GITLAB_EVENT']
+  def gitlab_webhook?
+    request.env['HTTP_X_GITLAB_EVENT'].present?
+  end
 
+  def github_webhook?
+    request.env['HTTP_X_GITHUB_EVENT'].present?
+  end
+
+  def scm_webhook?
+    gitlab_webhook? || github_webhook?
+  end
+
+  def validate_gitlab_event
     raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
   end
 
