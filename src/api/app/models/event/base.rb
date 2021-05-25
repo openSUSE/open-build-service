@@ -4,6 +4,7 @@ module Event
   class Base < ApplicationRecord
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
+    self.ignored_columns = ['package_id']
 
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
