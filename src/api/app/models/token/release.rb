@@ -14,17 +14,19 @@ class Token::Release < Token
     raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
+      opts = { filter_source_repository: release_target.repository,
+               manual: true,
+               comment: 'Releasing via trigger event' }
+      opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
       release_package(package_to_release,
                       release_target.target_repository,
                       package_to_release.release_target_name,
-                      { filter_source_repository: release_target.repository,
-                        manual: true,
-                        comment: 'Releasing via trigger event' })
+                      opts)
     end
   end
 
   def package_find_options
-    { use_source: true, follow_project_links: false, follow_multibuild: false }
+    { use_source: true, follow_project_links: false, follow_multibuild: true }
   end
 end
 
