@@ -3,14 +3,11 @@ class Workflow
     class BranchPackageStep
       include ActiveModel::Model
 
-      attr_reader :errors
-
       validates :source_project, :source_package, presence: true
 
       def initialize(step_instructions:, scm_extractor_payload:)
         @step_instructions = step_instructions.with_indifferent_access
         @scm_extractor_payload = scm_extractor_payload.with_indifferent_access
-        @errors = []
       end
 
       def allowed_event_and_action?
@@ -18,10 +15,10 @@ class Workflow
       end
 
       def call
-        return unless new_pull_request?
+        return unless valid? && new_pull_request?
 
         branched_package = branch
-        return if @errors.any?
+        return unless branched_package
 
         add_branch_request_file(package: branched_package)
 
@@ -35,7 +32,7 @@ class Workflow
       end
 
       def source_package
-        @step_instructions['source_package'] || ''
+        @step_instructions['source_package']
       end
 
       def target_package
@@ -76,14 +73,9 @@ class Workflow
                                     user: User.session.login)
 
         Package.find_by_project_and_name(target_project, target_package)
-      rescue BranchPackage::DoubleBranchPackageError
-        @errors << 'You have already branched this package'
-        nil
-      rescue CreateProjectNoPermission
-        @errors << 'Sorry, you are not authorized to create this Project.'
-        nil
-      rescue ArgumentError, Package::UnknownObjectError, Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid => e
-        @errors << "Failed to branch: #{e.message}"
+      rescue BranchPackage::DoubleBranchPackageError, CreateProjectNoPermission,
+             ArgumentError, Package::UnknownObjectError,
+             Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid
         nil
       end
 
