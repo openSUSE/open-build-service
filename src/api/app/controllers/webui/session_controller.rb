@@ -1,7 +1,7 @@
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
 
-  skip_before_action :check_anonymous, only: [:new, :create, :sso, :sso_callback]
+  skip_before_action :check_anonymous, only: [:new, :create, :sso, :sso_callback, :sso_confirm, :do_sso_confirm]
 
   def new
     switch_to_webui2
@@ -49,8 +49,8 @@ class Webui::SessionController < Webui::WebuiController
     user = User.find_with_omniauth(@auth_hash)
 
     unless user
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
-      redirect_to(session_new_path, error: 'Authentication failed')
+      session[:auth] = @auth_hash
+      redirect_to(sso_confirm_path)
       return
     end
 
@@ -66,6 +66,65 @@ class Webui::SessionController < Webui::WebuiController
 
     redirect_on_login
   end
+
+  def sso_confirm
+    switch_to_webui2
+    auth_hash = session[:auth]
+
+    if !auth_hash
+      redirect_to sso_path
+      return
+    end
+
+    @derived_username = auth_hash['info']['username'] ||
+                        auth_hash['info']['nickname'] ||
+                        auth_hash['info']['email'].rpartition("@")[0] ||
+                        auth_hash['info']['name'].gsub(' ', '_')
+  end
+
+  def do_sso_confirm
+    required_parameters :login
+    auth_hash = session[:auth]
+
+    if !auth_hash
+      redirect_to sso_path
+      return
+    end
+
+    existing_user = User.find_by_login(params[:login])
+    if existing_user
+      flash[:error] = "Username #{params[:login]} is already taken, choose a different one"
+      redirect_to sso_confirm_path
+      return
+    end
+
+    begin
+      user = User.create_with_omniauth(auth_hash, params[:login])
+    rescue ActiveRecord::ActiveRecordError
+      flash[:error] = "Invalid username, please try a different one"
+      redirect_to sso_confirm_path
+      return
+    end
+
+    unless user
+      flash[:error] = "Cannot create user"
+      redirect_to root_path
+      return
+    end
+
+    unless user.is_active?
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
+      redirect_to(root_path, error: 'Your account needs to be confirmed by the administrator.')
+      return
+    end
+
+    User.session = user
+    session[:login] = user.login
+    Rails.logger.debug "Authenticated user '#{user.login}'"
+
+    redirect_on_login
+  end
+
 
   private
 

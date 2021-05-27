@@ -425,6 +425,8 @@ OBSApi::Application.routes.draw do
       post 'session/create' => :create
       get 'session/sso' => :sso, as: 'sso'
       get 'session/sso/:provider/callback' => :sso_callback
+      get 'session/sso/:provider/confirm' => :sso_confirm, as: 'sso_confirm'
+      post 'session/sso/:provider/confirm' => :do_sso_confirm
       delete 'session/destroy' => :destroy
     end
 
@@ -502,7 +504,6 @@ OBSApi::Application.routes.draw do
   match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
   get 'build' => 'source#index'
-
   ### /published
 
   # :arch can be also a ymp for a pattern :/

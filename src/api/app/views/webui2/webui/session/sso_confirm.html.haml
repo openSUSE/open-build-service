@@ -1,0 +1,17 @@
+- @pagetitle = 'First Login'
+
+.card
+  .card-body#loginform
+    .col-lg-6.pl-0
+      - if can_register
+        %h3= @pagetitle
+        %p Since this is your first time you sign in, you need to choose your username.
+        = form_tag({ controller: 'session', action: 'sso_confirm', method: :post }, class: 'sign-up', autocomplete: 'off') do
+          .form-group
+            = label_tag 'login', 'Username:'
+            %abbr.text-danger{ title: 'required' } *
+            = text_field_tag 'login', @derived_username, placeholder: 'Username', autocomplete: 'off', class: 'form-control', required: true
+          = submit_tag('Confirm and Log In', class: 'btn btn-primary')
+      - else
+        %p Sorry, only existing users can sign in.
+
