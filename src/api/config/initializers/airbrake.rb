@@ -90,7 +90,9 @@ def ignore_by_backend_400_message?(message)
                         '<summary>broken link in', '<summary>bad files', 'does not exist</summary>',
                         'is illegal</summary>', '<summary>service in progress</summary>', '<summary>service error',
                         '<summary>could not apply patch', '<summary>illegal characters</summary>',
-                        '<summary>repoid is empty</summary>', '<summary>packid is empty</summary>'].freeze
+                        '<summary>repoid is empty</summary>', '<summary>packid is empty</summary>',
+                        '<summary>bad private key</summary>', '<summary>pubkey is already expired</summary>',
+                        '<summary>not a RSA pubkey</summary>', ' <summary>self-sig does not expire</summary>'].freeze
   messages_to_ignore.each do |ignored_error_message|
     return true if message.include?(ignored_error_message)
   end
