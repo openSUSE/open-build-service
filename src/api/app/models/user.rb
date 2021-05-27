@@ -164,12 +164,12 @@ class User < ApplicationRecord
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
 
-  def self.create_ldap_user(attributes = {})
-    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: 'User created via LDAP'))
+  def self.create_external_user(attributes = {})
+    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state))
 
     return user if user.errors.empty?
 
-    logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
+    logger.info("Cannot create external userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
     return
   end
 
@@ -214,7 +214,10 @@ class User < ApplicationRecord
       logger.debug("Email: #{ldap_info[0]}")
       logger.debug("Name : #{ldap_info[1]}")
 
-      user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+      user = create_external_user(login: login,
+                                  email: ldap_info[0],
+                                  realname: ldap_info[1],
+                                  adminnote: "User created via LDAP")
     end
 
     user.mark_login!
