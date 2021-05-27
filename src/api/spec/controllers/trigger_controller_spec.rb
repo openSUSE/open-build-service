@@ -282,19 +282,19 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#set_multibuild_flavor' do
     let(:multibuild_package) { create(:multibuild_package, name: 'package_a', project: project, flavors: ['libfoo1', 'libfoo2']) }
-    let(:multibuild_flavor) { "#{multibuild_package.name}:libfoo2" }
+    let(:multibuild_flavor) { 'libfoo2' }
 
     context 'with a token that allows multibuild' do
       let(:token) { Token::Rebuild.create(user: user) }
 
       it 'assigns flavor name' do
-        params = { project: project.name, package: multibuild_flavor, format: :xml }
+        params = { project: project.name, package: "#{multibuild_package.name}:#{multibuild_flavor}", format: :xml }
         post :create, params: params
-        expect(assigns(:package)).to eq(multibuild_flavor)
+        expect(assigns(:multibuild_container)).to eq(multibuild_flavor)
       end
 
       it 'authorizes package object' do
-        params = { project: project.name, package: multibuild_flavor, format: :xml }
+        params = { project: project.name, package: "#{multibuild_package.name}:#{multibuild_flavor}", format: :xml }
         post :create, params: params
         expect(assigns(:token).object_to_authorize).to eq(multibuild_package)
       end
