@@ -14,8 +14,7 @@ class Token::Workflow < Token
     package_from_step = if step && step.valid?
                           step.call
                         else
-                          # TODO: Raise a proper error
-                          raise 'Something something'
+                          raise 'Invalid workflow step definition'
                         end
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
