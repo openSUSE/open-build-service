@@ -1,11 +1,16 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/project/package_a
+    method: put
+    uri: http://backend:5352/source/project/_meta?user=user_3
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>Rosemary Sutcliff</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -25,21 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '295'
+      - '144'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="28" vrev="28" srcmd5="57db03b5e8c14e3e2ee3e078d8c71bf8">
-          <entry name="_config" md5="e3690c182f3376296ec2f0b9efdb3130" size="72" mtime="1620146664"/>
-          <entry name="_multibuild" md5="e2eefd88e351d165ca5708c73383daf0" size="73" mtime="1620058687"/>
-        </directory>
-  recorded_at: Tue, 04 May 2021 16:45:27 GMT
+        <project name="project">
+          <title>Rosemary Sutcliff</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 27 May 2021 15:11:55 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/project/package_a
+    method: put
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_4
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>The Cricket on the Hearth</title>
+          <description>Qui alias et est.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -59,21 +69,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '295'
+      - '152'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="28" vrev="28" srcmd5="57db03b5e8c14e3e2ee3e078d8c71bf8">
-          <entry name="_config" md5="e3690c182f3376296ec2f0b9efdb3130" size="72" mtime="1620146664"/>
-          <entry name="_multibuild" md5="e2eefd88e351d165ca5708c73383daf0" size="73" mtime="1620058687"/>
-        </directory>
-  recorded_at: Tue, 04 May 2021 16:45:27 GMT
+        <package name="package_trigger" project="project">
+          <title>The Cricket on the Hearth</title>
+          <description>Qui alias et est.</description>
+        </package>
+  recorded_at: Thu, 27 May 2021 15:11:55 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/project/package_a
+    method: put
+    uri: http://backend:5352/source/project/package_a/_meta?user=user_5
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <package name="package_a" project="project">
+          <title>The Line of Beauty</title>
+          <description>Ut ducimus in quo.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -93,21 +107,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '295'
+      - '140'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="28" vrev="28" srcmd5="57db03b5e8c14e3e2ee3e078d8c71bf8">
-          <entry name="_config" md5="e3690c182f3376296ec2f0b9efdb3130" size="72" mtime="1620146664"/>
-          <entry name="_multibuild" md5="e2eefd88e351d165ca5708c73383daf0" size="73" mtime="1620058687"/>
-        </directory>
-  recorded_at: Tue, 04 May 2021 16:45:27 GMT
+        <package name="package_a" project="project">
+          <title>The Line of Beauty</title>
+          <description>Ut ducimus in quo.</description>
+        </package>
+  recorded_at: Thu, 27 May 2021 15:11:55 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/project/package_a
+    method: put
+    uri: http://backend:5352/source/project/package_a/_config
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: Facilis qui asperiores. Velit occaecati dolores. Delectus rem quae.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -127,48 +141,60 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '295'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="28" vrev="28" srcmd5="57db03b5e8c14e3e2ee3e078d8c71bf8">
-          <entry name="_config" md5="e3690c182f3376296ec2f0b9efdb3130" size="72" mtime="1620146664"/>
-          <entry name="_multibuild" md5="e2eefd88e351d165ca5708c73383daf0" size="73" mtime="1620058687"/>
-        </directory>
-  recorded_at: Tue, 04 May 2021 16:45:27 GMT
+        <revision rev="5" vrev="5">
+          <srcmd5>c388f992be15ce2d4f72cfe43de65b65</srcmd5>
+          <version>unknown</version>
+          <time>1622128315</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 27 May 2021 15:11:55 GMT
 - request:
-    method: get
+    method: put
     uri: http://backend:5352/source/project/package_a/_multibuild
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '73'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
     body:
       encoding: UTF-8
       string: "<multibuild><flavor>libfoo1</flavor><flavor>libfoo2</flavor></multibuild>"
-  recorded_at: Tue, 04 May 2021 16:45:27 GMT
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>c388f992be15ce2d4f72cfe43de65b65</srcmd5>
+          <version>unknown</version>
+          <time>1622128315</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 27 May 2021 15:11:55 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/project?cmd=rebuild&package=package_a:libfoo2
+    uri: http://backend:5352/build/project?cmd=rebuild&package=package_a
     body:
       encoding: UTF-8
       string: ''
@@ -200,5 +226,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Tue, 04 May 2021 16:45:27 GMT
+  recorded_at: Thu, 27 May 2021 15:11:55 GMT
 recorded_with: VCR 6.0.0

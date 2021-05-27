@@ -22,7 +22,9 @@ class TriggerController < ApplicationController
   def create
     authorize @token
     @token.user.run_as do
-      @token.call(project: @project, package: @package, repository: params[:repository], arch: params[:arch])
+      opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch] }
+      opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
+      @token.call(opts)
       render_ok
     end
   end
@@ -80,34 +82,16 @@ class TriggerController < ApplicationController
   end
 
   def set_object_to_authorize
-    # By default we authorize against the package we found in set_package
-    @token.object_to_authorize = @package
-    # And only if we consider multibuild or project links we might need to do more complicated things...
-    return unless @token.follow_links?
-
-    # We found a local package
-    @token.object_to_authorize = if @package.is_a?(Package)
-                                   # If the package is coming through a project link, we authorize the project
-                                   # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
-                                   package_from_project_link? ? @project : @package
-                                   # We did not find a local package, have to authorize the project
-                                 else
-                                   @project
-                                 end
+    @token.object_to_authorize = package_from_project_link? ? @project : @package
   end
 
   def set_multibuild_flavor
-    # Only if we consider multibuild or project links we might need to do more complicated things...
-    return unless @token.follow_links?
-    # @package is a String if @project has a project link, no need to do anything then.
-    return unless @package.is_a?(Package)
-
-    # We use the package parameter if it is a valid multibuild flavor of the package
-    # See https://github.com/openSUSE/open-build-service/wiki/Links#mulitbuild-packages
-    @package = params[:package] if @package.multibuild_flavor?(params[:package])
+    # Do NOT use @package.multibuild_flavor? here because the flavor need to be checked for the right source revision
+    @multibuild_container = params[:package].gsub(/.*:/, '') if params[:package].present? && params[:package].include?(':')
   end
 
   def package_from_project_link?
-    @package.project != @project
+    # a remote package is always included via project link
+    !(@package.is_a?(Package) && @package.project == @project)
   end
 end
