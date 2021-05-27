@@ -19,6 +19,7 @@ package BSRepServer::Registry;
 
 use JSON::XS ();
 use Digest::SHA ();
+use Time::Local ();
 
 use BSConfiguration;
 use BSWatcher ':https';
@@ -35,6 +36,7 @@ use BSRepServer::Containerinfo;
 use strict;
 
 my $uploaddir = "$BSConfig::bsdir/upload";
+my $blobdir = "$BSConfig::bsdir/blobs";
 
 my %registry_authenticators;
 
@@ -75,6 +77,27 @@ sub extend_timestamp {
   return $tuf;
 }
 
+sub blobstore_put {
+  my ($f, $dir) = @_;
+  return unless $f =~ /^_blob\.sha256:([0-9a-f]{3})([0-9a-f]{61})$/s;
+  my ($d, $b) = ($1, $2);
+  my @s = stat("$blobdir/sha256/$d/$b");
+  if (!@s) {
+    mkdir_p("$blobdir/sha256/$d") unless -d "$blobdir/sha256/$d";
+    return if link("$dir/$f", "$blobdir/sha256/$d/$b");
+  }
+  return unless link("$blobdir/sha256/$d/$b", "$blobdir/sha256/$d/$b.$$");
+  return if rename("$blobdir/sha256/$d/$b.$$", "$dir/$f");
+  unlink("$blobdir/sha256/$d/$b.$$");
+}
+
+sub blobstore_get {
+  my ($f, $dir) = @_;
+  return undef unless $f =~ /^_blob\.sha256:([0-9a-f]{3})([0-9a-f]{61})$/s;
+  my ($d, $b) = ($1, $2);
+  return link("$blobdir/sha256/$d/$b", "$dir/$f") ? 1 : undef;
+}
+
 sub blob_matches_digest {
   my ($tmp, $digest) = @_;
   my $ctx;
@@ -99,6 +122,7 @@ sub download_blobs {
   $url .= '/' unless $url =~ /\/$/;
   for my $blob (@$blobs) {
     next if -e "$dir/_blob.$blob";
+    next if blobstore_get("_blob.$blob", $dir);
     my $tmp = "$dir/._blob.$blob.$$";
     my $authenticator = $registry_authenticators{"$url$regrepo"};
     $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc) unless $authenticator;
@@ -120,6 +144,7 @@ sub download_blobs {
       die("$bloburl: blob does not match digest\n");
     }
     rename($tmp, "$dir/_blob.$blob") || die("rename $tmp $dir/_blob.$blob: $!\n");
+    blobstore_put("_blob.$blob", $dir);
   }
   return 1;
 }
@@ -134,13 +159,24 @@ sub construct_containerinfo {
   unlink("$dir/$pkgname.containerinfo");
   unlink("$dir/$pkgname.obsbinlnk");
 
+  # try to get a timestamp from the config blob for reproducibility
+  my $mtime = time();
+  if (-e "$dir/_blob.$blobs->[0]" && -s _ < 65536) {
+    my $configjson = readstr("$dir/_blob.$blobs->[0]", 1) || '';
+    if ($configjson =~ /\"created\"\s*?:\s*?\"([123]\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
+      my $t = eval { Time::Local::timegm($6, $5, $4, $3, $2 - 1, $1) };
+      warn($@) if $@;
+      $mtime = $t if $t && $t < $mtime;
+    }
+  }
+
   # hack: get tags from provides
   my @tags;
   for (@{$data->{'provides' || []}}) {
     push @tags, $_ unless / = /;
   }
+  s/^container:// for @tags;
   push @tags, $data->{'name'} unless @tags;
-  my $mtime = time();
   my @layers = @$blobs;
   shift @layers;
   my $manifest = {
@@ -167,6 +203,11 @@ sub construct_containerinfo {
   # write obsbinlnk file (do this last!)
   my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
   $lnk->{'source'} = $lnk->{'name'};
+  # add self-provides
+  push @{$lnk->{'provides'}}, "$lnk->{'name'} = $lnk->{'version'}";
+  for my $tag (@{$containerinfo->{tags}}) {
+    push @{$lnk->{'provides'}}, "container:$tag" unless "container:$tag" eq $lnk->{'name'};
+  }
   BSVerify::verify_nevraquery($lnk);
   $lnk->{'hdrmd5'} = $containerinfo->{'tar_md5sum'};
   $lnk->{'path'} = "$pkgname.tar";
