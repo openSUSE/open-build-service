@@ -22,7 +22,7 @@ class TriggerController < ApplicationController
   def create
     authorize @token
     @token.user.run_as do
-      opts = {project: @project, package: @package, repository: params[:repository], arch: params[:arch]}
+      opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch] }
       opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
       @token.call(opts)
       render_ok
@@ -87,7 +87,7 @@ class TriggerController < ApplicationController
 
   def set_multibuild_flavor
     # Do NOT use @package.multibuild_flavor? here because the flavor need to be checked for the right source revision
-    @multibuild_container = params[:package].gsub(/.*:/, '') if params[:package].present? and params[:package].include?(':')
+    @multibuild_container = params[:package].gsub(/.*:/, '') if params[:package].present? && params[:package].include?(':')
   end
 
   def package_from_project_link?
