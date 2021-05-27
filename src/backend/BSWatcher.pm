@@ -281,6 +281,32 @@ sub rpc_error {
   }
 }
 
+sub rpc_error_job {
+  my ($jev, $uri, $err) = @_;
+  chomp $err;
+  $jev->{'rpcdone'} = $jev->{'rpcoriguri'} || $uri;
+  $jev->{'rpcerror'} = $err;
+  redo_request($jev);
+  delete $jev->{'rpcdone'};
+  delete $jev->{'rpcresult'};
+  delete $jev->{'rpcoriguri'};
+}
+
+sub rpc_result_hook {
+  my ($ev, $res, $hook) = @_;
+  my @jobs = @{$ev->{'joblist'} || []};
+  my $uri = $ev->{'rpcuri'};
+  for my $jev (@jobs) {
+    local $BSServerEvents::gev = $jev;
+    eval { $hook->($res, $ev->{'param'}) };
+    if ($@) {
+      rpc_error_job($jev, $uri, $@);
+    } else {
+      redo_request($jev);
+    }
+  }
+}
+
 sub rpc_result {
   my ($ev, $res) = @_;
   $ev->{'rpcstate'} = 'done';
@@ -289,6 +315,7 @@ sub rpc_result {
   delete $rpcs{$uri};
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
+  return rpc_result_hook($ev, $res, $ev->{'param'}->{'resulthook'}) if $ev->{'param'}->{'resulthook'};
   my @jobs = @{$ev->{'joblist'} || []};
   for my $jev (@jobs) {
     $jev->{'rpcdone'} = $jev->{'rpcoriguri'} || $uri;
@@ -318,12 +345,45 @@ sub rpc_redirect {
   delete $rpcs{$ev->{'rpcuri'}};
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
+  my $host = $ev->{'rpcdest'};
+  $host =~ s/:\d+$//;
   #print "redirecting to: $location\n";
   my @jobs = @{$ev->{'joblist'} || []};
   for my $jev (@jobs) {
     $jev->{'rpcoriguri'} ||= $ev->{'rpcuri'};
     local $BSServerEvents::gev = $jev;
-    rpc({%$param, 'uri' => $location, 'maxredirects' => $param->{'maxredirects'} - 1});
+    eval {
+      rpc({%$param, 'uri' => $location, 'maxredirects' => $param->{'maxredirects'} - 1, '_stripauthhost' => $host, 'verbatim_uri' => 1});
+    };
+    rpc_error_job($jev, $ev->{'rpcuri'}, $@) if $@;
+  }
+}
+
+sub rpc_authenticate {
+  my ($ev, $status, $authenticator, $headers) = @_;
+
+  delete $rpcs{$ev->{'rpcuri'}};
+  close $ev->{'fd'} if $ev->{'fd'};
+  delete $ev->{'fd'};
+  my @jobs = @{$ev->{'joblist'} || []};
+  my $param = $ev->{'param'};
+  for my $jev (@jobs) {
+    $jev->{'rpcoriguri'} ||= $ev->{'rpcuri'};
+    local $BSServerEvents::gev = $jev;
+    my $auth;
+    eval {
+      $auth = $param->{'authenticator'}->($param, $headers->{'www-authenticate'}, $headers);
+      if ($auth) {
+        my %myparam = ( %{$ev->{'param'}}, 'authenticator' => undef );
+	$myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
+        push @{$myparam{'headers'}}, "Authorization: $auth";
+	rpc(\%myparam);
+      } elsif (defined($auth)) {
+        die("$1 remote error: $2\n") if $status =~ /^(\d+) +(.*?)$/;
+        die("remote error: $status\n");
+      }
+    };
+    rpc_error_job($jev, $ev->{'rpcuri'}, $@) if $@;
   }
 }
 
@@ -797,9 +857,11 @@ sub rpc_recv_null {
 sub rpc_tossl {
   my ($ev) = @_;
 #  print "switching to https\n";
+  my $sni;
+  $sni = $1 if $ev->{'rpcdest'} && $ev->{'rpcdest'} =~ /^(.+):\d+$/;
   fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
   eval {
-    ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'}, $ev->{'param'}->{'ssl_keyfile'}, $ev->{'param'}->{'ssl_certfile'}, 1);
+    ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'}, $ev->{'param'}->{'ssl_keyfile'}, $ev->{'param'}->{'ssl_certfile'}, 1, $sni);
     if ($ev->{'param'}->{'sslpeerfingerprint'}) {
       die("bad sslpeerfingerprint '$ev->{'param'}->{'sslpeerfingerprint'}'\n") unless $ev->{'param'}->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
       my $pfp =  tied($ev->{'fd'})->peerfingerprint($1);
@@ -862,7 +924,11 @@ sub rpc_recv_handler {
   $ans = $2;
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
-  if ($status =~ /^302[^\d]/) {
+  if ($status =~ /^401[^\d]/ && $ev->{'param'}->{'authenticator'} && $headers{'www-authenticate'}) {
+    rpc_authenticate($ev, $status, $ev->{'param'}->{'authenticator'}, \%headers);
+    return undef;
+  }
+  if ($status =~ /^30[27][^\d]/) {
     rpc_redirect($ev, $headers{'location'});
     return;
   } elsif ($status !~ /^200[^\d]/) {
@@ -1085,6 +1151,11 @@ sub rpc {
     $uri = BSRPC::createuri($param, @args);
     push @xhdrs, 'Content-Type: application/x-www-form-urlencoded';
     push @xhdrs, "Content-Length: ".length($data);
+  }
+  if ($param->{'authenticator'} && !grep {/^authorization:/i} @xhdrs) {
+    # ask authenticator for cached authorization
+    my $auth = $param->{'authenticator'}->($param);
+    push @xhdrs, "Authorization: $auth" if $auth;
   }
 
   my $proxy = $param->{'proxy'};

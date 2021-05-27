@@ -312,6 +312,8 @@ sub check {
   if ($state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
+    $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, map {$_->{'name'}} @cbdep);
+    return ('blocked', $dods) if $dods;
   }
   return ($state, $data);
 }

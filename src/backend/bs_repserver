@@ -209,14 +209,19 @@ sub getbinaryversions {
       return unless defined $path;
       # TODO: move it out of the loop otherwise the same files might be queried multiple times
       my @s = stat($path);
-      $sizek = ($s[7] + 1023) >> 10;
-      $hdrmd5 = Build::queryhdrmd5($path);
+      if (!@s && $bin =~ /^container:/ && $path =~ /\.tar$/) {
+        $hdrmd5 = undef;
+      } else {
+        $sizek = ($s[7] + 1023) >> 10;
+        $hdrmd5 = Build::queryhdrmd5($path);
+      }
       $needscan = 1;
     }
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
       my $n = "$bin$1";
       my @s = stat($path);
       @s = BSRepServer::Containertar::stat_container($path) if $1 eq '.tar' && !@s;
+      $hdrmd5 = $s[20] if $s[20] && !defined($hdrmd5);
       push @res, {'name' => $n, 'hdrmd5' => $hdrmd5, 'sizek' => (($s[7] + 1023) >> 10)} if @s;
       next;
     }
@@ -1397,6 +1402,7 @@ sub getbinary_repository {
   return if $BSStdServer::isajax && !defined $serial;
   my $view = $cgi->{'view'} || '';
   my $path = "$reporoot/$projid/$repoid/$arch/:full/$bin";
+  my $path_fd;
   my $needscan;
   if (! -f $path) {
     # return by name
@@ -1423,11 +1429,18 @@ sub getbinary_repository {
     }
     undef $repo;
     undef $pool;
-    if ($path =~ /\.tar$/ && ! -f $path && !$BSStdServer::isajax) {
-      return getbinary_info($cgi, $projid, $repoid, $arch, $path, $path) if $view eq 'fileinfo' || $view eq 'fileinfo_ext';
-      return undef if BSRepServer::Containertar::reply_container($path);
+    if (! -f $path) {
+      die("404 $bin: $!\n") unless $bin =~ /^container:/ && $path =~ /\.tar$/;;
+      if ($view ne 'fileinfo' && $view ne 'fileinfo_ext') {
+	if (!$BSStdServer::isajax) {
+	  # use reply_container to directly send the blobs instead of constructing the complete tar
+	  forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
+          BSRepServer::Containertar::reply_container($path);
+	  return undef;
+	}
+        $path_fd = BSRepServer::Containertar::open_container($path);
+      }
     }
-    die("404 $bin: $!\n") unless -f $path;
   }
   BSWatcher::serialize_end($serial) if defined $serial;
   forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
@@ -1436,7 +1449,7 @@ sub getbinary_repository {
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $path=~ /\.rpm$/;
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
-  BSWatcher::reply_file($path, "Content-Type: $type");
+  BSWatcher::reply_file($path_fd || $path, "Content-Type: $type");
   return undef;
 }
 
@@ -1470,6 +1483,15 @@ sub getbinary {
   $type = 'application/x-debian-package' if $path=~ /\.deb$/;
   BSServer::reply_file($path, "Content-Type: $type");
   return undef;
+}
+
+sub missingdodresources {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  die("not a DoD repo '$projid/$repoid/$arch'\n") unless -s "$reporoot/$projid/$repoid/$arch/:full/doddata";
+  my $id = $arch;
+  $id = "$cgi->{'partition'}/$id" if $cgi->{'partition'};
+  BSRepServer::DoD::setmissingdodresources("$reporoot/$projid/$repoid/$arch", $id, $cgi->{'resource'});
+  return $BSStdServer::return_ok;
 }
 
 sub isolder {
@@ -4330,6 +4352,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   'POST:/build/$project cmd=move oproject:project' => \&moveproject,
+  'POST:/build/$project/$repository/$arch/_repository cmd=missingdodresources resource:* partition:?' => \&missingdodresources,
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,

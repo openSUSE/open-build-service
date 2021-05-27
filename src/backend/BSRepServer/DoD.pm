@@ -16,10 +16,13 @@
 #
 package BSRepServer::DoD;
 
+use Digest::SHA ();
+
 use BSWatcher ':https';
 use BSVerify;
 use BSHandoff;
 use BSStdServer;
+use BSUtil;
 
 use Build;
 
@@ -51,14 +54,54 @@ sub is_wanted_dodbinary {
   return 1;
 }
 
+sub is_wanted_dodcontainer {
+  my ($pool, $p, $path, $doverify) = @_;
+  my $q = BSUtil::retrieve("$path.obsbinlnk", 1);
+  return 0 unless $q;
+  my $data = $pool->pkg2data($p);
+  return 0 if $data->{'name'} ne $q->{'name'} || $data->{'version'} ne $q->{'version'};
+  BSVerify::verify_nevraquery($q) if $doverify;		# just in case
+  return 1;
+}
+
+sub fetchdodcontainer {
+  my ($gdst, $pool, $repo, $p, $handoff) = @_;
+
+  my $pkgname = $pool->pkg2name($p);
+  $pkgname =~ s/^container://;
+  BSVerify::verify_filename($pkgname);
+  BSVerify::verify_simple($pkgname);
+  my $dir = "$gdst/:full";
+
+  if (-e "$dir/$pkgname.obsbinlnk" && -e "$dir/$pkgname.containerinfo") {
+    # package exists, why are we called? verify that it matches our expectations
+    return "$dir/$pkgname.tar" if is_wanted_dodcontainer($pool, $p, "$dir/$pkgname");
+  }
+  # we really need to download, handoff to ajax if not already done
+  BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
+
+  # download all missing blobs
+  my $path = $pool->pkg2path($p);
+  die("bad DoD container path: $path\n") unless $path =~ /^(.*)\?(.*?)$/;
+  my $regrepo = $1;
+  my @blobs = split(',', $2);
+  return undef unless BSRepServer::Registry::download_blobs($dir, $repo->dodurl(), $regrepo, \@blobs, $proxy, $maxredirects);
+
+  # write containerinfo and obsbinlnk files
+  my $data = $pool->pkg2data($p);
+  BSRepServer::Registry::construct_containerinfo($dir, $pkgname, $data, \@blobs);
+  return "$dir/$pkgname.tar";
+}
+
 sub fetchdodbinary {
   my ($gdst, $pool, $repo, $p, $handoff) = @_;
 
   die($repo->name()." is no dod repo\n") unless $repo->dodurl();
+  my $pkgname = $pool->pkg2name($p);
+  return fetchdodcontainer($gdst, $pool, $repo, $p, $handoff) if $pkgname =~ /^container:/;
   my $path = $pool->pkg2path($p);
   die("$path has an unsupported suffix\n") unless $path =~ /\.($binsufsre)$/;
   my $suf = $1;
-  my $pkgname = $pool->pkg2name($p);
   if (defined(&BSSolv::pool::pkg2inmodule) && $pool->pkg2inmodule($p)) {
     $pkgname .= '-' . $pool->pkg2evr($p) . '.' . $pool->pkg2arch($p);
   }
@@ -100,6 +143,31 @@ sub fetchdodbinary {
   }
   rename($tmp, $localname) || die("rename $tmp $localname: $!\n");
   return $localname;
+}
+
+sub setmissingdodresources {
+  my ($gdst, $id, $dodresources) = @_;
+  my $dir = "$gdst/:full";
+  die("no doddata\n") unless -s "$dir/doddata";
+  my @dr = sort(BSUtil::unify(@$dodresources));
+  my $needed = BSUtil::retrieve("$dir/doddata.needed", 1);
+  return if $needed && BSUtil::identical($needed->{$id} || [], \@dr);
+  my $fd;
+  if (!BSUtil::lockopen($fd, '>>', "$dir/doddata.needed", 1)) {
+    warn("$dir/doddata.needed: $!\n");
+    return;
+  }
+  $needed = {};
+  $needed = BSUtil::retrieve("$dir/doddata.needed", 1) || {} if -s "$dir/doddata.needed";
+  if (!@dr) {
+    delete $needed->{$id};
+    delete $needed->{''}->{$id} if $needed->{''}; 
+  } else {
+    $needed->{$id} = \@dr;
+    $needed->{''}->{$id} = time();
+  }
+  BSUtil::store("$dir/.doddata.needed", "$dir/doddata.needed", $needed);
+  close($fd);
 }
 
 1;

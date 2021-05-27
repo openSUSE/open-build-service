@@ -1632,6 +1632,51 @@ sub getconfig {
   return $c;
 }
 
+=head2 getdodrepotype - get the repotype of a dod prp
+
+=cut
+
+sub getdodrepotype {
+  my ($gctx, $prp) = @_;
+  my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  my $myarch = $gctx->{'arch'};
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $proj = $projpacks->{$projid};
+  $proj = $remoteprojs->{$projid} if !$proj || $proj->{'remoteurl'};
+  return undef unless $proj;
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+  return undef unless $repo && $repo->{'download'};
+  my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
+  return $doddata ? $doddata->{'repotype'} || 'unset' : undef;
+}
+
+=head2 neededdodresources - get all requested dod resources for a dod repo
+
+=cut
+
+sub neededdodresources {
+  my ($gctx, $prp) = @_;
+  my $dodrepotype = getdodrepotype($gctx, $prp);
+  return [] unless $dodrepotype eq 'registry';
+  my $projpacks = $gctx->{'projpacks'};
+  my $rprpdeps = $gctx->{'rprpdeps'}->{$prp};
+  return [] unless $rprpdeps;
+  my %needed;
+  for my $aprp (@$rprpdeps) {
+    my ($aprojid, $arepoid) = split('/', $aprp, 2);
+    my $aproj = $projpacks->{$aprojid};
+    next unless $aproj;
+    my $pdatas = $aproj->{'package'} || {};
+    for my $pdata (values %$pdatas) {
+      my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdata->{'info'} || []})[0];
+      next unless $info;
+      $needed{$_} = 1 for grep {/^container:/} @{$info->{'dep'} || []};
+    }      
+  }
+  return [ sort keys %needed ];
+}
 
 =head2 orderpackids - sort package containers
 
