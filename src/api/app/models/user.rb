@@ -224,6 +224,33 @@ class User < ApplicationRecord
     user
   end
 
+  def self.find_with_omniauth(auth)
+    if auth
+      email = auth['info']['email']
+      user = find_by_email(email)
+      if user
+        user.mark_login!
+
+        return user
+      end
+    end
+  end
+
+  def self.create_with_omniauth(auth, login)
+    provider = CONFIG['sso_auth'][auth['provider']]['description']
+    email = auth['info']['email']
+    logger.debug("Creating OmniAuth user for #{provider}")
+    logger.debug("Email: #{email}")
+    logger.debug("Name : #{auth['info']['name']}")
+
+    user = create_external_user(login: login,
+                                email: email,
+                                realname: auth['info']['name'],
+                                deprecated_password_hash_type: 'invalid',
+                                adminnote: "User created via #{provider}")
+    user.mark_login!
+    user
+  end
   # Currently logged in user or nobody user if there is no user logged in.
   # Use this to check permissions, but don't treat it as logged in user. Check
   # is_nobody? on the returned object
