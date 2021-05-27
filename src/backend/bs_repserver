@@ -1485,6 +1485,15 @@ sub getbinary {
   return undef;
 }
 
+sub missingdodresources {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  die("not a DoD repo '$projid/$repoid/$arch'\n") unless -s "$reporoot/$projid/$repoid/$arch/:full/doddata";
+  my $id = $arch;
+  $id = "$cgi->{'partition'}/$id" if $cgi->{'partition'};
+  BSRepServer::DoD::setmissingdodresources("$reporoot/$projid/$repoid/$arch", $id, $cgi->{'resource'});
+  return $BSStdServer::return_ok;
+}
+
 sub isolder {
   my ($old, $new) = @_;
   return 0 if $old !~ /\.rpm$/;
@@ -4343,6 +4352,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   'POST:/build/$project cmd=move oproject:project' => \&moveproject,
+  'POST:/build/$project/$repository/$arch/_repository cmd=missingdodresources resource:* partition:?' => \&missingdodresources,
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,

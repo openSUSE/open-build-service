@@ -145,4 +145,29 @@ sub fetchdodbinary {
   return $localname;
 }
 
+sub setmissingdodresources {
+  my ($gdst, $id, $dodresources) = @_;
+  my $dir = "$gdst/:full";
+  die("no doddata\n") unless -s "$dir/doddata";
+  my @dr = sort(BSUtil::unify(@$dodresources));
+  my $needed = BSUtil::retrieve("$dir/doddata.needed", 1);
+  return if $needed && BSUtil::identical($needed->{$id} || [], \@dr);
+  my $fd;
+  if (!BSUtil::lockopen($fd, '>>', "$dir/doddata.needed", 1)) {
+    warn("$dir/doddata.needed: $!\n");
+    return;
+  }
+  $needed = {};
+  $needed = BSUtil::retrieve("$dir/doddata.needed", 1) || {} if -s "$dir/doddata.needed";
+  if (!@dr) {
+    delete $needed->{$id};
+    delete $needed->{''}->{$id} if $needed->{''}; 
+  } else {
+    $needed->{$id} = \@dr;
+    $needed->{''}->{$id} = time();
+  }
+  BSUtil::store("$dir/.doddata.needed", "$dir/doddata.needed", $needed);
+  close($fd);
+}
+
 1;

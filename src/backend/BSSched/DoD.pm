@@ -23,6 +23,7 @@ use Digest::MD5 ();
 
 use BSUtil;
 use BSSched::RPC;
+use BSSched::Blobstore;
 use BSXML;
 use BSHTTP;
 
@@ -82,7 +83,7 @@ sub readparsed {
 =cut
 
 sub put_doddata_in_cache {
-  my ($pool, $prp, $cache, $doddata, $dir) = @_;
+  my ($gctx, $doddata, $pool, $prp, $cache, $dir) = @_;
   if (!$doddata) {
     return (0, $cache) if !$cache || !$cache->dodurl();
     $cache->updatedoddata() if defined &BSSolv::repo::updatedoddata;
@@ -119,7 +120,7 @@ sub put_doddata_in_cache {
 =cut
 
 sub clean_obsolete_dodpackages {
-  my ($pool, $cache, $dir, @bins) = @_;
+  my ($gctx, $doddata, $pool, $prp, $cache, $dir, @bins) = @_;
 
   return @bins unless defined &BSSolv::repo::pkgpaths;
   my %paths = $cache->pkgpaths();
@@ -166,6 +167,16 @@ sub clean_obsolete_dodpackages {
     unlink("$dir/$path");
   }
   $cache->updatefrombins($dir, @nbins) if $nbinsdirty;
+
+  if ($clean_blobs && defined(&BSSolv::repo::getdodblobs)) {
+    my %blobs = map {$_ => 1} $cache->getdodblobs();
+    for my $blob (sort(grep {/^_blob\.(.*)$/ && !$blobs{$1}} ls($dir))) {
+      print "      - :full/$blob [DoD cleanup]\n";
+      unlink("$dir/$blob");
+      BSSched::Blobstore::blobstore_chk($gctx, $blob);
+    }
+  }
+
   return @nbins;
 }
 
@@ -177,6 +188,7 @@ sub clean_obsolete_dodpackages {
 
 sub dodcheck {
   my ($ctx, $pool, $arch, @pkgs) = @_;
+  return unless @pkgs;
   $ctx = $ctx->{'realctx'} if $ctx->{'realctx'};	# we need the real one to add entries
   my %names;
   if (defined &BSSolv::repo::dodcookie) {
@@ -382,6 +394,90 @@ sub init_doddata {
     $changed = 1;
   }
   BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
+}
+
+
+=head2 signalmissing_resume- TODO: add summary
+
+ TODO: add description
+
+=cut
+
+sub signalmissing_resume {
+  my ($ctx, $handle, $error) = @_;
+  my ($projid, $repoid) = split('/', $handle->{'_prp'}, 2);
+  my $gctx = $ctx->{'gctx'};
+  if ($error) {
+    if (BSSched::RPC::is_transient_error($error)) {
+      $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $gctx->{'arch'}});
+    }
+    return;
+  }
+}
+
+=head2 signalmissing - inform the dodup tool about missing dod resources
+
+=cut
+
+sub signalmissing {
+  my ($ctx, $prp, $arch, $dodresources) = @_;
+  return unless @{$dodresources || []};
+  my $gctx = $ctx->{'gctx'};
+  my $projpacks = $gctx->{'projpacks'};
+  my ($projid, $repoid) = split('/', $prp, 2);
+
+  if (!$projpacks->{$projid}) {
+    # dod from different partition, use repo server
+    my $remoteprojs = $gctx->{'remoteprojs'};
+    my $proj = $remoteprojs->{$projid};
+    return unless $proj;
+    return unless $proj->{'partition'};		# not supported yet
+    my $server = $proj->{'partition'} ? $proj->{'remoteurl'} : $BSConfig::srcserver;
+    my $param = {
+      'uri' => "$server/build/$prp/$arch",
+      'request' => 'POST',
+      'receiver' => \&BSHTTP::null_receiver,
+      'async' => {
+        '_resume' => \&signalmissing_resume,
+        '_changetype' => 'low',
+        '_prp' => $prp,
+      },
+    };
+    my @args = 'view=missingdodresources';
+    push @args, map {"resource=$_"} @$dodresources;
+    push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+    eval { $ctx->xrpc("missingdodresources/$prp", $param, undef, @args) };
+    if ($@) {
+      warn($@);
+      $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch });
+    }
+    return;
+  }
+
+  # local dod, directly modify
+  my $id = "$gctx->{'arch'}";
+  $id = "$BSConfig::partition/$id" if $BSConfig::partition;
+  my $dir = "$gctx->{'reporoot'}/$prp/$arch/:full";
+  mkdir_p($dir);
+  my @dr = sort(BSUtil::unify(@$dodresources));
+  my $needed = BSUtil::retrieve("$dir/doddata.needed", 1);
+  return $needed if $needed && BSUtil::identical($needed->{$id} || [], \@dr);
+  my $fd;
+  if (!BSUtil::lockopen($fd, '>>', "$dir/doddata.needed", 1)) {
+    warn("$dir/doddata.needed: $!\n");
+    return;
+  }
+  $needed = {};
+  $needed = BSUtil::retrieve("$dir/doddata.needed", 1) || {} if -s "$dir/doddata.needed";
+  if (!@dr) {
+    delete $needed->{$id};
+    delete $needed->{''}->{$id} if $needed->{''};
+  } else {
+    $needed->{$id} = \@dr;
+    $needed->{''}->{$id} = time();
+  }
+  BSUtil::store("$dir/.doddata.needed", "$dir/doddata.needed", $needed);
+  close($fd);
 }
 
 1;

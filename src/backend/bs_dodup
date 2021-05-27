@@ -15,12 +15,15 @@ use Encode;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Getopt::Long ();
+use JSON::XS;
 
 use BSConfiguration;
 use BSRPC ':https';
 use BSHTTP;
 use BSXML;
 use BSUtil;
+use BSContar;
+use BSBearer;
 use File::Temp ();
 
 use Build::Repo;
@@ -364,12 +367,230 @@ sub dod_mdk {
   return ($newcookie, $url);
 }
 
+sub getdodresources {
+  my ($doddata) = @_;
+  my $projid = $doddata->{'project'};
+  my $repoid = $doddata->{'repository'};
+  my $arch = $doddata->{'arch'};
+  my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
+  my $needed = BSUtil::retrieve("$repodir/doddata.needed", 1);
+  return () unless ref($needed) eq 'HASH';
+  my %dodresources;
+  for (values(%$needed)) {
+    next unless ref($_) eq 'ARRAY';
+    $dodresources{$_} = 1 for @$_;
+  }
+  return sort keys %dodresources;
+}
+
+my %registry_authenticators;
+my $registry_timeout = 60;
+
+sub registry_select_manifest {
+  my ($manifests, $arch) = @_;
+  my $goarch;
+  my $govariant;
+  if ($arch =~ /^i[3456]86$/) {
+    $goarch = '386';
+  } elsif ($arch eq 'x86_64') {
+    $goarch = 'amd64';
+  } elsif ($arch eq 'aarch64') {
+    $goarch = 'arm64';
+    $govariant= 'v8';
+  } elsif ($arch =~ /^arm(v\d+)/) {
+    $goarch = 'arm';
+    $govariant= $1;
+  } else {
+    $goarch = $arch;
+  }
+  for my $m (@{$manifests || []}) {
+    next unless $m->{'digest'};
+    my $platform = $m->{'platform'};
+    if ($platform) {
+      next if $goarch && $platform->{'architecture'} && $platform->{'architecture'} ne $goarch;
+      next if $govariant && $platform->{'variant'} && $platform->{'variant'} ne $govariant;
+    }
+    return $m;
+  }
+  return undef;
+}
+
+sub registry_valid_digest {
+  my ($what, $digest) = @_;
+  die("$what: missing digest\n") unless $digest;
+  return $digest if $digest =~ /^sha512:[a-fA-F0-9]{128}$/s;
+  return $digest if $digest =~ /^sha256:[a-fA-F0-9]{64}$/s;
+  die("$what: unknown digest '$digest'\n");
+}
+
+sub registry_fetch_manifest {
+  my ($url, $arch, $repo, $tag, $olddigest, $oldfatdigest, $fatdigest) = @_;
+
+  my $authenticator = $registry_authenticators{"$url/$repo"};
+  $authenticator = $registry_authenticators{"$url/$repo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1) unless $authenticator;
+
+  my $accept_hdr = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, $BSContar::mt_oci_manifest, $BSContar::mt_oci_index";
+  my $replyheaders;
+  my $param = {
+    'uri' => "$url/v2/$repo/manifests/$tag",
+    'headers' => [ $accept_hdr ],
+    'authenticator' => $authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'maxredirects' => 5,
+  };
+
+  # try a HEAD request first if we already have a digest
+  if ($olddigest || ($oldfatdigest && !$fatdigest)) {
+    $param->{'request'} = 'HEAD';
+    eval { BSRPC::rpc($param) };
+    return (undef, undef, $fatdigest) if $@ && $@ =~ /^404/;
+    die($@) if $@;
+    my $ct = $replyheaders->{'content-type'};
+    die("$repo/$tag: no content-type\n") unless $ct;
+    my $digest = $replyheaders->{'docker-content-digest'};
+    die("$repo/$tag: no docker-content-digest\n") unless $digest;
+    if ($ct eq $BSContar::mt_docker_manifestlist || $ct eq $BSContar::mt_oci_index) {
+      die("$repo/$tag: fat manifest points to another fat manifest\n") if $fatdigest;
+      return (undef, $olddigest, $oldfatdigest) if $olddigest && $oldfatdigest && $digest eq $oldfatdigest;
+    } else {
+      die("$repo/$tag: unknown content-type '$ct'\n") unless $ct eq $BSContar::mt_docker_manifest || $ct eq $BSContar::mt_oci_manifest;
+      return (undef, $digest, $fatdigest) if $olddigest && $olddigest eq $digest;
+    }
+    delete $param->{'request'};
+    undef $replyheaders;
+  }
+
+  my $mani_json;
+  eval { $mani_json = BSRPC::rpc($param) };
+  return (undef, undef, $fatdigest) if $@ && $@ =~ /^404/;
+  die($@) if $@;
+  my $ct = $replyheaders->{'content-type'};
+  die("$repo/$tag: no content-type\n") unless $ct;
+  my $digest = $replyheaders->{'docker-content-digest'};
+  die("$repo/$tag: no docker-content-digest\n") unless $digest;
+  registry_valid_digest("$repo/$tag docker-content-digest", $digest);
+  if ($ct eq $BSContar::mt_docker_manifestlist || $ct eq $BSContar::mt_oci_index) {
+    die("$repo/$tag: fat manifest points to another fat manifest\n") if $fatdigest;
+    $fatdigest = $digest;
+    my $mani = JSON::XS::decode_json($mani_json);
+    my $manifest = registry_select_manifest($mani->{'manifests'}, $arch);
+    return (undef, undef, $fatdigest) unless $manifest;
+    $digest = registry_valid_digest("$repo/$tag", $manifest->{'digest'});
+    return (undef, $digest, $fatdigest) if $olddigest && $olddigest eq $digest;
+    return registry_fetch_manifest($url, $arch, $repo, $digest, $olddigest, $oldfatdigest, $fatdigest);
+  }
+  die("$repo/$tag: unknown content-type '$ct'\n") unless $ct eq $BSContar::mt_docker_manifest || $ct eq $BSContar::mt_oci_manifest;
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $config = $mani->{'config'};
+  die("$repo/$tag: missing config\n") unless $config;
+  my @blobs;
+  push @blobs, registry_valid_digest("$repo/$tag config", $config->{'digest'});
+  for my $l (@{$mani->{'layers'} || []}) {
+    push @blobs, registry_valid_digest("$repo/$tag layer", $l->{'digest'});
+  }
+  return (\@blobs, $digest, $fatdigest);
+}
+
+# This needs to be in sync with BSRepServer::DoD!
+sub mangle_container_name {
+  my ($name) = @_;
+  $name =~ s/^container://;
+  $name =~ s/\//_/g;
+  $name = "_$name" if $name =~ /^_/;
+  return $name;
+}
+
+sub dod_registry {
+  my ($doddata, $cookie, $file) = @_;
+  my $arch = $doddata->{'arch'};
+  my @dodresources = getdodresources($doddata);
+  my $url = $doddata->{'url'};
+  $url =~ s/\/+$//;
+  my $cache = {};
+
+  $cookie ||= '0';
+  my $repodir = $file;
+  $repodir =~ s/\/[^\/]+$//;	# hack
+
+  my $oldcache = BSUtil::retrieve("$repodir/doddata", 1) || {};
+  my %olddodresources = map {$_ => 1} @{$oldcache->{'/dodresources'} || []};
+  my $oldfatmissing = ($oldcache->{'/fatmissing'} || [])->[0] || {};
+
+  my @newdodresources;
+  my %newfatmissing;
+
+  my ($changed, $unchanged, $missing, $broken) = (0, 0, 0, 0);
+
+  for my $resource (@dodresources) {
+    next unless $resource =~ /^container:(.*):([^\/:]+)$/s;
+    my ($repo, $tag) = ($1, $2);
+    my $oldentry;
+    $oldentry = $oldcache->{$resource} if $olddodresources{$resource};
+    my ($olddigest, $oldfatdigest);
+    ($olddigest, $oldfatdigest) = ($oldentry->{'version'}, $oldentry->{'fatdigest'}) if $oldentry;
+    $oldfatdigest = $oldfatmissing->{$resource} if !$oldentry;
+    my ($blobs, $digest, $fatdigest);
+    eval { ($blobs, $digest, $fatdigest) = registry_fetch_manifest($url, $arch, $repo, $tag, $olddigest, $oldfatdigest) };
+    if ($@) {
+      # resource is broken, reuse old entry if we have it
+      warn($@);
+      $broken++;
+      next unless $olddodresources{$resource};
+      push @newdodresources, $resource;
+      $cache->{$resource} = $oldentry if $oldentry;
+      $newfatmissing{$resource} = $oldfatdigest if !$oldentry && $oldfatdigest;
+      next;
+    }
+    push @newdodresources, $resource;
+    if (!$digest) {
+      # resource does not exist
+      $missing++;
+      $newfatmissing{$resource} = $fatdigest if $fatdigest;
+      next;
+    }
+    if (!$blobs) {
+      # resource is unchanged, use blobs from old entry
+      die unless $oldentry && $oldentry->{'path'} =~ /\?([^\?\/]+)$/s;
+      $blobs = [ split(',', $1) ];
+      $unchanged++;
+    } else {
+      $changed++;
+    }
+    my $version = $digest;
+    $version =~ s/.*://;
+    my $mangled_name = mangle_container_name($resource);
+    my @provides;
+    push @provides, "container:$mangled_name = $version-0";
+    push @provides, $resource unless $resource eq "container:$mangled_name";
+    my $pkg = {
+      'name' => "container:$mangled_name",
+      'version' => $version,
+      'release' => 0,
+      'provides' => \@provides,
+      'arch' => 'noarch',
+      'path' => "$repo?".join(',', @$blobs),
+      'digest' => $digest,
+    };
+    $pkg->{'fatdigest'} = $fatdigest if $fatdigest;
+    $cache->{$resource} = $pkg;
+  }
+  $cache->{'/dodresources'} = \@newdodresources;
+  $cache->{'/fatmissing'} = [ \%newfatmissing ] if %newfatmissing;
+  $cache->{'/url'} = $url;
+  print "  unchanged $unchanged, changed $changed, missing $missing, broken $broken\n";
+  return undef if BSUtil::identical($cache, $oldcache);
+  BSUtil::store($file, undef, $cache);
+  return $cookie + 1, $url
+}
+
 my %handler = (
   'arch'      => \&dod_arch,
   'deb'       => \&dod_deb,
   'susetags'  => \&dod_susetags,
   'rpmmd'     => \&dod_rpmmd,
   'mdk'       => \&dod_mdk,
+  'registry'  => \&dod_registry,
 );
 
 sub cmppkg {
@@ -414,6 +635,7 @@ sub addpkg {
 
 sub parsemetadata {
   my ($doddata, $file, $baseurl, $moduleinfo) = @_;
+  return if $doddata->{'repotype'} eq 'registry';
   my $cache = {};
   my $archfilter;
   if ($doddata->{'archfilter'}) {
@@ -586,7 +808,17 @@ sub daemon {
     my %nextcheck;
     for my $prpa (keys %doddatas) {
       my $doddata = $doddatas{$prpa};
-      $nextcheck{$prpa} = $doddata->{'lastcheck'} + ($doddata->{'haderror'} ? $checkinterval_error : $checkinterval_ok);
+      if ($doddata->{'haderror'}) {
+	$nextcheck{$prpa} = $doddata->{'lastcheck'} + $checkinterval_error;
+	next;
+      }
+      my $repodir = "$reporoot/$prpa/:full";
+      my @s = stat("$repodir/doddata.needed");
+      if (@s && $s[9] > $doddata->{'lastcheck'}) {
+        $nextcheck{$prpa} = $doddata->{'lastcheck'};
+      } else {
+        $nextcheck{$prpa} = $doddata->{'lastcheck'} + $checkinterval_ok;
+      }
     }
     # check em
     for my $prpa (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %doddatas) {
