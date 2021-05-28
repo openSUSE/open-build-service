@@ -3,10 +3,6 @@ require 'rails_helper'
 RSpec.describe Flipper do
   subject { Flipper.enabled?(feature, user) }
 
-  describe 'Flipper initialization' do
-    it { expect(Flipper.group_names).to contain_exactly(:beta, :rollout) }
-  end
-
   context 'when the feature is enabled for the flipper "beta" group' do
     let(:feature) { :group_feature }
 
