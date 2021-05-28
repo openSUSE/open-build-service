@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_50
+    uri: http://backend:5352/source/project/_meta?user=user_51
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Beneath the Bleeding</title>
+          <title>By Grand Central Station I Sat Down and Wept</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Beneath the Bleeding</title>
+          <title>By Grand Central Station I Sat Down and Wept</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:19 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_51
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_52
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:19 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_52
+    uri: http://backend:5352/source/target_project/_meta?user=user_53
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>His Dark Materials</title>
+          <title>The Cricket on the Hearth</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -108,16 +108,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>His Dark Materials</title>
+          <title>The Cricket on the Hearth</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
@@ -151,7 +151,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
@@ -159,8 +159,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -181,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
@@ -197,8 +197,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -219,15 +219,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=copy&comment=Release%20from%20project%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=project&user=foo&withacceptinfo=1&withvrev=1
@@ -262,12 +262,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1620056840</time>
+          <time>1623127650</time>
           <user>foo</user>
           <comment>Release from project / package_trigger</comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
@@ -275,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -297,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Labore molestias voluptatem quia.</description>
+          <title>The Man Within</title>
+          <description>Sed dignissimos beatae vitae.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -337,7 +337,7 @@ http_interactions:
       string: |
         <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger?view=info
@@ -370,7 +370,7 @@ http_interactions:
         <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -402,7 +402,7 @@ http_interactions:
       string: |
         <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -439,7 +439,7 @@ http_interactions:
           <new project="target_project" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=resumeproject&comment=Releasing%20via%20trigger%20event
@@ -473,5 +473,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
 recorded_with: VCR 6.0.0
