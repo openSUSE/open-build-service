@@ -3,6 +3,8 @@ module Event
     self.message_bus_routing_key = 'package.build_success'
     self.description = 'Package has succeeded building'
 
+    create_jobs :report_to_scm_job
+
     def state
       'success'
     end

@@ -2,7 +2,7 @@ class SCMStatusReporter
   attr_accessor :payload, :scm_token, :state
 
   def initialize(payload, scm_token, event_type = nil)
-    @payload = payload
+    @payload = payload.with_indifferent_access
     @scm_token = scm_token
 
     @state = event_type.nil? ? 'pending' : scm_final_state(event_type)
