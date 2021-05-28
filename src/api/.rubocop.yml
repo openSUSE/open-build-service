@@ -279,7 +279,7 @@ Rails/UniqueValidationWithoutIndex:
   Enabled: false
 
 # This encourages change_table that isn't inspectable by strong_migrations
-# and threfor less safe
+# and therefore, less safe
 Rails/BulkChangeTable:
   Enable: false
 
