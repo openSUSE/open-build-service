@@ -44,7 +44,8 @@ module TriggerControllerService
         source_branch: @payload.dig('pull_request', 'head', 'ref'),
         target_branch: @payload.dig('pull_request', 'base', 'ref'),
         action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-        repository_full_name: @payload.dig('pull_request', 'head', 'repo', 'full_name'),
+        source_repository_full_name: @payload.dig('pull_request', 'head', 'repo', 'full_name'),
+        target_repository_full_name: @payload.dig('pull_request', 'base', 'repo', 'full_name'),
         event: @event
       }.with_indifferent_access
     end

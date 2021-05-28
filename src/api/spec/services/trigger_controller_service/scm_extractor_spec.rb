@@ -57,13 +57,16 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           pull_request: {
             head: {
               repo: {
-                full_name: 'danidoni/test_repo',
+                full_name: 'iggy/source_repo',
                 html_url: 'https://github.com/openSUSE/open-build-service'
               },
               ref: 'add-changes',
               sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
             },
             base: {
+              repo: {
+                full_name: 'iggy/target_repo',
+              },
               ref: 'main'
             }
           },
@@ -79,7 +82,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           source_branch: 'add-changes',
           target_branch: 'main',
           action: 'opened',
-          repository_full_name: 'danidoni/test_repo',
+          source_repository_full_name: 'iggy/source_repo',
+          target_repository_full_name: 'iggy/target_repo',
           event: 'pull_request'
         }
       end

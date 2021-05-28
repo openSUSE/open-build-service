@@ -11,8 +11,8 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
     end
 
     context 'github' do
-      let(:payload) { { scm: 'github', target_branch: 'master', repository_full_name: 'openSUSE/obs-server' } }
-      let(:url) { "https://raw.githubusercontent.com/#{payload[:repository_full_name]}/#{payload[:target_branch]}/.obs/workflows.yml" }
+      let(:payload) { { scm: 'github', target_branch: 'master', target_repository_full_name: 'openSUSE/obs-server' } }
+      let(:url) { "https://raw.githubusercontent.com/#{payload[:target_repository_full_name]}/#{payload[:target_branch]}/.obs/workflows.yml" }
 
       it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
     end
