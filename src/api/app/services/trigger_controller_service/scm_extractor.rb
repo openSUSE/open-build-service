@@ -38,7 +38,6 @@ module TriggerControllerService
     def github_extractor_payload
       {
         scm: 'github',
-        repo_url: @payload.dig('pull_request', 'head', 'repo', 'html_url'),
         commit_sha: @payload.dig('pull_request', 'head', 'sha'),
         pr_number: @payload['number'],
         source_branch: @payload.dig('pull_request', 'head', 'ref'),
