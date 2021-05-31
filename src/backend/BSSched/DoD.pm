@@ -432,9 +432,8 @@ sub signalmissing {
     my $proj = $remoteprojs->{$projid};
     return unless $proj;
     return unless $proj->{'partition'};		# not supported yet
-    my $server = $proj->{'partition'} ? $proj->{'remoteurl'} : $BSConfig::srcserver;
     my $param = {
-      'uri' => "$server/build/$prp/$arch",
+      'uri' => "$BSConfig::srcserver/build/$prp/$arch/_repository",
       'request' => 'POST',
       'receiver' => \&BSHTTP::null_receiver,
       'async' => {
@@ -443,7 +442,7 @@ sub signalmissing {
         '_prp' => $prp,
       },
     };
-    my @args = 'view=missingdodresources';
+    my @args = 'cmd=missingdodresources';
     push @args, map {"resource=$_"} @$dodresources;
     push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
     eval { $ctx->xrpc("missingdodresources/$prp", $param, undef, @args) };
