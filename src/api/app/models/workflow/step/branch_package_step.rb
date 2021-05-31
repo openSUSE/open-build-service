@@ -108,7 +108,7 @@ class Workflow
           action: @scm_extractor_payload[:action],
           pull_request: {
             head: {
-              repo: { full_name: @scm_extractor_payload[:repository_full_name] },
+              repo: { full_name: @scm_extractor_payload[:source_repository_full_name] },
               sha: @scm_extractor_payload[:commit_sha]
             }
           }
