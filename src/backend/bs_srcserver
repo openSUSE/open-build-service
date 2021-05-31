@@ -5436,6 +5436,21 @@ sub postrepo {
   return ($res, $BSXML::collection);
 }
 
+sub missingdodresources {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $param = {
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository",
+    'request' => 'POST',
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  my @args = BSRPC::args($cgi, 'resource', 'partition');
+  BSWatcher::rpc($param, undef, 'cmd=missingdodresources', @args);
+  return undef;
+}
+
 ####################################################################
 
 sub service {
@@ -7218,6 +7233,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '!- /build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory,
+  'POST:/build/$project/$repository/$arch/_repository cmd=missingdodresources resource:* partition:?' => \&missingdodresources,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? multibuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
