@@ -1248,6 +1248,7 @@ class Package < ApplicationRecord
     params = {}
     params[:comment] = opt[:comment] if opt[:comment]
     params[:user] = User.session!.login
+    params[:rev] = opt[:rev] if opt[:rev]
     Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
 
     # KIWI file

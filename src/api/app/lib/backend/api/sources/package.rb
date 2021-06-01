@@ -149,6 +149,12 @@ module Backend
           http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content, params: params)
         end
 
+        # Writes source filelist to the package
+        # @return [String]
+        def self.write_filelist(project_name, package_name, filelist, params = {})
+          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :commitfilelist }, data: filelist, params: params)
+        end
+
         # Deletes the package and all the source files inside
         def self.delete(project_name, package_name)
           http_delete(['/source/:project/:package', project_name, package_name])

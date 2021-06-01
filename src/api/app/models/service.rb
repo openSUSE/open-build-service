@@ -57,7 +57,6 @@ class Service
       service_content << { name: 'filename', value: filename } if filename.present?
       add_service('download_url', service_content)
     end
-    true
   end
 
   def add_kiwi_import

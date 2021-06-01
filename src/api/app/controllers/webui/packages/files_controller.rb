@@ -12,55 +12,45 @@ module Webui
       def create
         authorize @package, :update?
 
-        file = params[:file]
-        file_url = params[:file_url]
-        filename = params[:filename]
+        upload_service = FileService::Uploader.new(@package, params[:files],
+                                  params[:files_new], params[:file_urls],
+                                  params[:comment])
+        upload_service.call
+        errors = upload_service.errors
+        added_files = upload_service.added_files.join(', ')
+
+        if errors.blank?
+          redirect_to(package_show_path(project: @project, package: @package),
+                                        success: "'#{added_files}' has been successfully saved.")
+        else
+          redirect_back(fallback_location: root_path, error: "Error while adding '#{added_files}':
+                                                              #{errors.compact.join("\n")}.")
+        end
+      end
+
+      def update
+        return unless request.xhr?
+
+        authorize @package, :update?
 
         errors = []
 
         begin
-          if file.present?
-            # We are getting an uploaded file
-            filename = file.original_filename if filename.blank?
-            @package.save_file(file: file, filename: filename, comment: params[:comment])
-          elsif file_url.present?
-            # we have a remote file URI, so we have to download and save it
-            services = @package.services
-
-            # detects automatically git://, src.rpm formats
-            services.add_download_url(file_url, filename)
-
-            errors << "Failed to add file from URL '#{file_url}'" unless services.save
-          elsif filename.present? # No file is provided so we just create an empty new file (touch)
-            @package.save_file(filename: filename)
-          else
-            errors << 'No file or URI given'
-          end
+          @package.save_file(file: params[:file], filename: params[:filename],
+                             comment: params[:comment])
+        rescue APIError => e
+          errors << e.message
         rescue Backend::Error => e
           errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
-        rescue APIError, StandardError => e
+        rescue StandardError => e
           errors << e.message
         end
 
-        if errors.empty?
-          message = "The file '#{filename}' has been successfully saved."
-          # We have to check if it's an AJAX request or not
-          if request.xhr?
-            flash.now[:success] = message
-          else
-            redirect_to(package_show_path(project: @project, package: @package), success: message)
-            return
-          end
+        if errors.blank?
+          flash.now[:success] = "'#{params[:filename]}' has been successfully saved."
         else
-          message = "Error while creating '#{filename}' file: #{errors.compact.join("\n")}."
-          # We have to check if it's an AJAX request or not
-          if request.xhr?
-            flash.now[:error] = message
-            status = 400
-          else
-            redirect_back(fallback_location: root_path, error: message)
-            return
-          end
+          flash.now[:error] = "Error while adding '#{params[:filename]}': #{errors.compact.join("\n")}."
+          status = 400
         end
 
         status ||= 200
