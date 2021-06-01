@@ -525,6 +525,7 @@ sub dod_registry {
   for my $resource (@dodresources) {
     next unless $resource =~ /^container:(.*):([^\/:]+)$/s;
     my ($repo, $tag) = ($1, $2);
+    $repo = "library/$repo" if $url =~ /docker\.io$/ && $repo !~ /\//;
     my $oldentry;
     $oldentry = $oldcache->{$resource} if $olddodresources{$resource};
     my ($olddigest, $oldfatdigest);

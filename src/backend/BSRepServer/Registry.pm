@@ -175,8 +175,8 @@ sub construct_containerinfo {
   for (@{$data->{'provides' || []}}) {
     push @tags, $_ unless / = /;
   }
-  s/^container:// for @tags;
   push @tags, $data->{'name'} unless @tags;
+  s/^container:// for @tags;
   my @layers = @$blobs;
   shift @layers;
   my $manifest = {
