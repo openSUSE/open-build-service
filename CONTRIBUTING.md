@@ -95,7 +95,7 @@ with some problem or decision, have no time to drive a pull-request over the
 finishing line or if you just want to ask a simple question just get in contact
 with us in the pull-request, over the
 developer [mailing list](https://lists.opensuse.org/obs-devel) or our
-IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
+IRC channel (irc://irc.libra.chat/openSUSE-buildservice).
 
 # How to Review Code Submissions
 
