@@ -5,7 +5,7 @@ class Workflow
     class BranchPackageStep
       include ActiveModel::Model
 
-      validates :source_project, :source_package, presence: true
+      validates :source_project_name, :source_package_name, presence: true
 
       def initialize(step_instructions:, scm_extractor_payload:, token:)
         @step_instructions = step_instructions.with_indifferent_access
@@ -14,43 +14,52 @@ class Workflow
       end
 
       def allowed_event_and_action?
-        new_pull_request?
+        new_pull_request? || updated_pull_request?
       end
 
       def call
-        return unless valid? && new_pull_request?
+        return unless valid? && allowed_event_and_action?
 
-        branched_package = branch
+        branched_package = find_or_create_branched_package
         return unless branched_package
 
-        add_branch_request_file(package: branched_package)
-
+        add_or_update_branch_request_file(package: branched_package)
         create_or_update_subscriptions(branched_package)
         branched_package
       end
 
-      def source_project
+      def source_project_name
         @step_instructions['source_project']
       end
 
-      def source_package
+      def source_package_name
         @step_instructions['source_package']
       end
 
-      def target_package
+      def target_package_name
         return @step_instructions['target_package'] if @step_instructions['target_package'].present?
 
-        source_package
+        source_package_name
       end
 
-      def target_project
-        "home:#{@token.user.login}:#{source_project}:PR-#{@scm_extractor_payload[:pr_number]}"
+      def target_project_name
+        "home:#{@token.user.login}:#{source_project_name}:PR-#{@scm_extractor_payload[:pr_number]}"
       end
 
       private
 
+      def target_package
+        Package.find_by_project_and_name(target_project_name, target_package_name)
+      end
+
+      def find_or_create_branched_package
+        return target_package if updated_pull_request? && target_package.present?
+
+        branch
+      end
+
       def remote_source?
-        return true if Project.find_remote_project(source_project)
+        return true if Project.find_remote_project(source_project_name)
 
         false
       end
@@ -59,23 +68,23 @@ class Workflow
         return if remote_source?
 
         options = { use_source: false, follow_project_links: true, follow_multibuild: true }
-        src_package = Package.get_by_project_and_name(source_project, source_package, options)
+        src_package = Package.get_by_project_and_name(source_project_name, source_package_name, options)
 
         raise Pundit::NotAuthorizedError unless PackagePolicy.new(@token.user, src_package).create_branch?
       end
 
       def branch
         check_source_access
-        BranchPackage.new({ project: source_project, package: source_package,
-                            target_project: target_project,
-                            target_package: target_package }).branch
+        BranchPackage.new({ project: source_project_name, package: source_package_name,
+                            target_project: target_project_name,
+                            target_package: target_package_name }).branch
 
-        Event::BranchCommand.create(project: source_project, package: source_package,
-                                    targetproject: target_project,
-                                    targetpackage: target_package,
+        Event::BranchCommand.create(project: source_project_name, package: source_package_name,
+                                    targetproject: target_project_name,
+                                    targetpackage: target_package_name,
                                     user: @token.user.login)
 
-        Package.find_by_project_and_name(target_project, target_package)
+        target_package
       rescue BranchPackage::DoubleBranchPackageError, CreateProjectNoPermission,
              ArgumentError, Package::UnknownObjectError,
              Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid
@@ -95,18 +104,23 @@ class Workflow
           (gitlab_merge_request? && @scm_extractor_payload[:action] == 'open')
       end
 
-      def add_branch_request_file(package:)
+      def updated_pull_request?
+        (github_pull_request? && @scm_extractor_payload[:action] == 'synchronize') ||
+          (gitlab_merge_request? && @scm_extractor_payload[:action] == 'update')
+      end
+
+      def add_or_update_branch_request_file(package:)
         branch_request_file = case @scm_extractor_payload[:scm]
                               when 'github'
-                                branch_request_file_github
+                                branch_request_content_github
                               when 'gitlab'
-                                branch_request_file_gitlab
+                                branch_request_content_gitlab
                               end
 
         package.save_file({ file: branch_request_file, filename: '_branch_request' })
       end
 
-      def branch_request_file_github
+      def branch_request_content_github
         {
           action: @scm_extractor_payload[:action],
           pull_request: {
@@ -118,21 +132,21 @@ class Workflow
         }.to_json
       end
 
-      def branch_request_file_gitlab
+      def branch_request_content_gitlab
         { object_kind: @scm_extractor_payload[:object_kind],
           project: { http_url: @scm_extractor_payload[:http_url] },
           object_attributes: { source: { default_branch: @scm_extractor_payload[:commit_sha] } } }.to_json
       end
 
-      def create_or_update_subscriptions(package)
+      def create_or_update_subscriptions(branched_package)
         ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-          subscription = EventSubscription.first_or_create!(eventtype: build_event,
-                                                            receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                                            user: @token.user,
-                                                            channel: 'scm',
-                                                            enabled: true,
-                                                            token: @token,
-                                                            package: package)
+          subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
+                                                              receiver_role: 'reader', # We pass a valid value, but we don't need this.
+                                                              user: @token.user,
+                                                              channel: 'scm',
+                                                              enabled: true,
+                                                              token: @token,
+                                                              package: branched_package)
           subscription.update!(payload: @scm_extractor_payload)
         end
       end
