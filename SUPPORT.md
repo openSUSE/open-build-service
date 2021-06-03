@@ -5,8 +5,8 @@ and we are always willing to help you. :green_heart:
 So, if you have doubts or need help with something, do not hesitate to ping us!
 
 You can write the OBS Team via IRC on the channel
-[#opensuse-buildservice](irc://irc.libra.chat/opensuse-buildservice)
-on Libra.Chat.
+[#opensuse-buildservice](irc://irc.libera.chat/opensuse-buildservice)
+on Libera.Chat.
 Or using our mailing list
 [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org).
 You can also contact each of us directly. 
