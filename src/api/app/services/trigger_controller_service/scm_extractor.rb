@@ -1,8 +1,8 @@
 module TriggerControllerService
   # NOTE: this class is coupled to GitHub pull requests events and GitLab merge requests events.
   class ScmExtractor
-    ALLOWED_GITHUB_ACTIONS = ['opened', 'synchronize', 'closed'].freeze
-    ALLOWED_GITLAB_ACTIONS = ['open', 'update', 'close', 'reopen', 'merge'].freeze
+    ALLOWED_GITHUB_ACTIONS = ['opened'].freeze
+    ALLOWED_GITLAB_ACTIONS = ['open'].freeze
 
     def initialize(scm, event, payload)
       # TODO: What should we do when the user sends a wwwurlencoded payload? Raise an exception?
