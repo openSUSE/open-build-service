@@ -71,7 +71,7 @@ module MaintenanceHelper
     u_ids = if target.is_a?(Repository)
               copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
             else
-              copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)
+              copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease, manual)
             end
 
     # create or update main package linking to incident package
@@ -180,12 +180,14 @@ module MaintenanceHelper
   end
 
   def copy_binaries(filter_source_repository, source_package, target_package_name, target_project,
-                    multibuild_container, setrelease)
+                    multibuild_container, setrelease, manual)
     update_ids = []
     source_package.project.repositories.each do |source_repo|
       next if filter_source_repository && filter_source_repository != source_repo
 
       source_repo.release_targets.each do |releasetarget|
+        next if manual && releasetarget.trigger != 'manual'
+
         # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == target_project
           u_id = copy_binaries_to_repository(source_repo, source_package, releasetarget.target_repository,
