@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   include FlipperFeature
 
   include RescueHandler
+  include SetCurrentRequestDetails
 
   # session :disabled => true
 
