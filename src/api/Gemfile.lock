@@ -440,7 +440,7 @@ GEM
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     terminal-table (1.6.0)
-    test-unit (3.4.2)
+    test-unit (3.4.4)
       power_assert
     thinking-sphinx (5.1.0)
       activerecord (>= 4.2.0)
