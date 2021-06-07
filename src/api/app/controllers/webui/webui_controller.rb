@@ -11,6 +11,7 @@ class Webui::WebuiController < ActionController::Base
   include Pundit
   include FlipperFeature
   include Webui::RescueHandler
+  include SetCurrentRequestDetails
   protect_from_forgery
 
   before_action :set_influxdb_data
