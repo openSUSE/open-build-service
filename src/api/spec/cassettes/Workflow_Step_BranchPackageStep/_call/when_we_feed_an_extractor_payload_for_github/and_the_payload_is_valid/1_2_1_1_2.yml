@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_13
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="foo_project">
-          <title>This Lime Tree Bower</title>
+        <project name="home:Iggy">
+          <title/>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -30,25 +30,65 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>This Lime Tree Bower</title>
+          <title>A Catskill Eagle</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>A Catskill Eagle</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 26 May 2021 14:52:12 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_14
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
         </package>
-  recorded_at: Wed, 26 May 2021 14:52:12 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Velit molestiae corporis. Ut vitae harum. Laborum est quos.
+      string: Libero in error. Odit odio iure. Sint sed repellendus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -107,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="31" vrev="31">
-          <srcmd5>b2c2db133f933b16a9823ad4701e88ae</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>25bb090afd7a6b7fbd124edf8a6ee954</srcmd5>
           <version>unknown</version>
-          <time>1622040732</time>
+          <time>1623150398</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 26 May 2021 14:52:12 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Nulla labore dolorem. Quos dolor veniam. Nam aut ipsum.
+      string: Nihil cupiditate eos. Suscipit quis quaerat. Atque nemo aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,15 +185,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="32" vrev="32">
-          <srcmd5>80baf2d20717e3c0831f4502aa7b0dd2</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>9c3df90a62ca0fa13d4520847db52308</srcmd5>
           <version>unknown</version>
-          <time>1622040732</time>
+          <time>1623150398</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 26 May 2021 14:52:12 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -187,14 +227,14 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 26 May 2021 14:52:12 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project:PR-1/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="foo_project:PR-1">
+        <project name="home:Iggy:foo_project:PR-1">
           <title>Branch project for package bar_package</title>
           <description>This project was created for package bar_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -218,25 +258,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '252'
+      - '262'
     body:
       encoding: UTF-8
       string: |
-        <project name="foo_project:PR-1">
+        <project name="home:Iggy:foo_project:PR-1">
           <title>Branch project for package bar_package</title>
           <description>This project was created for package bar_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 26 May 2021 14:52:12 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="foo_project:PR-1">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
+        <package name="bar_package" project="home:Iggy:foo_project:PR-1">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -257,328 +297,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '187'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="foo_project:PR-1">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
+        <package name="bar_package" project="home:Iggy:foo_project:PR-1">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
         </package>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '204'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>f7e389e0b2eed159c90641ed7544c414</srcmd5>
-          <version>unknown</version>
-          <time>1622040733</time>
-          <user>Iggy</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package/_meta?user=Iggy
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package" project="foo_project:PR-1">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package" project="foo_project:PR-1">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
-        </package>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '618'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="bar_package" rev="9" vrev="9" srcmd5="f7e389e0b2eed159c90641ed7544c414">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="80baf2d20717e3c0831f4502aa7b0dd2" baserev="80baf2d20717e3c0831f4502aa7b0dd2" xsrcmd5="a205ee56ea990df3d37cfdf08643fca5" lsrcmd5="f7e389e0b2eed159c90641ed7544c414"/>
-          <entry name="_config" md5="a915f4f1510278df45d3644738a671ac" size="59" mtime="1622040732"/>
-          <entry name="_link" md5="5023bae2ef5326060032541d34984d91" size="119" mtime="1622040733"/>
-          <entry name="somefile.txt" md5="8d607e7436333cc0db65c735e2fe4ac3" size="55" mtime="1622040732"/>
-        </directory>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '329'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="bar_package" rev="9" vrev="41" srcmd5="a205ee56ea990df3d37cfdf08643fca5" lsrcmd5="f7e389e0b2eed159c90641ed7544c414" verifymd5="80baf2d20717e3c0831f4502aa7b0dd2">
-          <error>bad build configuration, no build type defined or detected</error>
-          <linked project="foo_project" package="bar_package"/>
-        </sourceinfo>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '618'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="bar_package" rev="9" vrev="9" srcmd5="f7e389e0b2eed159c90641ed7544c414">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="80baf2d20717e3c0831f4502aa7b0dd2" baserev="80baf2d20717e3c0831f4502aa7b0dd2" xsrcmd5="a205ee56ea990df3d37cfdf08643fca5" lsrcmd5="f7e389e0b2eed159c90641ed7544c414"/>
-          <entry name="_config" md5="a915f4f1510278df45d3644738a671ac" size="59" mtime="1622040732"/>
-          <entry name="_link" md5="5023bae2ef5326060032541d34984d91" size="119" mtime="1622040733"/>
-          <entry name="somefile.txt" md5="8d607e7436333cc0db65c735e2fe4ac3" size="55" mtime="1622040732"/>
-        </directory>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '316'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="967bfe906bf9187149ccad01dc77afd8">
-          <old project="foo_project:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="foo_project:PR-1" package="bar_package" rev="9" srcmd5="f7e389e0b2eed159c90641ed7544c414"/>
-          <files/>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '350'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="b761d9270be1c9c6454a3a3d720f74ca">
-          <old project="foo_project" package="bar_package" rev="80baf2d20717e3c0831f4502aa7b0dd2" srcmd5="80baf2d20717e3c0831f4502aa7b0dd2"/>
-          <new project="foo_project:PR-1" package="bar_package" rev="a205ee56ea990df3d37cfdf08643fca5" srcmd5="a205ee56ea990df3d37cfdf08643fca5"/>
-          <files/>
-        </sourcediff>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo_project:PR-1/_meta?user=Iggy
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="foo_project:PR-1">
-          <title>Branch project for package bar_package</title>
-          <description>This project was created for package bar_package via attribute OBS:Maintained</description>
-          <person userid="Iggy" role="maintainer"/>
-          <publish>
-            <disable/>
-          </publish>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '292'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="foo_project:PR-1">
-          <title>Branch project for package bar_package</title>
-          <description>This project was created for package bar_package via attribute OBS:Maintained</description>
-          <person userid="Iggy" role="maintainer"/>
-          <publish>
-            <disable/>
-          </publish>
-        </project>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package/_branch_request?user=Iggy
-    body:
-      encoding: UTF-8
-      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'
-    headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -601,24 +337,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>7803d8a1653a393981489b45be4f9f01</srcmd5>
+        <revision rev="11" vrev="11">
+          <srcmd5>696d936075286c0d3ec2c62281f78d37</srcmd5>
           <version>unknown</version>
-          <time>1622040733</time>
+          <time>1623150398</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="foo_project:PR-1">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
+        <package name="bar_package" project="home:Iggy:foo_project:PR-1">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -639,18 +375,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '187'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="foo_project:PR-1">
-          <title>Behold the Man</title>
-          <description>Reprehenderit ipsum eum quia.</description>
+        <package name="bar_package" project="home:Iggy:foo_project:PR-1">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
         </package>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
     body:
       encoding: US-ASCII
       string: ''
@@ -673,21 +409,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '722'
+      - '620'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="10" vrev="10" srcmd5="7803d8a1653a393981489b45be4f9f01">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="80baf2d20717e3c0831f4502aa7b0dd2" baserev="80baf2d20717e3c0831f4502aa7b0dd2" xsrcmd5="5fb2a0cd59cbb163fcffe56667dbbd14" lsrcmd5="7803d8a1653a393981489b45be4f9f01"/>
-          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1622034474"/>
-          <entry name="_config" md5="a915f4f1510278df45d3644738a671ac" size="59" mtime="1622040732"/>
-          <entry name="_link" md5="5023bae2ef5326060032541d34984d91" size="119" mtime="1622040733"/>
-          <entry name="somefile.txt" md5="8d607e7436333cc0db65c735e2fe4ac3" size="55" mtime="1622040732"/>
+        <directory name="bar_package" rev="11" vrev="11" srcmd5="696d936075286c0d3ec2c62281f78d37">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9c3df90a62ca0fa13d4520847db52308" baserev="9c3df90a62ca0fa13d4520847db52308" xsrcmd5="3296bf7dcbcbd38834dd135e2ef550cb" lsrcmd5="696d936075286c0d3ec2c62281f78d37"/>
+          <entry name="_config" md5="01e7288c06accac2a7d1655fa9f52ad8" size="54" mtime="1623150398"/>
+          <entry name="_link" md5="7e63df45c1e20b840e5b2457152bb1c0" size="119" mtime="1623150398"/>
+          <entry name="somefile.txt" md5="8f53346cae4251c4fec68894c90d0ca2" size="60" mtime="1623150398"/>
         </directory>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?view=info
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -714,14 +449,248 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="10" vrev="42" srcmd5="5fb2a0cd59cbb163fcffe56667dbbd14" lsrcmd5="7803d8a1653a393981489b45be4f9f01" verifymd5="a0b398b8c2635b84c3ce3c5c899a95a2">
+        <sourceinfo package="bar_package" rev="11" vrev="29" srcmd5="3296bf7dcbcbd38834dd135e2ef550cb" lsrcmd5="696d936075286c0d3ec2c62281f78d37" verifymd5="9c3df90a62ca0fa13d4520847db52308">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '620'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="11" vrev="11" srcmd5="696d936075286c0d3ec2c62281f78d37">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9c3df90a62ca0fa13d4520847db52308" baserev="9c3df90a62ca0fa13d4520847db52308" xsrcmd5="3296bf7dcbcbd38834dd135e2ef550cb" lsrcmd5="696d936075286c0d3ec2c62281f78d37"/>
+          <entry name="_config" md5="01e7288c06accac2a7d1655fa9f52ad8" size="54" mtime="1623150398"/>
+          <entry name="_link" md5="7e63df45c1e20b840e5b2457152bb1c0" size="119" mtime="1623150398"/>
+          <entry name="somefile.txt" md5="8f53346cae4251c4fec68894c90d0ca2" size="60" mtime="1623150398"/>
+        </directory>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '337'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="704bfbfe866179050cae7ce45028dc60">
+          <old project="home:Iggy:foo_project:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="11" srcmd5="696d936075286c0d3ec2c62281f78d37"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '360'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="7347b0678e8d4ff77102ef92405618ad">
+          <old project="foo_project" package="bar_package" rev="9c3df90a62ca0fa13d4520847db52308" srcmd5="9c3df90a62ca0fa13d4520847db52308"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="3296bf7dcbcbd38834dd135e2ef550cb" srcmd5="3296bf7dcbcbd38834dd135e2ef550cb"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy:foo_project:PR-1">
+          <title>Branch project for package bar_package</title>
+          <description>This project was created for package bar_package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy:foo_project:PR-1">
+          <title>Branch project for package bar_package</title>
+          <description>This project was created for package bar_package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_branch_request?user=Iggy
+    body:
+      encoding: UTF-8
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>8216b6befe3c6f1c5028942c6ab88495</srcmd5>
+          <version>unknown</version>
+          <time>1623150398</time>
+          <user>Iggy</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="home:Iggy:foo_project:PR-1">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="home:Iggy:foo_project:PR-1">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Non rem consectetur et.</description>
+        </package>
+  recorded_at: Tue, 08 Jun 2021 11:06:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
     body:
       encoding: US-ASCII
       string: ''
@@ -748,95 +717,166 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="10" vrev="10" srcmd5="7803d8a1653a393981489b45be4f9f01">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="80baf2d20717e3c0831f4502aa7b0dd2" baserev="80baf2d20717e3c0831f4502aa7b0dd2" xsrcmd5="5fb2a0cd59cbb163fcffe56667dbbd14" lsrcmd5="7803d8a1653a393981489b45be4f9f01"/>
-          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1622034474"/>
-          <entry name="_config" md5="a915f4f1510278df45d3644738a671ac" size="59" mtime="1622040732"/>
-          <entry name="_link" md5="5023bae2ef5326060032541d34984d91" size="119" mtime="1622040733"/>
-          <entry name="somefile.txt" md5="8d607e7436333cc0db65c735e2fe4ac3" size="55" mtime="1622040732"/>
+        <directory name="bar_package" rev="12" vrev="12" srcmd5="8216b6befe3c6f1c5028942c6ab88495">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9c3df90a62ca0fa13d4520847db52308" baserev="9c3df90a62ca0fa13d4520847db52308" xsrcmd5="47cee82bd1b6092cabfd49692f267b43" lsrcmd5="8216b6befe3c6f1c5028942c6ab88495"/>
+          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1623150191"/>
+          <entry name="_config" md5="01e7288c06accac2a7d1655fa9f52ad8" size="54" mtime="1623150398"/>
+          <entry name="_link" md5="7e63df45c1e20b840e5b2457152bb1c0" size="119" mtime="1623150398"/>
+          <entry name="somefile.txt" md5="8f53346cae4251c4fec68894c90d0ca2" size="60" mtime="1623150398"/>
         </directory>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '317'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="9b6538ae9b959bba6deb675ac55d8665">
-          <old project="foo_project:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="foo_project:PR-1" package="bar_package" rev="10" srcmd5="7803d8a1653a393981489b45be4f9f01"/>
-          <files/>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '373'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="a64bf9eec0217b58cd6933dd916ef5f6">
-          <old project="foo_project" package="bar_package" rev="80baf2d20717e3c0831f4502aa7b0dd2" srcmd5="80baf2d20717e3c0831f4502aa7b0dd2"/>
-          <new project="foo_project:PR-1" package="bar_package" rev="5fb2a0cd59cbb163fcffe56667dbbd14" srcmd5="5fb2a0cd59cbb163fcffe56667dbbd14"/>
-          <files/>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/foo_project:PR-1/bar_package/_branch_request
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '330'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="bar_package" rev="12" vrev="30" srcmd5="47cee82bd1b6092cabfd49692f267b43" lsrcmd5="8216b6befe3c6f1c5028942c6ab88495" verifymd5="c719d2084a5aec7fb5e07b85d39b4a49">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="foo_project" package="bar_package"/>
+        </sourceinfo>
+  recorded_at: Tue, 08 Jun 2021 11:06:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '722'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="12" vrev="12" srcmd5="8216b6befe3c6f1c5028942c6ab88495">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9c3df90a62ca0fa13d4520847db52308" baserev="9c3df90a62ca0fa13d4520847db52308" xsrcmd5="47cee82bd1b6092cabfd49692f267b43" lsrcmd5="8216b6befe3c6f1c5028942c6ab88495"/>
+          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1623150191"/>
+          <entry name="_config" md5="01e7288c06accac2a7d1655fa9f52ad8" size="54" mtime="1623150398"/>
+          <entry name="_link" md5="7e63df45c1e20b840e5b2457152bb1c0" size="119" mtime="1623150398"/>
+          <entry name="somefile.txt" md5="8f53346cae4251c4fec68894c90d0ca2" size="60" mtime="1623150398"/>
+        </directory>
+  recorded_at: Tue, 08 Jun 2021 11:06:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '337'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="c56dbaf2fd8a6da5ddf3d368cf0e7990">
+          <old project="home:Iggy:foo_project:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="12" srcmd5="8216b6befe3c6f1c5028942c6ab88495"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 08 Jun 2021 11:06:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '383'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="efd61555bb5f27568cde237a47be5f31">
+          <old project="foo_project" package="bar_package" rev="9c3df90a62ca0fa13d4520847db52308" srcmd5="9c3df90a62ca0fa13d4520847db52308"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="47cee82bd1b6092cabfd49692f267b43" srcmd5="47cee82bd1b6092cabfd49692f267b43"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 08 Jun 2021 11:06:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_branch_request
     body:
       encoding: US-ASCII
       string: ''
@@ -863,5 +903,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'
-  recorded_at: Wed, 26 May 2021 14:52:13 GMT
+  recorded_at: Tue, 08 Jun 2021 11:06:39 GMT
 recorded_with: VCR 6.0.0

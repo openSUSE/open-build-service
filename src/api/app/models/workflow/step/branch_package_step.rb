@@ -42,7 +42,8 @@ class Workflow
       end
 
       def target_project
-        source_project + ":PR-#{@scm_extractor_payload[:pr_number]}"
+        # TODO: should be token.user.login
+        "home:#{User.session!.login}:#{source_project}:PR-#{@scm_extractor_payload[:pr_number]}"
       end
 
       def remote_source?
@@ -62,7 +63,6 @@ class Workflow
 
       def branch
         check_source_access
-
         BranchPackage.new({ project: source_project, package: source_package,
                             target_project: target_project,
                             target_package: target_package }).branch
