@@ -14,66 +14,23 @@ get:
   tags:
     - Distributions
 
-# FIXME: https://github.com/openSUSE/open-build-service/issues/10695
-#
-# post:
-#   summary: Create distributions.
-#   description: |
-#     Create one or more distributions.
-
-#     This is only for admins.
-#   security:
-#     - basic_authentication: []
-#   requestBody:
-#     description: Distribution definition
-#     content:
-#       application/xml; charset=utf-8:
-#         schema:
-#           $ref: '../components/schemas/distributions.yaml'
-#   responses:
-#     '200':
-#       $ref: '../components/responses/distributions.yaml'
-#     '401':
-#       $ref: '../components/responses/unauthorized.yaml'
-#   tags:
-#     - Distributions
-
-put:
-  summary: Create distributions while deleting all existing distributions.
+post:
+  summary: Create a distribution.
   description: |
-    Create one or more distributions. Existing distributions will be deleted.
+    Create a distribution.
 
     This is only for admins.
   security:
     - basic_authentication: []
   requestBody:
-    description: Distributions definition
+    description: Distribution definition
     content:
       application/xml; charset=utf-8:
         schema:
-          $ref: '../components/schemas/distributions.yaml'
+          $ref: '../components/schemas/distribution.yaml'
   responses:
     '200':
-      description: |
-        OK. The Request has succeded.
-
-        XML Schema used for body validation: [distributions.rng](../schema/distributions.rng)
-      content:
-        application/xml; charset=utf-8:
-          schema:
-            $ref: '../components/schemas/api_response.yaml'
-          example:
-            code: 'ok'
-            summary: 'Ok'
-    '400':
-      description: Bad Request.
-      content:
-        application/xml; charset=utf-8:
-          schema:
-            $ref: '../components/schemas/api_response.yaml'
-          example:
-            code: 'validation_failed'
-            summary: 'distributions validation error: 40:0: ERROR: Expecting an element name, got nothing'
+      $ref: '../components/responses/distribution.yaml'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
   tags:

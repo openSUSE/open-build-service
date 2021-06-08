@@ -187,6 +187,8 @@ paths:
     $ref: 'paths/distributions_include_remotes.yaml'
   /distributions/{distribution_id}:
     $ref: 'paths/distributions_distribution_id.yaml'
+  /distributions/bulk_replace:
+    $ref: 'paths/distributions_bulk_replace.yaml'
 
   /group:
     $ref: 'paths/group.yaml'
