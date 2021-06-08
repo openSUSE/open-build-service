@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/ClassLength
+# This class will be refactored to use a ActiveModel::Validator
 class Workflow
   module Step
     class BranchPackageStep
@@ -138,3 +140,4 @@ class Workflow
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
