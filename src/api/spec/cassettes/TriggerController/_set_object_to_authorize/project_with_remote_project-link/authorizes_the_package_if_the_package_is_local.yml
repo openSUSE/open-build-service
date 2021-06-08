@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_3
+    uri: http://backend:5352/source/project/_meta?user=user_76
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Wildfire at Midnight</title>
+          <title>Tirra Lirra by the River</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Wildfire at Midnight</title>
+          <title>Tirra Lirra by the River</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_4
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_77
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>From Here to Eternity</title>
-          <description>Pariatur impedit eos vitae.</description>
+          <title>The Green Bay Tree</title>
+          <description>Repellendus tenetur eligendi distinctio.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>From Here to Eternity</title>
-          <description>Pariatur impedit eos vitae.</description>
+          <title>The Green Bay Tree</title>
+          <description>Repellendus tenetur eligendi distinctio.</description>
         </package>
-  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_5
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_78
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>For Whom the Bell Tolls</title>
+          <title>In a Dry Season</title>
           <description/>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
@@ -109,26 +109,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>For Whom the Bell Tolls</title>
+          <title>In a Dry Season</title>
           <description></description>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_6
+    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_79
     body:
       encoding: UTF-8
       string: |
         <package name="local_package" project="project_with_a_link">
-          <title>In Death Ground</title>
-          <description>Nesciunt a nam quod.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Et ad fuga expedita.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -149,47 +149,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="local_package" project="project_with_a_link">
-          <title>In Death Ground</title>
-          <description>Nesciunt a nam quod.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Et ad fuga expedita.</description>
         </package>
-  recorded_at: Wed, 05 May 2021 12:16:24 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/project_with_a_link/local_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '88'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="local_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Wed, 05 May 2021 12:16:24 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=local_package
@@ -224,5 +192,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Wed, 05 May 2021 12:16:24 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:53 GMT
 recorded_with: VCR 6.0.0

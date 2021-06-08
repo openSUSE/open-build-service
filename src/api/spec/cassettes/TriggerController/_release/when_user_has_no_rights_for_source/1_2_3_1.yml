@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_53
+    uri: http://backend:5352/source/project/_meta?user=user_42
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Look Homeward, Angel</title>
+          <title>Moab Is My Washpot</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Look Homeward, Angel</title>
+          <title>Moab Is My Washpot</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_54
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_43
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Far From the Madding Crowd</title>
-          <description>Reiciendis et officiis a.</description>
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Consequatur temporibus sunt quibusdam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Far From the Madding Crowd</title>
-          <description>Reiciendis et officiis a.</description>
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Consequatur temporibus sunt quibusdam.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_55
+    uri: http://backend:5352/source/target_project/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Moon by Night</title>
+          <title>I Know Why the Caged Bird Sings</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -108,14 +108,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Moon by Night</title>
+          <title>I Know Why the Caged Bird Sings</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:23 GMT
 recorded_with: VCR 6.0.0

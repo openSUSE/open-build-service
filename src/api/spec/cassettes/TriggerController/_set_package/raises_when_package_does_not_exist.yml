@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_1
+    uri: http://backend:5352/source/project/_meta?user=user_56
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Rosemary Sutcliff</title>
+          <title>Alone on a Wide, Wide Sea</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Rosemary Sutcliff</title>
+          <title>Alone on a Wide, Wide Sea</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Wed, 05 May 2021 12:18:03 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:35 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_2
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_57
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Behold the Man</title>
-          <description>Harum magnam aut quaerat.</description>
+          <title>Taming a Sea Horse</title>
+          <description>Eum corporis qui magni.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Behold the Man</title>
-          <description>Harum magnam aut quaerat.</description>
+          <title>Taming a Sea Horse</title>
+          <description>Eum corporis qui magni.</description>
         </package>
-  recorded_at: Wed, 05 May 2021 12:18:03 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:36 GMT
 recorded_with: VCR 6.0.0

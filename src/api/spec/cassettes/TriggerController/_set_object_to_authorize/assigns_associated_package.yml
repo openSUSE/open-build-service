@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_1
+    uri: http://backend:5352/source/project/_meta?user=user_71
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>From Here to Eternity</title>
+          <title>The Moon by Night</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>From Here to Eternity</title>
+          <title>The Moon by Night</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_2
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_72
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Time To Murder And Create</title>
-          <description>Voluptas qui libero ullam.</description>
+          <title>The Proper Study</title>
+          <description>Dignissimos id molestiae enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Time To Murder And Create</title>
-          <description>Voluptas qui libero ullam.</description>
+          <title>The Proper Study</title>
+          <description>Dignissimos id molestiae enim.</description>
         </package>
-  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:46 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project/package_trigger?cmd=runservice&user=foo
@@ -113,5 +113,5 @@ http_interactions:
           <summary>no source service defined!</summary>
           <details>404 no source service defined!</details>
         </status>
-  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:46 GMT
 recorded_with: VCR 6.0.0

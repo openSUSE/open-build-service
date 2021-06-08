@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_14
+    uri: http://backend:5352/source/project/_meta?user=user_84
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Cricket on the Hearth</title>
+          <title>Brandy of the Damned</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Cricket on the Hearth</title>
+          <title>Brandy of the Damned</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Wed, 05 May 2021 12:16:25 GMT
+  recorded_at: Tue, 08 Jun 2021 04:48:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_15
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_85
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Fear and Trembling</title>
-          <description>Deserunt voluptatem qui at.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Cumque dolore eos voluptates.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Fear and Trembling</title>
-          <description>Deserunt voluptatem qui at.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Cumque dolore eos voluptates.</description>
         </package>
-  recorded_at: Wed, 05 May 2021 12:16:25 GMT
+  recorded_at: Tue, 08 Jun 2021 04:48:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_16
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_86
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>To Your Scattered Bodies Go</title>
+          <title>Look to Windward</title>
           <description/>
           <link project="project"/>
           <person userid="foo" role="maintainer"/>
@@ -109,49 +109,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <project name="project_with_a_link">
-          <title>To Your Scattered Bodies Go</title>
+          <title>Look to Windward</title>
           <description></description>
           <link project="project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Wed, 05 May 2021 12:16:25 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/project/package_trigger
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '90'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_trigger" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Wed, 05 May 2021 12:16:25 GMT
+  recorded_at: Tue, 08 Jun 2021 04:48:00 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=package_trigger
@@ -186,5 +154,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Wed, 05 May 2021 12:16:25 GMT
+  recorded_at: Tue, 08 Jun 2021 04:48:01 GMT
 recorded_with: VCR 6.0.0

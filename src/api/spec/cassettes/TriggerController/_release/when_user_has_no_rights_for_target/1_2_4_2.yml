@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_61
+    uri: http://backend:5352/source/project/_meta?user=user_48
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Soldier's Art</title>
+          <title>The Little Foxes</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Soldier's Art</title>
+          <title>The Little Foxes</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_62
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_49
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Down to a Sunless Sea</title>
-          <description>Quo consequuntur consectetur corrupti.</description>
+          <title>In Dubious Battle</title>
+          <description>Temporibus totam eveniet molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Down to a Sunless Sea</title>
-          <description>Quo consequuntur consectetur corrupti.</description>
+          <title>In Dubious Battle</title>
+          <description>Temporibus totam eveniet molestiae.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_63
+    uri: http://backend:5352/source/target_project/_meta?user=user_50
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Nine Coaches Waiting</title>
+          <title>Precious Bane</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -108,14 +108,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Nine Coaches Waiting</title>
+          <title>Precious Bane</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
+  recorded_at: Tue, 08 Jun 2021 04:47:27 GMT
 recorded_with: VCR 6.0.0
