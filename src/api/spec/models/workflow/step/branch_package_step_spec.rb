@@ -3,14 +3,10 @@ require 'rails_helper'
 RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
 
-  before do
-    allow(User).to receive(:session!).and_return(user)
-  end
-
   subject do
     described_class.new(step_instructions: step_instructions,
                         scm_extractor_payload: scm_extractor_payload,
-                        token: create(:workflow_token))
+                        token: create(:workflow_token, user: user))
   end
 
   describe '#allowed_event_and_action?' do
