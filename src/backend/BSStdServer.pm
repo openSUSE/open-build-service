@@ -31,6 +31,7 @@ use BSDispatch;
 use BSVerify;
 use BSServerEvents;
 use BSXML;
+use BSRPC;
 use BSUtil;
 use BSConfiguration;
 use XML::Structured;
@@ -97,7 +98,25 @@ sub dispatch {
     defined($req->{'query'}) ? "?$req->{'query'}" : '',
   );
   $req->{'slowrequestlog'} = $req->{'group'} ? $conf->{'slowrequestlog2'} : $conf->{'slowrequestlog'};
-  BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
+  my $requestid = ($req->{'headers'} || {})->{'x-request-id'};
+  if ($requestid && $requestid =~ /^[-_\.a-zA-Z0-9]+\z/s) {
+    $req->{'requestid'} = $requestid;
+    if ($isajax) {
+      my $jev = $BSServerEvents::gev;
+      push @{$jev->{'autoheaders'}}, "X-Request-ID: $requestid";
+    } else {
+      push @{$BSRPC::autoheaders}, "X-Request-ID: $requestid";
+    }
+  }
+  if ($conf->{'serverstatus'}) {
+    my $statusmsg = $msg;
+    if ($requestid) {
+      $statusmsg = ' ['.substr($requestid, 0, 64).']';
+      $statusmsg = substr($msg, 0, 244 - length($statusmsg)).$statusmsg;
+    }
+    BSServer::setstatus(2, $statusmsg);
+  }
+  $msg .= " [$requestid]" if $requestid;
   BSUtil::printlog($msg);
   BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain") if $isajax;
   return BSDispatch::dispatch($conf, $req);

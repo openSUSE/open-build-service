@@ -35,6 +35,7 @@ use strict;
 our $useragent = 'BSRPC 0.9.1';
 our $noproxy;
 our $logtimeout;
+our $autoheaders;
 
 my %hostlookupcache;
 my %cookiestore;	# our session store to keep iChain fast
@@ -89,6 +90,14 @@ sub useproxy {
     return 0 if ".$host" =~ /\Q$_\E$/s;
   }
   return 1;
+}
+
+sub addautoheaders {
+  my ($hdrs, $aheaders) = @_;
+  for (@{$aheaders || $autoheaders || []}) {
+    my $k = (split(':', $_, 2))[0];
+    push @$hdrs, $_ unless grep {/^\Q$k\E:/i} @$hdrs;
+  }
 }
 
 sub createreq {
@@ -277,6 +286,7 @@ sub rpc {
   }
   my $uri = createuri($param, @args);
   my $proxy = $param->{'proxy'};
+  addautoheaders(\@xhdrs);
   my ($proto, $host, $port, $req, $proxytunnel) = createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
   if ($proto eq 'https' || $proxytunnel) {
     die("https not supported\n") unless $tossl || $param->{'https'};
