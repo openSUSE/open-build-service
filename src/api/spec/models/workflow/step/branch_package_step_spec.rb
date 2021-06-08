@@ -5,7 +5,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_extractor_payload: scm_extractor_payload)
+                        scm_extractor_payload: scm_extractor_payload,
+                        token: create(:workflow_token))
   end
 
   describe '#allowed_event_and_action?' do

@@ -7,7 +7,7 @@ RSpec.describe Workflow, type: :model do
   end
 
   subject do
-    described_class.new(workflow: yaml, scm_extractor_payload: github_extractor_payload)
+    described_class.new(workflow: yaml, scm_extractor_payload: github_extractor_payload, token: create(:workflow_token))
   end
 
   describe 'steps' do

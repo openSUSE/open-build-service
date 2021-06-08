@@ -59,7 +59,7 @@ class Workflow
         options = { use_source: false, follow_project_links: true, follow_multibuild: true }
         src_package = Package.get_by_project_and_name(source_project, source_package, options)
 
-        raise Pundit::NotAuthorizedError unless PackagePolicy.new(User.session, src_package).create_branch?
+        raise Pundit::NotAuthorizedError unless PackagePolicy.new(@token.user, src_package).create_branch?
       end
 
       def branch
@@ -72,7 +72,7 @@ class Workflow
         Event::BranchCommand.create(project: source_project, package: source_package,
                                     targetproject: target_project,
                                     targetpackage: target_package,
-                                    user: User.session.login)
+                                    user: @token.user.login)
 
         Package.find_by_project_and_name(target_project, target_package)
       rescue BranchPackage::DoubleBranchPackageError, CreateProjectNoPermission,
@@ -127,7 +127,7 @@ class Workflow
         ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
           subscription = EventSubscription.first_or_create!(eventtype: build_event,
                                                             receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                                            user: User.session.login,
+                                                            user: @token.user,
                                                             channel: 'scm',
                                                             enabled: true,
                                                             token: @token,
