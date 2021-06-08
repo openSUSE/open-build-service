@@ -1,5 +1,5 @@
 workflow123:
   steps:
-    - invalid_step:
-        source_project: "test-project"
-        source_package: "test-package"
+    - branch_package:
+        source_project:
+        source_package:
