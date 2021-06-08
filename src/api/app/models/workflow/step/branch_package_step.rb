@@ -5,9 +5,10 @@ class Workflow
 
       validates :source_project, :source_package, presence: true
 
-      def initialize(step_instructions:, scm_extractor_payload:)
+      def initialize(step_instructions:, scm_extractor_payload:, token:)
         @step_instructions = step_instructions.with_indifferent_access
         @scm_extractor_payload = scm_extractor_payload.with_indifferent_access
+        @token = token
       end
 
       def allowed_event_and_action?
@@ -22,6 +23,7 @@ class Workflow
 
         add_branch_request_file(package: branched_package)
 
+        create_or_update_subscriptions(branched_package)
         branched_package
       end
 
@@ -119,6 +121,19 @@ class Workflow
         { object_kind: @scm_extractor_payload[:object_kind],
           project: { http_url: @scm_extractor_payload[:http_url] },
           object_attributes: { source: { default_branch: @scm_extractor_payload[:commit_sha] } } }.to_json
+      end
+
+      def create_or_update_subscriptions(package)
+        ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+          subscription = EventSubscription.first_or_create!(eventtype: build_event,
+                                                            receiver_role: 'reader', # We pass a valid value, but we don't need this.
+                                                            user: User.session.login,
+                                                            channel: 'scm',
+                                                            enabled: true,
+                                                            token: @token,
+                                                            package: package)
+          subscription.update!(payload: @scm_extractor_payload)
+        end
       end
     end
   end
