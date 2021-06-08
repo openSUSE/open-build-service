@@ -76,10 +76,19 @@ class Webui::SessionController < Webui::WebuiController
       return
     end
 
+    # Try to derive a username from the information available,
+    # falling back to full name if nothing else works
     @derived_username = auth_hash['info']['username'] ||
                         auth_hash['info']['nickname'] ||
-                        auth_hash['info']['email'].rpartition("@")[0] ||
-                        auth_hash['info']['name'].gsub(' ', '_')
+                        auth_hash['info']['email'] ||
+                        auth_hash['info']['name']
+
+    # Some providers set username or nickname to an email address
+    # Derive the username from the local part of the email address,
+    # if possible. The full name with spaces replaced by underscores
+    # is the last resort fallback.
+    @derived_username = @derived_username.rpartition("@")[0] if @derived_username.include? "@"
+    @derived_username = @derived_username.gsub(' ', '_')
   end
 
   def do_sso_confirm
