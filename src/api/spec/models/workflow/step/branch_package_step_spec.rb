@@ -1,7 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'Iggy') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+
+  before do
+    allow(User).to receive(:session!).and_return(user)
+  end
 
   subject do
     described_class.new(step_instructions: step_instructions,

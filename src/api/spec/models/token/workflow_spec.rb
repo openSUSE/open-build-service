@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Token::Workflow, vcr: true do
-  let(:token_user) { create(:confirmed_user, login: 'Iggy') }
+  let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:workflow_token) { create(:workflow_token, user: token_user) }
   let(:github_payload) do
     {
