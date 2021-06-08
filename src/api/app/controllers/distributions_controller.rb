@@ -31,7 +31,7 @@ class DistributionsController < ApplicationController
     end
   end
 
-  # PUT /distributions
+  # POST /distributions
   def create
     distribution = Distribution.new_from_xmlhash(@body_xml)
 
@@ -43,7 +43,7 @@ class DistributionsController < ApplicationController
     end
   end
 
-  # PUT /distributions/1234
+  # PATCH/PUT /distributions/1234
   def update
     distribution = Distribution.find(params[:id])
 
@@ -74,6 +74,7 @@ class DistributionsController < ApplicationController
   end
 
   # PUT /distributions/bulk_replace
+  # and compatibility route: PUT /distributions/
   def bulk_replace
     errors = []
     distributions = []

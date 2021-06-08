@@ -113,7 +113,7 @@ RSpec.describe DistributionsController do
       login admin
     end
 
-    subject { post :bulk_replace, body: distributions_xml, format: :xml }
+    subject { put :bulk_replace, body: distributions_xml, format: :xml }
 
     it { is_expected.to have_http_status(:ok) }
 
@@ -121,7 +121,7 @@ RSpec.describe DistributionsController do
       expect { subject }.to change(Distribution, :count).from(3).to(2)
     end
 
-    it 'creates the distributions' do
+    it 'updates the distributions' do
       expect { subject }.to change { Distribution.where(vendor: 'openSUSE').count }.from(0).to(2)
     end
 

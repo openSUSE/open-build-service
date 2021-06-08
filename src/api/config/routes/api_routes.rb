@@ -179,11 +179,14 @@ OBSApi::Application.routes.draw do
 
     resources :distributions, except: [:new, :edit] do
       collection do
-        match 'bulk_replace', via: [:put, :post]
-        # Gives us a poor mans osc interface for bulk replacing...
-        # osc api -e /distributions/bulk_replace
-        get 'bulk_replace' => :index
         get 'include_remotes'
+        put 'bulk_replace' => :bulk_replace
+        # This GET routes gives us a poor mans osc interface for bulk replacing...
+        # Like: osc api -e /distributions/bulk_replace
+        get 'bulk_replace' => :index
+        # This PUT route is for backward compatiblity, it was traditionally
+        # used for bulk replacing distributions.
+        put '' => :bulk_replace
       end
     end
 

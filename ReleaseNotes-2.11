@@ -71,7 +71,7 @@ Breaking API changes:
 =====================
 
  * Status messages endpoints. Check the API documentation for the new format.
- * /distributions write endpoints. Check the API documentation for the new format.
+ * Updated /distributions endpoints. Check the API documentation for the new format.
  * The API endpoint '/announcements' is deprecated and will be removed in the
    next version. Announcements can be created through Status Messages by using
    'announcement' severity. Check the API documentation about Status Messages.
