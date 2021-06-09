@@ -1,11 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe SCMStatusReporter, type: :service do
-  let(:scm_status_reporter) { SCMStatusReporter.new(payload, token, event_type) }
+  let(:scm_status_reporter) { SCMStatusReporter.new(event_payload, event_subscription_payload, token, event_type) }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
-      let(:payload) { {} }
+      let(:event_payload) { {} }
+      let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
 
@@ -15,7 +16,8 @@ RSpec.describe SCMStatusReporter, type: :service do
     end
 
     context 'status failed on github' do
-      let(:payload) { { scm: 'github' } }
+      let(:event_payload) { { project: 'home:john_doe', package: 'hello', repository: 'openSUSE_Tumbleweed', arch: 'i586' } }
+      let(:event_subscription_payload) { { scm: 'github' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
 
@@ -25,7 +27,8 @@ RSpec.describe SCMStatusReporter, type: :service do
     end
 
     context 'status failed on gitlab' do
-      let(:payload) { { scm: 'gitlab' } }
+      let(:event_payload) { { project: 'home:jane_doe', package: 'bye', repository: 'openSUSE_Leap', arch: 'x86_64' } }
+      let(:event_subscription_payload) { { scm: 'gitlab' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
 
