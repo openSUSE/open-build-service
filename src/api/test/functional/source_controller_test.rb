@@ -3412,7 +3412,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '1' }
     # no product, but no crash either. More checks are in channel_maintenance test case
-    get '/search/channel/binary?match=updatefor/[@project="not_defined"+and+@product="missing"]'
+    get '/search/channel/binary?match=updatefor[@project="not_defined"+and+@product="missing"]'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '0' }
     # simple short form test

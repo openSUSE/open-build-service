@@ -340,7 +340,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'repository', attributes: { project: 'home:Iggy', name: '10.2' }
     assert repos.count, 1
 
-    get "/search/repository/id?match=path/[@project='BaseDistro'+and+@repository='BaseDistro_repo']"
+    get "/search/repository/id?match=path[@project='BaseDistro'+and+@repository='BaseDistro_repo']"
     assert_response :success
     assert_xml_tag tag: 'collection'
     assert_xml_tag tag: 'repository', attributes: { project: 'home:Iggy', name: '10.2' }
@@ -350,7 +350,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_osc_search_devel_package_after_request_accept
     login_Iggy
 
-    get '/search/package', params: { match: "([devel/[@project='Devel:BaseDistro:Update' and @package='pack2']])" }
+    get '/search/package', params: { match: "([devel[@project='Devel:BaseDistro:Update' and @package='pack2']])" }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: 1 }
     assert_xml_tag tag: 'package', attributes: { project: 'BaseDistro:Update', name: 'pack2' }
