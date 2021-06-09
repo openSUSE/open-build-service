@@ -17,7 +17,8 @@ class ReportToScmJob < CreateJob
     EventSubscriptionsFinder.new
                             .for_scm_channel_with_token(event_type: event_type, event_package: event_package)
                             .each do |event_subscription|
-      SCMStatusReporter.new(event_subscription.payload,
+      SCMStatusReporter.new(event.payload,
+                            event_subscription.payload,
                             event_subscription.token.scm_token,
                             event_subscription.eventtype).call
     end

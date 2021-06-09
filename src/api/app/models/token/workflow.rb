@@ -28,7 +28,14 @@ class Token::Workflow < Token
     raise "We couldn't branch your package" unless package_from_step
 
     set_subscription(package_from_step, scm_extractor_payload)
-    SCMStatusReporter.new(scm_extractor_payload, scm_token).call
+
+    Project.get_by_name(step.target_project).repositories.each do |repository|
+      # TODO: Fix n+1 queries
+      repository.architectures.each do |architecture|
+        SCMStatusReporter.new({ project: step.target_project, package: step.target_package, repository: repository.name, arch: architecture.name },
+                              scm_extractor_payload, scm_token).call
+      end
+    end
   end
 
   def set_subscription(package_from_step, scm_extractor_payload)

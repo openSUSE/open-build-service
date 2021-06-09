@@ -29,8 +29,6 @@ class Workflow
         branched_package
       end
 
-      private
-
       def source_project
         @step_instructions['source_project']
       end
@@ -48,6 +46,8 @@ class Workflow
       def target_project
         "home:#{@token.user.login}:#{source_project}:PR-#{@scm_extractor_payload[:pr_number]}"
       end
+
+      private
 
       def remote_source?
         return true if Project.find_remote_project(source_project)
