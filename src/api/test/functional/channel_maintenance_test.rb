@@ -506,11 +506,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection', children: { count: 2 }
     assert_xml_tag tag: 'repository', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', name: 'BaseDistro2.0_LinkedUpdateProject' }
     assert_xml_tag tag: 'repository', attributes: { project: incident_project, name: 'BaseDistro2.0_LinkedUpdateProject' }
-    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='#{incident_project}'"
+    get "/search/repository/id?match=targetproduct[@name='simple'+and+@version='13.1']+and+@project='#{incident_project}'"
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
     assert_xml_tag tag: 'repository', attributes: { project: incident_project, name: 'BaseDistro2.0_LinkedUpdateProject' }
-    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@baseversion='1'+and+@patchlevel='1']"
+    get "/search/repository/id?match=targetproduct[@name='simple'+and+@baseversion='1'+and+@patchlevel='1']"
     assert_response :success # empty, just to check for crashes
 
     login_king
@@ -746,20 +746,20 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'channel', attributes: { project: 'Channel', package: 'BaseDistro3' } },
                    tag: 'binary', attributes: { project: 'BaseDistro3', package: 'pack2', name: 'package' }
     # search by given product
-    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]'
+    get '/search/channel/binary?match=updatefor[@project="BaseDistro"+and+@product="fixed"]'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '2' }
-    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+not(target/disabled)'
+    get '/search/channel/binary?match=updatefor[@project="BaseDistro"+and+@product="fixed"]+and+not(target/disabled)'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '0' }
 
     # the old way we used to do
-    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+boolean(target/disabled)'
+    get '/search/channel/binary?match=updatefor[@project="BaseDistro"+and+@product="fixed"]+and+boolean(target/disabled)'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '2' }
 
     # node existens check does not need a boolean()
-    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+target/disabled'
+    get '/search/channel/binary?match=updatefor[@project="BaseDistro"+and+@product="fixed"]+and+target/disabled'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '2' }
 
@@ -773,7 +773,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # event handling
     UpdateNotificationEvents.new.perform
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
     assert_response :success
     assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: '1.0', release: '1', arch: 'x86_64' } },
                    tag: 'publish', attributes: { package: 'pack2' }
@@ -792,7 +792,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'dropped', project: 'BaseDistro3', repository: 'BaseDistro3_repo', arch: 'i586' } },
                    tag: 'operation', content: 'added'
     # entire channel content
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3Channel']" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3Channel']" }
     assert_response :success
     assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'i586' } },
                    tag: 'operation', content: 'added'

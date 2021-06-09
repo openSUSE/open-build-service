@@ -68,72 +68,72 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'binary'
 
     # by repo
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586' }
     assert_xml_tag tag: 'obsolete'
 
     # without obsolete rpms
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']]" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
     assert_response :success
     assert_xml_tag tag: 'obsolete'
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and obsolete[not(@time)]" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and obsolete[not(@time)]" }
     assert_response :success
     assert_no_xml_tag tag: 'obsolete'
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and not(obsolete/@time)" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and not(obsolete/@time)" }
     assert_response :success
     assert_no_xml_tag tag: ''
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and not(obsolete/@time=123)" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and not(obsolete/@time=123)" }
     assert_response :success
     assert_xml_tag tag: 'obsolete'
 
     # without modified rpms
-    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and modify[not(@time)]" }
+    get '/search/released/binary', params: { match: "repository[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and modify[not(@time)]" }
     assert_response :success
     assert_no_xml_tag tag: 'modify'
 
     # by product
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'i586' or not(@arch))]" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'i586' or not(@arch))]" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586', medium: 'DVD' }
     assert_xml_tag tag: 'updatefor', attributes: { project: 'BaseDistro', product: 'fixed' }
     assert_xml_tag tag: 'product', attributes: { name: 'fixed', version: '1.2' }
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @medium = 'DVD']" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed' and @medium = 'DVD']" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586', medium: 'DVD' }
     # by version
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @version = '1.2']" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed' and @version = '1.2']" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586', medium: 'DVD' }
     # not matching version
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @version = '2.99']" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed' and @version = '2.99']" }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '0' }
     assert_no_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586', medium: 'DVD' }
     # baseversion
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.2' and @patchlevel='0']" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.2' and @patchlevel='0']" }
     assert_response :success
     # not matching baseversion
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.2' and @patchlevel='43']" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.2' and @patchlevel='43']" }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '0' }
 
     # by update for product
-    get '/search/released/binary', params: { match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @arch = 'i586']" }
+    get '/search/released/binary', params: { match: "updatefor[@project = 'BaseDistro' and @product = 'fixed' and @arch = 'i586']" }
     assert_response :success
     assert_no_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3' }
-    get '/search/released/binary', params: { match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @arch = 'x86_64']" }
+    get '/search/released/binary', params: { match: "updatefor[@project = 'BaseDistro' and @product = 'fixed' and @arch = 'x86_64']" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586' }
     assert_xml_tag tag: 'updatefor', attributes: { project: 'BaseDistro', product: 'fixed' }
 
     # by version
-    get '/search/released/binary', params: { match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @baseversion = '1.2' and @patchlevel='0']" }
+    get '/search/released/binary', params: { match: "updatefor[@project = 'BaseDistro' and @product = 'fixed' and @baseversion = '1.2' and @patchlevel='0']" }
     assert_response :success
-    get '/search/released/binary', params: { match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @version = '1.2']" }
+    get '/search/released/binary', params: { match: "updatefor[@project = 'BaseDistro' and @product = 'fixed' and @version = '1.2']" }
     assert_response :success
     # not matching
-    get '/search/released/binary', params: { match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @version = '1.3']" }
+    get '/search/released/binary', params: { match: "updatefor[@project = 'BaseDistro' and @product = 'fixed' and @version = '1.3']" }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '0' }
 
@@ -149,7 +149,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection', attributes: { matches: '0' }
 
     # by update for product OR product itself
-    get '/search/released/binary', params: { match: "product/[@project = 'BaseDistro' and @name = 'fixed'] or updatefor/[@project = 'BaseDistro' and @product = 'fixed']" }
+    get '/search/released/binary', params: { match: "product[@project = 'BaseDistro' and @name = 'fixed'] or updatefor[@project = 'BaseDistro' and @product = 'fixed']" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586' }
     assert_xml_tag tag: 'updatefor', attributes: { project: 'BaseDistro', product: 'fixed' }

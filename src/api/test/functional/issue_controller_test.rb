@@ -61,7 +61,7 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
     get '/search/package/id', params: { match: 'issue/@tracker="bnc"' }
     assert_response 401
-    get '/search/package/id', params: { match: 'issue/[@name="123456" and @tracker="bnc"]' }
+    get '/search/package/id', params: { match: 'issue[@name="123456" and @tracker="bnc"]' }
     assert_response 401
     get '/search/package/id', params: { match: 'issue/owner/@login="fred"' }
     assert_response 401
@@ -72,15 +72,15 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     # running patchinfo search as done by webui
-    get '/search/package/id', params: { match: '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]' }
+    get '/search/package/id', params: { match: '[issue[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
-    get '/search/package/id', params: { match: '[issue/[@state="OPEN" and owner/@login="king"] and kind="patchinfo"]' }
+    get '/search/package/id', params: { match: '[issue[@state="OPEN" and owner/@login="king"] and kind="patchinfo"]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # validate that state and login are from same issue. NOT matching:
-    get '/search/package/id', params: { match: '[issue/[@state="CLOSED" and owner/@login="king"] and kind="patchinfo"]' }
+    get '/search/package/id', params: { match: '[issue[@state="CLOSED" and owner/@login="king"] and kind="patchinfo"]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
@@ -94,20 +94,20 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # running patchinfo search as done by webui
-    get '/search/package/id', params: { match: '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]' }
+    get '/search/package/id', params: { match: '[kind="patchinfo" and issue[@state="CLOSED" and owner/@login="fred"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # test with not matching kind to verify that it does not match
-    get '/search/package/id', params: { match: '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]' }
+    get '/search/package/id', params: { match: '[issue[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # search via bug issue id
-    get '/search/package/id', params: { match: '[issue/[@name="123456" and @tracker="bnc"]]' }
+    get '/search/package/id', params: { match: '[issue[@name="123456" and @tracker="bnc"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
-    get '/search/package/id', params: { match: '[issue/[@tracker="bnc" and @name="123456"]]' } # SQL keeps working
+    get '/search/package/id', params: { match: '[issue[@tracker="bnc" and @name="123456"]]' } # SQL keeps working
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package', attributes: { project: 'BaseDistro', name: 'patchinfo' }
   end
@@ -211,23 +211,23 @@ Aha bnc#123456\n
     assert_response :success
     assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: '123456'
 
-    get '/search/package/id', params: { match: '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]' }
+    get '/search/package/id', params: { match: '[issue[@name="123456" and @tracker="bnc" and @change="added"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package',
                    attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
 
-    get '/search/package/id', params: { match: '[issue/[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]' }
+    get '/search/package/id', params: { match: '[issue[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package',
                    attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
 
-    get '/search/package/id', params: { match: '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]' }
+    get '/search/package/id', params: { match: '[issue[@name="123456" and @tracker="bnc" and @change="kept"]]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: 'collection' }, tag: 'package',
                       attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
 
     # search for attribute issues
-    get '/search/package/id', params: { match: '[attribute_issue/[@name="987" and @tracker="bnc"]]' }
+    get '/search/package/id', params: { match: '[attribute_issue[@name="987" and @tracker="bnc"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'package',
                    attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
