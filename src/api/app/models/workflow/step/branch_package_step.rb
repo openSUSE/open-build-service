@@ -46,8 +46,7 @@ class Workflow
       end
 
       def target_project
-        # TODO: should be token.user.login
-        "home:#{User.session!.login}:#{source_project}:PR-#{@scm_extractor_payload[:pr_number]}"
+        "home:#{@token.user.login}:#{source_project}:PR-#{@scm_extractor_payload[:pr_number]}"
       end
 
       def remote_source?
