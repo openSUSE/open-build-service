@@ -59,18 +59,7 @@ of code to be reviewed.
 
 ## Proper Commit Messages
 
-We are keen on proper commit messages because they will help us to maintain
-this piece of code in the future. So for the benefit of all the people who will
-look at this commit now and in the future, follow this style:
-
-- The title of your commit should summarizes **what** has been done
-  - If the title is to small to explain **what** you have done then elaborate on it in the body
-- The body of your commit should explain **why** you have changed this. This is
-  the most important content of the message!
-- Make sure you also explain potential side-effects of this change, if there are any.
-
-Please also mind common sense rules for commit messages, we wrote some down in our wiki
-https://github.com/openSUSE/open-build-service/wiki/Commit-Style
+Please refer to the [Commit Style wiki page](https://github.com/openSUSE/open-build-service/wiki/Commit-Style) for details.
 
 ## Proper Pull Request
 
