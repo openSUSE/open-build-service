@@ -32,6 +32,7 @@ class Token::Workflow < Token
     Project.get_by_name(step.target_project).repositories.each do |repository|
       # TODO: Fix n+1 queries
       repository.architectures.each do |architecture|
+        # We cannot report multibuild flavors here... so they will be missing from the initial report
         SCMStatusReporter.new({ project: step.target_project, package: step.target_package, repository: repository.name, arch: architecture.name },
                               scm_extractor_payload, scm_token).call
       end
