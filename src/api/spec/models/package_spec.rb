@@ -835,7 +835,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '.multibuild_flavor?', vcr: false do
+  describe '.last_build_multibuild_flavor?', vcr: false do
     let(:multibuild_package) { create(:package, name: 'multibuild_package', project: home_project) }
 
     context 'with multibuild' do
@@ -843,8 +843,8 @@ RSpec.describe Package, vcr: true do
         allow(Backend::Api::Sources::Package).to receive(:multibuild_flavors).and_return('<directory><entry name="flavor_a"/><entry name="flavor_c"/></directory>')
       end
 
-      it { expect(multibuild_package).to be_multibuild_flavor('flavor_a') }
-      it { expect(multibuild_package).to be_multibuild_flavor('flavor_c') }
+      it { expect(multibuild_package).to be_last_build_multibuild_flavor('flavor_a') }
+      it { expect(multibuild_package).to be_last_build_multibuild_flavor('flavor_c') }
     end
 
     context 'without multibuild' do
@@ -852,7 +852,7 @@ RSpec.describe Package, vcr: true do
         allow(Backend::Api::Sources::Package).to receive(:multibuild_flavors).and_return('<directory />')
       end
 
-      it { expect(multibuild_package).not_to be_multibuild }
+      it { expect(multibuild_package).not_to be_last_build_was_multibuild }
     end
   end
 end
