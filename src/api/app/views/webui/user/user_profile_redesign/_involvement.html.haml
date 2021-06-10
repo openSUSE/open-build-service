@@ -60,7 +60,7 @@
       = display_applied_filters(filters, displayed_user)
   .card-body.pt-0
     - if involved_items.blank?
-      This user is not involved in any project or package.
+      = filter_message(params)
     - else
       .list-group.list-group-flush
         - involved_items.each do |involved_item|
