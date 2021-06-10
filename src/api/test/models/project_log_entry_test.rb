@@ -20,7 +20,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     event = events(:commit_for_deleted_package)
     entry = ProjectLogEntry.create_from(event.payload, event.created_at.to_s, event.class.name)
     assert_not entry.new_record?
-    assert_equal projects(:"BaseDistro2.0"), entry.project
+    assert_equal projects(:'BaseDistro2.0'), entry.project
     assert_equal users(:Iggy), entry.user
     assert_equal BsRequest.find_by_number(1000), entry.bs_request
     assert_nil entry.package
