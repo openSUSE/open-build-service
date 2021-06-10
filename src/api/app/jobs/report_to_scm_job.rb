@@ -11,7 +11,7 @@ class ReportToScmJob < CreateJob
     event_type = event.eventtype
     return false unless ALLOWED_EVENTS.include?(event_type)
 
-    event_package = Package.find_by_project_and_name(event.payload['project'], event.payload['package'])
+    event_package = Package.find_by_project_and_name(event.payload['project'], Package.striping_multibuild_suffix(event.payload['package']))
     return false if event_package.blank?
 
     EventSubscriptionsFinder.new
