@@ -1,8 +1,8 @@
 module TriggerControllerService
   # NOTE: this class is coupled to GitHub pull requests events and GitLab merge requests events.
   class ScmExtractor
-    ALLOWED_GITHUB_ACTIONS = ['opened'].freeze
-    ALLOWED_GITLAB_ACTIONS = ['open'].freeze
+    ALLOWED_GITHUB_ACTIONS = ['opened', 'synchronize'].freeze
+    ALLOWED_GITLAB_ACTIONS = ['open', 'update'].freeze
 
     def initialize(scm, event, payload)
       # TODO: What should we do when the user sends a wwwurlencoded payload? Raise an exception?
@@ -11,6 +11,8 @@ module TriggerControllerService
       @event = event
     end
 
+    # TODO: this check seems redundant, but it prevents extracting the payload if the event and action
+    # are not the allowed ones. See BranchPackageStep.
     def allowed_event_and_action?
       allowed_github_event_and_action? || allowed_gitlab_event_and_action?
     end
