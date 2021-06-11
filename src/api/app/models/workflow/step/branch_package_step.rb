@@ -122,7 +122,10 @@ class Workflow
 
       def branch_request_content_github
         {
-          action: @scm_extractor_payload[:action],
+          # TODO: change to @scm_extractor_payload[:action]
+          # when check_for_branch_request method in obs-service-tar_scm accepts other actions than 'opened'
+          # https://github.com/openSUSE/obs-service-tar_scm/blob/2319f50e741e058ad599a6890ac5c710112d5e48/TarSCM/tasks.py#L145
+          action: 'opened',
           pull_request: {
             head: {
               repo: { full_name: @scm_extractor_payload[:source_repository_full_name] },
