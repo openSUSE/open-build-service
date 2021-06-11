@@ -8,7 +8,17 @@ my $tests    = 14;
 my $max_wait = 300;
 
 my @daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.service
-                 obsscheduler.service   obssrcserver.service    mariadb.service/;
+                 obsscheduler.service   obssrcserver.service/;
+
+my $out=`systemctl list-units`;
+my $mariadb;
+foreach my $unit (split(/\n/, $out)) {
+  $mariadb = $1 if $unit =~ /^((mysql|mariadb)\.service)/
+}
+
+die "could not find mariadb or mysql" if ! $mariadb;
+
+push @daemons, $mariadb;
 
 my $os = get_distribution();
 if ($os eq "suse") {
