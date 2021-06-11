@@ -2129,6 +2129,7 @@ sub notify_jobresult {
   $buildtype = $1 if $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
   $buildtype ||= Build::recipe2buildtype($info->{'file'}) || 'unknown';
   $buildtype = $info->{'imagetype'} && ($info->{'imagetype'}->[0] || '') eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
+  $ninfo{'buildtype'} = $buildtype;
   print "job statistics: $job $prpa $jobstatus->{'result'} $ninfo{'readytime'}-$ninfo{'starttime'}-$ninfo{'endtime'} $jobstatus->{'workerid'} $buildtype\n";
   if ($jobstatus->{'result'} eq 'unchanged') {
     BSNotify::notify('BUILD_UNCHANGED', \%ninfo);

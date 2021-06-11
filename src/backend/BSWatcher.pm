@@ -1157,6 +1157,7 @@ sub rpc {
     my $auth = $param->{'authenticator'}->($param);
     push @xhdrs, "Authorization: $auth" if $auth;
   }
+  BSRPC::addautoheaders(\@xhdrs, $jev->{'autoheaders'} || []);
 
   my $proxy = $param->{'proxy'};
   my ($proto, $host, $port, $req, $proxytunnel) = BSRPC::createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
