@@ -86,7 +86,22 @@ module Webui::UserHelper
     end
   end
 
+  def filter_message(params)
+    roles = params.select { |param| param.include?('role') }.keys
+    result = "This user is not involved in any #{project_package_message}"
+    result += " for the selected #{'role'.pluralize(roles.count)}" if roles.present?
+    "#{result}."
+  end
+
   private
+
+  def project_package_message
+    arr = []
+    arr << 'project' if params['involved_projects']
+    arr << 'package' if params['involved_packages']
+
+    arr.blank? ? 'project or package' : arr.join(' or ')
+  end
 
   def display_filters(filters)
     filters.collect do |filter|
