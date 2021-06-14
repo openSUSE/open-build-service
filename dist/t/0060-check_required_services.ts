@@ -13,7 +13,7 @@ my @daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.ser
 my $out=`systemctl list-units`;
 my $mariadb;
 foreach my $unit (split(/\n/, $out)) {
-  $mariadb = $1 if $unit =~ /^((mysql|mariadb)\.service)/
+  $mariadb = $1 if $unit =~ /^\s*((mysql|mariadb)\.service)\s+/
 }
 
 die "could not find mariadb or mysql" if ! $mariadb;
@@ -51,16 +51,20 @@ foreach my $srv (@daemons) {
 my %srv_state=();
 
 while ($max_wait > 0) {
+	my $failed=0;
 	foreach my $srv (@daemons) {
 		my @state=`systemctl is-active $srv 2>/dev/null`;
 		chomp($state[0]);
+		print "$srv $state[0]\n";
 		if ( $state[0] eq 'active') {
-			$srv_state{$srv} = 'active';
+			$srv_state{$srv} = $state[0];
+		} elsif ( $state[0] eq 'failed') {
+			$failed=1;
+			$srv_state{$srv} = $state[0];
 		}
 	}
-	if ( keys(%srv_state) == scalar(@daemons) ) {
-		last;
-	}
+	last if (keys(%srv_state) == scalar(@daemons));
+	last if ($failed);
 	$max_wait--;
 	sleep 1;
 }
