@@ -153,9 +153,10 @@ class Webui::UserController < Webui::WebuiController
       return
     end
 
-    if user.authenticate(params[:password])
+    if user.authenticate(params[:password]) or user.password_invalid?
       user.password = params[:new_password]
       user.password_confirmation = params[:repeat_password]
+      user.deprecated_password_hash_type = nil
 
       if user.save
         flash[:success] = 'Your password has been changed successfully.'

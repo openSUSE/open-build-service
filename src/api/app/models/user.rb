@@ -900,6 +900,10 @@ class User < ApplicationRecord
     end
   end
 
+  def password_invalid?
+    self.deprecated_password_hash_type == 'invalid'
+  end
+
   private
 
   # The currently logged in user (might be nil). It's reset after
