@@ -23,7 +23,14 @@ This ptf contains the following packages:
 cd %_sourcedir
 odir="%_topdir/OTHER"
 for i in *.rpm ; do
-  perl ./modifyrpmheader --add-requires '%{name} = %{version}-%{release}' --add-provides 'ptf-package()' --add-description '\nThis package is part of %{name}-%{version}-%{release}\n' -- "$i" "$odir/$i"
+  case "$i" in
+    *.src.rpm|*.nosrc.rpm)
+      perl ./modifyrpmheader --add-description '\nThis package is part of %{name}-%{version}-%{release}\n' -- "$i" "$odir/$i"
+      ;;
+    *)
+      perl ./modifyrpmheader --add-requires '%{name} = %{version}-%{release}' --add-provides 'ptf-package()' --add-description '\nThis package is part of %{name}-%{version}-%{release}\n' -- "$i" "$odir/$i"
+      ;;
+  esac
 done
 mkdir -p %{buildroot}/%{_defaultdocdir}/%{name}
 cat >%{buildroot}/%{_defaultdocdir}/%{name}/README <<'EOF'
