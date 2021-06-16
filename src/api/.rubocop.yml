@@ -46,6 +46,9 @@ Style/MethodCallWithArgsParentheses:
     - 'db/migrate/**/*'
     - 'db/data/**/*'
     - 'Gemfile*'
+    # Configuration files are often generated and especially when updating Rails, it's leading to conflicts
+    # when running the Rails update task due to missing parentheses... we have better things to do!
+    - 'config/**/*'
   # the cop doesn't come with a well defined list of good methods, so this
   # list is the list of offending functions when introducing. Removing functions
   # from here leads to autocorrecting calls, if you call a new DSL function, add
