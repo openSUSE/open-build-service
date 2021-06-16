@@ -206,6 +206,12 @@ Style/HashTransformValues:
 Style/SafeNavigation:
   Enabled: false
 
+Style/StringLiterals:
+  Exclude:
+    # Configuration files are often generated and especially when updating Rails, it's leading to conflicts when running the Rails update task
+    # due to changes from single to double quotes... we have better things to do!
+    - 'config/**/*'
+
 ##################### Metrics ##################################
 
 # Disabled due Rspec.describe and routes.draw can't be split
