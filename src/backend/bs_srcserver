@@ -3261,7 +3261,17 @@ sub moveproject {
   rename("$projectsdir/$oprojid.xml", "$projectsdir/$projid.xml");
   rename("$projectsdir/$oprojid.pkg", "$projectsdir/$projid.pkg") if -e "$projectsdir/$oprojid.pkg";
   rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
-  rename("$treesdir/$oprojid", "$treesdir/$projid") if $BSConfig::nosharedtrees && -e "$treesdir/$oprojid";
+  if ($BSConfig::nosharedtrees && -e "$treesdir/$oprojid") {
+    # we can't rename the tress as we still want to allow access of the old files via the srcmd5
+    mkdir_p($uploaddir);
+    for my $packid (sort(ls("$treesdir/$oprojid"))) {
+      mkdir_p("$treesdir/$projid/$packid");
+      for my $tree (sort(ls("$treesdir/$oprojid/$packid"))) {
+	next if -e "$treesdir/$projid/$packid/$tree";
+	BSUtil::cp("$treesdir/$oprojid/$packid/$tree", "$uploaddir/$$", "$treesdir/$projid/$packid/$tree");
+      }
+    }
+  }
 
   # move entries in linkinfo database
   BSRevision::movelinkinfos($projid, $oprojid, BSSrcServer::LinkinfoDB::getlinkpackages($oprojid));
