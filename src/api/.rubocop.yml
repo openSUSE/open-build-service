@@ -21,6 +21,8 @@ AllCops:
     - 'db/migrate/20161128115942_init_schema.rb'
     # this file will be deleted as soon as app/jobs/consistency_check_job.rb is validated
     - 'app/jobs/old/consistency_check_job.rb'
+    # Binaries are generated, so we don't lint them
+    - 'bin/**/*'
   SuggestExtensions:
     # We don't want extra cops for minitest since we want to migrate those tests to RSpec
     rubocop-minitest: false
@@ -203,6 +205,12 @@ Style/HashTransformValues:
 # We agreed on disabling this cop since it's often a sign of a code smell when we need to use `something&.my_method`
 Style/SafeNavigation:
   Enabled: false
+
+Style/StringLiterals:
+  Exclude:
+    # Configuration files are often generated and especially when updating Rails, it's leading to conflicts when running the Rails update task
+    # due to changes from single to double quotes... we have better things to do!
+    - 'config/**/*'
 
 ##################### Metrics ##################################
 

@@ -1,3 +1,5 @@
+require 'api_error'
+
 module RoutesHelper
   class WebuiMatcher
     class InvalidRequestFormat < APIError
