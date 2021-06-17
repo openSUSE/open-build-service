@@ -1,5 +1,5 @@
 # Be sure to restart your server when you modify this file.
-#
+
 # This file contains settings for ActionController::ParamsWrapper which
 # is enabled by default.
 require 'active_support/core_ext/hash/conversions'
@@ -8,7 +8,6 @@ require 'active_support/core_ext/hash/indifferent_access'
 require 'api_error'
 
 # Disable all default rails parameter parsing
-
 ActiveSupport.on_load(:action_controller) do
   wrap_parameters(false) if respond_to?(:wrap_parameters)
 end
