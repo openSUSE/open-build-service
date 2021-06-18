@@ -14,6 +14,9 @@ class BsRequestAction
         # maintenance incidents shall show the final result after release
         self.target_project = action.target_releaseproject if action.target_releaseproject
 
+        # no target? assume new package
+        return { orev: 0, oproject: action.source_project, opackage: action.source_package } unless target_project
+
         # maintenance release targets will have a base link
         tprj = Project.get_by_name(target_project)
         if tprj && tprj.is_maintenance_release?
