@@ -1,4 +1,4 @@
-.tab-pane.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if action_counter.zero?) }
+.tab-pane.sourcediff.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if active == action[:name]) }
   .row
     .col
       = request_action_header(action, bs_request.creator)
@@ -44,6 +44,6 @@
                 No source changes.
       .col-lg-4
         = render partial: 'webui/shared/buildresult_box',
-                 locals: { project: action[:sprj], package: action[:spkg], bs_request: bs_request, index: action_counter }
+                 locals: { project: action[:sprj], package: action[:spkg], bs_request: bs_request, index: index }
         - if sourcediff['issues'].present?
           = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }
