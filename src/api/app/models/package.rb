@@ -4,7 +4,6 @@ require 'rexml/document'
 
 # rubocop: disable Metrics/ClassLength
 class Package < ApplicationRecord
-  include AppendSphinxCallbacks
   include FlagHelper
   include Flag::Validations
   include CanRenderModel
@@ -70,6 +69,8 @@ class Package < ApplicationRecord
   before_destroy :remove_devel_packages
 
   after_save :write_to_backend
+  after_save :populate_to_sphinx
+
   after_rollback :reset_cache
 
   # The default scope is necessary to exclude the forbidden projects.
@@ -1407,6 +1408,13 @@ class Package < ApplicationRecord
 
   def fetch_rev_from_history_cache(rev)
     Rails.cache.read(['history', self, rev]) || Rails.cache.read(['history_md5', self, rev])
+  end
+
+  def populate_to_sphinx
+    if title_previously_changed? ||
+       description_previously_changed?
+      PopulateToSphinxJob.perform_later(id: id, model_name: :package)
+    end
   end
 end
 # rubocop: enable Metrics/ClassLength
