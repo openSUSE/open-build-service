@@ -2163,12 +2163,12 @@ sub getbinaries_buildenv {
         $pbvl = BSRPC::rpc({
           'uri' => "$server/getpackagebinaryversionlist",
           'timeout' => $gettimeout,
-        }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @needed_names);
+        }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch");
       } else {
         $pbvl = BSRPC::rpc({
           'uri' => "$server/build/$projid/$repoid/$arch",
           'timeout' => $gettimeout,
-        }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @needed_names);
+        }, $BSXML::packagebinaryversionlist, "view=binaryversions");
       }
     };
     undef $pbvl if $@;
