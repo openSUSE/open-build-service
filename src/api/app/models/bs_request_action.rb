@@ -786,6 +786,18 @@ class BsRequestAction < ApplicationRecord
       query[:expand] = 1 unless updatelink
       query[:rev] = source_rev if source_rev
       dir = Xmlhash.parse(Backend::Api::Sources::Package.files(source_project, source_package, query))
+      unless add_revision
+        # Enforce revisions?
+        tprj = Project.get_by_name(target_project)
+        add_revision = tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
+        if add_revision && source_rev
+          # Enforce expanded revision of given revision by user
+          if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_link') ||
+             dir['entry'].is_a?(Hash) && dir['entry']['name'] == '_link'
+            raise ExpandError, 'Unexpanded links are forbidden by OBS:EnforceRevisionsInRequests'
+          end
+        end
+      end
       if add_revision && !source_rev
         if action_type == :maintenance_release && dir['entry']
           # patchinfos in release requests get not frozen to allow to modify meta data
