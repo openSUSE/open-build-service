@@ -4,7 +4,7 @@ RSpec.describe BsRequestAction do
   let(:user) { create(:confirmed_user, :with_home, login: 'request_user') }
 
   before do
-    allow(User).to receive(:session!).and_return(user)
+    allow(User).to receive(:current).and_return(user)
   end
 
   context 'encoding of sourcediffs', vcr: true do
@@ -349,6 +349,16 @@ RSpec.describe BsRequestAction do
         it 'freezes revision' do
           bs_request.sanitize!
           expect(bs_request_action.source_rev.length).to eq(32)
+        end
+
+        context 'with updatelink' do
+          let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package, updatelink: true) }
+
+          it 'throws exception' do
+            expect { bs_request.sanitize! }.to raise_error do |exception|
+              expect(exception.message.to_s).to match('updatelink option')
+            end
+          end
         end
       end
     end

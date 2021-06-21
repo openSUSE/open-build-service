@@ -789,8 +789,9 @@ class BsRequestAction < ApplicationRecord
       unless add_revision
         # Enforce revisions?
         tprj = Project.get_by_name(target_project)
-        add_revision = tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
-        if add_revision
+        if tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
+          raise ExpandError, 'updatelink option is forbidden for OBS:EnforceRevisionsInRequests' if updatelink
+
           # fix the revision to the expanded sources at the time of submission
           self.source_rev = dir['srcmd5']
         end
