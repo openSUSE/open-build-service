@@ -309,4 +309,38 @@ RSpec.describe BsRequestAction do
       it { expect(bs_request_action.create_expand_package([source_pkg])).to be_an(Array) }
     end
   end
+
+  describe 'check_expand_errors', vcr: true do
+    let(:project) { user.home_project }
+    let(:attrib_type) { create(:obs_attrib_type, name: 'EnforceRevisionsInRequests') }
+    let(:attrib) { create(:attrib, attrib_type: attrib_type, project: project) }
+
+    let(:target_package) do
+      create(:package_with_file, name: 'tpackage', file_content: 'Hallo', project: project)
+    end
+    let(:source_package) do
+      create(:package_with_file, name: 'spackage', file_content: 'Trick', project: project)
+    end
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    context 'RevisionEnforcing enabled' do
+      before do
+        attrib
+      end
+
+      it 'adds revision' do
+        # trigger the code (from within the request is the easiest trigger point)
+        bs_request.sanitize!
+        expect(bs_request_action.source_rev).not_to be_nil
+      end
+    end
+
+    context 'Without RevisionEnforcing' do
+      it "doesn't add revision" do
+        bs_request.sanitize!
+        expect(bs_request_action.source_rev).to be_nil
+      end
+    end
+  end
 end
