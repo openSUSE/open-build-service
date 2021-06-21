@@ -792,17 +792,13 @@ class BsRequestAction < ApplicationRecord
         add_revision = tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
         if add_revision && source_rev
           # Enforce expanded revision of given revision by user
-          if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_link') ||
-             dir['entry'].is_a?(Hash) && dir['entry']['name'] == '_link'
-            raise ExpandError, 'Unexpanded links are forbidden by OBS:EnforceRevisionsInRequests'
-          end
+          raise ExpandError, 'Unexpanded links are forbidden by OBS:EnforceRevisionsInRequests' if dir.elements('entry').any? { |e| e['name'] == '_link' }
         end
       end
       if add_revision && !source_rev
-        if action_type == :maintenance_release && dir['entry']
+        if action_type == :maintenance_release
           # patchinfos in release requests get not frozen to allow to modify meta data
-          return if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
-          return if dir['entry'].is_a?(Hash) && dir['entry']['name'] == '_patchinfo'
+          return if dir.elements('entry').any? { |e| e['name'] == '_patchinfo' }
         end
         self.source_rev = dir['srcmd5']
       end
