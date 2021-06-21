@@ -2148,7 +2148,7 @@ sub getbinaries_buildenv {
 
   my @bdeps = grep {$_->{'name'} && $_->{'hdrmd5'}} @{$buildinfo->{'bdep'} || []};
   die("binaries without hdrmd5 in buildenv\n") unless @bdeps == @{$buildinfo->{'bdep'} || []};
-  my %needed = map {+"$_->{'name'}.$_->{'hdrmd5'}" => []} @bdeps;;
+  my %needed = map {+"$_->{'name'}.$_->{'hdrmd5'}" => []} @bdeps;
   my %needed_names = map {$_->{'name'} => 1} @bdeps;
   my @needed_names = sort(keys %needed_names);
 
@@ -2163,12 +2163,12 @@ sub getbinaries_buildenv {
         $pbvl = BSRPC::rpc({
           'uri' => "$server/getpackagebinaryversionlist",
           'timeout' => $gettimeout,
-        }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @needed_names);
+        }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch");
       } else {
         $pbvl = BSRPC::rpc({
           'uri' => "$server/build/$projid/$repoid/$arch",
           'timeout' => $gettimeout,
-        }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @needed_names);
+        }, $BSXML::packagebinaryversionlist, "view=binaryversions");
       }
     };
     undef $pbvl if $@;
@@ -2230,6 +2230,7 @@ sub getbinaries_buildenv {
 
   my @cacheold;
   my @cachenew;
+  my %used;
 
   # check the cache
   if ($cachedir) {
@@ -2249,6 +2250,8 @@ sub getbinaries_buildenv {
 	    delete $needed{$needed};
 	    last;
           }
+	  die unless $bv->{'name'} =~ /(.*)\.rpm$/;
+	  $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
 	} else {
 	  unlink("$dir/$bv->{'name'}");
 	}
@@ -2309,12 +2312,22 @@ sub getbinaries_buildenv {
         unlink("$dir/$bv->{'name'}");
 	next;
       }
+      die unless $bv->{'name'} =~ /(.*)\.rpm$/;
+      $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
       my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
       push @cachenew, [$cacheid, $s[7], "$dir/$bv->{'name'}"];
       delete $needed{$needed};
       last;
     }
     die("download of $needed failed\n") if $needed{$needed};
+  }
+  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
+  if ($outbdep) {
+    for (@bdeps) {
+      my $obdep = $used{"$_->{'name'}.$_->{'hdrmd5'}"};
+      die("did not use package $_?\n") unless $obdep;
+      push @$outbdep, $obdep;
+    }
   }
 
   manage_cache($cachesize, \@cacheold, \@cachenew) if $cachedir;

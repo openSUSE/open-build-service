@@ -194,6 +194,7 @@ our $packinfo = [
 	    'nodbgpkgs',	# kiwi
 	    'nosrcpkgs',	# kiwi
 	    'nativebuild',	# cross build: native
+	    'hasbuildenv',
 	 [[ 'path' =>
 		'project',
 		'repository',
