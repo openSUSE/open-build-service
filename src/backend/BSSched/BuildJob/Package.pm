@@ -195,7 +195,7 @@ sub check {
     return ('scheduled', [ { 'explain' => 'retrying bad build' }, $hdeps ]);
   } else {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
-    if ($rebuildmethod eq 'local' || $pdata->{'hasbuildenv'}) {
+    if ($rebuildmethod eq 'local' || $pdata->{'hasbuildenv'} || $info->{'hasbuildenv'}) {
       # rebuild on src changes only
       goto relsynccheck;
     }

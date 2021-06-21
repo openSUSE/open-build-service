@@ -1695,6 +1695,7 @@ sub getprojpack {
 	      $rinfo->{'error'} = "don't know how to build $file";
 	      next;
 	    }
+	    $rinfo->{'hasbuildenv'} = 1 if $files->{'_buildenv'} || $files->{"_buildenv.$repoid.$arch"};
 	    if (($type eq 'kiwi' || $buildtype eq 'kiwi') && $BSConfig::kiwiprojects && !$cgi->{'ignoredisable'}) {
 	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
 	      if (!$kiwiprojects{$projid}) {

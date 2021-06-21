@@ -746,7 +746,7 @@ sub expandandsort {
     }
     $pkg2src{$packid} = $info->{'name'};
 
-    if ($pdata->{'hasbuildenv'}) {
+    if ($pdata->{'hasbuildenv'} || $info->{'hasbuildenv'}) {
       $pdeps{$packid} = [];
       next;
     }
