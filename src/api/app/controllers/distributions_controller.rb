@@ -13,7 +13,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions
   def index
-    @distributions = Distribution.all_as_hash
+    @distributions = Distribution.local
 
     respond_to do |format|
       format.xml
@@ -23,7 +23,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions/1234
   def show
-    @distribution = Distribution.find(params[:id]).to_hash
+    @distribution = Distribution.find(params[:id])
 
     respond_to do |format|
       format.xml
@@ -46,6 +46,8 @@ class DistributionsController < ApplicationController
   # PATCH/PUT /distributions/1234
   def update
     distribution = Distribution.find(params[:id])
+    # We don't allow updating remote distributions
+    distribution.readonly! if distribution.remote
 
     if distribution.update_from_xmlhash(@body_xml)
       render_ok
@@ -58,6 +60,8 @@ class DistributionsController < ApplicationController
   # DELETE /distributions/1234
   def destroy
     distribution = Distribution.find(params[:id])
+    # We don't allow deleting remote distributions
+    distribution.readonly! if distribution.remote
     distribution.destroy
 
     render_ok
@@ -65,7 +69,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions/include_remotes
   def include_remotes
-    @distributions = Distribution.all_including_remotes
+    @distributions = Distribution.all
 
     respond_to do |format|
       format.xml { render :index }
@@ -92,7 +96,7 @@ class DistributionsController < ApplicationController
       render_error message: 'No distributions found in body',
                    status: 400, errorcode: 'invalid_distributions'
     else
-      Distribution.where(remote: false).destroy_all
+      Distribution.local.destroy_all
       distributions.map(&:save!)
       render_ok
     end

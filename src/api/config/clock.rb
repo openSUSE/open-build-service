@@ -48,6 +48,10 @@ module Clockwork
     BsRequest.delayed_auto_accept
   end
 
+  every(1.hour, 'refresh remote distros') do
+    FetchRemoteDistributionsJob.perform_later
+  end
+
   every(1.day, 'optimize history', thread: true, at: '05:00') do
     ActiveRecord::Base.connection_pool.with_connection do |sql|
       sql.execute('optimize table status_histories;')

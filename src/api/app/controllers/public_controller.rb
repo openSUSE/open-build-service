@@ -109,7 +109,7 @@ class PublicController < ApplicationController
 
   # GET /public/distributions
   def distributions
-    @distributions = Distribution.all_as_hash
+    @distributions = Distribution.local
 
     render 'distributions/index'
   end

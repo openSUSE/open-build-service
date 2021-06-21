@@ -146,7 +146,7 @@ RSpec.describe PublicController, vcr: true do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(assigns(:distributions)).to eq(Distribution.all_as_hash) }
+    it { expect(assigns(:distributions)).to eq(Distribution.local) }
   end
 
   describe 'GET #show_request' do

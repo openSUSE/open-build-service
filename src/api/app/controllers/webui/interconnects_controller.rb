@@ -7,6 +7,8 @@ class Webui::InterconnectsController < Webui::WebuiController
     respond_to do |format|
       if @project.valid? && @project.store
         logger.debug "New remote project with url #{@project.remoteurl}"
+        # Schedule a distribution refresh
+        FetchRemoteDistributionsJob.perform_later
         message = "Project '#{@project}' was successfully created."
         format.html do
           flash[:success] = message
