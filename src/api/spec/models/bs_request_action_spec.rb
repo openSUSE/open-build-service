@@ -334,6 +334,23 @@ RSpec.describe BsRequestAction do
         bs_request.sanitize!
         expect(bs_request_action.source_rev).not_to be_nil
       end
+
+      context 'with _link in submitted source' do
+        let!(:hacker_package) do
+          create(:package_with_file, name: 'hpackage', file_content: 'Evil Content', file_name: '0wnyou.txt', project: project)
+        end
+        let(:source_package) do
+          link_content = "<link package='hpackage'/>"
+          create(:package_with_file, name: 'spackage', file_name: '_link', file_content: link_content, project: project)
+        end
+        let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package, source_rev: '2') }
+
+        # make sure we do not trust the submitted source revision for longer than the creation time
+        it 'freezes revision' do
+          bs_request.sanitize!
+          expect(bs_request_action.source_rev.length).to eq(32)
+        end
+      end
     end
 
     context 'Without RevisionEnforcing' do

@@ -790,9 +790,9 @@ class BsRequestAction < ApplicationRecord
         # Enforce revisions?
         tprj = Project.get_by_name(target_project)
         add_revision = tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
-        if add_revision && source_rev
-          # Enforce expanded revision of given revision by user
-          raise ExpandError, 'Unexpanded links are forbidden by OBS:EnforceRevisionsInRequests' if dir.elements('entry').any? { |e| e['name'] == '_link' }
+        if add_revision
+          # fix the revision to the expanded sources
+          self.source_rev = dir['srcmd5']
         end
       end
       if add_revision && !source_rev
