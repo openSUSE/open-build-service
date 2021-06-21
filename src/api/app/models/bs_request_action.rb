@@ -791,7 +791,7 @@ class BsRequestAction < ApplicationRecord
         tprj = Project.get_by_name(target_project)
         add_revision = tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
         if add_revision
-          # fix the revision to the expanded sources
+          # fix the revision to the expanded sources at the time of submission
           self.source_rev = dir['srcmd5']
         end
       end
