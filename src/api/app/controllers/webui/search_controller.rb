@@ -163,5 +163,9 @@ class Webui::SearchController < Webui::WebuiController
                                 issue_tracker_name: @search_tracker)
     @results = search.search(page: params[:page], per_page: @per_page)
     flash[:notice] = 'Your search did not return any results.' if @results.empty?
+  rescue ThinkingSphinx::SphinxError => e
+    flash[:error] = "There has been an error performing the search. We're working to fix it. Please, try again later."
+    Airbrake.notify(e)
+    @results = []
   end
 end
