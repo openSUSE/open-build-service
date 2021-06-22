@@ -144,9 +144,9 @@ class Attrib < ApplicationRecord
     return unless package_id_previously_changed? || project_id_previously_changed?
 
     if package_id_previously_changed?
-      PopulateToSphinxJob.perform_later(id: id, object_to_index: :attrib, reference: :package, path: [:package])
+      PopulateToSphinxJob.perform_later(id: id, model_name: :attrib, reference: :package, path: [:package])
     else
-      PopulateToSphinxJob.perform_later(id: id, object_to_index: :attrib, reference: :project, path: [:project])
+      PopulateToSphinxJob.perform_later(id: id, model_name: :attrib, reference: :project, path: [:project])
     end
   end
 end

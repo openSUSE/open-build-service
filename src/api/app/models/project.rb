@@ -1596,7 +1596,7 @@ class Project < ApplicationRecord
     if new_record? ||
        title_previously_changed? ||
        description_previously_changed?
-      PopulateToSphinxJob.perform_later(id: id, object_to_index: :project)
+      PopulateToSphinxJob.perform_later(id: id, model_name: :project)
     end
   end
 end

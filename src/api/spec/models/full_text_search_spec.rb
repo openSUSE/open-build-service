@@ -179,9 +179,9 @@ RSpec.describe FullTextSearch do
           let(:search_params) { { attrib_type_id: attrib.attrib_type_id } }
 
           before do
-            PopulateToSphinxJob.perform_now(id: attrib.id, object_to_index: :attrib,
+            PopulateToSphinxJob.perform_now(id: attrib.id, model_name: :attrib,
                                             reference: :package, path: [:package])
-            PopulateToSphinxJob.perform_now(id: attrib.id, object_to_index: :attrib,
+            PopulateToSphinxJob.perform_now(id: attrib.id, model_name: :attrib,
                                             reference: :project, path: [:project])
           end
 
