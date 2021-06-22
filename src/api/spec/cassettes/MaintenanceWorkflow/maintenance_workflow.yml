@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="user_1" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo/_meta?user=user_1
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="ProjectWithRepo">
-          <title>A Handful of Dust</title>
+          <title>The Man Within</title>
           <description/>
         </project>
     headers:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '106'
     body:
       encoding: UTF-8
       string: |
         <project name="ProjectWithRepo">
-          <title>A Handful of Dust</title>
+          <title>The Man Within</title>
           <description></description>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo:Update/_meta?user=user_1
@@ -85,7 +85,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="ProjectWithRepo:Update" kind="maintenance_release">
-          <title>Ring of Bright Water</title>
+          <title>Of Human Bondage</title>
           <description/>
         </project>
     headers:
@@ -107,15 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <project name="ProjectWithRepo:Update" kind="maintenance_release">
-          <title>Ring of Bright Water</title>
+          <title>Of Human Bondage</title>
           <description></description>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo/_project/_attribute?meta=1&user=user_1
@@ -151,13 +151,13 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2">
-          <srcmd5>1db907722d441c688d167732fe1ce624</srcmd5>
-          <time>1597317455</time>
+          <srcmd5>e2c8b2d219800fe778b180fe18495c04</srcmd5>
+          <time>1624360160</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo:Update/_meta?user=user_1
@@ -165,7 +165,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="ProjectWithRepo:Update" kind="maintenance_release">
-          <title>Ring of Bright Water</title>
+          <title>Of Human Bondage</title>
           <description/>
           <link project="ProjectWithRepo"/>
         </project>
@@ -188,16 +188,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <project name="ProjectWithRepo:Update" kind="maintenance_release">
-          <title>Ring of Bright Water</title>
+          <title>Of Human Bondage</title>
           <description></description>
           <link project="ProjectWithRepo"/>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:maintenance_coord/_meta?user=maintenance_coord
@@ -237,7 +237,7 @@ http_interactions:
           <description></description>
           <person userid="maintenance_coord" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_1
@@ -283,7 +283,7 @@ http_interactions:
             <disable/>
           </build>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=user_1
@@ -316,14 +316,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2">
-          <srcmd5>b5ac59f5d2a72c7f98586b6c1dbf55de</srcmd5>
-          <time>1597317455</time>
+        <revision rev="6">
+          <srcmd5>a23515688b83c3e64677f52aece7e26b</srcmd5>
+          <time>1624360160</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_1
@@ -375,7 +375,7 @@ http_interactions:
             <disable/>
           </build>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:35 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
@@ -431,7 +431,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=maintenance_coord
@@ -471,12 +471,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>7c79565cf2a5793c8092ebecfe0a912a</srcmd5>
           <version>unknown</version>
-          <time>1597317456</time>
+          <time>1624360160</time>
           <user>maintenance_coord</user>
           <comment>generated by createpatchinfo call</comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
@@ -532,7 +532,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject/patchinfo
@@ -563,9 +563,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="1" vrev="1" srcmd5="7c79565cf2a5793c8092ebecfe0a912a">
-          <entry name="_patchinfo" md5="ea890f2483d4b7e7255d64ef4dbb1d43" size="174" mtime="1597317456"/>
+          <entry name="_patchinfo" md5="ea890f2483d4b7e7255d64ef4dbb1d43" size="174" mtime="1624360160"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject/patchinfo?view=info
@@ -598,7 +598,7 @@ http_interactions:
         <sourceinfo package="patchinfo" rev="1" vrev="1" srcmd5="7c79565cf2a5793c8092ebecfe0a912a" verifymd5="7c79565cf2a5793c8092ebecfe0a912a">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject/patchinfo
@@ -629,9 +629,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="1" vrev="1" srcmd5="7c79565cf2a5793c8092ebecfe0a912a">
-          <entry name="_patchinfo" md5="ea890f2483d4b7e7255d64ef4dbb1d43" size="174" mtime="1597317456"/>
+          <entry name="_patchinfo" md5="ea890f2483d4b7e7255d64ef4dbb1d43" size="174" mtime="1624360160"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject/patchinfo/_patchinfo
@@ -668,7 +668,7 @@ http_interactions:
           <summary>Fake comment</summary>
           <description/>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=user_1
@@ -701,14 +701,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4">
-          <srcmd5>1a27633649f413902bc03ee04970c5db</srcmd5>
-          <time>1597317456</time>
+        <revision rev="8">
+          <srcmd5>c74e2562b32d9aa148cebaa346c50376</srcmd5>
+          <time>1624360160</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -748,7 +748,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_meta?user=tom
@@ -756,8 +756,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package" project="ProjectWithRepo">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -778,21 +778,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package" project="ProjectWithRepo">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_config
     body:
       encoding: UTF-8
-      string: Et error ipsam. Dolorem ea quia. Quis soluta similique.
+      string: Sapiente dolorem sed. Id distinctio est. Quas dolorem impedit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -817,21 +817,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>3a3a25a356682acddb66129ee49d7316</srcmd5>
+          <srcmd5>665328b02721a30b94ab04156e9e704a</srcmd5>
           <version>unknown</version>
-          <time>1597317459</time>
+          <time>1624360167</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Ratione voluptatem nisi. Repellat voluptatum commodi. Maiores maxime
-        eaque.
+      string: Pariatur eum blanditiis. Non labore porro. Officia non unde.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -856,14 +855,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>4655c66eb688033eabb31031d8e10f6d</srcmd5>
+          <srcmd5>2c6109033c5937a5528ec21af10e04ef</srcmd5>
           <version>unknown</version>
-          <time>1597317459</time>
+          <time>1624360167</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
@@ -871,6 +870,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 4c3ecaea-369e-4026-a934-8dd7c32c9fcd
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -893,11 +894,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="4655c66eb688033eabb31031d8e10f6d">
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?expand=1&rev=2
@@ -927,11 +928,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="4655c66eb688033eabb31031d8e10f6d">
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_history
@@ -963,19 +964,19 @@ http_interactions:
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>3a3a25a356682acddb66129ee49d7316</srcmd5>
+            <srcmd5>665328b02721a30b94ab04156e9e704a</srcmd5>
             <version>unknown</version>
-            <time>1597317459</time>
+            <time>1624360167</time>
             <user>unknown</user>
           </revision>
           <revision rev="2" vrev="2">
-            <srcmd5>4655c66eb688033eabb31031d8e10f6d</srcmd5>
+            <srcmd5>2c6109033c5937a5528ec21af10e04ef</srcmd5>
             <version>unknown</version>
-            <time>1597317459</time>
+            <time>1624360167</time>
             <user>unknown</user>
           </revision>
         </revisionlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: get
     uri: http://backend:5352/build/ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
@@ -983,6 +984,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 92c7d63d-1d57-45ab-addc-1ac8e44c057a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1007,7 +1010,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: get
     uri: http://backend:5352/build/ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
@@ -1015,6 +1018,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - cce85a08-43bb-4f9b-ad8e-50618678ec41
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1039,10 +1044,46 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Thu, 13 Aug 2020 11:17:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 642cf823-514d-40cb-ae0e-9927b396f386
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -1069,11 +1110,83 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="4655c66eb688033eabb31031d8e10f6d">
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2d9531e3-ad7a-4049-86f2-6b3859ef8c30
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 28dc5319-dee4-4de6-a7eb-f0783af9735c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:28 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
@@ -1083,6 +1196,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - ebc9c93b-e819-4e63-bc94-c49507813891
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1107,7 +1222,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
@@ -1141,7 +1256,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
@@ -1154,6 +1269,8 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     headers:
+      X-Request-Id:
+      - ebc9c93b-e819-4e63-bc94-c49507813891
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1181,7 +1298,51 @@ http_interactions:
           <description>This project was created for package ProjectWithRepo_package via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="AutoCleanup" namespace="OBS">
+            <value>2021-06-25 11:09:29 +0000</value>
+          </attribute>
+        </attributes>
+    headers:
+      X-Request-Id:
+      - ebc9c93b-e819-4e63-bc94-c49507813891
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2">
+          <srcmd5>bbd994e3a826399d9290d3e4a82c8a05</srcmd5>
+          <time>1624360169</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
@@ -1189,8 +1350,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1211,15 +1372,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '197'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=branch&noservice=1&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=tom
@@ -1252,14 +1413,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>2bd5d2b39395342f40ec737bba304090</srcmd5>
+          <srcmd5>654fdc0fd9f66e436c45bcf669da70be</srcmd5>
           <version>unknown</version>
-          <time>1597317460</time>
+          <time>1624360169</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
@@ -1267,8 +1428,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1289,15 +1450,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '197'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1327,13 +1488,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="2bd5d2b39395342f40ec737bba304090">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?view=info
@@ -1341,6 +1502,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - ebc9c93b-e819-4e63-bc94-c49507813891
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1363,12 +1526,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="ProjectWithRepo_package" rev="1" vrev="3" srcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090" verifymd5="4655c66eb688033eabb31031d8e10f6d">
+        <sourceinfo package="ProjectWithRepo_package" rev="1" vrev="3" srcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be" verifymd5="2c6109033c5937a5528ec21af10e04ef">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="ProjectWithRepo:Update" package="ProjectWithRepo_package"/>
           <linked project="ProjectWithRepo" package="ProjectWithRepo_package"/>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1376,6 +1539,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - ebc9c93b-e819-4e63-bc94-c49507813891
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1398,13 +1563,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="2bd5d2b39395342f40ec737bba304090">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1436,14 +1601,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c53ed615aae9f80aaa83fe08ce4d31af">
+        <sourcediff key="f85b1e8efa474ff93f9e5267ac68b3fd">
           <old project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="1" srcmd5="2bd5d2b39395342f40ec737bba304090"/>
+          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -1475,12 +1640,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0c9d4e7078702c0381fd352f5338a4bc">
-          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="4655c66eb688033eabb31031d8e10f6d" srcmd5="4655c66eb688033eabb31031d8e10f6d"/>
-          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="aa4f2425f9137adb8c13d78df3c92c7d" srcmd5="aa4f2425f9137adb8c13d78df3c92c7d"/>
+        <sourcediff key="0c8d52402e80bd854d84da2579bd3d6b">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="2c6109033c5937a5528ec21af10e04ef" srcmd5="2c6109033c5937a5528ec21af10e04ef"/>
+          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="7ce5c95a929addc38797511bda3ca221" srcmd5="7ce5c95a929addc38797511bda3ca221"/>
           <files/>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
@@ -1501,6 +1666,8 @@ http_interactions:
           </repository>
         </project>
     headers:
+      X-Request-Id:
+      - ebc9c93b-e819-4e63-bc94-c49507813891
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1536,7 +1703,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1544,6 +1711,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 5be94f65-7b91-4cc9-95d8-038515100efa
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1566,13 +1735,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="2bd5d2b39395342f40ec737bba304090">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1602,11 +1771,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="4655c66eb688033eabb31031d8e10f6d">
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1614,6 +1783,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 5be94f65-7b91-4cc9-95d8-038515100efa
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1636,13 +1807,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="2bd5d2b39395342f40ec737bba304090">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=1
@@ -1672,12 +1843,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="aa4f2425f9137adb8c13d78df3c92c7d" vrev="3" srcmd5="aa4f2425f9137adb8c13d78df3c92c7d">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="7ce5c95a929addc38797511bda3ca221" vrev="3" srcmd5="7ce5c95a929addc38797511bda3ca221">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1685,6 +1856,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 5be94f65-7b91-4cc9-95d8-038515100efa
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1707,13 +1880,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="2bd5d2b39395342f40ec737bba304090">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1721,6 +1894,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 5be94f65-7b91-4cc9-95d8-038515100efa
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1743,13 +1918,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="2bd5d2b39395342f40ec737bba304090">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="aa4f2425f9137adb8c13d78df3c92c7d" lsrcmd5="2bd5d2b39395342f40ec737bba304090"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_history
@@ -1781,13 +1956,13 @@ http_interactions:
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>2bd5d2b39395342f40ec737bba304090</srcmd5>
+            <srcmd5>654fdc0fd9f66e436c45bcf669da70be</srcmd5>
             <version>unknown</version>
-            <time>1597317460</time>
+            <time>1624360169</time>
             <user>tom</user>
           </revision>
         </revisionlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
@@ -1795,6 +1970,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 1b28c451-a78b-4b42-adb4-26969910c8a2
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1820,10 +1997,83 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 97227384-a096-44fe-be60-20477dcb4c8d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 891aefb0-0e62-4065-8bb9-499952c5a641
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1846,14 +2096,164 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <resultlist state="d717409be2592c96becbdc11142f1468">
-          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
-        </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:40 GMT
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef">
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 891aefb0-0e62-4065-8bb9-499952c5a641
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '548'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="7ce5c95a929addc38797511bda3ca221" vrev="3" srcmd5="7ce5c95a929addc38797511bda3ca221">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 891aefb0-0e62-4065-8bb9-499952c5a641
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 891aefb0-0e62-4065-8bb9-499952c5a641
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="1" vrev="1" srcmd5="654fdc0fd9f66e436c45bcf669da70be">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7ce5c95a929addc38797511bda3ca221" lsrcmd5="654fdc0fd9f66e436c45bcf669da70be"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
+        </directory>
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE
@@ -1884,14 +2284,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>a8ec844ac9326e7f05507f7c7535f360</srcmd5>
+          <srcmd5>ce4cc59f8a846502437cfa9b5280a123</srcmd5>
           <version>unknown</version>
-          <time>1597317461</time>
+          <time>1624360170</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
@@ -1899,6 +2299,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0b5e96d0-4445-4b10-b10d-2c64ac424032
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1924,7 +2326,7 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_keyinfo?donotcreatecert=1&withsslcert=1
@@ -1932,6 +2334,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0b5e96d0-4445-4b10-b10d-2c64ac424032
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1954,7 +2358,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "<keyinfo/>\n"
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:30 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
@@ -1962,6 +2366,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - d1fae3a8-c7af-4083-bbf7-bfd7a308e9f7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1989,7 +2395,42 @@ http_interactions:
             <summary/>
           </result>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a9851b74-4914-4679-b644-b0f83337fa2d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:31 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -1997,6 +2438,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0db851b9-b04f-4dc7-acf6-e2c11cf9dd71
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2019,14 +2462,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -2034,6 +2477,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0db851b9-b04f-4dc7-acf6-e2c11cf9dd71
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2056,14 +2501,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -2071,6 +2516,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0db851b9-b04f-4dc7-acf6-e2c11cf9dd71
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2093,14 +2540,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:41 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&nodiff=1&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update
@@ -2110,6 +2557,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - 0db851b9-b04f-4dc7-acf6-e2c11cf9dd71
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2143,7 +2592,7 @@ http_interactions:
         ++++++ DUMMY_FILE (new)
         --- DUMMY_FILE
         +++ DUMMY_FILE
-  recorded_at: Thu, 13 Aug 2020 11:17:42 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
@@ -2151,6 +2600,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0db851b9-b04f-4dc7-acf6-e2c11cf9dd71
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2173,13 +2624,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="0beca6898ddaaf3ca1cced417e379942" vrev="4" srcmd5="0beca6898ddaaf3ca1cced417e379942">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="89ea42b77174833f1114bad0670c14a5" vrev="4" srcmd5="89ea42b77174833f1114bad0670c14a5">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:42 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
@@ -2187,6 +2638,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3642d308-ac48-4f48-bd45-a63e3fd55d14
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2212,7 +2665,7 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:42 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
@@ -2220,6 +2673,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0603c06d-6738-4552-b0c2-912386578386
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2247,7 +2702,42 @@ http_interactions:
             <summary/>
           </result>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:42 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 531e356a-9224-45d7-a765-794f74a6a2ae
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -2255,6 +2745,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 15729289-a535-4c31-a3df-62d4e35a6511
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2277,23 +2769,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=0beca6898ddaaf3ca1cced417e379942&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=89ea42b77174833f1114bad0670c14a5&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - 15729289-a535-4c31-a3df-62d4e35a6511
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2316,9 +2810,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="059c440d9d2e8fd79647a72516e54ad0">
-          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="2" srcmd5="4655c66eb688033eabb31031d8e10f6d"/>
-          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="0beca6898ddaaf3ca1cced417e379942" srcmd5="0beca6898ddaaf3ca1cced417e379942"/>
+        <sourcediff key="9d5a63e8dcab023b1090d3ec44b105a1">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="2" srcmd5="2c6109033c5937a5528ec21af10e04ef"/>
+          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="89ea42b77174833f1114bad0670c14a5" srcmd5="89ea42b77174833f1114bad0670c14a5"/>
           <files>
             <file state="added">
               <new name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5"/>
@@ -2331,7 +2825,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
@@ -2339,6 +2833,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - f2ac9e82-01c5-4b41-a1e5-0211d2dc2603
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2364,7 +2860,7 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
@@ -2372,6 +2868,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 07b547d0-60a6-4c9d-96a4-58f7620f4e03
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2397,7 +2895,7 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -2405,6 +2903,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2427,21 +2927,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=0beca6898ddaaf3ca1cced417e379942
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=89ea42b77174833f1114bad0670c14a5
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2464,20 +2966,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="0beca6898ddaaf3ca1cced417e379942" srcmd5="0beca6898ddaaf3ca1cced417e379942">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="89ea42b77174833f1114bad0670c14a5" srcmd5="89ea42b77174833f1114bad0670c14a5">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=0beca6898ddaaf3ca1cced417e379942
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=89ea42b77174833f1114bad0670c14a5
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2500,13 +3004,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="0beca6898ddaaf3ca1cced417e379942" srcmd5="0beca6898ddaaf3ca1cced417e379942">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="89ea42b77174833f1114bad0670c14a5" srcmd5="89ea42b77174833f1114bad0670c14a5">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?requestid=1&user=maintenance_coord
@@ -2526,6 +3030,8 @@ http_interactions:
           </publish>
         </project>
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2560,7 +3066,7 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -2568,6 +3074,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2590,14 +3098,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
@@ -2607,6 +3115,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2631,7 +3141,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
@@ -2665,7 +3175,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 13 Aug 2020 11:17:44 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
@@ -2673,8 +3183,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
         </package>
     headers:
@@ -2696,16 +3206,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '253'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=branch&extendvrev=1&noservice=1&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=maintenance_coord
@@ -2738,14 +3248,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>b482bc4b229ad902152be8811c9c800b</srcmd5>
+          <srcmd5>8cdbf4889cded6e88a9cb004a6a2cf00</srcmd5>
           <version>unknown</version>
-          <time>1597317465</time>
+          <time>1624360176</time>
           <user>maintenance_coord</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
@@ -2753,8 +3263,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
         </package>
     headers:
@@ -2776,16 +3286,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '253'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -2815,13 +3325,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="b482bc4b229ad902152be8811c9c800b">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="3e1cd50f5495760276feec5ebefcd8d3" lsrcmd5="b482bc4b229ad902152be8811c9c800b"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="8cdbf4889cded6e88a9cb004a6a2cf00">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7c01df5fb12bce18624762785ca97afe" lsrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
@@ -2829,6 +3339,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2851,12 +3363,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="3.2" srcmd5="3e1cd50f5495760276feec5ebefcd8d3" lsrcmd5="b482bc4b229ad902152be8811c9c800b" verifymd5="4655c66eb688033eabb31031d8e10f6d">
+        <sourceinfo package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="3.2" srcmd5="7c01df5fb12bce18624762785ca97afe" lsrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00" verifymd5="2c6109033c5937a5528ec21af10e04ef">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="ProjectWithRepo:Update" package="ProjectWithRepo_package"/>
           <linked project="ProjectWithRepo" package="ProjectWithRepo_package"/>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -2864,6 +3376,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2886,13 +3400,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="b482bc4b229ad902152be8811c9c800b">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="3e1cd50f5495760276feec5ebefcd8d3" lsrcmd5="b482bc4b229ad902152be8811c9c800b"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="8cdbf4889cded6e88a9cb004a6a2cf00">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7c01df5fb12bce18624762785ca97afe" lsrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -2924,14 +3438,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="339d26d85a98770cde2c383a03b0b733">
+        <sourcediff key="03b09eb6e7f1c62733e9e811a284b4f3">
           <old project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" srcmd5="b482bc4b229ad902152be8811c9c800b"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" srcmd5="8cdbf4889cded6e88a9cb004a6a2cf00"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -2963,14 +3477,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="57e2c6f3d83057a6bf6deb3911979b26">
-          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="4655c66eb688033eabb31031d8e10f6d" srcmd5="4655c66eb688033eabb31031d8e10f6d"/>
-          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3e1cd50f5495760276feec5ebefcd8d3" srcmd5="3e1cd50f5495760276feec5ebefcd8d3"/>
+        <sourcediff key="0de6c22580b0a40bc4132d1e3c1b6fd8">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="2c6109033c5937a5528ec21af10e04ef" srcmd5="2c6109033c5937a5528ec21af10e04ef"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="7c01df5fb12bce18624762785ca97afe" srcmd5="7c01df5fb12bce18624762785ca97afe"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
@@ -2978,8 +3492,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
           <build>
             <enable repository="ProjectWithRepo_Update"/>
@@ -3004,19 +3518,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '318'
+      - '324'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
           <build>
             <enable repository="ProjectWithRepo_Update"/>
           </build>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -3024,6 +3538,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3046,13 +3562,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="b482bc4b229ad902152be8811c9c800b">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="3e1cd50f5495760276feec5ebefcd8d3" lsrcmd5="b482bc4b229ad902152be8811c9c800b"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="8cdbf4889cded6e88a9cb004a6a2cf00">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7c01df5fb12bce18624762785ca97afe" lsrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -3060,6 +3576,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3082,13 +3600,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="b482bc4b229ad902152be8811c9c800b">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="3e1cd50f5495760276feec5ebefcd8d3" lsrcmd5="b482bc4b229ad902152be8811c9c800b"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="8cdbf4889cded6e88a9cb004a6a2cf00">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7c01df5fb12bce18624762785ca97afe" lsrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -3096,6 +3614,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3118,13 +3638,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="b482bc4b229ad902152be8811c9c800b">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="3e1cd50f5495760276feec5ebefcd8d3" lsrcmd5="b482bc4b229ad902152be8811c9c800b"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="1" vrev="1" srcmd5="8cdbf4889cded6e88a9cb004a6a2cf00">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="7c01df5fb12bce18624762785ca97afe" lsrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
@@ -3158,7 +3678,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
@@ -3183,6 +3703,8 @@ http_interactions:
           </repository>
         </project>
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3222,7 +3744,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
@@ -3247,6 +3769,8 @@ http_interactions:
           </repository>
         </project>
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3286,16 +3810,18 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=0beca6898ddaaf3ca1cced417e379942&requestid=1&user=maintenance_coord&withacceptinfo=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=89ea42b77174833f1114bad0670c14a5&requestid=1&user=maintenance_coord&withacceptinfo=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3319,15 +3845,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>7864982bec504f116833dc6ea3c21ff7</srcmd5>
+          <srcmd5>0951ee6645c9bb5908aafd22339f65f4</srcmd5>
           <version>unknown</version>
-          <time>1597317465</time>
+          <time>1624360177</time>
           <user>maintenance_coord</user>
           <comment>Maintenance incident copy from project home:tom:branches:ProjectWithRepo:Update</comment>
           <requestid>1</requestid>
-          <acceptinfo rev="2" srcmd5="7864982bec504f116833dc6ea3c21ff7" osrcmd5="b482bc4b229ad902152be8811c9c800b" xsrcmd5="978c9754b5b4dfa811ae29176ffde310" oxsrcmd5="3e1cd50f5495760276feec5ebefcd8d3"/>
+          <acceptinfo rev="2" srcmd5="0951ee6645c9bb5908aafd22339f65f4" osrcmd5="8cdbf4889cded6e88a9cb004a6a2cf00" xsrcmd5="2ceea48f04803b56cf3e2f8d3cd39ee7" oxsrcmd5="7c01df5fb12bce18624762785ca97afe"/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
@@ -3335,8 +3861,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
           <build>
             <enable repository="ProjectWithRepo_Update"/>
@@ -3361,19 +3887,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '318'
+      - '324'
     body:
       encoding: UTF-8
       string: |
         <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
-          <title>Infinite Jest</title>
-          <description>Praesentium ut fugit rerum.</description>
+          <title>Look to Windward</title>
+          <description>Vitae placeat voluptate eaque.</description>
           <releasename>ProjectWithRepo_package</releasename>
           <build>
             <enable repository="ProjectWithRepo_Update"/>
           </build>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -3403,14 +3929,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" vrev="2" srcmd5="7864982bec504f116833dc6ea3c21ff7">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="978c9754b5b4dfa811ae29176ffde310" lsrcmd5="7864982bec504f116833dc6ea3c21ff7"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" vrev="2" srcmd5="0951ee6645c9bb5908aafd22339f65f4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="2ceea48f04803b56cf3e2f8d3cd39ee7" lsrcmd5="0951ee6645c9bb5908aafd22339f65f4"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
@@ -3418,6 +3944,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3440,12 +3968,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" vrev="3.3" srcmd5="978c9754b5b4dfa811ae29176ffde310" lsrcmd5="7864982bec504f116833dc6ea3c21ff7" verifymd5="b3a962ff80f8c685dd54cedd64e138c5">
+        <sourceinfo package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" vrev="3.3" srcmd5="2ceea48f04803b56cf3e2f8d3cd39ee7" lsrcmd5="0951ee6645c9bb5908aafd22339f65f4" verifymd5="eadd2ff08237c2e4640b924c0133cc87">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="ProjectWithRepo:Update" package="ProjectWithRepo_package"/>
           <linked project="ProjectWithRepo" package="ProjectWithRepo_package"/>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
@@ -3453,6 +3981,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3475,14 +4005,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" vrev="2" srcmd5="7864982bec504f116833dc6ea3c21ff7">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="978c9754b5b4dfa811ae29176ffde310" lsrcmd5="7864982bec504f116833dc6ea3c21ff7"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="48a715b2b952c7d83ee921293cb9e104" size="175" mtime="1597317465"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" vrev="2" srcmd5="0951ee6645c9bb5908aafd22339f65f4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="2ceea48f04803b56cf3e2f8d3cd39ee7" lsrcmd5="0951ee6645c9bb5908aafd22339f65f4"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="b3b062350540f7a8bf257877eb5a2cb3" size="175" mtime="1624360176"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -3514,14 +4044,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="eea952eabf13bf8864ec6092dec16046">
+        <sourcediff key="b41c9e99613aad8d5b3051795d13c622">
           <old project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" srcmd5="7864982bec504f116833dc6ea3c21ff7"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2" srcmd5="0951ee6645c9bb5908aafd22339f65f4"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -3553,14 +4083,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c9695ea2f7ef934e4eede1adf605ccdd">
-          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="4655c66eb688033eabb31031d8e10f6d" srcmd5="4655c66eb688033eabb31031d8e10f6d"/>
-          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="978c9754b5b4dfa811ae29176ffde310" srcmd5="978c9754b5b4dfa811ae29176ffde310"/>
+        <sourcediff key="6c159205d13355d2bb255c1f676e0067">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="2c6109033c5937a5528ec21af10e04ef" srcmd5="2c6109033c5937a5528ec21af10e04ef"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="2ceea48f04803b56cf3e2f8d3cd39ee7" srcmd5="2ceea48f04803b56cf3e2f8d3cd39ee7"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
@@ -3585,6 +4115,8 @@ http_interactions:
           </repository>
         </project>
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3624,7 +4156,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -3680,7 +4212,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?comment=generated%20by%20request%20id%201%20accept%20call&user=maintenance_coord
@@ -3695,6 +4227,8 @@ http_interactions:
           <description>I want the update</description>
         </patchinfo>
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3720,12 +4254,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>53b684c8c2dbc9672bb230d024c87a14</srcmd5>
           <version>unknown</version>
-          <time>1597317465</time>
+          <time>1624360177</time>
           <user>maintenance_coord</user>
           <comment>generated by request id 1 accept call</comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -3781,7 +4315,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -3812,9 +4346,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="1" vrev="1" srcmd5="53b684c8c2dbc9672bb230d024c87a14">
-          <entry name="_patchinfo" md5="34e0b04fccfd75faea0577efe7cd9ead" size="208" mtime="1597317465"/>
+          <entry name="_patchinfo" md5="34e0b04fccfd75faea0577efe7cd9ead" size="208" mtime="1624360177"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
@@ -3822,6 +4356,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3847,7 +4383,7 @@ http_interactions:
         <sourceinfo package="patchinfo" rev="1" vrev="1" srcmd5="53b684c8c2dbc9672bb230d024c87a14" verifymd5="53b684c8c2dbc9672bb230d024c87a14">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -3855,6 +4391,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 3294593a-15b6-468f-9b8f-76a11ff53b01
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3878,9 +4416,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="1" vrev="1" srcmd5="53b684c8c2dbc9672bb230d024c87a14">
-          <entry name="_patchinfo" md5="34e0b04fccfd75faea0577efe7cd9ead" size="208" mtime="1597317465"/>
+          <entry name="_patchinfo" md5="34e0b04fccfd75faea0577efe7cd9ead" size="208" mtime="1624360177"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -3917,120 +4455,7 @@ http_interactions:
           <summary>I want the update</summary>
           <description>I want the update</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&filelimit=10000&orev=3e1cd50f5495760276feec5ebefcd8d3&rev=978c9754b5b4dfa811ae29176ffde310&tarlimit=10000&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '663'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="168e0cb949c89b26468438e46eea7f34">
-          <old project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3e1cd50f5495760276feec5ebefcd8d3" srcmd5="3e1cd50f5495760276feec5ebefcd8d3"/>
-          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="978c9754b5b4dfa811ae29176ffde310" srcmd5="978c9754b5b4dfa811ae29176ffde310"/>
-          <files>
-            <file state="added">
-              <new name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5"/>
-              <diff lines="3">@@ -0,0 +1,1 @@
-        +dummy
-        \ No newline at end of file
-        </diff>
-            </file>
-          </files>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Thu, 13 Aug 2020 11:17:45 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '247'
-    body:
-      encoding: UTF-8
-      string: |
-        <resultlist state="d717409be2592c96becbdc11142f1468">
-          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
-        </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '247'
-    body:
-      encoding: UTF-8
-      string: |
-        <resultlist state="d717409be2592c96becbdc11142f1468">
-          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
-        </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:37 GMT
 - request:
     method: get
     uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
@@ -4038,6 +4463,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - eb49e771-9bbd-48be-8c32-3bca320a73d3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4063,7 +4490,7 @@ http_interactions:
         <resultlist state="1ebb8da631fca74768ff14657f9f6921">
           <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:38 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4100,7 +4527,7 @@ http_interactions:
           <summary>I want the update</summary>
           <description>I want the update</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:38 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4137,7 +4564,7 @@ http_interactions:
           <summary>I want the update</summary>
           <description>I want the update</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:38 GMT
 - request:
     method: get
     uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
@@ -4145,6 +4572,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - b3728ea9-fb12-4398-8a5e-b8f687d2c8e6
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4170,7 +4599,7 @@ http_interactions:
         <resultlist state="1ebb8da631fca74768ff14657f9f6921">
           <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:38 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4207,7 +4636,7 @@ http_interactions:
           <summary>I want the update</summary>
           <description>I want the update</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:38 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4244,7 +4673,116 @@ http_interactions:
           <summary>I want the update</summary>
           <description>I want the update</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:46 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8c66ded5-ad99-4f57-844f-f4ee8c8cab38
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="1ebb8da631fca74768ff14657f9f6921">
+          <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
@@ -4260,6 +4798,8 @@ http_interactions:
           <stopped>locked!</stopped>
         </patchinfo>
     headers:
+      X-Request-Id:
+      - 8c66ded5-ad99-4f57-844f-f4ee8c8cab38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4285,12 +4825,12 @@ http_interactions:
         <revision rev="2" vrev="2">
           <srcmd5>d07dfcdc0bb71ab61e7d0c85c4a68c71</srcmd5>
           <version>unknown</version>
-          <time>1597317466</time>
+          <time>1624360179</time>
           <user>maintenance_coord</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -4346,7 +4886,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -4377,9 +4917,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="2" vrev="2" srcmd5="d07dfcdc0bb71ab61e7d0c85c4a68c71">
-          <entry name="_patchinfo" md5="7fd692cf9ae54961b5c5a22aa13e29c0" size="347" mtime="1597317466"/>
+          <entry name="_patchinfo" md5="7fd692cf9ae54961b5c5a22aa13e29c0" size="347" mtime="1624360179"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
@@ -4387,6 +4927,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 8c66ded5-ad99-4f57-844f-f4ee8c8cab38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4412,7 +4954,7 @@ http_interactions:
         <sourceinfo package="patchinfo" rev="2" vrev="2" srcmd5="d07dfcdc0bb71ab61e7d0c85c4a68c71" verifymd5="d07dfcdc0bb71ab61e7d0c85c4a68c71">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -4420,6 +4962,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 8c66ded5-ad99-4f57-844f-f4ee8c8cab38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4443,9 +4987,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="2" vrev="2" srcmd5="d07dfcdc0bb71ab61e7d0c85c4a68c71">
-          <entry name="_patchinfo" md5="7fd692cf9ae54961b5c5a22aa13e29c0" size="347" mtime="1597317466"/>
+          <entry name="_patchinfo" md5="7fd692cf9ae54961b5c5a22aa13e29c0" size="347" mtime="1624360179"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4483,7 +5027,7 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4521,7 +5065,7 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4559,7 +5103,83 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:39 GMT
 - request:
     method: get
     uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
@@ -4567,6 +5187,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - ef442497-d6ca-4128-a530-0dde83e1b691
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4592,7 +5214,7 @@ http_interactions:
         <resultlist state="1ebb8da631fca74768ff14657f9f6921">
           <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4630,7 +5252,7 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4668,7 +5290,7 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
@@ -4676,6 +5298,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - b5b06c20-dd32-408c-81c6-d2d4bcc83002
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4701,7 +5325,7 @@ http_interactions:
         <resultlist state="1ebb8da631fca74768ff14657f9f6921">
           <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4739,7 +5363,7 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -4777,7 +5401,118 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
           <stopped>locked!</stopped>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 66c467fb-f07d-423b-bb39-b8502ce90cb8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="1ebb8da631fca74768ff14657f9f6921">
+          <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
@@ -4792,6 +5527,8 @@ http_interactions:
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
         </patchinfo>
     headers:
+      X-Request-Id:
+      - 66c467fb-f07d-423b-bb39-b8502ce90cb8
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4817,12 +5554,12 @@ http_interactions:
         <revision rev="3" vrev="3">
           <srcmd5>177d57906eba63ae56a64a367592144a</srcmd5>
           <version>unknown</version>
-          <time>1597317467</time>
+          <time>1624360180</time>
           <user>maintenance_coord</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -4878,7 +5615,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -4909,9 +5646,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="3" vrev="3" srcmd5="177d57906eba63ae56a64a367592144a">
-          <entry name="_patchinfo" md5="ac29f7f1abd9ef43afeb43fc7737c007" size="318" mtime="1597317467"/>
+          <entry name="_patchinfo" md5="ac29f7f1abd9ef43afeb43fc7737c007" size="318" mtime="1624360180"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
@@ -4919,6 +5656,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 66c467fb-f07d-423b-bb39-b8502ce90cb8
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4944,7 +5683,7 @@ http_interactions:
         <sourceinfo package="patchinfo" rev="3" vrev="3" srcmd5="177d57906eba63ae56a64a367592144a" verifymd5="177d57906eba63ae56a64a367592144a">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -4952,6 +5691,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 66c467fb-f07d-423b-bb39-b8502ce90cb8
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4975,9 +5716,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="patchinfo" rev="3" vrev="3" srcmd5="177d57906eba63ae56a64a367592144a">
-          <entry name="_patchinfo" md5="ac29f7f1abd9ef43afeb43fc7737c007" size="318" mtime="1597317467"/>
+          <entry name="_patchinfo" md5="ac29f7f1abd9ef43afeb43fc7737c007" size="318" mtime="1624360180"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -5014,7 +5755,7 @@ http_interactions:
           <summary>ProjectWithRepo_package is much better than the old one</summary>
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -5051,7 +5792,7 @@ http_interactions:
           <summary>ProjectWithRepo_package is much better than the old one</summary>
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -5088,7 +5829,81 @@ http_interactions:
           <summary>ProjectWithRepo_package is much better than the old one</summary>
           <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
         </patchinfo>
-  recorded_at: Thu, 13 Aug 2020 11:17:47 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '318'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '318'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:09:41 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
@@ -5096,6 +5911,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - dc1b102d-a3d6-4343-bbb4-ddad55afcba3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5121,7 +5938,7 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:48 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:42 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
@@ -5129,6 +5946,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - c9583166-d50e-44f3-bcd3-c0909bb67934
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5156,7 +5975,42 @@ http_interactions:
             <summary/>
           </result>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:48 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:43 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 61fef40e-6a64-453b-8810-b30a2c0b9c5e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -5164,6 +6018,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2afa3b59-c0cb-4f2a-88f8-5c5a7bc0ac9a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5186,14 +6042,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -5201,6 +6057,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2afa3b59-c0cb-4f2a-88f8-5c5a7bc0ac9a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5223,14 +6081,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
@@ -5238,6 +6096,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2afa3b59-c0cb-4f2a-88f8-5c5a7bc0ac9a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5260,14 +6120,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="a8ec844ac9326e7f05507f7c7535f360">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" xsrcmd5="0beca6898ddaaf3ca1cced417e379942" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="_link" md5="4b52fad3449d93c286d023313c412069" size="130" mtime="1597317460"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="2" vrev="2" srcmd5="ce4cc59f8a846502437cfa9b5280a123">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" xsrcmd5="89ea42b77174833f1114bad0670c14a5" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="_link" md5="af47fbc9f021527458be31d8c3d650bc" size="130" mtime="1624360169"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:43 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&nodiff=1&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update
@@ -5277,6 +6137,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - 2afa3b59-c0cb-4f2a-88f8-5c5a7bc0ac9a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5310,7 +6172,7 @@ http_interactions:
         ++++++ DUMMY_FILE (new)
         --- DUMMY_FILE
         +++ DUMMY_FILE
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
@@ -5318,6 +6180,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2afa3b59-c0cb-4f2a-88f8-5c5a7bc0ac9a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5340,13 +6204,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="ProjectWithRepo_package" rev="0beca6898ddaaf3ca1cced417e379942" vrev="4" srcmd5="0beca6898ddaaf3ca1cced417e379942">
-          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="4655c66eb688033eabb31031d8e10f6d" baserev="4655c66eb688033eabb31031d8e10f6d" lsrcmd5="a8ec844ac9326e7f05507f7c7535f360"/>
-          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1597317461"/>
-          <entry name="_config" md5="6a40339d019f1a3b68b1c45dd1079d4e" size="55" mtime="1597317459"/>
-          <entry name="somefile.txt" md5="723651388d2d286473d79f0b48c8e41b" size="75" mtime="1597317459"/>
+        <directory name="ProjectWithRepo_package" rev="89ea42b77174833f1114bad0670c14a5" vrev="4" srcmd5="89ea42b77174833f1114bad0670c14a5">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="2c6109033c5937a5528ec21af10e04ef" baserev="2c6109033c5937a5528ec21af10e04ef" lsrcmd5="ce4cc59f8a846502437cfa9b5280a123"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1624360170"/>
+          <entry name="_config" md5="46cccf6ebc7684f1ef2c7d8f2db417bd" size="62" mtime="1624360167"/>
+          <entry name="somefile.txt" md5="42adbaa46956c814fabac93750ee8931" size="60" mtime="1624360167"/>
         </directory>
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:44 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
@@ -5354,6 +6218,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2ea5482e-921c-4629-ae28-030d03d24305
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5379,7 +6245,7 @@ http_interactions:
         <resultlist state="d717409be2592c96becbdc11142f1468">
           <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:44 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
@@ -5387,6 +6253,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2e6db83b-4540-4575-9f8e-677002a671fd
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5414,5 +6282,40 @@ http_interactions:
             <summary/>
           </result>
         </resultlist>
-  recorded_at: Thu, 13 Aug 2020 11:17:49 GMT
+  recorded_at: Tue, 22 Jun 2021 11:09:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 57e817f2-3064-4544-9c30-7df235168d1d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+  recorded_at: Tue, 22 Jun 2021 11:09:44 GMT
 recorded_with: VCR 6.0.0
