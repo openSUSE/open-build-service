@@ -170,7 +170,7 @@ GEM
     faraday-excon (1.1.0)
     faraday-net_http (1.0.1)
     faraday-net_http_persistent (1.1.0)
-    ffi (1.15.1)
+    ffi (1.15.3)
     flipper (0.21.0)
     flipper-active_record (0.21.0)
       activerecord (>= 5.0, < 7)
