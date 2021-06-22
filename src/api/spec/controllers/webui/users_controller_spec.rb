@@ -218,8 +218,8 @@ RSpec.describe Webui::UsersController do
         end
 
         it { expect(flash[:error]).to eq("Couldn't update user: Email must be a valid email address.") }
-        it { expect(user.realname).to eq(user.realname) }
-        it { expect(user.email).to eq(user.email) }
+        it { expect(user.realname).not_to eq('another real name') }
+        it { expect(user.email).not_to eq('invalid') }
         it { expect(user.state).to eq('confirmed') }
         it { is_expected.to redirect_to user_path(user) }
       end
