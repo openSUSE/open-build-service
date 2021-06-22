@@ -772,15 +772,6 @@ RSpec/MessageSpies:
 RSpec/MultipleMemoizedHelpers:
   Max: 27
 
-# Offense count: 4
-# Cop supports --auto-correct.
-RSpec/Rails/AvoidSetupHook:
-  Exclude:
-    - 'test/functional/request_events_test.rb'
-    - 'test/test_helper.rb'
-    - 'test/unit/attrib_test.rb'
-    - 'test/unit/attribute_test.rb'
-
 # Offense count: 2
 RSpec/RepeatedDescription:
   Exclude:

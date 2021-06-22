@@ -395,6 +395,11 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Enabled: false
 
+RSpec/Rails/AvoidSetupHook:
+  Exclude:
+    # Don't parse minitests for RSpec cops
+    - 'test/**/*'
+
 ##################### Bundler ##################################
 
 Bundler/OrderedGems:
