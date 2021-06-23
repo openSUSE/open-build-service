@@ -4,7 +4,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_architectures, only: [:index, :change_flag]
   before_action :find_repository_parent, only: [:index, :change_flag]
   before_action :check_ajax, only: :change_flag
-  after_action :verify_authorized, except: [:index, :distributions, :state]
+  after_action :verify_authorized, except: [:index, :state]
 
   # GET /repositories/:project(/:package)
   # Compatibility routes
@@ -19,24 +19,6 @@ class Webui::RepositoriesController < Webui::WebuiController
     @flags = {}
     [:build, :debuginfo, :publish, :useforbuild].each do |flag_type|
       @flags[flag_type] = Flag::SpecifiedFlags.new(@main_object, flag_type)
-    end
-  end
-
-  # GET project/add_repository/:project
-  def new
-    authorize @project, :update?
-  end
-
-  # GET project/add_repository_from_default_list/:project
-  def distributions
-    @distributions = Distribution.all.group_by(&:vendor)
-    return if @distributions.present?
-
-    if User.admin_session?
-      redirect_to(new_interconnect_path,
-                  alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
-    else
-      redirect_to(action: 'new', project: @project)
     end
   end
 
