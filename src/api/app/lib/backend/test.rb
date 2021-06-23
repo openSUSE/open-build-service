@@ -11,7 +11,7 @@ module Backend
 
       print 'Starting test backend...'
       @backend = IO.popen("#{Rails.root}/script/start_test_backend")
-      Rails.logger.debug "Test backend started with pid: #{@backend.pid}"
+      Rails.logger.debug { "Test backend started with pid: #{@backend.pid}" }
       loop do
         line = @backend.gets
         raise 'Backend died' unless line

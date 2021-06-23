@@ -12,7 +12,7 @@ module Backend
     def self.get(path, in_headers = {})
       Backend::Test.start
       start_time = Time.now
-      Rails.logger.debug "[backend] GET: #{path}"
+      Rails.logger.debug { "[backend] GET: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
@@ -45,7 +45,7 @@ module Backend
     def self.delete(path, in_headers = {})
       Backend::Test.start
       start_time = Time.now
-      Rails.logger.debug "[backend] DELETE: #{path}"
+      Rails.logger.debug { "[backend] DELETE: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Delete.new(path, in_headers)
       response = Net::HTTP.start(host, port) do |http|
@@ -80,7 +80,7 @@ module Backend
     def self.put_or_post(method, path, data, in_headers)
       Backend::Test.start
       start_time = Time.now
-      Rails.logger.debug "[backend] #{method}: #{path}"
+      Rails.logger.debug { "[backend] #{method}: #{path}" }
       timeout = in_headers.delete('Timeout')
       backend_request = if method == 'PUT'
                           Net::HTTP::Put.new(path, in_headers)

@@ -23,7 +23,7 @@ task(importrequests: :environment) do
         Rails.logger.error format("Request ##{lastrq} could not be saved:\n%<error>s", error: r.errors.full_messages.join("\n"))
       end
     rescue ActiveRecord::RecordNotUnique
-      Rails.logger.debug "Request ##{lastrq} already imported"
+      Rails.logger.debug { "Request ##{lastrq} already imported" }
     end
     lastrq -= 1
   end
