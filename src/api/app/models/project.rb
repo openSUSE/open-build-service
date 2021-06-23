@@ -1,6 +1,5 @@
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
-  include AppendSphinxCallbacks
   include FlagHelper
   include Flag::Validations
   include CanRenderModel
@@ -21,6 +20,8 @@ class Project < ApplicationRecord
   after_destroy_commit :delete_on_backend
 
   after_save :discard_cache
+  after_save :populate_to_sphinx
+
   after_rollback :reset_cache
   after_rollback :discard_cache
 
@@ -1603,6 +1604,14 @@ class Project < ApplicationRecord
 
   def calculate_missing_checks
     combined_status_reports.map(&:missing_checks).flatten
+  end
+
+  def populate_to_sphinx
+    if new_record? ||
+       title_previously_changed? ||
+       description_previously_changed?
+      PopulateToSphinxJob.perform_later(id: id, model_name: :project)
+    end
   end
 end
 
