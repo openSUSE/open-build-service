@@ -40,6 +40,7 @@ FactoryBot.define do
                                target_repository: evaluator.target_repository,
                                target_releaseproject: evaluator.target_releaseproject,
                                role: evaluator.role,
+                               updatelink: evaluator.updatelink,
                                group_name: evaluator.group_name,
                                person_name: evaluator.person_name)
 
@@ -98,6 +99,7 @@ FactoryBot.define do
       review_by_project { nil }
       review_by_package { nil }
       staging_owner { nil }
+      updatelink { nil }
       creating_user do |evaluator|
         evaluator.creator.is_a?(User) ? evaluator.creator : User.find_by_login(evaluator.creator)
       end

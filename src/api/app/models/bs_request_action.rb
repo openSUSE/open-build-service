@@ -786,11 +786,20 @@ class BsRequestAction < ApplicationRecord
       query[:expand] = 1 unless updatelink
       query[:rev] = source_rev if source_rev
       dir = Xmlhash.parse(Backend::Api::Sources::Package.files(source_project, source_package, query))
+
+      # Enforce revisions?
+      tprj = Project.get_by_name(target_project)
+      if tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
+        raise ExpandError, 'updatelink option is forbidden for requests against projects with the attribute OBS:EnforceRevisionsInRequests' if updatelink
+
+        # fix the revision to the expanded sources at the time of submission
+        self.source_rev = dir['srcmd5']
+      end
+
       if add_revision && !source_rev
-        if action_type == :maintenance_release && dir['entry']
+        if action_type == :maintenance_release
           # patchinfos in release requests get not frozen to allow to modify meta data
-          return if dir['entry'].is_a?(Array) && dir['entry'].map { |e| e['name'] }.include?('_patchinfo')
-          return if dir['entry'].is_a?(Hash) && dir['entry']['name'] == '_patchinfo'
+          return if dir.elements('entry').any? { |e| e['name'] == '_patchinfo' }
         end
         self.source_rev = dir['srcmd5']
       end

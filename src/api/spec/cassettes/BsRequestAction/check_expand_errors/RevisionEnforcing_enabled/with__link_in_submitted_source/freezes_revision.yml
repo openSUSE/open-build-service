@@ -1,0 +1,531 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title/>
+          <description/>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title></title>
+          <description></description>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_project/_attribute?meta=1&user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="EnforceRevisionsInRequests" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="50">
+          <srcmd5>b3e3cb3ec11e4fe3274337e8768d13b5</srcmd5>
+          <time>1624269162</time>
+          <user>request_user</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/hpackage/_meta?user=user_56
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hpackage" project="home:request_user">
+          <title>Tirra Lirra by the River</title>
+          <description>Sequi commodi non aliquid.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hpackage" project="home:request_user">
+          <title>Tirra Lirra by the River</title>
+          <description>Sequi commodi non aliquid.</description>
+        </package>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/hpackage/_config
+    body:
+      encoding: UTF-8
+      string: In soluta impedit. Alias aut voluptatum. Voluptatem est repellat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="19" vrev="19">
+          <srcmd5>5850b34f48c24b4df424d9761d435624</srcmd5>
+          <version>unknown</version>
+          <time>1624269162</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/hpackage/0wnyou.txt
+    body:
+      encoding: UTF-8
+      string: Evil Content
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>5850b34f48c24b4df424d9761d435624</srcmd5>
+          <version>unknown</version>
+          <time>1624269162</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/tpackage/_meta?user=user_57
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="tpackage" project="home:request_user">
+          <title>Edna O'Brien</title>
+          <description>Qui tenetur deserunt vitae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="tpackage" project="home:request_user">
+          <title>Edna O'Brien</title>
+          <description>Qui tenetur deserunt vitae.</description>
+        </package>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/tpackage/_config
+    body:
+      encoding: UTF-8
+      string: Vel optio fugiat. Sed enim ex. Ab quae suscipit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="29" vrev="29">
+          <srcmd5>736420a83abbd87110f8c5220fc80684</srcmd5>
+          <version>unknown</version>
+          <time>1624269162</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/tpackage/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Hallo
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="30" vrev="30">
+          <srcmd5>736420a83abbd87110f8c5220fc80684</srcmd5>
+          <version>unknown</version>
+          <time>1624269162</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/spackage/_meta?user=user_58
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="spackage" project="home:request_user">
+          <title>Beyond the Mexique Bay</title>
+          <description>Et omnis expedita est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="spackage" project="home:request_user">
+          <title>Beyond the Mexique Bay</title>
+          <description>Et omnis expedita est.</description>
+        </package>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/spackage/_config
+    body:
+      encoding: UTF-8
+      string: Voluptatem odio sed. Dignissimos eos minus. Maiores nemo dolorum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="30" vrev="30">
+          <srcmd5>f41d7f1b0f3f966476bee7b7ace97804</srcmd5>
+          <version>unknown</version>
+          <time>1624269162</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/spackage/_link
+    body:
+      encoding: UTF-8
+      string: "<link package='hpackage'/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="31" vrev="31">
+          <srcmd5>f41d7f1b0f3f966476bee7b7ace97804</srcmd5>
+          <version>unknown</version>
+          <time>1624269162</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 21 Jun 2021 09:52:42 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/spackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '477'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="spackage" rev="31" vrev="31" srcmd5="f41d7f1b0f3f966476bee7b7ace97804">
+          <linkinfo project="home:request_user" package="hpackage" srcmd5="5850b34f48c24b4df424d9761d435624" xsrcmd5="185a0254bf3270e9667ca09a17e286cc" lsrcmd5="f41d7f1b0f3f966476bee7b7ace97804"/>
+          <entry name="_config" md5="b05b07cb15e5bf78ca8b3deb605e4c0e" size="65" mtime="1624269162"/>
+          <entry name="_link" md5="3069c761c6f33c814305ac38344d5a00" size="26" mtime="1624266980"/>
+        </directory>
+  recorded_at: Mon, 21 Jun 2021 09:52:43 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:request_user/spackage?cmd=diff&expand=1&nodiff=1&opackage=tpackage&oproject=home:request_user&rev=2
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '40'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ _config
+        --- _config
+        +++ _config
+  recorded_at: Mon, 21 Jun 2021 09:52:43 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/spackage?expand=1&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '470'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="spackage" rev="a810e22dee82216b6944850ab7ec0283" vrev="32" srcmd5="a810e22dee82216b6944850ab7ec0283">
+          <linkinfo project="home:request_user" package="tpackage" srcmd5="736420a83abbd87110f8c5220fc80684" lsrcmd5="090eb89149bb279e123c1d27298cd1fb"/>
+          <entry name="_config" md5="5a71295d014385e89075a3ee585bb448" size="52" mtime="1624266546"/>
+          <entry name="somefile.txt" md5="d1bf93299de1b68e6d382c893bf1215f" size="5" mtime="1624262471"/>
+        </directory>
+  recorded_at: Mon, 21 Jun 2021 09:52:43 GMT
+recorded_with: VCR 6.0.0
