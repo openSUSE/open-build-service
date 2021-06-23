@@ -107,3 +107,45 @@ function requestAddAutocomplete(autocompleteElement) { // jshint ignore:line
     $('.hideable input:visible').removeAttr('disabled');
   });
 }
+
+$(document).ready(function(){
+  var element = $('.bs-request-actions li:first-child a:first-child');
+  if (element.length !== 0){
+    loadDiffs($(element));
+  }
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+    var diffs = $(this).data('tab-pane-id');
+    var tabPanes = $('.tab-content.sourcediff .tab-pane.sourcediff');
+
+    if (Object.entries($('#'+diffs)).length === 0) {
+      $.each( tabPanes, function(i){
+        $(tabPanes[i]).removeClass('active');
+      });
+      loadDiffs($(this));
+    } else {
+      $.each( tabPanes, function(i){
+        if(tabPanes[i].id !== diffs) {
+          $(tabPanes[i]).removeClass('active');
+        }
+      });
+    }
+  });
+});
+
+function loadDiffs(element){
+  $('.loading-diff').removeClass('invisible');
+  var id = element.data('action-id');
+  var number = element.data('req-number');
+  var index = element.data('index');
+  var diffLimit = $('.sourcediff').data('diff-limit');
+  var url = '/request/'+ number + '/request_action/' + id + '?index=' + index;
+  if(diffLimit){
+    url = url + '&full_diff=' + diffLimit;
+  }
+  $.ajax({
+    url: url,
+    success: function(){
+      $('.loading-diff').addClass('invisible');
+    }
+  });
+}

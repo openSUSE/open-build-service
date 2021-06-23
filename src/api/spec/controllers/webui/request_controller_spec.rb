@@ -82,6 +82,12 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(assigns(:show_project_maintainer_hint)).to be_falsey
       end
     end
+  end
+
+  describe 'GET #request_action' do
+    before do
+      login(submitter)
+    end
 
     context 'handling diff sizes' do
       let(:diff_header_size) { 4 }
@@ -95,7 +101,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       shared_examples 'a full diff not requested for' do |file_name|
         before do
-          get :show, params: { number: bs_request.number }
+          get :request_action, params: { number: bs_request.number, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
         it 'shows a hint' do
@@ -136,7 +142,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       shared_examples 'a full diff requested for' do |file_name|
         before do
-          get :show, params: { number: bs_request.number, full_diff: true }
+          get :request_action, params: { number: bs_request.number, full_diff: true, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
         it 'does not show a hint' do
@@ -179,7 +185,8 @@ RSpec.describe Webui::RequestController, vcr: true do
         context 'and the superseded request is superseded' do
           before do
             superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
-            get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+            get :request_action, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number, index: 0,
+                                           id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
           end
 
           it { expect(assigns(:diff_to_superseded)).to eq(superseded_bs_request) }
@@ -187,7 +194,8 @@ RSpec.describe Webui::RequestController, vcr: true do
 
         context 'and the superseded request is not superseded' do
           before do
-            get :show, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number }
+            get :request_action, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number, index: 0,
+                                           id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
           end
 
           it { expect(assigns(:diff_to_superseded)).to be_nil }

@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:36 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:07 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
@@ -48,6 +47,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 5ac7883c-90c6-40b1-b09c-0532f780010a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -66,14 +67,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '55'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
+      string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/_keyinfo?donotcreatecert=1&withsslcert=1
@@ -81,6 +81,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 5ac7883c-90c6-40b1-b09c-0532f780010a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -99,12 +101,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '12'
+      - '11'
     body:
       encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+      string: "<keyinfo/>\n"
+  recorded_at: Tue, 22 Jun 2021 11:00:13 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?view=summary
@@ -112,6 +113,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - ae1a45da-43f6-464a-ba01-a9fe3ea5f05c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -130,14 +133,47 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '55'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
+      string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - fdbc5707-6bbc-4513-835c-85dde50e5987
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:00:14 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?view=binarylist
@@ -145,6 +181,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2a233e02-392e-411e-840a-6f64ec2a8f38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -163,14 +201,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '55'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
+      string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/patchinfo/_meta?user=tom
@@ -209,7 +246,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '268'
+      - '265'
     body:
       encoding: UTF-8
       string: |
@@ -217,17 +254,16 @@ http_interactions:
           <title>Patchinfo</title>
           <description>Collected packages for update</description>
           <build>
-            <enable />
+            <enable/>
           </build>
           <publish>
-            <enable />
+            <enable/>
           </publish>
           <useforbuild>
-            <disable />
+            <disable/>
           </useforbuild>
         </package>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=tom
@@ -242,6 +278,8 @@ http_interactions:
           <description/>
         </patchinfo>
     headers:
+      X-Request-Id:
+      - 2a233e02-392e-411e-840a-6f64ec2a8f38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -264,16 +302,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="1" vrev="1">
           <srcmd5>e45d013f24b032bd54480cfc08ca5401</srcmd5>
           <version>unknown</version>
-          <time>1554481178</time>
+          <time>1624359614</time>
           <user>tom</user>
           <comment>generated by createpatchinfo call</comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/patchinfo/_meta?user=tom
@@ -312,7 +349,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '268'
+      - '265'
     body:
       encoding: UTF-8
       string: |
@@ -320,17 +357,16 @@ http_interactions:
           <title>Patchinfo</title>
           <description>Collected packages for update</description>
           <build>
-            <enable />
+            <enable/>
           </build>
           <publish>
-            <enable />
+            <enable/>
           </publish>
           <useforbuild>
-            <disable />
+            <disable/>
           </useforbuild>
         </package>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo
@@ -356,15 +392,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="2" vrev="2" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1554481166" />
+        <directory name="patchinfo" rev="1" vrev="1" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1624359614"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo?view=info
@@ -372,6 +407,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2a233e02-392e-411e-840a-6f64ec2a8f38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -394,11 +431,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="patchinfo" rev="2" vrev="2" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
+        <sourceinfo package="patchinfo" rev="1" vrev="1" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
           <filename>_patchinfo</filename>
         </sourceinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo
@@ -406,6 +442,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 2a233e02-392e-411e-840a-6f64ec2a8f38
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -424,15 +462,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="2" vrev="2" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1554481166" />
+        <directory name="patchinfo" rev="1" vrev="1" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1624359614"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -469,8 +506,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -507,8 +543,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?view=binarylist
@@ -516,6 +551,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - a136a387-bb66-4ac0-ace7-90d6587fe336
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -534,14 +571,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '55'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
+      string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -578,8 +614,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -616,8 +651,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:38 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?view=binarylist
@@ -625,6 +659,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 40a6b8aa-cf02-4bc3-b8e0-119a2266672a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -643,14 +679,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '55'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
+      string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -687,8 +722,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -725,8 +759,115 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 1c2a5d35-92a4-4f6a-b570-c8717dd3a7d0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:00:15 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo?user=tom
@@ -741,6 +882,8 @@ http_interactions:
           <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
         </patchinfo>
     headers:
+      X-Request-Id:
+      - 1c2a5d35-92a4-4f6a-b570-c8717dd3a7d0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -763,16 +906,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
+        <revision rev="2" vrev="2">
           <srcmd5>528f1469b0f1892730c6a6b1deb1d409</srcmd5>
           <version>unknown</version>
-          <time>1554481179</time>
+          <time>1624359616</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/patchinfo/_meta?user=tom
@@ -811,7 +953,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '268'
+      - '265'
     body:
       encoding: UTF-8
       string: |
@@ -819,17 +961,16 @@ http_interactions:
           <title>Patchinfo</title>
           <description>Collected packages for update</description>
           <build>
-            <enable />
+            <enable/>
           </build>
           <publish>
-            <enable />
+            <enable/>
           </publish>
           <useforbuild>
-            <disable />
+            <disable/>
           </useforbuild>
         </package>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo
@@ -855,15 +996,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="3" vrev="3" srcmd5="528f1469b0f1892730c6a6b1deb1d409">
-          <entry name="_patchinfo" md5="891ea69ccbc41681bcb6801e215e27d2" size="247" mtime="1554481179" />
+        <directory name="patchinfo" rev="2" vrev="2" srcmd5="528f1469b0f1892730c6a6b1deb1d409">
+          <entry name="_patchinfo" md5="891ea69ccbc41681bcb6801e215e27d2" size="247" mtime="1624359616"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo?view=info
@@ -871,6 +1011,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 1c2a5d35-92a4-4f6a-b570-c8717dd3a7d0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -893,11 +1035,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="patchinfo" rev="3" vrev="3" srcmd5="528f1469b0f1892730c6a6b1deb1d409" verifymd5="528f1469b0f1892730c6a6b1deb1d409">
+        <sourceinfo package="patchinfo" rev="2" vrev="2" srcmd5="528f1469b0f1892730c6a6b1deb1d409" verifymd5="528f1469b0f1892730c6a6b1deb1d409">
           <filename>_patchinfo</filename>
         </sourceinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo
@@ -905,6 +1046,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 1c2a5d35-92a4-4f6a-b570-c8717dd3a7d0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -923,15 +1066,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="3" vrev="3" srcmd5="528f1469b0f1892730c6a6b1deb1d409">
-          <entry name="_patchinfo" md5="891ea69ccbc41681bcb6801e215e27d2" size="247" mtime="1554481179" />
+        <directory name="patchinfo" rev="2" vrev="2" srcmd5="528f1469b0f1892730c6a6b1deb1d409">
+          <entry name="_patchinfo" md5="891ea69ccbc41681bcb6801e215e27d2" size="247" mtime="1624359616"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -968,8 +1110,7 @@ http_interactions:
           <summary>AAAAAAAAAAAAAAA</summary>
           <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -1006,8 +1147,7 @@ http_interactions:
           <summary>AAAAAAAAAAAAAAA</summary>
           <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
@@ -1044,6 +1184,79 @@ http_interactions:
           <summary>AAAAAAAAAAAAAAA</summary>
           <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
         </patchinfo>
-    http_version: 
-  recorded_at: Fri, 05 Apr 2019 16:19:39 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '247'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="tom">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>AAAAAAAAAAAAAAA</summary>
+          <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '247'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="tom">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>AAAAAAAAAAAAAAA</summary>
+          <description>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</description>
+        </patchinfo>
+  recorded_at: Tue, 22 Jun 2021 11:00:16 GMT
+recorded_with: VCR 6.0.0

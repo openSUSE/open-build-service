@@ -4,8 +4,8 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_login, except: [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show]
-  before_action :set_superseded_request, only: :show
+  before_action :require_request, only: [:changerequest, :show, :request_action]
+  before_action :set_superseded_request, only: [:show, :request_action]
   before_action :check_ajax, only: :sourcediff
 
   after_action :verify_authorized, only: [:create]
@@ -99,7 +99,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    diff_limit = params[:full_diff] ? 0 : nil
+    @diff_limit = params[:full_diff] ? 0 : nil
 
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
@@ -119,7 +119,9 @@ class Webui::RequestController < Webui::WebuiController
 
     @current_notification = NotificationsFinder.new.for_subscribed_user_by_id(params[:notification_id])
 
-    @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
+    @action = @actions.first
+    @active = @action[:name]
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
 
@@ -131,6 +133,19 @@ class Webui::RequestController < Webui::WebuiController
     respond_to do |format|
       format.html
       format.js { render_request_update }
+    end
+  end
+
+  def request_action
+    @diff_limit = params[:full_diff] ? 0 : nil
+    @index = params[:index].to_i
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true, action_id: params['id'].to_i)
+    @action = @actions.find { |action| action[:id] == params['id'].to_i }
+    @active = @action[:name]
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+
+    respond_to do |format|
+      format.js
     end
   end
 

@@ -284,6 +284,7 @@ OBSApi::Application.routes.draw do
       get 'request/diff/:number' => :diff
       get 'request/list_small' => :list_small, as: 'request_list_small'
       post 'request/set_bugowner_request' => :set_bugowner_request
+      get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
     end
 
     controller 'webui/search' do

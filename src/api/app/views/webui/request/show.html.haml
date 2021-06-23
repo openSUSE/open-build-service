@@ -27,14 +27,18 @@
 
 .card.mb-3
   .bg-light
-    %ul.nav.nav-tabs{ role: 'tablist' }
+    %ul.nav.nav-tabs.bs-request-actions{ role: 'tablist' }
       - @actions.each_with_index do |action, index|
         %li.nav-item
-          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: " request-tab nav-link text-nowrap #{'active' if index.zero?}",
-            data: { toggle: 'tab' }, role: 'tab')
+          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: "request-tab nav-link text-nowrap #{'active' if index.zero?}",
+            data: { toggle: 'tab', action_id: action[:id], req_number: action[:number], tab_pane_id: valid_xml_id(action[:name]), index: index },
+            role: 'tab')
   .card-body
-    .tab-content
-      = render partial: 'sourcediff_tab', collection: @actions, as: :action, locals: { bs_request: @bs_request }
+    .d-flex.justify-content-center.loading-diff
+      .spinner-border{ role: 'status' }
+        %span.sr-only Loading...
+    .tab-content.sourcediff{ data: { diff_limit: @diff_limit } }
+
 .row
   .col-md-8
     .card.mb-3#comments-list
