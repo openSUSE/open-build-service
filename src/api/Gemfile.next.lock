@@ -245,9 +245,6 @@ GEM
     kaminari-core (1.2.1)
     launchy (2.5.0)
       addressable (~> 2.7)
-    listen (3.5.1)
-      rb-fsevent (~> 0.10, >= 0.10.3)
-      rb-inotify (~> 0.9, >= 0.9.10)
     lograge (0.11.2)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -345,9 +342,6 @@ GEM
     rainbow (3.0.0)
     rake (13.0.3)
     rantly (2.0.0)
-    rb-fsevent (0.11.0)
-    rb-inotify (0.10.1)
-      ffi (~> 1.0)
     rbtree (0.4.4)
     rbtree3 (0.6.0)
     rdoc (6.3.1)
@@ -541,7 +535,6 @@ DEPENDENCIES
   jquery-ui-rails (~> 4.2.1)
   kaminari
   launchy
-  listen
   lograge
   minitest
   minitest-ci
