@@ -1,7 +1,7 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request, only: [:changerequest, :show, :request_action]
