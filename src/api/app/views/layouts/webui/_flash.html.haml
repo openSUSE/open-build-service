@@ -1,9 +1,18 @@
 .row.justify-content-center
   .col-12
-    - flash.each do |type, message|
+    - flash.each do |type, content|
       .alert.alert-dismissible.fade.show{ class: "alert-#{type}" }
         %i.fas
-        = flash_content(message)
+        - if content.is_a?(Hash)
+          %span= content.delete(:title)
+          %ul
+            - content.each do |name, messages|
+              %li.no-bullet= name
+              %ul
+                - messages.each do |message|
+                  %li= message
+        - else
+          = sanitize(content.gsub(/\\n/, ''), tags: ['a', 'b', 'ul', 'li', 'br', 'u'], attributes: ['href', 'title'])
         -# haml-lint:disable InstanceVariables
            FIXME: This is used in only one action of the package controller
         - if @more_info
