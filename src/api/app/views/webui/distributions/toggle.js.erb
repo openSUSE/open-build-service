@@ -1,0 +1,17 @@
+$('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
+$('#distribution-' + "<%= @distribution.id %>" + '-spinner').addClass('d-none');
+<% if flash[:error] %>
+  $('#distribution-' + "<%= @distribution.id %>" + '-checkbox').prop('checked', false);
+  $('#distribution-' + "<%= @distribution.id %>" + '-fail').removeClass('d-none');
+  $('#distribution-' + "<%= @distribution.id %>" + '-fail').fadeOut( 1200, function() {
+    $( this ).addClass('d-none');
+    $( this ).removeAttr('style');
+  });
+<% else %>
+  $('#distribution-' + "<%= @distribution.id %>" + '-success').removeClass('d-none');
+  $('#distribution-' + "<%= @distribution.id %>" + '-success').fadeOut( 1200, function() {
+    $( this ).addClass('d-none');
+    $( this ).removeAttr('style');
+  });
+<% end %>
+$('#distribution-' + "<%= @distribution.id %>" + '-checkbox').prop('disabled', false);

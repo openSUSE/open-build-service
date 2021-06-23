@@ -10,10 +10,11 @@
 
     %ul.list-inline.mb-0
       - if user_can_modify
-        %li.list-inline-item
-          = link_to(repositories_distributions_path(project: project), class: 'nav-link') do
-            %i.fas.fa-plus-circle.text-primary
-            Add from a Distribution
+        - if Distribution.any? || User.admin_session?
+          %li.list-inline-item
+            = link_to(new_project_distribution_path(project_name: project), class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Add from a Distribution
         %li.list-inline-item
           = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary

@@ -1,0 +1,11 @@
+.form-check
+  %input.form-check-input.distribution-input{ type: 'checkbox',
+                                              checked: checked,
+                                              'data-distribution': variant.id,
+                                              id: "distribution-#{variant.id}-checkbox" }
+  = hidden_field_tag 'distribution', variant.id
+  %label.form-check-label{ for: "distribution-#{variant.id}-checkbox" }
+    = variant.name
+  %i.fa.fa-spinner.fa-spin.d-none{ id: "distribution-#{variant.id}-spinner" }
+  %i.fa.fa-check.text-success.d-none{ id: "distribution-#{variant.id}-success" }
+  %i.fa.fa-times.text-danger.d-none{ id: "distribution-#{variant.id}-fail" }
