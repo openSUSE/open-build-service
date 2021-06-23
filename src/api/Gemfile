@@ -191,8 +191,6 @@ group :development do
   gem 'annotate'
   # toolkit to upgrade your Rails application
   gem 'next_rails'
-  # listen to file modifications and notify Rails (or any subscriber) about the changes
-  gem 'listen'
 end
 
 # Gems used only for assets and not required in production environments by default.
