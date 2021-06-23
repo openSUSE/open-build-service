@@ -77,8 +77,8 @@ end
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
 #  ignore_auth_services          :boolean          default(FALSE)
-#  in_beta                       :boolean          default(FALSE)
-#  in_rollout                    :boolean          default(TRUE)
+#  in_beta                       :boolean          default(FALSE), indexed
+#  in_rollout                    :boolean          default(TRUE), indexed
 #  last_logged_in_at             :datetime
 #  login                         :text(65535)      indexed
 #  login_failure_count           :integer          default(0), not null
@@ -91,6 +91,8 @@ end
 #
 # Indexes
 #
-#  users_login_index     (login) UNIQUE
-#  users_password_index  (deprecated_password)
+#  index_users_on_in_beta     (in_beta)
+#  index_users_on_in_rollout  (in_rollout)
+#  users_login_index          (login) UNIQUE
+#  users_password_index       (deprecated_password)
 #
