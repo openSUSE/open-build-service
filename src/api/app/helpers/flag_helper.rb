@@ -148,7 +148,7 @@ module FlagHelper
   end
 
   def self.xml_disabled_for?(xmlhash, flagtype)
-    Rails.logger.debug "xml_disabled? #{xmlhash.inspect}"
+    Rails.logger.debug { "xml_disabled? #{xmlhash.inspect}" }
     disabled = false
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|

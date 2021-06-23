@@ -71,7 +71,7 @@ class Authenticator
   end
 
   def require_admin
-    Rails.logger.debug "Checking for Admin role for user #{@http_user.login}"
+    Rails.logger.debug { "Checking for Admin role for user #{@http_user.login}" }
     unless @http_user.is_admin?
       Rails.logger.debug 'not granted!'
       raise AdminUserRequiredError, 'Requires admin privileges'
@@ -138,7 +138,7 @@ class Authenticator
       @login = krb.display_name.partition('@')[0]
       @http_user = User.find_by_login(@login)
       unless @http_user
-        Rails.logger.debug "Creating account for user '#{@login}'"
+        Rails.logger.debug { "Creating account for user '#{@login}'" }
         @http_user = User.create_user_with_fake_pw!(login: @login, state: User.default_user_state)
       end
     rescue GSSAPI::GssApiError => e
@@ -188,7 +188,7 @@ class Authenticator
       elsif authorization[0] == 'Negotiate' && CONFIG['kerberos_mode']
         extract_krb_user(authorization)
       else
-        Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
+        Rails.logger.debug { "Unsupported authentication string '#{authorization[0]}' received." }
       end
     else
       Rails.logger.debug 'No authentication string was received.'
@@ -213,7 +213,7 @@ class Authenticator
     User.session = @http_user
 
     if @http_user.state == 'confirmed'
-      Rails.logger.debug "USER found: #{@http_user.login}"
+      Rails.logger.debug { "USER found: #{@http_user.login}" }
       @user_permissions = Suse::Permission.new(@http_user)
       return true
     end

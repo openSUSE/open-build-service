@@ -26,7 +26,7 @@ class UserLdapStrategy
       Rails.logger.info("Fail to find group: #{group} in LDAP")
       false
     else
-      Rails.logger.debug("group dn: #{result[0]}")
+      Rails.logger.debug { "group dn: #{result[0]}" }
       true
     end
   end
@@ -39,7 +39,7 @@ class UserLdapStrategy
       return
     end
     filter = ldap_group_filter(group)
-    Rails.logger.debug("Search: #{filter}")
+    Rails.logger.debug { "Search: #{filter}" }
     result = []
     @@ldap_search_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
       result << entry.dn
@@ -94,7 +94,7 @@ class UserLdapStrategy
         Rails.logger.info("Failed to find #{user} in ldap")
         return result
       end
-      Rails.logger.debug("User dn: #{user_dn} user_memberof_attr: #{user_memberof_attr}")
+      Rails.logger.debug { "User dn: #{user_dn} user_memberof_attr: #{user_memberof_attr}" }
     end
 
     group_dn = ''
@@ -109,7 +109,7 @@ class UserLdapStrategy
       group_dn = ''
       group_member_attr = ''
       filter = ldap_group_filter(group)
-      Rails.logger.debug("Search group: #{filter}")
+      Rails.logger.debug { "Search group: #{filter}" }
       ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         group_dn = entry.dn
         group_member_attr = entry.vals(CONFIG['ldap_group_member_attr']) if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
@@ -127,16 +127,16 @@ class UserLdapStrategy
       # user memberof attr exist?
       if user_memberof_attr && user_memberof_attr.include?(group_dn)
         result << eachgroup
-        Rails.logger.debug("#{user} is in #{group}")
+        Rails.logger.debug { "#{user} is in #{group}" }
         next
       end
       # group member attr exist?
       if group_member_attr && group_member_attr.include?(user_dn)
         result << eachgroup
-        Rails.logger.debug("#{user} is in #{group}")
+        Rails.logger.debug { "#{user} is in #{group}" }
         next
       end
-      Rails.logger.debug("#{user} is not in #{group}")
+      Rails.logger.debug { "#{user} is not in #{group}" }
     end
 
     result
@@ -184,7 +184,7 @@ class UserLdapStrategy
   # password in the active directory server.  Returns nil unless
   # credentials are correctly found using LDAP.
   def self.find_with_ldap(login, password)
-    Rails.logger.debug("Looking for #{login} using ldap")
+    Rails.logger.debug { "Looking for #{login} using ldap" }
 
     # When the server closes the connection, @@ldap_search_con.nil? doesn't catch it
     # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
@@ -205,7 +205,7 @@ class UserLdapStrategy
       end
 
       user_filter = ldap_user_filter(login)
-      Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
+      Rails.logger.debug { "Search for #{CONFIG['ldap_search_base']} #{user_filter}" }
       begin
         ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
           user = entry.to_hash
@@ -295,7 +295,7 @@ class UserLdapStrategy
   end
 
   def local_role_check_with_ldap(role, object)
-    Rails.logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
+    Rails.logger.debug { "Checking role with ldap: object #{object.name}, role #{role.title}" }
 
     relationship_groups_contains_user?(
       object.relationships.groups.where(role_id: role.id).includes(:group), 'local_role_check_with_ldap'
@@ -334,7 +334,7 @@ class UserLdapStrategy
     # implicitly turn array into string
     user_name = [user_name].flatten.join
 
-    Rails.logger.debug("Connecting to #{server} as '#{user_name}'")
+    Rails.logger.debug { "Connecting to #{server} as '#{user_name}'" }
     port = ldap_port
 
     begin
@@ -351,7 +351,7 @@ class UserLdapStrategy
       Rails.logger.info("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return
     end
-    Rails.logger.debug("Bound as #{user_name}")
+    Rails.logger.debug { "Bound as #{user_name}" }
     conn
   end
 

@@ -500,7 +500,7 @@ class Package < ApplicationRecord
     begin
       answer = Backend::Connection.post(source_path(nil, query))
     rescue Backend::Error => e
-      Rails.logger.debug "failed to parse issues: #{e.inspect}"
+      Rails.logger.debug { "failed to parse issues: #{e.inspect}" }
       return {}
     end
     xml = Xmlhash.parse(answer.body)
@@ -1096,7 +1096,7 @@ class Package < ApplicationRecord
     if li
       bp.error = li['error']
 
-      Rails.logger.debug "Syncing link #{project.name}/#{name} -> #{li['project']}/#{li['package']}"
+      Rails.logger.debug { "Syncing link #{project.name}/#{name} -> #{li['project']}/#{li['package']}" }
       # we have to be careful - the link target can be nowhere
       bp.links_to = Package.find_by_project_and_name(li['project'], li['package'])
     else
