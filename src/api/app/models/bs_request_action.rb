@@ -247,11 +247,12 @@ class BsRequestAction < ApplicationRecord
   end
 
   def contains_change?
-    sourcediff(nodiff: 1).present?
-  rescue BsRequestAction::Errors::DiffError
-    # if the diff can'be created we can't say
-    # but let's assume the reason for the problem lies in the change
-    true
+    spkg = Package.find_by_project_and_name(source_project, source_package)
+    tpkg = Package.find_by_project_and_name(target_project, target_package)
+
+    tinfo = tpkg.dir_hash['entry'].map{ |e| {e["name"] => e["md5"]} }
+    sinfo = spkg.dir_hash['entry'].map{ |e| {e["name"] => e["md5"]} unless e['name'] == '_link' }.compact
+    sinfo != tinfo
   end
 
   def sourcediff(_opts = {})
