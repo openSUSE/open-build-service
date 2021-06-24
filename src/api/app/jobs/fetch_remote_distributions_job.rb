@@ -16,7 +16,7 @@ class FetchRemoteDistributionsJob < ApplicationJob
 
   private
 
-  def bulk_replace(project: nil, distributions_xmlhash: Xmlhash.new)
+  def bulk_replace(project:, distributions_xmlhash: Xmlhash.new)
     errors = []
     distributions = []
 
