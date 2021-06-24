@@ -107,9 +107,6 @@ class Project < ApplicationRecord
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
-  scope :very_important_projects_with_attributes, lambda {
-    ProjectsWithVeryImportantAttributeFinder.new.call
-  }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
@@ -454,7 +451,7 @@ class Project < ApplicationRecord
     end
 
     def very_important_projects_with_categories
-      very_important_projects_with_attributes.map do |p|
+      ProjectsWithVeryImportantAttributeFinder.new.call.map do |p|
         [p.name, p.title, p.categories]
       end
     end
