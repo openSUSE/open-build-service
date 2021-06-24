@@ -103,12 +103,6 @@ class Project < ApplicationRecord
   scope :local, -> { where.not('NOT ISNULL(projects.remoteurl)') }
 
   scope :autocomplete, ->(search) { AutocompleteFinder::Project.new(Project.default_scoped, search).call }
-
-  # will return all projects with attribute 'OBS:DelegateRequestTarget'
-  scope :delegates_requests, lambda {
-    ProjectsWithDelegateRequestTargetFinder.new.call
-  }
-
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
