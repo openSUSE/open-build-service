@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_25_145710) do
+ActiveRecord::Schema.define(version: 2021_06_23_134455) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -1057,6 +1057,8 @@ ActiveRecord::Schema.define(version: 2021_05_25_145710) do
     t.boolean "in_rollout", default: true
     t.string "biography", default: ""
     t.index ["deprecated_password"], name: "users_password_index"
+    t.index ["in_beta"], name: "index_users_on_in_beta"
+    t.index ["in_rollout"], name: "index_users_on_in_rollout"
     t.index ["login"], name: "users_login_index", unique: true, length: 255
   end
 

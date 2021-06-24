@@ -1,5 +1,5 @@
 class AddInBetaToUser < ActiveRecord::Migration[5.2]
   def change
-    add_column :users, :in_beta, :boolean, default: false, index: true
+    add_column :users, :in_beta, :boolean, default: false
   end
 end

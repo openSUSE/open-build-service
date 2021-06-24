@@ -831,15 +831,6 @@ RSpec/VerifiedDoubles:
     - 'spec/support/shared_contexts/setup_ldap_mock.rb'
     - 'spec/support/shared_examples/a_ldap_connection.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: db/migrate/*.rb
-Rails/AddColumnIndex:
-  Exclude:
-    - 'db/migrate/20180814112739_add_in_beta_to_user.rb'
-    - 'db/migrate/20190704072437_add_column_in_rollout_to_users.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Rails/ApplicationController:
