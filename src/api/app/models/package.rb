@@ -87,9 +87,6 @@ class Package < ApplicationRecord
   end
 
   scope :order_by_name, -> { order('LOWER(name)') }
-
-  scope :dirty_backend_package, -> { PackagesFinder.new.dirty_backend_packages }
-
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
