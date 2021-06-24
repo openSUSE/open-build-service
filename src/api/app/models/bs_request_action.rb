@@ -247,12 +247,11 @@ class BsRequestAction < ApplicationRecord
   end
 
   def contains_change?
-    spkg = Package.find_by_project_and_name(source_project, source_package)
-    tpkg = Package.find_by_project_and_name(target_project, target_package)
-
-    tinfo = tpkg.dir_hash['entry'].map{ |e| {e["name"] => e["md5"]} }
-    sinfo = spkg.dir_hash['entry'].map{ |e| {e["name"] => e["md5"]} unless e['name'] == '_link' }.compact
-    sinfo != tinfo
+    sourcediff(nodiff: 1).present?
+  rescue BsRequestAction::Errors::DiffError
+    # if the diff can'be created we can't say
+    # but let's assume the reason for the problem lies in the change
+    true
   end
 
   def sourcediff(_opts = {})
@@ -828,7 +827,6 @@ class BsRequestAction < ApplicationRecord
     # part of the test suite and requires to update 100's of VCR cassettes.
     # global_write_through is only disabled in test env. Otherwise, it's always enabled.
     return unless CONFIG['global_write_through']
-
     set_sourceupdate_default(User.session!)
     BsRequestActionWebuiInfosJob.perform_later(self)
   end
