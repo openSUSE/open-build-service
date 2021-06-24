@@ -58,9 +58,8 @@ class BsRequest < ApplicationRecord
   scope :by_package_reviews, ->(package_ids) { where(reviews: { package: package_ids }) }
   scope :by_group_reviews, ->(group_ids) { where(reviews: { group: group_ids }) }
 
-  scope :for_user, ->(params) { BsRequest::FindFor::User.new(params).all }
-  scope :for_group, ->(params) { BsRequest::FindFor::Group.new(params).all }
-  scope :for_project, ->(params) { BsRequest::FindFor::Project.new(params).all }
+  # FIXME: Get rid of this find_for scope since Rails 6.1, named scope chain does no longer leak scope to class-level querying methods
+  #        For details, see https://guides.rubyonrails.org/6_1_release_notes.html#active-record-notable-changes
   scope :find_for, ->(params) { BsRequest::FindFor::Query.new(params).all }
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
   scope :with_target_project, lambda { |target_project|
