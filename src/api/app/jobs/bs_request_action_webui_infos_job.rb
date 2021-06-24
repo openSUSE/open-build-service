@@ -30,7 +30,8 @@ class BsRequestActionWebuiInfosJob < ApplicationJob
     silent do
       BsRequestAction::Differ::ForSource.new(
         bs_request_action: bs_request_action,
-        source_package_names: source_package_names
+        source_package_names: source_package_names,
+        options: { view: 'xml', withissues: 1 }
       ).perform
     end
   end
@@ -48,7 +49,7 @@ class BsRequestActionWebuiInfosJob < ApplicationJob
       BsRequestAction::Differ::ForSource.new(
         bs_request_action: bs_request_action,
         source_package_names: source_package_names,
-        options: { superseded_bs_request_action: superseded_bs_request_action }
+        options: { superseded_bs_request_action: superseded_bs_request_action, view: 'xml', withissues: 1 }
       ).perform
     end
   end
