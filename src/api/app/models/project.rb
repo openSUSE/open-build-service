@@ -11,6 +11,7 @@ class Project < ApplicationRecord
   include Project::Errors
   include StagingProject
   include ProjectLinks
+  include ProjectDistribution
 
   TYPES = ['standard', 'maintenance', 'maintenance_incident',
            'maintenance_release'].freeze
@@ -499,11 +500,6 @@ class Project < ApplicationRecord
   def add_maintainer(user)
     add_user(user, 'maintainer')
     store
-  end
-
-  # Check if the project has a path_element matching project and repository
-  def has_distribution(project_name, repository)
-    has_local_distribution(project_name, repository) || has_remote_distribution(project_name, repository)
   end
 
   def number_of_build_problems
@@ -1552,19 +1548,6 @@ class Project < ApplicationRecord
 
   def discard_cache
     Relationship.discard_cache
-  end
-
-  def has_remote_distribution(project_name, repository)
-    linked_repositories.remote.any? do |linked_repository|
-      project_name.end_with?(linked_repository.remote_project_name) && linked_repository.name == repository
-    end
-  end
-
-  def has_local_distribution(project_name, repository)
-    linked_repositories.not_remote.any? do |linked_repository|
-      linked_repository.project.name == project_name &&
-        linked_repository.name == repository
-    end
   end
 
   def status_reports(checkables)
