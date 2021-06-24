@@ -770,6 +770,11 @@ class Project < ApplicationRecord
     end
   end
 
+  # Remove distributions based on this project
+  def cleanup_distributions
+    Distribution.remote.for_project(name).destroy_all
+  end
+
   # Give me the first ancestor of that project
   def parent
     ancestors.order(name: :desc).first
@@ -1542,6 +1547,8 @@ class Project < ApplicationRecord
 
     revoke_requests # Revoke all requests that have this project as source/target
     cleanup_packages # Deletes packages (only in DB)
+
+    cleanup_distributions
 
     repositories.each(&:mark_for_destruction)
   end
