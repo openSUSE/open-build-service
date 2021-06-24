@@ -84,6 +84,7 @@ class BsRequestAction < ApplicationRecord
     errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
     errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
     errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
+    errors.add(:source_rev, 'should not be upload') if source_rev == 'upload'
 
     # TODO: to be continued
   end
