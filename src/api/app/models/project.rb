@@ -103,24 +103,10 @@ class Project < ApplicationRecord
   scope :local, -> { where.not('NOT ISNULL(projects.remoteurl)') }
 
   scope :autocomplete, ->(search) { AutocompleteFinder::Project.new(Project.default_scoped, search).call }
-
-  # will return all projects with attribute 'OBS:ImageTemplates'
-  # FIXME: still generates deprecation warning
-  scope :local_image_templates, lambda {
-    ProjectsWithImageTemplatesFinder.new.call
-  }
-  # will return all projects with attribute 'OBS:DelegateRequestTarget'
-  scope :delegates_requests, lambda {
-    ProjectsWithDelegateRequestTargetFinder.new.call
-  }
-
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
-  scope :very_important_projects_with_attributes, lambda {
-    ProjectsWithVeryImportantAttributeFinder.new.call
-  }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
@@ -181,7 +167,7 @@ class Project < ApplicationRecord
     end
 
     def image_templates
-      local_image_templates + remote_image_templates
+      ProjectsWithImageTemplatesFinder.new.call + remote_image_templates
     end
 
     def remote_image_templates
@@ -465,7 +451,7 @@ class Project < ApplicationRecord
     end
 
     def very_important_projects_with_categories
-      very_important_projects_with_attributes.map do |p|
+      ProjectsWithVeryImportantAttributeFinder.new.call.map do |p|
         [p.name, p.title, p.categories]
       end
     end
@@ -1313,7 +1299,7 @@ class Project < ApplicationRecord
 
   # for the clockworkd - called delayed
   def update_packages_if_dirty
-    packages.dirty_backend_package.each(&:update_if_dirty)
+    PackagesFinder.new(packages).dirty_backend_packages.each(&:update_if_dirty)
   end
 
   def lock(comment = nil)
