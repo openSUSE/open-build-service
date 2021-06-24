@@ -292,6 +292,25 @@ our $container_registries = {
 #   },
 };
 
+# You can define a custom mapper function to remove project prefix for some selected projects
+# In the following example, containers from the official:Containers project would not get
+# official:Containers as prefix when they are published to registry.
+#
+# sub custom_container_mapper {
+#  my ($registry, $containerinfo, $projid, $repoid, $arch) = @_;
+#  if ($projid =~ /^official:Containers/) {
+#    return @{$containerinfo->{'tags'} || []};
+#  }
+#  return BSPublisher::Container::default_container_mapper(@_);
+# }
+#
+# our $container_registries = {
+#    ...
+#    mapper => \&custom_container_mapper,
+#    ...
+# }
+
+
 our $publish_containers = [
 #   # key:   regex to match projid or projid/repoid
 #   # value: ArrayRef with identifiers for registries configured in $container_registries
