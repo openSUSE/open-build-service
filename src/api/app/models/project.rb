@@ -104,11 +104,6 @@ class Project < ApplicationRecord
 
   scope :autocomplete, ->(search) { AutocompleteFinder::Project.new(Project.default_scoped, search).call }
 
-  # will return all projects with attribute 'OBS:ImageTemplates'
-  # FIXME: still generates deprecation warning
-  scope :local_image_templates, lambda {
-    ProjectsWithImageTemplatesFinder.new.call
-  }
   # will return all projects with attribute 'OBS:DelegateRequestTarget'
   scope :delegates_requests, lambda {
     ProjectsWithDelegateRequestTargetFinder.new.call
@@ -181,7 +176,7 @@ class Project < ApplicationRecord
     end
 
     def image_templates
-      local_image_templates + remote_image_templates
+      ProjectsWithImageTemplatesFinder.new.call + remote_image_templates
     end
 
     def remote_image_templates
