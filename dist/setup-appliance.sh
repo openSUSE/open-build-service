@@ -238,7 +238,7 @@ function adapt_worker_jobs {
 function prepare_database_setup {
 
   cd $apidir
-  RAILS_ENV=production bin/rails db:migrate:status > /dev/null
+  RAILS_ENV=production bin/rails db:migrate:status > /dev/null 2>&1
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
