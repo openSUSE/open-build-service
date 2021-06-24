@@ -73,39 +73,6 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     end
   end
 
-  describe 'GET #distributions' do
-    context 'with some distributions' do
-      it 'shows repositories from default list' do
-        login user
-        create_list(:distribution, 4, vendor: 'vendor1')
-        create_list(:distribution, 2, vendor: 'vendor2')
-        get :distributions, params: { project: apache_project }
-        expect(assigns(:distributions).length).to eq(2)
-      end
-    end
-
-    context 'without any distribution and being normal user' do
-      before do
-        login user
-        get :distributions, params: { project: apache_project }
-      end
-
-      it { is_expected.to redirect_to(action: 'new', project: apache_project) }
-      it { expect(assigns(:distributions)).to be_empty }
-    end
-
-    context 'without any distribution and being admin user' do
-      before do
-        login admin_user
-        get :distributions, params: { project: apache_project }
-      end
-
-      it { is_expected.to redirect_to(new_interconnect_path) }
-      it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
-      it { expect(assigns(:distributions)).to be_empty }
-    end
-  end
-
   describe 'POST #create' do
     before do
       login user
