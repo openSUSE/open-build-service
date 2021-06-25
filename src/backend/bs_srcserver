@@ -666,8 +666,8 @@ sub addrev {
       # see if we can expand it
       eval {
 	my %rev = %$rev_old;
-	BSSrcServer::Link::handlelinks(\%rev, $files_old);
-	$acceptinfo->{'oxsrcmd5'} = $rev{'srcmd5'};
+	my $xfiles = BSSrcServer::Link::handlelinks(\%rev, $files_old);
+	$acceptinfo->{'oxsrcmd5'} = $rev{'srcmd5'} if ref $xfiles;
       };
     }
   }
@@ -711,8 +711,8 @@ sub addrev {
       # see if we can expand it
       eval {
 	my %rev = %$rev;
-	BSSrcServer::Link::handlelinks(\%rev, $files);
-	$acceptinfo->{'xsrcmd5'} = $rev{'srcmd5'};
+	my $xfiles = BSSrcServer::Link::handlelinks(\%rev, $files);
+	$acceptinfo->{'xsrcmd5'} = $rev{'srcmd5'} if ref $xfiles;
       };
     }
     $rev->{'acceptinfo'} = $acceptinfo;
