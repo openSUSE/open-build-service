@@ -113,7 +113,7 @@ $(document).ready(function(){
   if (element.length !== 0){
     loadDiffs($(element));
   }
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+  $('.request-tab[data-toggle="tab"]').on('shown.bs.tab', function () {
     var diffs = $(this).data('tab-pane-id');
     var tabPanes = $('.tab-content.sourcediff .tab-pane.sourcediff');
 
