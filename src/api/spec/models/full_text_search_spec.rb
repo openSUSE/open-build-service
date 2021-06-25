@@ -178,6 +178,13 @@ RSpec.describe FullTextSearch do
         context 'existent attrib' do
           let(:search_params) { { attrib_type_id: attrib.attrib_type_id } }
 
+          before do
+            PopulateToSphinxJob.perform_now(id: attrib.id, model_name: :attrib,
+                                            reference: :package, path: [:package])
+            PopulateToSphinxJob.perform_now(id: attrib.id, model_name: :attrib,
+                                            reference: :project, path: [:project])
+          end
+
           it { expect(subject).to match_array([project, project_2]) }
         end
 

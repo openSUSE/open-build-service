@@ -143,13 +143,11 @@ class Attrib < ApplicationRecord
   def populate_to_sphinx
     return unless package_id_previously_changed? || project_id_previously_changed?
 
-    package_id_previously_changed? ? define_sphinx_callback(:package, [:package]) : define_sphinx_callback(:project, [:project])
-  end
-
-  def define_sphinx_callback(reference, path = [])
-    ThinkingSphinx::RealTime::Callbacks::RealTimeCallbacks.new(
-      reference, path
-    ).after_save(self)
+    if package_id_previously_changed?
+      PopulateToSphinxJob.perform_later(id: id, model_name: :attrib, reference: :package, path: [:package])
+    else
+      PopulateToSphinxJob.perform_later(id: id, model_name: :attrib, reference: :project, path: [:project])
+    end
   end
 end
 

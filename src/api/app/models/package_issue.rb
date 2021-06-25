@@ -2,13 +2,12 @@ class PackageIssue < ApplicationRecord
   belongs_to :package
   belongs_to :issue
 
+  after_save :populate_to_sphinx
+
   scope :open_issues_of_owner, ->(owner_id) { joins(:issue).where(issues: { state: 'OPEN', owner_id: owner_id }) }
   scope :with_patchinfo, lambda {
     joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id').where('package_kinds.kind = "patchinfo"')
   }
-
-  ThinkingSphinx::Callbacks.append(self, :package, behaviours: [:real_time], path: [:package])
-  ThinkingSphinx::Callbacks.append(self, :project, behaviours: [:real_time], path: [:package, :project])
 
   def self.sync_relations(package, issues)
     retries = 10
@@ -37,6 +36,15 @@ class PackageIssue < ApplicationRecord
       retries -= 1
       retry if retries.positive?
     end
+  end
+
+  private
+
+  def populate_to_sphinx
+    PopulateToSphinxJob.perform_later(id: id, model_name: :package_issue,
+                                      reference: :package, path: [:package])
+    PopulateToSphinxJob.perform_later(id: id, model_name: :package_issue,
+                                      reference: :project, path: [:package, :project])
   end
 end
 
