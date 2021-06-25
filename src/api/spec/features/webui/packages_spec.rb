@@ -331,17 +331,15 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
   end
 
   context 'creating a package' do
-    describe 'in a project owned by the user, eg. home projects' do
+    describe 'in a project owned by the user' do
       let(:very_long_description) { Faker::Lorem.paragraph(sentence_count: 20) }
 
       before do
         login user
-        visit project_show_path(project: user.home_project)
-        click_link('Create Package')
       end
 
-      it 'with invalid data (validation fails)' do
-        expect(page).to have_text("Create Package for #{user.home_project_name}")
+      it 'validations are checked' do
+        visit new_package_path(project: user.home_project)
         fill_in 'package_name', with: 'cool stuff'
         click_button('Create')
 
@@ -349,19 +347,8 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
         expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
       end
 
-      it 'that already exists' do
-        expect(page).to have_text("Create Package for #{user.home_project_name}")
-        create(:package, name: 'coolstuff', project: user.home_project)
-
-        fill_in 'package_name', with: 'coolstuff'
-        click_button('Create')
-
-        expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
-        expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
-      end
-
-      it 'with valid data' do
-        expect(page).to have_text("Create Package for #{user.home_project_name}")
+      it 'works' do
+        visit new_package_path(project: user.home_project)
         fill_in 'package_name', with: 'coolstuff'
         fill_in 'package_title', with: 'cool stuff everyone needs'
         fill_in 'package_description', with: very_long_description
@@ -374,27 +361,21 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       end
     end
 
-    describe 'in a project not owned by the user, eg. global namespace' do
+    describe 'in a project not owned by the user' do
       let(:admin_user) { create(:admin_user, :with_home) }
       let(:global_project) { create(:project, name: 'global_project') }
 
-      it 'as non-admin user' do
+      it 'forbidden as user' do
         login other_user
-        visit project_show_path(project: global_project)
-        expect(page).not_to have_link('Create package')
-
-        # Use direct path instead
-        visit "/package/new/#{global_project}"
+        visit new_package_path(project: global_project)
 
         expect(page).to have_text('Sorry, you are not authorized to create this Package')
         expect(page).to have_current_path(root_path, ignore_query: true)
       end
 
-      it 'as an admin' do
+      it 'allowed as admin' do
         login admin_user
-        visit project_show_path(project: global_project)
-        click_link('Create Package')
-
+        visit new_package_path(project: global_project)
         fill_in 'package_name', with: 'coolstuff'
         click_button('Create')
 
