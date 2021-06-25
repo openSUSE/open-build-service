@@ -235,8 +235,11 @@ Recommends:     obs-service-verify_file
 
 BuildRequires:  systemd-rpm-macros
 
-
 %{?systemd_requires}
+
+%if 0%{?suse_version} >= 1500
+BuildRequires:  sysuser-tools
+%endif
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -371,9 +374,26 @@ Provides: group(obsrun)
 %if 0%{?suse_version:1}
 Requires(pre):  shadow
 %endif
+%if 0%{?suse_version} >= 1500
+%sysusers_requires
+%endif
 
 %description -n system-user-obsrun
 This package provides the system account and group 'obsrun'.
+
+%if 0%{?suse_version} >= 1500
+%pre -n system-user-obsrun -f obsrun.pre
+%files -n system-user-obsrun
+%{_sysusersdir}/system-user-obsrun.conf
+%else
+%pre -n system-user-obsrun
+getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+
+%files -n system-user-obsrun
+%endif
 
 %package -n system-user-obsservicerun
 Summary:  System user obsservicerun
@@ -383,10 +403,26 @@ Provides: user(obsservicerun)
 %if 0%{?suse_version:1}
 Requires(pre):  shadow
 %endif
+%if 0%{?suse_version} >= 1500
+%sysusers_requires
+%endif
+
 
 %description -n system-user-obsservicerun
 This package provides the system account 'obsservicerun'
 
+%if 0%{?suse_version} >= 1500
+%pre -n system-user-obsservicerun -f obsservicerun.pre
+%files -n system-user-obsservicerun
+%{_sysusersdir}/system-user-obsservicerun.conf
+%else
+%pre -n system-user-obsservicerun
+getent passwd obsservicerun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
+    -c "" obsservicerun
+
+%files -n system-user-obsservicerun
+%endif
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
@@ -435,6 +471,11 @@ popd
 # generate apidocs
 #
 make
+
+%if 0%{?suse_version} >= 1500
+%sysusers_generate_pre dist/system-user-obsrun.conf obsrun system-user-obsrun.conf
+%sysusers_generate_pre dist/system-user-obsservicerun.conf obsservicerun system-user-obsservicerun.conf
+%endif
 
 %install
 export DESTDIR=$RPM_BUILD_ROOT
@@ -503,6 +544,11 @@ DIR=%buildroot%perl_vendorlib/OBS
 cp src/backend/BSXML.pm $DIR/XML.pm
 sed -i -e 's,package BSXML;,package OBS::XML;,' $DIR/XML.pm
 
+%if 0%{?suse_version} >= 1500
+mkdir -p %{buildroot}%{_sysusersdir}
+install -m 0644 dist/system-user-obsrun.conf %{buildroot}%{_sysusersdir}/
+install -m 0644 dist/system-user-obsservicerun.conf %{buildroot}%{_sysusersdir}/
+%endif
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -595,17 +641,6 @@ exit 0
 %pre -n obs-cloud-uploader
 %service_add_pre obsclouduploadworker.service
 %service_add_pre obsclouduploadserver.service
-
-%pre -n system-user-obsrun
-getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
-getent passwd obsrun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for build service backend" obsrun
-
-%pre -n system-user-obsservicerun
-getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
-    -c "" obsservicerun
 
 %preun
 %service_del_preun obsscheduler.service
@@ -1065,8 +1100,5 @@ usermod -a -G docker obsservicerun
 %files -n perl-OBS-XML
 %dir %perl_vendorlib/OBS
 %attr(0644,root,root) %perl_vendorlib/OBS/XML.pm
-
-%files -n system-user-obsrun
-%files -n system-user-obsservicerun
 
 %changelog
