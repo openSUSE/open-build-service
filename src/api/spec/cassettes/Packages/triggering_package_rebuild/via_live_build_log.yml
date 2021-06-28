@@ -30,26 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <project name="home:package_test_user">
           <title></title>
           <description></description>
-          <person userid="package_test_user" role="maintainer" />
+          <person userid="package_test_user" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=user_52
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Now Sleeps the Crimson Petal</title>
-          <description>Delectus nobis consectetur repellat.</description>
+          <title>No Highway</title>
+          <description>Corporis numquam cum explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,61 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>Now Sleeps the Crimson Petal</title>
-          <description>Delectus nobis consectetur repellat.</description>
+          <title>No Highway</title>
+          <description>Corporis numquam cum explicabo.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:package_test_user">
-          <title>Now Sleeps the Crimson Petal</title>
-          <description>Delectus nobis consectetur repellat.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '186'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:package_test_user">
-          <title>Now Sleeps the Crimson Petal</title>
-          <description>Delectus nobis consectetur repellat.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Eos dolor voluptate. Autem ea est. Corrupti amet mollitia.
+      string: Ut hic nam. Fuga accusamus porro. Ut illo voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,22 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>63f2a65bd55a2120f8a110e7a7b5d00f</srcmd5>
+        <revision rev="28" vrev="28">
+          <srcmd5>d4bf9318b3ad604497286d288f6e58ee</srcmd5>
           <version>unknown</version>
-          <time>1535646787</time>
+          <time>1624620822</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Eum non voluptas. Et ea quia. Numquam laborum illo.
+      string: Est debitis id. Magni hic adipisci. Amet fugit non.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -187,16 +145,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>43283773b646e89be77be04205743e0f</srcmd5>
+        <revision rev="29" vrev="29">
+          <srcmd5>a68d24cf68cab96ccb40fd6ebd64d188</srcmd5>
           <version>unknown</version>
-          <time>1535646787</time>
+          <time>1624620822</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -227,26 +184,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <project name="home:other_package_test_user">
           <title></title>
           <description></description>
-          <person userid="other_package_test_user" role="maintainer" />
+          <person userid="other_package_test_user" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=user_53
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Absalom, Absalom!</title>
-          <description>Nam dicta enim et.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Recusandae qui non ab.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -267,61 +223,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Absalom, Absalom!</title>
-          <description>Nam dicta enim et.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Recusandae qui non ab.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Absalom, Absalom!</title>
-          <description>Nam dicta enim et.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '170'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_package_test_user">
-          <title>Absalom, Absalom!</title>
-          <description>Nam dicta enim et.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Doloremque quia saepe. Voluptas ducimus repellendus. Rerum cum eos.
+      string: Nisi voluptatem perspiciatis. Molestiae iste est. Eveniet numquam qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -345,22 +261,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="41" vrev="41">
-          <srcmd5>130d7dbc28a5f166f805df562adee048</srcmd5>
+        <revision rev="27" vrev="27">
+          <srcmd5>50a79523b43d528bba55dba777308509</srcmd5>
           <version>unknown</version>
-          <time>1535646787</time>
+          <time>1624620822</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptates voluptatem est. Ratione eos quisquam. Corporis vel alias.
+      string: Voluptatem voluptatibus voluptates. Blanditiis laborum at. Voluptate
+        ut a.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -384,16 +300,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="42" vrev="42">
-          <srcmd5>4c58d0577592a3d98b5a526d5b7ea1e5</srcmd5>
+        <revision rev="28" vrev="28">
+          <srcmd5>2d2b76cfd711cc204f7e7e9497c20510</srcmd5>
           <version>unknown</version>
-          <time>1535646787</time>
+          <time>1624620822</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:07 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:42 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_jobstatus
@@ -401,6 +316,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - a61c2448-3df0-49bf-9951-5d4d6e8c8cd1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -427,8 +344,7 @@ http_interactions:
           <summary>project 'home:package_test_user' has no repository 'package_test_repository'</summary>
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:43 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?view=entry
@@ -436,6 +352,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 44357118-5c88-4a6e-b601-ab2f17f80b9e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -462,8 +380,7 @@ http_interactions:
           <summary>project 'home:package_test_user' has no repository 'package_test_repository'</summary>
           <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:43 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:package_test_user?arch=x86_64&cmd=rebuild&package=test_package&repository=package_test_repository
@@ -473,6 +390,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Request-Id:
+      - 1f238480-d09b-4b71-ae10-e84032f6bb34
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -498,8 +417,7 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
+  recorded_at: Fri, 25 Jun 2021 11:33:43 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&repository=package_test_repository&view=status
@@ -507,10 +425,10 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
+      X-Request-Id:
+      - c2f153b5-fd40-46a6-96af-fabb990c9f05
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -535,6 +453,5 @@ http_interactions:
           <summary>unknown repository 'package_test_repository'</summary>
           <details>404 unknown repository 'package_test_repository'</details>
         </status>
-    http_version: 
-  recorded_at: Thu, 30 Aug 2018 16:33:09 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Fri, 25 Jun 2021 11:33:43 GMT
+recorded_with: VCR 6.0.0
