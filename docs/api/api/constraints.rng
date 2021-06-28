@@ -91,7 +91,15 @@
               <element name="cpu">
                 <oneOrMore> 
                   <element name="flag">
-                    <ref name="cpu-flags"/>
+                    <optional>
+                      <attribute name="exclude">
+                        <choice>
+                          <value>false</value>
+                          <value>true</value>
+                        </choice>
+                      </attribute>
+                    </optional>
+                    <text />
                   </element>
                 </oneOrMore> 
               </element>

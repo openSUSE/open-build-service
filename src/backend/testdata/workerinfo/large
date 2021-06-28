@@ -13,6 +13,7 @@
   <hardware>
     <cpu>
       <flag>mmx</flag>
+      <flag>EL0</flag>
     </cpu>
     <nativeonly/>
     <processors>32</processors>
