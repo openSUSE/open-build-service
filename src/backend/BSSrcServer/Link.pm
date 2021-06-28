@@ -535,6 +535,7 @@ sub applylink {
 sub handlelinks {
   my ($rev, $files, $li) = @_;
 
+  return "bad srcmd5: $rev->{'srcmd5'}" unless $rev->{'srcmd5'} =~ /^[0-9a-f]{32}$/;
   my @linkinfo;
   my %seen;
   my $projid = $rev->{'project'};
