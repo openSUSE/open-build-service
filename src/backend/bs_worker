@@ -762,6 +762,7 @@ my $hw = {'cpu' => {}, 'processors' => 0};
 if (open(FILE, "<", "/proc/cpuinfo")) {
   my $cpu_implementer;
   my $cpu_variant;
+  my $cpu_part;
 
   while(<FILE>) {
     chomp;
@@ -779,6 +780,8 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
       $cpu_implementer = $1;
     } elsif (/^CPU variant\s*:\s(.*)$/) {
       $cpu_variant = $1;
+    } elsif (/^CPU part\s*:\s(.*)$/) {
+      $cpu_part = $1;
     } elsif (/^cpu\s*:\sPOWER9/) {
       # PowerPC kernel provides no flags, but we need to be able
       # to distinguish between power7 and 8 at least
@@ -796,6 +799,7 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
   # Check for aarch64/aarch32 compatibility
   if ($hostarch eq 'aarch64' && $cpu_implementer) {
     my $supports_aarch32;
+    my $require_aarch64_kernel;
 
     if ($cpu_implementer eq "0x50") {
       # Applied Micro / Ampere Computing
@@ -810,11 +814,21 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
         $supports_aarch32 = 1;
       }
     } elsif ($cpu_implementer eq "0x41") {
-      # ARM Inc. - all variants support aarch32 compat for now
-      $supports_aarch32 = 1;
+      # ARM Inc.
+      if ($cpu_part eq '0xd0c' || $cpu_part eq '0xd0e') {
+        # Neoverse N1 || Cortex A76AE
+        # 32bit user land is supported, but only on a 64bit kernel
+        $require_aarch64_kernel = 1;
+        $supports_aarch32 = 1;
+      } elsif ($cpu_part lt '0xd0c') {
+        # old hardware had full support of 32bit
+        $supports_aarch32 = 1;
+      }
+      # otherwise we assume 64bit only for all future hardware
     }
 
     $hw->{'nativeonly'} = undef unless $supports_aarch32;
+    push @{$hw->{'cpu'}->{'flag'}}, 'EL0' if $require_aarch64_kernel;
   }
 }
 $hw->{'jobs'} = $jobs if $jobs;
