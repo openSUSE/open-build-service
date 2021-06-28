@@ -46,10 +46,14 @@ aliases:
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
 
-  - &store_minitest_artefacts
+  - &store_minitest_artifacts
     store_artifacts:
       path: ./src/api/log/
       destination: minitest
+
+  - &store_minitest_test_results
+    store_test_results:
+      path: /home/frontend/minitest
 
   - &store_rspec_artifacts
     store_artifacts:
@@ -185,9 +189,8 @@ jobs:
           root: .
           paths:
             - src/api/coverage_results
-      - store_test_results:
-          path: /home/frontend/minitest
-      - <<: *store_minitest_artefacts
+      - <<: *store_minitest_test_results
+      - <<: *store_minitest_artifacts
 
   migrations_test:
     docker:
@@ -225,7 +228,7 @@ jobs:
           command: |
             cd src/api
             bundle exec rake test:spider
-      - <<: *store_minitest_artefacts
+      - <<: *store_minitest_artifacts
 
   backend_test:
     docker:
@@ -301,7 +304,7 @@ jobs:
       - store_test_results:
           path: /home/frontend/feature
 
-  next_rails:
+  next_rails-rspec:
     docker:
       - <<: *frontend_base
       - <<: *mariadb
@@ -320,10 +323,27 @@ jobs:
       - <<: *store_rspec_artifacts
       - <<: *store_rspec_test_results
       - <<: *store_capybara_artifacts
+
+  next_rails-minitest:
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
+    environment:
+      BUNDLE_GEMFILE: Gemfile.next
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - run: *wait_for_database
+      - run: *bootstrap_old_test_suite
       - run:
           name: Run minitest test suite
+          environment:
+            TESTOPTS: "--ci-dir=/home/frontend/minitest"
           command: cd src/api && bundle exec rake test:api:group1 test:api:group2
-      - <<: *store_minitest_artefacts
+      - <<: *store_minitest_test_results
+      - <<: *store_minitest_artifacts
 
 workflows:
   version: 2
@@ -355,7 +375,17 @@ workflows:
       - feature:
           requires:
             - checkout_code
-      - next_rails:
+      # next_rails jobs are split between RSpec and Minitest because they need a different setup
+      - next_rails-rspec:
+          requires:
+            - checkout_code
+          # Run this job on any upstream (not from a fork) branch starting with the prefix next_rails-
+          # This is to avoid slowing down our continuous integration for branches not related to the next Rails vervion update
+          filters:
+            branches:
+              only:
+                - /next_rails\-.*/
+      - next_rails-minitest:
           requires:
             - checkout_code
           # Run this job on any upstream (not from a fork) branch starting with the prefix next_rails-
