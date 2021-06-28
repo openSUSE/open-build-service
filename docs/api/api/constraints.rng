@@ -91,6 +91,14 @@
               <element name="cpu">
                 <oneOrMore> 
                   <element name="flag">
+                    <optional>
+                      <attribute name="exclude">
+                        <choice>
+                          <value>false</value>
+                          <value>true</value>
+                        </choice>
+                      </attribute>
+                    </optional>
                     <text />
                   </element>
                 </oneOrMore> 

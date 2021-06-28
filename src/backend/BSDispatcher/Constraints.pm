@@ -114,9 +114,14 @@ sub oracle {
     return 0 if $constraints->{'hardware'}->{'memoryperjob'} && getmbsize($constraints->{'hardware'}->{'memoryperjob'}) * ($worker->{'hardware'}->{'jobs'} || 1) > ( $memory + $swap );
     return 0 if $constraints->{'hardware'}->{'physicalmemory'} && getmbsize($constraints->{'hardware'}->{'physicalmemory'}) > $memory;
     if ($constraints->{'hardware'}->{'cpu'}) {
-      return 0 unless $worker->{'hardware'}->{'cpu'};
       my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};
-      return 0 if grep {!$workerflags{$_}} @{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []};
+      for my $flag (@{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []}) {
+        if ($flag->{'exclude'} && $flag->{'exclude'} eq 'true') {
+          return 0 if $workerflags{$flag->{'_content'}};
+        } else {
+          return 0 unless $workerflags{$flag->{'_content'}};
+        }
+      }
     }
   }
   return 1;
@@ -167,10 +172,7 @@ sub mergeconstraints {
         $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? BSUtil::clone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
       }
       if ($con2->{'hardware'}->{'cpu'} && $con2->{'hardware'}->{'cpu'}->{'flag'}) {
-        my %oldflags = map {$_ => 1} @{$con->{'hardware'}->{'cpu'}->{'flag'} || []};
-        for (@{$con2->{'hardware'}->{'cpu'}->{'flag'}}) {
-          push @{$con->{'hardware'}->{'cpu'}->{'flag'}}, $_ unless $oldflags{$_};
-        }
+        push @{$con->{'hardware'}->{'cpu'}->{'flag'}}, @{$con2->{'hardware'}->{'cpu'}->{'flag'}};
       }
     }
   }
