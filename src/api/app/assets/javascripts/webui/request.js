@@ -134,11 +134,9 @@ $(document).ready(function(){
 
 function loadDiffs(element){
   $('.loading-diff').removeClass('invisible');
-  var id = element.data('action-id');
-  var number = element.data('req-number');
   var index = element.data('index');
+  var url = element.data('url') + '?index=' + index;
   var diffLimit = $('.sourcediff').data('diff-limit');
-  var url = '/request/'+ number + '/request_action/' + id + '?index=' + index;
   if(diffLimit){
     url = url + '&full_diff=' + diffLimit;
   }
