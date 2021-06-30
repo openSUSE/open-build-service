@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe WorkerStatus do
   before do
-    allow(Backend::Api::BuildResults::Worker).to receive(:status).and_return(xml_response)
+    Rails.cache.write('workerstatus', xml_response)
   end
 
   describe '.hidden' do
@@ -74,7 +74,7 @@ RSpec.describe WorkerStatus do
     end
   end
 
-  describe '#update_workerstatus_cache' do
+  describe '#save' do
     let(:xml_response) do
       <<-HEREDOC
       <workerstatus clients="285">
@@ -110,7 +110,7 @@ RSpec.describe WorkerStatus do
       HEREDOC
     end
 
-    subject { WorkerStatus.new.update_workerstatus_cache }
+    subject { WorkerStatus.new.save }
 
     it { expect { subject }.to change(StatusHistory, :count).from(0).to(23) }
 
