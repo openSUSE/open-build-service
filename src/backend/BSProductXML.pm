@@ -214,7 +214,8 @@ our $product = [
               'defaultlang',
               'datadir',
               'descriptiondir',
-	      'default_obs_repository_name', # needs to be a sync with the name in /distributions
+              'default_obs_repository_name', # needs to be a sync with the name in /distributions
+              'default_obs_download_url',    # contains %_download_url
               [ 'releasepackage' => 'name', 'flag', 'version', 'release' ],
               'distribution',
               [[ 'obsoletepackage' => '_content' ]],
