@@ -17,13 +17,25 @@ class Workflow
         new_pull_request? || updated_pull_request?
       end
 
-      def call
+      def call(options = {})
+        # TODO: Raise to let user know that their workflow configuration is wrong
         return unless valid? && allowed_event_and_action?
 
         branched_package = find_or_create_branched_package
 
         add_or_update_branch_request_file(package: branched_package)
         create_or_update_subscriptions(branched_package)
+
+        workflow_filters = options.fetch(:workflow_filters, [])
+        workflow_repositories(target_project_name, workflow_filters).each do |repository|
+          # TODO: Fix n+1 queries
+          workflow_architectures(repository, workflow_filters).each do |architecture|
+            # We cannot report multibuild flavors here... so they will be missing from the initial report
+            SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
+                                  @scm_extractor_payload, @token.scm_token).call
+          end
+        end
+
         branched_package
       end
 
@@ -159,6 +171,30 @@ class Workflow
                                                               package: branched_package)
           subscription.update!(payload: @scm_extractor_payload)
         end
+      end
+
+      # TODO: This could be in a query object
+      def workflow_repositories(target_project_name, filters)
+        repositories = Project.get_by_name(target_project_name).repositories
+        return repositories if filters.blank?
+
+        return repositories.where(name: filters[:repositories][:only]) if filters[:repositories][:only]
+
+        return repositories.where.not(name: filters[:repositories][:ignore]) if filters[:repositories][:ignore]
+
+        repositories
+      end
+
+      # TODO: This could be in a query object
+      def workflow_architectures(repository, filters)
+        architectures = repository.architectures
+        return architectures if filters.blank?
+
+        return architectures.where(name: filters[:architectures][:only]) if filters[:architectures][:only]
+
+        return architectures.where.not(name: filters[:architectures][:ignore]) if filters[:architectures][:ignore]
+
+        architectures
       end
     end
   end
