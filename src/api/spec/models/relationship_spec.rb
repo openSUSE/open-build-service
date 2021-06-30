@@ -102,6 +102,7 @@ RSpec.describe Relationship do
   describe '.forbidden_project_ids' do
     let(:confirmed_user) { create(:confirmed_user) }
     let(:project) { create(:forbidden_project) }
+    let(:allowed_users) { create(:group_with_user, user: confirmed_user) }
 
     context 'for admins' do
       before do
@@ -127,6 +128,15 @@ RSpec.describe Relationship do
       before do
         login(confirmed_user)
         create(:relationship_project_user, project: project, user: confirmed_user)
+      end
+
+      it { expect(Relationship.forbidden_project_ids).not_to include(project.id) }
+    end
+
+    context 'for users in whitelisted groups' do
+      before do
+        login(confirmed_user)
+        create(:relationship_project_group, project: project, group: allowed_users)
       end
 
       it { expect(Relationship.forbidden_project_ids).not_to include(project.id) }
