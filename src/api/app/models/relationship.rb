@@ -87,9 +87,10 @@ class Relationship < ApplicationRecord
       forbidden_projects_hash = { projects: [], whitelist: {} }
       RelationshipsFinder.new.disabled_projects.each do |r|
         forbidden_projects_hash[:projects] << r.project_id
-        if r.user_id
-          forbidden_projects_hash[:whitelist][r.user_id] ||= []
-          forbidden_projects_hash[:whitelist][r.user_id] << r.project_id if r.user_id
+        user_id = r.user_id || r.groups_user_id
+        if user_id
+          forbidden_projects_hash[:whitelist][user_id] ||= []
+          forbidden_projects_hash[:whitelist][user_id] << r.project_id
         end
       end
       forbidden_projects_hash[:projects].uniq!
