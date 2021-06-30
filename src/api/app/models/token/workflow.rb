@@ -1,4 +1,6 @@
 class Token::Workflow < Token
+  validates :scm_token, presence: true
+
   def self.token_name
     'workflow'
   end
