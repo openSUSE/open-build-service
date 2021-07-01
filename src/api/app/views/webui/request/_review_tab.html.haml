@@ -5,7 +5,7 @@
       = user_with_realname_and_icon(User.find_by(login: review.creator))
       requested:
     .ml-4
-      %p= simple_format(review.reason || 'No reason given')
+      %p= sanitize(simple_format(review.reason || 'No reason given'), tags: %w[br p])
   %p
     = text_area_tag('comment', '', rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
   %p

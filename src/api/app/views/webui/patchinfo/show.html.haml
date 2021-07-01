@@ -30,7 +30,7 @@
       .card.mb-3
         %h5.card-header Message
         .card-body
-          = simple_format @patchinfo.message
+          = sanitize(simple_format(@patchinfo.message), tags: %w[br p])
 
   .col-md-6
     .card.mb-3
