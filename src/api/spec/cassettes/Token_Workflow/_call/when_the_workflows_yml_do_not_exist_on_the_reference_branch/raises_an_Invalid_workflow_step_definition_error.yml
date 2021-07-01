@@ -1,0 +1,121 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 02 Jul 2021 07:53:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 02 Jul 2021 07:53:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project">
+          <title>Infinite Jest</title>
+          <description>Non iure aut accusantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project">
+          <title>Infinite Jest</title>
+          <description>Non iure aut accusantium.</description>
+        </package>
+  recorded_at: Fri, 02 Jul 2021 07:53:04 GMT
+recorded_with: VCR 6.0.0
