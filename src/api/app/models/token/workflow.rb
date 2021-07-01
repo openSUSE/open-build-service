@@ -12,21 +12,18 @@ class Token::Workflow < Token
     scm_extractor_payload = extractor.call
     yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload, token: self).call
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
-
     workflows.each do |workflow|
       workflow.steps.each do |step|
         run_step_and_report(step, scm_extractor_payload, scm_token)
-      rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized => e
-        raise Token::Errors::SCMTokenInvalid, e.message
       end
     end
+  rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized => e
+    raise Token::Errors::SCMTokenInvalid, e.message
   end
 
   private
 
   def run_step_and_report(step, scm_extractor_payload, scm_token)
-    raise 'Invalid workflow step definition' unless step.valid?
-
     package_from_step = step.call
 
     raise "We couldn't branch your package" unless package_from_step

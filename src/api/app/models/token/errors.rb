@@ -16,4 +16,8 @@ module Token::Errors
   class WorkflowsYamlNotParsable < APIError
     setup 400
   end
+
+  class InvalidWorkflowStepDefinition < APIError
+    setup 403
+  end
 end
