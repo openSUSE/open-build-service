@@ -13,6 +13,7 @@
     <cpu>
       <flag>fpu</flag>
       <flag>mmx</flag>
+      <flag exclude="true">nol0kernel</flag>
     </cpu>
     <processors>2</processors>
     <disk>

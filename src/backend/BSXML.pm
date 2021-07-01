@@ -1773,7 +1773,11 @@ our @constraint = (
       ],
       [ 'hardware' =>
 	  [ 'cpu' =>
-	      [ 'flag' ],
+	     [[ 'flag'=>
+	       'exclude',   # true or false. default is false.
+	       [],
+	       '_content' # the cpu flag from /proc/cpuinfo
+             ]],
 	  ],
 	    'processors',
 	    'jobs',

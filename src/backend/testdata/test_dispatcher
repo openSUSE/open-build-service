@@ -51,6 +51,7 @@ td simple05 false "kernel-default" armv7l small kernel
 td simple06 false "kernel-default" aarch64 small kernel
 td simple07 true "kernel-default" aarch64 medium kernel
 td simple08 true "kernel-default" aarch64 large kernel
+td simple09 false "kernel-default" armv7l large kernel # requires native kernel support (EL0)
 
 # simple source constraints like used by suse kernel
 td sandbox31 false "kernel-obs-qa" i586 medium kernel
