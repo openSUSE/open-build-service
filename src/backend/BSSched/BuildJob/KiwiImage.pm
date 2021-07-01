@@ -102,6 +102,7 @@ sub check {
     return ('broken', 'no config');
   }
   $bconf->{'type'} = 'kiwi';
+  $bconf->{'no_vminstall_expand'} = 1 if @{$repo->{'path'} || []};
 
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
