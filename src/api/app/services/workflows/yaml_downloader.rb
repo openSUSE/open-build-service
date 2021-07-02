@@ -23,7 +23,7 @@ module Workflows
       when 'github'
         "https://raw.githubusercontent.com/#{@scm_payload[:target_repository_full_name]}/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
       when 'gitlab'
-        "https://gitlab.com/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
+        "#{@scm_payload[:scheme]}://#{@scm_payload[:host]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
       end
     end
   end

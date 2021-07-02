@@ -52,10 +52,12 @@ module TriggerControllerService
     end
 
     def gitlab_extractor_payload
+      http_url = @payload.dig('project', 'http_url')
+      uri = URI.parse(http_url)
       {
         scm: 'gitlab',
         object_kind: @payload['object_kind'],
-        http_url: @payload.dig('project', 'http_url'),
+        http_url: http_url,
         commit_sha: @payload.dig('object_attributes', 'last_commit', 'id'),
         pr_number: @payload.dig('object_attributes', 'iid'),
         source_branch: @payload.dig('object_attributes', 'source_branch'),
@@ -63,7 +65,9 @@ module TriggerControllerService
         action: @payload.dig('object_attributes', 'action'), # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
         project_id: @payload.dig('project', 'id'),
         path_with_namespace: @payload.dig('project', 'path_with_namespace'),
-        event: @event
+        event: @event,
+        scheme: uri.scheme,
+        host: uri.host
       }.with_indifferent_access
     end
   end
