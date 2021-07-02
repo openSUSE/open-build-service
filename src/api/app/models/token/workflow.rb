@@ -10,7 +10,7 @@ class Token::Workflow < Token
     return unless extractor.allowed_event_and_action?
 
     scm_extractor_payload = extractor.call
-    yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
+    yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload, token: self).call
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
 
     workflows.each do |workflow|
