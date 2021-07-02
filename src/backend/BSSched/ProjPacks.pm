@@ -1594,6 +1594,7 @@ sub getconfig {
   my ($gctx, $projid, $repoid, $arch, $path) = @_;
   my $extraconfig = '';
   my $config = "%define _project $projid\n";
+  $config .= "%define _obs_feature_exclude_cpu_constraints 1\n";
   if ($BSConfig::extraconfig) {
     for (sort keys %{$BSConfig::extraconfig}) {
       $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
