@@ -12,7 +12,10 @@ class Token::Workflow < Token
     scm_extractor_payload = extractor.call
     yaml_downloader = Workflows::YAMLDownloader.new(scm_extractor_payload)
     yaml_file = yaml_downloader.call
-    raise Token::Errors::NonExistentWorkflowsFile, yaml_downloader.errors.join('\n') if yaml_file.blank?
+    if yaml_file.blank?
+      raise Token::Errors::NonExistentWorkflowsFile,
+            ".obs/workflows.yml could not be downloaded on the SCM branch #{scm_extractor_payload[:target_branch]}: #{yaml_downloader.errors.join('\n')}"
+    end
 
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
 
