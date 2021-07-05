@@ -19,7 +19,7 @@
           = link_to('more info', 'javascript:void(0)', class: 'btn-more alert-link')
           .more_info.d-none
             .more-info-content
-              = simple_format(@more_info)
+              = sanitize(simple_format(@more_info), tags: %w[br p])
         -# haml-lint:enable InstanceVariables
         %button.close{ type: 'button', 'data-dismiss': 'alert', 'aria-label': 'Close' }
           %span{ 'aria-hidden': 'true' }
