@@ -20,4 +20,16 @@ module Token::Errors
   class InvalidWorkflowStepDefinition < APIError
     setup 403
   end
+
+  class CanNotBranchPackage < APIError
+    setup 422
+  end
+
+  class CanNotBranchPackageNoPermission < APIError
+    setup 403
+  end
+
+  class CanNotBranchPackageNotFound < APIError
+    setup 404
+  end
 end

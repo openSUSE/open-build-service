@@ -21,7 +21,6 @@ class Workflow
         return unless valid? && allowed_event_and_action?
 
         branched_package = find_or_create_branched_package
-        return unless branched_package
 
         add_or_update_branch_request_file(package: branched_package)
         create_or_update_subscriptions(branched_package)
@@ -68,16 +67,28 @@ class Workflow
         return if remote_source?
 
         options = { use_source: false, follow_project_links: true, follow_multibuild: true }
-        src_package = Package.get_by_project_and_name(source_project_name, source_package_name, options)
 
-        raise Pundit::NotAuthorizedError unless PackagePolicy.new(@token.user, src_package).create_branch?
+        begin
+          src_package = Package.get_by_project_and_name(source_project_name, source_package_name, options)
+        rescue Package::UnknownObjectError
+          raise Token::Errors::CanNotBranchPackageNotFound, "Package #{source_project_name}/#{source_package_name} not found, it could not be branched."
+        end
+
+        Pundit.authorize(@token.user, src_package, :create_branch?)
       end
 
       def branch
         check_source_access
-        BranchPackage.new({ project: source_project_name, package: source_package_name,
-                            target_project: target_project_name,
-                            target_package: target_package_name }).branch
+
+        begin
+          BranchPackage.new({ project: source_project_name, package: source_package_name,
+                              target_project: target_project_name,
+                              target_package: target_package_name }).branch
+        rescue BranchPackage::InvalidArgument, InvalidProjectNameError, ArgumentError => e
+          raise Token::Errors::CanNotBranchPackage, "Package #{source_project_name}/#{source_package_name} could not be branched: #{e.message}"
+        rescue Project::WritePermissionError, CreateProjectNoPermission => e
+          raise Token::Errors::CanNotBranchPackageNoPermission, "Package #{source_project_name}/#{source_package_name} could not be branched due to missing permissions: #{e.message}"
+        end
 
         Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                     targetproject: target_project_name,
@@ -85,10 +96,6 @@ class Workflow
                                     user: @token.user.login)
 
         target_package
-      rescue BranchPackage::DoubleBranchPackageError, CreateProjectNoPermission,
-             ArgumentError, Package::UnknownObjectError,
-             Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid
-        nil
       end
 
       def github_pull_request?
