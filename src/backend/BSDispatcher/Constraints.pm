@@ -214,7 +214,7 @@ sub overwriteconstraints {
 
 # constructs a data object from a list and a XML::Structured dtd
 sub list2struct {
-  my ($dtd, $list, $job) = @_;
+  my ($dtd, $list) = @_;
   my $top = {};
   for my $l (@{$list || []}) {
     my @l = @$l;
@@ -290,7 +290,7 @@ sub list2struct {
         }
       }
     };
-    warn("list2struct: $job: @$l: $@") if $@;
+    die("@$l: $@") if $@;
   }
   return $top;
 }

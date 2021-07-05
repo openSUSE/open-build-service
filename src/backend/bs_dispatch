@@ -122,9 +122,9 @@ if ($options->{'testconstraints'}) {
     }
     if ($constraintsprj_file) {
       my @lines = map { [ split(' ', $_) ] } split("\n", readstr($constraintsprj_file));
-      my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@lines);
-      if ($prjconfconstraint) {
-        $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+      my $prjconfconstraints = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@lines);
+      if ($prjconfconstraints) {
+        $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraints, $constraints) : $prjconfconstraints;
       }
     }
     die("No parseable workerinfo\n") unless keys %$workerinfo;
@@ -216,6 +216,8 @@ my $badhostchanged = 1;
 my %newestsrcchange;
 my %infocache;
 my %constraintscache;
+my %prjconfconstraintscache;
+my $prjconfconstraintscache_lastdrop;
 
 my %lastbuild;	# last time a job was build in that prpa
 
@@ -416,10 +418,34 @@ sub getconstraints {
   };
   if ($@) {
     warn($@);
-    return [ time() + 600 ];	# better luck next time
+    chomp $@;
+    return [ $@, time() + 600 ];	# better luck next time
   }
-  return undef unless $constraintsxml;
-  return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
+  my $constraints;
+  eval {
+    $constraints = BSUtil::fromxml($constraintsxml, $BSXML::constraints);
+    die("huh?\n") unless ref($constraints) eq 'HASH';
+  };
+  if ($@) {
+    chomp $@;
+    return [ "bad constraints: $@" ];
+  }
+  return $constraints;
+}
+
+sub getprjconfconstraints {
+  my ($info) = @_;
+  my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
+  my $constraints;
+  eval {
+    $constraints = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@l);
+    die("huh?\n") unless ref($constraints) eq 'HASH';
+  };
+  if ($@) {
+    chomp $@;
+    return [ "bad prjconfconstraints: $@" ];
+  }
+  return $constraints;
 }
 
 # normalizes an xml size element to mega bytes
@@ -911,6 +937,12 @@ while (1) {
       }
     }
   }
+
+  # drop prjconfconstraints cache from time to time
+  if (($prjconfconstraintscache_lastdrop || 0) + 1800 < $now) {
+    %prjconfconstraintscache = ();
+    $prjconfconstraintscache_lastdrop = $now;
+  }
   
   my %workerload;
   my %numidle;
@@ -1258,26 +1290,31 @@ while (1) {
       my $lastoracleidle;
       my $constraints;
       if ($info->{'constraintsmd5'}) {
-	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
-	if (!exists($constraintscache{$constraintsmd5})) {
-	  $constraintscache{$constraintsmd5} = getconstraints($info, $constraintsmd5);
-	}
+	my $constraintsmd5 = $info->{'constraintsmd5'};
 	$constraints = $constraintscache{$constraintsmd5};
-	if (!ref($constraints)) {
-	  BSUtil::printlog("job has bad constraints file: $job");
-	  next;
-	}
+	$constraintscache{$constraintsmd5} = $constraints = getconstraints($info, $constraintsmd5) unless $constraints;
 	if (ref($constraints) eq 'ARRAY') {
-	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
+	  if ($constraints->[1]) {
+	    delete($constraintscache{$constraintsmd5}) if $constraints->[1] < $now;
+	    next;
+	  }
+	  warn("$arch/$job: $constraints->[0]\n");
+	  failjob($info, $arch, $job, $constraints->[0]);
 	  next;
 	}
-        $constraints = BSDispatcher::Constraints::overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
+	$constraints = BSDispatcher::Constraints::overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
       }
       if ($info->{'prjconfconstraint'}) {
-	my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
-	my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@l, "$arch/$job");
-	if ($prjconfconstraint) {
-	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+	my $cachekey = join("\n", @{$info->{'prjconfconstraint'}});
+	my $prjconfconstraints = $prjconfconstraintscache{$cachekey};
+	$prjconfconstraintscache{$cachekey} = $prjconfconstraints = getprjconfconstraints($info) unless $prjconfconstraints;
+	if (ref($prjconfconstraints) eq 'ARRAY') {
+	  warn("$arch/$job: $prjconfconstraints->[0]\n");
+	  failjob($info, $arch, $job, $prjconfconstraints->[0]);
+	  next;
+	}
+	if (%{$prjconfconstraints || {}}) {
+	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraints, $constraints) : $prjconfconstraints;
 	}
       }
       undef $constraints if $constraints && !%$constraints;
