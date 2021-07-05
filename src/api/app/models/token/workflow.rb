@@ -22,6 +22,8 @@ class Token::Workflow < Token
     workflows.each do |workflow|
       workflow.steps.each do |step|
         run_step_and_report(step, scm_extractor_payload, scm_token)
+      rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized => e
+        raise Token::Errors::SCMTokenInvalid, e.message
       end
     end
   end
