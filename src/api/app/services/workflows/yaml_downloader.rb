@@ -19,6 +19,7 @@ module Workflows
       Down.download(download_url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
       @errors << e.message
+      nil
     end
 
     def download_url

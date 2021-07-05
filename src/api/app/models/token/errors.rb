@@ -4,4 +4,8 @@ module Token::Errors
   class NoReleaseTargetFound < APIError
     setup 404
   end
+
+  class NonExistentWorkflowsFile < APIError
+    setup 404
+  end
 end

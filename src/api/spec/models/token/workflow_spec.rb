@@ -119,6 +119,27 @@ RSpec.describe Token::Workflow, vcr: true do
       end
     end
 
+    context 'when the workflows.yml do not exist on the reference branch' do
+      let(:scm) { 'github' }
+      let(:event) { 'pull_request' }
+      let(:payload) { github_payload }
+      let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
+      let!(:package) { create(:package, name: 'test-package', project: project) }
+      let(:error_message) { ['foo', 'bar'] }
+      let(:downloader) { instance_double(Workflows::YAMLDownloader) }
+
+      before do
+        # Stub Workflows::YAMLDownloader#call
+        allow(Workflows::YAMLDownloader).to receive(:new).and_return(downloader)
+        allow(downloader).to receive(:call).and_return(nil)
+        allow(downloader).to receive(:errors).and_return(error_message)
+      end
+
+      it 'raises an "Invalid workflow step definition" error' do
+        expect { subject }.to raise_error(Token::Errors::NonExistentWorkflowsFile)
+      end
+    end
+
     context 'when the webhook and configuration is correct' do
       let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
       let!(:package) { create(:package, name: 'test-package', project: project) }
