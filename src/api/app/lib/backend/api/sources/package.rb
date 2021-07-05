@@ -137,6 +137,11 @@ module Backend
                                                        params: options, accepted: [:repository, :arch])
         end
 
+        # Returns the multibuild flavors for this package
+        def self.multibuild_flavors(project_name, package_name)
+          http_get(['/source/:project/:package', project_name, package_name], params: { view: :getmultibuild })
+        end
+
         # Returns the content of the source file
         # @return [String]
         def self.file(project_name, package_name, file_name)

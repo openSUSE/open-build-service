@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_42
+    uri: http://backend:5352/source/project/_meta?user=user_68
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Moab Is My Washpot</title>
+          <title>Endless Night</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '140'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Moab Is My Washpot</title>
+          <title>Endless Night</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:23 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_43
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_69
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Consequatur temporibus sunt quibusdam.</description>
+          <title>Quo Vadis</title>
+          <description>Adipisci sint eligendi iusto.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Consequatur temporibus sunt quibusdam.</description>
+          <title>Quo Vadis</title>
+          <description>Adipisci sint eligendi iusto.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:23 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_44
+    uri: http://backend:5352/source/target_project/_meta?user=user_70
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>I Know Why the Caged Bird Sings</title>
+          <title>When the Green Woods Laugh</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -108,14 +108,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>I Know Why the Caged Bird Sings</title>
+          <title>When the Green Woods Laugh</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:23 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 recorded_with: VCR 6.0.0

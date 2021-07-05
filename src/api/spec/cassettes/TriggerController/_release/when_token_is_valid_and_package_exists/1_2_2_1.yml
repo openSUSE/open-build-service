@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_51
+    uri: http://backend:5352/source/project/_meta?user=user_55
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>All Passion Spent</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>All Passion Spent</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:28 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_52
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_56
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:28 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_53
+    uri: http://backend:5352/source/target_project/_meta?user=user_57
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Cricket on the Hearth</title>
+          <title>Ring of Bright Water</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -108,16 +108,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Cricket on the Hearth</title>
+          <title>Ring of Bright Water</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
@@ -151,7 +151,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
@@ -159,8 +159,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -181,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
@@ -197,8 +197,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -219,15 +219,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:29 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=copy&comment=Release%20from%20project%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=project&user=foo&withacceptinfo=1&withvrev=1
@@ -259,15 +259,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="2" vrev="2">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1623127650</time>
+          <time>1623320639</time>
           <user>foo</user>
           <comment>Release from project / package_trigger</comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
@@ -275,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -297,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>The Man Within</title>
-          <description>Sed dignissimos beatae vitae.</description>
+          <title>Infinite Jest</title>
+          <description>Eum impedit quia quidem.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -335,9 +335,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_trigger" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger?view=info
@@ -367,10 +367,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="package_trigger" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -400,9 +400,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_trigger" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -434,12 +434,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1ca27113e2e89131f9f59e0c8677b623">
+        <sourcediff key="677a31adb89672293d95c7cf7ea93181">
           <old project="target_project" package="package_trigger" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="target_project" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="target_project" package="package_trigger" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=resumeproject&comment=Releasing%20via%20trigger%20event
@@ -473,5 +473,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 08 Jun 2021 04:47:30 GMT
+  recorded_at: Thu, 10 Jun 2021 10:23:59 GMT
 recorded_with: VCR 6.0.0

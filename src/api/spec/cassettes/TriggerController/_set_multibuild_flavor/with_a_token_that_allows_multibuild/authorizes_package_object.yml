@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_10
+    uri: http://backend:5352/source/project/_meta?user=user_73
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Far From the Madding Crowd</title>
+          <title>An Instant In The Wind</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Far From the Madding Crowd</title>
+          <title>An Instant In The Wind</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:46:45 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_11
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_74
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Shall not Perish</title>
-          <description>Repellendus aut libero ratione.</description>
+          <title>The Soldier's Art</title>
+          <description>Sint sed alias ratione.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Shall not Perish</title>
-          <description>Repellendus aut libero ratione.</description>
+          <title>The Soldier's Art</title>
+          <description>Sint sed alias ratione.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:46:45 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_a/_meta?user=user_12
+    uri: http://backend:5352/source/project/package_a/_meta?user=user_75
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="project">
-          <title>The Needle's Eye</title>
-          <description>Sed ut veritatis ut.</description>
+          <title>East of Eden</title>
+          <description>Ut debitis nostrum sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,91 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '140'
+      - '139'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="project">
-          <title>The Needle's Eye</title>
-          <description>Sed ut veritatis ut.</description>
+          <title>East of Eden</title>
+          <description>Ut debitis nostrum sed.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:46:45 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project/package_a/_config
-    body:
-      encoding: UTF-8
-      string: Ut veritatis ipsum. Optio natus in. Repellat veritatis cupiditate.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>dadac90e0b9554e1d35943828b2ce4ea</srcmd5>
-          <version>unknown</version>
-          <time>1623127605</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Tue, 08 Jun 2021 04:46:45 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project/package_a/_multibuild
-    body:
-      encoding: UTF-8
-      string: "<multibuild><flavor>libfoo1</flavor><flavor>libfoo2</flavor></multibuild>"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>dadac90e0b9554e1d35943828b2ce4ea</srcmd5>
-          <version>unknown</version>
-          <time>1623127605</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Tue, 08 Jun 2021 04:46:45 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 - request:
     method: post
     uri: http://backend:5352/build/project?cmd=rebuild&package=package_a:libfoo2
@@ -226,5 +150,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Tue, 08 Jun 2021 04:46:46 GMT
+  recorded_at: Thu, 10 Jun 2021 10:24:00 GMT
 recorded_with: VCR 6.0.0
