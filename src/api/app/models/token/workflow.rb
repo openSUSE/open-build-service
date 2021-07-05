@@ -10,13 +10,7 @@ class Token::Workflow < Token
     return unless extractor.allowed_event_and_action?
 
     scm_extractor_payload = extractor.call
-    yaml_downloader = Workflows::YAMLDownloader.new(scm_extractor_payload)
-    yaml_file = yaml_downloader.call
-    if yaml_file.blank?
-      raise Token::Errors::NonExistentWorkflowsFile,
-            ".obs/workflows.yml could not be downloaded on the SCM branch #{scm_extractor_payload[:target_branch]}: #{yaml_downloader.errors.join('\n')}"
-    end
-
+    yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
 
     workflows.each do |workflow|

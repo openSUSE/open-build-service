@@ -125,18 +125,14 @@ RSpec.describe Token::Workflow, vcr: true do
       let(:payload) { github_payload }
       let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
       let!(:package) { create(:package, name: 'test-package', project: project) }
-      let(:error_message) { ['foo', 'bar'] }
-      let(:downloader) { instance_double(Workflows::YAMLDownloader) }
 
       before do
-        # Stub Workflows::YAMLDownloader#call
-        allow(Workflows::YAMLDownloader).to receive(:new).and_return(downloader)
-        allow(downloader).to receive(:call).and_return(nil)
-        allow(downloader).to receive(:errors).and_return(error_message)
+        allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
       end
 
-      it 'raises an "Invalid workflow step definition" error' do
-        expect { subject }.to raise_error(Token::Errors::NonExistentWorkflowsFile)
+      it 'raises a user-friendly error message' do
+        expect { subject }.to raise_error(Token::Errors::NonExistentWorkflowsFile,
+                                          '.obs/workflows.yml could not be downloaded on the SCM branch main: Beep Boop, something is wrong')
       end
     end
 
