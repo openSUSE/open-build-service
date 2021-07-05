@@ -3,8 +3,8 @@ class WorkerStatus
 
   class << self
     def hidden
-      mydata = Rails.cache.read('workerstatus')
-      ws = Nokogiri::XML(mydata || Backend::Api::BuildResults::Worker.status).root
+      mydata = Rails.cache.fetch('workerstatus') { Backend::Api::BuildResults::Worker.status }
+      ws = Nokogiri::XML(mydata).root
       # remove information about projects which are not visible to the current user
       hidden_projects(ws)
     end
@@ -37,25 +37,21 @@ class WorkerStatus
     end
   end
 
-  def update_workerstatus_cache
-    # do not add hiding in here - this is purely for statistics
-    backend_status = Backend::Api::BuildResults::Worker.status
-    wdata = Nokogiri::XML(backend_status)
+  def save
+    @workerstatus = Nokogiri::XML(Rails.cache.read('workerstatus')).root
+    return unless @workerstatus
+
     @mytime = Time.now.to_i
     @squeues = Hash.new(0)
 
-    Rails.cache.write('workerstatus', backend_status, expires_in: 3.minutes)
-
     StatusHistory.transaction do
       ['blocked', 'waiting'].each do |state|
-        wdata.search("//#{state}").each { |e| save_value_line(e, state) }
+        @workerstatus.search("//#{state}").each { |e| save_value_line(e, state) }
       end
-      wdata.search('partition/daemon').each { |daemon| parse_daemon_infos(daemon) }
-      parse_worker_infos(wdata)
+      @workerstatus.search('partition/daemon').each { |daemon| parse_daemon_infos(daemon) }
+      parse_worker_infos(@workerstatus)
       @squeues.each_pair { |key, value| StatusHistory.create(time: @mytime, key: key, value: value) }
     end
-
-    backend_status
   end
 
   private
