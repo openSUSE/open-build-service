@@ -8,4 +8,8 @@ module Token::Errors
   class NonExistentWorkflowsFile < APIError
     setup 404
   end
+
+  class SCMTokenInvalid < APIError
+    setup 401
+  end
 end
