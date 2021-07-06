@@ -12,4 +12,8 @@ module Token::Errors
   class SCMTokenInvalid < APIError
     setup 401
   end
+
+  class WorkflowsYamlNotParsable < APIError
+    setup 400
+  end
 end

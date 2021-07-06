@@ -13,7 +13,12 @@ module Workflows
     private
 
     def create_workflows
-      parsed_workflows_yaml = YAML.safe_load(File.read(@yaml_file))
+      begin
+        parsed_workflows_yaml = YAML.safe_load(File.read(@yaml_file))
+      rescue Psych::SyntaxError => e
+        raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse .obs/workflows.yml: #{e.message}"
+      end
+
       workflows = []
 
       parsed_workflows_yaml.each do |_workflow_name, workflow|
