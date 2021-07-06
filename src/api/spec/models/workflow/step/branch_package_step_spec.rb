@@ -22,6 +22,46 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     it { expect { subject.call }.to(change(Package, :count).by(0)) }
   end
 
+  RSpec.shared_context 'failed when source_package does not exist' do
+    let(:step_instructions) do
+      {
+        source_project: project.name,
+        source_package: 'this_package_does_not_exist'
+      }
+    end
+
+    it { expect { subject.call }.to raise_error(Token::Errors::CanNotBranchPackageNotFound) }
+  end
+
+  RSpec.shared_context 'failed when project name is invalid' do
+    let(:project) { create(:project, name: 'a' * 198, maintainer: user) }
+    let(:step_instructions) do
+      {
+        source_project: project.name,
+        source_package: package.name
+      }
+    end
+
+    it { expect { subject.call }.to raise_error(Token::Errors::CanNotBranchPackage) }
+  end
+
+  RSpec.shared_context 'failed without branch permissions' do
+    let(:branch_package_mock) { instance_double('BranchPackage') }
+    before do
+      allow(BranchPackage).to receive(:new).and_return(branch_package_mock)
+      allow(branch_package_mock).to receive(:branch).and_raise(CreateProjectNoPermission)
+    end
+
+    let(:step_instructions) do
+      {
+        source_project: project.name,
+        source_package: package.name
+      }
+    end
+
+    it { expect { subject.call }.to raise_error(Token::Errors::CanNotBranchPackageNoPermission) }
+  end
+
   RSpec.shared_context 'successful new PR or MR event' do
     let(:step_instructions) do
       {
@@ -175,9 +215,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       end
 
       context 'for a new PR event' do
-        it_behaves_like 'successful new PR or MR event' do
-          let(:action) { 'opened' }
-        end
+        let(:action) { 'opened' }
+
+        it_behaves_like 'successful new PR or MR event'
+        it_behaves_like 'failed when source_package does not exist'
+        it_behaves_like 'failed when project name is invalid'
+        it_behaves_like 'failed without branch permissions'
       end
 
       context 'for an updated PR event' do
@@ -239,9 +282,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       end
 
       context 'for a new MR event' do
-        it_behaves_like 'successful new PR or MR event' do
-          let(:action) { 'open' }
-        end
+        let(:action) { 'open' }
+
+        it_behaves_like 'successful new PR or MR event'
+        it_behaves_like 'failed when source_package does not exist'
+        it_behaves_like 'failed when project name is invalid'
+        it_behaves_like 'failed without branch permissions'
       end
 
       context 'for an updated MR event' do
