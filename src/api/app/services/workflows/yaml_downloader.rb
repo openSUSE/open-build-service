@@ -2,11 +2,8 @@ module Workflows
   class YAMLDownloader
     MAX_FILE_SIZE = 1024 * 1024 # 1MB
 
-    attr_reader :errors
-
     def initialize(scm_payload)
       @scm_payload = scm_payload
-      @errors = []
     end
 
     def call
@@ -18,8 +15,7 @@ module Workflows
     def download_yaml_file
       Down.download(download_url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
-      @errors << e.message
-      nil
+      raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded on the SCM branch #{@scm_payload[:target_branch]}: #{e.message}"
     end
 
     def download_url
