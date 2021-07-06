@@ -15,7 +15,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
       status = :ok
     else
       flash.now[:error] = "Updating architecture '#{architecture.name}' failed: " \
-        "#{architecture.errors.full_messages.to_sentence}"
+                          "#{architecture.errors.full_messages.to_sentence}"
       status = :unprocessable_entity
     end
 

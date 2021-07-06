@@ -92,11 +92,11 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
   f = File.open("#{jobfile}:status", 'w')
 
   output = '<jobstatus code="building">' \
-    "<jobid>#{jobid}</jobid>" \
-    '<starttime>0</starttime>' \
-    '<workerid>simulated</workerid>' \
-    "<hostarch>#{arch}</hostarch>" \
-    '</jobstatus>'
+           "<jobid>#{jobid}</jobid>" \
+           '<starttime>0</starttime>' \
+           '<workerid>simulated</workerid>' \
+           "<hostarch>#{arch}</hostarch>" \
+           '</jobstatus>'
 
   f.write(output)
   f.close

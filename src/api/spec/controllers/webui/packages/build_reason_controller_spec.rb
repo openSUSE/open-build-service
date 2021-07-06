@@ -51,7 +51,7 @@ RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: t
     context 'for packages without a build reason' do
       before do
         path = "#{CONFIG['source_url']}/build/#{source_project.name}/#{repo_for_source_project.name}/" \
-          "#{repo_for_source_project.architectures.first.name}/#{package.name}/_reason"
+               "#{repo_for_source_project.architectures.first.name}/#{package.name}/_reason"
         stub_request(:get, path).and_return(body:
         %(<reason>\n <explain/>  <time/>  <oldsource/>  </reason>))
 
@@ -69,7 +69,7 @@ RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: t
     context 'for valid requests' do
       before do
         path = "#{CONFIG['source_url']}/build/#{source_project.name}/#{repo_for_source_project.name}/" \
-          "#{repo_for_source_project.architectures.first.name}/#{package.name}/_reason"
+               "#{repo_for_source_project.architectures.first.name}/#{package.name}/_reason"
         stub_request(:get, path).and_return(body:
         %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
 

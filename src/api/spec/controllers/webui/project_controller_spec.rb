@@ -590,7 +590,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it do
           expect(flash[:error]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," \
-                                            " because there is a running release request: #{bs_request.id}")
+                                      " because there is a running release request: #{bs_request.id}")
         end
       end
     end

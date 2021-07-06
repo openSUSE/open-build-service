@@ -124,7 +124,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def print_invalid_format(invalid_format)
     "#{invalid_format.strip} has no valid format. (Correct formats are e.g. " \
-             'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
+      'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
   end
 
   def get_binaries
