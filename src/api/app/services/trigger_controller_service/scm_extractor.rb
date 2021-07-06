@@ -9,16 +9,15 @@ module TriggerControllerService
       @payload = payload.with_indifferent_access
       @scm = scm
       @event = event
-    end
-
-    # TODO: this check seems redundant, but it prevents extracting the payload if the event and action
-    # are not the allowed ones. See BranchPackageStep.
-    def allowed_event_and_action?
-      allowed_github_event_and_action? || allowed_gitlab_event_and_action?
+      @action = @payload['action'] || @payload['object_attributes']['action']
     end
 
     # TODO: What happens when some of the keys are missing?
     def call
+      unless allowed_github_event_and_action? || allowed_gitlab_event_and_action?
+        raise Token::Errors::UnallowedEventAndAction, "Event #{@event} and action #{@action} aren't supported for #{@scm.capitalize}"
+      end
+
       case @scm
       when 'github'
         github_extractor_payload
@@ -30,11 +29,11 @@ module TriggerControllerService
     private
 
     def allowed_github_event_and_action?
-      @event == 'pull_request' && @payload['action'].in?(ALLOWED_GITHUB_ACTIONS)
+      @event == 'pull_request' && @action.in?(ALLOWED_GITHUB_ACTIONS)
     end
 
     def allowed_gitlab_event_and_action?
-      @event == 'Merge Request Hook' && @payload['object_attributes']['action'].in?(ALLOWED_GITLAB_ACTIONS)
+      @event == 'Merge Request Hook' && @action.in?(ALLOWED_GITLAB_ACTIONS)
     end
 
     def github_extractor_payload
@@ -50,7 +49,7 @@ module TriggerControllerService
         pr_number: @payload['number'],
         source_branch: @payload.dig('pull_request', 'head', 'ref'),
         target_branch: @payload.dig('pull_request', 'base', 'ref'),
-        action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
+        action: @action, # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
         source_repository_full_name: @payload.dig('pull_request', 'head', 'repo', 'full_name'),
         target_repository_full_name: @payload.dig('pull_request', 'base', 'repo', 'full_name'),
         event: @event,
@@ -69,7 +68,7 @@ module TriggerControllerService
         pr_number: @payload.dig('object_attributes', 'iid'),
         source_branch: @payload.dig('object_attributes', 'source_branch'),
         target_branch: @payload.dig('object_attributes', 'target_branch'),
-        action: @payload.dig('object_attributes', 'action'), # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
+        action: @action, # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
         project_id: @payload.dig('project', 'id'),
         path_with_namespace: @payload.dig('project', 'path_with_namespace'),
         event: @event,

@@ -41,13 +41,16 @@ RSpec.describe Token::Workflow, vcr: true do
 
   subject { workflow_token.call(scm: scm, event: event, payload: payload) }
 
-  RSpec.shared_context 'not-allowed event or action' do
-    it 'returns nothing' do
-      expect(subject).to be_nil
+  RSpec.shared_context 'unallowed event or action' do
+    it 'raises an error' do
+      expect { subject }.to raise_error(Token::Errors::UnallowedEventAndAction)
     end
 
     it 'does not create a new branched project with PR suffix' do
-      expect { subject }.not_to change(Project.where('name LIKE ?', '%:PR-%'), :count)
+      # rubocop:disable Style/RescueModifier
+      # We rescue the error to be able to do our expectation...
+      expect { subject rescue nil }.not_to change(Project.where('name LIKE ?', '%:PR-%'), :count)
+      # rubocop:enable Style/RescueModifier
     end
   end
 
@@ -74,7 +77,7 @@ RSpec.describe Token::Workflow, vcr: true do
   describe '#call' do
     context "when the webhook's event is not the expected one" do
       context 'when the SCM is GitHub' do
-        it_behaves_like 'not-allowed event or action' do
+        it_behaves_like 'unallowed event or action' do
           let(:scm) { 'github' }
           let(:event) { 'push' }
           let(:payload) { github_payload }
@@ -82,7 +85,7 @@ RSpec.describe Token::Workflow, vcr: true do
       end
 
       context 'when the SCM is GitLab' do
-        it_behaves_like 'not-allowed event or action' do
+        it_behaves_like 'unallowed event or action' do
           let(:scm) { 'gitlab' }
           let(:event) { 'Push Hook' }
           let(:payload) { gitlab_payload }
@@ -92,7 +95,7 @@ RSpec.describe Token::Workflow, vcr: true do
 
     context "when the webhook's action is not the expected one" do
       context 'when the SCM is GitHub' do
-        it_behaves_like 'not-allowed event or action' do
+        it_behaves_like 'unallowed event or action' do
           let(:scm) { 'github' }
           let(:event) { 'pull_request' }
           let(:payload) { { 'action' => 'wrong_action' } }
@@ -100,7 +103,7 @@ RSpec.describe Token::Workflow, vcr: true do
       end
 
       context 'when the SCM is GitLab' do
-        it_behaves_like 'not-allowed event or action' do
+        it_behaves_like 'unallowed event or action' do
           let(:scm) { 'gitlab' }
           let(:event) { 'Merge Request Hook' }
           let(:payload) { { 'object_attributes' => { 'action' => 'wrong_action' } } }

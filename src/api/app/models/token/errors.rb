@@ -1,6 +1,10 @@
 module Token::Errors
   extend ActiveSupport::Concern
 
+  class UnallowedEventAndAction < APIError
+    setup 422
+  end
+
   class NoReleaseTargetFound < APIError
     setup 404
   end
