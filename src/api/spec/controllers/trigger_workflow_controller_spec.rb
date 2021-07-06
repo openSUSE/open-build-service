@@ -14,10 +14,16 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
           }
         },
         base: {
-          ref: 'main'
+          ref: 'main',
+          repo: {
+            full_name: 'rubhanazeem/hello_world'
+          }
         }
       },
-      number: 4
+      number: 4,
+      sender: {
+        url: 'https://api.github.com'
+      }
     }
   end
 
@@ -25,11 +31,14 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
 
   describe 'POST :create' do
     context 'workflows.yml do not exist' do
+      let(:octokit_client) { instance_double(Octokit::Client) }
       let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
 
       before do
         allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
         allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
         request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
         post :create, params: { format: :json }, body: github_payload.to_json

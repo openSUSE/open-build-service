@@ -11,14 +11,14 @@ class SCMStatusReporter
 
   def call
     if github?
-      github_client = Octokit::Client.new(access_token: @scm_token)
+      github_client = Octokit::Client.new(access_token: @scm_token, api_endpoint: @event_subscription_payload[:api_endpoint])
       # https://docs.github.com/en/rest/reference/repos#create-a-commit-status
       github_client.create_status(@event_subscription_payload[:target_repository_full_name],
                                   @event_subscription_payload[:commit_sha],
                                   @state,
                                   status_options)
     else
-      gitlab_client = Gitlab.client(endpoint: 'https://gitlab.com/api/v4',
+      gitlab_client = Gitlab.client(endpoint: "#{@event_subscription_payload[:api_endpoint]}/api/v4",
                                     private_token: @scm_token)
       # https://docs.gitlab.com/ce/api/commits.html#post-the-build-status-to-a-commit
       gitlab_client.update_commit_status(@event_subscription_payload[:project_id],

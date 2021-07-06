@@ -16,7 +16,10 @@ RSpec.describe Token::Workflow, vcr: true do
           ref: 'main'
         }
       },
-      number: 4
+      number: 4,
+      sender: {
+        url: 'https://api.github.com'
+      }
     }
   end
 
@@ -28,6 +31,9 @@ RSpec.describe Token::Workflow, vcr: true do
         source_branch: 'source',
         target_branch: 'master',
         action: 'open'
+      },
+      project: {
+        http_url: 'https://gitlab.com/eduardoj2/test.git'
       },
       action: 'opened'
     }
@@ -120,6 +126,7 @@ RSpec.describe Token::Workflow, vcr: true do
     end
 
     context 'when the workflows.yml do not exist on the reference branch' do
+      let(:octokit_client) { instance_double(Octokit::Client) }
       let(:scm) { 'github' }
       let(:event) { 'pull_request' }
       let(:payload) { github_payload }
@@ -127,6 +134,8 @@ RSpec.describe Token::Workflow, vcr: true do
       let!(:package) { create(:package, name: 'test-package', project: project) }
 
       before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
         allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
       end
 

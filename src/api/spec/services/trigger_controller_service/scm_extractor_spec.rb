@@ -69,7 +69,15 @@ RSpec.describe TriggerControllerService::ScmExtractor do
               ref: 'main'
             }
           },
-          number: 4
+          project: {
+            http_url: 'https://gitlab.com/eduardoj2/test.git',
+            id: 26_212_710,
+            path_with_namespace: 'eduardoj2/test'
+          },
+          number: 4,
+          sender: {
+            url: 'https://api.github.com'
+          }
         }
       end
       let(:expected_hash) do
@@ -82,7 +90,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           action: 'opened',
           source_repository_full_name: 'iggy/source_repo',
           target_repository_full_name: 'iggy/target_repo',
-          event: 'pull_request'
+          event: 'pull_request',
+          api_endpoint: 'https://api.github.com'
         }
       end
 
@@ -150,13 +159,15 @@ RSpec.describe TriggerControllerService::ScmExtractor do
       let(:event) { 'merge_request' }
       let(:payload) do
         {
+          project: {
+            http_url: 'https://gitlab.com/eduardoj2/test.git'
+          }
         }
       end
       let(:expected_hash) do
         {
           scm: 'gitlab',
           object_kind: nil,
-          http_url: nil,
           commit_sha: nil,
           pr_number: nil,
           source_branch: nil,
@@ -164,7 +175,9 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           action: nil,
           project_id: nil,
           path_with_namespace: nil,
-          event: 'merge_request'
+          event: 'merge_request',
+          api_endpoint: 'https://gitlab.com',
+          http_url: 'https://gitlab.com/eduardoj2/test.git'
         }
       end
 

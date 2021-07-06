@@ -38,6 +38,12 @@ module TriggerControllerService
     end
 
     def github_extractor_payload
+      host = URI.parse(@payload.dig('sender', 'url')).host
+      api_endpoint = if host.start_with?('api.github.com')
+                       "https://#{host}"
+                     else
+                       "https://#{host}/api/v3/"
+                     end
       {
         scm: 'github',
         commit_sha: @payload.dig('pull_request', 'head', 'sha'),
@@ -47,15 +53,18 @@ module TriggerControllerService
         action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
         source_repository_full_name: @payload.dig('pull_request', 'head', 'repo', 'full_name'),
         target_repository_full_name: @payload.dig('pull_request', 'base', 'repo', 'full_name'),
-        event: @event
+        event: @event,
+        api_endpoint: api_endpoint
       }.with_indifferent_access
     end
 
     def gitlab_extractor_payload
+      http_url = @payload.dig('project', 'http_url')
+      uri = URI.parse(http_url)
       {
         scm: 'gitlab',
         object_kind: @payload['object_kind'],
-        http_url: @payload.dig('project', 'http_url'),
+        http_url: http_url,
         commit_sha: @payload.dig('object_attributes', 'last_commit', 'id'),
         pr_number: @payload.dig('object_attributes', 'iid'),
         source_branch: @payload.dig('object_attributes', 'source_branch'),
@@ -63,7 +72,8 @@ module TriggerControllerService
         action: @payload.dig('object_attributes', 'action'), # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
         project_id: @payload.dig('project', 'id'),
         path_with_namespace: @payload.dig('project', 'path_with_namespace'),
-        event: @event
+        event: @event,
+        api_endpoint: "#{uri.scheme}://#{uri.host}"
       }.with_indifferent_access
     end
   end
