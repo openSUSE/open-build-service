@@ -164,8 +164,8 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
       it {
         expect(flash[:error]).to eq('Can not add repository: ' \
-          'Name is too short (minimum is 1 character) and ' \
-          "Name must not start with '_' or contain any of these characters ':/'")
+                                    'Name is too short (minimum is 1 character) and ' \
+                                    "Name must not start with '_' or contain any of these characters ':/'")
       }
 
       it { is_expected.to redirect_to(root_url) }

@@ -78,7 +78,7 @@ RSpec.describe Webui::SessionController do
         it 'informs users about failed kerberos authentication and possible cause' do
           expect(response.body).to have_text('Kerberos authentication required')
           expect(response.body).to have_text('You are seeing this page, because you are ' \
-                                    "not authenticated in the kerberos realm ('test_realm.com').")
+                                             "not authenticated in the kerberos realm ('test_realm.com').")
         end
       end
     end

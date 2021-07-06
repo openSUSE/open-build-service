@@ -762,7 +762,7 @@ RSpec.describe Webui::PackageController, vcr: true do
               </resultlist>))
 
           path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/_builddepinfo" \
-                  "?package=#{source_package}:multibuild-package&view=revpkgnames"
+                 "?package=#{source_package}:multibuild-package&view=revpkgnames"
           stub_request(:get, path).and_return(body: %(<builddepinfo>
                 <package name="#{source_package}:multibuild-package">
                 <source>apache2</source>
