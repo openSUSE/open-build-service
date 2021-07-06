@@ -404,7 +404,7 @@ GEM
     ruby2_keywords (0.0.4)
     ruby_parser (3.16.0)
       sexp_processor (~> 4.15, >= 4.15.1)
-    rubyzip (2.3.1)
+    rubyzip (2.3.2)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
