@@ -25,31 +25,8 @@ class Token::Workflow < Token
 
   def run_step_and_report(step, scm_extractor_payload, scm_token)
     package_from_step = step.call
-
-    set_subscription(package_from_step, scm_extractor_payload)
-
-    Project.get_by_name(step.target_project_name).repositories.each do |repository|
-      # TODO: Fix n+1 queries
-      repository.architectures.each do |architecture|
-        # We cannot report multibuild flavors here... so they will be missing from the initial report
-        SCMStatusReporter.new({ project: step.target_project_name, package: step.target_package_name, repository: repository.name, arch: architecture.name },
-                              scm_extractor_payload, scm_token).call
-      end
-    end
-  end
-
-  def set_subscription(package_from_step, scm_extractor_payload)
-    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-      # TODO: Deal with old EventSubscription (this can happen when someone pushes a new commit to a PR/branch, then we only want to report to the latest commit)
-      EventSubscription.create!(eventtype: build_event,
-                                receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                user: user,
-                                channel: 'scm',
-                                enabled: true,
-                                token: self,
-                                package: package_from_step,
-                                payload: scm_extractor_payload)
-    end
+    step.set_subscription(package_from_step, scm_extractor_payload, user, self)
+    step.report!(scm_extractor_payload, scm_token)
   end
 end
 
