@@ -18,10 +18,10 @@ class Workflow
       end
 
       def call
-        return unless valid? && allowed_event_and_action?
+        raise "We couldn't branch your package" unless valid? && allowed_event_and_action?
 
         branched_package = find_or_create_branched_package
-        return unless branched_package
+        raise "We couldn't branch your package" unless branched_package
 
         add_or_update_branch_request_file(package: branched_package)
         create_or_update_subscriptions(branched_package)

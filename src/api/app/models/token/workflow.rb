@@ -26,8 +26,6 @@ class Token::Workflow < Token
   def run_step_and_report(step, scm_extractor_payload, scm_token)
     package_from_step = step.call
 
-    raise "We couldn't branch your package" unless package_from_step
-
     set_subscription(package_from_step, scm_extractor_payload)
 
     Project.get_by_name(step.target_project_name).repositories.each do |repository|
