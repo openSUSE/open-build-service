@@ -2,7 +2,8 @@
 Description = Open Build Service Sphinx Search Daemon
 BindsTo = obs-api-support.target
 Conflicts = searchd.service
-After = obsapisetup.service
+After = mariadb.service obsapisetup.service
+Wants = mariadb.service obsapisetup.service
 
 [Service]
 Environment = "RAILS_ENV=production"

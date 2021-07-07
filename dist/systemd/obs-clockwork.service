@@ -1,6 +1,8 @@
 [Unit]
 Description = Open Build Service Clockwork Daemon
 BindsTo = obs-api-support.target
+After = mariadb.service obsapisetup.service
+Wants = mariadb.service obsapisetup.service
 
 [Service]
 Environment = "RAILS_ENV=production"
