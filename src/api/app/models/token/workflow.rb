@@ -24,9 +24,7 @@ class Token::Workflow < Token
   private
 
   def run_step_and_report(step, scm_extractor_payload, scm_token)
-    package_from_step = step.call
-    step.set_subscription(package_from_step, scm_extractor_payload, user, self)
-    step.report!(scm_extractor_payload, scm_token)
+    step.call(scm_extractor_payload, scm_token, user, self)
   end
 end
 

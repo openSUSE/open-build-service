@@ -17,7 +17,7 @@ class Workflow
         new_pull_request? || updated_pull_request?
       end
 
-      def call
+      def call(scm_extractor_payload, scm_token, user, workflow_token)
         raise "We couldn't branch your package" unless valid? && allowed_event_and_action?
 
         branched_package = find_or_create_branched_package
@@ -25,7 +25,8 @@ class Workflow
 
         add_or_update_branch_request_file(package: branched_package)
         create_or_update_subscriptions(branched_package)
-        branched_package
+        set_subscription(branched_package, scm_extractor_payload, user, workflow_token)
+        report!(scm_extractor_payload, scm_token)
       end
 
       def report!(scm_extractor_payload, scm_token)
