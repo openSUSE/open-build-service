@@ -691,6 +691,7 @@ sub build {
     for my $b (@{$patchinfo->{'issue'} || []}) {
       my $it = (grep {$_->{'name'} eq $b->{'tracker'}} @{$issue_trackers->{'issue-tracker'} || []})[0];
       if ($it && $b->{'id'}) {
+        next if $b->{'publish-issues'} eq 'false';
         my $trackerid = $b->{'id'};
         my $referenceid = $b->{'id'};
         if ($b->{'tracker'} eq 'cve') {
