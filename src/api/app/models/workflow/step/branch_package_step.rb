@@ -17,7 +17,7 @@ class Workflow
         new_pull_request? || updated_pull_request?
       end
 
-      def call(scm_extractor_payload, scm_token, user, workflow_token)
+      def call(scm_token, user, workflow_token)
         raise "We couldn't branch your package" unless valid? && allowed_event_and_action?
 
         branched_package = find_or_create_branched_package
@@ -25,8 +25,8 @@ class Workflow
 
         add_or_update_branch_request_file(package: branched_package)
         create_or_update_subscriptions(branched_package)
-        set_subscription(branched_package, scm_extractor_payload, user, workflow_token)
-        report!(scm_extractor_payload, scm_token)
+        subscribe!(branched_package, user, workflow_token)
+        report!(scm_token)
       end
 
       def source_project_name
@@ -49,7 +49,7 @@ class Workflow
 
       private
 
-      def set_subscription(package_from_step, scm_extractor_payload, user, workflow_token)
+      def subscribe!(package_from_step, user, workflow_token)
         ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
           # TODO: Deal with old EventSubscription (this can happen when someone pushes a new commit to a PR/branch, then we only want to report to the latest commit)
           EventSubscription.create!(eventtype: build_event,
@@ -59,11 +59,11 @@ class Workflow
                                     enabled: true,
                                     token: workflow_token,
                                     package: package_from_step,
-                                    payload: scm_extractor_payload)
+                                    payload: @scm_extractor_payload)
         end
       end
 
-      def report!(scm_extractor_payload, scm_token)
+      def report!(scm_token)
         Project.get_by_name(target_project_name).repositories.each do |repository|
           # TODO: Fix n+1 queries
           repository.architectures.each do |architecture|
@@ -72,7 +72,7 @@ class Workflow
                                     package: target_package_name,
                                     repository: repository.name,
                                     arch: architecture.name },
-                                  scm_extractor_payload, scm_token).call
+                                  @scm_extractor_payload, scm_token).call
           end
         end
       end

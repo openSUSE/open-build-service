@@ -14,7 +14,7 @@ class Token::Workflow < Token
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
     workflows.each do |workflow|
       workflow.steps.each do |step|
-        step.call(scm_extractor_payload, scm_token, user, self)
+        step.call(scm_token, user, self)
       end
     end
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized => e
