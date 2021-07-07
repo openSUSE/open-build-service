@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_23_134455) do
+ActiveRecord::Schema.define(version: 2021_07_07_134455) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -528,6 +528,7 @@ ActiveRecord::Schema.define(version: 2021_06_23_134455) do
     t.text "label", null: false, collation: "utf8_general_ci"
     t.datetime "issues_updated", null: false
     t.boolean "enable_fetch", default: false
+    t.boolean "publish_issues", default: true
   end
 
   create_table "issues", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
