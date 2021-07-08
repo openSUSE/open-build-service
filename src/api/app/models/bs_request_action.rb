@@ -37,6 +37,7 @@ class BsRequestAction < ApplicationRecord
   }
 
   before_validation :set_target_associations
+  after_create :cache_diffs
 
   #### Class methods using self. (public and then private)
   def self.type_to_class_name(type_name)
@@ -260,7 +261,7 @@ class BsRequestAction < ApplicationRecord
   def webui_infos(opts = {})
     begin
       opts[:view] = 'xml'
-      opts[:withissues] = true
+      opts[:withissues] = 1
 
       sd = sourcediff(opts)
     rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
@@ -820,6 +821,11 @@ class BsRequestAction < ApplicationRecord
   end
 
   private
+
+  def cache_diffs
+    set_sourceupdate_default(User.session!)
+    BsRequestActionWebuiInfosJob.perform_later(self)
+  end
 
   def create_submit_action(source_package:, source_project:, target_package:, target_project:,
                            source_rev:)

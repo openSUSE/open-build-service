@@ -139,10 +139,13 @@ class Webui::RequestController < Webui::WebuiController
   def request_action
     @diff_limit = params[:full_diff] ? 0 : nil
     @index = params[:index].to_i
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true, action_id: params['id'].to_i)
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
+                                         action_id: params['id'].to_i, cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    errors = @action[:sourcediff]&.map { |a| a[:error] }&.compact
+    @refresh = errors&.any? { |e| e.include?('diff not yet in cache') }
 
     respond_to do |format|
       format.js
