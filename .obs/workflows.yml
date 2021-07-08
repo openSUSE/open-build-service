@@ -3,3 +3,12 @@ workflow:
     - branch_package:
         source_project: OBS:Server:Unstable
         source_package: obs-server
+  filters:
+    architectures:
+      only:
+        - x86_64
+    repositories:
+      only:
+        - SLE_12_SP5
+        - SLE_15_SP1
+        - SLE_15_SP2
