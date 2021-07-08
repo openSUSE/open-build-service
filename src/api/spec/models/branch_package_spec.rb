@@ -16,8 +16,8 @@ RSpec.describe BranchPackage, vcr: true do
     let(:branch_package) { BranchPackage.new(project: project.name, package: package.name) }
     let!(:update_project) { create(:project, name: 'BaseDistro:Update') }
     let(:update_project_attrib) { create(:update_project_attrib, project: project, update_project: update_project) }
-    let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
-    let(:apache) { create(:package, name: 'apache2', project: leap_project, url: 'http://remoteproject.com') }
+    let(:leap_project) { create(:project, name: 'openSUSE_Leap', url: 'http://remoteproject.com') }
+    let(:apache) { create(:package, name: 'apache2', project: leap_project, url: 'http://remotepackage.com') }
     let(:branch_apache_package) { BranchPackage.new(project: leap_project.name, package: apache.name) }
     let(:dryrun_xml) do
       <<~XML
@@ -98,12 +98,17 @@ RSpec.describe BranchPackage, vcr: true do
       end
     end
 
-    context 'Newly created Package' do
-      it 'retains url' do
-        leap_project
+    context 'retains url' do
+      it 'for a newly created package' do
         branch_apache_package.branch
-        project = Package.where(name: 'apache2').where.not(id: apache.id).first
-        expect(project.url).to eq(apache.url)
+        package = Package.where(name: 'apache2').where.not(id: apache.id).first
+        expect(package.url).to eq(apache.url)
+      end
+
+      it 'for a newly created project' do
+        branch_apache_package.branch
+        project = Project.find_by_name('home:tom:branches:openSUSE_Leap')
+        expect(project.url).to eq(leap_project.url)
       end
     end
   end

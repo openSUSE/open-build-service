@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro">
-          <title>In a Glass Darkly</title>
+          <title>Far From the Madding Crowd</title>
           <description/>
         </project>
     headers:
@@ -29,15 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="BaseDistro">
-          <title>In a Glass Darkly</title>
+          <title>Far From the Madding Crowd</title>
           <description></description>
         </project>
-  recorded_at: Wed, 07 Jul 2021 19:48:46 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=user_2
@@ -45,8 +45,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="BaseDistro">
-          <title>Dying of the Light</title>
-          <description>Quo dolorem consequatur et.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sit voluptas quia hic.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,15 +67,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="BaseDistro">
-          <title>Dying of the Light</title>
-          <description>Quo dolorem consequatur et.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sit voluptas quia hic.</description>
         </package>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro:Update/_meta?user=user_3
@@ -83,7 +83,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro:Update">
-          <title>A Handful of Dust</title>
+          <title>The Cricket on the Hearth</title>
           <description/>
         </project>
     headers:
@@ -105,15 +105,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '119'
     body:
       encoding: UTF-8
       string: |
         <project name="BaseDistro:Update">
-          <title>A Handful of Dust</title>
+          <title>The Cricket on the Hearth</title>
           <description></description>
         </project>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -153,7 +153,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/BaseDistro/_project/_attribute?meta=1&user=tom
@@ -188,14 +188,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4">
-          <srcmd5>d0046aa09b8f26e3198485678f8b996d</srcmd5>
-          <time>1625687327</time>
+        <revision rev="6">
+          <srcmd5>3cee1ce6c30e180c403d4dbc7bdf70b0</srcmd5>
+          <time>1625747945</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE_Leap/_meta?user=tom
@@ -203,7 +203,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE_Leap">
-          <title>The Far-Distant Oxus</title>
+          <title>The Lathe of Heaven</title>
           <description/>
         </project>
     headers:
@@ -225,15 +225,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE_Leap">
-          <title>The Far-Distant Oxus</title>
+          <title>The Lathe of Heaven</title>
           <description></description>
         </project>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE_Leap/apache2/_meta?user=tom
@@ -241,8 +241,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="apache2" project="openSUSE_Leap">
-          <title>To Say Nothing of the Dog</title>
-          <description>Qui quidem dolores explicabo.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Autem dolorem debitis non.</description>
           <url>http://remoteproject.com</url>
         </package>
     headers:
@@ -264,16 +264,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '192'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="openSUSE_Leap">
-          <title>To Say Nothing of the Dog</title>
-          <description>Qui quidem dolores explicabo.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Autem dolorem debitis non.</description>
           <url>http://remoteproject.com</url>
         </package>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:05 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22apache2%22%20and%20linkinfo/@project=%22openSUSE_Leap%22%20and%20@project=%22openSUSE_Leap%22)
@@ -307,7 +307,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 07 Jul 2021 19:48:47 GMT
+  recorded_at: Thu, 08 Jul 2021 12:39:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
@@ -347,7 +347,7 @@ http_interactions:
           <description>This project was created for package apache2 via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
@@ -355,8 +355,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title>To Say Nothing of the Dog</title>
-          <description>Qui quidem dolores explicabo.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Autem dolorem debitis non.</description>
           <url>http://remoteproject.com</url>
         </package>
     headers:
@@ -378,16 +378,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '218'
+      - '210'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title>To Say Nothing of the Dog</title>
-          <description>Qui quidem dolores explicabo.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Autem dolorem debitis non.</description>
           <url>http://remoteproject.com</url>
         </package>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=branch&noservice=1&opackage=apache2&oproject=openSUSE_Leap&user=tom
@@ -422,12 +422,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>f2b6eaf02987245b9003bcf47e0222dc</srcmd5>
           <version>unknown</version>
-          <time>1625687328</time>
+          <time>1625748103</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
@@ -435,8 +435,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title>To Say Nothing of the Dog</title>
-          <description>Qui quidem dolores explicabo.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Autem dolorem debitis non.</description>
           <url>http://remoteproject.com</url>
         </package>
     headers:
@@ -458,16 +458,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '218'
+      - '210'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom:branches:openSUSE_Leap">
-          <title>To Say Nothing of the Dog</title>
-          <description>Qui quidem dolores explicabo.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Autem dolorem debitis non.</description>
           <url>http://remoteproject.com</url>
         </package>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2
@@ -501,7 +501,7 @@ http_interactions:
           <linkinfo project="openSUSE_Leap" package="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc"/>
           <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1625668722"/>
         </directory>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?view=info
@@ -535,7 +535,7 @@ http_interactions:
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="openSUSE_Leap" package="apache2"/>
         </sourceinfo>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2
@@ -569,7 +569,7 @@ http_interactions:
           <linkinfo project="openSUSE_Leap" package="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc"/>
           <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1625668722"/>
         </directory>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:43 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -608,7 +608,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:44 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -645,7 +645,7 @@ http_interactions:
           <new project="home:tom:branches:openSUSE_Leap" package="apache2" rev="2fbc15ae60271e3fe13b837e014a17ea" srcmd5="2fbc15ae60271e3fe13b837e014a17ea"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
@@ -691,7 +691,7 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Wed, 07 Jul 2021 19:48:48 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:44 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap?comment=&user=tom
@@ -721,5 +721,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 07 Jul 2021 19:48:49 GMT
+  recorded_at: Thu, 08 Jul 2021 12:41:44 GMT
 recorded_with: VCR 6.0.0
