@@ -63,6 +63,11 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
   end
 
   RSpec.shared_context 'successful new PR or MR event' do
+    before do
+      create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+      create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+    end
+
     let(:step_instructions) do
       {
         source_project: package.project.name,
@@ -70,12 +75,38 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       }
     end
 
+    let(:workflow_filters) do
+      { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
+    end
+
+    let(:target_project_name) { "home:#{user.login}:#{project.name}:PR-1" }
+
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq("home:#{user.login}:#{project.name}:PR-1") }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+
+    # rubocop:disable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
+    # RSpec/MultipleExpectations, RSpec/ExampleLength - We want to test those expectations together since they depend on each other to be true
+    # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
+    it 'only reports for repositories and architectures matching the filters' do
+      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'i586' },
+                                                      scm_extractor_payload, token.scm_token).and_call_original
+      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'x86_64' },
+                                                      scm_extractor_payload, token.scm_token).and_call_original
+
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'ppc' },
+                                                          scm_extractor_payload, token.scm_token)
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'aarch64' },
+                                                          scm_extractor_payload, token.scm_token)
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
+                                                          scm_extractor_payload, token.scm_token)
+
+      subject.call({ workflow_filters: workflow_filters })
+    end
+    # rubocop:enable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
   end
 
   RSpec.shared_context 'successful update event when the branch_package already exists' do
@@ -216,6 +247,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
       context 'for a new PR event' do
         let(:action) { 'opened' }
+        let(:octokit_client) { instance_double(Octokit::Client) }
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+        end
 
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
@@ -283,6 +320,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
       context 'for a new MR event' do
         let(:action) { 'open' }
+        let(:gitlab_client) { instance_double(Gitlab::Client) }
+
+        before do
+          allow(Gitlab).to receive(:client).and_return(gitlab_client)
+          allow(gitlab_client).to receive(:update_commit_status).and_return(true)
+        end
 
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'

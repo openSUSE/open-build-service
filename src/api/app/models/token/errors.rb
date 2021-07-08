@@ -5,6 +5,14 @@ module Token::Errors
     setup 404
   end
 
+  class UnsupportedWorkflowFilters < APIError
+    setup 422
+  end
+
+  class UnsupportedWorkflowFilterTypes < APIError
+    setup 422
+  end
+
   class NonExistentWorkflowsFile < APIError
     setup 404
   end
