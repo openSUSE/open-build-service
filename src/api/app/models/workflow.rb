@@ -5,20 +5,54 @@ class Workflow
     @workflow = workflow
     @scm_extractor_payload = scm_extractor_payload
     @token = token
+    raise Token::Errors::InvalidWorkflowStepDefinition, "Invalid workflow step definition: #{errors.to_sentence}" unless
+      valid?
+  end
+
+  def valid?
+    unsupported_steps.none? && !invalid_steps?
   end
 
   def steps
-    steps = []
-    return steps if @workflow['steps'].blank?
-
-    @workflow['steps'].each do |step|
-      step.each do |step_name, step_instructions|
-        next if SUPPORTED_STEPS[step_name].blank?
-
-        new_step = SUPPORTED_STEPS[step_name].new(step_instructions: step_instructions, scm_extractor_payload: @scm_extractor_payload, token: @token)
-        steps << new_step if new_step.allowed_event_and_action?
-      end
+    @steps ||= workflow_steps.each_with_object([]) do |step_definition, acc|
+      step_definition
+        .select { |step_name, _| SUPPORTED_STEPS.key?(step_name) }
+        .map { |step_name, step_instructions| initialize_step(step_name, step_instructions) }
+        .select(&:allowed_event_and_action?)
+        .select { |new_step| acc << new_step }
+      acc
     end
-    steps
+  end
+
+  def errors
+    unsupported_steps.each_with_object([]) do |step_definition, acc|
+      step_definition.each do |step_name, _|
+        acc << "'#{step_name}' is not a supported step"
+      end
+      acc
+    end
+  end
+
+  private
+
+  def invalid_steps?
+    steps.reject(&:valid?).any?
+  end
+
+  def workflow_steps
+    @workflow.fetch('steps', {})
+  end
+
+  def unsupported_steps
+    @unsupported_steps ||= workflow_steps.each_with_object([]) do |step_definition, acc|
+      rejected_steps = step_definition.reject { |step_name, _| SUPPORTED_STEPS.key?(step_name) }
+      rejected_steps.empty? ? acc : acc << rejected_steps
+    end
+  end
+
+  def initialize_step(step_name, step_instructions)
+    SUPPORTED_STEPS[step_name].new(step_instructions: step_instructions,
+                                   scm_extractor_payload: @scm_extractor_payload,
+                                   token: @token)
   end
 end
