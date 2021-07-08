@@ -24,9 +24,10 @@ class Workflow
         branched_package = find_or_create_branched_package
 
         add_or_update_branch_request_file(package: branched_package)
-        create_or_update_subscriptions(branched_package)
 
         workflow_filters = options.fetch(:workflow_filters, [])
+        create_or_update_subscriptions(branched_package, workflow_filters)
+
         workflow_repositories(target_project_name, workflow_filters).each do |repository|
           # TODO: Fix n+1 queries
           workflow_architectures(repository, workflow_filters).each do |architecture|
@@ -161,7 +162,7 @@ class Workflow
           object_attributes: { source: { default_branch: @scm_extractor_payload[:commit_sha] } } }.to_json
       end
 
-      def create_or_update_subscriptions(branched_package)
+      def create_or_update_subscriptions(branched_package, workflow_filters)
         ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
           subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
                                                               receiver_role: 'reader', # We pass a valid value, but we don't need this.
@@ -170,7 +171,7 @@ class Workflow
                                                               enabled: true,
                                                               token: @token,
                                                               package: branched_package)
-          subscription.update!(payload: @scm_extractor_payload)
+          subscription.update!(payload: @scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
         end
       end
 
