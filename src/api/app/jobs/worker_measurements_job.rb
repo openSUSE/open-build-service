@@ -24,7 +24,7 @@ class WorkerMeasurementsJob < ApplicationJob
       idle_state = @workerstatus.xpath("//idle[@hostarch=\"#{architecture_name}\"]").count
       building_state = @workerstatus.xpath("//building[@hostarch=\"#{architecture_name}\"]").count
 
-      RabbitmqBus.send_to_bus('metrics', "worker,arch=#{architecture_name} dead=#{dead_state} down=#{down_state} away=#{away_state} idle=#{idle_state} building=#{building_state}")
+      RabbitmqBus.send_to_bus('metrics', "worker,arch=#{architecture_name} dead=#{dead_state},down=#{down_state},away=#{away_state},idle=#{idle_state},building=#{building_state}")
     end
   end
 
@@ -42,7 +42,7 @@ class WorkerMeasurementsJob < ApplicationJob
       hostarch = job.attributes['hostarch'].value
       arch = job.attributes['arch'].value
       progression = Time.now.to_i - job.attributes['starttime'].value.to_i
-      RabbitmqBus.send_to_bus('metrics', "jobs,hostarch=#{hostarch},arch=#{arch},state=building progression=#{progression} count=1")
+      RabbitmqBus.send_to_bus('metrics', "jobs,hostarch=#{hostarch},arch=#{arch},state=building progression=#{progression},count=1")
     end
   end
 
@@ -54,7 +54,7 @@ class WorkerMeasurementsJob < ApplicationJob
       low = scheduler.attributes['low'].value
       medium = scheduler.attributes['med'].value
       next_count = scheduler.attributes['next'].value
-      RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition} high=#{high} low=#{low} medium=#{medium} next=#{next_count}")
+      RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition} high=#{high},low=#{low},medium=#{medium},next=#{next_count}")
     end
   end
 end
