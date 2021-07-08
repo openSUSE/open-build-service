@@ -30,7 +30,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       }
     end
 
-    it { expect { subject.call }.to raise_error(Token::Errors::CanNotBranchPackageNotFound) }
+    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNotFound) }
   end
 
   RSpec.shared_context 'failed when project name is invalid' do
@@ -42,7 +42,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       }
     end
 
-    it { expect { subject.call }.to raise_error(Token::Errors::CanNotBranchPackage) }
+    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackage) }
   end
 
   RSpec.shared_context 'failed without branch permissions' do
@@ -59,7 +59,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       }
     end
 
-    it { expect { subject.call }.to raise_error(Token::Errors::CanNotBranchPackageNoPermission) }
+    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
   end
 
   RSpec.shared_context 'successful new PR or MR event' do

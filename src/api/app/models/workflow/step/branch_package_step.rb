@@ -83,7 +83,7 @@ class Workflow
         begin
           src_package = Package.get_by_project_and_name(source_project_name, source_package_name, options)
         rescue Package::UnknownObjectError
-          raise Token::Errors::CanNotBranchPackageNotFound, "Package #{source_project_name}/#{source_package_name} not found, it could not be branched."
+          raise BranchPackage::Errors::CanNotBranchPackageNotFound, "Package #{source_project_name}/#{source_package_name} not found, it could not be branched."
         end
 
         Pundit.authorize(@token.user, src_package, :create_branch?)
@@ -97,9 +97,10 @@ class Workflow
                               target_project: target_project_name,
                               target_package: target_package_name }).branch
         rescue BranchPackage::InvalidArgument, InvalidProjectNameError, ArgumentError => e
-          raise Token::Errors::CanNotBranchPackage, "Package #{source_project_name}/#{source_package_name} could not be branched: #{e.message}"
+          raise BranchPackage::Errors::CanNotBranchPackage, "Package #{source_project_name}/#{source_package_name} could not be branched: #{e.message}"
         rescue Project::WritePermissionError, CreateProjectNoPermission => e
-          raise Token::Errors::CanNotBranchPackageNoPermission, "Package #{source_project_name}/#{source_package_name} could not be branched due to missing permissions: #{e.message}"
+          raise BranchPackage::Errors::CanNotBranchPackageNoPermission,
+                "Package #{source_project_name}/#{source_package_name} could not be branched due to missing permissions: #{e.message}"
         end
 
         Event::BranchCommand.create(project: source_project_name, package: source_package_name,

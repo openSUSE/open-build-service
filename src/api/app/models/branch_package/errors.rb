@@ -3,6 +3,18 @@ module BranchPackage::Errors
 
   class InvalidFilelistError < APIError; end
 
+  class CanNotBranchPackage < APIError
+    setup 422
+  end
+
+  class CanNotBranchPackageNoPermission < APIError
+    setup 403
+  end
+
+  class CanNotBranchPackageNotFound < APIError
+    setup 404
+  end
+
   class DoubleBranchPackageError < APIError
     attr_reader :project, :package
 
