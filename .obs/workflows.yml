@@ -9,6 +9,7 @@ workflow:
         - x86_64
     repositories:
       only:
-        - SLE_12_SP5
+        - openSUSE_Factory
+        - openSUSE_15.1
         - SLE_15_SP1
-        - SLE_15_SP2
+        - SLE_15_SP3
