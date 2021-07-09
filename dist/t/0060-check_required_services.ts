@@ -7,7 +7,7 @@ use Test::More;
 my $tests    = 14;
 my $max_wait = 300;
 
-my @daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.service
+my @active_daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.service
                  obsscheduler.service   obssrcserver.service/;
 
 my $out=`systemctl list-units`;
@@ -18,27 +18,29 @@ foreach my $unit (split(/\n/, $out)) {
 
 die "could not find mariadb or mysql" if ! $mariadb;
 
-push @daemons, $mariadb;
+push @active_daemons, $mariadb;
 
 my $os = get_distribution();
 if ($os eq "suse") {
-  push @daemons, "apache2.service";
+  push @active_daemons, "apache2.service";
 } elsif ($os eq 'rh') {
-  push @daemons, "httpd.service";
+  push @active_daemons, "httpd.service";
 } else {
   die "Could not determine distribution!\n";
 }
 
 my $version = `rpm -q --queryformat %{Version} obs-server`;
 
+my @enabled_daemons = @active_daemons;
+
 if ($version !~ /^2\.[89]\./) {
-  unshift @daemons, "obs-api-support.target";
-  $tests = 16;
+  push @active_daemons, 'obs-clockwork.service', 'obs-delayedjob-queue-consistency_check.service', 'obs-delayedjob-queue-default.service', 'obs-delayedjob-queue-issuetracking.service', 'obs-delayedjob-queue-mailers.service', 'obs-delayedjob-queue-project_log_rotate.service', 'obs-delayedjob-queue-quick@0.service', 'obs-delayedjob-queue-quick@1.service', 'obs-delayedjob-queue-quick@2.service', 'obs-delayedjob-queue-releasetracking.service', 'obs-delayedjob-queue-staging.service', 'obs-delayedjob-queue-scm.service', 'obs-sphinx.service';
+  $tests = $tests + 13;
 }
 
 plan tests => $tests;
 
-foreach my $srv (@daemons) {
+foreach my $srv (@enabled_daemons) {
 	my @state=`systemctl is-enabled $srv 2>/dev/null`;
 	my $result='';
 	if (@state) {
@@ -52,7 +54,7 @@ my %srv_state=();
 
 while ($max_wait > 0) {
 	my $failed=0;
-	foreach my $srv (@daemons) {
+	foreach my $srv (@active_daemons) {
 		my @state=`systemctl is-active $srv 2>/dev/null`;
 		chomp($state[0]);
 		print "$srv $state[0]\n";
@@ -63,13 +65,13 @@ while ($max_wait > 0) {
 			$srv_state{$srv} = $state[0];
 		}
 	}
-	last if (keys(%srv_state) == scalar(@daemons));
+	last if (keys(%srv_state) == scalar(@active_daemons));
 	last if ($failed);
 	$max_wait--;
 	sleep 1;
 }
 
-foreach my $srv ( @daemons ) {
+foreach my $srv ( @active_daemons ) {
 	is($srv_state{$srv} || 'timeout','active',"Checking recommended systemd unit '$srv' status");
 }
 
