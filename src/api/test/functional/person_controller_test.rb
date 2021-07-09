@@ -14,6 +14,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get '/person'
     assert_response :success
+    assert_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
+
+    get '/person?confirmed=1'
+    assert_response :success
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
 
     get '/person/'
     assert_response :success
