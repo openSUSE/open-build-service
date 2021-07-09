@@ -100,7 +100,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def show
     @diff_limit = params[:full_diff] ? 0 : nil
-
+    @diff_to_superseded_id = params[:diff_to_superseded]
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
@@ -143,6 +143,7 @@ class Webui::RequestController < Webui::WebuiController
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    @diff_to_superseded_id = params[:diff_to_superseded]
 
     respond_to do |format|
       format.js

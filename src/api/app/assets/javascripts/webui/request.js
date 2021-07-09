@@ -137,8 +137,12 @@ function loadDiffs(element){
   var index = element.data('index');
   var url = element.data('url') + '?index=' + index;
   var diffLimit = $('.sourcediff').data('diff-limit');
+  var diffToSuperseded = element.data('diff-to-superseded');
   if(diffLimit){
     url = url + '&full_diff=' + diffLimit;
+  }
+  if(diffToSuperseded){
+    url = url + '&diff_to_superseded=' + diffToSuperseded;
   }
   $.ajax({
     url: url,
