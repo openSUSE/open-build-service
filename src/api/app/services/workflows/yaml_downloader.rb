@@ -16,7 +16,7 @@ module Workflows
     def download_yaml_file
       Down.download(download_url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
-      raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded on the SCM branch #{@scm_payload[:target_branch]}: #{e.message}"
+      raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded from the SCM branch #{@scm_payload[:target_branch]}: #{e.message}"
     end
 
     def download_url
@@ -27,6 +27,8 @@ module Workflows
       when 'gitlab'
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
       end
+    rescue Octokit::NotFound => e
+      raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded from the SCM branch #{@scm_payload[:target_branch]}: #{e.message}"
     end
   end
 end

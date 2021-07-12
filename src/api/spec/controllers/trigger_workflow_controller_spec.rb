@@ -47,7 +47,7 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
       it { expect(response).to have_http_status(:not_found) }
 
       it "displays a user-friendly error message in the response's body" do
-        expect(response.body).to include('.obs/workflows.yml could not be downloaded on the SCM branch main: Beep Boop, something is wrong')
+        expect(response.body).to include('.obs/workflows.yml could not be downloaded from the SCM branch main: Beep Boop, something is wrong')
       end
     end
 
