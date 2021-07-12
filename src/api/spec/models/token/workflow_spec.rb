@@ -141,7 +141,7 @@ RSpec.describe Token::Workflow, vcr: true do
 
       it 'raises a user-friendly error message' do
         expect { subject }.to raise_error(Token::Errors::NonExistentWorkflowsFile,
-                                          '.obs/workflows.yml could not be downloaded on the SCM branch main: Beep Boop, something is wrong')
+                                          '.obs/workflows.yml could not be downloaded from the SCM branch main: Beep Boop, something is wrong')
       end
     end
 
