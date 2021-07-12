@@ -25,7 +25,7 @@ class Workflow
 
         add_or_update_branch_request_file(package: branched_package)
 
-        workflow_filters = options.fetch(:workflow_filters, [])
+        workflow_filters = options.fetch(:workflow_filters, {})
         create_or_update_subscriptions(branched_package, workflow_filters)
 
         workflow_repositories(target_project_name, workflow_filters).each do |repository|
