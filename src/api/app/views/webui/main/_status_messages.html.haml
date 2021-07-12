@@ -6,7 +6,7 @@
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
   .list-group
-    = render partial: 'status_message', collection: status_messages
+    = render StatusMessageComponent.with_collection(status_messages)
     - if policy(StatusMessage.new).create?
       .card-footer
         = link_to(new_status_message_path, class: 'nav-link') do
