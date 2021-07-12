@@ -715,11 +715,11 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   if [ -f $PID_FILE ];then
     APID=`cat $PID_FILE`
-    if [ ! -f /proc/$APID/status ];then
-      logline `basename $0`" died unexpectedly"
-    else
+    if [ -f /proc/$APID/status ];then
       logline `basename $0`" already running. Exiting!"
       exit 0
+    else
+      logline `basename $0`" died unexpectedly"
     fi
   fi
 
