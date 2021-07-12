@@ -6,10 +6,7 @@ class Token::Workflow < Token
   end
 
   def call(options)
-    extractor = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload])
-    return unless extractor.allowed_event_and_action?
-
-    scm_extractor_payload = extractor.call
+    scm_extractor_payload = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload]).call
     yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload, token: self).call
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
     workflows.each do |workflow|
