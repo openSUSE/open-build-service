@@ -344,7 +344,7 @@ GEM
       rake (>= 0.13)
       thor (~> 1.0)
     rainbow (3.0.0)
-    rake (13.0.3)
+    rake (13.0.6)
     rantly (2.0.0)
     rbtree (0.4.4)
     rbtree3 (0.6.0)
