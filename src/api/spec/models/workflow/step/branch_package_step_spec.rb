@@ -268,7 +268,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
               { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame' }
             end
             let(:update_payload) do
-              { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame' }
+              { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+                'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
@@ -341,7 +342,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
               { 'action' => 'open', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame' }
             end
             let(:update_payload) do
-              { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame' }
+              { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
+                'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
