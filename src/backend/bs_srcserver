@@ -2860,7 +2860,9 @@ sub getfilelist {
   for my $filename (sort keys %$files) {
     my @s = BSRevision::revstat($rev, $filename, $files->{$filename});
     if (@s) {
-      push @res, {'name' => $filename, 'md5' => $files->{$filename}, 'size' => $s[7], 'mtime' => $s[9]};
+      my $entry = {'name' => $filename, 'md5' => $files->{$filename}, 'size' => $s[7], 'mtime' => $s[9]};
+      $entry->{'hash'} = BSRevision::revdigest($rev, $filename, $files->{$filename}, $cgi->{'digestalg'}) if $cgi->{'digestalg'};
+      push @res, $entry;
     } else {
       push @res, {'name' => $filename, 'md5' => $files->{$filename}, 'error' => "$!"};
     }
@@ -7418,7 +7420,7 @@ my $dispatches = [
 
   '/source/$project/$package view=getmultibuild' => \&getmultibuildpackages,
   '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool? noexpand:bool? withmetamd5:bool?' => \&getpackagesourceinfo,
-  '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
+  '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:? digestalg:?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool? view:? interconnect:?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
