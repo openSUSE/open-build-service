@@ -1,0 +1,37 @@
+- @pagetitle = "Add distribution repository to #{@project}"
+
+
+.card.mb-3
+  = render partial: 'webui/project/tabs', locals: { project: @project }
+  .card-body
+    %h3 Add Repositories to #{@project}
+    .row
+      - @distributions.each do |vendor, distributions|
+        .col-md-12
+          .pb-4
+            %h6.pb-2
+              - if resolve_asset_path("distributions/#{vendor.downcase}.svg")
+                = image_tag("distributions/#{vendor.downcase}.svg")
+              #{vendor} distributions
+            .row
+              - distributions.group_by(&:reponame).each do |_reponame, variants|
+                .col-md-3
+                  .pb-2
+                    - if variants.length > 1
+                      = variants.first.reponame
+                      Variants
+                      %i.fa.fa-question-circle.text-info{ data: { placement: 'top',
+                                                                  toggle: 'popover',
+                                                                  content: 'Variants are distributions of the same general kind that only
+                                                                            differ in the set of packages they include. You should consult
+                                                                            the distributions documentation to learn more about the variants.
+                                                                            It is only possible to add one distribution variant as repository.'
+                                                                } }
+                      \:
+                    - variants.each do |variant|
+                      = form_tag(toggle_project_distributions_path, remote: true, id: "distribution-#{variant.id}-form") do
+                        - checked = @project.has_distribution(variant.project, variant.repository) ? 'checked' : nil
+                        = render partial: 'variant', object: variant, locals: { checked: checked }
+- content_for :ready_function do
+  toggleDistribution();
+

@@ -133,8 +133,7 @@ OBSApi::Application.routes.draw do
     controller 'webui/repositories' do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: 'html' }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
-      get 'project/add_repository/:project' => :new, constraints: cons
-      get 'project/add_repository_from_default_list/:project' => :distributions, constraints: cons, as: :repositories_distributions
+      get 'project/add_repository_from_default_list/:project', to: redirect('/projects/%{project}/distributions/new'), constraints: cons
       post 'project/save_repository' => :create
       post 'project/update_target/:project' => :update, constraints: cons
       get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
@@ -273,6 +272,11 @@ OBSApi::Application.routes.draw do
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
       resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
+      resources :distributions, only: [:new], controller: 'webui/distributions', constraints: cons do
+        collection do
+          post :toggle
+        end
+      end
     end
 
     controller 'webui/request' do

@@ -164,12 +164,12 @@ RSpec.describe 'Repositories', type: :feature, js: true, vcr: true do
 
     it 'add/delete repository from distribution' do
       # Create interconnect
-      visit(repositories_distributions_path(project: admin_user.home_project))
+      visit(new_interconnect_path(project: admin_user.home_project))
       click_button('Connect', match: :first)
 
-      visit(repositories_distributions_path(project: admin_user.home_project))
-      find("label[for='repo_openSUSE_Tumbleweed']").click
-      expect(page).to have_text("Successfully added repository 'openSUSE_Tumbleweed'")
+      visit(new_project_distribution_path(project_name: admin_user.home_project))
+      distribution = Distribution.find_by(reponame: 'openSUSE_Tumbleweed')
+      find("label[for='distribution-#{distribution.id}-checkbox']").click
 
       visit(project_repositories_path(project: admin_user.home_project))
 
@@ -177,21 +177,14 @@ RSpec.describe 'Repositories', type: :feature, js: true, vcr: true do
 
       within '.repository-card' do
         expect(page).to have_link('openSUSE_Tumbleweed')
-        expect(page).to have_link('Edit Repository')
-        expect(page).to have_link('Add Repository Path')
-        expect(page).to have_link('Download Repository')
-        expect(page).to have_link('Delete Repository')
-        # Repository path
-        expect(page).to have_text('openSUSE.org/snapshot')
       end
 
-      visit(repositories_distributions_path(project: admin_user.home_project))
-      find("label[for='repo_openSUSE_Tumbleweed']").click
-      expect(page).to have_text("Successfully removed repository 'openSUSE_Tumbleweed'")
+      visit(new_project_distribution_path(project_name: admin_user.home_project))
+      find("label[for='distribution-#{distribution.id}-checkbox']").click
 
       visit(project_repositories_path(project: admin_user.home_project))
 
-      expect(page).not_to have_link('openSUSE_Tumbleweed')
+      expect(page).not_to have_css('.repository-card')
     end
 
     it 'add repository from project' do
