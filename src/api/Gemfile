@@ -89,6 +89,8 @@ gem 'down'
 gem 'octokit'
 # Ruby wrapper and CLI for the GitLab REST API
 gem 'gitlab'
+# Build reusable, testable & encapsulated view components in Ruby on Rails
+gem 'view_component', require: 'view_component/engine'
 
 group :development, :production do
   # to have the delayed job daemon

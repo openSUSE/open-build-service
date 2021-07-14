@@ -469,6 +469,9 @@ GEM
     unicode-display_width (2.0.0)
     uniform_notifier (1.14.2)
     vcr (6.0.0)
+    view_component (2.35.0)
+      activesupport (>= 5.0.0, < 8.0)
+      method_source (~> 1.0)
     voight_kampff (1.1.4)
       rack (>= 1.4, < 3.0)
     webmock (3.13.0)
@@ -578,6 +581,7 @@ DEPENDENCIES
   timecop
   uglifier
   vcr
+  view_component
   voight_kampff
   webmock
   xmlhash

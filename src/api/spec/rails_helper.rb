@@ -49,6 +49,8 @@ RSpec.configure do |config|
   end
 end
 
+require 'support/view_component'
+
 # support fixtures
 require 'support/factory_bot'
 
