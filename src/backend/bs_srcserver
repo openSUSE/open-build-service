@@ -3323,10 +3323,7 @@ sub sourcecommitfilelist {
     } else {
       die("duplicate file: $entry->{'name'}\n") if exists $files->{$entry->{'name'}};
       if ($entry->{'hash'}) {
-        my $fd = gensym;
-        BSRevision::revopen($orev, $entry->{'name'}, $entry->{'md5'}, $fd);
-        my $sha256 = Digest::SHA->new(256);
-        my $hash_to_check = "sha256:" . $sha256->addfile($fd)->hexdigest;
+        my $hash_to_check = BSRevision::revdigest($orev, $entry->{'name'}, $entry->{'md5'}, 'sha256');
         if ($hash_to_check ne $entry->{'hash'}) {
           die("SHA mismatch for same md5sum in $packid for file $entry->{'name'} with sum $entry->{'md5'}\n");
         }
