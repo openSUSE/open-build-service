@@ -10,8 +10,8 @@ class WorkerMeasurementsJob < ApplicationJob
     @architecture_names = Architecture.available.pluck(:name)
 
     send_worker_metrics
-    send_job_metrics
     send_scheduler_metrics
+    send_job_metrics
   end
 
   private
