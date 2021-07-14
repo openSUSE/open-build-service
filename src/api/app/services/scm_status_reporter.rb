@@ -44,7 +44,9 @@ class SCMStatusReporter
   #   GitLab: pending, success, failed, running or canceled
   def scm_final_state(event_type)
     case event_type
-    when 'Event::BuildFail'
+    when 'Event::BuildBroken',
+         'Event::BuildFail',
+         'Event::BuildUnresolvable'
       github? ? 'failure' : 'failed'
     when 'Event::BuildSuccess'
       'success'
