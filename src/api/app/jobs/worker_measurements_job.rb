@@ -37,13 +37,6 @@ class WorkerMeasurementsJob < ApplicationJob
       RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=waiting count=#{waiting}")
       RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=blocked count=#{blocked}")
     end
-
-    @workerstatus.search('//building').each do |job|
-      hostarch = job.attributes['hostarch'].value
-      arch = job.attributes['arch'].value
-      progression = Time.now.to_i - job.attributes['starttime'].value.to_i
-      RabbitmqBus.send_to_bus('metrics', "jobs,hostarch=#{hostarch},arch=#{arch},state=building progression=#{progression},count=1")
-    end
   end
 
   def send_scheduler_metrics
