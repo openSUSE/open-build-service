@@ -2,7 +2,6 @@
 Description = Open Build Service DelayedJob Queue: project_log_rotate
 BindsTo = obs-api-support.target
 After = mariadb.service obsapisetup.service
-Wants = mariadb.service obsapisetup.service
 
 [Service]
 Environment = "RAILS_ENV=production"
