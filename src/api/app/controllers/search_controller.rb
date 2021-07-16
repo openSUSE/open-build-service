@@ -186,9 +186,7 @@ class SearchController < ApplicationController
 
     logger.debug "searching in #{what}s, predicate: '#{predicate}'"
 
-    xe = XpathEngine.new
-
-    items = xe.find("/#{what}[#{predicate}]")
+    items = find_items(what, predicate)
 
     matches = items.size
 
@@ -330,5 +328,11 @@ class SearchController < ApplicationController
       end
     end
     render xml: xml
+  end
+
+  private
+
+  def find_items(what, predicate)
+    XpathEngine.new.find("/#{what}[#{predicate}]")
   end
 end
