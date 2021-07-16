@@ -282,16 +282,7 @@ class SearchController < ApplicationController
     attrib = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # gather the relation for attributes depending on project/package combination
-    attribs = if params[:package] && params[:project]
-                Package.get_by_project_and_name(params[:project], params[:package]).attribs
-              elsif params[:package]
-                attrib.attribs.where(package_id: Package.where(name: params[:package]))
-              elsif params[:project]
-                attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
-              else
-                attrib.attribs
-              end
-
+    attribs = find_attribs(attrib, params[:project], params[:package])
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :package_id)
     values = AttribValue.where(attrib_id: attribs.collect { |a| a[0] })
@@ -331,6 +322,18 @@ class SearchController < ApplicationController
   end
 
   private
+
+  def find_attribs(attrib, project_name, package_name)
+    return attrib.attribs if project_name.blank? && package_name.blank?
+
+    return Package.get_by_project_and_name(project_name, package_name).attribs if project_name.present? && package_name.present?
+
+    if package_name
+      attrib.attribs.where(package_id: Package.where(name: package_name))
+    else # project_name
+      attrib.attribs.where(package_id: Project.get_by_name(project_name).packages)
+    end
+  end
 
   def find_items(what, predicate)
     XpathEngine.new.find("/#{what}[#{predicate}]")
