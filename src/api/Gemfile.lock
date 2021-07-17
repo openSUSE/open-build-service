@@ -401,7 +401,7 @@ GEM
       rubocop-ast (>= 1.1.0)
     ruby-ldap (0.9.20)
     ruby-progressbar (1.11.0)
-    ruby2_keywords (0.0.4)
+    ruby2_keywords (0.0.5)
     ruby_parser (3.16.0)
       sexp_processor (~> 4.15, >= 4.15.1)
     rubyzip (2.3.2)
