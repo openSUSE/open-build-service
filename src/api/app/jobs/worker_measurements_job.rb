@@ -17,44 +17,37 @@ class WorkerMeasurementsJob < ApplicationJob
   private
 
   def send_worker_metrics
+    states = ['dead', 'down', 'away', 'idle', 'building']
     @architecture_names.each do |architecture_name|
-      dead_state = @workerstatus.xpath("//dead[@hostarch=\"#{architecture_name}\"]").count
-      down_state = @workerstatus.xpath("//down[@hostarch=\"#{architecture_name}\"]").count
-      away_state = @workerstatus.xpath("//away[@hostarch=\"#{architecture_name}\"]").count
-      idle_state = @workerstatus.xpath("//idle[@hostarch=\"#{architecture_name}\"]").count
-      building_state = @workerstatus.xpath("//building[@hostarch=\"#{architecture_name}\"]").count
-
-      RabbitmqBus.send_to_bus('metrics', "worker,arch=#{architecture_name} dead=#{dead_state},down=#{down_state},away=#{away_state},idle=#{idle_state},building=#{building_state}")
+      states.each do |state|
+        state_elements = @workerstatus.xpath("//#{state}[@hostarch=\"#{architecture_name}\"]")
+        RabbitmqBus.send_to_bus('metrics', "worker,arch=#{architecture_name},state=#{state} value=#{state_elements.count}") if state_elements.any?
+      end
     end
   end
 
   def send_job_metrics
     @architecture_names.each do |architecture_name|
       waiting = @workerstatus.xpath("//waiting[@arch=\"#{architecture_name}\"]")
-      waiting = waiting.any? ? waiting.last.attributes['jobs'].value : 0
-      blocked = @workerstatus.xpath("//blocked[@arch=\"#{architecture_name}\"]")
-      blocked = blocked.any? ? blocked.last.attributes['jobs'].value : 0
-      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=waiting count=#{waiting}")
-      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=blocked count=#{blocked}")
-    end
+      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=waiting value=#{waiting.last.attributes['jobs'].value}") if waiting.any?
 
-    @workerstatus.search('//building').each do |job|
-      hostarch = job.attributes['hostarch'].value
-      arch = job.attributes['arch'].value
-      progression = Time.now.to_i - job.attributes['starttime'].value.to_i
-      RabbitmqBus.send_to_bus('metrics', "jobs,hostarch=#{hostarch},arch=#{arch},state=building progression=#{progression},count=1")
+      blocked = @workerstatus.xpath("//blocked[@arch=\"#{architecture_name}\"]")
+      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=blocked value=#{blocked.last.attributes['jobs'].value}") if blocked.any?
+
+      building = @workerstatus.xpath("//building[@arch=\"#{architecture_name}\"]")
+      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=building value=#{building.count}") if building.any?
     end
   end
 
   def send_scheduler_metrics
+    queues = ['high', 'med', 'low', 'next']
     @workerstatus.xpath('//partition//queue').each do |scheduler|
-      partition = scheduler.parent.parent.attributes['name']&.value || 'main'
+      partition = scheduler.parent.parent.values.first || 'main'
       architecture = scheduler.parent.attributes['arch'].value
-      high = scheduler.attributes['high'].value
-      low = scheduler.attributes['low'].value
-      medium = scheduler.attributes['med'].value
-      next_count = scheduler.attributes['next'].value
-      RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition} high=#{high},low=#{low},medium=#{medium},next=#{next_count}")
+      queues.each do |queue|
+        value = scheduler.attribute(queue).value
+        RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition},queue=#{queue} value=#{value}") if value.positive?
+      end
     end
   end
 end
