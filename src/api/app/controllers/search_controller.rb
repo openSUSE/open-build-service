@@ -294,21 +294,9 @@ class SearchController < ApplicationController
   private
 
   def filter_items(items)
-    @offset = params.fetch(:offset, 0).to_i
-    @limit = params.fetch(:limit, 0).to_i
-    nitems = []
-    items.each do |item|
-      if @offset.positive?
-        @offset -= 1
-      else
-        nitems << item
-        if @limit
-          @limit -= 1
-          break if @limit.zero?
-        end
-      end
-    end
-    nitems
+    offset = params.fetch(:offset, 0).to_i
+    limit = params.fetch(:limit, items.size).to_i
+    Kaminari.paginate_array(items, limit: limit, offset: offset)
   end
 
   def group_attribute_values_by_attrib_id(values)

@@ -439,7 +439,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection'
     assert get_package_count == 3
 
-    get '/search/package?match=*', params: { offset: 3 }
+    get '/search/package?match=*', params: { offset: 3, limit: all_packages_count }
     assert_response :success
     assert_xml_tag tag: 'collection'
     assert get_package_count == (all_packages_count - 3)

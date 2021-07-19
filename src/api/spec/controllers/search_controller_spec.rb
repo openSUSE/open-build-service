@@ -4,7 +4,7 @@ require 'webmock/rspec'
 RSpec.describe SearchController, vcr: true do
   render_views
 
-  let!(:user) { create(:confirmed_user, :with_home, login: 'foo') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'foo') }
   let(:project) { user.home_project }
 
   before do
@@ -39,19 +39,13 @@ RSpec.describe SearchController, vcr: true do
     subject! { get :package, params: { match: "@name='apacheX'" } }
 
     it_behaves_like 'find package'
-
-    context 'With offset' do
-      subject! { get :package, params: { offset: 'XXX', match: "@name='apacheX'" } }
-
-      it_behaves_like 'find package'
-    end
   end
 
   describe 'search for packages with offset = 1' do
     let!(:package) { create(:package, name: 'apacheX', project: user.home_project) }
     let!(:project) { create(:project_with_package, name: 'Foo', maintainer: user, package_name: 'apacheX') }
 
-    subject! { get :package, params: { offset: '1', match: "@name='apacheX'" } }
+    subject! { get :package, params: { limit: '1', offset: '1', match: "@name='apacheX'" } }
 
     it_behaves_like 'find package'
   end
