@@ -286,11 +286,7 @@ class SearchController < ApplicationController
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :package_id)
     values = AttribValue.where(attrib_id: attribs.collect { |a| a[0] })
-    attrib_values = {}
-    values.each do |v|
-      attrib_values[v.attrib_id] ||= []
-      attrib_values[v.attrib_id] << v
-    end
+    attrib_values = group_attribute_values_by_attrib_id(values)
     # retrieve the package name and project for the attributes
     packages = Package.where('packages.id' => attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
     pack2attrib = {}
@@ -322,6 +318,15 @@ class SearchController < ApplicationController
   end
 
   private
+
+  def group_attribute_values_by_attrib_id(values)
+    attrib_values = {}
+    values.each do |v|
+      attrib_values[v.attrib_id] ||= []
+      attrib_values[v.attrib_id] << v
+    end
+    attrib_values
+  end
 
   def find_attribs(attrib, project_name, package_name)
     return attrib.attribs if project_name.blank? && package_name.blank?
