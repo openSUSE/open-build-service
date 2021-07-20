@@ -16,3 +16,4 @@ Bugfixes
 
 * Frontend:
   - Update rails to fix a license issue in one of its dependencies
+  - Fix potential XSS vulnerability in jQuery
