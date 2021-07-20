@@ -121,7 +121,7 @@ RSpec.describe Token::Workflow, vcr: true do
       end
 
       it 'raises an "Invalid workflow step definition" error' do
-        expect { subject }.to raise_error('Invalid workflow step definition: ')
+        expect { subject }.to raise_error(Token::Errors::InvalidWorkflowStepDefinition)
       end
     end
 

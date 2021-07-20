@@ -162,54 +162,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
   end
 
-  describe '#allowed_event_and_action?' do
-    let(:step_instructions) { {} }
-
-    context 'when we feed a valid extractor payload from GitHub' do
-      let(:scm_extractor_payload) do
-        {
-          scm: 'github',
-          event: 'pull_request',
-          action: action
-        }
-      end
-
-      context 'for a new PR event' do
-        let(:action) { 'opened' }
-
-        it { expect(subject).to be_allowed_event_and_action }
-      end
-
-      context 'for an updated PR event' do
-        let(:action) { 'synchronize' }
-
-        it { expect(subject).to be_allowed_event_and_action }
-      end
-    end
-
-    context 'when we feed a valid extractor payload from GitLab' do
-      let(:scm_extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Merge Request Hook',
-          action: action
-        }
-      end
-
-      context 'for a new MR event' do
-        let(:action) { 'open' }
-
-        it { expect(subject).to be_allowed_event_and_action }
-      end
-
-      context 'for a updated MR event' do
-        let(:action) { 'update' }
-
-        it { expect(subject).to be_allowed_event_and_action }
-      end
-    end
-  end
-
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
