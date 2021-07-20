@@ -4,6 +4,8 @@
   .card-body
     %h3= @pagetitle
 
+    .text-center= page_entries_info(@tokens)
+
     - if @tokens.count.positive?
       .table-responsive
         %table.table.table-sm.table-striped.table-bordered
@@ -29,6 +31,8 @@
       = link_to new_token_path do
         %i.fas.fa-plus-circle.text-primary
         Create Token
+
+= paginate @tokens, views_prefix: 'webui'
 
 .modal.fade#delete-token-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-token-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }

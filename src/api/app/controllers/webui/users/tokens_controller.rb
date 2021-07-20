@@ -5,7 +5,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   after_action :verify_policy_scoped, only: :index
 
   def index
-    @tokens = policy_scope([:webui, Token])
+    @tokens = policy_scope([:webui, Token]).page(params[:page])
   end
 
   def destroy
