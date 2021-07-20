@@ -19,12 +19,9 @@ module Workflows
         raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse .obs/workflows.yml: #{e.message}"
       end
 
-      workflows = []
-
-      parsed_workflows_yaml.each do |_workflow_name, workflow|
-        workflows << Workflow.new(workflow: workflow, scm_extractor_payload: @scm_extractor_payload, token: @token)
-      end
-      workflows
+      parsed_workflows_yaml
+        .map { |_workflow_name, workflow_instructions| Workflow.new(workflow_instructions: workflow_instructions, scm_extractor_payload: @scm_extractor_payload, token: @token) }
+        .select(&:valid?)
     end
   end
 end
