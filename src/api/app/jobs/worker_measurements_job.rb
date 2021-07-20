@@ -45,7 +45,7 @@ class WorkerMeasurementsJob < ApplicationJob
       partition = scheduler.parent.parent.values.first || 'main'
       architecture = scheduler.parent.attributes['arch'].value
       queues.each do |queue|
-        value = scheduler.attribute(queue).value
+        value = scheduler.attribute(queue).value.to_i
         RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition},queue=#{queue} value=#{value}") if value.positive?
       end
     end
