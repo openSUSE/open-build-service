@@ -17,5 +17,5 @@ Bugfixes
 * Frontend:
   - Update rails to fix a license issue in one of its dependencies
   - Fix potential XSS vulnerability in jQuery
-* Image
-  - Migrated OBS Appliance from openSUSE 15.1 to 15.3
+* OBS Appliance Image
+  - Upgrade base distribution from openSUSE 15.1 to 15.3
