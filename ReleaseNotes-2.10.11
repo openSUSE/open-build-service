@@ -10,12 +10,15 @@ instructions or use the OBS Appliance from
 The dist/README.UPDATERS file has information for people updating
 from a previous OBS release.
 
-
+Features
+========
+* OBS Appliance Images:
+  - Upgrade base distribution from openSUSE 15.1 to 15.3
+  
 Bugfixes
 ========
 
 * Frontend:
   - Update rails to fix a license issue in one of its dependencies
   - Fix potential XSS vulnerability in jQuery
-* OBS Appliance Images
-  - Upgrade base distribution from openSUSE 15.1 to 15.3
+
