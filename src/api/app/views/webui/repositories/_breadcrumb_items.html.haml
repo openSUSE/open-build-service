@@ -12,6 +12,3 @@
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     - if defined?(@repository) && current_page?(project_repository_state_path)
       Repository State
-    - elsif current_page?(repositories_distributions_path)
-      Add from a Distribution
-

@@ -6,8 +6,9 @@
     - elsif project.repositories.empty?
       %p
         %i
-          This project currently has
-          no #{link_to 'build targets', controller: :repositories, action: :distributions, project: project.name}
+          This project currently has no
+          = link_to(new_project_distribution_path(project_name: project)) do
+            build targets
           defined.
     - else
       %p

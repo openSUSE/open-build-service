@@ -535,6 +535,7 @@ Naming/PredicateName:
     - 'app/models/package.rb'
     - 'app/models/patchinfo.rb'
     - 'app/models/project.rb'
+    - 'app/models/concerns/project_distribution.rb'
     - 'app/models/repository.rb'
     - 'app/models/user.rb'
     - 'app/models/user_basic_strategy.rb'
