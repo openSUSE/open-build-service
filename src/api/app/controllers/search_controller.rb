@@ -121,32 +121,6 @@ class SearchController < ApplicationController
     pred
   end
 
-  def filter_items(items)
-    begin
-      @offset = Integer(params[:offset])
-    rescue StandardError
-      @offset = 0
-    end
-    begin
-      @limit = Integer(params[:limit])
-    rescue StandardError
-      @limit = items.size
-    end
-    nitems = []
-    items.each do |item|
-      if @offset.positive?
-        @offset -= 1
-      else
-        nitems << item
-        if @limit
-          @limit -= 1
-          break if @limit.zero?
-        end
-      end
-    end
-    nitems
-  end
-
   # unfortunately read_multi hangs with just too many items
   # so maximize the keys to query
   def read_multi_workaround(keys)
@@ -318,6 +292,12 @@ class SearchController < ApplicationController
   end
 
   private
+
+  def filter_items(items)
+    offset = params.fetch(:offset, 0).to_i
+    limit = params.fetch(:limit, items.size).to_i
+    Kaminari.paginate_array(items, limit: limit, offset: offset)
+  end
 
   def group_attribute_values_by_attrib_id(values)
     attrib_values = {}
