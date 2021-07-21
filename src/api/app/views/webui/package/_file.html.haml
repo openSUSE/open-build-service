@@ -16,6 +16,6 @@
       = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
         %i.fas.fa-download.text-secondary
       - if can_be_removed
-        = link_to('#', data: { toggle: 'modal', target: '#delete-file-modal', title: 'Delete file',
+        = link_to('#', title: 'Delete file', data: { toggle: 'modal', target: '#delete-file-modal',
           filename: file[:name], action: url_for(action: :remove_file, project: project, package: package, filename: file[:name]) }) do
           %i.fas.fa-times-circle.text-danger

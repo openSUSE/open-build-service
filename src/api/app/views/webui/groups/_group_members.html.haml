@@ -34,7 +34,7 @@
   .pt-4
     %ul.list-inline
       %li.list-inline-item
-        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-group-user-modal', title: 'Add Member' }) do
+        = link_to('#', class: 'nav-link', title: 'Add Member', data: { toggle: 'modal', target: '#add-group-user-modal' }) do
           %i.fas.fa-plus-circle.text-primary
           Add Member
   = render partial: 'add_group_user_modal', locals: { group: group }
