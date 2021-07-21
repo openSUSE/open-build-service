@@ -7,19 +7,17 @@ class Workflow
 
       validates :source_project_name, :source_package_name, presence: true
 
-      def initialize(step_instructions:, scm_extractor_payload:, token:)
-        @step_instructions = step_instructions.with_indifferent_access
-        @scm_extractor_payload = scm_extractor_payload.with_indifferent_access
+      attr_accessor :scm_extractor_payload, :step_instructions, :token
+
+      # Overwriting the initializer is needed to set `with_indifferent_access`
+      def initialize(scm_extractor_payload:, step_instructions:, token:)
+        @step_instructions = step_instructions&.with_indifferent_access || {}
+        @scm_extractor_payload = scm_extractor_payload&.with_indifferent_access || {}
         @token = token
       end
 
-      def allowed_event_and_action?
-        new_pull_request? || updated_pull_request?
-      end
-
       def call(options = {})
-        # TODO: Raise to let user know that their workflow configuration is wrong
-        return unless valid? && allowed_event_and_action?
+        return unless valid?
 
         branched_package = find_or_create_branched_package
 
@@ -33,7 +31,7 @@ class Workflow
           workflow_architectures(repository, workflow_filters).each do |architecture|
             # We cannot report multibuild flavors here... so they will be missing from the initial report
             SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
-                                  @scm_extractor_payload, @token.scm_token).call
+                                  scm_extractor_payload, @token.scm_token).call
           end
         end
 
@@ -41,21 +39,21 @@ class Workflow
       end
 
       def source_project_name
-        @step_instructions['source_project']
+        step_instructions['source_project']
       end
 
       def source_package_name
-        @step_instructions['source_package']
+        step_instructions['source_package']
       end
 
       def target_package_name
-        return @step_instructions['target_package'] if @step_instructions['target_package'].present?
+        return step_instructions['target_package'] if step_instructions['target_package'].present?
 
         source_package_name
       end
 
       def target_project_name
-        "home:#{@token.user.login}:#{source_project_name}:PR-#{@scm_extractor_payload[:pr_number]}"
+        "home:#{@token.user.login}:#{source_project_name}:PR-#{scm_extractor_payload[:pr_number]}"
       end
 
       private
@@ -65,9 +63,13 @@ class Workflow
       end
 
       def find_or_create_branched_package
-        return target_package if updated_pull_request? && target_package.present?
+        return target_package if validator.updated_pull_request? && target_package.present?
 
         branch
+      end
+
+      def validator
+        WorkflowEventAndActionValidator.new(scm_extractor_payload: scm_extractor_payload)
       end
 
       def remote_source?
@@ -112,26 +114,8 @@ class Workflow
         target_package
       end
 
-      def github_pull_request?
-        @scm_extractor_payload[:scm] == 'github' && @scm_extractor_payload[:event] == 'pull_request'
-      end
-
-      def gitlab_merge_request?
-        @scm_extractor_payload[:scm] == 'gitlab' && @scm_extractor_payload[:event] == 'Merge Request Hook'
-      end
-
-      def new_pull_request?
-        (github_pull_request? && @scm_extractor_payload[:action] == 'opened') ||
-          (gitlab_merge_request? && @scm_extractor_payload[:action] == 'open')
-      end
-
-      def updated_pull_request?
-        (github_pull_request? && @scm_extractor_payload[:action] == 'synchronize') ||
-          (gitlab_merge_request? && @scm_extractor_payload[:action] == 'update')
-      end
-
       def add_or_update_branch_request_file(package:)
-        branch_request_file = case @scm_extractor_payload[:scm]
+        branch_request_file = case scm_extractor_payload[:scm]
                               when 'github'
                                 branch_request_content_github
                               when 'gitlab'
@@ -149,17 +133,17 @@ class Workflow
           action: 'opened',
           pull_request: {
             head: {
-              repo: { full_name: @scm_extractor_payload[:source_repository_full_name] },
-              sha: @scm_extractor_payload[:commit_sha]
+              repo: { full_name: scm_extractor_payload[:source_repository_full_name] },
+              sha: scm_extractor_payload[:commit_sha]
             }
           }
         }.to_json
       end
 
       def branch_request_content_gitlab
-        { object_kind: @scm_extractor_payload[:object_kind],
-          project: { http_url: @scm_extractor_payload[:http_url] },
-          object_attributes: { source: { default_branch: @scm_extractor_payload[:commit_sha] } } }.to_json
+        { object_kind: scm_extractor_payload[:object_kind],
+          project: { http_url: scm_extractor_payload[:http_url] },
+          object_attributes: { source: { default_branch: scm_extractor_payload[:commit_sha] } } }.to_json
       end
 
       def create_or_update_subscriptions(branched_package, workflow_filters)
@@ -171,11 +155,11 @@ class Workflow
                                                               enabled: true,
                                                               token: @token,
                                                               package: branched_package)
-          subscription.update!(payload: @scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
+          subscription.update!(payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
         end
       end
 
-      # TODO: This could be in a query object
+      # TODO: Move to a query object.
       def workflow_repositories(target_project_name, filters)
         repositories = Project.get_by_name(target_project_name).repositories
         return repositories if filters.blank?
@@ -187,7 +171,7 @@ class Workflow
         repositories
       end
 
-      # TODO: This could be in a query object
+      # TODO: Move to a query object.
       def workflow_architectures(repository, filters)
         architectures = repository.architectures
         return architectures if filters.blank?

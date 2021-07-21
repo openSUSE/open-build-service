@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 Jul 2021 09:27:38 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_51
+    uri: http://backend:5352/source/foo_project/_meta?user=user_33
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Parliament of Man</title>
+          <title>Dance Dance Dance</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Parliament of Man</title>
+          <title>Dance Dance Dance</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 Jul 2021 09:27:38 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_52
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_34
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
-  recorded_at: Mon, 19 Jul 2021 09:27:38 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Dolorem quibusdam saepe. Similique delectus nostrum. Non veniam et.
+      string: Nobis consectetur est. Inventore sapiente et. Fugit blanditiis a.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="894" vrev="894">
-          <srcmd5>394cbc8d1d11823f1bbe0f78f7e1d36d</srcmd5>
+        <revision rev="880" vrev="880">
+          <srcmd5>41abb171024c11d05a1e5617b36dca4c</srcmd5>
           <version>unknown</version>
-          <time>1626686858</time>
+          <time>1626686853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 Jul 2021 09:27:38 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Odio similique earum. Nisi aliquid odio. Corrupti id facere.
+      string: Totam dolorem adipisci. Impedit doloremque quia. Ea totam et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,15 +185,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="895" vrev="895">
-          <srcmd5>ff06ee7f762d615879ebda7697f3341e</srcmd5>
+        <revision rev="881" vrev="881">
+          <srcmd5>9096916ef455405f010fcfb4d8afdbb1</srcmd5>
           <version>unknown</version>
-          <time>1626686858</time>
+          <time>1626686853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:33 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -227,7 +227,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/_meta?user=Iggy
@@ -267,7 +267,7 @@ http_interactions:
           <description>This project was created for package bar_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_meta?user=Iggy
@@ -275,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:foo_project:PR-1">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -297,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '188'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:foo_project:PR-1">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
@@ -337,15 +337,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="905" vrev="905">
-          <srcmd5>387cc563d8a108df93c95369fe293d5e</srcmd5>
+        <revision rev="901" vrev="901">
+          <srcmd5>e14050f0097033ded0b54b37a43e1981</srcmd5>
           <version>unknown</version>
-          <time>1626686859</time>
+          <time>1626686854</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_meta?user=Iggy
@@ -353,8 +353,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:foo_project:PR-1">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -375,15 +375,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '188'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:foo_project:PR-1">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
@@ -413,14 +413,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="905" vrev="905" srcmd5="387cc563d8a108df93c95369fe293d5e">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="ff06ee7f762d615879ebda7697f3341e" baserev="ff06ee7f762d615879ebda7697f3341e" xsrcmd5="35ac3d19bdfcc7752ac6b03d43c09b11" lsrcmd5="387cc563d8a108df93c95369fe293d5e"/>
+        <directory name="bar_package" rev="901" vrev="901" srcmd5="e14050f0097033ded0b54b37a43e1981">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9096916ef455405f010fcfb4d8afdbb1" baserev="9096916ef455405f010fcfb4d8afdbb1" xsrcmd5="020c4d2bff9dfa043cc506b55ec56ac0" lsrcmd5="e14050f0097033ded0b54b37a43e1981"/>
           <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1623340003"/>
-          <entry name="_config" md5="37ecc834dd6c93a028655e8a87376aa0" size="67" mtime="1626686858"/>
-          <entry name="_link" md5="5d67c74f58443fef555a99f9d1cf3752" size="119" mtime="1626686859"/>
-          <entry name="somefile.txt" md5="73c53287cb7adaaff90b17408998585e" size="60" mtime="1626686858"/>
+          <entry name="_config" md5="84d65eece26de36fc9c18d34c24fc246" size="65" mtime="1626686853"/>
+          <entry name="_link" md5="6e4405b6bc75755c780d5a21ea2bd56c" size="119" mtime="1626686854"/>
+          <entry name="somefile.txt" md5="af01423803c94374ee75d26b9b3c1955" size="61" mtime="1626686853"/>
         </directory>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?view=info
@@ -450,11 +450,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="905" vrev="1800" srcmd5="35ac3d19bdfcc7752ac6b03d43c09b11" lsrcmd5="387cc563d8a108df93c95369fe293d5e" verifymd5="ff06ee7f762d615879ebda7697f3341e">
+        <sourceinfo package="bar_package" rev="901" vrev="1782" srcmd5="020c4d2bff9dfa043cc506b55ec56ac0" lsrcmd5="e14050f0097033ded0b54b37a43e1981" verifymd5="9096916ef455405f010fcfb4d8afdbb1">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
@@ -484,14 +484,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="905" vrev="905" srcmd5="387cc563d8a108df93c95369fe293d5e">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="ff06ee7f762d615879ebda7697f3341e" baserev="ff06ee7f762d615879ebda7697f3341e" xsrcmd5="35ac3d19bdfcc7752ac6b03d43c09b11" lsrcmd5="387cc563d8a108df93c95369fe293d5e"/>
+        <directory name="bar_package" rev="901" vrev="901" srcmd5="e14050f0097033ded0b54b37a43e1981">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9096916ef455405f010fcfb4d8afdbb1" baserev="9096916ef455405f010fcfb4d8afdbb1" xsrcmd5="020c4d2bff9dfa043cc506b55ec56ac0" lsrcmd5="e14050f0097033ded0b54b37a43e1981"/>
           <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1623340003"/>
-          <entry name="_config" md5="37ecc834dd6c93a028655e8a87376aa0" size="67" mtime="1626686858"/>
-          <entry name="_link" md5="5d67c74f58443fef555a99f9d1cf3752" size="119" mtime="1626686859"/>
-          <entry name="somefile.txt" md5="73c53287cb7adaaff90b17408998585e" size="60" mtime="1626686858"/>
+          <entry name="_config" md5="84d65eece26de36fc9c18d34c24fc246" size="65" mtime="1626686853"/>
+          <entry name="_link" md5="6e4405b6bc75755c780d5a21ea2bd56c" size="119" mtime="1626686854"/>
+          <entry name="somefile.txt" md5="af01423803c94374ee75d26b9b3c1955" size="61" mtime="1626686853"/>
         </directory>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -523,14 +523,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="9274ac69f2e5e56afdf073a5a421c69b">
+        <sourcediff key="2b42d9e8453631206fe824b13e72fba3">
           <old project="home:Iggy:foo_project:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="905" srcmd5="387cc563d8a108df93c95369fe293d5e"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="901" srcmd5="e14050f0097033ded0b54b37a43e1981"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -562,12 +562,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="cf91ba2456bb1c01089f64fba64bf61a">
-          <old project="foo_project" package="bar_package" rev="ff06ee7f762d615879ebda7697f3341e" srcmd5="ff06ee7f762d615879ebda7697f3341e"/>
-          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="35ac3d19bdfcc7752ac6b03d43c09b11" srcmd5="35ac3d19bdfcc7752ac6b03d43c09b11"/>
+        <sourcediff key="3e3e790c89e0df717bae93b2e9b24bb1">
+          <old project="foo_project" package="bar_package" rev="9096916ef455405f010fcfb4d8afdbb1" srcmd5="9096916ef455405f010fcfb4d8afdbb1"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="020c4d2bff9dfa043cc506b55ec56ac0" srcmd5="020c4d2bff9dfa043cc506b55ec56ac0"/>
           <files/>
         </sourcediff>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/_meta?user=Iggy
@@ -635,13 +635,13 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_branch_request?user=Iggy
     body:
       encoding: UTF-8
-      string: '{"object_kind":null,"project":{"http_url":null},"object_attributes":{"source":{"default_branch":"123"}}}'
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"reponame"},"sha":"123"}}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -665,15 +665,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="906" vrev="906">
-          <srcmd5>a989b6b926503fe0efe04a880571672c</srcmd5>
+        <revision rev="902" vrev="902">
+          <srcmd5>2860af60514693212924adc5e75618f6</srcmd5>
           <version>unknown</version>
-          <time>1626686859</time>
+          <time>1626686854</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package/_meta?user=Iggy
@@ -681,8 +681,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:foo_project:PR-1">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -703,15 +703,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '188'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:foo_project:PR-1">
-          <title>Mr Standfast</title>
-          <description>Et expedita dignissimos exercitationem.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Id sint voluptate incidunt.</description>
         </package>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
@@ -737,18 +737,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '725'
+      - '724'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="906" vrev="906" srcmd5="a989b6b926503fe0efe04a880571672c">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="ff06ee7f762d615879ebda7697f3341e" baserev="ff06ee7f762d615879ebda7697f3341e" xsrcmd5="d0b8c3a9f3c92c6740b53da1720c7017" lsrcmd5="a989b6b926503fe0efe04a880571672c"/>
-          <entry name="_branch_request" md5="3604bb2fa00e7261df781f340c5e9ac1" size="104" mtime="1623342282"/>
-          <entry name="_config" md5="37ecc834dd6c93a028655e8a87376aa0" size="67" mtime="1626686858"/>
-          <entry name="_link" md5="5d67c74f58443fef555a99f9d1cf3752" size="119" mtime="1626686859"/>
-          <entry name="somefile.txt" md5="73c53287cb7adaaff90b17408998585e" size="60" mtime="1626686858"/>
+        <directory name="bar_package" rev="902" vrev="902" srcmd5="2860af60514693212924adc5e75618f6">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9096916ef455405f010fcfb4d8afdbb1" baserev="9096916ef455405f010fcfb4d8afdbb1" xsrcmd5="7009060a9beb4567e26f9291f3872d53" lsrcmd5="2860af60514693212924adc5e75618f6"/>
+          <entry name="_branch_request" md5="4becc0c108a703b38c26920c45965516" size="89" mtime="1623342321"/>
+          <entry name="_config" md5="84d65eece26de36fc9c18d34c24fc246" size="65" mtime="1626686853"/>
+          <entry name="_link" md5="6e4405b6bc75755c780d5a21ea2bd56c" size="119" mtime="1626686854"/>
+          <entry name="somefile.txt" md5="af01423803c94374ee75d26b9b3c1955" size="61" mtime="1626686853"/>
         </directory>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?view=info
@@ -778,11 +778,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="906" vrev="1801" srcmd5="d0b8c3a9f3c92c6740b53da1720c7017" lsrcmd5="a989b6b926503fe0efe04a880571672c" verifymd5="f322b7ee14eefafd078a9095d267e20e">
+        <sourceinfo package="bar_package" rev="902" vrev="1783" srcmd5="7009060a9beb4567e26f9291f3872d53" lsrcmd5="2860af60514693212924adc5e75618f6" verifymd5="f773e5f98d00f934fd9735b216c1493b">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package
@@ -808,18 +808,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '725'
+      - '724'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="906" vrev="906" srcmd5="a989b6b926503fe0efe04a880571672c">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="ff06ee7f762d615879ebda7697f3341e" baserev="ff06ee7f762d615879ebda7697f3341e" xsrcmd5="d0b8c3a9f3c92c6740b53da1720c7017" lsrcmd5="a989b6b926503fe0efe04a880571672c"/>
-          <entry name="_branch_request" md5="3604bb2fa00e7261df781f340c5e9ac1" size="104" mtime="1623342282"/>
-          <entry name="_config" md5="37ecc834dd6c93a028655e8a87376aa0" size="67" mtime="1626686858"/>
-          <entry name="_link" md5="5d67c74f58443fef555a99f9d1cf3752" size="119" mtime="1626686859"/>
-          <entry name="somefile.txt" md5="73c53287cb7adaaff90b17408998585e" size="60" mtime="1626686858"/>
+        <directory name="bar_package" rev="902" vrev="902" srcmd5="2860af60514693212924adc5e75618f6">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9096916ef455405f010fcfb4d8afdbb1" baserev="9096916ef455405f010fcfb4d8afdbb1" xsrcmd5="7009060a9beb4567e26f9291f3872d53" lsrcmd5="2860af60514693212924adc5e75618f6"/>
+          <entry name="_branch_request" md5="4becc0c108a703b38c26920c45965516" size="89" mtime="1623342321"/>
+          <entry name="_config" md5="84d65eece26de36fc9c18d34c24fc246" size="65" mtime="1626686853"/>
+          <entry name="_link" md5="6e4405b6bc75755c780d5a21ea2bd56c" size="119" mtime="1626686854"/>
+          <entry name="somefile.txt" md5="af01423803c94374ee75d26b9b3c1955" size="61" mtime="1626686853"/>
         </directory>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -851,14 +851,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e0beb40dd1c04fca7b6bffe9667ca6d2">
+        <sourcediff key="da6856a55697b1028d937c1353d285a7">
           <old project="home:Iggy:foo_project:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="906" srcmd5="a989b6b926503fe0efe04a880571672c"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="902" srcmd5="2860af60514693212924adc5e75618f6"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:foo_project:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -890,12 +890,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="a387986130b357dda4252e1f40f4d750">
-          <old project="foo_project" package="bar_package" rev="ff06ee7f762d615879ebda7697f3341e" srcmd5="ff06ee7f762d615879ebda7697f3341e"/>
-          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="d0b8c3a9f3c92c6740b53da1720c7017" srcmd5="d0b8c3a9f3c92c6740b53da1720c7017"/>
+        <sourcediff key="e1be9a7b237285e84da3f7ec136c52e0">
+          <old project="foo_project" package="bar_package" rev="9096916ef455405f010fcfb4d8afdbb1" srcmd5="9096916ef455405f010fcfb4d8afdbb1"/>
+          <new project="home:Iggy:foo_project:PR-1" package="bar_package" rev="7009060a9beb4567e26f9291f3872d53" srcmd5="7009060a9beb4567e26f9291f3872d53"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 19 Jul 2021 09:27:39 GMT
+  recorded_at: Mon, 19 Jul 2021 09:27:34 GMT
 recorded_with: VCR 6.0.0
