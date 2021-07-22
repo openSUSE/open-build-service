@@ -37,7 +37,8 @@ class Configuration < ApplicationRecord
     disable_publish_for_branches: nil,
     admin_email: nil,
     unlisted_projects_filter: nil,
-    unlisted_projects_filter_description: nil
+    unlisted_projects_filter_description: nil,
+    tos_url: nil
   }
   # rubocop:enable Style/MutableConstant
 
@@ -166,6 +167,7 @@ end
 #  registration                         :string           default("allow")
 #  theme                                :string(255)
 #  title                                :string(255)      default("")
+#  tos_url                              :string(255)
 #  unlisted_projects_filter             :string(255)      default("^home:.+")
 #  unlisted_projects_filter_description :string(255)      default("home projects")
 #  ymp_url                              :string(255)
