@@ -183,6 +183,8 @@ BuildRequires:  systemd-rpm-macros
 
 %if 0%{?suse_version} >= 1500
 BuildRequires:  sysuser-tools
+BuildRequires:  group(www)
+BuildRequires:  user(wwwrun)
 %endif
 
 %description
@@ -243,7 +245,9 @@ Group:          Productivity/Networking/Web/Utilities
 Requires(pre):  obs-common
 %endif
 %if 0%{?suse_version} >= 1330
-Requires(pre):  group(www)
+Requires:       user(obsapidelayed)
+Requires:       group(www)
+Requires:       user(wwwrun)
 %endif
 
 # For apache
@@ -363,6 +367,33 @@ getent passwd obsservicerun >/dev/null || \
 %files -n system-user-obsservicerun
 %endif
 
+%package -n system-user-obsapidelayed
+Summary:  System user obsapidelayed
+Group:    System/Fhs
+Requires: group(www)
+Provides: user(obsapidelayed)
+%if 0%{?suse_version:1}
+Requires(pre):  shadow
+%endif
+%if 0%{?suse_version} >= 1500
+%sysusers_requires
+%endif
+
+%description -n system-user-obsapidelayed
+This package provides the system account 'obsapidelayed'
+
+%if 0%{?suse_version} >= 1500
+%pre -n system-user-obsapidelayed -f obsapidelayed.pre
+%files -n system-user-obsapidelayed
+%{_sysusersdir}/system-user-obsapidelayed.conf
+%else
+%pre -n system-user-obsapidelayed
+getent passwd obsapidelayed >/dev/null || \
+  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
+
+%files -n system-user-obsservicerun
+%endif
+
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
@@ -391,6 +422,7 @@ make
 %if 0%{?suse_version} >= 1500
 %sysusers_generate_pre dist/system-user-obsrun.conf obsrun system-user-obsrun.conf
 %sysusers_generate_pre dist/system-user-obsservicerun.conf obsservicerun system-user-obsservicerun.conf
+%sysusers_generate_pre dist/system-user-obsapidelayed.conf obsapidelayed system-user-obsapidelayed.conf
 %endif
 
 
@@ -449,6 +481,7 @@ popd
 mkdir -p %{buildroot}%{_sysusersdir}
 install -m 0644 dist/system-user-obsrun.conf %{buildroot}%{_sysusersdir}/
 install -m 0644 dist/system-user-obsservicerun.conf %{buildroot}%{_sysusersdir}/
+install -m 0644 dist/system-user-obsapidelayed.conf %{buildroot}%{_sysusersdir}/
 %endif
 
 
@@ -642,8 +675,6 @@ rmdir /srv/obs 2> /dev/null || :
 %verify_permissions
 
 %pre -n obs-api
-getent passwd obsapidelayed >/dev/null || \
-  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
 # On upgrade keep the values for the %post script
