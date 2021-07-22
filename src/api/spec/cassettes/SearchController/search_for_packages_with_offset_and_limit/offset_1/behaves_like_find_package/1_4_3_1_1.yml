@@ -1,0 +1,197 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo">
+          <title/>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo">
+          <title></title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 22 Jul 2021 11:09:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo/apacheX/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apacheX" project="home:foo">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Itaque eius repellat pariatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apacheX" project="home:foo">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Itaque eius repellat pariatur.</description>
+        </package>
+  recorded_at: Thu, 22 Jul 2021 11:09:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Foo/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Foo">
+          <title>Absalom, Absalom!</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Foo">
+          <title>Absalom, Absalom!</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 22 Jul 2021 11:09:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Foo/apacheX/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apacheX" project="Foo">
+          <title>Wildfire at Midnight</title>
+          <description>Et veniam qui quisquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '141'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apacheX" project="Foo">
+          <title>Wildfire at Midnight</title>
+          <description>Et veniam qui quisquam.</description>
+        </package>
+  recorded_at: Thu, 22 Jul 2021 11:09:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Foo/apacheX/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apacheX" project="Foo">
+          <title>Wildfire at Midnight</title>
+          <description>Et veniam qui quisquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '141'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apacheX" project="Foo">
+          <title>Wildfire at Midnight</title>
+          <description>Et veniam qui quisquam.</description>
+        </package>
+  recorded_at: Thu, 22 Jul 2021 11:09:06 GMT
+recorded_with: VCR 6.0.0
