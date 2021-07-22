@@ -1222,7 +1222,7 @@ end
 #  creator            :string(255)      indexed
 #  description        :text(65535)
 #  number             :integer          indexed
-#  priority           :string(9)        default("moderate")
+#  priority           :string           default("moderate")
 #  state              :string(255)      indexed
 #  superseded_by      :integer          indexed
 #  updated_when       :datetime

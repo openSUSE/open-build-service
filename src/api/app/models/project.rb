@@ -1600,7 +1600,7 @@ end
 #  id                  :integer          not null, primary key
 #  delta               :boolean          default(TRUE), not null
 #  description         :text(65535)
-#  kind                :string(20)       default("standard")
+#  kind                :string           default("standard")
 #  name                :string(200)      not null, indexed
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)

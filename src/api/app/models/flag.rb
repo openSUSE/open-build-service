@@ -56,10 +56,10 @@ end
 # Table name: flags
 #
 #  id              :integer          not null, primary key
-#  flag            :string(14)       not null, indexed
+#  flag            :string           not null, indexed
 #  position        :integer          not null
 #  repo            :string(255)
-#  status          :string(7)        not null
+#  status          :string           not null
 #  architecture_id :integer          indexed
 #  package_id      :integer          indexed
 #  project_id      :integer          indexed

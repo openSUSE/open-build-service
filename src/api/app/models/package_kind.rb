@@ -7,7 +7,7 @@ end
 # Table name: package_kinds
 #
 #  id         :integer          not null, primary key
-#  kind       :string(9)        not null
+#  kind       :string           not null
 #  package_id :integer          indexed
 #
 # Indexes

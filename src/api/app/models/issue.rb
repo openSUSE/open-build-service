@@ -149,7 +149,7 @@ end
 #
 #  id               :integer          not null, primary key
 #  name             :string(255)      not null, indexed => [issue_tracker_id]
-#  state            :string(7)
+#  state            :string
 #  summary          :string(255)
 #  created_at       :datetime
 #  updated_at       :datetime

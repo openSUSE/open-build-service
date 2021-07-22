@@ -53,7 +53,7 @@ end
 # Table name: package_issues
 #
 #  id         :integer          not null, primary key
-#  change     :string(7)
+#  change     :string
 #  issue_id   :integer          not null, indexed, indexed => [package_id]
 #  package_id :integer          not null, indexed => [issue_id]
 #
