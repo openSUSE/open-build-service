@@ -1271,6 +1271,11 @@ sub checkpkgs {
   }
   BSRedisnotify::updateresult("$prp/$myarch", \%packstatus, \%packerror, \%building) if $BSConfig::redisserver;
 
+  # write lastcheck file if we spent more than 2 minutes
+  if ($ctx->{'prpchecktime'} > 2 * 60 && $ctx->{'nharder'} > 10 && %{$ctx->{'lastcheck'} || {}}) {
+    BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $ctx->{'lastcheck'});
+  }
+
   my $schedulerstate;
   if (keys %building) {
     $schedulerstate = 'building';
