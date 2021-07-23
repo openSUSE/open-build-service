@@ -3,7 +3,7 @@ class Token < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy
   belongs_to :package, inverse_of: :tokens
 
-  attr_accessor :object_to_authorize
+  attr_accessor :object_to_authorize, :operation, :project_name, :package_name
 
   has_secure_token :string
 
@@ -11,6 +11,8 @@ class Token < ApplicationRecord
   validates :string, uniqueness: { case_sensitive: false }
 
   include Token::Errors
+
+  OPERATIONS = ['Rebuild', 'Release', 'Service', 'Workflow'].freeze
 
   def token_name
     self.class.token_name

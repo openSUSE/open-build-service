@@ -20,7 +20,7 @@
               %tr
                 %td= token.id
                 %td= token.class.token_name.capitalize
-                %td= link_to("#{truncate(token.package.project.name, length: 80)}/#{truncate(token.package.name, length: 80)}",
+                %td.text-word-break-all= link_to("#{truncate(token.package.project.name, length: 80)}/#{truncate(token.package.name, length: 80)}",
                   package_show_path(project: token.package.project, package: token.package)) if token.package
                 %td.text-center
                   = link_to '#', title: 'Delete Token', class: 'text-nowrap',

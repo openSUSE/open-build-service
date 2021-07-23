@@ -1,0 +1,50 @@
+- operation_options = Token::OPERATIONS.map { |a| "Token::#{a}".constantize.token_name }
+
+.card
+  .card-body
+    %h3.mb-3 Create Token
+
+    .row
+      .col-12.col-md-10.col-lg-8
+        = form_with(model: @token, method: :post, local: false) do |f|
+          .form-row.d-none#created-token
+            .col-12.col-md-10.col-lg-9
+              %fieldset.form-group
+                = f.label(:string_readonly, 'Your new OBS Personal Access Token Secret', class: 'col-form-label col-form-label-lg')
+                = f.text_field(:string_readonly, class: 'form-control', readonly: true)
+              %hr
+
+          .form-row
+            .col
+              .form-group
+                = f.label(:operation, class: 'col-form-label col-form-label-lg mr-2')
+                .w-100.d-sm-none
+                = f.collection_radio_buttons(:operation, operation_options, :to_s, :to_s, class: 'custom-control-input', required: true) do |radio|
+                  .custom-control.custom-radio.custom-control-inline
+                    = radio.radio_button(class: 'custom-control-input')
+                    = radio.label(class: 'custom-control-label')
+
+          .form-row
+            .col-sm
+              .form-group
+                = f.label(:project_name)
+                = f.text_field(:project_name, size: 80, class: 'form-control', placeholder: 'Project Name')
+            .col-sm
+              .form-group
+                = f.label(:package_name)
+                = f.text_field(:package_name, size: 80, class: 'form-control', placeholder: 'Package name')
+          .row.mb-3
+            .col
+              .text-muted
+                Optional: provide project and package names, to limit the token to a specific package.
+
+          .form-row
+            .col-12.col-md-10.col-lg-9
+              .form-group.d-none#fieldset-token-scm-token
+                = f.label(:scm_token, 'Source Code Management Token')
+                %abbr.text-danger{ title: "required, when Operation is 'worflow'" } *
+                = f.text_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Source Code Management Token')
+
+          .actions
+            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
+            = f.submit('Create', class: 'btn btn-primary px-4 mt-3 mt-sm-0')

@@ -15,8 +15,18 @@ class Webui::TokenPolicy < ApplicationPolicy
     end
   end
 
-  def destroy?
+  def new?
+    # TODO: when trigger_workflow is rolled out, uncomment the next line and remove the Flipper check
+    # true
+    Flipper.enabled?(:trigger_workflow, user)
+  end
+
+  def create?
     # TODO: when trigger_workflow is rolled out, remove the Flipper check
     record.user == user && record.type != 'Token::Rss' && Flipper.enabled?(:trigger_workflow, user)
+  end
+
+  def destroy?
+    create?
   end
 end

@@ -1,0 +1,5 @@
+$('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
+$('#created-token').removeClass('d-none');
+$('#token_string_readonly').val("<%= escape_javascript(string) %>");
+$('.form-row :input').not('#token_string_readonly').prop('disabled', true);
+$('.actions').html("<%= escape_javascript(render partial: 'actions') %>");
