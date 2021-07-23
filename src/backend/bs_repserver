@@ -2684,7 +2684,7 @@ sub forwardevent {
   $arch = 'publish' if $type eq 'publish';
   if ($type eq 'suspendproject' || $type eq 'resumeproject') {
     # those events stack - we must not overwrite them. randomize somewhat.
-    $evname = "type:::$$-".Digest::MD5::md5_hex("$$/$evname".time());
+    $evname = "${type}:::$$-".Digest::MD5::md5_hex("$$/$evname".time());
   }
   if ($arch) {
     mkdir_p("$eventdir/$arch");

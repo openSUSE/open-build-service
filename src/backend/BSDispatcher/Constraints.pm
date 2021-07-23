@@ -225,13 +225,15 @@ sub list2struct {
       my @loc = split(':', shift @l);
       my @how = @$dtd;
       my $out = $top;
+      my $outref;
       while (@loc) {
         my $am = shift @how;
         my $e = shift @loc;
-        my $addit;
-        my $delit;
+        my ($addit, $delit, $modit);
         $addit = 1 if $e =~ s/\+$//;
         $delit = 1 if !$addit && $e =~ s/=$//;
+	$modit = 1 if !$addit && !$delit && $e =~ s/!$//;
+	$modit = 1 if !$addit && !$delit && @loc;	# default non-leaf elements
         my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
         my $ke = $known{$e};
         die("unknown element: $e\n") unless $ke;
@@ -243,25 +245,28 @@ sub list2struct {
         if (!ref($ke) || (@$ke == 1 && !ref($ke->[0]))) {
           die("element '$e' has subelements\n") if @loc;
           die("element '$e' contains attributes\n") if @l && $l[0] =~ /=/;
-          delete $out->{$e} unless $addit;
           if (!ref($ke)) {
+            delete $out->{$e} unless $addit;
             die("element '$e' must be singleton\n") if exists $out->{$e};
             $out->{$e} = join(' ', @l);
           } else {
+            delete $out->{$e} if $modit;
             push @{$out->{$e}}, @l;
           }
           @how = ();
         } else {
           my $nout = {};
           if (@$ke == 1) {
-            $nout = pop @{$out->{$e}} if exists $out->{$e} && !$addit;
+            $nout = pop @{$out->{$e}} if exists $out->{$e} && $modit;
             push @{$out->{$e}}, $nout;
             @how = @{$ke->[0]};
+	    $outref = $out->{$e};
           } else {
             $nout = delete $out->{$e} if exists $out->{$e} && !$addit;
             die("element '$e' must be singleton\n") if exists $out->{$e};
             $out->{$e} = $nout;
             @how = @$ke;
+	    $outref = undef;
           }
           $out = $nout;
         }
@@ -287,8 +292,10 @@ sub list2struct {
           shift @l;
         }
         if (@l) {
-          die("element '$am' contains content\n") unless $known{'_content'};
-          $out->{'_content'} = join(' ', @l);
+	  die("element '$am' contains content\n") unless $known{'_content'};
+	  @l = ( join(' ', @l) ) unless $outref;
+	  $out->{'_content'} = shift @l;
+	  push @$outref, BSUtil::clone({ %$out, '_content' => $_ }) for @l;
         }
       }
     };
