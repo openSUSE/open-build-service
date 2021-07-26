@@ -345,7 +345,7 @@ end
 #  description    :string(255)
 #  enable_fetch   :boolean          default(FALSE)
 #  issues_updated :datetime         not null
-#  kind           :string(11)       not null
+#  kind           :string           not null
 #  label          :text(65535)      not null
 #  name           :string(255)      not null
 #  password       :string(255)

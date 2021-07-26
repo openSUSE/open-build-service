@@ -15,7 +15,7 @@ end
 # Table name: path_elements
 #
 #  id            :integer          not null, primary key
-#  kind          :string(10)       default("standard"), indexed => [parent_id, repository_id]
+#  kind          :string           default("standard"), indexed => [parent_id, repository_id]
 #  position      :integer          not null
 #  parent_id     :integer          not null, indexed => [repository_id, kind]
 #  repository_id :integer          not null, indexed => [parent_id, kind], indexed

@@ -26,7 +26,7 @@ end
 #  id                         :integer          not null, primary key
 #  linked_remote_project_name :string(255)
 #  position                   :integer
-#  vrevmode                   :string(8)        default("standard")
+#  vrevmode                   :string           default("standard")
 #  db_project_id              :integer          not null, indexed => [linked_db_project_id]
 #  linked_db_project_id       :integer          indexed => [db_project_id]
 #

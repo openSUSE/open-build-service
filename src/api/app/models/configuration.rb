@@ -163,7 +163,7 @@ end
 #  name                                 :string(255)      default("")
 #  no_proxy                             :string(255)
 #  obs_url                              :string(255)      default("https://unconfigured.openbuildservice.org")
-#  registration                         :string(12)       default("allow")
+#  registration                         :string           default("allow")
 #  theme                                :string(255)
 #  title                                :string(255)      default("")
 #  unlisted_projects_filter             :string(255)      default("^home:.+")

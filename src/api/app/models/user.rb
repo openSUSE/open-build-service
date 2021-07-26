@@ -941,7 +941,7 @@ end
 #  login_failure_count           :integer          default(0), not null
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
-#  state                         :string(11)       default("unconfirmed")
+#  state                         :string           default("unconfirmed")
 #  created_at                    :datetime
 #  updated_at                    :datetime
 #  owner_id                      :integer

@@ -256,7 +256,7 @@ end
 #  medium                    :string(255)      indexed
 #  modify_time               :datetime
 #  obsolete_time             :datetime
-#  operation                 :string(8)        default("added")
+#  operation                 :string           default("added")
 #  binary_id                 :string(255)      indexed
 #  on_medium_id              :integer
 #  release_package_id        :integer          indexed

@@ -306,10 +306,10 @@ end
 # Table name: repositories
 #
 #  id                  :integer          not null, primary key
-#  block               :string(5)
-#  linkedbuild         :string(9)
+#  block               :string
+#  linkedbuild         :string
 #  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
-#  rebuild             :string(10)
+#  rebuild             :string
 #  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
 #  required_checks     :string(255)
 #  db_project_id       :integer          not null, indexed => [name, remote_project_name]
