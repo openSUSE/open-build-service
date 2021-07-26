@@ -39,5 +39,5 @@ http_interactions:
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Thu, 22 Jul 2021 11:09:02 GMT
+  recorded_at: Thu, 22 Jul 2021 11:09:01 GMT
 recorded_with: VCR 6.0.0
