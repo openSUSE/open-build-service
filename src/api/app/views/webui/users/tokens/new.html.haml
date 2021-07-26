@@ -30,13 +30,11 @@
 
           .form-row
             .col-sm
-              .form-group
-                = f.label(:project_name)
-                = f.text_field(:project_name, size: 80, class: 'form-control', placeholder: 'Project Name')
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[project_name]', label: 'Project name', required: false,
+                                                                       data: { source: autocomplete_projects_path(local: true) } }
             .col-sm
-              .form-group
-                = f.label(:package_name)
-                = f.text_field(:package_name, size: 80, class: 'form-control', placeholder: 'Package name')
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[package_name]', label: 'Package name', required: false,
+                                                                       data: { source: autocomplete_packages_path } }
           .row.mb-3
             .col
               .text-muted

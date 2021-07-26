@@ -41,7 +41,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_projects
-    render json: Project.autocomplete(params[:term]).not_maintenance_incident.pluck(:name)
+    render json: Project.autocomplete(params[:term], params[:local]).not_maintenance_incident.pluck(:name)
   end
 
   def autocomplete_incidents

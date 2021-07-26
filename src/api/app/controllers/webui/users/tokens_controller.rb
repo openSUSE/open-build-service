@@ -48,13 +48,16 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def set_params
-    @params = params.require(:token).except(:string_readonly).permit(:operation, :project_name, :package_name, :scm_token).tap do |token_parameters|
+    @params = params.require(:token).except(:string_readonly).permit(:operation, :scm_token).tap do |token_parameters|
       token_parameters.require(:operation)
     end
+    @package_params = params.slice(:project_name, :package_name).permit!
   end
 
   def set_package
-    @package = Package.get_by_project_and_name(@params[:project_name], @params[:package_name]) if @params[:project_name].present? && @params[:package_name].present?
+    return unless @package_params[:project_name].present? && @package_params[:package_name].present?
+
+    @package = Package.get_by_project_and_name(@package_params[:project_name], @package_params[:package_name])
   end
 
   def set_scm_token
