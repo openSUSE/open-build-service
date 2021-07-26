@@ -79,10 +79,6 @@ class StatisticsController < ApplicationController
     render_error status: 400, errorcode: 'not_supported', message: 'download stats need a re-implementation'
   end
 
-  def newest_stats
-    render_error status: 400, errorcode: 'not_supported', message: 'download stats need a re-implementation'
-  end
-
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")
