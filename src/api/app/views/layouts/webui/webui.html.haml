@@ -66,10 +66,9 @@
           = render partial: 'layouts/webui/sponsors'
         .container-fluid.mt-2.py-2#footer-legal
           %p.text-center
-            = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
-            is an
+            The Open Build Service is an
             = succeed '.' do
-              = link_to('openSUSE project', 'http://www.opensuse.org')
+              = link_to('openSUSE project', 'https://www.opensuse.org')
 
       - if !current_page?(signup_path) && !current_page?(new_session_path)
         #bottom-navigation-area

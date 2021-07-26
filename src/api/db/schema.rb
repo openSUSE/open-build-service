@@ -344,6 +344,7 @@ ActiveRecord::Schema.define(version: 2021_07_19_103830) do
     t.string "api_url", collation: "utf8_bin"
     t.string "unlisted_projects_filter", default: "^home:.+", collation: "utf8_bin"
     t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8_bin"
+    t.string "tos_url"
   end
 
   create_table "data_migrations", primary_key: "version", id: :string, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|

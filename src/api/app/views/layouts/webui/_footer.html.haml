@@ -19,15 +19,14 @@
   %div
     %strong.text-uppercase Help
     %ul
-      %li= link_to('Open Build Service', 'http://openbuildservice.org/')
-      %li= link_to('OBS Manuals', 'http://openbuildservice.org/help/manuals/')
+      %li= link_to('OpenBuildService.org', 'https://openbuildservice.org/')
+      %li= link_to('Documentation', 'https://openbuildservice.org/help/manuals/')
       %li= link_to('API Documentation', apidocs_index_path)
-      %li= link_to('OBS Portal', 'http://en.opensuse.org/Portal:Build_service')
-      %li= link_to('Reporting a Bug', 'http://openbuildservice.org/support/')
+
   %div
     %strong.text-uppercase Contact
     %ul
-      %li= link_to('Mailing List', 'http://lists.opensuse.org/opensuse-buildservice/')
-      %li= link_to('Forums', 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29')
-      %li= link_to('Chat (IRC)', 'irc://irc.opensuse.org/opensuse-buildservice')
-      %li= link_to('Twitter', 'http://twitter.com/OBShq')
+      %li= link_to('Support', 'https://openbuildservice.org/support/')
+      %li= link_to('@OBShq', 'https://twitter.com/OBShq')
+      - if Configuration.tos_url.present?
+        %li= link_to('Terms', Configuration.tos_url)
