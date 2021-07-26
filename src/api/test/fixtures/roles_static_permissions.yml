@@ -43,9 +43,6 @@ Admin_global_project_create:
 Admin_private_view:
   role: Admin
   static_permission: private_view
-Admin_set_download_counters:
-  role: Admin
-  static_permission: set_download_counters
 Admin_source_access:
   role: Admin
   static_permission: source_access

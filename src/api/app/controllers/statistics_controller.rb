@@ -4,8 +4,7 @@ class StatisticsController < ApplicationController
   validate_action redirect_stats: { method: :get, response: :redirect_stats }
 
   before_action :get_limit, only: [
-    :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
-    :download_counter
+    :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated
   ]
 
   def index
@@ -72,11 +71,6 @@ class StatisticsController < ApplicationController
 
     render_error status: 400, errorcode: 'invalid_method',
                  message: 'only GET or PUT method allowed for this action'
-  end
-
-  def download_counter
-    # FIXME: download stats are currently not supported and needs a re-implementation
-    render_error status: 400, errorcode: 'not_supported', message: 'download stats need a re-implementation'
   end
 
   def most_active_projects

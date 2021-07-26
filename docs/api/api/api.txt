@@ -1844,20 +1844,6 @@ GET /statistics/most_active_packages?limit=<limit>
 XmlResult: most_active_packages
 
 
-GET /statistics/download_counter?limit=<limit>
-  Get download counters for top downloaded files including to which project,
-  package, repository and architecture they belong.
-XmlResult: download_counter
-
-
-GET /statistics/download_counter?group_by=<group_by>&limit=<limit>
-  Get summarized download counters for top downloaded projects, packages,
-  repositories or architectures (by setting group_by parameter to project,
-  package, repo or arch) including count of files that belong to the respective
-  object.
-XmlResult: download_counter_summary
-
-
 PUT /statistics/redirect_stats
   Send download statistics from the openSUSE download redirector to the build
   service api, to update the download_counter database.
