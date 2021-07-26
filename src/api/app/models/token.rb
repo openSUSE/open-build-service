@@ -9,6 +9,7 @@ class Token < ApplicationRecord
 
   validates :user, presence: true
   validates :string, uniqueness: { case_sensitive: false }
+  validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
 
   include Token::Errors
 
