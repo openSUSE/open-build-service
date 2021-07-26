@@ -2,7 +2,7 @@
 # sure different users can run it without the contained rails app generating
 # files in the git checkout with some strange user...
 
-FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-backend
+FROM registry.opensuse.org/obs/server/unstable/container/leap153/containers/openbuildservice/frontend-backend
 
 # Configure our user
 ARG CONTAINER_USERID
