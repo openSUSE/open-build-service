@@ -62,7 +62,6 @@ while ($max_wait > 0) {
 	foreach my $srv (@active_daemons) {
 		my @state=`systemctl is-active $srv 2>/dev/null`;
 		chomp($state[0]);
-		print "$srv $state[0]\n";
 		if ( $state[0] eq 'active') {
 			$srv_state{$srv} = $state[0];
 		} elsif ( $state[0] eq 'failed') {
