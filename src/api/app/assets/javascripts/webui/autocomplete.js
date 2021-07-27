@@ -59,13 +59,22 @@ $(document).ready(function() {
 
   $('#linked_project, #review_project, #token_project_name').on('autocompletechange', function() {
     var projectName = $(this).val(),
-        source = $('#linked_package, #review_package, #token_package_name').autocomplete('option', 'source');
+        packageInput = $('#linked_package, #review_package, #token_package_name');
 
-    if (!projectName) return;
+    if (!packageInput.is(':visible')) return;
+
+    if (!projectName) {
+      packageInput.val('').attr('disabled', true);
+      return;
+    }
+
+    if (packageInput.attr('disabled')) { packageInput.removeAttr('disabled').focus(); }
+
+    var source = packageInput.autocomplete('option', 'source');
 
     // Ensure old parameters got removed
     source = source.replace(/\?.+/, '') + '?project=' + projectName;
     // Update the source target of the package autocomplete
-    $('#linked_package, #review_package, #token_package_name').autocomplete('option', { source: source });
+    packageInput.autocomplete('option', { source: source });
   });
 });

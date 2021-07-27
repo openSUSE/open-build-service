@@ -34,7 +34,7 @@
                                                                        data: { source: autocomplete_projects_path(local: true) } }
             .col-sm
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[package_name]', label: 'Package name', required: false,
-                                                                       data: { source: autocomplete_packages_path } }
+                                                                       data: { source: autocomplete_packages_path }, disabled: true }
             .col-12
               .form-group.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.

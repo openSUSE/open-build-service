@@ -105,6 +105,9 @@ function requestAddAutocomplete(autocompleteElement) { // jshint ignore:line
     var selected = $(autocompleteElement+' option:selected').attr('value');
     $('.' + selected).removeClass('d-none');
     $('.hideable input:visible').removeAttr('disabled');
+    if ($('#review_package').is(':visible') && !$('#review_project').val()) {
+      $('#review_package').attr('disabled', true);
+    }
   });
 }
 
