@@ -64,7 +64,7 @@ puts 'Seeding roles_users table...'
 RolesUser.where(user_id: admin.id, role_id: admin_role.id).first_or_create
 
 puts 'Seeding static_permissions table...'
-['status_message_create', 'set_download_counters', 'download_binaries', 'source_access', 'access',
+['status_message_create', 'download_binaries', 'source_access', 'access',
  'global_change_project', 'global_create_project', 'global_change_package', 'global_create_package',
  'change_project', 'create_project', 'change_package', 'create_package'].each do |sp_title|
   StaticPermission.where(title: sp_title).first_or_create

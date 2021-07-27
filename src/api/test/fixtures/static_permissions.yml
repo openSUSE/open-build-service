@@ -28,8 +28,6 @@ global_project_create:
   title: global_project_create
 private_view:
   title: private_view
-set_download_counters:
-  title: set_download_counters
 source_access:
   title: source_access
 status_message_create:

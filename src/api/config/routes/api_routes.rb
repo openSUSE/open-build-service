@@ -79,10 +79,6 @@ OBSApi::Application.routes.draw do
     # Routes for statistics
     # ---------------------
     controller :statistics do
-      # Download statistics
-      #
-      get 'statistics/download_counter' => :download_counter
-
       # Timestamps
       #
       get 'statistics/added_timestamp/:project(/:package)' => :added_timestamp, constraints: cons
