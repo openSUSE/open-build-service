@@ -23,3 +23,5 @@
                                                                                   linkinfo: linkinfo, revision: revision }
 
   = render partial: 'extra_actions', locals: { project: project, package: package }
+
+  = render partial: 'webui/package/side_links/checkout_package', locals: { project: project, package: package }
