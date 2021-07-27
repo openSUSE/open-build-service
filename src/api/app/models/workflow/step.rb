@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class Workflow::Step
   include ActiveModel::Model
 
@@ -47,9 +48,7 @@ class Workflow::Step
   end
 
   def remote_source?
-    return true if Project.find_remote_project(source_project_name)
-
-    false
+    Project.find_remote_project(source_project_name).present?
   end
 
   def add_or_update_branch_request_file(package:)
@@ -84,6 +83,7 @@ class Workflow::Step
       object_attributes: { source: { default_branch: scm_extractor_payload[:commit_sha] } } }.to_json
   end
 
+  # FIXME: remove this and use create_subscriptions and update_subscriptions as soon as BranchPackageStep is refactored
   def create_or_update_subscriptions(package, workflow_filters)
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
       subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
@@ -93,6 +93,29 @@ class Workflow::Step
                                                           enabled: true,
                                                           token: @token,
                                                           package: package)
+      subscription.update!(payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
+    end
+  end
+
+  def create_subscriptions(package, workflow_filters)
+    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+      EventSubscription.create!(eventtype: build_event,
+                                receiver_role: 'reader', # We pass a valid value, but we don't need this.
+                                user: @token.user,
+                                channel: 'scm',
+                                enabled: true,
+                                token: @token,
+                                package: package,
+                                payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
+    end
+  end
+
+  def update_subscriptions(package, workflow_filters)
+    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+      subscription = EventSubscription.find_by(eventtype: build_event,
+                                               channel: 'scm',
+                                               token: @token,
+                                               package: package)
       subscription.update!(payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
     end
   end
@@ -121,3 +144,4 @@ class Workflow::Step
     architectures
   end
 end
+# rubocop:enable Metrics/ClassLength
