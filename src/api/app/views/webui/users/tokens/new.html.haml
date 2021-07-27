@@ -28,16 +28,15 @@
                     = radio.radio_button(class: 'custom-control-input')
                     = radio.label(class: 'custom-control-label')
 
-          .form-row
+          .form-row#package-project-form
             .col-sm
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[project_name]', label: 'Project name', required: false,
                                                                        data: { source: autocomplete_projects_path(local: true) } }
             .col-sm
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[package_name]', label: 'Package name', required: false,
                                                                        data: { source: autocomplete_packages_path } }
-          .row.mb-3
-            .col
-              .text-muted
+            .col-12
+              .form-group.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.
 
           .form-row
@@ -66,10 +65,12 @@
     $('input[type=radio]').on('change', function() {
       if (this.value == 'workflow') {
         $('#fieldset-token-scm-token').removeClass('d-none');
+        $('#package-project-form').addClass('d-none');
         $('#token_scm_token').attr('required', true);
       }
       else if (!$('#fieldset-token-scm-token').attr('disabled')) {
         $('#fieldset-token-scm-token').addClass('d-none');
+        $('#package-project-form').removeClass('d-none');
         $('#token_scm_token').attr('required', false);
       }
     });
