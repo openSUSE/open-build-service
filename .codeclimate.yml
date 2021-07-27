@@ -1,4 +1,10 @@
 version: "2"
+# Track RuboCop offenses in CodeClimate
+plugins:
+  rubocop:
+    enabled: true
+    channel: rubocop-1-18-3
+    config: src/api/.rubocop.yml
 # We disable checks which have equivalents in RuboCop to avoid reporting twice the same things
 # Documentation: https://docs.codeclimate.com/docs/maintainability#section-checks
 checks:
