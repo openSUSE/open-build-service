@@ -1,0 +1,11 @@
+!!!
+%html{ lang: 'en' }
+  %head
+    %title= @pagetitle
+    %meta{ content: 'charset=utf-8' }/
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' }
+    = favicon_link_tag
+    = csrf_meta_tag
+    = stylesheet_link_tag 'webui/application'
+    = javascript_include_tag 'webui/application'
+  %body= yield
