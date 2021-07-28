@@ -309,6 +309,8 @@ RSpec/LetSetup:
 
 # We sometimes have a lot of expectations when testing complete workflows
 RSpec/MultipleExpectations:
+  # We accept maximum 2 expectations in an example (the default value is 1 expectation)
+  Max: 2
   Exclude:
     - 'spec/features/**/*.rb'
     - 'spec/bootstrap/features/**/*.rb'
