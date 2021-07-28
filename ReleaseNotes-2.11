@@ -75,3 +75,5 @@ Breaking API changes:
  * The API endpoint '/announcements' is deprecated and will be removed in the
    next version. Announcements can be created through Status Messages by using
    'announcement' severity. Check the API documentation about Status Messages.
+ * The API endpoints '/statistics/download_counter' and '/statistics/newest_stats'
+   have been removed. They have been non-functional and unused for a long time.
