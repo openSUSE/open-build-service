@@ -108,7 +108,6 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           object_kind: 'merge_request',
           project: {
             http_url: 'https://gitlab.com/eduardoj2/test.git',
-            id: 26_212_710,
             path_with_namespace: 'eduardoj2/test'
           },
           object_attributes: {
@@ -116,6 +115,7 @@ RSpec.describe TriggerControllerService::ScmExtractor do
               id: '4b486afefa44177f23b4388d2147ae42407e7f64'
             },
             iid: 3,
+            source_project_id: 26_212_710,
             source_branch: 'nuevo',
             target_branch: 'master',
             action: 'open'

@@ -70,7 +70,7 @@ module TriggerControllerService
         source_branch: @payload.dig('object_attributes', 'source_branch'),
         target_branch: @payload.dig('object_attributes', 'target_branch'),
         action: @payload.dig('object_attributes', 'action'), # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-        project_id: @payload.dig('project', 'id'),
+        project_id: @payload.dig('object_attributes', 'source_project_id'),
         path_with_namespace: @payload.dig('project', 'path_with_namespace'),
         event: @event,
         api_endpoint: "#{uri.scheme}://#{uri.host}"
