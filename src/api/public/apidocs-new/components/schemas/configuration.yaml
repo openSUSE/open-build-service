@@ -36,6 +36,9 @@ properties:
   obs_url:
     type: string
     example: 'https://unconfigured.openbuildservice.org'
+  tos_url:
+    type: string
+    example: 'https://en.opensuse.org/Terms_of_site'
   hide_private_options:
     type: string
     example: off

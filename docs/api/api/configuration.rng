@@ -208,6 +208,14 @@
           </element>
         </optional>
         <optional>
+          <element name="tos_url">
+            <a:documentation>
+              URL to link to a Terms of Service page
+            </a:documentation>
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="admin_email">
             <a:documentation>
               Email address to contact the admin of this OBS instance.
