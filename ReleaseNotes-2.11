@@ -35,6 +35,7 @@ Generic:
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability
  * The diff box from requests are now being rendered with ruby and coderay instead of CodeMirror
+ * New Terms link, configure the link target in the OBS configuration
 
 Backend & build support:
  *
