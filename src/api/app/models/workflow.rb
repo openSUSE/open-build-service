@@ -1,7 +1,10 @@
 class Workflow
   include ActiveModel::Model
 
-  SUPPORTED_STEPS = { 'branch_package' => Workflow::Step::BranchPackageStep }.freeze
+  SUPPORTED_STEPS = {
+    'branch_package' => Workflow::Step::BranchPackageStep,
+    'configure_repositories' => Workflow::Step::ConfigureRepositories
+  }.freeze
   SUPPORTED_FILTERS = [:architectures, :repositories].freeze
   # The order of the filter types determines their precedence
   SUPPORTED_FILTER_TYPES = [:only, :ignore].freeze
