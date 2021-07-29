@@ -23,7 +23,7 @@
                 %td.text-word-break-all= link_to("#{truncate(token.package.project.name, length: 80)}/#{truncate(token.package.name, length: 80)}",
                   package_show_path(project: token.package.project, package: token.package)) if token.package
                 %td.text-center
-                  = link_to '#', title: 'Delete Token', class: 'text-nowrap',
+                  = link_to '#', title: 'Delete Token', class: 'btn btn-sm btn-outline-danger',
                     data: { toggle: 'modal', target: '#delete-token-modal', token_id: token.id, action: token_path(token) } do
                     %i.fas.fa-times-circle.text-danger
 
