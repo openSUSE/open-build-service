@@ -3,7 +3,7 @@ class Token < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy
   belongs_to :package, inverse_of: :tokens
 
-  attr_accessor :object_to_authorize, :operation, :project_name, :package_name
+  attr_accessor :object_to_authorize
 
   has_secure_token :string
 

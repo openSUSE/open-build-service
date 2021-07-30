@@ -48,31 +48,31 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
 
     subject { post :create, xhr: true, params: form_parameters }
 
-    context 'operation is runservice, no project and no package parameters' do
-      let(:form_parameters) { { token: { operation: 'runservice' } } }
+    context 'type is runservice, no project and no package parameters' do
+      let(:form_parameters) { { token: { type: 'runservice' } } }
 
       include_examples 'check for flashing a success'
     end
 
-    context 'operation is release, with project parameter, without package parameter' do
-      let(:form_parameters) { { token: { operation: 'release', project_name: project.name } } }
+    context 'type is release, with project parameter, without package parameter' do
+      let(:form_parameters) { { token: { type: 'release' }, project_name: project.name } }
 
       include_examples 'check for flashing an error'
 
       it { expect { subject }.not_to change(Token, :count) }
     end
 
-    context 'operation is rebuild, with project and package parameter' do
-      let(:form_parameters) { { token: { operation: 'rebuild', project_name: project.name, package_name: package.name } } }
+    context 'type is rebuild, with project and package parameter' do
+      let(:form_parameters) { { token: { type: 'rebuild' }, project_name: project.name, package_name: package.name } }
 
       include_examples 'check for flashing a success'
 
       it { expect { subject }.to change(Token, :count).from(0).to(1) }
     end
 
-    context 'operation is workflow' do
+    context 'type is workflow' do
       context 'with SCM' do
-        let(:form_parameters) { { token: { operation: 'workflow', scm_token: 'test_SCM_token_string' } } }
+        let(:form_parameters) { { token: { type: 'workflow', scm_token: 'test_SCM_token_string' } } }
 
         include_examples 'check for flashing a success'
 
@@ -80,7 +80,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
       end
 
       context 'without SCM' do
-        let(:form_parameters) { { token: { operation: 'workflow' } } }
+        let(:form_parameters) { { token: { type: 'workflow' } } }
 
         include_examples 'check for flashing an error'
 

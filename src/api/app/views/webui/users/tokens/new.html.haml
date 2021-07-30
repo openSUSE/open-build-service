@@ -1,4 +1,4 @@
-- operation_options = Token::OPERATIONS.map { |a| "Token::#{a}".constantize.token_name }
+- type_options = Token::OPERATIONS.map { |a| "Token::#{a}".constantize.token_name }
 
 .card
   .card-body
@@ -21,19 +21,19 @@
           .form-row
             .col
               .form-group
-                = f.label(:operation, class: 'col-form-label col-form-label-lg mr-2')
+                = f.label(:type, class: 'col-form-label col-form-label-lg mr-2')
                 .w-100.d-sm-none
-                = f.collection_radio_buttons(:operation, operation_options, :to_s, :to_s, class: 'custom-control-input', required: true) do |radio|
+                = f.collection_radio_buttons(:type, type_options, :to_s, :to_s, class: 'custom-control-input', required: true) do |radio|
                   .custom-control.custom-radio.custom-control-inline
                     = radio.radio_button(class: 'custom-control-input')
                     = radio.label(class: 'custom-control-label')
 
           .form-row#package-project-form
             .col-sm
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[project_name]', label: 'Project name', required: false,
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_name', label: 'Project name', required: false,
                                                                        data: { source: autocomplete_projects_path(local: true) } }
             .col-sm
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'token[package_name]', label: 'Package name', required: false,
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_name', label: 'Package name', required: false,
                                                                        data: { source: autocomplete_packages_path }, disabled: true }
             .col-12
               .form-group.form-text.text-muted
@@ -58,8 +58,8 @@
 
 - content_for :ready_function do
   :plain
-    // Default operation value: 'runservice'
-    $('#token_operation_runservice').attr('checked', true);
+    // Default type value: 'runservice'
+    $('#token_type_runservice').attr('checked', true);
 
     // Shows/Hide SCM Token input field
     $('input[type=radio]').on('change', function() {
