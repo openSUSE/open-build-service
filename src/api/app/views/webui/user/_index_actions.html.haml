@@ -4,3 +4,5 @@
   - if configuration.passwords_changable?(user)
     = render partial: 'webui/user/index_actions/change_password'
   = render partial: 'webui/user/index_actions/change_notifications'
+  - if feature_enabled?('trigger_workflow')
+    = render partial: 'webui/user/index_actions/manage_tokens'

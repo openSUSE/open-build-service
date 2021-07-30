@@ -7,7 +7,7 @@ module Webui
       after_action :verify_authorized
 
       def create
-        token = authorize(Token::Rss.find_or_initialize_by(user: User.session))
+        token = authorize(::Token::Rss.find_or_initialize_by(user: User.session))
         if token.persisted?
           flash[:success] = 'Successfully re-generated your RSS feed url'
           token.regenerate_string

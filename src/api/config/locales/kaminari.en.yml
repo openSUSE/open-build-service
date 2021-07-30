@@ -12,7 +12,7 @@ en:
       one_page:
         display_entries:
           zero: "No %{entry_name} found"
-          one: "Displaying <b>1</b>"
-          other: "Displaying <b>all %{count}</b>"
+          one: "Displaying <b>1</b> %{entry_name}"
+          other: "Displaying <b>all %{count} %{entry_name}</b>"
       more_pages:
-        display_entries: "Displaying <b>%{first}&nbsp;-&nbsp;%{last}</b> of <b>%{total}</b>"
+        display_entries: "Displaying %{entry_name} <b>%{first}&nbsp;-&nbsp;%{last}</b> of <b>%{total}</b>"

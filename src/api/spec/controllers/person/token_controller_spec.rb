@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe Person::TokenController, vcr: false do
   let(:user) { create(:user_with_service_token, :with_home) }
   let(:other_user) { create(:confirmed_user) }
-  let(:admin_user) { create(:admin_user) }
 
   describe '#index' do
     context 'called by authorized user' do
@@ -59,13 +58,27 @@ RSpec.describe Person::TokenController, vcr: false do
 
       before do
         login user
-        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice', scm_token: '123456789' }, format: :xml
+        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml
       end
 
       it { expect(response).to have_http_status(:success) }
       it { expect(response).to render_template(:create) }
       it { expect(user.tokens.where(package: package)).to exist }
       it { expect(assigns(:token)).to eq(package.token) }
+    end
+
+    context 'operation is workflow' do
+      let!(:package) { create(:package, project: user.home_project) }
+
+      before do
+        Flipper[:trigger_workflow].enable
+        login user
+      end
+
+      subject { post :create, params: { login: user.login, operation: 'workflow', scm_token: '123456789' }, format: :xml }
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect { subject }.to change { user.tokens.count }.by(+1) }
     end
 
     context 'called by unauthorized user' do

@@ -262,6 +262,8 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find(:id, 'review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
+        # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `review_package`.
+        find('#review_comment').click
         fill_in 'review_package', with: package.name
         click_button('Accept')
         expect(page).to have_text("Open review for #{submitter.home_project} / #{package.name}")
