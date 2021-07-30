@@ -211,6 +211,7 @@ sub check {
     my $dep2pkg = $ctx->{'dep2pkg'};
     my $dep2pkg_host = $ctx->{'dep2pkg_host'};
     $check .= $ctx->{'genmetaalgo'} if $ctx->{'genmetaalgo'};
+    $check .= $ctx->{'modularity_meta'} if $ctx->{'modularity_meta'};
     $check .= $rebuildmethod;
     $check .= $pool->pkg2pkgid($dep2pkg->{$_}) for sort @$edeps;
     $check .= $pool_host->pkg2pkgid($dep2pkg_host->{$_}) for sort @{$hdeps || []};
@@ -277,6 +278,7 @@ sub check {
 	push @new_meta, ($pool_host->pkg2pkgid($dep2pkg_host->{$bin})."  $hostarch:$bin");
       }
     }
+    unshift @new_meta, $ctx->{'modularity_meta'} if $ctx->{'modularity_meta'};
     @new_meta = BSSolv::gen_meta($ctx->{'subpacks'}->{$info->{'name'}} || [], @new_meta);
     unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
     if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
