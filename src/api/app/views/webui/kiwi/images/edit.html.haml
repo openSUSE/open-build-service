@@ -1,5 +1,7 @@
-- @layouttype = 'custom'
-- @package = @image.package
+:ruby
+  @layouttype = 'custom'
+  @package = @image.package
+  @pagetitle = 'Edit Kiwi Image'
 
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
   .row

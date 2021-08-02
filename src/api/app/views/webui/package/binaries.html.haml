@@ -1,7 +1,9 @@
+- @pagetitle = "State of #{@repository} for #{@project} / #{@package_name}"
+
 .card
   = render partial: 'tabs', locals: { package: @package, project: @project }
   .card-body
-    %h3 State of #{@repository} for #{@project} / #{@package_name}
+    %h3= @pagetitle
     %ul.list-inline
       - if @configuration['download_url']
         = render partial: 'webui/shared/download_repository_link',

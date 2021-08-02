@@ -1,3 +1,5 @@
+- @pagetitle = 'Cloud Upload'
+
 - content_for :actions do
   %li.nav-item
     = link_to(cloud_configuration_index_path, title: 'Cloud Configuration', class: 'nav-link') do
@@ -6,7 +8,7 @@
 
 .card
   .card-body
-    %h3 Cloud Upload
+    %h3= @pagetitle
 
     %p
       %table.responsive.table.table-sm.table-bordered.table-hover#upload-jobs

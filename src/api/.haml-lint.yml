@@ -1,6 +1,16 @@
+require:
+  - './lib/haml-lint/custom_linters/set_pagetitle_in_view.rb'
+
 linters:
   LineLength:
     max: 150
+
+  # This custom linter will report an offense if @pagetitle is not set in a Haml view. Partials aren't processed by this linter.
+  SetPagetitleInView:
+    enabled: true
+    exclude:
+      # @pagetitle is set in the controller
+      - 'app/views/webui/users/new.html.haml'
 
   # Apply lint in all partials, but exclude 'breadcrumb_items' partials
   InstanceVariables:
