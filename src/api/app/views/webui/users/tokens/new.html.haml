@@ -1,8 +1,9 @@
+- @pagetitle = 'Create Token'
 - type_options = Token::OPERATIONS.map { |a| "Token::#{a}".constantize.token_name }
 
 .card
   .card-body
-    %h3.mb-3 Create Token
+    %h3.mb-3= @pagetitle
 
     .row
       .col-12.col-md-10.col-lg-8
