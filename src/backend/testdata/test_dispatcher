@@ -51,6 +51,7 @@ td simple05 false "kernel-default" armv7l small kernel
 td simple06 false "kernel-default" aarch64 small kernel
 td simple07 true "kernel-default" aarch64 medium kernel
 td simple08 true "kernel-default" aarch64 large kernel
+td simple09 false "kernel-default" armv7l large kernel # requires native kernel support (EL0)
 
 # simple source constraints like used by suse kernel
 td sandbox31 false "kernel-obs-qa" i586 medium kernel
@@ -125,11 +126,16 @@ td sandbox16 true  "kernel" i586 large  ""  enforce_kvm
 # combined constraints for sandbox
 td sandbox21 false "kernel" i586 small  sandbox         enforce_kvm
 td sandbox22 false "kernel" i586 small  sandbox_secure  enforce_kvm
-# package constraints are more important here
-td sandbox23 true  "kernel" i586 medium sandbox         enforce_kvm
+td sandbox23 false "kernel" i586 medium sandbox         enforce_kvm
 td sandbox24 true  "kernel" i586 medium sandbox_secure  enforce_kvm
 td sandbox25 true  "kernel" i586 large  sandbox         enforce_kvm
 td sandbox26 true  "kernel" i586 large  sandbox_secure  enforce_kvm
+
+# combined constraints for sandbox
+td perjob21 false "chromium" i586 small  tensorflow
+td perjob22 true  "chromium" i586 medium tensorflow
+td perjob23 false "chromium" i586 large  tensorflow
+
 
 echo
 

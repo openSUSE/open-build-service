@@ -161,6 +161,8 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 Requires:       perl-YAML-LibYAML
+Requires:       user(obsrun)
+Requires:       user(obsservicerun)
 # zstd is esp for Arch Linux
 Requires:       zstd
 
@@ -178,6 +180,12 @@ Requires:       insserv-compat
 BuildRequires:  systemd-rpm-macros
 
 %{?systemd_requires}
+
+%if 0%{?suse_version} >= 1500
+BuildRequires:  sysuser-tools
+BuildRequires:  group(www)
+BuildRequires:  user(wwwrun)
+%endif
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -218,8 +226,12 @@ run a local playground test installation.
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
 Group:          Productivity/Networking/Web/Utilities
-Requires(pre):  shadow
+Requires:       user(obsrun)
+Requires:       group(obsrun)
+Requires:       user(obsservicerun)
+
 %if 0%{?suse_version}
+Requires(pre):  shadow
 PreReq:         %fillup_prereq
 %endif
 
@@ -233,7 +245,9 @@ Group:          Productivity/Networking/Web/Utilities
 Requires(pre):  obs-common
 %endif
 %if 0%{?suse_version} >= 1330
-Requires(pre):  group(www)
+Requires:       user(obsapidelayed)
+Requires:       group(www)
+Requires:       user(wwwrun)
 %endif
 
 # For apache
@@ -296,6 +310,90 @@ Requires:       python-ec2uploadimg
 %description -n obs-cloud-uploader
 This package contains all the necessary tools for upload images to the cloud.
 
+%package -n system-user-obsrun
+Summary: System user and group obsrun
+Group:    System/Fhs
+Provides: user(obsrun)
+Provides: group(obsrun)
+%if 0%{?suse_version:1}
+Requires(pre):  shadow
+%endif
+%if 0%{?suse_version} >= 1500
+%sysusers_requires
+%endif
+
+%description -n system-user-obsrun
+This package provides the system account and group 'obsrun'.
+
+%if 0%{?suse_version} >= 1500
+%pre -n system-user-obsrun -f obsrun.pre
+%files -n system-user-obsrun
+%{_sysusersdir}/system-user-obsrun.conf
+%else
+%pre -n system-user-obsrun
+getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+
+%files -n system-user-obsrun
+%endif
+
+%package -n system-user-obsservicerun
+Summary:  System user obsservicerun
+Group:    System/Fhs
+Requires: group(obsrun)
+Provides: user(obsservicerun)
+%if 0%{?suse_version:1}
+Requires(pre):  shadow
+%endif
+%if 0%{?suse_version} >= 1500
+%sysusers_requires
+%endif
+
+%description -n system-user-obsservicerun
+This package provides the system account 'obsservicerun'
+
+%if 0%{?suse_version} >= 1500
+%pre -n system-user-obsservicerun -f obsservicerun.pre
+%files -n system-user-obsservicerun
+%{_sysusersdir}/system-user-obsservicerun.conf
+%else
+%pre -n system-user-obsservicerun
+getent passwd obsservicerun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
+    -c "" obsservicerun
+
+%files -n system-user-obsservicerun
+%endif
+
+%package -n system-user-obsapidelayed
+Summary:  System user obsapidelayed
+Group:    System/Fhs
+Requires: group(www)
+Provides: user(obsapidelayed)
+%if 0%{?suse_version:1}
+Requires(pre):  shadow
+%endif
+%if 0%{?suse_version} >= 1500
+%sysusers_requires
+%endif
+
+%description -n system-user-obsapidelayed
+This package provides the system account 'obsapidelayed'
+
+%if 0%{?suse_version} >= 1500
+%pre -n system-user-obsapidelayed -f obsapidelayed.pre
+%files -n system-user-obsapidelayed
+%{_sysusersdir}/system-user-obsapidelayed.conf
+%else
+%pre -n system-user-obsapidelayed
+getent passwd obsapidelayed >/dev/null || \
+  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
+
+%files -n system-user-obsservicerun
+%endif
+
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
@@ -320,6 +418,13 @@ popd
 # generate apidocs
 #
 make
+
+%if 0%{?suse_version} >= 1500
+%sysusers_generate_pre dist/system-user-obsrun.conf obsrun system-user-obsrun.conf
+%sysusers_generate_pre dist/system-user-obsservicerun.conf obsservicerun system-user-obsservicerun.conf
+%sysusers_generate_pre dist/system-user-obsapidelayed.conf obsapidelayed system-user-obsapidelayed.conf
+%endif
+
 
 %install
 export DESTDIR=$RPM_BUILD_ROOT
@@ -372,6 +477,14 @@ ln -sf application-*.js application.js
 ln -sf webui2-*.css webui2.css
 popd
 
+%if 0%{?suse_version} >= 1500
+mkdir -p %{buildroot}%{_sysusersdir}
+install -m 0644 dist/system-user-obsrun.conf %{buildroot}%{_sysusersdir}/
+install -m 0644 dist/system-user-obsservicerun.conf %{buildroot}%{_sysusersdir}/
+install -m 0644 dist/system-user-obsapidelayed.conf %{buildroot}%{_sysusersdir}/
+%endif
+
+
 %check
 %if 0%{?disable_obs_test_suite}
 echo "WARNING:"
@@ -421,10 +534,6 @@ make -C dist test
 %endif
 
 %pre
-getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for the build service source service" obsservicerun
-
 %service_add_pre obsscheduler.service
 %service_add_pre obssrcserver.service
 %service_add_pre obsrepserver.service
@@ -457,10 +566,6 @@ exit 0
 
 # create user and group in advance of obs-server
 %pre -n obs-common
-getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
-getent passwd obsrun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for build service backend" obsrun
 %service_add_pre obsstoragesetup.service
 exit 0
 
@@ -554,13 +659,13 @@ rmdir /srv/obs 2> /dev/null || :
 %postun -n obs-common
 # NOT used on purpose: restart_on_update obsstoragesetup
 # This is just run once on boot
-%service_del_postun -n obsstoragesetup.service
+%service_del_postun_without_restart obsstoragesetup.service
 
 %postun -n obs-worker
 # NOT used on purpose: restart_on_update obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
-%service_del_postun -n obsworker.service
+%service_del_postun_without_restart obsworker.service
 
 %postun -n obs-cloud-uploader
 %service_del_postun -r obsclouduploadworker.service
@@ -570,8 +675,6 @@ rmdir /srv/obs 2> /dev/null || :
 %verify_permissions
 
 %pre -n obs-api
-getent passwd obsapidelayed >/dev/null || \
-  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
 # On upgrade keep the values for the %post script

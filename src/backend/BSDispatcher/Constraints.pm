@@ -111,14 +111,36 @@ sub oracle {
     my $memory = ($worker->{'hardware'}->{'memory'} || 0);
     my $swap = ($worker->{'hardware'}->{'swap'} || 0);
     return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ( $memory + $swap );
+    return 0 if $constraints->{'hardware'}->{'memoryperjob'} && getmbsize($constraints->{'hardware'}->{'memoryperjob'}) * ($worker->{'hardware'}->{'jobs'} || 1) > ( $memory + $swap );
     return 0 if $constraints->{'hardware'}->{'physicalmemory'} && getmbsize($constraints->{'hardware'}->{'physicalmemory'}) > $memory;
     if ($constraints->{'hardware'}->{'cpu'}) {
-      return 0 unless $worker->{'hardware'}->{'cpu'};
       my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};
-      return 0 unless grep {$workerflags{$_}} @{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []};
+      for my $flag (@{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []}) {
+        if ($flag->{'exclude'} && $flag->{'exclude'} eq 'true') {
+          return 0 if $workerflags{$flag->{'_content'}};
+        } else {
+          return 0 unless $workerflags{$flag->{'_content'}};
+        }
+      }
     }
   }
   return 1;
+}
+
+=head2 mergeconstraints_sandbox - merge two sandbox constraints
+
+=cut
+
+sub mergeconstraints_sandbox {
+  my ($sb, $sb2) = @_;
+  return $sb unless $sb2 && $sb2->{'_content'};
+  return $sb2 unless $sb && $sb->{'_content'};
+  my $ex = $sb->{'exclude'} && $sb->{'exclude'} eq 'true' ? 1 : 0;
+  my $ex2 = $sb2->{'exclude'} && $sb2->{'exclude'} eq 'true' ? 1 : 0;
+  return $sb2 if $ex == $ex2;		# overwrite if both are of same type
+  ($sb, $sb2) = ($sb2, $sb) if $ex;	# include+exclude. bring include to front
+  return { '_content' => 'cannot_merge_sandbox' } if ($sb->{'_content'} eq 'secure' && $secure_sandboxes{$sb2->{'_content'}}) || $sb->{'_content'} eq $sb2->{'_content'};
+  return $sb;
 }
 
 =head2 mergeconstraints - merge two constraint files
@@ -136,7 +158,7 @@ sub mergeconstraints {
       $con->{'hostlabel'} = [ @{$con->{'hostlabel'} || []},  @{$con2->{'hostlabel'}} ];
     }
     if ($con2->{'sandbox'}) {
-      $con->{'sandbox'} = $con2->{'sandbox'};
+      $con->{'sandbox'} = mergeconstraints_sandbox($con->{'sandbox'}, $con2->{'sandbox'});
     }
     if ($con2->{'linux'}) {
       $con->{'linux'}->{'flavor'} = $con2->{'linux'}->{'flavor'} if $con2->{'linux'}->{'flavor'};
@@ -150,19 +172,51 @@ sub mergeconstraints {
         $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? BSUtil::clone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
       }
       if ($con2->{'hardware'}->{'cpu'} && $con2->{'hardware'}->{'cpu'}->{'flag'}) {
-        my %oldflags = map {$_ => 1} @{$con->{'hardware'}->{'cpu'}->{'flag'} || []};
-        for (@{$con2->{'hardware'}->{'cpu'}->{'flag'}}) {
-          push @{$con->{'hardware'}->{'cpu'}->{'flag'}}, $_ unless $oldflags{$_};
-        }
+        push @{$con->{'hardware'}->{'cpu'}->{'flag'}}, @{$con2->{'hardware'}->{'cpu'}->{'flag'}};
       }
     }
   }
   return $con;
 }
 
+sub overwrite {
+  my ($dst, $src) = @_;
+  for my $k (sort keys %$src) {
+    next if $k eq "conditions";
+    my $d = $src->{$k};
+    if (!exists($dst->{$k}) || !ref($d) || ref($d) ne 'HASH') {
+      $dst->{$k} = $d;
+    } else {
+      overwrite($dst->{$k}, $d);
+    }
+  }
+}
+
+sub overwriteconstraints {
+  my ($info, $constraints) = @_;
+  # use condition specific constraints to merge it properly
+  for my $o (@{$constraints->{'overwrite'}||[]}) {
+    next unless $o && $o->{'conditions'};
+    if ($o->{'conditions'}->{'arch'}) {
+      next unless grep {$_ eq $info->{'arch'}} @{$o->{'conditions'}->{'arch'}};
+    }
+    if ($o->{'conditions'}->{'package'}) {
+      my $packagename = $info->{'package'};
+      my $shortpackagename = $info->{'package'};
+      $shortpackagename =~ s/\..*//;
+      next unless grep {$_ eq $packagename or $_ eq $shortpackagename} @{$o->{'conditions'}->{'package'}};
+    }
+    # conditions are matching, overwrite...
+    $constraints = BSUtil::clone($constraints);
+    overwrite($constraints, $o);
+  }
+  return $constraints;
+}
+
+
 # constructs a data object from a list and a XML::Structured dtd
 sub list2struct {
-  my ($dtd, $list, $job) = @_;
+  my ($dtd, $list) = @_;
   my $top = {};
   for my $l (@{$list || []}) {
     my @l = @$l;
@@ -171,13 +225,15 @@ sub list2struct {
       my @loc = split(':', shift @l);
       my @how = @$dtd;
       my $out = $top;
+      my $outref;
       while (@loc) {
         my $am = shift @how;
         my $e = shift @loc;
-        my $addit;
-        my $delit;
+        my ($addit, $delit, $modit);
         $addit = 1 if $e =~ s/\+$//;
         $delit = 1 if !$addit && $e =~ s/=$//;
+	$modit = 1 if !$addit && !$delit && $e =~ s/!$//;
+	$modit = 1 if !$addit && !$delit && @loc;	# default non-leaf elements
         my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
         my $ke = $known{$e};
         die("unknown element: $e\n") unless $ke;
@@ -189,25 +245,28 @@ sub list2struct {
         if (!ref($ke) || (@$ke == 1 && !ref($ke->[0]))) {
           die("element '$e' has subelements\n") if @loc;
           die("element '$e' contains attributes\n") if @l && $l[0] =~ /=/;
-          delete $out->{$e} unless $addit;
           if (!ref($ke)) {
+            delete $out->{$e} unless $addit;
             die("element '$e' must be singleton\n") if exists $out->{$e};
             $out->{$e} = join(' ', @l);
           } else {
+            delete $out->{$e} if $modit;
             push @{$out->{$e}}, @l;
           }
           @how = ();
         } else {
           my $nout = {};
           if (@$ke == 1) {
-            $nout = pop @{$out->{$e}} if exists $out->{$e} && !$addit;
+            $nout = pop @{$out->{$e}} if exists $out->{$e} && $modit;
             push @{$out->{$e}}, $nout;
             @how = @{$ke->[0]};
+	    $outref = $out->{$e};
           } else {
             $nout = delete $out->{$e} if exists $out->{$e} && !$addit;
             die("element '$e' must be singleton\n") if exists $out->{$e};
             $out->{$e} = $nout;
             @how = @$ke;
+	    $outref = undef;
           }
           $out = $nout;
         }
@@ -233,14 +292,18 @@ sub list2struct {
           shift @l;
         }
         if (@l) {
-          die("element '$am' contains content\n") unless $known{'_content'};
-          $out->{'_content'} = join(' ', @l);
+	  die("element '$am' contains content\n") unless $known{'_content'};
+	  @l = ( join(' ', @l) ) unless $outref;
+	  $out->{'_content'} = shift @l;
+	  push @$outref, BSUtil::clone({ %$out, '_content' => $_ }) for @l;
         }
       }
     };
-    warn("list2struct: $job: @$l: $@") if $@;
+    die("@$l: $@") if $@;
   }
   return $top;
 }
+
+
 
 1;
