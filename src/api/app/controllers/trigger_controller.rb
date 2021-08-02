@@ -20,7 +20,7 @@ class TriggerController < ApplicationController
   include Trigger::Errors
 
   def create
-    authorize @token
+    authorize @token, :trigger?
     @token.user.run_as do
       opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch] }
       opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?

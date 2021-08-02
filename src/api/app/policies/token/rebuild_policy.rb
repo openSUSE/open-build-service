@@ -4,7 +4,7 @@ class Token
       super(record.user, record)
     end
 
-    def create?
+    def trigger?
       return false unless record.user.is_active?
 
       return PackagePolicy.new(record.user, record.object_to_authorize).update? if record.object_to_authorize.is_a?(Package)

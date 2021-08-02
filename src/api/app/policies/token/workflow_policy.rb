@@ -5,7 +5,7 @@ class Token
     end
 
     # TODO: remove the second half of the condition when `trigger_workflow` feature is rolled out
-    def create?
+    def trigger?
       record.user.is_active? && Flipper.enabled?(:trigger_workflow, record.user)
     end
   end
