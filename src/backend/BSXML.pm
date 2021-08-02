@@ -301,6 +301,19 @@ our $channel = [
      ]],
 ];
 
+our $modulemd = [
+    'modulemd' =>
+	'name',
+	'stream',
+	'timestamp',
+	[],
+	'macros',
+     [[ 'dependency' =>
+	    [ 'buildrequires' ],
+	    [ 'requires' ],
+     ]],
+];
+
 our $projpack = [
     'projpack' =>
     'repoid',
@@ -338,6 +351,7 @@ our $projpack = [
 		$aggregatelist,
 		$patchinfo,
 		'channelmd5',
+		$modulemd,
 		@flags,
 		'bcntsynctag',
 		'hasbuildenv',
@@ -613,6 +627,13 @@ our $buildinfo = [
 	'masterdispatched',	# dispatched through a master dispatcher
 	'nounchanged',	# do not check for "unchanged" builds
       [ 'module' ],	# list of modules to use
+
+        'modularity_package',
+        'modularity_srcmd5',
+        'modularity_macros',
+        'modularity_label',
+        'modularity_platform',
+        'modularity_meta',
 
       [ 'preinstallimage' =>
 	    'project',

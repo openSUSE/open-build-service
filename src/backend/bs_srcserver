@@ -79,6 +79,7 @@ use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
 use BSSrcServer::LinkinfoDB;
+use BSSrcServer::Modulemd;
 
 require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
@@ -1585,6 +1586,23 @@ sub getprojpack {
 	    }
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
+	} elsif ($files->{'_modulemd.yaml'}) {
+	  my $d;
+	  eval {
+	    my @s = BSRevision::revstat($rev, '_modulemd.yaml', $files->{'_modulemd.yaml'});
+	    die("_modulemd.yaml: maximum size exceeded\n") if $s[7] > 1024*1204;
+	    my $yaml = BSRevision::revreadstr($rev, '_modulemd.yaml', $files->{'_modulemd.yaml'});
+	    $d = BSSrcServer::Modulemd::parse_modulemd($yaml);
+	    $d->{'timestamp'} = $pinfo->{'revtime'} || $s[9];
+	  };
+	  if ($@) {
+	    my $err = $@;
+	    chomp $err;
+	    $pinfo->{'error'} = "_modulemd.yaml: $err";
+	    next;
+	  }
+	  $pinfo->{'modulemd'} = $d;
+	  next;
         } elsif ($cgi->{'withdeps'}) {
 	  my @dinfo;
 
@@ -5860,6 +5878,19 @@ sub getobsgendiffdata {
   return undef;
 }
 
+sub getmodulemd {
+  my ($cgi, $projid, $packid, $srcmd5) = @_;
+  my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
+  my $files = BSRevision::lsrev($rev);
+  die("no modulemd data in $projid/$packid\n") unless $files->{'_modulemd.yaml'};
+  my @s = BSRevision::revstat($rev, '_modulemd.yaml', $files->{'_modulemd.yaml'});
+  die("_modulemd.yaml: maximum size exceeded\n") if $s[7] > 1024*1204;
+  my $yaml = BSRevision::revreadstr($rev, '_modulemd.yaml', $files->{'_modulemd.yaml'});
+  my $d = BSSrcServer::Modulemd::read_modulemd($yaml);
+  BSSrcServer::Modulemd::tostream($d, $cgi->{'modules'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
+  return ($d, \&BSUtil::tostorable, 'Content-Type: application/octet-stream');
+}
+
 ####################################################################
 
 # this is shared for AJAX requests
@@ -7190,6 +7221,7 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaryversions,
   '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
+  '/getmodulemd $project $package $srcmd5:md5 module* modularityplatform: modularitylabel:' => \&getmodulemd,
 
   # publisher/signer calls
   '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,

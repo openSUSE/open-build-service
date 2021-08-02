@@ -32,6 +32,7 @@ use BSSched::BuildResult;
 use BSSched::PublishRepo;
 use BSSched::BuildJob;
 use BSSched::Access;
+use BSSched::Modulemd;
 use BSSched::Remote;	# for addrepo_remote
 use BSSched::DoD;	# for signalmissing
 use BSSched::EventSource::Directory;
@@ -403,6 +404,25 @@ sub setup {
     }
     $ctx->{'prpsearchpath_host'} = $prpsearchpath_host;
     $ctx->{'conf_host'} = $bconf_host;
+  }
+
+  # check for modulemd data
+  if ($pdatas->{'modulemd'} && $pdatas->{'modulemd'}->{'modulemd'}) {
+    my $pdata = $pdatas->{'modulemd'};
+    my $modulemd = $pdata->{'modulemd'};
+    my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd) || {};
+    return ('broken', 'cannot build this module') unless $dependency;
+    my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
+    return ('broken', join(', ', @$errors)) if $errors;
+    my $ml = BSSched::Modulemd::calc_modularitylabel($bconf, $modulemd->{'name'}, $modulemd->{'stream'}, $modulemd->{'timestamp'}, $dependency->{'requires'} || []);
+    return ('broken', 'modularitylabel calculation failed') unless $ml;
+    my @ml = split(':', $ml, 4);
+    $ctx->{'modularity_label'} = $ml;
+    $ctx->{'modularity_package'} = 'modulemd';
+    $ctx->{'modularity_srcmd5'} = $pdata->{'srcmd5'};
+    $ctx->{'modularity_meta'} = Digest::MD5::md5_hex("$ml[0]:$ml[1]:$ml[3]:$pdata->{'srcmd5'}")."  $ctx->{'modularity_package'}";
+    $ctx->{'modularity_extramacros'} = $modulemd->{'macros'} if $modulemd->{'macros'};
+    $ctx->{'modularity_platform'} = $bconf->{'buildflags:modulemdplatform'};
   }
 
   return ('scheduling', undef);

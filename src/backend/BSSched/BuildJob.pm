@@ -915,6 +915,14 @@ sub create_jobdata {
   $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch);
   $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
+  if ($ctx->{'modularity_label'}) {
+    $binfo->{'modularity_package'} = $ctx->{'modularity_package'};
+    $binfo->{'modularity_srcmd5'} = $ctx->{'modularity_srcmd5'};
+    $binfo->{'modularity_meta'} = $ctx->{'modularity_meta'};
+    $binfo->{'modularity_platform'} = $ctx->{'modularity_platform'};
+    $binfo->{'modularity_label'} = $ctx->{'modularity_label'};
+    $binfo->{'modularity_macros'} = BSSched::Modulemd::calc_macros($bconf, $ctx->{'modularity_label'}, $binfo->{'bcnt'} || 1, $ctx->{'modularity_extramacros'});
+  }
   return $binfo;
 }
 
