@@ -14,7 +14,11 @@ Features
 ========
 * OBS Appliance Images:
   - Upgrade base distribution from openSUSE 15.1 to 15.3
-  
+* obs-server
+  - multiple cpu flags now supported by dispatcher
+  - support cpu flag exclude constraint
+  - Add another ampere variant for aarch32 support
+
 Bugfixes
 ========
 
