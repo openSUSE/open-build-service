@@ -92,7 +92,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     if target_project
       maintenance_project = Project.get_by_name(target_project)
     else
-      maintenance_project = Project.get_maintenance_project
+      maintenance_project = Project.get_maintenance_project!
       self.target_project = maintenance_project.name
     end
     unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
