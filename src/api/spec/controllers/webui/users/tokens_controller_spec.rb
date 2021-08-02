@@ -89,6 +89,48 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
     end
   end
 
+  describe 'PUT #update' do
+    subject { put :update, params: update_parameters }
+
+    context 'updates a workflow token belonging to the logged-in user' do
+      let(:token) { create(:workflow_token, user: user, scm_token: 'something') }
+      let(:update_parameters) { { id: token.id, token: { scm_token: 'something_else' } } }
+
+      include_examples 'check for flashing a success'
+
+      it { is_expected.to redirect_to(tokens_path) }
+      it { expect { subject }.to change { token.reload.scm_token }.from('something').to('something_else') }
+    end
+
+    context 'does not update a non-workflow token belonging to the logged-in user' do
+      let(:token) { create(:service_token, user: user) }
+      let(:update_parameters) { { id: token.id, token: { scm_token: 'something_else' } } }
+
+      include_examples 'check for flashing an error'
+
+      it { is_expected.to redirect_to(root_path) }
+      it { expect { subject }.not_to change(token, :scm_token) }
+    end
+
+    context 'redirects to index when passing a non-existent token' do
+      let(:update_parameters) { { id: -1 } }
+
+      include_examples 'check for flashing an error'
+
+      it { is_expected.to redirect_to(tokens_path) }
+    end
+
+    context 'does not update a token belonging to another user' do
+      let(:token) { create(:service_token, user: other_user) }
+      let(:update_parameters) { { id: token.id, token: { scm_token: 'something' } } }
+
+      include_examples 'check for flashing an error'
+
+      it { is_expected.to redirect_to(root_path) }
+      it { expect { subject }.not_to change(token, :scm_token) }
+    end
+  end
+
   describe 'DELETE #destroy' do
     let!(:token) { create(:service_token, user: user) }
     let(:delete_parameters) { { id: token.id } }
