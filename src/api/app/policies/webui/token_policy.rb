@@ -21,6 +21,14 @@ class Webui::TokenPolicy < ApplicationPolicy
     Flipper.enabled?(:trigger_workflow, user)
   end
 
+  def edit?
+    update?
+  end
+
+  def update?
+    record.user == user && record.type == 'Token::Workflow' && Flipper.enabled?(:trigger_workflow, user)
+  end
+
   def create?
     # TODO: when trigger_workflow is rolled out, remove the Flipper check
     record.user == user && record.type != 'Token::Rss' && Flipper.enabled?(:trigger_workflow, user)

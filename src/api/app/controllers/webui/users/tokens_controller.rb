@@ -1,5 +1,5 @@
 class Webui::Users::TokensController < Webui::WebuiController
-  before_action :set_token, only: [:destroy]
+  before_action :set_token, only: [:edit, :update, :destroy]
   before_action :set_params, :set_package, only: [:create]
 
   after_action :verify_authorized, except: :index
@@ -12,6 +12,24 @@ class Webui::Users::TokensController < Webui::WebuiController
   def new
     @token = Token.new
     authorize [:webui, @token]
+  end
+
+  def edit
+    authorize [:webui, @token]
+  end
+
+  def update
+    authorize [:webui, @token]
+
+    new_scm_token = params.require(:token).permit(:scm_token)
+
+    if @token.update(new_scm_token)
+      flash[:success] = 'Token successfully updated'
+    else
+      flash[:error] = 'Failed to update Token'
+    end
+
+    redirect_to tokens_url
   end
 
   def create

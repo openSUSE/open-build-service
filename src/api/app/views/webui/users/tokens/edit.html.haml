@@ -1,0 +1,25 @@
+.card
+  .card-body
+    %h3.mb-3 Edit Token
+
+    .row
+      .col-12.col-md-10.col-lg-8
+        -# "as: :token" to have a consistent name across all various token classes
+        = form_for(@token, as: :token, url: token_path, method: :put, local: true) do |f|
+          .form-row#edit-token
+            .col-12.col-md-10.col-lg-9
+              .form-group
+                = f.label(:id, 'Id:')
+                = @token.id
+              .form-group
+                = f.label(:type, 'Operation:')
+                = @token.class.token_name.capitalize
+              .form-group
+                = f.label(:scm_token) do
+                  SCM token:
+                  %abbr.text-danger{ title: 'required' } *
+                .input-group
+                  = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your new SCM token', required: true)
+          .actions
+            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
+            = f.submit('Update', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
