@@ -1,6 +1,8 @@
 class TriggerController < ApplicationController
   ALLOWED_GITLAB_EVENTS = ['Push Hook', 'Tag Push Hook', 'Merge Request Hook'].freeze
 
+  include Pundit
+
   # Authentication happens with tokens, so extracting the user is not required
   skip_before_action :extract_user
   # Authentication happens with tokens, so no login is required
@@ -51,6 +53,10 @@ class TriggerController < ApplicationController
   def set_token
     @token = ::TriggerControllerService::TokenExtractor.new(request).call
     raise InvalidToken unless @token
+  end
+
+  def pundit_user
+    @token.user
   end
 
   def set_project
