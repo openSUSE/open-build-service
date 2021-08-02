@@ -236,7 +236,7 @@ function adapt_worker_jobs {
 function prepare_database_setup {
 
   cd /srv/www/obs/api
-  RAILS_ENV=production bin/rails db:migrate:status > /dev/null
+  RAILS_ENV=production bin/rails db:migrate:status > /dev/null 2>&1
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
@@ -589,6 +589,7 @@ EOF
 export LC_ALL=C
 
 ENABLE_OPTIONAL_SERVICES=0
+PID_FILE=/run/setup-appliance.pid
 
 # package or appliance defaults
 if [ -e /etc/sysconfig/obs-server ]; then
@@ -607,8 +608,22 @@ fi
 
 
 if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
-
+  logline "Starting "`basename $0`" at "`date`
   NON_INTERACTIVE=0
+
+  if [ -f $PID_FILE ];then
+    APID=`cat $PID_FILE`
+    if [ -f /proc/$APID/status ];then
+      logline `basename $0`" already running. Exiting!"
+      exit 0
+    else
+      logline `basename $0`" died unexpectedly"
+    fi
+  fi
+
+  echo $$ > $PID_FILE
+
+  trap "rm -f $PID_FILE" EXIT
 
   while [[ $1 ]];do
     case $1 in

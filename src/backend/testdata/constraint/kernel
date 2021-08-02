@@ -15,6 +15,9 @@
     </conditions>
     <hardware>
       <processors>1</processors>
+      <cpu>
+        <flag exclude="true">EL0</flag>
+      </cpu>
       <disk>
         <size unit="G">6</size>
       </disk>

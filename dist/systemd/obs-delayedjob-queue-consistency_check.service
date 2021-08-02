@@ -1,6 +1,7 @@
 [Unit]
 Description = Open Build Service DelayedJob Queue: consistency_check
 BindsTo = obs-api-support.target
+After = mariadb.service obsapisetup.service
 
 [Service]
 Environment = "RAILS_ENV=production"
