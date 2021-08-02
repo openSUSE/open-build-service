@@ -107,8 +107,6 @@ sub tostream {
   for (@distprovides) {
     $distprovides{"$1-*"} = $_ if /^(.*)-/;
   }
-use Data::Dumper;
-print Dumper(\%distprovides);
   my $newdeps;
   for my $dd (@{$md->{'dependencies'} || []}) {
     die("dependency block must be hash\n") unless ref($dd) eq 'HASH';
@@ -116,7 +114,6 @@ print Dumper(\%distprovides);
     my $requires = parse_deps($dd->{'requires'});
     my $good = 1;
     for my $br (@$buildrequires) {
-print "check $br\n";
       my ($n, @v) = split(':', $br);
       if ($n =~ s/^-//) {
 	$good = 0 if grep {$distprovides{"$n-$_"}} @v; 
@@ -144,17 +141,21 @@ print "check $br\n";
 	die("module $n is not available\n") unless $newbr;
       }
       $newbr =~ s/^\Q$n\E-/$n:/;
-print "BRMAP $br -> $newbr\n";
       $brmap{$br} = $newbr;
       $br = $newbr;
     }
     for my $r (@$requires) {
-print "REQ $r\n";
       $r = $brmap{$r} if defined $brmap{$r};
     }
     $newdeps = {};
-    $newdeps->{'buildrequires'} = $buildrequires if @$buildrequires;
-    $newdeps->{'requires'} = $requires if @$requires;
+    for (@$requires) {
+      my ($n, @v) = split(':', $_);
+      $newdeps->{'requires'}->{$n} = \@v;
+    }
+    for (@$buildrequires) {
+      my ($n, @v) = split(':', $_);
+      $newdeps->{'buildrequires'}->{$n} = \@v;
+    }
   }
   die("could not select dependency block\n") unless $newdeps;
   $md->{'dependencies'} = [ $newdeps ];
