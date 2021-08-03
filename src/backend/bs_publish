@@ -715,7 +715,7 @@ sub createrepo_rpmmd {
   if ($data->{'modulemds'}) {
     writestr("$extrep/repodata/modules-unfiltered.yaml", undef, $data->{'modulemds'});
     # unpack primary xml file
-    qsystem('chdir', "$extrep/repodata", 'stdout', 'modules.yaml', "$INC[0]/build/writemodulemd", '--filtered', 'modules-unfiltered.yaml', '.') && die("    writemodulemd failed: $?\n");
+    qsystem('chdir', "$extrep/repodata", 'stdout', 'modules.yaml', "$INC[0]/build/writemodulemd", '--filter', 'modules-unfiltered.yaml', '.') && die("    writemodulemd failed: $?\n");
     unlink("$extrep/repodata/modules-unfiltered.yaml");
     if (-s "$extrep/repodata/modules.yaml") {
       qsystem($modifyrepo_bin, "$extrep/repodata/modules.yaml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
