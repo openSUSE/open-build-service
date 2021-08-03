@@ -709,6 +709,21 @@ sub createrepo_rpmmd {
     }
   }
 
+  # add modulemd data
+  unlink("$extrep/repodata/modules.yaml");
+  unlink("$extrep/repodata/modules-unfiltered.yaml");
+  if ($data->{'modulemds'}) {
+    writestr("$extrep/repodata/modules-unfiltered.yaml", undef, $data->{'modulemds'});
+    # unpack primary xml file
+    qsystem('chdir', "$extrep/repodata", 'stdout', 'modules.yaml', "$INC[0]/build/writemodulemd", '--filtered', 'modules-unfiltered.yaml', '.') && die("    writemodulemd failed: $?\n");
+    unlink("$extrep/repodata/modules-unfiltered.yaml");
+    if (-s "$extrep/repodata/modules.yaml") {
+      qsystem($modifyrepo_bin, "$extrep/repodata/modules.yaml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+    }
+    unlink("$extrep/repodata/modules.yaml");
+  }
+  
+
   # prune repocache
   if (-d "$extrep/repocache") {
     my $now = time;
@@ -1893,6 +1908,8 @@ sub publish {
   my @updateinfos;
   my $updateinfos_state;
 
+  my $modulemds = '';
+
   my $appdatas;
   my $appdatas_state;
   my %appdatas_seen;
@@ -1997,6 +2014,11 @@ sub publish {
 	$updateinfos_state .= Digest::MD5::md5_hex($updateinfoxml);
 	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
 	push @updateinfos, @{$updateinfo->{'update'} || []};
+      }
+      if ($bin =~ /:_modulemd.yaml$/) {
+        my @s = stat("$r/$bin");
+	$modulemds .= readstr("$r/$bin") if @s && $s[7] < 1024 * 1024;
+	next;
       }
       if ($bin =~ /[-.]appdata.xml$/) {
         # collect application data
@@ -2516,6 +2538,9 @@ sub publish {
     $container_state = BSPublisher::Container::calculate_container_state($projid, $repoid, \%containers, $multicontainer);
   }
 
+  my $modulemds_state = '';
+  $modulemds_state = Digest::MD5::md5_hex($modulemds) if $modulemds;
+
   my $title = $proj->{'title'} || $projid;
   $title .= " ($repoid)";
   $title =~ s/\n/ /sg;
@@ -2530,6 +2555,7 @@ sub publish {
   $state .= "\0".$appdatas_state if $appdatas_state;
   $state .= "\0".$deltainfos_state if $deltainfos_state;
   $state .= "\0".$container_state if $container_state;
+  $state .= "\0".$modulemds_state if $modulemds_state;
   $state = Digest::MD5::md5_hex($state) if $state ne '';
 
   # get us the old repoinfo, so we can compare the state
@@ -2884,6 +2910,7 @@ sub publish {
     'chksumfiles' => \@chksumfiles,
     'config' => $config,
     'patterninfo' => {},
+    'modulemds' => $modulemds,
   };
 
   if ($repotype{'rpm-md'}) {
