@@ -43,6 +43,8 @@
 	%{?*:/usr/bin/systemctl force-reload %{*}}\
 	) || : %{nil}
 
+%define _restart_on_update_never() :
+
 %define service_del_postun(fnr) \
 test -n "$FIRST_ARG" || FIRST_ARG="$1"						\
 if [ "$FIRST_ARG" -ge 1 ]; then							\
@@ -657,15 +659,13 @@ fi
 rmdir /srv/obs 2> /dev/null || :
 
 %postun -n obs-common
-# NOT used on purpose: restart_on_update obsstoragesetup
-# This is just run once on boot
-%service_del_postun_without_restart obsstoragesetup.service
+%service_del_postun -n obsstoragesetup.service
 
 %postun -n obs-worker
 # NOT used on purpose: restart_on_update obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
-%service_del_postun_without_restart obsworker.service
+%service_del_postun -r obsworker.service
 
 %postun -n obs-cloud-uploader
 %service_del_postun -r obsclouduploadworker.service
