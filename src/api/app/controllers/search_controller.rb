@@ -171,6 +171,11 @@ class SearchController < ApplicationController
 
     opts = {}
 
+    if what == :request
+      opts[:withhistory] = 1 if params[:withhistory]
+      opts[:withfullhistory] = 1 if params[:withfullhistory]
+    end
+
     output = "<collection matches=\"#{matches}\">\n"
 
     xml = {} # filled by filter
@@ -181,43 +186,10 @@ class SearchController < ApplicationController
                    end
     search_items = filter_items_from_cache(items, xml, key_template)
 
-    includes = []
-    preloads = []
-    case what
-    when :package
-      relation = Package.where(id: search_items).order('projects.name', :name)
-      includes = [:project]
-    when :project
-      relation = Project.where(id: search_items).order(:name)
-      if render_all
-        includes = [:repositories]
-      else
-        relation = relation.select('projects.id,projects.name')
-      end
-    when :repository
-      relation = Repository.where(id: search_items)
-      includes = [:project]
-    when :request
-      relation = BsRequest.where(id: search_items).order(:id)
-      preloads = [:reviews, { review_history_elements: :user },
-                  { bs_request_actions: :bs_request_action_accept_info }]
-      opts[:withhistory] = 1 if params[:withhistory]
-      opts[:withfullhistory] = 1 if params[:withfullhistory]
-    when :person
-      relation = User.where(id: search_items).order(:login)
-    when :channel, :channel_binary
-      relation = ChannelBinary.where(id: search_items)
-    when :released_binary
-      relation = BinaryRelease.where(id: search_items)
-    when :issue
-      relation = Issue.where(id: search_items)
-      includes = [:issue_tracker]
-    else
-      logger.fatal "strange model: #{what}"
-    end
-    relation = relation.includes(includes).references(includes).preload(preloads)
+    search_finder = SearchFinder.new(what: what, search_items: search_items,
+                                     render_all: render_all, params: params)
 
-    # TODO: support sort_by and order parameters?
+    relation = search_finder.call
 
     unless items.empty?
       relation.each do |item|
