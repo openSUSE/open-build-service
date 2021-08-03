@@ -148,7 +148,10 @@ sub check {
     my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
     my @newpath;
     my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $lastp, $lastbdep);
-    if ($annotation && !$haveobsrepositories) {
+    if (!$annotation && !$haveobsrepositories) {
+      # no annotation, assume obsrepositories:/
+      push @newpath, {'project' => '_obsrepositories', 'repository' => ''};
+    } elsif ($annotation && !$haveobsrepositories) {
       # map all repos and add to path
       my $remoteprojs = $gctx->{'remoteprojs'} || {};
       my $rproj = $remoteprojs->{$lastbdep->{'project'}};
