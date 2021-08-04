@@ -933,7 +933,7 @@ sub filtersources {
   for my $bin (splice @bins) {
     next if $bin =~ /\.(?:no)?src\.rpm$/;
     next if $bin =~ /-debug(?:info|source).*\.rpm$/;
-    next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /[-.]appdata\.xml$/);
+    next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /[-.]appdata\.xml$/) && $bin ne '_modulemd.yaml';
     push @bins, $bin;
   }
   return @bins;
@@ -2346,7 +2346,7 @@ sub putjob {
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
     if ($file->{'name'} !~ /\.(?:$binsufsre)$/) {
-      if ($file->{'name'} =~ /^.*[-.]appdata.xml$/) {
+      if ($file->{'name'} =~ /^.*[-.]appdata.xml$/ || $file->{'name'} eq '_modulemd.yaml') {
 	# used in product building, store md5sum
 	local *F;
 	open(F, '<', "$dir/$file->{'name'}");

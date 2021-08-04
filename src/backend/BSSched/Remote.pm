@@ -670,7 +670,7 @@ sub convertpackagebinarylist {
         } elsif ($filename eq '.nouseforbuild') {
           $bins{$filename} = {};
         } else {
-          $bins{$filename} = {'filename' => $filename}; # XXX: what about the md5sum for appdata?
+          $bins{$filename} = {'filename' => $filename}; # XXX: what about the md5sum for appdata/modulemd?
         }
         $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
         $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
