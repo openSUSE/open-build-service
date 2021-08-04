@@ -258,12 +258,17 @@ class Project < ApplicationRecord
     end
 
     def get_maintenance_project(at = nil)
-      # hardcoded default. frontends can lookup themselfs a different target via attribute search
       at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
       maintenance_project = Project.find_by_attribute_type(at).first
-      unless maintenance_project && check_access?(maintenance_project)
-        raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
-      end
+
+      return unless maintenance_project && check_access?(maintenance_project)
+
+      maintenance_project
+    end
+
+    def get_maintenance_project!(at = nil)
+      maintenance_project = get_maintenance_project(at)
+      raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.' unless maintenance_project
 
       maintenance_project
     end

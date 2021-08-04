@@ -409,7 +409,7 @@ class SourceController < ApplicationController
     end
 
     # find maintenance project via attribute
-    prj = Project.get_maintenance_project(at)
+    prj = Project.get_maintenance_project!(at)
     actually_create_incident(prj)
   end
 
