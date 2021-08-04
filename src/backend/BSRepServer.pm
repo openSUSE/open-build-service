@@ -108,7 +108,7 @@ sub read_bininfo {
       my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
       delete $r->{'path'};
       $bininfo->{$file} = $r;
-    } elsif ($file =~ /[-.]appdata\.xml$/) {
+    } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml') {
       local *F;
       open(F, '<', "$dir/$file") || next;
       my @s = stat(F);

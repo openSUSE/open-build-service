@@ -1652,7 +1652,7 @@ sub getbinaries_kiwiproduct {
     if ($bvl) {
       for my $bv (@{$bvl->{'binary'} || []}) {
 	my $bin = $bv->{'name'};
-	if ($bin =~ /appdata\.xml$/) {
+	if ($bin =~ /appdata\.xml$/ || $bin eq '_modulemd.yaml') {
 	  push @todo, $bv;	# currently not in cache
 	  $downloadsizek += $bv->{'sizek'};
 	  next;
@@ -1713,6 +1713,8 @@ sub getbinaries_kiwiproduct {
 	    my $rarch;
 	    if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	      $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	    } elsif ($name eq '_modulemd.yaml') {
+	      $rarch = 'modulemd';
 	    } elsif ($name =~ /appdata\.xml$/) {
 	      $rarch = 'appdata'; 
 	    }
@@ -1730,7 +1732,9 @@ sub getbinaries_kiwiproduct {
 	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	    unlink("$ddir/$1/$bin.new.rpm");
 	  } elsif ($bin =~ /appdata\.xml$/) {
-	    unlink("$ddir/$arch/$bin.new.rpm");
+	    unlink("$ddir/appdata/$bin.new.rpm");
+	  } elsif ($bin eq '_modulemd.yaml') {
+	    unlink("$ddir/modulemd/$bin.new.rpm");
 	  }
 	}
       }
@@ -1741,6 +1745,8 @@ sub getbinaries_kiwiproduct {
 	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	} elsif ($bin =~ /appdata\.xml$/) {
 	  $rarch = 'appdata'; 
+	} elsif ($bin eq '_modulemd.yaml') {
+	  $rarch = 'modulemd'; 
 	}
 	next unless $rarch;
 	my @s = stat("$ddir/$rarch/$bin.new.rpm");
@@ -1749,6 +1755,11 @@ sub getbinaries_kiwiproduct {
 	  next;
 	}
 	if (!$bv->{'hdrmd5'}) {
+	  if ($bin eq '_modulemd.yaml') {
+	    rename("$ddir/$rarch/$bin.new.rpm", "$ddir/$rarch/$packid.modulemd.yaml.new.rpm") || die("rename $ddir/$rarch/$bin.new.rpm $ddir/$rarch/$packid.modulemd.yaml.new.rpm: $!\n");
+	    push @done, "$rarch/$packid.modulemd.yaml";
+	    next;
+	  }
 	  push @done, "$rarch/$bin";
 	  next;
 	}
@@ -1796,6 +1807,9 @@ sub getbinaries_kiwiproduct {
 	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	  } elsif ($name =~ /appdata\.xml$/) {
 	    $rarch = 'appdata';
+	  } elsif ($name eq '_modulemd.yaml') {
+	    $rarch = 'modulemd';
+	    $name = "$packid.modulemd.yaml";
 	  }
 	  return undef unless $rarch;
 	  return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
