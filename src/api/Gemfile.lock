@@ -285,7 +285,7 @@ GEM
     mysql2 (0.5.3)
     next_rails (1.0.4)
       colorize (>= 0.8.1)
-    nio4r (2.5.7)
+    nio4r (2.5.8)
     nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
