@@ -1,0 +1,13 @@
+# Configuration for pull request labeler: https://github.com/actions/labeler
+Frontend:
+- src/api/**/*
+
+Backend:
+- src/backend/**/*
+
+"Documentation :book:":
+- docs/**/*
+
+"Test Suite / CI :syringe:":
+- .circleci/**/*
+- .github/**/*
