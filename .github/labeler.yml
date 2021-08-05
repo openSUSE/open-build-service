@@ -11,3 +11,4 @@ Backend:
 "Test Suite / CI :syringe:":
 - .circleci/**/*
 - .github/**/*
+- .obs/**/*
