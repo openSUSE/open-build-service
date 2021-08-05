@@ -23,7 +23,7 @@
                 %td.text-word-break-all= link_to("#{truncate(token.package.project.name, length: 80)}/#{truncate(token.package.name, length: 80)}",
                   package_show_path(project: token.package.project, package: token.package)) if token.package
                 %td
-                  - if policy([:webui, token]).edit?
+                  - if policy(token).edit?
                     = link_to(edit_token_path(token), title: 'Edit Token') do
                       %i.fas.fa-edit
                   = link_to '#', title: 'Delete Token',

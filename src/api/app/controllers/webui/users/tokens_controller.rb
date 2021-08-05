@@ -6,20 +6,20 @@ class Webui::Users::TokensController < Webui::WebuiController
   after_action :verify_policy_scoped, only: :index
 
   def index
-    @tokens = policy_scope([:webui, Token]).page(params[:page])
+    @tokens = policy_scope(Token).page(params[:page])
   end
 
   def new
     @token = Token.new
-    authorize [:webui, @token]
+    authorize @token
   end
 
   def edit
-    authorize [:webui, @token]
+    authorize @token
   end
 
   def update
-    authorize [:webui, @token]
+    authorize @token
 
     new_scm_token = params.require(:token).permit(:scm_token)
 
@@ -35,7 +35,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   def create
     @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(user: User.session, package: @package))
 
-    authorize [:webui, @token]
+    authorize @token
 
     respond_to do |format|
       format.js do
@@ -51,7 +51,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def destroy
-    authorize [:webui, @token]
+    authorize @token
     @token.destroy
     flash[:success] = 'Token was successfully deleted.'
     redirect_to tokens_url

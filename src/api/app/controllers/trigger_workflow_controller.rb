@@ -4,7 +4,7 @@ class TriggerWorkflowController < TriggerController
   before_action :validate_scm_event
 
   def create
-    authorize @token
+    authorize @token, :trigger?
     @token.user.run_as do
       @token.call(scm: scm, event: event, payload: payload)
       render_ok
