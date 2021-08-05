@@ -10,6 +10,4 @@ workflow:
     repositories:
       only:
         - openSUSE_Factory
-        - openSUSE_15.1
-        - SLE_15_SP1
         - SLE_15_SP3
