@@ -32,7 +32,7 @@ namespace :db do
     sql = 'SELECT * FROM %s'
     skip_tables = ['schema_info', 'sessions', 'schema_migrations']
     ActiveRecord::Base.establish_connection
-    User.session = User.find_by_login('Admin')
+    User.session = User.get_default_admin
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(',') : ActiveRecord::Base.connection.tables - skip_tables
     tables.each do |table_name|
       i = '000'

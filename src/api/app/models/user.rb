@@ -247,7 +247,7 @@ class User < ApplicationRecord
 
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
-    user = User.find_by_login(admin)
+    user = User.find_by!(login: admin)
     raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
 
     user

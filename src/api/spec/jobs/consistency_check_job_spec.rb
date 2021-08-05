@@ -28,6 +28,7 @@ RSpec.describe ConsistencyCheckJob, type: :job, vcr: true do
     let!(:project) { create(:project, name: 'super_project') }
     let(:consistency_checkjob) { described_class.new }
     let(:error_message) { "Project meta is different in backend for super_project\n{:foo=>\"bar\"}" }
+    let!(:admin_user) { create(:admin_user, login: 'Admin') }
 
     before do
       # rubocop:disable RSpec/AnyInstance
