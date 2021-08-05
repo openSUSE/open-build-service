@@ -1,17 +1,17 @@
 version: "2.1"
 services:
   db:
-    image: registry.opensuse.org/obs/server/unstable/container/leap153/containers/openbuildservice/mariadb
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/mariadb
     ports:
       - "3306:3306"
     command: /usr/lib/mysql/mysql-systemd-helper start
   cache:
-    image: registry.opensuse.org/obs/server/unstable/container/leap153/containers/openbuildservice/memcached
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/memcached
     ports:
       - "11211:11211"
     command: /usr/sbin/memcached -u memcached
   backend:
-    image: registry.opensuse.org/obs/server/unstable/container/leap153/containers/openbuildservice/backend
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:
       - .:/obs
       - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
@@ -19,7 +19,7 @@ services:
       - ./dist/clouduploader.rb:/usr/bin/clouduploader
     command: /obs/contrib/start_development_backend -d /obs
   worker:
-    image: registry.opensuse.org/obs/server/unstable/container/leap153/containers/openbuildservice/backend
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:
       - .:/obs
     privileged: true
