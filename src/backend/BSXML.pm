@@ -25,11 +25,11 @@ package BSXML;
 
 use strict;
 
-# 
+#
 # an explained example entry of this file
 #
 #our $pack = [             creates <package name="" project=""> space
-#    'package' =>          
+#    'package' =>
 #	'name',
 #	'project',
 #	[],                before the [] all strings become attributes to <package>
@@ -37,7 +37,7 @@ use strict;
 #       'description',
 #       [[ 'person' =>     creates <person> children, the [[ ]] syntax allows any number of them including zero
 #           'role',        again role and userid attributes, both are required
-#           'userid',    
+#           'userid',
 #       ]],                this block describes a <person role="defeatist" userid="statler" /> construct
 # 	@flags,            copies in the block of possible flag definitions
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
@@ -66,7 +66,7 @@ our $doddata = [
 ];
 
 our $repo = [
-   'repository' => 
+   'repository' =>
 	'name',
 	'rebuild',
 	'block',
@@ -237,7 +237,7 @@ our $aggregatelist = [
 # former: kernel - 123 - 1   123: incident
 # now:    sec-123 - 1 -1
 our $patchinfo = [
-    'patchinfo' => 
+    'patchinfo' =>
             'incident', # optional, gets replaced on with updateinfoid on release
             'version',	# optional, defaults to 1
             [],
@@ -362,9 +362,9 @@ our $projpack = [
 	    'project',
 	    'kind',
 	    'root',
-	    'remoteurl', 
-	    'remoteproject', 
-	    'remoteroot', 
+	    'remoteurl',
+	    'remoteproject',
+	    'remoteroot',
 	    'partition',
 	    'proto',	# project data not included
 	     [],
@@ -374,7 +374,7 @@ our $projpack = [
 	  [ $repo ],
 	    'error',
      ]],
-     [[ 'channeldata' => 
+     [[ 'channeldata' =>
 	    'md5',
 	    $channel,
     ]],
@@ -919,7 +919,7 @@ our $workerstatus = [
 	    'uri',
 	    'workerid',
 	    'hostarch',
-     ]], 
+     ]],
      [[ 'building' =>
 	    'uri',
 	    'workerid',
@@ -961,7 +961,7 @@ our $workerstatus = [
                 'arch',        # scheduler only
                 'state',
                 'starttime',
-              [ 'queue' =>     # scheduler only 
+              [ 'queue' =>     # scheduler only
                     'high',
                     'med',
                     'low',
@@ -1228,7 +1228,7 @@ our $ymp = [
 ];
 
 our $binary_id = [
-    'binary' => 
+    'binary' =>
 	'name',
 	'project',
 	'package',
@@ -1244,7 +1244,7 @@ our $binary_id = [
 ];
 
 our $pattern_id = [
-    'pattern' => 
+    'pattern' =>
 	'name',
 	'project',
 	'repository',
@@ -1412,12 +1412,12 @@ our $request = [
 ];
 
 our $repositorystate = [
-    'repositorystate' => 
+    'repositorystate' =>
       [ 'blocked' ],
 ];
 
 our $collection = [
-    'collection' => 
+    'collection' =>
 	'matches',
 	'limited',
       [ $request ],
@@ -1650,6 +1650,7 @@ our $configuration = [
     'configuration' =>
 	[],
 	'title',        #webui only
+	'tos_url',      #webui only
 	'description',  #webui only
 	'name',         #obsname
 	'anonymous',
@@ -1702,17 +1703,17 @@ our $issue_trackers = [
      ]],
 ];
 
-our $appdataitem = [ 
+our $appdataitem = [
     'application' =>
-      [ 'id' => 
-	    'type', 
+      [ 'id' =>
+	    'type',
 	    '_content'
       ],
 	'pkgname',
 	'name',
 	'summary',
-      [ 'icon' => 
-	    'type', 
+      [ 'icon' =>
+	    'type',
 	    [],
 	    'name',
 	 [[ 'filecontent' =>
@@ -1720,21 +1721,21 @@ our $appdataitem = [
 		'_content'
          ]],
       ],
-      [ 'appcategories' => 
-          [ 'appcategory' ] 
+      [ 'appcategories' =>
+          [ 'appcategory' ]
       ],
       [ 'mimetypes' =>
           [ 'mimetype' ]
       ],
-      [ 'keywords' => 
+      [ 'keywords' =>
           [ 'keyword' ]
       ],
-      [ 'url' => 
-	    'type', 
-	    '_content' 
+      [ 'url' =>
+	    'type',
+	    '_content'
       ]
 ];
-    
+
 our $appdata = [
     'applications' =>
 	'version',
@@ -1742,10 +1743,10 @@ our $appdata = [
 ];
 
 our $attribute = [
-    'attribute' => 
-	'namespace', 
-        'name', 
-        'binary', 
+    'attribute' =>
+	'namespace',
+        'name',
+        'binary',
       [ 'value' ],
      [[ 'issue' =>
 	    'name',
@@ -1754,19 +1755,19 @@ our $attribute = [
 ];
 
 our $attributes = [
-    'attributes' => 
+    'attributes' =>
       [ $attribute ],
 ];
 
 our $size = [
-    'size' => 
+    'size' =>
         'unit',
         [],
         '_content',
 ];
 
 our $time = [
-    'time' => 
+    'time' =>
         'unit',
         [],
         '_content',
@@ -1810,7 +1811,7 @@ our @constraint = (
 );
 
 our $constraints = [
-    'constraints' => 
+    'constraints' =>
         @constraint,
      [[ 'overwrite' =>
 	  [ 'conditions' =>
@@ -1824,7 +1825,7 @@ our $constraints = [
 our $buildstatistics = [
     'buildstatistics' =>
       [ 'disk' =>
-	  [ 'usage' => 
+	  [ 'usage' =>
 	      [ 'size' =>
 		    'unit',
 		    [],
@@ -1863,8 +1864,8 @@ our $buildstatistics = [
 #        $buildstatistics,
 #        @$jobhistlay,
 # ];
-# 
-#  
+#
+#
 # sub flat_arr {
 #     my $first = shift @_;
 #     return [] if ! defined($first);
@@ -1873,8 +1874,8 @@ our $buildstatistics = [
 # }
 #
 # $buildstatslay = flat_arr(@$buildstatslay)
-#  
-# adding new elements to the buildstatistics array should get a new entry in this array 
+#
+# adding new elements to the buildstatistics array should get a new entry in this array
 # otherwise that entry will not saved to the stats file. New entries must only be
 # appended to the end of this list!
 
