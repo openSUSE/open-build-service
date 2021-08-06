@@ -414,7 +414,7 @@ sub setup {
     return ('broken', 'cannot build this module') unless $dependency;
     my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
     return ('broken', join(', ', @$errors)) if $errors;
-    my $ml = BSSched::Modulemd::calc_modularitylabel($bconf, $modulemd->{'name'}, $modulemd->{'stream'}, $modulemd->{'timestamp'}, $dependency->{'requires'} || []);
+    my $ml = BSSched::Modulemd::calc_modularitylabel($bconf, $modulemd, $dependency->{'requires'} || []);
     return ('broken', 'modularitylabel calculation failed') unless $ml;
     my @ml = split(':', $ml, 4);
     $ctx->{'modularity_label'} = $ml;

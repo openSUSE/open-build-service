@@ -52,21 +52,31 @@ sub parse_deps {
   return [ sort keys %deps ];
 }
 
-sub read_modulemd {
+sub read_modulemds {
   my ($yaml) = @_;
-  my $d = YAML::XS::Load($yaml);
-  die("bad modulemd data\n") unless $d && ref($d) eq 'HASH';
-  die("missing data element\n") unless ref($d->{'data'}) eq 'HASH';
-  return $d;
+  my @mds = YAML::XS::Load($yaml);
+  die("no modulemd data\n") unless @mds;
+  for my $md (@mds) {
+    die("bad modulemd data\n") unless $md && ref($md) eq 'HASH' && $md->{'data'} && $md->{'document'};
+    die("unknown modulemd document\n") if $md->{'document'} ne 'modulemd' && $md->{'document'} ne 'modulemd' && $md->{'document'} ne 'modulemd-defaults';
+    die("bad modulemd version \n") if $md->{'document'} eq 'modulemd' && $md->{'version'} != 2;
+    die("bad modulemd version \n") if $md->{'document'} eq 'modulemd-defaults' && $md->{'version'} != 1;
+  }
+  return \@mds;
 }
 
 sub parse_modulemd {
   my ($yaml) = @_;
-  my $d = read_modulemd($yaml);
+  my $mds = read_modulemds($yaml);
+  my @mds_modulemd = grep {$_->{'document'} eq 'modulemd'} @$mds;
+  die("need exactly one modulemd document\n") unless @mds_modulemd == 1;
+  my $d = $mds_modulemd[0];
   $d = $d->{'data'};
   my $r = {};
   $r->{'name'} = assert_str($d->{'name'}, 'name');
   $r->{'stream'} = assert_str($d->{'stream'}, 'stream');
+  $r->{'version'} = assert_str($d->{'version'}, 'version') if defined $d->{'version'};
+  $r->{'context'} = assert_str($d->{'context'}, 'context') if defined $d->{'context'};
   $d->{'dependencies'} = [ $d->{'dependencies'} ] if ref($d->{'dependencies'}) eq 'HASH';
   for my $dd (@{$d->{'dependencies'} || []}) {
     die("dependency block must be hash\n") unless ref($dd) eq 'HASH';
