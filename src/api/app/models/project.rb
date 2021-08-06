@@ -12,6 +12,7 @@ class Project < ApplicationRecord
   include StagingProject
   include ProjectLinks
   include ProjectDistribution
+  include ProjectMaintenance
 
   TYPES = ['standard', 'maintenance', 'maintenance_incident',
            'maintenance_release'].freeze
@@ -59,15 +60,6 @@ class Project < ApplicationRecord
 
   has_many :flags, dependent: :delete_all, inverse_of: :project
 
-  # optional
-  has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
-
-  # projects can maintain other projects
-  has_many :maintained_projects, class_name: 'MaintainedProject', foreign_key: :maintenance_project_id, dependent: :delete_all
-  has_many :maintenance_projects, class_name: 'MaintainedProject', dependent: :delete_all
-
-  has_many :incident_updateinfo_counter_values, dependent: :delete_all
-
   # develproject is history, use develpackage instead. FIXME3.0: clean this up
   has_many :develprojects, class_name: 'Project', foreign_key: 'develproject_id'
   belongs_to :develproject, class_name: 'Project'
@@ -92,10 +84,6 @@ class Project < ApplicationRecord
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
-  scope :maintenance, -> { where("kind = 'maintenance'") }
-  scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }
-  scope :maintenance_incident, -> { where("kind = 'maintenance_incident'") }
-  scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
   scope :filtered_for_list, lambda {
     where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
@@ -257,22 +245,6 @@ class Project < ApplicationRecord
       dbp
     end
 
-    def get_maintenance_project(at = nil)
-      at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-      maintenance_project = Project.find_by_attribute_type(at).first
-
-      return unless maintenance_project && check_access?(maintenance_project)
-
-      maintenance_project
-    end
-
-    def get_maintenance_project!(at = nil)
-      maintenance_project = get_maintenance_project(at)
-      raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.' unless maintenance_project
-
-      maintenance_project
-    end
-
     # check existence of a project (local or remote)
     def exists_by_name(name)
       local_project = find_by_name(name, skip_check_access: true)
@@ -362,17 +334,6 @@ class Project < ApplicationRecord
       when Hash
         request_data['download'].present?
       end
-    end
-
-    def validate_maintenance_xml_attribute(request_data)
-      request_data.elements('maintenance') do |maintenance|
-        maintenance.elements('maintains') do |maintains|
-          target_project_name = maintains.value('project')
-          target_project = Project.get_by_name(target_project_name)
-          return { error: "No write access to maintained project #{target_project_name}" } unless target_project.instance_of?(Project) && User.possibly_nobody.can_modify?(target_project)
-        end
-      end
-      {}
     end
 
     def validate_repository_xml_attribute(request_data, project_name)
@@ -496,10 +457,6 @@ class Project < ApplicationRecord
       sib if parent_name == sib.possible_ancestor_names.first
     end.pluck(:id)
     Project.where(id: projects_id)
-  end
-
-  def maintained_project_names
-    maintained_projects.includes(:project).pluck('projects.name')
   end
 
   def add_maintainer(user)
@@ -637,18 +594,6 @@ class Project < ApplicationRecord
       end
     end
     true
-  end
-
-  def is_maintenance_release?
-    self.kind == 'maintenance_release'
-  end
-
-  def is_maintenance_incident?
-    self.kind == 'maintenance_incident'
-  end
-
-  def is_maintenance?
-    self.kind == 'maintenance'
   end
 
   def is_standard?
@@ -904,10 +849,6 @@ class Project < ApplicationRecord
     end
 
     projects
-  end
-
-  def expand_maintained_projects
-    maintained_projects.collect { |mp| mp.project.expand_all_projects(allow_remote_projects: false) }.flatten
   end
 
   # return array of [:name, :project_id] tuples
@@ -1392,14 +1333,6 @@ class Project < ApplicationRecord
     end
 
     true
-  end
-
-  # Returns maintenance incidents by type for current project (if any)
-  def maintenance_incidents
-    Project.where('projects.name like ?', "#{name}:%").distinct
-           .where(kind: 'maintenance_incident')
-           .joins(repositories: :release_targets)
-           .where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
   end
 
   def packages_with_release_target
