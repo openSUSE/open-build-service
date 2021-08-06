@@ -111,7 +111,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       end
       body = nil
       begin
-        body = Nokogiri::HTML::Document.parse(page.source).root
+        body = Nokogiri::HTML4::Document.parse(page.source).root
       rescue Nokogiri::XML::SyntaxError
         # puts "HARDCORE!! #{theone}"
       end
