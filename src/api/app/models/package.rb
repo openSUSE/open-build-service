@@ -1408,11 +1408,7 @@ class Package < ApplicationRecord
   end
 
   def populate_to_sphinx
-    if new_record? ||
-       title_previously_changed? ||
-       description_previously_changed?
-      PopulateToSphinxJob.perform_later(id: id, model_name: :package)
-    end
+    PopulateToSphinxJob.perform_later(id: id, model_name: :package)
   end
 end
 # rubocop: enable Metrics/ClassLength
