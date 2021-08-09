@@ -305,6 +305,8 @@ our $modulemd = [
     'modulemd' =>
 	'name',
 	'stream',
+	'version',
+	'context',
 	'timestamp',
 	[],
 	'macros',

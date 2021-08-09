@@ -30,7 +30,8 @@ sub json_sha1 {
 }
 
 sub calc_modularitylabel {
-  my ($bconf, $name, $stream, $timestamp, $deps) = @_;
+  my ($bconf, $modulemd, $deps) = @_;
+  my $timestamp = $modulemd->{'timestamp'};
   my $pfdata = $bconf->{'buildflags:modulemdplatform'};
   return undef unless $pfdata;
   my ($versionprefix, $distprefix) = split(':', $pfdata, 2);
@@ -49,9 +50,10 @@ sub calc_modularitylabel {
   }
   my $depctx = json_sha1(\%requires);
   my $mdctx = substr(Digest::SHA::sha1_hex("$buildctx:$depctx"), 0, 8);
+  $mdctx = $modulemd->{'context'} if $modulemd->{'context'};
   my @gm = gmtime($timestamp);
-  my $mdversion = $versionprefix.sprintf("%04d%02d%02d%02d%02d%02d", $gm[5] + 1900, $gm[4] + 1, @gm[3,2,1,0]);
-  return "$name:$stream:$mdversion:$mdctx";
+  my $mdversion = $modulemd->{'version'} || sprintf("%04d%02d%02d%02d%02d%02d", $gm[5] + 1900, $gm[4] + 1, @gm[3,2,1,0]);;
+  return "$modulemd->{'name'}:$modulemd->{'stream'}:$versionprefix$mdversion:$mdctx";
 }
 
 sub select_dependency {

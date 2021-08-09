@@ -1138,13 +1138,17 @@ sub getmodulemddata {
   push @args, map {"module=$_"} @{$buildinfo->{'module'}};
   push @args, "modularityplatform=$buildinfo->{'modularity_platform'}";
   push @args, "modularitylabel=$buildinfo->{'modularity_label'}";
-  my $md = BSRPC::rpc({
+  my $mds = BSRPC::rpc({
     'uri' => "$server/getmodulemd",
     'filename' => "$dir/_modulemd.in",
     'timeout' => $gettimeout,
   }, \&BSUtil::fromstorable, "project=$buildinfo->{'project'}", "package=$buildinfo->{'modularity_package'}", "srcmd5=$buildinfo->{'modularity_srcmd5'}", @args);
-  $md->{'data'}->{'arch'} = $buildinfo->{'arch'};
-  BSUtil::store("$dir/_modulemd.pst", undef, $md);
+  $mds = [ $mds ] if ref($mds) eq 'HASH';
+  for my $md (@$mds) {
+    next unless $md->{'document'} eq 'modulemd';		# should do this in the src server
+    $md->{'data'}->{'arch'} = $buildinfo->{'arch'};
+  }
+  BSUtil::store("$dir/_modulemd.pst", undef, $mds);
 }
 
 sub getsslcert {

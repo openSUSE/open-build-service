@@ -5886,9 +5886,12 @@ sub getmodulemd {
   my @s = BSRevision::revstat($rev, '_modulemd.yaml', $files->{'_modulemd.yaml'});
   die("_modulemd.yaml: maximum size exceeded\n") if $s[7] > 1024*1204;
   my $yaml = BSRevision::revreadstr($rev, '_modulemd.yaml', $files->{'_modulemd.yaml'});
-  my $d = BSSrcServer::Modulemd::read_modulemd($yaml);
-  BSSrcServer::Modulemd::tostream($d, $cgi->{'modules'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
-  return ($d, \&BSUtil::tostorable, 'Content-Type: application/octet-stream');
+  my $mds = BSSrcServer::Modulemd::read_modulemds($yaml);
+  for my $md (@$mds) {
+    next unless $md->{'document'} eq 'modulemd';
+    BSSrcServer::Modulemd::tostream($md, $cgi->{'modules'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
+  }
+  return (BSUtil::tostorable($mds), 'Content-Type: application/octet-stream');
 }
 
 ####################################################################
