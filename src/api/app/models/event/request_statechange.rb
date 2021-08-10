@@ -18,7 +18,7 @@ module Event
     private
 
     def metric_tags
-      payload.slice('oldstate', 'state')
+      payload.slice('oldstate', 'state', 'namespace')
     end
 
     def metric_fields
