@@ -59,10 +59,6 @@ RSpec.describe PackagesFinder, vcr: true do
     let(:admin_user) { create(:admin_user, login: 'superbad') }
     let(:project) { create(:project, name: 'foo') }
     let!(:package) { create(:package, name: 'foo_pack', project: project) }
-    let!(:embargo_date_attrib_type) do
-      AttribType.create(name: 'EmbargoDate',
-                        attrib_namespace: AttribNamespace.find_by!(name: 'OBS'), value_count: 1)
-    end
     let(:embargo_date_attrib) { create(:embargo_date_attrib, project: project, package: package) }
 
     context 'when package is nil' do
@@ -70,7 +66,7 @@ RSpec.describe PackagesFinder, vcr: true do
         User.session = admin_user
       end
 
-      subject { PackagesFinder.new.find_by_attribute_type_and_value(embargo_date_attrib.attrib_type, '2021-11-11') }
+      subject { PackagesFinder.new.find_by_attribute_type_and_value(embargo_date_attrib.attrib_type, embargo_date_attrib.values.first) }
 
       it { expect(subject).not_to be_empty }
       it { expect(subject).to include(package) }
