@@ -511,23 +511,7 @@ class BsRequest < ApplicationRecord
     bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
       if action.source_project && action.is_maintenance_release?
-        if source_project.is_a?(Project)
-          at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
-          attrib = source_project.attribs.find_by(attrib_type: at)
-          v = attrib.values.first if attrib
-          if defined?(v) && v
-            begin
-              embargo = Time.parse(v.value)
-              if /^\d{4}-\d\d?-\d\d?$/.match?(v.value)
-                # no time specified, allow it next day
-                embargo = embargo.tomorrow
-              end
-            rescue ArgumentError
-              raise InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{source_project.name}: #{v}"
-            end
-            raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}" if embargo > Time.now
-          end
-        end
+        Project::EmbargoHandler.new(source_project).call if source_project.is_a?(Project)
       end
 
       next unless action.is_maintenance_incident?
