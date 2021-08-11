@@ -855,7 +855,8 @@ class BsRequest < ApplicationRecord
                state: state,
                when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'),
                comment: comment,
-               author: creator }
+               author: creator,
+               namespace: namespace }
 
     params[:oldstate] = state_was if state_changed?
     params[:who] = commenter if commenter.present?
@@ -866,6 +867,21 @@ class BsRequest < ApplicationRecord
       params[:actions] << a.notify_params
     end
     params
+  end
+
+  def namespace
+    maintained_request? ? target_project_name : target_project_name.split(':').first
+  end
+
+  def maintained_request?
+    maintenance_project = Project.get_maintenance_project
+    return false unless maintenance_project
+
+    maintenance_project.maintained_project_names.include?(target_project_name)
+  end
+
+  def target_project_name
+    bs_request_actions&.first&.target_project.to_s
   end
 
   def auto_accept
