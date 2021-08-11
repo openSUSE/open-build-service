@@ -73,4 +73,15 @@ module ProjectMaintenance
            .joins(repositories: :release_targets)
            .where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
   end
+
+  def maintained_namespace
+    default = name.split(':').first
+
+    maintenance_project = Project.get_maintenance_project
+    return default unless maintenance_project
+
+    return maintenance_project.name if name.start_with?(maintenance_project.name)
+
+    maintenance_project.maintained_project_names.sort_by(&:length).reverse.find { |maintained_project_name| maintained_project_name.in?(name) } || default
+  end
 end

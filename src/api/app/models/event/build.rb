@@ -19,11 +19,12 @@ module Event
 
     def metric_tags
       {
-        namespace: payload['project'].split(':').first,
+        namespace: ::Project.find_by_name(payload['project'])&.maintained_namespace,
         worker: payload['workerid'],
         arch: payload['arch'],
         reason: reason,
-        state: state
+        state: state,
+        buildtype: payload['buildtype']
       }
     end
 
