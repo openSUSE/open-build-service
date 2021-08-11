@@ -2,7 +2,7 @@ module Event
   class RequestStatechange < Request
     self.message_bus_routing_key = 'request.state_change'
     self.description = 'Request state was changed'
-    payload_keys :oldstate
+    payload_keys :oldstate, :duration
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
 
     def subject
@@ -22,7 +22,7 @@ module Event
     end
 
     def metric_fields
-      payload.slice('number')
+      payload.slice('number', 'duration')
     end
   end
 end

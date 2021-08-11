@@ -834,7 +834,10 @@ class BsRequest < ApplicationRecord
     # new->review && review->new are not worth an event - it's just spam
     return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
 
-    Event::RequestStatechange.create(event_parameters)
+    options = event_parameters
+    options[:duration] = (updated_at - created_at).to_i if conclusive?
+
+    Event::RequestStatechange.create(options)
   end
 
   def accept_staged_request
@@ -996,6 +999,11 @@ class BsRequest < ApplicationRecord
   end
 
   private
+
+  def conclusive?
+    # check both because requests in final state can change state to superseded...
+    FINAL_REQUEST_STATES.exclude?(state_was) && FINAL_REQUEST_STATES.include?(state)
+  end
 
   def action_details(opts = {}, xml:)
     with_diff = opts.delete(:diffs)
