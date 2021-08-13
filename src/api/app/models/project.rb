@@ -21,6 +21,7 @@ class Project < ApplicationRecord
   before_destroy :cleanup_before_destroy, prepend: true
   after_destroy_commit :delete_on_backend
 
+  after_destroy :delete_from_sphinx
   after_save :discard_cache
   after_save :populate_to_sphinx
 
@@ -1522,6 +1523,10 @@ class Project < ApplicationRecord
 
   def populate_to_sphinx
     PopulateToSphinxJob.perform_later(id: id, model_name: :project)
+  end
+
+  def delete_from_sphinx
+    DeleteFromSphinxJob.perform_later(id, self.class)
   end
 end
 

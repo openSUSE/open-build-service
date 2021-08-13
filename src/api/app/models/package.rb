@@ -68,6 +68,7 @@ class Package < ApplicationRecord
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
 
+  after_destroy :delete_from_sphinx
   after_save :write_to_backend
   after_save :populate_to_sphinx
 
@@ -1409,6 +1410,10 @@ class Package < ApplicationRecord
 
   def populate_to_sphinx
     PopulateToSphinxJob.perform_later(id: id, model_name: :package)
+  end
+
+  def delete_from_sphinx
+    DeleteFromSphinxJob.perform_later(id, self.class)
   end
 end
 # rubocop: enable Metrics/ClassLength
