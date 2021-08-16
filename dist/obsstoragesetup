@@ -5,12 +5,8 @@
 #
 # /etc/init.d/obsstoragesetup
 
-
-# BOOTSTRAP_TEST_MODE prevents setup-appliance.sh execution
-# this is also sourcing /etc/sysconfig/obs-server
-export BOOTSTRAP_TEST_MODE=1
-source /usr/lib/obs/server/setup-appliance.sh
-unset BOOTSTRAP_TEST_MODE
+source /etc/sysconfig/obs-server
+source /usr/lib/obs/server/functions.setup-appliance.sh
 
 # instance defaults
 if [ -e /etc/buildhost.config ]; then

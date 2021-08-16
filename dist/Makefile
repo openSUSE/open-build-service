@@ -16,6 +16,7 @@ install: install_obsapisetup install_apache install_project_update install_logro
 
 install_obsapisetup: system_dirs
 	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
+	$(INSTALL) -m 755 functions.setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/functions.setup-appliance.sh
 
 install_apache:
 	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONFDIR_VHOST)

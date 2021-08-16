@@ -7,10 +7,10 @@ use Test::More tests => 3;
 my $file = "obs-default-gpg.asc";
 ok(-f "/srv/obs/$file", "Checking file $file");
 
-`grep -q "function create_sign_cert" /usr/lib/obs/server/setup-appliance.sh`;
+`grep -q "function create_sign_cert" /usr/lib/obs/server/functions.setup-appliance.sh`;
 
 SKIP: {
-  skip "create_sign_cert missing in setup-appliance.sh", 2 if $?;
+  skip "create_sign_cert missing in functions.setup-appliance.sh", 2 if $?;
 
   $file = "obs-default-gpg.cert";
   ok(-f "/srv/obs/$file", "Checking for cert file $file");

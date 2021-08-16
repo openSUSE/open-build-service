@@ -8,7 +8,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 plan tests 5
 
-for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
+for i in $(dirname $0)/../functions.setup-appliance.sh /usr/lib/obs/server/functions.setup-appliance.sh;do
 	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
 done
 

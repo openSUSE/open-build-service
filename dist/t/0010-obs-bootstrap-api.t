@@ -8,14 +8,14 @@ export BASH_TAP_ROOT=$(dirname $0)
 . $(dirname $0)/bash-tap-bootstrap
 
 
-if [ -f $(dirname $0)/../setup-appliance.sh ];
+if [ -f $(dirname $0)/../functions.setup-appliance.sh ];
 then
-	. $(dirname $0)/../setup-appliance.sh
+	source $(dirname $0)/../functions.setup-appliance.sh
 else
-  if [ -f /usr/lib/obs/server/setup-appliance.sh ];then
-	. /usr/lib/obs/server/setup-appliance.sh
+  if [ -f /usr/lib/obs/server/functions.setup-appliance.sh ];then
+	source /usr/lib/obs/server/functions.setup-appliance.sh
   else
-    BAIL_OUT "Could not find setup-appliance.sh"
+    BAIL_OUT "Could not find functions.setup-appliance.sh"
   fi
 fi
 
