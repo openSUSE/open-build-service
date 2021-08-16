@@ -1,5 +1,5 @@
-class NodeMatcher #:nodoc:
-  class Conditions < Hash #:nodoc:
+class NodeMatcher # :nodoc:
+  class Conditions < Hash # :nodoc:
     def initialize(hash)
       super()
       hash = { content: hash } unless hash.is_a?(Hash)

@@ -428,7 +428,7 @@ class XpathEngine
         expr.shift # namespace
         a << expr.shift
       when :attribute
-        expr.shift #:qname token
+        expr.shift # :qname token
         expr.shift # namespace
         a << '@' + expr.shift
       when :literal

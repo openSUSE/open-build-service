@@ -35,17 +35,17 @@ class RabbitmqBus
                       rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'], CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
                     else
                       # can't cover due to https://github.com/arempe93/bunny-mock/pull/25
-                      #:nocov:
+                      # :nocov:
                       rabbitmq_channel.default_exchange
-                      #:nocov:
+                      # :nocov:
                     end
   end
 
   # this function is skipped in tests by putting a BunnyMock in self.connection
   def self.start_connection
-    #:nocov:
+    # :nocov:
     self.connection ||= Bunny.new(CONFIG['amqp_options'].try(:symbolize_keys))
-    #:nocov:
+    # :nocov:
   end
   private_class_method :start_connection
 end
