@@ -236,7 +236,7 @@ class Webui::PackageController < Webui::WebuiController
 
     per_page = 20
     revision_count = (params[:rev] || @package.rev).to_i
-    per_page = params['show_all'] ? revision_count : per_page if User.session
+    per_page = revision_count if User.session && params['show_all']
     @revisions = Kaminari.paginate_array((1..revision_count).to_a.reverse).page(params[:page]).per(per_page)
   end
 
