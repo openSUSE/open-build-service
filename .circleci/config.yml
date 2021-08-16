@@ -7,21 +7,21 @@ images:
       NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
 
   - &mariadb
-    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/mariadb:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/mariadb:latest
     command: |
       /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
     name: db
 
-  - &backend registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/backend:latest
+  - &backend registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend:latest
 
   - &frontend_backend
-    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-backend:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-backend:latest
     <<: *common_frontend_config
     environment:
       EAGER_LOAD: 1
 
   - &frontend_base
-    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-base:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
     <<: *common_frontend_config
 
 aliases:
@@ -46,10 +46,28 @@ aliases:
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
 
-  - &store_minitest_artefacts
+  - &store_minitest_artifacts
     store_artifacts:
       path: ./src/api/log/
       destination: minitest
+
+  - &store_minitest_test_results
+    store_test_results:
+      path: /home/frontend/minitest
+
+  - &store_rspec_artifacts
+    store_artifacts:
+      path: ./src/api/log
+      destination: rspec
+
+  - &store_rspec_test_results
+    store_test_results:
+      path: /home/frontend/rspec
+
+  - &store_capybara_artifacts
+    store_artifacts:
+      path: ./src/api/tmp/capybara
+      destination: capybara
 
   - &install_circle_cli
     name: Install CircleCI command line
@@ -71,7 +89,7 @@ jobs:
           name: Install jshint
           command: sudo npm install -g jshint
       - run:
-          name: Run linters
+          name: Run src/api linters
           command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
       - save_cache:
           key: v4-lint-{{ epoch }}
@@ -79,6 +97,10 @@ jobs:
             - src/api/tmp/rubocop_cache_root_dir
             - src/api/tmp/rubocop_cache_rails_dir
       - run: rm -rf src/api/tmp/rubocop*
+      - run:
+          name: Run brakeman
+          # Same brakeman version is pinned in our Dockerfile to have reproducible images (the license forbids us from shipping the gem in our appliance)
+          command: sudo gem install --no-format-executable brakeman --version 5.0.2; brakeman --rails6 -p src/api
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
@@ -88,7 +110,7 @@ jobs:
             - .
 
   rspec:
-    parallelism: 4
+    parallelism: 3
     docker:
       - <<: *frontend_base
       - <<: *mariadb
@@ -115,6 +137,7 @@ jobs:
               circleci tests split --total $((CIRCLE_NODE_TOTAL-1)) --split-by=timings < spec.list > $pickfile
             fi
             bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
+
             # run DB tests at the end of node 0
             # see https://github.com/openSUSE/open-build-service/issues/4959
             if test "$CIRCLE_NODE_INDEX" = 0; then
@@ -131,14 +154,8 @@ jobs:
           root: .
           paths:
             - src/api/coverage_results
-      - store_artifacts:
-          path: ./src/api/log
-          destination: rspec
-      - store_artifacts:
-          path: ./src/api/tmp/capybara
-          destination: capybara
-      - store_test_results:
-          path: /home/frontend/rspec
+      - <<: *store_rspec_artifacts
+      - <<: *store_rspec_test_results
 
   minitest:
     parallelism: 2
@@ -162,7 +179,6 @@ jobs:
             cd src/api
             case $CIRCLE_NODE_INDEX in
               0)
-                bundle exec rake dev:lint:db RAILS_ENV=test
                 bundle exec rake test:api:group1
                 ;;
               1)
@@ -175,9 +191,27 @@ jobs:
           root: .
           paths:
             - src/api/coverage_results
-      - store_test_results:
-          path: /home/frontend/minitest
-      - <<: *store_minitest_artefacts
+      - <<: *store_minitest_test_results
+      - <<: *store_minitest_artifacts
+
+  migrations_test:
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - run: *wait_for_database
+      - run:
+          name: Run migrations
+          command: |
+            cd src/api
+            bundle exec rake db:drop
+            bundle exec rake db:create
+            bundle exec rake db:migrate:with_data
+            bundle exec rake db:seed
 
   spider:
     docker:
@@ -196,7 +230,7 @@ jobs:
             cd src/api
             export BENTO=1
             bundle exec rake test:spider
-      - <<: *store_minitest_artefacts
+      - <<: *store_minitest_artifacts
 
   backend_test:
     docker:
@@ -231,29 +265,56 @@ jobs:
           path: src/api/coverage_results
           destination: raw_coverage
 
-  brakeman:
+  feature:
+    parallelism: 2
     docker:
       - <<: *frontend_base
-
+      - <<: *mariadb
     steps:
       - attach_workspace:
          at: .
-      - run:
-          name: Patch brakeman in
-          command: |
-            sed -i -e 's,# BRAKEMAN,gem "brakeman",' src/api/Gemfile
       - run: *install_dependencies
+      - run: *wait_for_database
+      - run: *create_test_db
+      - run: mkdir /home/frontend/feature
       - run:
-          name: Run brakeman
+          name: Run rspec feature tests
           command: |
             cd src/api
-            brakeman .
+
+            if test "$CIRCLE_NODE_INDEX" = 0; then
+              message="Running feature tests for desktop"
+            else
+              message="Running feature tests for mobile"
+              export CAPYBARA_DRIVER='mobile'
+            fi
+
+            echo $message
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/
+
+            mkdir coverage_results
+            cp -R coverage/.resultset.json coverage_results/resultset-feature-${CIRCLE_NODE_INDEX}.json
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src/api/coverage_results
+      - store_artifacts:
+          path: ./src/api/log
+          destination: feature
+      - <<: *store_capybara_artifacts
+      - store_test_results:
+          path: /home/frontend/feature
+
 
 workflows:
   version: 2
   test_all:
     jobs:
       - checkout_code
+      - migrations_test:
+          requires:
+            - checkout_code
       - backend_test:
           requires:
             - checkout_code
@@ -265,11 +326,14 @@ workflows:
             - checkout_code
       - spider:
           requires:
-            - checkout_code
+            - rspec
+            - minitest
+            - feature
       - coverage:
           requires:
             - rspec
             - minitest
-      - brakeman:
+            - feature
+      - feature:
           requires:
             - checkout_code

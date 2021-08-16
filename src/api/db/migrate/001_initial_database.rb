@@ -281,6 +281,9 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.index ['tag_id'], name: 'tag_id', using: :btree
     end
 
+    create_table 'data_migrations', primary_key: 'version', id: :string, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci', force: :cascade do |t|
+    end
+
     create_table 'delayed_jobs', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.integer  'priority',                 default: 0
       t.integer  'attempts',                 default: 0
