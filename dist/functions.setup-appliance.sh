@@ -470,6 +470,7 @@ function check_recommended_backend_services {
       ask "Service $srv is not enabled. Would you like to enable it? [Yn]" "y"
       case $rv in
         y|yes|Y|YES)
+          logline "Recommended service $srv enabled now!"
           systemctl enable --now $srv
         ;;
       esac
@@ -600,7 +601,15 @@ EOF
         sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
         ENABLE_FORCEPROJECTKEYS=0
     fi
-
+    systemctl is-enabled $OBS_SIGND 2>&1 > /dev/null
+    if [ $? == 0 ];then
+      systemctl is-failed $OBS_SIGND 2>&1 > /dev/null
+      if [ $? == 0 ];then
+        logline "obssignd failed to start. Restarting!"
+        systemctl status $OBS_SIGND # for debugging output
+        systemctl restart $OBS_SIGND
+      fi
+    fi
   fi
 
 }
