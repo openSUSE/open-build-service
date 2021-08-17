@@ -103,67 +103,15 @@ class BranchPackage
     a.save
   end
 
-  def check_for_update_project(p)
-    pkg = p[:package]
-    prj = p[:link_target_project]
-    if pkg.is_a?(Package)
-      logger.debug "Check Package #{p[:package].project.name}/#{p[:package].name}"
-      prj = pkg.project
-      pkg_name = pkg.name
-    else
-      pkg_name = pkg
-      logger.debug "Check package string #{pkg}"
-    end
-    # Check for defined update project
-    update_project = update_project_for_project(prj)
-    return unless update_project
-
-    pa = update_project.packages.find_by(name: pkg_name)
-    if pa
-      # We have a package in the update project already, take that
-      p[:package] = pa
-      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-        p[:link_target_project] = pa.project
-        logger.info "branch call found package in update project #{pa.project.name}"
-      end
-      if p[:link_target_project].find_package(pa.name) != pa
-        # our link target has no project link finding the package.
-        # It got found via update project for example, so we need to use it's source
-        p[:copy_from_devel] = p[:package]
-      end
-    else
-      p[:link_target_project] = update_project unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-      update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
-      if update_pkg
-        # We have no package in the update project yet, but sources are reachable via project link
-        up = update_project.develproject.find_package(pkg_name) if update_project.develproject
-        if defined?(up) && up
-          # nevertheless, check if update project has a devel project which contains an instance
-          p[:package] = up
-          unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-            p[:link_target_project] = up.project unless @copy_from_devel
-          end
-          logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
-        else
-          logger.info "link target will use old update in update project #{prj.name}"
-        end
-      else
-        # The defined update project can't reach the package instance at all.
-        # So we need to create a new package and copy sources
-        params[:missingok] = 1 # implicit missingok or better report an error ?
-        p[:copy_from_devel] = p[:package].find_devel_package if p[:package].is_a?(Package)
-        p[:package] = pkg_name
-      end
-    end
-    # Reset target package name
-    # not yet existing target package
-    p[:target_package] = p[:package]
-    # existing target
-    p[:target_package] = p[:package].name if p[:package].is_a?(Package)
-    # user specified target name
-    p[:target_package] = params[:target_package] if params[:target_package]
-    # extend parameter given
-    p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
+  def check_for_update_project(package_hash)
+    check_for_update = BranchPackage::CheckForUpdate.new(package_hash: package_hash,
+                                                         update_attribute_namespace: @up_attribute_namespace,
+                                                         update_attribute_name: @up_attribute_name,
+                                                         extend_names: @extend_names, copy_from_devel: @copy_from_devel,
+                                                         params: params)
+    check_for_update.check_for_update_project
+    params[:missingok] = 1 if check_for_update.missing_ok?
+    check_for_update.package_hash
   end
 
   def create_branch_packages(tprj)
@@ -508,12 +456,5 @@ class BranchPackage
 
     @up_attribute_namespace = update_project_at[0]
     @up_attribute_name = update_project_at[1]
-  end
-
-  def update_project_for_project(prj)
-    updateprj = prj.update_instance(@up_attribute_namespace, @up_attribute_name)
-    return updateprj if updateprj != prj
-
-    nil
   end
 end
