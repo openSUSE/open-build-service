@@ -28,3 +28,9 @@ exclude_patterns:
   - "docs/api/restility"
   - "src/api/app/assets/javascripts/webui"
   - "src/api/vendor/assets/"
+
+plugins:
+  flog:
+    enabled: true
+    config:
+      score_threshold: 150.0
