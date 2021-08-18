@@ -13,15 +13,15 @@ services:
   backend:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:
-      - .:/obs
-      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
-      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
-      - ./dist/clouduploader.rb:/usr/bin/clouduploader
+      - .:/obs:z
+      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config:Z
+      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf:Z
+      - ./dist/clouduploader.rb:/usr/bin/clouduploader:Z
     command: /obs/contrib/start_development_backend -d /obs
   worker:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:
-      - .:/obs
+      - .:/obs:z
     privileged: true
     depends_on:
       - backend
@@ -35,7 +35,7 @@ services:
       args:
         CONTAINER_USERID: 1000
     volumes:
-      - .:/obs
+      - .:/obs:z
     ports:
       - "3000:3000"
       - "1080:1080"
