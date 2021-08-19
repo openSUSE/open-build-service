@@ -26,7 +26,7 @@
   - if bs_request.accept_at.present?
     %li
       %i.fas.fa-exclamation-circle.text-danger
-      - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state.to_s)
+      - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
         Auto-accept was set to
         %span.fuzzy-time{ title: "#{l bs_request.accept_at}" }
         = succeed '.' do

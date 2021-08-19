@@ -15,7 +15,7 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.type'
   ].freeze
 
-  FINAL_REQUEST_STATES = ['accepted', 'declined', 'superseded', 'revoked'].freeze
+  FINAL_REQUEST_STATES = [:accepted, :declined, :superseded, :revoked].freeze
 
   VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
 
@@ -813,13 +813,14 @@ class BsRequest < ApplicationRecord
   end
 
   def send_state_change
-    intermediate_state = ['new', 'review']
-    return if state_was.to_s == state.to_s
+    return unless state_changed?
     # new->review && review->new are not worth an event - it's just spam
-    return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
+    return unless conclusive?
 
     options = event_parameters
-    options[:duration] = (updated_at - created_at).to_i if conclusive?
+
+    # measure duration unless superseding a final state, like revoked -> superseded
+    options[:duration] = (updated_at - created_at).to_i if FINAL_REQUEST_STATES.exclude?(state_was.to_sym) && FINAL_REQUEST_STATES.include?(state)
 
     Event::RequestStatechange.create(options)
   end
@@ -1000,9 +1001,9 @@ class BsRequest < ApplicationRecord
 
   private
 
+  # returns true if we have reached a state that we can't get out anymore
   def conclusive?
-    # check both because requests in final state can change state to superseded...
-    FINAL_REQUEST_STATES.exclude?(state_was) && FINAL_REQUEST_STATES.include?(state)
+    FINAL_REQUEST_STATES.include?(state)
   end
 
   def action_details(opts = {}, xml:)
