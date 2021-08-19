@@ -1064,6 +1064,7 @@ usermod -a -G docker obsservicerun
 %{_fillupdir}/sysconfig.obs-server
 %endif
 /usr/lib/obs/server/setup-appliance.sh
+/usr/lib/obs/server/functions.setup-appliance.sh
 %{_unitdir}/obsstoragesetup.service
 /usr/sbin/obsstoragesetup
 %if 0%{?suse_version}
