@@ -142,6 +142,7 @@ sub calc_macros {
   my $macros = '';
   $macros .= "%dist $dist\n" if defined $dist;
   $macros .= "%modularitylabel $ml\n";
+  $macros .= "%_module_build 1\n";
   $macros .= "%_module_name $ml[0]\n";
   $macros .= "%_module_stream $ml[1]\n";
   $macros .= "%_module_version $ml[2]\n";
