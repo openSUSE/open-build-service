@@ -1023,12 +1023,14 @@ XmlResult: request
   cancelapproval: reset the approval
 
 Parameters:
+  comment: Comment for the request history
   newstate: Define the new state
   priority: Define the new priority
   by_user: Specify the user of the new review
   by_group: Specify the group of the new review
   by_project: Specify the project of the new review
   by_package: Specify the user of the new review
+  keep_packages_locked: keep packages locked when revoking a maintenance release request
   incident: Specifiy inicdent number for setincident
   time: Specifiy time for setacceptat
 

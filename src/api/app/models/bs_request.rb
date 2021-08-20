@@ -541,13 +541,13 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def changestate_revoked
+  def changestate_revoked(opts)
     bs_request_actions.where(type: 'maintenance_release').find_each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
       if prj.is_locked?
         prj.unlock_by_request(self)
-      else
+      elsif !opts.key?(:keep_packages_locked)
         pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
         pkg.unlock_by_request(self) if pkg.is_locked?
       end
@@ -557,7 +557,7 @@ class BsRequest < ApplicationRecord
   def change_state(opts)
     with_lock do
       permission_check_change_state!(opts)
-      changestate_revoked if opts[:newstate] == 'revoked'
+      changestate_revoked(opts) if opts[:newstate] == 'revoked'
       changestate_accepted(opts) if opts[:newstate] == 'accepted'
 
       state = opts[:newstate].to_sym
