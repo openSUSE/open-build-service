@@ -1858,20 +1858,20 @@ XmlResult: redirect_stats
 <limit>: limit count of messages. optional, defaults to unlimited.
 
 
-GET /status/message/<id>
+GET /status/messages/<id>
   Get a the status message that matches <id>.
 XmlResult: status_message
 
-GET /status/message/?limit=<limit>
+GET /status/messages/?limit=<limit>
   Get a list of status messages.
 XmlResult: status_messages
 
-POST /status/message/
+POST /status/messages/
   Send a new status message to the build service. User needs to have
   appropriate permissions.
 XmlResult: status_message
 
-DELETE /status/message/<id>
+DELETE /status/messages/<id>
   Delete a status message. User needs to have appropriate permissions.
 
 
