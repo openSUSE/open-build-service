@@ -6,8 +6,7 @@ services:
       dockerfile: docker-files/Dockerfile.minitest
       context: src/api
     volumes:
-      - .:/obs
+      - .:/obs:z
     depends_on:
       - db
       - cache
-

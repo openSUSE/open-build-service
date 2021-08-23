@@ -3,7 +3,7 @@ services:
   proxy:
     image: haproxy:1.7
     volumes:
-      - ./contrib/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./contrib/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:Z,ro
     ports:
       - "8080:80"
       - "32700:32700"
@@ -15,9 +15,9 @@ services:
     environment:
       - NODE_NUMBER=2
     volumes:
-      - .:/obs
-      - ./contrib/thinking_sphinx.yml.ha:/obs/src/api/config/thinking_sphinx.yml:ro
-      - ./contrib/Procfile.ha:/obs/src/api/Procfile
+      - .:/obs:z
+      - ./contrib/thinking_sphinx.yml.ha:/obs/src/api/config/thinking_sphinx.yml:Z,ro
+      - ./contrib/Procfile.ha:/obs/src/api/Procfile:z
     ports:
       - "3001:3000"
       - "1081:1080"

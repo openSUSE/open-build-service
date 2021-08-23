@@ -8,8 +8,8 @@ services:
       - INFLUXDB_READ_USER=grafana
       - INFLUXDB_READ_USER_PASSWORD=grafana
     volumes:
-      - ./contrib/influxdb-init.iql:/docker-entrypoint-initdb.d/influxdb-init.iql:ro
-      - influxdata:/var/lib/influxdb
+      - ./contrib/influxdb-init.iql:/docker-entrypoint-initdb.d/influxdb-init.iql:Z,ro
+      - influxdata:/var/lib/influxdb:Z
   grafana:
     image: grafana/grafana:7.1.1
     ports:
@@ -17,8 +17,8 @@ services:
     depends_on:
       - influx
     volumes:
-      - grafanadata:/var/lib/grafana
-      - ./contrib/grafana-datasource.yml:/etc/grafana/provisioning/datasources/grafana-datasource.yml:ro
+      - grafanadata:/var/lib/grafana:Z
+      - ./contrib/grafana-datasource.yml:/etc/grafana/provisioning/datasources/grafana-datasource.yml:Z,ro
   rabbit:
     image: rabbitmq:3-management
     ports:
@@ -32,14 +32,14 @@ services:
       timeout: 15s
       retries: 5
     volumes:
-      - rabbitdata:/var/lib/rabbitmq
+      - rabbitdata:/var/lib/rabbitmq:Z
   telegraf:
     image: telegraf
     depends_on:
       rabbit:
         condition: service_healthy
     volumes:
-      - ./contrib/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./contrib/telegraf.conf:/etc/telegraf/telegraf.conf:Z,ro
 volumes:
   influxdata:
   grafanadata:
