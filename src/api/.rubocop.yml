@@ -217,6 +217,9 @@ Style/StringLiterals:
 
 ##################### Metrics ##################################
 
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
 # Disabled due Rspec.describe and routes.draw can't be split
 Metrics/BlockLength:
   Exclude:
