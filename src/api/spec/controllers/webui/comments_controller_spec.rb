@@ -13,23 +13,24 @@ RSpec.describe Webui::CommentsController, type: :controller do
     let(:bs_request) { create(:set_bugowner_request) }
 
     context 'with invalid commentable_type' do
+      subject! { post :create, params: comment_params }
+
       let(:comment_params) do
         { comment: { body: 'This is AWESOME!' }, commentable_type: 'FOOBAR', commentable_id: 31_337 }
       end
 
-      subject { post :create, params: comment_params }
-
-      it { expect(subject.request.flash[:success]).to be_nil }
-      it { expect(subject.request.flash[:error]).not_to(be_nil) }
-      it { expect(subject).to redirect_to(root_path) }
+      it 'fails to create a comment' do
+        expect(flash[:error]).to eq('Invalid commentable FOOBAR supplied.')
+      end
     end
 
     context 'with a valid comment' do
+      subject! { post :create, params: comment_params }
+
       RSpec.shared_examples 'saving a comment' do
-        before do
-          params = { comment: { body: "This #{commentable.model_name.singular} is AWESOME!" },
-                     commentable_type: commentable.class, commentable_id: commentable.id }
-          post :create, params: params
+        let(:comment_params) do
+          { comment: { body: "This #{commentable.model_name.singular} is AWESOME!" },
+            commentable_type: commentable.class, commentable_id: commentable.id }
         end
 
         it { expect(flash[:success]).to eq('Comment created successfully.') }
@@ -55,20 +56,61 @@ RSpec.describe Webui::CommentsController, type: :controller do
       end
     end
 
-    context 'saving a comment without body' do
-      before do
-        params = { comment: { body: '' }, commentable_type: package.class, commentable_id: package.id }
-        post :create, params: params
+    context 'with a commentable that does not exist' do
+      subject! { post :create, params: comment_params }
+
+      context 'of a project' do
+        let(:commentable) { project }
+        let(:comment_params) do
+          { comment: { body: 'This project is AWESOME!' },
+            commentable_type: commentable.class, commentable_id: -commentable.id }
+        end
+
+        it { expect(flash[:error]).to eq('Failed to create comment: This project does not exist anymore.') }
+        it { expect(package.comments.count).to eq(0) }
       end
+
+      context 'of a package' do
+        let(:commentable) { package }
+        let(:comment_params) do
+          { comment: { body: 'This package is AWESOME!' },
+            commentable_type: commentable.class, commentable_id: -commentable.id }
+        end
+
+        it { expect(flash[:error]).to eq('Failed to create comment: This package does not exist anymore.') }
+        it { expect(package.comments.count).to eq(0) }
+      end
+
+      context 'of a bs_request' do
+        let(:commentable) { bs_request }
+        let(:comment_params) do
+          { comment: { body: 'This bs_request is AWESOME!' },
+            commentable_type: commentable.class, commentable_id: -commentable.id }
+        end
+
+        it { expect(flash[:error]).to eq('Failed to create comment: This bsrequest does not exist anymore.') }
+        it { expect(package.comments.count).to eq(0) }
+      end
+    end
+
+    context 'saving a comment without body' do
+      let(:comment_params) do
+        { comment: { body: '' }, commentable_type: package.class, commentable_id: package.id }
+      end
+
+      subject! { post :create, params: comment_params }
 
       it { expect(flash[:error]).to eq("Failed to create comment: Body can't be blank.") }
       it { expect(package.comments.count).to eq(0) }
     end
 
     context "does not allow to overwrite the comment's user" do
+      let(:comment_params) { { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id } }
+
+      subject { post :create, params: comment_params }
+
       it 'raises an error' do
-        params = { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id }
-        expect { post :create, params: params }.to raise_error(ActionController::UnpermittedParameters)
+        expect { subject }.to raise_error(ActionController::UnpermittedParameters)
       end
     end
   end
@@ -267,11 +309,10 @@ RSpec.describe Webui::CommentsController, type: :controller do
         { comment: { body: 'This is AWESOME!' }, commentable_type: 'FOOBAR', commentable_id: 31_337 }
       end
 
-      subject { post :create, params: comment_params }
-
-      it { expect(subject.request.flash[:success]).to be_nil }
-      it { expect(subject.request.flash[:error]).not_to(be_nil) }
-      it { expect(subject).to redirect_to(root_path) }
+      it 'fails to create a comment' do
+        post :create, params: comment_params
+        expect(flash[:error]).to eq('Invalid commentable FOOBAR supplied.')
+      end
     end
 
     context 'with a valid comment' do
