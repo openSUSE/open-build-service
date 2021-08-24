@@ -303,6 +303,7 @@ our $productdesc = [
             'use_suggested',
             'use_required',
             'use_undecided', # take all packages, even the ungrouped ones
+            'use_newest_version', # rpm version compare instead of repository priority
             'allow_overflow',
             'next_media_in_set',
             'separate',
