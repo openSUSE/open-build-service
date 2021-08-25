@@ -32,7 +32,7 @@ use warnings;
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-my $maxredirects = 3;
+my $maxredirects = 10;
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);

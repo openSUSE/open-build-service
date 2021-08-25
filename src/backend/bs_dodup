@@ -93,7 +93,7 @@ sub fetch {
   my ($url, $peerfp, $timeout, $filename, $withmd5) = @_;
   my $param = {
     'uri' => $url,
-    'maxredirects' => 5,
+    'maxredirects' => 10,
   };
   $param->{'withmd5'} = 1 if $withmd5;
   $param->{'sslpeerfingerprint'} = $peerfp if $peerfp;
