@@ -12,7 +12,7 @@ class TasksMaintenanceRequestsDatatable < Datatable
       project: {},
       package: {},
       issues: {},
-      actions: {}
+      actions: { searchable: false }
     }
   end
 
