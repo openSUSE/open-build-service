@@ -7,7 +7,7 @@ class UserConfigurationDatatable < Datatable
       name: { source: 'User.login' },
       local_user: { source: 'User.ignore_auth_services', searchable: false },
       state: { source: 'User.state' },
-      actions: {}
+      actions: { searchable: false }
     }
   end
 
