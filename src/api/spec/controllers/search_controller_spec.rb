@@ -90,21 +90,6 @@ RSpec.describe SearchController, vcr: true do
     let(:name) { 'Maintained' }
     let(:namespace) { 'OBS' }
 
-    context 'attributes exist' do
-      subject! { get :attribute, params: { namespace: namespace, name: name } }
-
-      it_behaves_like 'find attribute'
-    end
-
-    context 'project has attribute' do
-      let(:new_project) { create(:project, name: 'Foo') }
-      let!(:attrib) { create(:maintained_attrib, project: project) }
-
-      subject! { get :attribute, params: { namespace: namespace, name: name, project: new_project } }
-
-      it_behaves_like 'find attribute'
-    end
-
     context 'search project by attribute' do
       let(:project) { create(:project, name: 'Foo') }
       let!(:attrib) { create(:maintained_attrib, project: project) }

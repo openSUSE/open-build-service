@@ -57,14 +57,6 @@ class SearchController < ApplicationController
     search(:released_binary, false)
   end
 
-  def attribute
-    unless params[:namespace] && params[:name]
-      render_error status: 400, message: 'need namespace and name parameter'
-      return
-    end
-    find_attribute(params[:namespace], params[:name])
-  end
-
   def missing_owner
     params[:limit] ||= '0' # unlimited by default
 
@@ -206,61 +198,6 @@ class SearchController < ApplicationController
 
     output << '</collection>'
     render xml: output
-  end
-
-  # specification of this function:
-  # supported paramters:
-  # namespace: attribute namespace (required string)
-  # name: attribute name  (required string)
-  # project: limit search to project name (optional string)
-  # package: limit search to package name (optional string)
-  # ignorevalues: do not output attribute values (optional boolean)
-  # withproject: output project defaults if no value set for package (optional boolean)
-  #              such values also map against value paramter if given
-  # value: limit search to attributes with value (optional string)
-  # value_substr: limit search to attributes that match value substring (optional string)
-  #
-  # output: XML <attribute namespace name><project name>values? packages?</project></attribute>
-  #         with packages = <package name>values?</package>
-  #          and values   = <values>value+</values>
-  #          and value    = <value>CDATA</value>
-  def find_attribute(namespace, name)
-    attrib = AttribType.find_by_namespace_and_name!(namespace, name)
-
-    # gather the relation for attributes depending on project/package combination
-    attribs = find_attribs(attrib, params[:project], params[:package])
-    # get the values associated with the attributes and store them
-    attribs = attribs.pluck(:id, :package_id)
-    values = AttribValue.where(attrib_id: attribs.collect { |a| a[0] })
-    attrib_values = group_attribute_values_by_attrib_id(values)
-    # retrieve the package name and project for the attributes
-    packages = Package.where('packages.id' => attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
-    pack2attrib = {}
-    attribs.each do |attrib_id, pkg|
-      pack2attrib[pkg] = attrib_id
-    end
-    packages.sort! { |x, y| x[0] <=> y[0] }
-    projects = Project.where(id: packages.collect { |p| p[2] }).distinct.pluck(:id, :name)
-    builder = Builder::XmlMarkup.new(indent: 2)
-    xml = builder.attribute(namespace: namespace, name: name) do
-      projects.each do |prj_id, prj_name|
-        builder.project(name: prj_name) do
-          packages.each do |pkg_id, pkg_name, pkg_prj|
-            next if pkg_prj != prj_id
-
-            builder.package(name: pkg_name) do
-              values = attrib_values[pack2attrib[pkg_id]]
-              unless values.nil?
-                builder.values do
-                  values.each { |v| builder.value(v.value) }
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    render xml: xml
   end
 
   private

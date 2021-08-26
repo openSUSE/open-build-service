@@ -9,52 +9,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     reset_auth
   end
 
-  def test_search_unknown
-    get '/search/attribute?namespace=OBS&name=FailedCommend'
-    assert_response 401
-
-    login_Iggy
-    get '/search/attribute?namespace=OBS&name=FailedCommend'
-    assert_response 404
-    assert_select 'status[code] > summary', /Attribute Type OBS:FailedCommend does not exist/
-  end
-
-  def test_search_one_maintained_package
-    get '/search/attribute?namespace=OBS&name=Maintained'
-    assert_response 401
-
-    login_Iggy
-    get '/search/attribute?namespace=OBS&name=Maintained'
-    assert_response :success
-    assert_xml_tag tag: 'attribute', attributes: { name: 'Maintained', namespace: 'OBS' }, children: { count: 1 }
-    assert_xml_tag child: { tag: 'project', attributes: { name: 'Apache' }, children: { count: 1 } }
-    assert_xml_tag child: { child: { tag: 'package', attributes: { name: 'apache2' }, children: { count: 0 } } }
-  end
-
-  # there are 4 different code paths
-  def test_different_parameters_for_search_attribute
-    login_Iggy
-    get '/search/attribute?namespace=OBS&name=Maintained&project=home:Iggy'
-    assert_response :success
-    assert_xml_tag tag: 'attribute', children: { count: 0 }
-
-    get '/search/attribute?namespace=OBS&name=Maintained&project=Apache&package=apache2'
-    assert_response :success
-    assert_xml_tag tag: 'attribute', children: { count: 1 }
-
-    get '/search/attribute?namespace=OBS&name=Maintained&package=pack2'
-    assert_response :success
-    assert_xml_tag tag: 'attribute', children: { count: 0 }
-
-    get '/search/attribute?namespace=OBS&name=Maintained&package=apache2'
-    assert_response :success
-    assert_xml_tag tag: 'attribute', children: { count: 1 }
-
-    get '/search/attribute?namespace=OBS&name=Maintained'
-    assert_response :success
-    assert_xml_tag tag: 'attribute', children: { count: 1 }
-  end
-
   def test_xpath_1
     login_Iggy
     get '/search/package', params: { match: '[@name="apache2"]' }

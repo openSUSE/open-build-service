@@ -143,7 +143,6 @@ OBSApi::Application.routes.draw do
       match 'search/project' => :project, via: [:get, :post]
       match 'search/package' => :package, via: [:get, :post]
       match 'search/person' => :person, via: [:get, :post]
-      match 'search/attribute' => :attribute, via: [:get, :post]
       match 'search/owner' => :owner, via: [:get, :post]
       match 'search/missing_owner' => :missing_owner, via: [:get, :post]
       match 'search/request' => :bs_request, via: [:get, :post]
