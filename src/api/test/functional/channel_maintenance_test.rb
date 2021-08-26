@@ -129,6 +129,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{id1}?cmd=changestate&newstate=accepted"
     assert_response :success
 
+    get '/search/request', params: { match: 'history/@when>="2021-08-26"' }
+    assert_response :success
+    assert_xml_tag tag: 'request', attributes: { id: '1042' }
+
     get "/request/#{id1}"
     assert_response :success
     data = REXML::Document.new(@response.body)
