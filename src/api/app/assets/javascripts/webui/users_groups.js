@@ -5,6 +5,7 @@ function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:li
       pageLength: 50,
       columns: [
         { 'data': 'name' },
+        { 'data': 'realname', 'visible': false },
         { 'data': 'local_user', 'visible': ldapEnabled === 'true' },
         { 'data': 'state'},
         { 'data': 'actions', 'orderable': false, 'searchable': false }

@@ -5,6 +5,7 @@ class UserConfigurationDatatable < Datatable
   def view_columns
     @view_columns ||= {
       name: { source: 'User.login' },
+      realname: { source: 'User.realname' },
       local_user: { source: 'User.ignore_auth_services', searchable: false },
       state: { source: 'User.state' },
       actions: { searchable: false }
@@ -21,6 +22,7 @@ class UserConfigurationDatatable < Datatable
     records.map do |record|
       {
         name: user_with_realname_and_icon(record),
+        realname: record.realname,
         local_user: record.ignore_auth_services,
         state: record.state,
         actions: user_actions(record)
