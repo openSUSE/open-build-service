@@ -81,6 +81,7 @@ function use_codemirror(id, read_only, mode, big_editor) {
       var data = textarea.data('data');
       data[data['submit']] = editors[id].getValue();
       data['comment'] = $("#comment_" + id).val();
+      $(this).prop('disabled', true);
       $("#loading_" + id).attr('disabled', true).removeClass("d-none");
       $.ajax({
         url: textarea.data('save-url'),
