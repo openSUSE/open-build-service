@@ -753,6 +753,10 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
       # classic ix86 and x86_64
       my @cpuflags = split(' ', $1);
       $hw->{'cpu'}->{'flag'} = \@cpuflags;
+    } elsif (/^features\s*:\s(.*)$/) {
+      # s390 Z-System
+      my @cpuflags = split(' ', $1);
+      $hw->{'cpu'}->{'flag'} = \@cpuflags;
     } elsif (/^Features\s*:\s(.*)$/) {
       # aarch64
       my @cpuflags = split(' ', $1);
