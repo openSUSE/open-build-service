@@ -43,11 +43,10 @@ Lint/MissingCopEnableDirective:
     - 'test/functional/maintenance_test.rb'
     - 'test/functional/request_controller_test.rb'
 
-# Offense count: 3
+# Offense count: 2
 Lint/MissingSuper:
   Exclude:
     - 'app/lib/backend/remember_location.rb'
-    - 'app/presenters/repositories/state_presenter.rb'
     - 'app/queries/open_requests_with_project_as_source_or_target_finder.rb'
 
 # Offense count: 4

@@ -6,7 +6,7 @@
     %h3
       State of Repository #{@repository} for #{@project}
     %p
-      = render partial: 'webui/shared/download_repository_link', locals: { presenter: @state_presenter }
+      = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
     %h4 Build Dependency Cycles
     - @repository.architectures.each do |arch|
       - cycles = @repository.cycles(arch.name)
