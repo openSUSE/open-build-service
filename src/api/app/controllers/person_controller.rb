@@ -15,6 +15,8 @@ class PersonController < ApplicationController
   def show
     @list = if params[:prefix]
               User.where('login LIKE ?', params[:prefix] + '%')
+            elsif params[:email]
+              User.where(:email => params[:email])
             else
               User.all
             end
