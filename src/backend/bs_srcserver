@@ -1290,6 +1290,13 @@ sub getprojpack {
       }
     }
 
+    if ($cgi->{'buildinfo'} && @packages && !grep {$_ eq 'modulemd'} @packages) {
+      if (readpackage($projid, $proj, 'modulemd', undef, 1)) {
+	push @packages, 'modulemd';
+	$packids->{'modulemd'} = 1 if $packids;
+      }
+    }
+
     my %packages_multibuild;
     for my $packid (@packages) {
       next unless $packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):/;

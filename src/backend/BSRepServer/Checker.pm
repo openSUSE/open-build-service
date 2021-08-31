@@ -25,6 +25,7 @@ use strict;
 
 use BSRepServer::Remote;
 
+use BSSched::Modulemd;
 use BSSched::BuildJob;
 use BSSched::BuildJob::Package;
 use BSSched::BuildJob::KiwiImage;
@@ -74,6 +75,27 @@ sub append_info_path {
   return 1;
 }
 
+sub setup_modulemd {
+  my ($ctx, $modulemdpackid, $pdata) = @_;
+  my $modulemd = $pdata->{'modulemd'};
+  die("$modulemdpackid: not a modulemd package\n") unless $modulemd;
+  my $bconf = $ctx->{'conf'};
+  my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd) || {};
+  die("cannot build this module\n") unless $dependency;
+  my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
+  die(join(', ', @$errors)."\n") if $errors;
+  my $ml = BSSched::Modulemd::calc_modularitylabel($bconf, $modulemd, $dependency->{'requires'} || []);
+  die("modularitylabel calculation failed\n") unless $ml;
+  my @ml = split(':', $ml, 4);
+  $ctx->{'modularity_label'} = $ml;
+  $ctx->{'modularity_package'} = $modulemdpackid;
+  $ctx->{'modularity_srcmd5'} = $pdata->{'srcmd5'};
+  $ctx->{'modularity_meta'} = Digest::MD5::md5_hex("$ml[0]:$ml[1]:$ml[3]:$pdata->{'srcmd5'}")."  $ctx->{'modularity_package'}";
+  $ctx->{'modularity_extramacros'} = $modulemd->{'macros'} if $modulemd->{'macros'};
+  $ctx->{'modularity_platform'} = $bconf->{'buildflags:modulemdplatform'};
+  $ctx->{'modularity_distindex'} = $modulemd->{'distindex'} if $modulemd->{'distindex'};
+}
+
 sub setup {
   my ($ctx) = @_;
 
@@ -96,6 +118,8 @@ sub setup {
     my $bconf_host = $ctx->getconfig($projid, $repoid, $crosshostarch, $ctx->{'prpsearchpath_host'});
     $ctx->{'conf_host'} = $bconf_host;
   }
+  my $pdatas = $projpacks->{$projid}->{'package'};
+  setup_modulemd($ctx, 'modulemd', $pdatas->{'modulemd'}) if $pdatas->{'modulemd'} && $pdatas->{'modulemd'}->{'modulemd'};
 }
 
 sub depstotestcaseformat {
