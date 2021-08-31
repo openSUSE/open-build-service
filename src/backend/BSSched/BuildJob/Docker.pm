@@ -151,6 +151,8 @@ sub check {
     if (!$annotation && !$haveobsrepositories) {
       # no annotation, assume obsrepositories:/
       push @newpath, {'project' => '_obsrepositories', 'repository' => ''};
+      $annotation = { 'repo' => [ { 'url' => 'obsrepositories:/' } ] };
+      $lastbdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) if $lastbdep;
     } elsif ($annotation && !$haveobsrepositories) {
       # map all repos and add to path
       my $remoteprojs = $gctx->{'remoteprojs'} || {};
