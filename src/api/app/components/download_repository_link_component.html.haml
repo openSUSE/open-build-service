@@ -1,6 +1,6 @@
-- if presenter.published_repository_exist
+- if @published_repository_exist
   %li.list-inline-item
-    = link_to(presenter.download_area_url, title: 'Go to download repository', class: 'nav-link') do
+    = link_to(@download_area_url, title: 'Go to download repository', class: 'nav-link') do
       %i.fas.fa-download
       Go to download repository
 - else
