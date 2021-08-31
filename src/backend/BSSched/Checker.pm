@@ -423,6 +423,7 @@ sub setup {
     $ctx->{'modularity_meta'} = Digest::MD5::md5_hex("$ml[0]:$ml[1]:$ml[3]:$pdata->{'srcmd5'}")."  $ctx->{'modularity_package'}";
     $ctx->{'modularity_extramacros'} = $modulemd->{'macros'} if $modulemd->{'macros'};
     $ctx->{'modularity_platform'} = $bconf->{'buildflags:modulemdplatform'};
+    $ctx->{'modularity_distindex'} = $modulemd->{'distindex'} if $modulemd->{'distindex'};
   }
 
   return ('scheduling', undef);

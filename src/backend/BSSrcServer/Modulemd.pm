@@ -77,6 +77,7 @@ sub parse_modulemd {
   $r->{'stream'} = assert_str($d->{'stream'}, 'stream');
   $r->{'version'} = assert_str($d->{'version'}, 'version') if defined $d->{'version'};
   $r->{'context'} = assert_str($d->{'context'}, 'context') if defined $d->{'context'};
+  $r->{'distindex'} = assert_str($d->{'distindex'}, 'distindex') if defined $d->{'distindex'};
   $d->{'dependencies'} = [ $d->{'dependencies'} ] if ref($d->{'dependencies'}) eq 'HASH';
   for my $dd (@{$d->{'dependencies'} || []}) {
     die("dependency block must be hash\n") unless ref($dd) eq 'HASH';
@@ -111,7 +112,6 @@ sub tostream {
     die("unsupported md version\n");
   }
   $md = $md->{'data'};
-  return unless $md->{'dependencies'};
   my ($versionprefix, $distprefix, @distprovides) = split(':', $modularityplatform);
   my %distprovides = map {$_ => 1} @distprovides;
   for (@distprovides) {
@@ -169,6 +169,7 @@ sub tostream {
   }
   die("could not select dependency block\n") unless $newdeps;
   $md->{'dependencies'} = [ $newdeps ];
+  delete $md->{'distindex'};
   my @l = split(':', $modularitylabel);
   $md->{'name'} = $l[0];
   $md->{'stream'} = $l[1];

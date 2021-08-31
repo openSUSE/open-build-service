@@ -125,20 +125,20 @@ sub extend_modules {
 }
 
 sub calc_dist {
-  my ($bconf, $ml, $bcnt) = @_;
+  my ($bconf, $ml, $distindex) = @_;
   my $pfdata = $bconf->{'buildflags:modulemdplatform'};
   return undef unless $pfdata;
   my ($versionprefix, $distprefix) = split(':', $pfdata);
   return undef unless $distprefix;
   my $ml_x = $ml;
   $ml_x =~ s/:/./g;
-  return "$distprefix+$bcnt+".substr(Digest::SHA::sha1_hex($ml_x), 0, 8);
+  return "$distprefix+$distindex+".substr(Digest::SHA::sha1_hex($ml_x), 0, 8);
 }
 
 sub calc_macros {
-  my ($bconf, $ml, $bcnt, $extramacros) = @_;
+  my ($bconf, $ml, $distindex, $extramacros) = @_;
   my @ml = split(':', $ml, 4);
-  my $dist = calc_dist($bconf, $ml, $bcnt);
+  my $dist = calc_dist($bconf, $ml, $distindex);
   my $macros = '';
   $macros .= "%dist $dist\n" if defined $dist;
   $macros .= "%modularitylabel $ml\n";

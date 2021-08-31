@@ -308,6 +308,7 @@ our $modulemd = [
 	'version',
 	'context',
 	'timestamp',
+	'distindex',
 	[],
 	'macros',
      [[ 'dependency' =>
