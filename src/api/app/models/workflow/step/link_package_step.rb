@@ -7,7 +7,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
     workflow_filters = options.fetch(:workflow_filters, {})
 
     # Updated PR
-    if validator.updated_pull_request? && target_package.present?
+    if scm_webhook.updated_pull_request? && target_package.present?
       update_subscriptions(target_package, workflow_filters)
     else # New PR
       create_target_package
@@ -89,7 +89,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
       workflow_architectures(repository, workflow_filters).each do |architecture|
         # We cannot report multibuild flavors here... so they will be missing from the initial report
         SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
-                              scm_extractor_payload, @token.scm_token).call
+                              scm_webhook.payload, @token.scm_token).call
       end
     end
   end

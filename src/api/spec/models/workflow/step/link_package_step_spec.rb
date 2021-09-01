@@ -7,7 +7,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
 
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_extractor_payload: scm_extractor_payload,
+                        scm_webhook: scm_webhook,
                         token: token)
   end
 
@@ -165,15 +165,15 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
 
     context 'when the SCM is GitHub' do
       let(:commit_sha) { '123' }
-      let(:scm_extractor_payload) do
-        {
-          scm: 'github',
-          event: 'pull_request',
-          action: action,
-          pr_number: 1,
-          source_repository_full_name: 'reponame',
-          commit_sha: commit_sha
-        }
+      let(:scm_webhook) do
+        ScmWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'pull_request',
+                         action: action,
+                         pr_number: 1,
+                         source_repository_full_name: 'reponame',
+                         commit_sha: commit_sha
+                       })
       end
 
       context "but we don't provide source_project" do
@@ -240,15 +240,15 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
 
     context 'when the SCM is GitLab' do
       let(:commit_sha) { '123' }
-      let(:scm_extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Merge Request Hook',
-          action: action,
-          pr_number: 1,
-          source_repository_full_name: 'reponame',
-          commit_sha: commit_sha
-        }
+      let(:scm_webhook) do
+        ScmWebhook.new(payload: {
+                         scm: 'gitlab',
+                         event: 'Merge Request Hook',
+                         action: action,
+                         pr_number: 1,
+                         source_repository_full_name: 'reponame',
+                         commit_sha: commit_sha
+                       })
       end
 
       context "but we don't provide source_project" do

@@ -1,8 +1,8 @@
 module Workflows
   class YAMLToWorkflowsService
-    def initialize(yaml_file:, scm_extractor_payload:, token:)
+    def initialize(yaml_file:, scm_webhook:, token:)
       @yaml_file = yaml_file
-      @scm_extractor_payload = scm_extractor_payload
+      @scm_webhook = scm_webhook
       @token = token
     end
 
@@ -20,7 +20,7 @@ module Workflows
       end
 
       parsed_workflows_yaml
-        .map { |_workflow_name, workflow_instructions| Workflow.new(workflow_instructions: workflow_instructions, scm_extractor_payload: @scm_extractor_payload, token: @token) }
+        .map { |_workflow_name, workflow_instructions| Workflow.new(workflow_instructions: workflow_instructions, scm_webhook: @scm_webhook, token: @token) }
         .select(&:valid?)
     end
   end

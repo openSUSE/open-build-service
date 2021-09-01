@@ -8,12 +8,11 @@ class Token::Workflow < Token
   def call(options)
     raise ArgumentError, 'A payload is required' if options[:payload].nil?
 
-    extractor = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload])
-    return unless extractor.allowed_event_and_action?
+    scm_webhook = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload]).call
+    return unless scm_webhook.valid?
 
-    scm_extractor_payload = extractor.call
-    yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload, token: self).call
-    workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload, token: self).call
+    yaml_file = Workflows::YAMLDownloader.new(scm_webhook.payload, token: self).call
+    workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: self).call
     workflows.each do |workflow|
       workflow.steps.each do |step|
         step.call({ workflow_filters: workflow.filters })

@@ -1,6 +1,5 @@
 class WorkflowStepsValidator < ActiveModel::Validator
   def validate(record)
-    @scm_extractor_payload = record.scm_extractor_payload
     @workflow = record
 
     valid_steps?
