@@ -54,7 +54,7 @@ class EventSubscription
       receivers.each do |receiver|
         case receiver
         when User
-          new_receivers << receiver
+          new_receivers << receiver if receiver.is_active?
 
         when Group
 

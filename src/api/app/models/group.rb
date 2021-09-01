@@ -140,7 +140,7 @@ class Group < ApplicationRecord
 
   # returns the users that actually want email for this group's notifications
   def email_users
-    User.where(id: groups_users.where(email: true).select(:user_id))
+    User.where(id: groups_users.where(email: true).select(:user_id), state: 'confirmed')
   end
 
   def display_name
