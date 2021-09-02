@@ -186,6 +186,23 @@ sub addurltopath {
   }
 }
 
+sub getmodulemddata {
+  my ($buildinfo) = @_;
+  my @args;
+  push @args, "project=$buildinfo->{'project'}";
+  push @args, "package=$buildinfo->{'modularity_package'}";
+  push @args, "srcmd5=$buildinfo->{'modularity_srcmd5'}";
+  push @args, "arch=$buildinfo->{'arch'}";
+  push @args, map {"module=$_"} @{$buildinfo->{'module'}};
+  push @args, "modularityplatform=$buildinfo->{'modularity_platform'}";
+  push @args, "modularitylabel=$buildinfo->{'modularity_label'}";
+  push @args, "view=yaml";
+  return BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/getmodulemd",
+    'timeout' => 300,
+  }, undef, @args);
+}
+
 sub fixupbuildinfo {
   my ($ctx, $binfo, $info) = @_;
 
@@ -208,6 +225,7 @@ sub fixupbuildinfo {
   my %preimghdrmd5s = map {delete($_->{'preimghdrmd5'}) => 1} grep {$_->{'preimghdrmd5'}} @{$binfo->{'bdep'}};
   addpreinstallimg($ctx, $binfo, \%preimghdrmd5s);
   $binfo->{'expanddebug'} = ${$ctx->{'expanddebug'}} if $ctx->{'expanddebug'};
+  $binfo->{'modularity_yaml'} = getmodulemddata($binfo) if $binfo->{'modularity_label'};
 }
 
 1;

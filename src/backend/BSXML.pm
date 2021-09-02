@@ -637,6 +637,7 @@ our $buildinfo = [
         'modularity_label',
         'modularity_platform',
         'modularity_meta',
+        'modularity_yaml',	# external
 
       [ 'preinstallimage' =>
 	    'project',

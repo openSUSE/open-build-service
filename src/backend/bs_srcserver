@@ -5897,8 +5897,19 @@ sub getmodulemd {
   for my $md (@$mds) {
     next unless $md->{'document'} eq 'modulemd';
     BSSrcServer::Modulemd::tostream($md, $cgi->{'modules'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
+    $md->{'data'}->{'arch'} = $cgi->{'arch'} if $cgi->{'arch'};
   }
-  return (BSUtil::tostorable($mds), 'Content-Type: application/octet-stream');
+  my $view = $cgi->{'view'} || 'storable';
+  if ($view eq 'yaml') {
+    require Build::Modulemd;
+    my $yaml = '';
+    $yaml .= Build::Modulemd::mdtoyaml($_) for @$mds;
+    return ($yaml, 'Content-Type: application/octet-stream');
+  } elsif ($view eq 'storable') {
+    return (BSUtil::tostorable($mds), 'Content-Type: application/octet-stream');
+  } else {
+    die("unknown view '$view'\n");
+  }
 }
 
 ####################################################################
@@ -7231,7 +7242,7 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaryversions,
   '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
-  '/getmodulemd $project $package $srcmd5:md5 module* modularityplatform: modularitylabel:' => \&getmodulemd,
+  '/getmodulemd $project $package $srcmd5:md5 module* modularityplatform: modularitylabel: arch? view:?' => \&getmodulemd,
 
   # publisher/signer calls
   '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,
