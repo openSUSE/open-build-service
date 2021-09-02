@@ -2,9 +2,9 @@ class Workflow
   include ActiveModel::Model
 
   SUPPORTED_STEPS = {
-    'branch_package' => Workflow::Step::BranchPackageStep,
-    'link_package' => Workflow::Step::LinkPackageStep,
-    'configure_repositories' => Workflow::Step::ConfigureRepositories
+    branch_package: Workflow::Step::BranchPackageStep,
+    link_package: Workflow::Step::LinkPackageStep,
+    configure_repositories: Workflow::Step::ConfigureRepositories
   }.freeze
 
   SUPPORTED_FILTERS = [:architectures, :repositories].freeze
@@ -13,11 +13,10 @@ class Workflow
 
   attr_accessor :workflow_instructions, :scm_extractor_payload, :token
 
-  # Overwriting the initializer is needed to set `with_indifferent_access`
-  def initialize(workflow_instructions:, scm_extractor_payload:, token:)
-    @workflow_instructions = workflow_instructions.with_indifferent_access
-    @scm_extractor_payload = scm_extractor_payload.with_indifferent_access
-    @token = token
+  def initialize(attributes = {})
+    super
+    @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
+    @scm_extractor_payload = attributes[:scm_extractor_payload].deep_symbolize_keys
   end
 
   validates_with WorkflowStepsValidator
@@ -57,7 +56,7 @@ class Workflow
   end
 
   def workflow_steps
-    workflow_instructions.fetch('steps', {})
+    workflow_instructions.fetch(:steps, {})
   end
 
   private

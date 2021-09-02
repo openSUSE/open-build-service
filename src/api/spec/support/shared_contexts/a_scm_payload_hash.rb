@@ -10,7 +10,7 @@ RSpec.shared_context 'a scm payload hash' do
       action: 'opened',
       repository_full_name: 'openSUSE/open-build-service',
       event: 'pull_request'
-    }.with_indifferent_access
+    }
   end
   let(:gitlab_extractor_payload) do
     {
@@ -25,6 +25,6 @@ RSpec.shared_context 'a scm payload hash' do
       project_id: 1,
       path_with_namespace: 'gitlabhq/gitlab-test',
       event: 'Merge Request Hook'
-    }.with_indifferent_access
+    }
   end
 end

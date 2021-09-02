@@ -32,18 +32,14 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   end
 
   def validate_repositories
-    # FIXME: Change Workflow::Step#initialize `with_indifferent_access` for `deep_symbolize_keys` to consistently work
-    #        with symbols, even in nested hashes. This is needed for all workflow steps.
-    return if step_instructions.deep_symbolize_keys[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }
+    return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }
 
     required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
     errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
   end
 
   def validate_architectures
-    # FIXME: Change Workflow::Step#initialize `with_indifferent_access` for `deep_symbolize_keys` to consistently work
-    #        with symbols, even in nested hashes. This is needed for all workflow steps.
-    architectures = step_instructions.deep_symbolize_keys[:repositories].map { |repository| repository.fetch(:architectures, []) }.flatten.uniq
+    architectures = step_instructions[:repositories].map { |repository| repository.fetch(:architectures, []) }.flatten.uniq
 
     # Store architectures to avoid fetching them again later in #call
     @supported_architectures = Architecture.where(name: architectures).to_a
