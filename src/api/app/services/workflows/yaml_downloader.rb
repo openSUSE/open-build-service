@@ -23,7 +23,7 @@ module Workflows
       case @scm_payload[:scm]
       when 'github'
         client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])
-        client.content("#{@scm_payload[:target_repository_full_name]}", path: '/.obs/workflows.yml')[:download_url]
+        client.content("#{@scm_payload[:target_repository_full_name]}", path: '/.obs/workflows.yml', ref: @scm_payload[:target_branch])[:download_url]
       when 'gitlab'
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
       end
