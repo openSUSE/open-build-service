@@ -6,6 +6,8 @@ class Token::Workflow < Token
   end
 
   def call(options)
+    raise ArgumentError, 'A payload is required' if options[:payload].nil?
+
     extractor = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload])
     return unless extractor.allowed_event_and_action?
 
