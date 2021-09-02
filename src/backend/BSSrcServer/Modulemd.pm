@@ -178,20 +178,4 @@ sub tostream {
   $md->{'xmd'} = {};
 }
 
-sub slurp {
-  my ($fn) = @_;
-  my $f;
-  if (!open($f, '<', $fn)) {
-    die("$fn: $!\n");
-  }
-  my $d = '';
-  1 while sysread($f, $d, 8192, length($d));
-  close $f;
-  return $d;
-}
-
-#use Data::Dumper;
-#my $y = slurp($ARGV[0]);
-#print Dumper(parse_modulemd($y));
-
 1;
