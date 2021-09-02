@@ -53,7 +53,12 @@ sub calc_modularitylabel {
   $mdctx = $modulemd->{'context'} if $modulemd->{'context'};
   my @gm = gmtime($timestamp);
   my $mdversion = $modulemd->{'version'} || sprintf("%04d%02d%02d%02d%02d%02d", $gm[5] + 1900, $gm[4] + 1, @gm[3,2,1,0]);;
-  return "$modulemd->{'name'}:$modulemd->{'stream'}:$versionprefix$mdversion:$mdctx";
+  if (length($mdversion) > 14) {
+    return undef unless $versionprefix eq '' || $mdversion =~ /^\Q$versionprefix\E/;
+  } else {
+    $mdversion = "$versionprefix$mdversion";
+  }
+  return "$modulemd->{'name'}:$modulemd->{'stream'}:$mdversion:$mdctx";
 }
 
 sub select_dependency {
