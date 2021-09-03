@@ -18,17 +18,17 @@ class IssueTrackersController < ApplicationController
   # POST /issue_trackers
   def create
     xml = Nokogiri::XML(request.raw_post, &:strict).root
-    @issue_tracker = IssueTracker.create(name: xml.xpath('name[1]/text()').to_s,
-                                         kind: xml.xpath('kind[1]/text()').to_s,
-                                         description: xml.xpath('description[1]/text()').to_s,
-                                         regex: xml.xpath('regex[1]/text()').to_s,
-                                         label: xml.xpath('label[1]/text()').to_s,
-                                         url: xml.xpath('url[1]/text()').to_s,
-                                         enable_fetch: xml.xpath('enable-fetch[1]/text()').to_s,
-                                         issues_updated: Time.now,
-                                         show_url: xml.xpath('show-url[1]/text()').to_s)
+    @issue_tracker = IssueTracker.new(name: xml.xpath('name[1]/text()').to_s,
+                                      kind: xml.xpath('kind[1]/text()').to_s,
+                                      description: xml.xpath('description[1]/text()').to_s,
+                                      regex: xml.xpath('regex[1]/text()').to_s,
+                                      label: xml.xpath('label[1]/text()').to_s,
+                                      url: xml.xpath('url[1]/text()').to_s,
+                                      enable_fetch: xml.xpath('enable-fetch[1]/text()').to_s,
+                                      issues_updated: Time.now,
+                                      show_url: xml.xpath('show-url[1]/text()').to_s)
     respond_to do |format|
-      if @issue_tracker
+      if @issue_tracker.save
         format.xml  { render_ok }
       else
         format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
