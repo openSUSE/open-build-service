@@ -712,6 +712,8 @@ sub expandandsort {
       $buildtype = 'patchinfo';
     } elsif ($pdata->{'channel'}) {
       $buildtype = 'channel';
+    } elsif ($pdata->{'modulemd'}) {
+      $buildtype = 'modulemd';
     } elsif ($info && $info->{'file'}) {
       # directly implement most common types
       if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
@@ -1142,6 +1144,10 @@ sub checkpkgs {
       print "      - $packid (no recipe file)\n";
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = 'no recipe file';
+      next;
+    }
+    if ($buildtype eq 'modulemd') {
+      $packstatus{$packid} = 'excluded';
       next;
     }
     #print "      - $packid ($buildtype)\n";
