@@ -26,6 +26,9 @@
                   - if policy(token).edit?
                     = link_to(edit_token_path(token), title: 'Edit Token') do
                       %i.fas.fa-edit
+                  - if policy(token).show?
+                    = link_to(token_trigger_path(token), title: 'Trigger Token') do
+                      %i.fas.fa-project-diagram
                   = link_to '#', title: 'Delete Token',
                     data: { toggle: 'modal', target: '#delete-token-modal', token_id: token.id, action: token_path(token) } do
                     %i.fas.fa-times-circle.text-danger

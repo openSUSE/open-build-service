@@ -37,4 +37,12 @@ class TokenPolicy < ApplicationPolicy
   def destroy?
     create?
   end
+
+  def webui_trigger?
+    record.user == user && !record.type.in?(['Token::Workflow', 'Token::Rss'])
+  end
+
+  def show?
+    webui_trigger?
+  end
 end
