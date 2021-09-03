@@ -29,6 +29,8 @@ class TriggerController < ApplicationController
       @token.call(opts)
       render_ok
     end
+  rescue ArgumentError => e
+    render_error status: 400, message: e
   end
 
   private
