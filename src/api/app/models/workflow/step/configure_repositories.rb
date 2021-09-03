@@ -2,7 +2,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   REQUIRED_KEYS = [:source_project, :repositories].freeze
   REQUIRED_REPOSITORY_KEYS = [:architectures, :name, :target_project, :target_repository].freeze
 
-  validate :validate_step_instructions
   validate :validate_repositories
   validate :validate_architectures
 
@@ -24,12 +23,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   end
 
   private
-
-  def validate_step_instructions
-    REQUIRED_KEYS.each do |required_key|
-      errors.add(:base, "configure_repositories step: The '#{required_key}' key is missing.") unless step_instructions.key?(required_key)
-    end
-  end
 
   def validate_repositories
     return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }

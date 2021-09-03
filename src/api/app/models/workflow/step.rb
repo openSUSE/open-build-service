@@ -3,6 +3,7 @@ class Workflow::Step
   include ActiveModel::Model
 
   validates :source_project_name, presence: true
+  validate :validate_step_instructions
 
   attr_reader :scm_extractor_payload, :step_instructions, :token
 
@@ -17,6 +18,12 @@ class Workflow::Step
   end
 
   protected
+
+  def validate_step_instructions
+    self.class::REQUIRED_KEYS.each do |required_key|
+      errors.add(:base, "The '#{required_key}' key is missing") unless step_instructions.key?(required_key)
+    end
+  end
 
   def source_project_name
     step_instructions[:source_project]
