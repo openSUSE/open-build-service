@@ -34,7 +34,13 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   def sourcediff(opts = {})
-    raise DiffError, "Project diff isn't implemented yet" unless target_package || target_repository
+    unless target_package || target_repository
+      if target_project.present?
+         return '' if opts[:view] == 'xml'
+         return "- Removal of entire OBS Project #{target_project}"
+      end
+      raise DiffError, 'undefined delete target'
+    end
     return '' unless target_package
 
     begin
