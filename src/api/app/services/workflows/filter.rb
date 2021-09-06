@@ -1,7 +1,7 @@
 module Workflows
   class Filter
     def initialize(filters:)
-      filters ||= {}
+      filters = filters.blank? ? {} : filters.deep_symbolize_keys
       @repository_filters = filters[:repositories]
       @architecture_filters = filters[:architectures]
     end

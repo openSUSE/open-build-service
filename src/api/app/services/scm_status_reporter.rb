@@ -2,8 +2,8 @@ class SCMStatusReporter
   attr_accessor :event_payload, :event_subscription_payload, :scm_token, :state
 
   def initialize(event_payload, event_subscription_payload, scm_token, event_type = nil)
-    @event_payload = event_payload.with_indifferent_access
-    @event_subscription_payload = event_subscription_payload.with_indifferent_access
+    @event_payload = event_payload.deep_symbolize_keys
+    @event_subscription_payload = event_subscription_payload.deep_symbolize_keys
     @scm_token = scm_token
 
     @state = event_type.nil? ? 'pending' : scm_final_state(event_type)

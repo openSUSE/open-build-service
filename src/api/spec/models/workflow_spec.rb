@@ -200,7 +200,7 @@ RSpec.describe Workflow, type: :model do
           scm: 'github',
           action: 'opened',
           event: 'pull_request'
-        }.with_indifferent_access
+        }
       end
 
       it { expect(subject).to be_valid }
@@ -215,7 +215,7 @@ RSpec.describe Workflow, type: :model do
           scm: 'github',
           action: 'invalid_action',
           event: 'invalid_event'
-        }.with_indifferent_access
+        }
       end
 
       it { expect(subject).not_to(be_valid) }

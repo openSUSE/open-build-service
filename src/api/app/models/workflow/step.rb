@@ -6,11 +6,10 @@ class Workflow::Step
 
   attr_reader :scm_extractor_payload, :step_instructions, :token
 
-  # Overwriting the initializer is needed to set `with_indifferent_access`
-  def initialize(scm_extractor_payload:, step_instructions:, token:)
-    @step_instructions = step_instructions&.with_indifferent_access || {}
-    @scm_extractor_payload = scm_extractor_payload&.with_indifferent_access || {}
-    @token = token
+  def initialize(attributes = {})
+    @step_instructions = attributes[:step_instructions]&.deep_symbolize_keys || {}
+    @scm_extractor_payload = attributes[:scm_extractor_payload]&.deep_symbolize_keys || {}
+    @token = attributes[:token]
   end
 
   def call(_options)
@@ -20,7 +19,7 @@ class Workflow::Step
   protected
 
   def source_project_name
-    step_instructions['source_project']
+    step_instructions[:source_project]
   end
 
   def target_project_name
@@ -28,11 +27,11 @@ class Workflow::Step
   end
 
   def source_package_name
-    step_instructions['source_package']
+    step_instructions[:source_package]
   end
 
   def target_package_name
-    return step_instructions['target_package'] if step_instructions['target_package'].present?
+    return step_instructions[:target_package] if step_instructions[:target_package].present?
 
     source_package_name
   end

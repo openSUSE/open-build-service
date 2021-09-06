@@ -35,7 +35,7 @@ class ReportToScmJob < CreateJob
     EventSubscriptionsFinder.new
                             .for_scm_channel_with_token(event_type: @event_type, event_package: @event_package)
                             .select do |event_subscription|
-      Workflows::Filter.new(filters: event_subscription.payload.with_indifferent_access[:workflow_filters]).match?(@event)
+      Workflows::Filter.new(filters: event_subscription.payload['workflow_filters']).match?(@event)
     end
   end
 end
