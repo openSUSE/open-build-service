@@ -111,7 +111,7 @@ module Webui::MaintenanceIncidentHelper
             tag.i(nil, class: "fas fa-flag pr-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
           end,
           # rubocop:disable Rails/OutputSafety
-          "Created #{fuzzy_time(request.created_at)}".html_safe
+          FuzzyTimeComponent.new(time: request.created_at).human_time_ago.html_safe
           # rubocop:enable Rails/OutputSafety
         ]
       )

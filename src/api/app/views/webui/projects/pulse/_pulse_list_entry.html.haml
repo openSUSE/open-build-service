@@ -3,4 +3,4 @@
   (#{link_to(log_entry.package_name, package_show_path(project.name, log_entry.package_name))})
 - if log_entry.user_name
   by #{link_to(log_entry.user_name, user_path(log_entry.user_name))}
-= fuzzy_time(log_entry.datetime)
+= render FuzzyTimeComponent.new(time: log_entry.datetime)

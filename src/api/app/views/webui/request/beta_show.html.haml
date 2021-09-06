@@ -42,7 +42,7 @@
       %p.font-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
-        = fuzzy_time(@bs_request.created_at)
+        = render FuzzyTimeComponent.new(time: @bs_request.created_at)
         - if @bs_request.superseding.present?
           = '. Supersedes'
           - @bs_request.superseding.each do |supersed|
