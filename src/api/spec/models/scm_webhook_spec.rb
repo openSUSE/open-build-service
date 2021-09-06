@@ -92,4 +92,56 @@ RSpec.describe ScmWebhook, type: :model do
       it { is_expected.to be true }
     end
   end
+
+  describe '#closed_merged_pull_request?' do
+    subject { described_class.new(payload: payload).closed_merged_pull_request? }
+
+    context 'for an unsupported SCM' do
+      let(:payload) { { scm: 'GitHoob', event: 'pull_request', action: 'closed' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported event from GitHub' do
+      let(:payload) { { scm: 'github', event: 'something', action: 'closed' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported action from GitHub' do
+      let(:payload) { { scm: 'github', event: 'pull_request', action: 'something' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for a closed/merged pull request from GitHub' do
+      let(:payload) { { scm: 'github', event: 'pull_request', action: 'closed' } }
+
+      it { is_expected.to be true }
+    end
+
+    context 'for an unsupported event from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'something', action: 'close' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported action from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'something' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for a closed merge request from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'close' } }
+
+      it { is_expected.to be true }
+    end
+
+    context 'for a merged merge request from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'merge' } }
+
+      it { is_expected.to be true }
+    end
+  end
 end

@@ -67,6 +67,13 @@ RSpec.describe ScmWebhookEventValidator do
 
         it { is_expected.to be_valid }
       end
+
+      context 'for a pull request which was closed/merged' do
+        let(:event) { 'pull_request' }
+        let(:action) { 'closed' }
+
+        it { is_expected.to be_valid }
+      end
     end
 
     context 'when the SCM is GitLab' do
@@ -102,6 +109,20 @@ RSpec.describe ScmWebhookEventValidator do
       context 'for a merge request which was updated' do
         let(:event) { 'Merge Request Hook' }
         let(:action) { 'update' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'for a merge request which was closed' do
+        let(:event) { 'Merge Request Hook' }
+        let(:action) { 'close' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'for a merge request which was merged' do
+        let(:event) { 'Merge Request Hook' }
+        let(:action) { 'merge' }
 
         it { is_expected.to be_valid }
       end
