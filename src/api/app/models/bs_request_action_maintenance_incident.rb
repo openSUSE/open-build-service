@@ -150,7 +150,6 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         # but remove project on accept in any case
         delete_action = BsRequestActionDelete.new({ target_project: stage_project_name})
         bs_request.bs_request_actions << delete_action
-        bs_request.save!
       end
     end
 
