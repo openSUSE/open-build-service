@@ -142,12 +142,16 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         end
         stage_project.relationships.new(role: maintainer_role, user_id: User.session.id)
         stage_project.store
+        # autocleanup attribute in case request gets not accepted?
         at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
         a = Attrib.new(project: stage_project, attrib_type: at)
         a.values << AttribValue.new(value: (Time.now + ::Configuration.cleanup_after_days.days), position: 1)
         a.save
+        # but remove project on accept in any case
+        delete_action = BsRequestActionDelete.new({ target_project: stage_project_name})
+        bs_request.bs_request_actions << delete_action
+        bs_request.save!
       end
-      # autocleanup attribute in case request gets not accepted?
     end
 
     # create package
@@ -159,7 +163,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     self.source_rev = pkg.backend_package.srcmd5 if source_rev.present?
     self.sourceupdate ||= 'cleanup'
     # create channels
-    pkg.add_channels
+    pkg.add_channels(:enable_all)
     # create patchinfo unless we have one
     unless PackageKind.where(package: stage_project.packages, kind: "patchinfo").exists?
       Patchinfo.new.create_patchinfo_from_request(stage_project, bs_request)
