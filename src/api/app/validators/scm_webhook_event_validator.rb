@@ -2,8 +2,8 @@ class ScmWebhookEventValidator < ActiveModel::Validator
   ALLOWED_GITHUB_EVENTS = ['pull_request'].freeze
   ALLOWED_GITLAB_EVENTS = ['Merge Request Hook'].freeze
 
-  ALLOWED_PULL_REQUEST_ACTIONS = ['opened', 'synchronize'].freeze
-  ALLOWED_MERGE_REQUEST_ACTIONS = ['open', 'update'].freeze
+  ALLOWED_PULL_REQUEST_ACTIONS = ['closed', 'opened', 'reopened', 'synchronize'].freeze
+  ALLOWED_MERGE_REQUEST_ACTIONS = ['close', 'merge', 'open', 'reopen', 'update'].freeze
 
   def validate(record)
     @record = record

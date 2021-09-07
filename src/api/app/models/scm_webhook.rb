@@ -22,6 +22,16 @@ class ScmWebhook
       (gitlab_merge_request? && @payload[:action] == 'update')
   end
 
+  def closed_merged_pull_request?
+    (github_pull_request? && @payload[:action] == 'closed') ||
+      (gitlab_merge_request? && ['close', 'merge'].include?(@payload[:action]))
+  end
+
+  def reopened_pull_request?
+    (github_pull_request? && @payload[:action] == 'reopened') ||
+      (gitlab_merge_request? && @payload[:action] == 'reopen')
+  end
+
   private
 
   def github_pull_request?
