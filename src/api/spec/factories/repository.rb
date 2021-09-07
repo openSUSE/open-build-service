@@ -6,6 +6,7 @@ FactoryBot.define do
 
     transient do
       architectures { [] }
+      path_element_link { nil }
     end
 
     after(:create) do |repository, evaluator|
@@ -13,6 +14,8 @@ FactoryBot.define do
         create(:repository_architecture, repository: repository,
                                          architecture: Architecture.find_or_create_by!(name: arch))
       end
+
+      repository.path_elements.create(link: evaluator.path_element_link) if evaluator.path_element_link
     end
 
     factory :repository_with_release_target do
