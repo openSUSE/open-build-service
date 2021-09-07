@@ -26,7 +26,7 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def update?
-    record.user == user && record.type == 'Token::Workflow' && Flipper.enabled?(:trigger_workflow, user)
+    record.user == user && Flipper.enabled?(:trigger_workflow, user)
   end
 
   def create?
