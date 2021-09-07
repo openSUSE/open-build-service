@@ -134,14 +134,15 @@ RSpec.describe Workflow, type: :model do
 
       it 'raises an exception for non-present instructions' do
         expect { subject.valid? }.to raise_error(Token::Errors::InvalidWorkflowStepDefinition,
-                                                 "Invalid workflow step definition: Source project name can't be blank and Source package name can't be blank")
+                                                 "Invalid workflow step definition: Source project name can't be blank, The 'source_project' key is missing, The 'source_package'
+                                                  key is missing, and Source package name can't be blank".squish)
       end
     end
 
     context 'with a supported step but invalid step configuration' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { source_project: nil,
-                                              source_package_fake: 'package' } }] }
+                                              source_package: nil } }] }
       end
 
       it 'raises an exception for invalid instructions' do

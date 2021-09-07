@@ -1,4 +1,5 @@
 class Workflow::Step::BranchPackageStep < ::Workflow::Step
+  REQUIRED_KEYS = [:source_project, :source_package].freeze
   validates :source_package_name, presence: true
 
   def call(options = {})
