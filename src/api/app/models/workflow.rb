@@ -11,17 +11,15 @@ class Workflow
   # The order of the filter types determines their precedence
   SUPPORTED_FILTER_TYPES = [:only, :ignore].freeze
 
-  attr_accessor :workflow_instructions, :scm_extractor_payload, :token
+  attr_accessor :workflow_instructions, :scm_webhook, :token
 
   def initialize(attributes = {})
     super
     @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
-    @scm_extractor_payload = attributes[:scm_extractor_payload].deep_symbolize_keys
   end
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
-  validates_with WorkflowEventAndActionValidator
 
   def steps
     return {} if workflow_steps.blank?
@@ -63,7 +61,7 @@ class Workflow
 
   def initialize_step(step_name, step_instructions)
     SUPPORTED_STEPS[step_name].new(step_instructions: step_instructions,
-                                   scm_extractor_payload: scm_extractor_payload,
+                                   scm_webhook: scm_webhook,
                                    token: token)
   end
 

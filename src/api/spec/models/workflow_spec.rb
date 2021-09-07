@@ -6,7 +6,7 @@ RSpec.describe Workflow, type: :model do
   let!(:token) { create(:workflow_token) }
 
   subject do
-    described_class.new(workflow_instructions: yaml, scm_extractor_payload: github_extractor_payload, token: token)
+    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: github_extractor_payload), token: token)
   end
 
   describe '#steps' do
@@ -187,38 +187,6 @@ RSpec.describe Workflow, type: :model do
       it 'raises a user-friendly error message' do
         expect { subject.valid? }.to raise_error(Workflow::Errors::UnsupportedWorkflowFilters, 'Unsupported filters: unsupported_1 and unsupported_2')
       end
-    end
-
-    # Event and Action validations
-
-    context 'When we have a valid combination of SCM events and actions' do
-      let(:yaml) do
-        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
-      end
-      let(:github_extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request'
-        }
-      end
-
-      it { expect(subject).to be_valid }
-    end
-
-    context 'When we do not have a valid combination of SCM events and actions' do
-      let(:yaml) do
-        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
-      end
-      let(:github_extractor_payload) do
-        {
-          scm: 'github',
-          action: 'invalid_action',
-          event: 'invalid_event'
-        }
-      end
-
-      it { expect(subject).not_to(be_valid) }
     end
   end
 end

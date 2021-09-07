@@ -1,9 +1,6 @@
 module TriggerControllerService
   # NOTE: this class is coupled to GitHub pull requests events and GitLab merge requests events.
   class ScmExtractor
-    ALLOWED_GITHUB_ACTIONS = ['opened', 'synchronize'].freeze
-    ALLOWED_GITLAB_ACTIONS = ['open', 'update'].freeze
-
     def initialize(scm, event, payload)
       # TODO: What should we do when the user sends a wwwurlencoded payload? Raise an exception?
       @payload = payload.deep_symbolize_keys
@@ -11,39 +8,19 @@ module TriggerControllerService
       @event = event
     end
 
-    # TODO: this check seems redundant, but it prevents extracting the payload if the event and action
-    # are not the allowed ones. See BranchPackageStep.
-    def allowed_event_and_action?
-      allowed_github_event_and_action? || allowed_gitlab_event_and_action?
-    end
-
     # TODO: What happens when some of the keys are missing?
     def call
       case @scm
       when 'github'
-        github_extractor_payload
+        ScmWebhook.new(payload: github_extractor_payload)
       when 'gitlab'
-        gitlab_extractor_payload
+        ScmWebhook.new(payload: gitlab_extractor_payload)
       end
     end
 
     private
 
-    def allowed_github_event_and_action?
-      @event == 'pull_request' && @payload[:action].in?(ALLOWED_GITHUB_ACTIONS)
-    end
-
-    def allowed_gitlab_event_and_action?
-      @event == 'Merge Request Hook' && @payload[:object_attributes][:action].in?(ALLOWED_GITLAB_ACTIONS)
-    end
-
     def github_extractor_payload
-      host = URI.parse(@payload.dig(:sender, :url)).host
-      api_endpoint = if host.start_with?('api.github.com')
-                       "https://#{host}"
-                     else
-                       "https://#{host}/api/v3/"
-                     end
       {
         scm: 'github',
         commit_sha: @payload.dig(:pull_request, :head, :sha),
@@ -54,13 +31,12 @@ module TriggerControllerService
         source_repository_full_name: @payload.dig(:pull_request, :head, :repo, :full_name),
         target_repository_full_name: @payload.dig(:pull_request, :base, :repo, :full_name),
         event: @event,
-        api_endpoint: api_endpoint
+        api_endpoint: github_api_endpoint
       }
     end
 
     def gitlab_extractor_payload
       http_url = @payload.dig(:project, :http_url)
-      uri = URI.parse(http_url)
       {
         scm: 'gitlab',
         object_kind: @payload[:object_kind],
@@ -73,8 +49,27 @@ module TriggerControllerService
         project_id: @payload.dig(:object_attributes, :source_project_id),
         path_with_namespace: @payload.dig(:project, :path_with_namespace),
         event: @event,
-        api_endpoint: "#{uri.scheme}://#{uri.host}"
+        api_endpoint: gitlab_api_endpoint(http_url)
       }
+    end
+
+    def github_api_endpoint
+      sender_url = @payload.dig(:sender, :url)
+      return unless sender_url
+
+      host = URI.parse(sender_url).host
+      if host.start_with?('api.github.com')
+        "https://#{host}"
+      else
+        "https://#{host}/api/v3/"
+      end
+    end
+
+    def gitlab_api_endpoint(http_url)
+      return unless http_url
+
+      uri = URI.parse(http_url)
+      "#{uri.scheme}://#{uri.host}"
     end
   end
 end

@@ -6,7 +6,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_extractor_payload: scm_extractor_payload,
+                        scm_webhook: scm_webhook,
                         token: token)
   end
 
@@ -93,16 +93,16 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
     it 'only reports for repositories and architectures matching the filters' do
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'i586' },
-                                                      scm_extractor_payload, token.scm_token).and_call_original
+                                                      scm_webhook.payload, token.scm_token).and_call_original
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'x86_64' },
-                                                      scm_extractor_payload, token.scm_token).and_call_original
+                                                      scm_webhook.payload, token.scm_token).and_call_original
 
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'ppc' },
-                                                          scm_extractor_payload, token.scm_token)
+                                                          scm_webhook.payload, token.scm_token)
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'aarch64' },
-                                                          scm_extractor_payload, token.scm_token)
+                                                          scm_webhook.payload, token.scm_token)
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
-                                                          scm_extractor_payload, token.scm_token)
+                                                          scm_webhook.payload, token.scm_token)
 
       subject.call({ workflow_filters: workflow_filters })
     end
@@ -174,15 +174,15 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
     context 'when the SCM is GitHub' do
       let(:commit_sha) { '123' }
-      let(:scm_extractor_payload) do
-        {
-          scm: 'github',
-          event: 'pull_request',
-          action: action,
-          pr_number: 1,
-          source_repository_full_name: 'reponame',
-          commit_sha: commit_sha
-        }
+      let(:scm_webhook) do
+        ScmWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'pull_request',
+                         action: action,
+                         pr_number: 1,
+                         source_repository_full_name: 'reponame',
+                         commit_sha: commit_sha
+                       })
       end
 
       context "but we don't provide source_project" do
@@ -248,15 +248,15 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
     context 'when the SCM is GitLab' do
       let(:commit_sha) { '123' }
-      let(:scm_extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Merge Request Hook',
-          action: action,
-          pr_number: 1,
-          source_repository_full_name: 'reponame',
-          commit_sha: commit_sha
-        }
+      let(:scm_webhook) do
+        ScmWebhook.new(payload: {
+                         scm: 'gitlab',
+                         event: 'Merge Request Hook',
+                         action: action,
+                         pr_number: 1,
+                         source_repository_full_name: 'reponame',
+                         commit_sha: commit_sha
+                       })
       end
 
       context "but we don't provide source_project" do

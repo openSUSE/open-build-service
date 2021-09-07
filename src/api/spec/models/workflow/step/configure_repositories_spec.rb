@@ -27,15 +27,15 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           ]
       }
     end
-    let(:scm_extractor_payload) do
-      {
-        scm: 'github',
-        event: 'pull_request',
-        action: 'opened',
-        pr_number: 1,
-        source_repository_full_name: 'reponame',
-        commit_sha: '123'
-      }
+    let(:scm_webhook) do
+      ScmWebhook.new(payload: {
+                       scm: 'github',
+                       event: 'pull_request',
+                       action: 'opened',
+                       pr_number: 1,
+                       source_repository_full_name: 'reponame',
+                       commit_sha: '123'
+                     })
     end
     let(:workflow_filters) do
       { architectures: { only: ['x86_64', 'ppc'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
@@ -43,7 +43,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
     subject do
       described_class.new(step_instructions: step_instructions,
-                          scm_extractor_payload: scm_extractor_payload,
+                          scm_webhook: scm_webhook,
                           token: token)
     end
 

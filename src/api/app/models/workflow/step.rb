@@ -4,12 +4,11 @@ class Workflow::Step
 
   validates :source_project_name, presence: true
 
-  attr_reader :scm_extractor_payload, :step_instructions, :token
+  attr_accessor :scm_webhook, :step_instructions, :token
 
   def initialize(attributes = {})
+    super
     @step_instructions = attributes[:step_instructions]&.deep_symbolize_keys || {}
-    @scm_extractor_payload = attributes[:scm_extractor_payload]&.deep_symbolize_keys || {}
-    @token = attributes[:token]
   end
 
   def call(_options)
@@ -23,7 +22,7 @@ class Workflow::Step
   end
 
   def target_project_name
-    "home:#{@token.user.login}:#{source_project_name}:PR-#{scm_extractor_payload[:pr_number]}"
+    "home:#{@token.user.login}:#{source_project_name}:PR-#{scm_webhook.payload[:pr_number]}"
   end
 
   def source_package_name
@@ -42,16 +41,12 @@ class Workflow::Step
     Package.find_by_project_and_name(target_project_name, target_package_name)
   end
 
-  def validator
-    WorkflowEventAndActionValidator.new(scm_extractor_payload: scm_extractor_payload)
-  end
-
   def remote_source?
     Project.find_remote_project(source_project_name).present?
   end
 
   def add_or_update_branch_request_file(package:)
-    branch_request_file = case scm_extractor_payload[:scm]
+    branch_request_file = case scm_webhook.payload[:scm]
                           when 'github'
                             branch_request_content_github
                           when 'gitlab'
@@ -63,23 +58,23 @@ class Workflow::Step
 
   def branch_request_content_github
     {
-      # TODO: change to @scm_extractor_payload[:action]
+      # TODO: change to scm_webhook.payload[:action]
       # when check_for_branch_request method in obs-service-tar_scm accepts other actions than 'opened'
       # https://github.com/openSUSE/obs-service-tar_scm/blob/2319f50e741e058ad599a6890ac5c710112d5e48/TarSCM/tasks.py#L145
       action: 'opened',
       pull_request: {
         head: {
-          repo: { full_name: scm_extractor_payload[:source_repository_full_name] },
-          sha: scm_extractor_payload[:commit_sha]
+          repo: { full_name: scm_webhook.payload[:source_repository_full_name] },
+          sha: scm_webhook.payload[:commit_sha]
         }
       }
     }.to_json
   end
 
   def branch_request_content_gitlab
-    { object_kind: scm_extractor_payload[:object_kind],
-      project: { http_url: scm_extractor_payload[:http_url] },
-      object_attributes: { source: { default_branch: scm_extractor_payload[:commit_sha] } } }.to_json
+    { object_kind: scm_webhook.payload[:object_kind],
+      project: { http_url: scm_webhook.payload[:http_url] },
+      object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
   end
 
   # FIXME: remove this and use create_subscriptions and update_subscriptions as soon as BranchPackageStep is refactored
@@ -92,7 +87,7 @@ class Workflow::Step
                                                           enabled: true,
                                                           token: @token,
                                                           package: package)
-      subscription.update!(payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
+      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
     end
   end
 
@@ -105,7 +100,7 @@ class Workflow::Step
                                 enabled: true,
                                 token: @token,
                                 package: package,
-                                payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
+                                payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
     end
   end
 
@@ -115,7 +110,7 @@ class Workflow::Step
                                                channel: 'scm',
                                                token: @token,
                                                package: package)
-      subscription.update!(payload: scm_extractor_payload.merge({ workflow_filters: workflow_filters }))
+      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
     end
   end
 
