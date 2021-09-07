@@ -80,7 +80,7 @@ sub setup_modulemd {
   my $modulemd = $pdata->{'modulemd'};
   die("$modulemdpackid: not a modulemd package\n") unless $modulemd;
   my $bconf = $ctx->{'conf'};
-  my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd) || {};
+  my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd);
   die("cannot build this module\n") unless $dependency;
   my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
   die(join(', ', @$errors)."\n") if $errors;
