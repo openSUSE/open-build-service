@@ -5916,7 +5916,7 @@ sub getmodulemd {
   my $mds = BSSrcServer::Modulemd::read_modulemds($yaml);
   for my $md (@$mds) {
     next unless $md->{'document'} eq 'modulemd';
-    BSSrcServer::Modulemd::tostream($md, $cgi->{'modules'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
+    BSSrcServer::Modulemd::tostream($md, $cgi->{'module'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
     $md->{'data'}->{'arch'} = $cgi->{'arch'} if $cgi->{'arch'};
   }
   my $view = $cgi->{'view'} || 'storable';

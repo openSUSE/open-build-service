@@ -1139,7 +1139,7 @@ sub getmodulemddata {
   my ($buildinfo, $dir) = @_;
   my $server = $buildinfo->{'srcserver'} || $srcserver;
   my @args;
-  push @args, map {"module=$_"} @{$buildinfo->{'module'}};
+  push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
   push @args, "modularityplatform=$buildinfo->{'modularity_platform'}";
   push @args, "modularitylabel=$buildinfo->{'modularity_label'}";
   my $mds = BSRPC::rpc({
