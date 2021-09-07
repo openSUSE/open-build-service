@@ -84,7 +84,7 @@ sub parse_modulemd {
     my $rd = {};
     $rd->{'buildrequires'} = parse_deps($dd->{'buildrequires'}) if $dd->{'buildrequires'};
     $rd->{'requires'} = parse_deps($dd->{'requires'}) if $dd->{'requires'};
-    push @{$r->{'dependency'}}, $rd if %$rd;
+    push @{$r->{'dependencies'}}, $rd if %$rd;
   }
   my $buildopts = $d->{'buildopts'};
   if ($buildopts && ref($buildopts) eq 'HASH') {
