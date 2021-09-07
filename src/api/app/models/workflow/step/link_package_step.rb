@@ -4,6 +4,9 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   def call(options = {})
     return unless valid?
 
+    # FIXME: Support closed/merged/reopened PRs
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+
     workflow_filters = options.fetch(:workflow_filters, {})
 
     # Updated PR

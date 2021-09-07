@@ -4,6 +4,9 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   def call(options = {})
     return unless valid?
 
+    # FIXME: Support closed/merged/reopened PRs
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+
     branched_package = find_or_create_branched_package
 
     add_or_update_branch_request_file(package: branched_package)
