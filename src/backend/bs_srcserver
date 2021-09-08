@@ -1290,11 +1290,25 @@ sub getprojpack {
       }
     }
 
-    if ($cgi->{'buildinfo'} && @packages && !grep {$_ eq 'modulemd'} @packages) {
-      if (readpackage($projid, $proj, 'modulemd', undef, 1)) {
-	push @packages, 'modulemd';
-	$packids->{'modulemd'} = 1 if $packids;
+    # check if we have modulemd data
+    my $modulemd_packid;
+    my $modulemd_macros;
+    if (@packages) {
+      if (!$cgi->{'package'}) {
+	$modulemd_packid = 'modulemd' if grep {$_ eq 'modulemd'} @packages;
+      } else {
+	$modulemd_packid = 'modulemd' if readpackage($projid, $proj, 'modulemd', undef, 1);
+	if ($modulemd_packid && !grep {$_ eq $modulemd_packid} @packages) {
+	  push @packages, $modulemd_packid;
+	  $packids->{$modulemd_packid} = 1 if $packids;
+	}
       }
+    }
+
+    # bring modulemd packages to the front (we need to parse them early)
+    if ($modulemd_packid && @packages && $packages[0] ne $modulemd_packid) {
+      @packages = grep {$_ ne $modulemd_packid} @packages;
+      unshift @packages, $modulemd_packid;
     }
 
     my %packages_multibuild;
@@ -1608,6 +1622,7 @@ sub getprojpack {
 	    $pinfo->{'error'} = "_modulemd.yaml: $err";
 	    next;
 	  }
+	  $modulemd_macros = $d->{'macros'} if $packid eq $modulemd_packid;
 	  $pinfo->{'modulemd'} = $d;
 	  next;
         } elsif ($cgi->{'withdeps'}) {
@@ -1650,6 +1665,7 @@ sub getprojpack {
 	      eval {
 		die($path) unless ref $path;
 		my $c = concatconfigs($projid, $repoid, $remotemap, @$path);
+		$c = Build::combine_configs($c, "Macros:\n$modulemd_macros") if $modulemd_macros;
 	        $bconfs{$repoid} = Build::read_config($arch, [ split("\n", $c) ]);
 	      };
 	      if ($@) {
@@ -1685,6 +1701,7 @@ sub getprojpack {
 		if (!$bconfs{"$repoid/$arch"}) {
 		  eval {
 		    my $c = concatconfigs($projid, $repoid, $remotemap, @$path);
+		    $c = Build::combine_configs($c, "Macros:\n$modulemd_macros") if $modulemd_macros;
 		    $bconfs{"$repoid/$arch"} = Build::read_config($arch, [ split("\n", $c) ]);
 		  };
 		  if ($@) {
@@ -1836,6 +1853,9 @@ sub getprojpack {
 	  $pinfo->{'info'} = \@dinfo if @dinfo;
 	}
       }
+    }
+    if ($cgi->{'buildinfo'} && $modulemd_packid && $cgi->{'package'} && $cgi->{'package'}->[0] ne $modulemd_packid) {
+      push @pinfo, shift @pinfo if @pinfo && $pinfo[0]->{'name'} eq $modulemd_packid;
     }
     $jinfo->{'package'} = \@pinfo;
     push @res, $jinfo;
@@ -5896,7 +5916,7 @@ sub getmodulemd {
   my $mds = BSSrcServer::Modulemd::read_modulemds($yaml);
   for my $md (@$mds) {
     next unless $md->{'document'} eq 'modulemd';
-    BSSrcServer::Modulemd::tostream($md, $cgi->{'modules'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
+    BSSrcServer::Modulemd::tostream($md, $cgi->{'module'} || [], $cgi->{'modularitylabel'}, $cgi->{'modularityplatform'});
     $md->{'data'}->{'arch'} = $cgi->{'arch'} if $cgi->{'arch'};
   }
   my $view = $cgi->{'view'} || 'storable';

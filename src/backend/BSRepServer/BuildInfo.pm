@@ -193,7 +193,7 @@ sub getmodulemddata {
   push @args, "package=$buildinfo->{'modularity_package'}";
   push @args, "srcmd5=$buildinfo->{'modularity_srcmd5'}";
   push @args, "arch=$buildinfo->{'arch'}";
-  push @args, map {"module=$_"} @{$buildinfo->{'module'}};
+  push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
   push @args, "modularityplatform=$buildinfo->{'modularity_platform'}";
   push @args, "modularitylabel=$buildinfo->{'modularity_label'}";
   push @args, "view=yaml";

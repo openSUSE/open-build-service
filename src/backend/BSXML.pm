@@ -311,7 +311,7 @@ our $modulemd = [
 	'distindex',
 	[],
 	'macros',
-     [[ 'dependency' =>
+     [[ 'dependencies' =>
 	    [ 'buildrequires' ],
 	    [ 'requires' ],
      ]],

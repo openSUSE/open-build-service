@@ -84,7 +84,7 @@ sub parse_modulemd {
     my $rd = {};
     $rd->{'buildrequires'} = parse_deps($dd->{'buildrequires'}) if $dd->{'buildrequires'};
     $rd->{'requires'} = parse_deps($dd->{'requires'}) if $dd->{'requires'};
-    push @{$r->{'dependency'}}, $rd if %$rd;
+    push @{$r->{'dependencies'}}, $rd if %$rd;
   }
   my $buildopts = $d->{'buildopts'};
   if ($buildopts && ref($buildopts) eq 'HASH') {
@@ -113,7 +113,7 @@ sub tostream {
   }
   $md = $md->{'data'};
   my ($versionprefix, $distprefix, @distprovides) = split(':', $modularityplatform);
-  my %distprovides = map {$_ => 1} @distprovides;
+  my %distprovides = map {$_ => $_} @distprovides;
   for (@distprovides) {
     $distprovides{"$1-*"} = $_ if /^(.*)-/;
   }
@@ -133,7 +133,13 @@ sub tostream {
       last unless $good;
     }
     next unless $good;
-    my @newbuildrequires;
+
+    # add modules data to provides
+    for (@{$modules || []}) {
+      $distprovides{$_} = $_;
+      $distprovides{"$1-*"} = $_ if /^(.*)-/;
+    }
+
     my %brmap;
     for my $br (@$buildrequires) {
       my ($n, @v) = split(':', $br);
@@ -166,6 +172,7 @@ sub tostream {
       my ($n, @v) = split(':', $_);
       $newdeps->{'buildrequires'}->{$n} = \@v;
     }
+    last;
   }
   die("could not select dependency block\n") unless $newdeps;
   $md->{'dependencies'} = [ $newdeps ];

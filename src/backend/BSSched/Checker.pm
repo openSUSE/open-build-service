@@ -410,7 +410,7 @@ sub setup {
   if ($pdatas->{'modulemd'} && $pdatas->{'modulemd'}->{'modulemd'}) {
     my $pdata = $pdatas->{'modulemd'};
     my $modulemd = $pdata->{'modulemd'};
-    my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd) || {};
+    my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd);
     return ('broken', 'cannot build this module') unless $dependency;
     my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
     return ('broken', join(', ', @$errors)) if $errors;
