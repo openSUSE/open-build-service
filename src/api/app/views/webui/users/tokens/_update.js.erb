@@ -2,9 +2,9 @@ $('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/
 <% if flash[:error].blank? %>
   $('#regenerate-token-modal').modal('hide');
   $('#regenerate-token-group,#scm-token-group').addClass('d-none');
-  $('#token_string_readonly').val("<%= escape_javascript(string) %>");
+  $('#copy-to-clipboard-readonly').val("<%= escape_javascript(string) %>");
   $('.actions').html("<%= escape_javascript(render partial: 'actions') %>");
   $('#created-token').removeClass('d-none').hide().slideDown('slow', function() {
-    $('#token_string_readonly').focus();
+    $('#copy-to-clipboard-readonly').focus();
   });
 <% end %>
