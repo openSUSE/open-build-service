@@ -12,3 +12,7 @@ Backend:
 - .circleci/**/*
 - .github/**/*
 - .obs/**/*
+- .rubocop.yml
+- .rubocop_todo.yml
+- src/api/.rubocop.yml
+- src/api/.rubocop_todo.yml

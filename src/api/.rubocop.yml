@@ -35,6 +35,10 @@ Style/CommentAnnotation:
   # especially when a comment starts with "review" since we have those in OBS
   Keywords: ['TODO', 'FIXME']
 
+# Using an empty case is sometimes clearer than `if/elsif/elsif/else`
+Style/EmptyCaseCondition:
+  Enabled: false
+
 # We need to allow some variables related to rabbiMQ.
 Style/GlobalVars:
   AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']

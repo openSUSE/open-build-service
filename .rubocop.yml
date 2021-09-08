@@ -45,6 +45,10 @@ Style/CommandLiteral:
 Style/Documentation:
   Enabled: false
 
+# Using an empty case is sometimes clearer than `if/elsif/elsif/else`
+Style/EmptyCaseCondition:
+  Enabled: false
+
 Style/RedundantReturn:
   Enabled: false
 
