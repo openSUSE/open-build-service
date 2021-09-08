@@ -16,6 +16,29 @@ class Workflow::Step
     raise AbstractMethodCalled
   end
 
+  def target_project_name
+    "home:#{@token.user.login}:#{source_project_name}:PR-#{scm_webhook.payload[:pr_number]}"
+  end
+
+  def target_package
+    Package.find_by_project_and_name(target_project_name, target_package_name)
+  end
+
+  # FIXME: Remove this and use create_subscriptions and update_subscriptions as soon as BranchPackageStep and Token::Workflow are refactored
+  #        This method is public since it has to be called from Token::Workflow. This shouldn't be needed.
+  def create_or_update_subscriptions(package, workflow_filters)
+    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+      subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
+                                                          receiver_role: 'reader', # We pass a valid value, but we don't need this.
+                                                          user: @token.user,
+                                                          channel: 'scm',
+                                                          enabled: true,
+                                                          token: @token,
+                                                          package: package)
+      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
+    end
+  end
+
   protected
 
   def validate_step_instructions
@@ -26,10 +49,6 @@ class Workflow::Step
 
   def source_project_name
     step_instructions[:source_project]
-  end
-
-  def target_project_name
-    "home:#{@token.user.login}:#{source_project_name}:PR-#{scm_webhook.payload[:pr_number]}"
   end
 
   def source_package_name
@@ -43,10 +62,6 @@ class Workflow::Step
   end
 
   private
-
-  def target_package
-    Package.find_by_project_and_name(target_project_name, target_package_name)
-  end
 
   def remote_source?
     Project.find_remote_project(source_project_name).present?
@@ -82,20 +97,6 @@ class Workflow::Step
     { object_kind: scm_webhook.payload[:object_kind],
       project: { http_url: scm_webhook.payload[:http_url] },
       object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
-  end
-
-  # FIXME: remove this and use create_subscriptions and update_subscriptions as soon as BranchPackageStep is refactored
-  def create_or_update_subscriptions(package, workflow_filters)
-    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-      subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
-                                                          receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                                          user: @token.user,
-                                                          channel: 'scm',
-                                                          enabled: true,
-                                                          token: @token,
-                                                          package: package)
-      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
-    end
   end
 
   def create_subscriptions(package, workflow_filters)

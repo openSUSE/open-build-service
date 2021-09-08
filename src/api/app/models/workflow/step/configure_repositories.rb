@@ -8,9 +8,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   def call(_options = {})
     return unless valid?
 
-    # FIXME: Support closed/merged/reopened PRs
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
-
     step_instructions[:repositories].each do |repository_instructions|
       repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: Project.get_by_name(target_project_name))
 
