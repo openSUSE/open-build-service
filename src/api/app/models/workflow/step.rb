@@ -111,6 +111,10 @@ class Workflow::Step
     end
   end
 
+  def delete_subscriptions(package)
+    EventSubscription.where(channel: 'scm', token: @token, package: package).delete_all
+  end
+
   def update_subscriptions(package, workflow_filters)
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
       subscription = EventSubscription.find_by(eventtype: build_event,
