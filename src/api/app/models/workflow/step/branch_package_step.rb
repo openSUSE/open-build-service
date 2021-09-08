@@ -5,14 +5,26 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   def call(options = {})
     return unless valid?
 
-    # FIXME: Support closed/merged/reopened PRs
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+    workflow_filters = options.fetch(:workflow_filters, {})
 
+    if scm_webhook.new_pull_request? || scm_webhook.updated_pull_request?
+      branch_package(workflow_filters)
+    elsif scm_webhook.closed_merged_pull_request?
+      destroy_target_project
+      delete_subscriptions(target_package)
+    elsif scm_webhook.reopened_pull_request?
+      restore_target_project
+      create_subscriptions(target_package, workflow_filters)
+    end
+  end
+
+  private
+
+  def branch_package(workflow_filters = {})
     branched_package = find_or_create_branched_package
 
     add_or_update_branch_request_file(package: branched_package)
 
-    workflow_filters = options.fetch(:workflow_filters, {})
     create_or_update_subscriptions(branched_package, workflow_filters)
 
     workflow_repositories(target_project_name, workflow_filters).each do |repository|
@@ -27,12 +39,16 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     branched_package
   end
 
-  private
+  # Destroy the target project which contains the branched package. It's a soft delete, so it can be restored if needed.
+  def destroy_target_project
+    # TODO: It's possible that it doesn't work since another step might have already destroyed the project
+    Project.find_by(name: target_project_name).destroy
+  end
 
-  def find_or_create_branched_package
-    return target_package if scm_webhook.updated_pull_request? && target_package.present?
-
-    branch
+  # Restore the target project which contains the branched package
+  def restore_target_project
+    # TODO: It's possible that it doesn't work since another step might have already restored the project
+    Project.restore(target_project_name)
   end
 
   def check_source_access
@@ -49,7 +65,9 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     Pundit.authorize(@token.user, src_package, :create_branch?)
   end
 
-  def branch
+  def find_or_create_branched_package
+    return target_package if scm_webhook.updated_pull_request? && target_package.present?
+
     check_source_access
 
     begin
