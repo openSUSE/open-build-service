@@ -5,25 +5,52 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   def call(options = {})
     return unless valid?
 
-    # FIXME: Support closed/merged/reopened PRs
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
-
     workflow_filters = options.fetch(:workflow_filters, {})
 
-    # Updated PR
-    if scm_webhook.updated_pull_request? && target_package.present?
-      update_subscriptions(target_package, workflow_filters)
-    else # New PR
+    case
+    when scm_webhook.new_pull_request?
+      create_link_package(workflow_filters)
+    when scm_webhook.updated_pull_request?
+      update_link_package(workflow_filters)
+    when scm_webhook.closed_merged_pull_request?
+      destroy_target_project
+    when scm_webhook.reopened_pull_request?
+      restore_target_project(workflow_filters)
+    end
+  end
+
+  private
+
+  def update_link_package(workflow_filters)
+    if target_package.blank?
       create_target_package
       create_subscriptions(target_package, workflow_filters)
     end
+    add_or_update_branch_request_file(package: target_package)
+    update_subscriptions(target_package, workflow_filters)
+    report_to_scm(workflow_filters)
+    target_package
+  end
+
+  def create_link_package(workflow_filters)
+    create_target_package
+    create_subscriptions(target_package, workflow_filters)
 
     add_or_update_branch_request_file(package: target_package)
     report_to_scm(workflow_filters)
     target_package
   end
 
-  private
+  def destroy_target_project
+    delete_subscriptions(target_package)
+    target_project.destroy
+  end
+
+  def restore_target_project(workflow_filters)
+    Project.restore(target_project_name)
+    # we are destroying the subscriptions when a PR is closed
+    create_subscriptions(target_package, workflow_filters) if target_package.present?
+  end
 
   def target_project
     Project.find_by(name: target_project_name)
