@@ -1298,8 +1298,8 @@ sub getprojpack {
 	$modulemd_packid = 'modulemd' if grep {$_ eq 'modulemd'} @packages;
       } else {
 	$modulemd_packid = 'modulemd' if readpackage($projid, $proj, 'modulemd', undef, 1);
-	if ($modulemd_packid && !grep {$_ eq $modulemd_packid} @packages) {
-	  push @packages, $modulemd_packid;
+	if ($modulemd_packid) {
+	  push @packages, $modulemd_packid unless grep {$_ eq $modulemd_packid} @packages;
 	  $packids->{$modulemd_packid} = 1 if $packids;
 	}
       }
