@@ -24,7 +24,6 @@ module Triggerable
     # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
     # In this case, we will try to trigger with the user input, no matter what it is
     @package ||= params[:package]
-
     # TODO: This should not happen right? But who knows...
     raise ActiveRecord::RecordNotFound unless @package
   end
