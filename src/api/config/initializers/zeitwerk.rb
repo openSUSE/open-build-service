@@ -11,6 +11,7 @@ Rails.autoloaders.each do |autoloader|
     'rss_channel' => 'RSSChannel',
     'url_generator' => 'URLGenerator',
     'scm_status_reporter' => 'SCMStatusReporter',
+    'scm_exception_handler' => 'SCMExceptionHandler',
     'yaml_to_workflows_service' => 'YAMLToWorkflowsService',
     'yaml_downloader' => 'YAMLDownloader'
   )

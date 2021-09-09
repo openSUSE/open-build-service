@@ -1,10 +1,8 @@
-class SCMStatusReporter
-  attr_accessor :event_payload, :event_subscription_payload, :scm_token, :state
+class SCMStatusReporter < SCMExceptionHandler
+  attr_accessor :state
 
   def initialize(event_payload, event_subscription_payload, scm_token, event_type = nil)
-    @event_payload = event_payload.deep_symbolize_keys
-    @event_subscription_payload = event_subscription_payload.deep_symbolize_keys
-    @scm_token = scm_token
+    super(event_payload, event_subscription_payload, scm_token)
 
     @state = event_type.nil? ? 'pending' : scm_final_state(event_type)
   end
@@ -26,6 +24,8 @@ class SCMStatusReporter
                                          @state,
                                          status_options)
     end
+  rescue Octokit::Error, Octokit::InvalidRepository, Gitlab::Error::Error => e
+    rescue_with_handler(e) || raise(e)
   end
 
   private
