@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:03 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_25
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_26
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>Françoise Sagan</title>
-          <description>Vitae reiciendis laborum sed.</description>
+          <title>Clouds of Witness</title>
+          <description>Vero blanditiis fugit ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,12 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '145'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0iYXBhY2hlMiIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+Vml0YWUgcmVpY2llbmRpcyBsYWJvcnVtIHNlZC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
-  recorded_at: Tue, 08 Jun 2021 04:47:03 GMT
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>Clouds of Witness</title>
+          <description>Vero blanditiis fugit ea.</description>
+        </package>
+  recorded_at: Thu, 09 Sep 2021 21:30:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/apache2/_service
@@ -100,27 +103,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="220" vrev="220">
-          <srcmd5>02d8aca7854ebebea0a359c81f4876e7</srcmd5>
+        <revision rev="11" vrev="11">
+          <srcmd5>5d2e71c28b008b08a73ae04f21fee0c7</srcmd5>
           <version>unknown</version>
-          <time>1623127623</time>
+          <time>1631223037</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 08 Jun 2021 04:47:04 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_5/_meta?user=user_26
+    uri: http://backend:5352/source/project_8/_meta?user=user_27
     body:
       encoding: UTF-8
       string: |
-        <project name="project_5">
-          <title>Cover Her Face</title>
+        <project name="project_8">
+          <title>As I Lay Dying</title>
           <description/>
         </project>
     headers:
@@ -146,20 +149,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="project_5">
-          <title>Cover Her Face</title>
+        <project name="project_8">
+          <title>As I Lay Dying</title>
           <description></description>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:04 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_5/package_5/_meta?user=user_27
+    uri: http://backend:5352/source/project_8/package_8/_meta?user=user_28
     body:
       encoding: UTF-8
       string: |
-        <package name="package_5" project="project_5">
-          <title>Shall not Perish</title>
-          <description>Deleniti voluptas iusto sed.</description>
+        <package name="package_8" project="project_8">
+          <title>The Needle's Eye</title>
+          <description>Qui modi id earum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -180,13 +183,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '140'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_5" project="project_5">
-          <title>Shall not Perish</title>
-          <description>Deleniti voluptas iusto sed.</description>
+        <package name="package_8" project="project_8">
+          <title>The Needle's Eye</title>
+          <description>Qui modi id earum.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:04 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:37 GMT
 recorded_with: VCR 6.0.0

@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_61
+    uri: http://backend:5352/source/project/_meta?user=user_39
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Rosemary Sutcliff</title>
+          <title>The Cricket on the Hearth</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Rosemary Sutcliff</title>
+          <title>The Cricket on the Hearth</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:39 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_62
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_40
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Sleep the Brave</title>
-          <description>Dolore voluptatem numquam velit.</description>
+          <title>What's Become of Waring</title>
+          <description>Quae voluptas adipisci et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,25 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Sleep the Brave</title>
-          <description>Dolore voluptatem numquam velit.</description>
+          <title>What's Become of Waring</title>
+          <description>Quae voluptas adipisci et.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 04:47:39 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_63
+    uri: http://backend:5352/source/target_project/_meta?user=user_41
     body:
       encoding: UTF-8
       string: |
-        <project name="project_with_a_link">
-          <title>Edna O'Brien</title>
+        <project name="target_project">
+          <title>An Acceptable Time</title>
           <description/>
-          <link project="project"/>
           <person userid="foo" role="maintainer"/>
         </project>
     headers:
@@ -109,50 +108,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '152'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_with_a_link">
-          <title>Edna O'Brien</title>
+        <project name="target_project">
+          <title>An Acceptable Time</title>
           <description></description>
-          <link project="project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 04:47:40 GMT
-- request:
-    method: post
-    uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=package_trigger
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: no repository defined
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '73'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="400">
-          <summary>no repository defined</summary>
-        </status>
-  recorded_at: Tue, 08 Jun 2021 04:47:40 GMT
+  recorded_at: Thu, 09 Sep 2021 21:30:39 GMT
 recorded_with: VCR 6.0.0
