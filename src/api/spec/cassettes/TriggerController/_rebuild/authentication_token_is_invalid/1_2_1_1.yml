@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>Vile Bodies</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>Vile Bodies</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 09 Sep 2021 21:30:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Similique dolore sequi veniam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Similique dolore sequi veniam.</description>
+        </package>
+  recorded_at: Thu, 09 Sep 2021 21:30:32 GMT
+recorded_with: VCR 6.0.0

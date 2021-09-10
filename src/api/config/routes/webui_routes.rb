@@ -333,6 +333,7 @@ OBSApi::Application.routes.draw do
       post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
 
       resources :tokens, controller: 'webui/users/tokens'
+      resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
     end
 
     get 'home', to: 'webui/webui#home', as: :home

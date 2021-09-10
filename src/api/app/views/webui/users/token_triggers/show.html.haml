@@ -1,0 +1,34 @@
+- @pagetitle = 'Trigger Token'
+
+.card
+  .card-body
+    %h3.mb-3= @pagetitle
+
+    -# "as: :token" to have a consistent name across all various token classes
+    = form_for(@token, as: :token, url: token_trigger_path, method: :put, local: false) do |f|
+      .form-row
+        .col-12.col-md-10.col-lg-9
+          .form-group
+            = f.label(:id, 'Id:')
+            = @token.id
+          .form-group
+            = f.label(:type, 'Operation:')
+            = @token.class.token_name.capitalize
+          - token_package = @token.package
+          - if token_package.present?
+            = fields_for(:package, token_package) do |token_fields|
+              .form-group
+                = token_fields.label(:project, 'Project:')
+                = token_package.project
+              .form-group
+                = token_fields.label(:package, 'Package:')
+                = token_package.name
+          - else
+            .form-group.row
+              .col-sm
+                = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project', label: 'Project:', required: true,
+                                                                         data: { source: autocomplete_projects_path(local: true) } }
+              .col-sm
+                = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package', label: 'Package:', required: true,
+                                                                         data: { source: autocomplete_packages_path }, disabled: true }
+      = f.submit('Trigger', class: 'btn btn-primary px-4 mt-3 mt-sm-0')

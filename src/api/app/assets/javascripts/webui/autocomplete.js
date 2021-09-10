@@ -57,9 +57,9 @@ $(document).ready(function() {
     });
   });
 
-  $('#linked_project, #review_project, #project_name').on('autocompletechange', function() {
+  $('#linked_project, #review_project, #project_name, #project').on('autocompletechange', function() {
     var projectName = $(this).val(),
-        packageInput = $('#linked_package, #review_package, #package_name');
+        packageInput = $('#linked_package, #review_package, #package_name, #package');
 
     if (!packageInput.is(':visible')) return;
 
