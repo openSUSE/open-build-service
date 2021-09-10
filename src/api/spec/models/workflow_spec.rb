@@ -189,10 +189,10 @@ The 'source_package' key is missing, and Source package name can't be blank"]
           }
         end
 
-        it 'raises a user-friendly error message' do
-          expect do
-            subject.valid?
-          end.to raise_error(Workflow::Errors::UnsupportedWorkflowFilterTypes, "Filters #{filter} have unsupported keys. only and ignore are the only supported keys.")
+        it 'sets validation errors' do
+          expect(subject.errors.full_messages).to match_array(
+            ["Filters #{filter} have unsupported keys, only and ignore are the only supported keys"]
+          )
         end
       end
     end
@@ -209,8 +209,29 @@ The 'source_package' key is missing, and Source package name can't be blank"]
         }
       end
 
-      it 'raises a user-friendly error message' do
-        expect { subject.valid? }.to raise_error(Workflow::Errors::UnsupportedWorkflowFilters, 'Unsupported filters: unsupported_1 and unsupported_2')
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ['Unsupported filters: unsupported_1 and unsupported_2']
+        )
+      end
+    end
+
+    context 'with a combination of unsupported filters and non-valid types' do
+      let(:yaml) do
+        {
+          'filters' => {
+            'unsupported_1' => { 'only' => ['foo'] },
+            'repositories' => { 'onlyyy' => [{ 'non_valid' => ['ppc'] }, 'x86_64'], 'ignore' => ['i586'] }
+          },
+          'steps' => [{ 'branch_package' => { source_project: 'project',
+                                              source_package: 'package' } }]
+        }
+      end
+
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ['Filters repositories have unsupported keys, only and ignore are the only supported keys', 'Unsupported filters: unsupported_1']
+        )
       end
     end
   end
