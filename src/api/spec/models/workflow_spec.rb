@@ -234,5 +234,24 @@ The 'source_package' key is missing, and Source package name can't be blank"]
         )
       end
     end
+
+    context 'with a combination of invalid filters and invalid steps' do
+      let(:yaml) do
+        {
+          'filters' => {
+            'unsupported_1' => { 'only' => ['foo'] }
+          },
+          'steps' => [{ 'branch_package' => { source_project: nil,
+                                              source_package: 'package' },
+                        'unsuported_step_1' => { source_project: 'project' } }]
+        }
+      end
+
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ["Invalid workflow step definition: unsuported_step_1 is not a supported step and Source project name can't be blank", 'Unsupported filters: unsupported_1']
+        )
+      end
+    end
   end
 end
