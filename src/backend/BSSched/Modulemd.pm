@@ -87,36 +87,47 @@ sub select_dependency {
   return undef;
 }
 
+sub check_conflicting_modules {
+  my ($bconf) = @_;
+  return undef unless @{$bconf->{'modules'} || []} > 1;
+  my %modules = map {$_ => 1} @{$bconf->{'modules'} || []};
+  my %streams;
+  for (sort keys %modules) {
+    push @{$streams{$1}}, $_ if /^(.*)-/;
+  }
+  my @errors;
+  for (sort keys %streams) {
+    push @errors, "conflicting module streams for $_: ".join(" | ", @{$streams{$_}}) if @{$streams{$_}} > 1;
+  }
+  return @errors ? \@errors : undef;
+}
+
 sub extend_modules {
   my ($bconf, $buildrequires) = @_;
   my $pfdata = $bconf->{'buildflags:modulemdplatform'};
   return [ "buildflags:modulemdplatform is not set" ] unless $pfdata;
   my ($versionprefix, $distprefix, @distprovides) = split(':', $pfdata);
   my %distprovides = map {$_ => 1} @distprovides;
-  my @needed;
-  my @have = @{$bconf->{'modules'} || []};
-  push @have, @distprovides;
+  my @errors = @{ check_conflicting_modules($bconf) || [] };
+  my @have = (@{$bconf->{'modules'} || []}, @distprovides);
   my %have = map {$_ => 1} @have;
-  my @errors;
   for (@have) {
     $have{"$1-*"} = $_ if /^(.*)-/;
   }
-  my @ambiguous;
+  my @needed;
   for my $br (@{$buildrequires || []}) {
     my ($n, @v) = split(':', $br);
     next if $n =~ /^-/;
-    if ($have{"$n-*"}) {
-      next if !@v || grep {$have{"$n-$_"}} @v;
-      push @errors, "modulemd requires ".join(" | ", map {"$n-$_"} @v)." instead of ".$have{"$n-*"};
-      next;
-    }
     next if @v && grep {$have{"$n-$_"}} @v;
-    if (@v == 1) {
-      push @needed, "$n-$v[0]";
+    if ($have{"$n-*"}) {
+      next if !@v;		# just need any version
+      push @errors, "modulemd requires ".join(" | ", map {"$n-$_"} @v)." instead of ".$have{"$n-*"};
       next;
     }
     if (!@v) {
       push @errors, "modulemd requires any stream version of $n";
+    } elsif (@v == 1) {
+      push @needed, "$n-$v[0]";
     } else {
       push @errors, "modulemd requires ".join(" | ", map {"$n-$_"} @v);
     }
