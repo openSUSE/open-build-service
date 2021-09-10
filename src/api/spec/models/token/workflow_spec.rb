@@ -108,23 +108,6 @@ RSpec.describe Token::Workflow, vcr: true do
       end
     end
 
-    context 'when the step is not valid' do
-      let(:scm) { 'github' }
-      let(:event) { 'pull_request' }
-      let(:payload) { github_payload }
-      let(:invalid_steps_workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/invalid_steps_workflows.yml')) }
-      let(:downloader) { instance_double(Workflows::YAMLDownloader) }
-
-      before do
-        allow(Workflows::YAMLDownloader).to receive(:new).and_return(downloader)
-        allow(downloader).to receive(:call).and_return(invalid_steps_workflows_yml_file)
-      end
-
-      it 'raises an "Invalid workflow step definition" error' do
-        expect { subject }.to raise_error(Token::Errors::InvalidWorkflowStepDefinition)
-      end
-    end
-
     context 'when the workflows.yml do not exist on the reference branch' do
       let(:octokit_client) { instance_double(Octokit::Client) }
       let(:scm) { 'github' }
