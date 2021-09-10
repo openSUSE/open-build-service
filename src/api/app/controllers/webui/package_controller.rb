@@ -504,9 +504,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def trigger_rebuild
-    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @package, project: @project,
-                                                                   repository: params[:repository],
-                                                                   arch: params[:arch])
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package_object: @package, package_name_with_multibuild_suffix: params[:package],
+                                                                   project: @project, repository: params[:repository], arch: params[:arch])
     authorize rebuild_trigger.policy_object, :update?
 
     if rebuild_trigger.rebuild?

@@ -4,7 +4,7 @@ RSpec.describe ::PackageControllerService::RebuildTrigger do
   let(:project) { OpenStruct.new(name: 'bar') }
   let(:package) { OpenStruct.new(name: 'foo', project: project) }
   let(:params) { {} }
-  let(:rebuild_trigger) { described_class.new(package: package, project: project, params: params) }
+  let(:rebuild_trigger) { described_class.new(package_object: package, package_name_with_multibuild_suffix: package.name, project: project, params: params) }
 
   it { expect(rebuild_trigger.policy_object).to eq(package) }
 
