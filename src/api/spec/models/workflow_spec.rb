@@ -85,6 +85,10 @@ RSpec.describe Workflow, type: :model do
   end
 
   describe '#valid' do
+    before do
+      subject.valid?
+    end
+
     # Steps validations
 
     context 'with a supported step' do
@@ -106,14 +110,19 @@ RSpec.describe Workflow, type: :model do
       it { expect(subject).to be_valid }
     end
 
-    context 'with several unsupported steps' do
+    context 'with unsupported steps' do
       let(:yaml) do
-        { 'steps' => [{ 'unsupported_step' => {} },
+        { 'steps' => [{ 'unsupported_step_1' => {} },
+                      { 'unsupported_step_2' => {} },
                       { 'branch_package' => { source_project: 'project',
                                               source_package: 'package' } }] }
       end
 
-      it { expect { subject.valid? }.to raise_error("Invalid workflow step definition: 'unsupported_step' is not a supported step") }
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ['Invalid workflow step definition: unsupported_step_1 and unsupported_step_2 are not supported steps']
+        )
+      end
     end
 
     context 'when steps are not provided' do
@@ -121,9 +130,8 @@ RSpec.describe Workflow, type: :model do
         { 'steps' => [{}] }
       end
 
-      it 'raises an exception for non-present steps' do
-        expect { subject.valid? }.to raise_error(Token::Errors::InvalidWorkflowStepDefinition,
-                                                 'Invalid workflow. Steps are not present.')
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(['Invalid workflow. Steps are not present.'])
       end
     end
 
@@ -132,10 +140,11 @@ RSpec.describe Workflow, type: :model do
         { 'steps' => [{ 'branch_package' => {} }] }
       end
 
-      it 'raises an exception for non-present instructions' do
-        expect { subject.valid? }.to raise_error(Token::Errors::InvalidWorkflowStepDefinition,
-                                                 "Invalid workflow step definition: Source project name can't be blank, The 'source_project' key is missing, The 'source_package'
-                                                  key is missing, and Source package name can't be blank".squish)
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ["Invalid workflow step definition: Source project name can't be blank, The 'source_project' key is missing, The 'source_package' key is missing, \
+and Source package name can't be blank"]
+        )
       end
     end
 
@@ -145,9 +154,24 @@ RSpec.describe Workflow, type: :model do
                                               source_package: nil } }] }
       end
 
-      it 'raises an exception for invalid instructions' do
-        expect { subject.valid? }.to raise_error(Token::Errors::InvalidWorkflowStepDefinition,
-                                                 "Invalid workflow step definition: Source project name can't be blank and Source package name can't be blank")
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ["Invalid workflow step definition: Source project name can't be blank and Source package name can't be blank"]
+        )
+      end
+    end
+
+    context 'with a combination of unsupported steps and invalid step configuration' do
+      let(:yaml) do
+        { 'steps' => [{ 'unsupported_step_1' => {} },
+                      { 'branch_package' => { source_project: nil } }] }
+      end
+
+      it 'sets validation errors' do
+        expect(subject.errors.full_messages).to match_array(
+          ["Invalid workflow step definition: unsupported_step_1 is not a supported step, Source project name can't be blank, \
+The 'source_package' key is missing, and Source package name can't be blank"]
+        )
       end
     end
 

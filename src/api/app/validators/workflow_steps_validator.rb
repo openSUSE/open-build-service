@@ -8,9 +8,8 @@ class WorkflowStepsValidator < ActiveModel::Validator
   private
 
   def valid_steps?
-    raise Token::Errors::InvalidWorkflowStepDefinition, 'Invalid workflow. Steps are not present.' if no_steps?
-    raise Token::Errors::InvalidWorkflowStepDefinition, "Invalid workflow step definition: #{errors.to_sentence}" if
-      unsupported_steps.present? || invalid_steps.present?
+    @workflow.errors.add(:base, 'Invalid workflow. Steps are not present.') if no_steps?
+    @workflow.errors.add(:base, "Invalid workflow step definition: #{errors.to_sentence}") if unsupported_steps.present? || invalid_steps.present?
   end
 
   def unsupported_steps
@@ -29,15 +28,21 @@ class WorkflowStepsValidator < ActiveModel::Validator
   end
 
   def errors
-    acc = []
+    error_messages = []
+    step_names = []
     unsupported_steps.each do |step_definition|
       step_definition.each do |step_name, _|
-        acc << "'#{step_name}' is not a supported step"
+        step_names << step_name
       end
     end
-    invalid_steps.each do |step|
-      acc << step.errors.full_messages.to_sentence
+
+    if step_names.size.positive?
+      error_messages << "#{step_names.to_sentence} #{step_names.size > 1 ? 'are not supported steps' : 'is not a supported step'}"
     end
-    acc
+
+    invalid_steps.each do |step|
+      error_messages << step.errors.full_messages
+    end
+    error_messages.flatten
   end
 end
