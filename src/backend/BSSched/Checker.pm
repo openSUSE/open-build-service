@@ -412,7 +412,7 @@ sub setup {
     my $modulemd = $pdata->{'modulemd'};
     my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd);
     return ('broken', 'cannot build this module') unless $dependency;
-    my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
+    my $errors = BSSched::Modulemd::extend_modules($bconf, $modulemd, $dependency->{'buildrequires'} || []);
     return ('broken', join(', ', @$errors)) if $errors;
     my $ml = BSSched::Modulemd::calc_modularitylabel($bconf, $modulemd, $dependency->{'requires'} || []);
     return ('broken', 'modularitylabel calculation failed') unless $ml;
