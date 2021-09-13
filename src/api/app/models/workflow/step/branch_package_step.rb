@@ -5,14 +5,17 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   def call(options = {})
     return unless valid?
 
-    # FIXME: Support closed/merged/reopened PRs
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+    workflow_filters = options.fetch(:workflow_filters, {})
+    branch_package(workflow_filters)
+  end
 
+  private
+
+  def branch_package(workflow_filters = {})
     branched_package = find_or_create_branched_package
 
     add_or_update_branch_request_file(package: branched_package)
 
-    workflow_filters = options.fetch(:workflow_filters, {})
     create_or_update_subscriptions(branched_package, workflow_filters)
 
     workflow_repositories(target_project_name, workflow_filters).each do |repository|
@@ -25,14 +28,6 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     end
 
     branched_package
-  end
-
-  private
-
-  def find_or_create_branched_package
-    return target_package if scm_webhook.updated_pull_request? && target_package.present?
-
-    branch
   end
 
   def check_source_access
@@ -49,7 +44,9 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     Pundit.authorize(@token.user, src_package, :create_branch?)
   end
 
-  def branch
+  def find_or_create_branched_package
+    return target_package if scm_webhook.updated_pull_request? && target_package.present?
+
     check_source_access
 
     begin
