@@ -103,10 +103,17 @@ sub check_conflicting_modules {
 }
 
 sub extend_modules {
-  my ($bconf, $buildrequires) = @_;
+  my ($bconf, $modulemd, $buildrequires) = @_;
   my $pfdata = $bconf->{'buildflags:modulemdplatform'};
   return [ "buildflags:modulemdplatform is not set" ] unless $pfdata;
   my ($versionprefix, $distprefix, @distprovides) = split(':', $pfdata);
+  # automatically enable the module we're building
+  if (!$bconf->{'expandflags:noautoenablemodule'}) {
+    my $ourmodule = "$modulemd->{'name'}:$modulemd->{'stream'}";
+    if (!grep {$_ eq $ourmodule} @{$bconf->{'modules'} || []}) {
+      $bconf->{'modules'} = [ sort (@{$bconf->{'modules'}}, $ourmodule) ];
+    }
+  }
   my %distprovides = map {$_ => 1} @distprovides;
   my @errors = @{ check_conflicting_modules($bconf) || [] };
   my @have = (@{$bconf->{'modules'} || []}, @distprovides);
