@@ -102,14 +102,16 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
       it { expect { subject }.to change { token.reload.scm_token }.from('something').to('something_else') }
     end
 
-    context 'does not update a non-workflow token belonging to the logged-in user' do
+    context 'updates the token string of a token belonging to the logged-in user' do
       let(:token) { create(:service_token, user: user) }
-      let(:update_parameters) { { id: token.id, token: { scm_token: 'something_else' } } }
+      let(:update_parameters) { { id: token.id } }
 
-      include_examples 'check for flashing an error'
+      subject { put :update, params: update_parameters, xhr: true }
 
-      it { is_expected.to redirect_to(root_path) }
-      it { expect { subject }.not_to change(token, :scm_token) }
+      include_examples 'check for flashing a success'
+
+      it { expect { subject }.to(change { token.reload.string }) }
+      it { expect { subject }.not_to(change { token.reload.scm_token }) }
     end
 
     context 'redirects to index when passing a non-existent token' do

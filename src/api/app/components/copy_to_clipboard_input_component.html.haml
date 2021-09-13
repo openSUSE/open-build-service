@@ -1,0 +1,23 @@
+-# TODO: Relying on a form builder is a bit weird. We could perhaps directly use `text_field_tag` instead and pass an input value to the component.
+= @form_builder.text_field(:string_readonly, id: 'copy-to-clipboard-readonly', class: 'form-control', readonly: true)
+.input-group-append#copy-to-clipboard
+  %span.input-group-text
+    %i.fas.fa-clipboard
+
+:javascript
+  function copyToClipboard() {
+    document.getElementById('copy-to-clipboard-readonly').select();
+    document.execCommand('copy');
+  }
+
+- content_for :ready_function do
+  :plain
+    // Definition of the tooltip and click event handler for the "Copy to clipboard" icon
+    $('#copy-to-clipboard').tooltip({ title: 'Copy to clipboard' }).on('click', function () {
+      copyToClipboard();
+
+      // Shows "Copied!" tooltip. Later on shows the previous message 'Copy to clipboard' as tooltip.
+      $(this).tooltip('dispose').tooltip({ title: 'Copied!' }).tooltip('show').on('hidden.bs.tooltip', function () {
+        $(this).tooltip('dispose').tooltip({ title: 'Copy to clipboard' });
+      });
+    });

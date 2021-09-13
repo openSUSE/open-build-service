@@ -21,15 +21,28 @@ class Webui::Users::TokensController < Webui::WebuiController
   def update
     authorize @token
 
-    new_scm_token = params.require(:token).permit(:scm_token)
+    respond_to do |format|
+      format.js do
+        if @token.regenerate_string
+          flash.now[:success] = "Token string successfully regenerated! Make sure you save it - you won't be able to access it again."
+          render partial: 'update', locals: { string: @token.string }
+        else
+          flash.now[:error] = 'Failed to regenerate Token string'
+          render partial: 'update'
+        end
+      end
+      format.html do
+        new_scm_token = params.require(:token).except(:string_readonly).permit(:scm_token)
 
-    if @token.update(new_scm_token)
-      flash[:success] = 'Token successfully updated'
-    else
-      flash[:error] = 'Failed to update Token'
+        if @token.update(new_scm_token)
+          flash[:success] = 'Token successfully updated'
+        else
+          flash[:error] = 'Failed to update Token'
+        end
+
+        redirect_to tokens_url
+      end
     end
-
-    redirect_to tokens_url
   end
 
   def create
@@ -70,6 +83,7 @@ class Webui::Users::TokensController < Webui::WebuiController
     @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly).permit(:type, :scm_token).tap do |token_parameters|
       token_parameters.require(:type)
     end
+    @params = @params.except(:scm_token) unless @params[:type] == 'workflow'
     @extra_params = params.slice(:project_name, :package_name).permit!
   end
 
