@@ -83,15 +83,4 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
     # "<link package=\"foo\" project=\"bar\" />"
     Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
   end
-
-  def report_to_scm(workflow_filters)
-    workflow_repositories(target_project_name, workflow_filters).each do |repository|
-      # TODO: Fix n+1 queries
-      workflow_architectures(repository, workflow_filters).each do |architecture|
-        # We cannot report multibuild flavors here... so they will be missing from the initial report
-        SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
-                              scm_webhook.payload, @token.scm_token).call
-      end
-    end
-  end
 end
