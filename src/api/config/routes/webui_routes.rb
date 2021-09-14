@@ -4,6 +4,10 @@ OBSApi::Application.routes.draw do
   constraints(RoutesHelper::WebuiMatcher) do
     root 'webui/main#index'
 
+    constraints(RoutesHelper::RoleMatcher) do
+      mount Flipper::UI.app(Flipper) => '/flipper'
+    end
+
     resources :status_messages, only: [:new, :create, :destroy], controller: 'webui/status_messages'
 
     controller 'webui/feeds' do
