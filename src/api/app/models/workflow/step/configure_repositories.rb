@@ -27,6 +27,10 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     step_instructions[:project]
   end
 
+  def target_project_name
+    "home:#{@token.user.login}:#{project_name}:PR-#{scm_webhook.payload[:pr_number]}"
+  end
+
   private
 
   def validate_repositories
