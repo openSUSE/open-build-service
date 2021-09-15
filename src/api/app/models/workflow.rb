@@ -22,7 +22,7 @@ class Workflow
   validates_with WorkflowFiltersValidator
 
   def steps
-    return {} if workflow_steps.blank?
+    return [] if workflow_steps.blank?
 
     @steps ||= workflow_steps.each_with_object([]) do |step_definition, steps_array|
       step_definition
@@ -54,7 +54,7 @@ class Workflow
   end
 
   def workflow_steps
-    workflow_instructions.fetch(:steps, {})
+    workflow_instructions.fetch(:steps, [])
   end
 
   private
