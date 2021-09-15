@@ -223,7 +223,7 @@ GEM
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     influxdb (0.8.1)
-    influxdb-rails (1.0.2)
+    influxdb-rails (1.0.3)
       influxdb (~> 0.6, >= 0.6.4)
       railties (>= 5.0)
     innertube (1.1.0)
