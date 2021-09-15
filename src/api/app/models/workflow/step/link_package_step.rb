@@ -6,21 +6,19 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
     return unless valid?
 
     workflow_filters = options.fetch(:workflow_filters, {})
-
-    if scm_webhook.updated_pull_request?
-      create_target_package if target_package.blank?
-      create_or_update_subscriptions(target_package, workflow_filters)
-    elsif scm_webhook.new_pull_request?
-      create_target_package
-      create_subscriptions(target_package, workflow_filters)
-    end
-
-    add_or_update_branch_request_file(package: target_package)
-    report_to_scm(workflow_filters)
-    target_package
+    link_package(workflow_filters)
   end
 
   private
+
+  def link_package(workflow_filters = {})
+    create_target_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?)
+
+    create_or_update_subscriptions(target_package, workflow_filters)
+    add_branch_request_file(package: target_package)
+    report_to_scm(workflow_filters)
+    target_package
+  end
 
   def target_project
     Project.find_by(name: target_project_name)
