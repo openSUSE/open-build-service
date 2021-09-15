@@ -9,21 +9,11 @@ RSpec.describe ScmWebhookEventValidator do
     end
   end
 
-  let(:payload) do
-    {
-      scm: scm,
-      event: event,
-      action: action
-    }
-  end
-
   describe '#validate' do
     subject { fake_model.new(payload) }
 
     context 'when the SCM is unsupported' do
-      let(:scm) { 'GitHoob' }
-      let(:event) { 'pull_request' }
-      let(:action) { 'updated' }
+      let(:payload) { { scm: 'GitHoob', event: 'pull_request', action: 'updated' } }
 
       it 'is not valid and has an error message' do
         subject.valid?
@@ -32,11 +22,8 @@ RSpec.describe ScmWebhookEventValidator do
     end
 
     context 'when the SCM is GitHub' do
-      let(:scm) { 'github' }
-
       context 'for an unsupported event' do
-        let(:event) { 'something' }
-        let(:action) { 'opened' }
+        let(:payload) { { scm: 'github', event: 'something', action: 'opened' } }
 
         it 'is not valid and has an error message' do
           subject.valid?
@@ -45,8 +32,7 @@ RSpec.describe ScmWebhookEventValidator do
       end
 
       context 'for a pull request with an unsupported action' do
-        let(:event) { 'pull_request' }
-        let(:action) { 'something' }
+        let(:payload) { { scm: 'github', event: 'pull_request', action: 'something' } }
 
         it 'is not valid and has an error message' do
           subject.valid?
@@ -55,40 +41,48 @@ RSpec.describe ScmWebhookEventValidator do
       end
 
       context 'for a new pull request' do
-        let(:event) { 'pull_request' }
-        let(:action) { 'opened' }
+        let(:payload) { { scm: 'github', event: 'pull_request', action: 'opened' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a pull request which was updated' do
-        let(:event) { 'pull_request' }
-        let(:action) { 'synchronize' }
+        let(:payload) { { scm: 'github', event: 'pull_request', action: 'synchronize' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a pull request which was closed/merged' do
-        let(:event) { 'pull_request' }
-        let(:action) { 'closed' }
+        let(:payload) { { scm: 'github', event: 'pull_request', action: 'closed' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a pull request which was reopened' do
-        let(:event) { 'pull_request' }
-        let(:action) { 'reopened' }
+        let(:payload) { { scm: 'github', event: 'pull_request', action: 'reopened' } }
+
+        it { is_expected.to be_valid }
+      end
+
+      context "for a push event which isn't for a branch" do
+        let(:payload) { { scm: 'github', event: 'push', ref: 'something' } }
+
+        it 'is not valid and has an error message' do
+          subject.valid?
+          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches.')
+        end
+      end
+
+      context 'for a push event which is for a branch' do
+        let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/master' } }
 
         it { is_expected.to be_valid }
       end
     end
 
     context 'when the SCM is GitLab' do
-      let(:scm) { 'gitlab' }
-
       context 'for an unsupported event' do
-        let(:event) { 'something' }
-        let(:action) { 'open' }
+        let(:payload) { { scm: 'gitlab', event: 'something', action: 'open' } }
 
         it 'is not valid and has an error message' do
           subject.valid?
@@ -97,8 +91,7 @@ RSpec.describe ScmWebhookEventValidator do
       end
 
       context 'for a merge request with an unsupported action' do
-        let(:event) { 'Merge Request Hook' }
-        let(:action) { 'something' }
+        let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'something' } }
 
         it 'is not valid and has an error message' do
           subject.valid?
@@ -107,36 +100,46 @@ RSpec.describe ScmWebhookEventValidator do
       end
 
       context 'for a new merge request' do
-        let(:event) { 'Merge Request Hook' }
-        let(:action) { 'open' }
+        let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'open' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a merge request which was updated' do
-        let(:event) { 'Merge Request Hook' }
-        let(:action) { 'update' }
+        let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'update' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a merge request which was closed' do
-        let(:event) { 'Merge Request Hook' }
-        let(:action) { 'close' }
+        let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'close' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a merge request which was merged' do
-        let(:event) { 'Merge Request Hook' }
-        let(:action) { 'merge' }
+        let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'merge' } }
 
         it { is_expected.to be_valid }
       end
 
       context 'for a merge request which was reopened' do
-        let(:event) { 'Merge Request Hook' }
-        let(:action) { 'reopen' }
+        let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook', action: 'reopen' } }
+
+        it { is_expected.to be_valid }
+      end
+
+      context "for a push event which isn't for a branch" do
+        let(:payload) { { scm: 'gitlab', event: 'Push Hook', ref: 'something' } }
+
+        it 'is not valid and has an error message' do
+          subject.valid?
+          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches.')
+        end
+      end
+
+      context 'for a push event which is for a branch' do
+        let(:payload) { { scm: 'gitlab', event: 'Push Hook', ref: 'refs/heads/master' } }
 
         it { is_expected.to be_valid }
       end
