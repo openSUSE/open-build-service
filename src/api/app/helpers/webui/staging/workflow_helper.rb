@@ -20,7 +20,7 @@ module Webui::Staging::WorkflowHelper
     total = Review.where(bs_request: staging_project.staged_requests).size
     missing = staging_project.missing_reviews.count { |missing_review| staged_requests_numbers.include?(missing_review[:request]) }
 
-    100 - missing * 100 / total
+    100 - (missing * 100 / total)
   end
 
   def testing_progress(staging_project)
@@ -29,7 +29,7 @@ module Webui::Staging::WorkflowHelper
     not_done = staging_project.checks.pending.size + staging_project.missing_checks.size
     all_checks = staging_project.checks.size + staging_project.missing_checks.size
 
-    100 - not_done * 100 / all_checks
+    100 - (not_done * 100 / all_checks)
   end
 
   def progress(staging_project)

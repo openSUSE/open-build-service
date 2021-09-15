@@ -40,7 +40,7 @@
         Source Files
         - if @linkinfo && @revision_parameter.nil?
           %small
-            - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
+            - if (@expand && @expand.to_s == '1') || @forced_unexpand.present?
               = link_to('(show unmerged sources)', package_show_path(project: @project.name, package: @package.name,
                                                                      rev: @revision_parameter, expand: '0'))
             - else

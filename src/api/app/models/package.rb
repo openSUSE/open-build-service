@@ -803,7 +803,7 @@ class Package < ApplicationRecord
   end
 
   def activity
-    activity_index * 2.3276**((updated_at_was.to_f - Time.now.to_f) / 10_000_000)
+    activity_index * (2.3276**((updated_at_was.to_f - Time.now.to_f) / 10_000_000))
   end
 
   def open_requests_with_package_as_source_or_target

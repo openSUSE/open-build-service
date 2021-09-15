@@ -1137,8 +1137,8 @@ class BsRequest < ApplicationRecord
   # This method checks makes sure this is the case.
   def change_priorities?(new_priority)
     new_priority == 'critical' ||
-      new_priority == 'important' && priority.in?(['moderate', 'low']) ||
-      new_priority == 'moderate' && priority == 'low'
+      (new_priority == 'important' && priority.in?(['moderate', 'low'])) ||
+      (new_priority == 'moderate' && priority == 'low')
   end
 
   def check_bs_request_actions!(opts = {})
