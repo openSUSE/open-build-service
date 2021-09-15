@@ -1,7 +1,6 @@
 class Workflow::Step
   include ActiveModel::Model
 
-  validates :source_project_name, presence: true
   validate :validate_step_instructions
 
   attr_accessor :scm_webhook, :step_instructions, :token
@@ -42,10 +41,6 @@ class Workflow::Step
     self.class::REQUIRED_KEYS.each do |required_key|
       errors.add(:base, "The '#{required_key}' key is missing") unless step_instructions.key?(required_key)
     end
-  end
-
-  def source_project_name
-    step_instructions[:source_project]
   end
 
   def source_package_name

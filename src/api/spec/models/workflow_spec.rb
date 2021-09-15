@@ -142,8 +142,8 @@ RSpec.describe Workflow, type: :model do
 
       it 'sets validation errors' do
         expect(subject.errors.full_messages).to match_array(
-          ["Invalid workflow step definition: Source project name can't be blank, The 'source_project' key is missing, The 'source_package' key is missing, \
-and Source package name can't be blank"]
+          ["Invalid workflow step definition: The 'source_project' key is missing, The 'source_package' key is missing, \
+Source project name can't be blank, and Source package name can't be blank"]
         )
       end
     end
@@ -169,8 +169,8 @@ and Source package name can't be blank"]
 
       it 'sets validation errors' do
         expect(subject.errors.full_messages).to match_array(
-          ["Invalid workflow step definition: unsupported_step_1 is not a supported step, Source project name can't be blank, \
-The 'source_package' key is missing, and Source package name can't be blank"]
+          ["Invalid workflow step definition: unsupported_step_1 is not a supported step, The 'source_package' key is missing, \
+Source project name can't be blank, and Source package name can't be blank"]
         )
       end
     end

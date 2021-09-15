@@ -12,7 +12,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
     let(:target_project) { create(:project, name: target_project_name) }
     let(:step_instructions) do
       {
-        source_project: 'OBS:Server:Unstable',
+        project: 'OBS:Server:Unstable',
         repositories:
           [
             {
@@ -83,7 +83,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       context 'and there is no source project in the configuration file' do
         let(:step_instructions) do
           {
-            project: 'OBS:Server:Unstable',
+            fake_project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -109,16 +109,16 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           expect { subject.call({}) }.not_to change(Architecture, :count)
         end
 
-        it 'a validation fails complaining about a missing source project' do
+        it 'a validation fails complaining about a missing project' do
           subject.call
-          expect(subject.errors.full_messages).to include("Source project name can't be blank")
+          expect(subject.errors.full_messages).to include("Project name can't be blank")
         end
       end
 
       context 'and there is no target project defined in the repository definition' do
         let(:step_instructions) do
           {
-            source_project: 'OBS:Server:Unstable',
+            project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -143,7 +143,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       context 'and there is no target repository in the repository definition' do
         let(:step_instructions) do
           {
-            source_project: 'OBS:Server:Unstable',
+            project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -168,7 +168,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       context 'and the target repository already exist in the database' do
         let(:step_instructions) do
           {
-            source_project: 'OBS:Server:Unstable',
+            project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -196,7 +196,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       context 'and there are no architectures in the repository definition' do
         let(:step_instructions) do
           {
-            source_project: 'OBS:Server:Unstable',
+            project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -218,7 +218,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       context "and the architectures in the repository definition don't exist" do
         let(:step_instructions) do
           {
-            source_project: 'OBS:Server:Unstable',
+            project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -254,7 +254,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
     context 'when there is no target project in the database' do
       let(:step_instructions) do
         {
-          source_project: 'OBS:Server:Unstable',
+          project: 'OBS:Server:Unstable',
           repositories:
             [
               {
