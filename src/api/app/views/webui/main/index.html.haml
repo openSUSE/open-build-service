@@ -22,7 +22,7 @@
       .card.mb-3
         %h5.card-header New here? Sign up!
         .card-body
-          = render partial: 'webui/shared/sign_up', locals: { submit_btn_text: 'Sign Up' }
+          = render SignUpComponent.new
     - if @status_messages.present? || User.admin_session?
       = render partial: 'status_messages', locals: { status_messages: @status_messages }
     = render(partial: 'latest_updates') if @latest_updates && (::Configuration.anonymous || User.session)
