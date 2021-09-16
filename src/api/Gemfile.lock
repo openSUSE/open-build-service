@@ -468,7 +468,7 @@ GEM
       concurrent-ruby (~> 1.0)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
-    unicode-display_width (2.0.0)
+    unicode-display_width (2.1.0)
     uniform_notifier (1.14.2)
     vcr (6.0.0)
     view_component (2.40.0)
