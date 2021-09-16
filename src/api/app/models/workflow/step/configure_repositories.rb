@@ -1,7 +1,8 @@
 class Workflow::Step::ConfigureRepositories < Workflow::Step
-  REQUIRED_KEYS = [:source_project, :repositories].freeze
+  REQUIRED_KEYS = [:project, :repositories].freeze
   REQUIRED_REPOSITORY_KEYS = [:architectures, :name, :target_project, :target_repository].freeze
 
+  validates :project_name, presence: true
   validate :validate_repositories
   validate :validate_architectures
 
@@ -20,6 +21,14 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
         repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
       end
     end
+  end
+
+  def project_name
+    step_instructions[:project]
+  end
+
+  def target_project_name
+    "home:#{@token.user.login}:#{project_name}:PR-#{scm_webhook.payload[:pr_number]}"
   end
 
   private

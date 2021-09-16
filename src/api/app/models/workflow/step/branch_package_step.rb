@@ -1,5 +1,7 @@
 class Workflow::Step::BranchPackageStep < ::Workflow::Step
   REQUIRED_KEYS = [:source_project, :source_package].freeze
+
+  validates :source_project_name, presence: true
   validates :source_package_name, presence: true
 
   def call(options = {})
@@ -7,6 +9,10 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
 
     workflow_filters = options.fetch(:workflow_filters, {})
     branch_package(workflow_filters)
+  end
+
+  def source_project_name
+    step_instructions[:source_project]
   end
 
   private
