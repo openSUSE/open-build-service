@@ -859,6 +859,11 @@ sub calcrelsynctrigger {
   my $gdst = $ctx->{'gdst'};
   my $projid = $ctx->{'project'};
 
+  if ($ctx->{'conf'}->{'buildflags:norelsync'}) {
+    $ctx->{'relsynctrigger'} = {};
+    $ctx->{'relsyncmax'} = undef;
+    return;
+  }
   my $relsyncmax;
   my %relsynctrigger;
 
