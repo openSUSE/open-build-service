@@ -24,12 +24,12 @@ class Workflow
   def steps
     return {} if workflow_steps.blank?
 
-    @steps ||= workflow_steps.each_with_object([]) do |step_definition, acc|
+    @steps ||= workflow_steps.each_with_object([]) do |step_definition, steps_array|
       step_definition
         .select { |step_name, _| SUPPORTED_STEPS.key?(step_name) }
         .map { |step_name, step_instructions| initialize_step(step_name, step_instructions) }
-        .select { |new_step| acc << new_step }
-      acc
+        .select { |new_step| steps_array << new_step }
+      steps_array
     end
   end
 
