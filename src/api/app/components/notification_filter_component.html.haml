@@ -1,0 +1,27 @@
+.row.list-group-flush
+  = render NotificationFilterLinkComponent.new(text: 'Unread', amount: @count['unread'],
+                                               filter_item: { type: 'unread' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Read', filter_item: { type: 'read' },
+                                               selected_filter: @selected_filter)
+.row.list-group-flush.mt-5
+  %h5.ml-3 Filter
+  = render NotificationFilterLinkComponent.new(text: 'Comments', amount: @count['Comment'],
+                                               filter_item: { type: 'comments' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Requests', amount: @count['BsRequest'],
+                                               filter_item: { type: 'requests' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Incoming Requests', amount: @count['incoming_requests'],
+                                               filter_item: { type: 'incoming_requests' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: @count['outgoing_requests'],
+                                               filter_item: { type: 'outgoing_requests' }, selected_filter: @selected_filter)
+- unless @projects_for_filter.empty?
+  .row.list-group-flush.mt-5
+    %h5.ml-3 Projects
+    - @projects_for_filter.each_pair do |project_name, amount|
+      = render NotificationFilterLinkComponent.new(text: project_name, amount: amount, filter_item: { project: project_name },
+                                                   selected_filter: @selected_filter)
+- unless @groups_for_filter.empty?
+  .row.list-group-flush.mt-5
+    %h5.ml-3 Groups
+    - @groups_for_filter.each_pair do |group_title, amount|
+      = render NotificationFilterLinkComponent.new(text: group_title, amount: amount, filter_item: { group: group_title },
+                                                   selected_filter: @selected_filter)
