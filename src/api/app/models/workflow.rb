@@ -4,7 +4,8 @@ class Workflow
   SUPPORTED_STEPS = {
     branch_package: Workflow::Step::BranchPackageStep,
     link_package: Workflow::Step::LinkPackageStep,
-    configure_repositories: Workflow::Step::ConfigureRepositories
+    configure_repositories: Workflow::Step::ConfigureRepositories,
+    rebuild_package: Workflow::Step::RebuildPackage
   }.freeze
 
   SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
