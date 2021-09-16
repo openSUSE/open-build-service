@@ -3,46 +3,7 @@ require 'rails_helper'
 RSpec.describe Token::Workflow, vcr: true do
   let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:workflow_token) { create(:workflow_token, user: token_user) }
-  let(:github_payload_closed) do
-    {
-      action: 'closed',
-      pull_request: {
-        head: {
-          repo: {
-            full_name: 'username/test_repo'
-          }
-        },
-        base: {
-          ref: 'main'
-        }
-      },
-      number: 4,
-      sender: {
-        url: 'https://api.github.com'
-      }
-    }
-  end
-
-  let(:github_payload_reopened) do
-    {
-      action: 'reopened',
-      pull_request: {
-        head: {
-          repo: {
-            full_name: 'username/test_repo'
-          }
-        },
-        base: {
-          ref: 'main'
-        }
-      },
-      number: 4,
-      sender: {
-        url: 'https://api.github.com'
-      }
-    }
-  end
-
+  # TODO: rerun the specs with vcr on to see if we clear some of the cassettes
   let(:github_payload) do
     {
       action: 'opened',
@@ -111,41 +72,8 @@ RSpec.describe Token::Workflow, vcr: true do
     end
   end
 
+  # FIXME: Create a mocked workflow to just test the workflow calling
   describe '#call' do
-    context 'PR was reopened' do
-      let(:scm) { 'github' }
-      let(:event) { 'pull_request' }
-      let(:payload) { github_payload_reopened }
-      let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
-      let(:downloader) { instance_double(Workflows::YAMLDownloader) }
-
-      before do
-        allow(Workflows::YAMLDownloader).to receive(:new).and_return(downloader)
-        allow(downloader).to receive(:call).and_return(workflows_yml_file)
-        allow(Project).to receive(:restore)
-        subject
-      end
-
-      it { expect(Project).to have_received(:restore) }
-    end
-
-    context 'PR was closed' do
-      let(:scm) { 'github' }
-      let(:event) { 'pull_request' }
-      let(:payload) { github_payload_closed }
-      let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
-      let(:downloader) { instance_double(Workflows::YAMLDownloader) }
-
-      before do
-        allow(Workflows::YAMLDownloader).to receive(:new).and_return(downloader)
-        allow(downloader).to receive(:call).and_return(workflows_yml_file)
-        allow(workflow_token).to receive(:destroy_all_target_projects)
-        subject
-      end
-
-      it { expect(workflow_token).to have_received(:destroy_all_target_projects) }
-    end
-
     context "when the webhook's event is not the expected one" do
       context 'when the SCM is GitHub' do
         it_behaves_like 'not-allowed event or action' do
@@ -203,6 +131,9 @@ RSpec.describe Token::Workflow, vcr: true do
     end
 
     context 'when the webhook and configuration is correct' do
+      let(:scm) { 'github' }
+      let(:event) { 'pull_request' }
+      let(:payload) { github_payload }
       let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
       let!(:package) { create(:package, name: 'test-package', project: project) }
       let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
@@ -216,6 +147,7 @@ RSpec.describe Token::Workflow, vcr: true do
         # Stub SCMStatusReporter#call
         allow(SCMStatusReporter).to receive(:new).and_return(reporter)
         allow(reporter).to receive(:call)
+        login token_user
       end
 
       context 'when the SCM is GitHub' do
@@ -232,6 +164,10 @@ RSpec.describe Token::Workflow, vcr: true do
           let(:event) { 'Merge Request Hook' }
           let(:payload) { gitlab_payload }
         end
+      end
+
+      it 'raises a user-friendly error message' do
+        expect { subject }.to change(Project, :count)
       end
     end
   end

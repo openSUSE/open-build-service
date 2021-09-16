@@ -21,6 +21,19 @@ class Workflow
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
 
+  def call
+    case
+    when scm_webhook.closed_merged_pull_request?
+      destroy_target_projects
+    when scm_webhook.reopened_pull_request?
+      restore_target_projects
+    when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?
+      steps.each do |step|
+        step.call({ workflow_filters: filters })
+      end
+    end
+  end
+
   def steps
     return [] if workflow_steps.blank?
 
@@ -67,5 +80,33 @@ class Workflow
 
   def supported_filters
     @supported_filters ||= workflow_instructions[:filters]&.select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
+  end
+
+  def destroy_target_projects
+    # Do not process steps for which there's nothing to do
+    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) }
+    target_packages = steps.map(&:target_package).uniq.compact
+    EventSubscription.where(channel: 'scm', token: self, package: target_packages).delete_all
+
+    target_project_names = processable_steps.map(&:target_project_name).uniq.compact
+    # We want the callbacks to run after destroy, so we can't use delete_all
+    Project.where(name: target_project_names).destroy_all
+  end
+
+  def restore_target_projects
+    token_user_login = token.user.login
+
+    # Do not process steps for which there's nothing to do
+    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) }
+    target_project_names = processable_steps.map(&:target_project_name).uniq.compact
+    target_project_names.each do |target_project_name|
+      Project.restore(target_project_name, user: token_user_login)
+    end
+
+    target_packages = processable_steps.map(&:target_package).uniq.compact
+    target_packages.each do |target_package|
+      # FIXME: We shouldn't rely on a workflow step to be able to create/update subscriptions
+      processable_steps.first.create_or_update_subscriptions(target_package, filters)
+    end
   end
 end
