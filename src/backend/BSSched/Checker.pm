@@ -341,6 +341,7 @@ sub setup {
   BSBuild::setgenmetaalgo($genmetaalgo);
   BSSolv::setgenmetaalgo($genmetaalgo) if $gctx->{'maxgenmetaalgo'};
   $ctx->{'genmetaalgo'} = $genmetaalgo;
+  $ctx->{'forcebinaryidmeta'} = 1 if $bconf->{'buildflags:forcebinaryidmeta'};
 
   # check for package blacklist
   if (exists $bconf->{'buildflags:excludebuild'}) {

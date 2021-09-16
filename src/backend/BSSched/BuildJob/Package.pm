@@ -195,6 +195,7 @@ sub check {
     return ('scheduled', [ { 'explain' => 'retrying bad build' }, $hdeps ]);
   } else {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
+    my $forcebinaryidmeta = $ctx->{'forcebinaryidmeta'};
     if ($rebuildmethod eq 'local' || $pdata->{'hasbuildenv'} || $info->{'hasbuildenv'}) {
       # rebuild on src changes only
       goto relsynccheck;
@@ -211,6 +212,7 @@ sub check {
     my $dep2pkg = $ctx->{'dep2pkg'};
     my $dep2pkg_host = $ctx->{'dep2pkg_host'};
     $check .= $ctx->{'genmetaalgo'} if $ctx->{'genmetaalgo'};
+    $check .= 'forcebinaryidmeta' if $ctx->{'forcebinaryidmeta'};
     $check .= $ctx->{'modularity_meta'} if $ctx->{'modularity_meta'};
     $check .= $rebuildmethod;
     $check .= $pool->pkg2pkgid($dep2pkg->{$_}) for sort @$edeps;
@@ -230,7 +232,7 @@ sub check {
     my $addmeta = defined(&BSSolv::add_meta) ? \&BSSolv::add_meta : \&BSBuild::add_meta;
     for my $bin (@$edeps) {
       my $pkg = $dep2pkg->{$bin};
-      my $path = $pool->pkg2fullpath($pkg, $myarch);
+      my $path = $forcebinaryidmeta ? undef : $pool->pkg2fullpath($pkg, $myarch);
       if ($depislocal->{$bin} && $path) {
 	my $m = $dep2meta->{$bin};
 	if (!$m) {
@@ -384,7 +386,7 @@ sub build {
     return ($state, $job);
   }
 
-  $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
+  $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid} && !$ctx->{'forcebinaryidmeta'};
   my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed);
   delete $info->{'nounchanged'};
   return ($state, $job);

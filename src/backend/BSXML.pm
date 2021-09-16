@@ -571,6 +571,7 @@ our $buildinfo = [
 	'nodbgpkgs',	# kiwi
 	'nosrcpkgs',	# kiwi
 	'genmetaalgo',	# internal
+	'forcebinaryidmeta',	# internal
 	'logidlelimit',	# internal
 	'logsizelimit',	# internal
 	'genbuildreqs',	# internal

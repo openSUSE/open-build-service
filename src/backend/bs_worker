@@ -2004,6 +2004,7 @@ sub getpreinstallimage {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
+    $nometa = 1 if $buildinfo->{'forcebinaryidmeta'};
     $nometa = 1 if $buildinfo->{'crossarch'};	# preinstallimage is always native
     my $callers_time = time();
     my @args;
@@ -2612,9 +2613,9 @@ sub getbinaries {
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last unless @todo;
     my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
-    my $nometa = 0;
-    $nometa = 1 if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
+    my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
+    $nometa = 1 if $buildinfo->{'forcebinaryidmeta'};
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $arch = $buildinfo->{'arch'};
     my $binaryprefix = $cross ? '__sysroot__' : '';
