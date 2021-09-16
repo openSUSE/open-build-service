@@ -12,22 +12,12 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   private
 
   def branch_package(workflow_filters = {})
-    branched_package = find_or_create_branched_package
+    create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?)
 
-    add_or_update_branch_request_file(package: branched_package)
-
-    create_or_update_subscriptions(branched_package, workflow_filters)
-
-    workflow_repositories(target_project_name, workflow_filters).each do |repository|
-      # TODO: Fix n+1 queries
-      workflow_architectures(repository, workflow_filters).each do |architecture|
-        # We cannot report multibuild flavors here... so they will be missing from the initial report
-        SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
-                              scm_webhook.payload, @token.scm_token).call
-      end
-    end
-
-    branched_package
+    create_or_update_subscriptions(target_package, workflow_filters)
+    add_branch_request_file(package: target_package)
+    report_to_scm(workflow_filters)
+    target_package
   end
 
   def check_source_access
@@ -44,9 +34,7 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     Pundit.authorize(@token.user, src_package, :create_branch?)
   end
 
-  def find_or_create_branched_package
-    return target_package if scm_webhook.updated_pull_request? && target_package.present?
-
+  def create_branched_package
     check_source_access
 
     begin

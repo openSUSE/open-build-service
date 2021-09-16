@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/ClassLength
 class Workflow::Step
   include ActiveModel::Model
 
@@ -24,8 +23,6 @@ class Workflow::Step
     Package.find_by_project_and_name(target_project_name, target_package_name)
   end
 
-  # FIXME: Remove this and use create_subscriptions and update_subscriptions as soon as BranchPackageStep and Token::Workflow are refactored
-  #        This method is public since it has to be called from Token::Workflow. This shouldn't be needed.
   def create_or_update_subscriptions(package, workflow_filters)
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
       subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
@@ -67,7 +64,7 @@ class Workflow::Step
     Project.find_remote_project(source_project_name).present?
   end
 
-  def add_or_update_branch_request_file(package:)
+  def add_branch_request_file(package:)
     branch_request_file = case scm_webhook.payload[:scm]
                           when 'github'
                             branch_request_content_github
@@ -99,29 +96,6 @@ class Workflow::Step
       object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
   end
 
-  def create_subscriptions(package, workflow_filters)
-    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-      EventSubscription.create!(eventtype: build_event,
-                                receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                user: @token.user,
-                                channel: 'scm',
-                                enabled: true,
-                                token: @token,
-                                package: package,
-                                payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
-    end
-  end
-
-  def update_subscriptions(package, workflow_filters)
-    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-      subscription = EventSubscription.find_by(eventtype: build_event,
-                                               channel: 'scm',
-                                               token: @token,
-                                               package: package)
-      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
-    end
-  end
-
   # TODO: Move to a query object.
   def workflow_repositories(target_project_name, filters)
     repositories = Project.get_by_name(target_project_name).repositories
@@ -145,5 +119,15 @@ class Workflow::Step
 
     architectures
   end
+
+  def report_to_scm(workflow_filters)
+    workflow_repositories(target_project_name, workflow_filters).each do |repository|
+      # TODO: Fix n+1 queries
+      workflow_architectures(repository, workflow_filters).each do |architecture|
+        # We cannot report multibuild flavors here... so they will be missing from the initial report
+        SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
+                              scm_webhook.payload, @token.scm_token).call
+      end
+    end
+  end
 end
-# rubocop:enable Metrics/ClassLength
