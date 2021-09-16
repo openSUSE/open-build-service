@@ -137,10 +137,10 @@ module Webui::WebuiHelper
       when :left # shorten at the beginning
         shortened_text = '...' + text[text.length - length + 3..text.length]
       when :middle # shorten in the middle
-        pre = text[0..length / 2 - 2]
+        pre = text[0..(length / 2) - 2]
         offset = 2 # depends if (shortened) length is even or odd
         offset = 1 if length.odd?
-        post = text[text.length - length / 2 + offset..text.length]
+        post = text[text.length - (length / 2) + offset..text.length]
         shortened_text = pre + '...' + post
       when :right # shorten at the end
         shortened_text = text[0..length - 4] + '...'

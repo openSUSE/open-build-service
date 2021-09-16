@@ -217,9 +217,9 @@ class Project < ApplicationRecord
         # check if User.session! belongs to group.
         User.session!.is_in_group?(grouprel.group) ||
           # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-          CONFIG['ldap_mode'] == :on &&
+          (CONFIG['ldap_mode'] == :on &&
             CONFIG['ldap_group_support'] == :on &&
-            UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id)
+            UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id))
       end
     end
 

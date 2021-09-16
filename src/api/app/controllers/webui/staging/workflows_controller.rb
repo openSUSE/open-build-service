@@ -120,11 +120,11 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
              when :acceptable
                10_000
              when :review
-               20_000 - helpers.review_progress(project) * 10
+               20_000 - (helpers.review_progress(project) * 10)
              when :testing
-               30_000 - helpers.testing_progress(project) * 10
+               30_000 - (helpers.testing_progress(project) * 10)
              when :building
-               40_000 - helpers.build_progress(project) * 10
+               40_000 - (helpers.build_progress(project) * 10)
              when :failed
                50_000
              when :unacceptable

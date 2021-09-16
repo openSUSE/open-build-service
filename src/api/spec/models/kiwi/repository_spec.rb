@@ -56,11 +56,11 @@ RSpec.describe Kiwi::Repository, type: :model do
         property_of do
           project = []
           range(1, 3).times do
-            project << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w.]/) }
+            project << (string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w.]/) })
           end
           repository = []
           range(1, 3).times do
-            repository << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w.]/) }
+            repository << (string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w.]/) })
           end
           path = "obs://#{project.join(':')}/#{repository.join(':')}"
           path

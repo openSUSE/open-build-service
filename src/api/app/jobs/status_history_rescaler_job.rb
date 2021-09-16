@@ -4,7 +4,7 @@ class StatusHistoryRescalerJob < ApplicationJob
   # this is called from a delayed job triggered by clockwork
   def perform
     maxtime = StatusHistory.maximum(:time)
-    StatusHistory.where('time < ?', maxtime - 365 * 24 * 3600).delete_all if maxtime
+    StatusHistory.where('time < ?', maxtime - (365 * 24 * 3600)).delete_all if maxtime
 
     keys = StatusHistory.distinct.pluck(:key)
     keys.each do |key|
@@ -47,7 +47,7 @@ class StatusHistoryRescalerJob < ApplicationJob
       items = find_start_items(allitems, curmintime + offset)
 
       if items.length > 1
-        timeavg = curmintime + offset / 2
+        timeavg = curmintime + (offset / 2)
         valuavg = (items.inject(0) { |sum, item| sum + item.value }).to_f / items.length
         Rails.logger.debug { "scaling #{key} #{curmintime} #{items.length} #{Time.at(timeavg)} #{valuavg}" }
         StatusHistory.delete(items.map(&:id))

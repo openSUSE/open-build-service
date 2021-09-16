@@ -8,7 +8,7 @@ class StatusHelperTest < ActiveSupport::TestCase
     now = 10_000
     testarray = []
     10.times do |i|
-      testarray << [now - i * 10, i]
+      testarray << [now - (i * 10), i]
     end
     # [[10000, 0], [9990, 1], [9980, 2], [9970, 3], [9960, 4], [9950, 5], [9940, 6], [9930, 7], [9920, 8], [9910, 9]]
     # while the testarray increases, the timestamps go down, so the result needs to decrease

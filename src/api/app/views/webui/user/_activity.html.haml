@@ -11,7 +11,7 @@
         %tr
           %td.week-day= Date::ABBR_DAYNAMES[(week_day + 1) % 7]
           - 53.times do |week_number|
-            - current_day = first_day + week_number * 7 + week_day
+            - current_day = first_day + (week_number * 7) + week_day
 
             - if current_day > last_day
               %td
