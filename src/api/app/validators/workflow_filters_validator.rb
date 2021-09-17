@@ -19,8 +19,8 @@ class WorkflowFiltersValidator < ActiveModel::Validator
 
     return unless unsupported_filter_types?
 
-    @workflow.errors.add(:base,
-                         "Filters #{unsupported_filter_types.to_sentence} have unsupported keys, #{Workflow::SUPPORTED_FILTER_TYPES.to_sentence} are the only supported keys")
+    @workflow.errors.add(:base, "Filters #{unsupported_filter_types.to_sentence} have unsupported keys, " \
+                                "#{Workflow::SUPPORTED_FILTER_TYPES.map { |key| "'#{key}'" }.to_sentence} are the only supported keys")
   end
 
   def unsupported_filters
