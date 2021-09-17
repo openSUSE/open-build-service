@@ -16,6 +16,9 @@ class TriggerController < ApplicationController
 
   before_action :validate_gitlab_event, if: :gitlab_webhook?
   before_action :set_token
+  before_action :set_project_name
+  before_action :set_package_name
+  # From Triggerable
   before_action :set_project
   before_action :set_package
   before_action :set_object_to_authorize
@@ -63,5 +66,13 @@ class TriggerController < ApplicationController
 
   def pundit_user
     @token.user
+  end
+
+  def set_project_name
+    @project_name = params[:project]
+  end
+
+  def set_package_name
+    @package_name = params[:package]
   end
 end
