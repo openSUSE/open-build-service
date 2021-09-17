@@ -3384,6 +3384,12 @@ sub getbuilddepinfo {
   my @cycles = map {{'package' => $_}} @{$depends->{'cycles'} || []};
   my $res = { 'package' => \@res, };
   $res->{'cycle'} = \@cycles if @cycles;
+  if (@{$depends->{'sccs'} || []}) {
+    my @sccs = @{$depends->{'sccs'} || []};
+    @$_ = sort @$_ for @sccs;
+    @sccs = sort {$a->[0] cmp $b->[0]} @sccs;
+    $res->{'sccs'} = [ map {{'package' => $_}} @sccs ];
+  }
   return ($res, $BSXML::builddepinfo);
 }
 

@@ -721,6 +721,9 @@ our $builddepinfo = [
      [[ 'cycle' =>
 	  [ 'package' ],
      ]],
+     [[ 'scc' =>
+	  [ 'package' ],
+     ]],
 ];
 
 our $event = [

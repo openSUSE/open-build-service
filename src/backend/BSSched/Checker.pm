@@ -805,8 +805,19 @@ sub expandandsort {
   # now sort
   print "    sorting ".@$packs." packages\n";
   my @cycles;
+  my @sccs;
+  delete $ctx->{'sccs'};
   if (@$packs > 1) {
-    if (defined &BSSolv::depsort2) {
+    if (defined(&BSSolv::depsort2) && defined(&BSSolv::setdepsortsccs)) {
+      BSSolv::setdepsortsccs(2);
+      @$packs = BSSolv::depsort2(\%pdeps, $ctx->{'dep2src'}, \%pkg2src, \@cycles, @$packs);
+      BSSolv::setdepsortsccs(0);
+      if (@cycles) {
+        push @sccs, shift @cycles while @cycles && @{$cycles[0]};
+        shift @cycles;
+      }
+      $ctx->{'sccs'} = \@sccs;
+    } elsif (defined &BSSolv::depsort2) {
       @$packs = BSSolv::depsort2(\%pdeps, $ctx->{'dep2src'}, \%pkg2src, \@cycles, @$packs);
     } else {
       @$packs = emulate_depsort2(\%pdeps, $ctx->{'dep2src'}, \%pkg2src, \@cycles, @$packs);
@@ -835,12 +846,14 @@ sub expandandsort {
   for (values %pkg2src) {
     $prunedsubpacks{$_} = $subpacks->{$_} if $subpacks->{$_};
   }
-  BSUtil::store("$gdst/.:depends", "$gdst/:depends", {
+  my $depends = {
     'pkgdeps' => \%pdeps,
     'subpacks' => \%prunedsubpacks,
     'pkg2src' => \%pkg2src,
-    'cycles' => \@cycles,
-  });
+  };
+  $depends->{'cycles'} = \@cycles if @cycles;
+  $depends->{'sccs'} = \@sccs if @sccs;
+  BSUtil::store("$gdst/.:depends", "$gdst/:depends", $depends);
   %prunedsubpacks = ();
   # remove old entries again
   for (keys %pkgdisabled) {
@@ -954,7 +967,7 @@ sub checkpkgs {
   $ctx->{'unfinished'} = \%unfinished;
 
   # now build cychash mapping packages to all other cycle members
-  for my $cyc (@{$ctx->{'cycles'} || []}) {
+  for my $cyc (@{$ctx->{'sccs'} || $ctx->{'cycles'} || []}) {
     next if @$cyc < 2;	# just in case
     my @c = map {@{$cychash{$_} || [ $_ ]}} @$cyc;
     @c = BSUtil::unify(sort(@c));
