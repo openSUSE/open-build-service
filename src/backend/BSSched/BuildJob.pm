@@ -311,6 +311,7 @@ sub writejob {
   $binfo->{'srcserver'} ||= $workersrcserver;
   $binfo->{'reposerver'} ||= $workerreposerver;
   $binfo->{'genmetaalgo'} = $ctx->{'genmetaalgo'} if $ctx->{'genmetaalgo'};
+  $binfo->{'forcebinaryidmeta'} = $ctx->{'forcebinaryidmeta'} if $ctx->{'forcebinaryidmeta'};
 
   my $myjobsdir = $gctx->{'myjobsdir'};
   $ctx->{'otherjobscache'} ||= [ grep {/-[0-9a-f]{32}$/} grep {!/^\./} ls($myjobsdir) ];

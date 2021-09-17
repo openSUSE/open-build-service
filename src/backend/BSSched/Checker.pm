@@ -341,6 +341,7 @@ sub setup {
   BSBuild::setgenmetaalgo($genmetaalgo);
   BSSolv::setgenmetaalgo($genmetaalgo) if $gctx->{'maxgenmetaalgo'};
   $ctx->{'genmetaalgo'} = $genmetaalgo;
+  $ctx->{'forcebinaryidmeta'} = 1 if $bconf->{'buildflags:forcebinaryidmeta'};
 
   # check for package blacklist
   if (exists $bconf->{'buildflags:excludebuild'}) {
@@ -858,6 +859,11 @@ sub calcrelsynctrigger {
   my $gdst = $ctx->{'gdst'};
   my $projid = $ctx->{'project'};
 
+  if ($ctx->{'conf'}->{'buildflags:norelsync'}) {
+    $ctx->{'relsynctrigger'} = {};
+    $ctx->{'relsyncmax'} = undef;
+    return;
+  }
   my $relsyncmax;
   my %relsynctrigger;
 
