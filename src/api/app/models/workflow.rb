@@ -7,9 +7,7 @@ class Workflow
     configure_repositories: Workflow::Step::ConfigureRepositories
   }.freeze
 
-  SUPPORTED_FILTERS = [:architectures, :repositories].freeze
-  # The order of the filter types determines their precedence
-  SUPPORTED_FILTER_TYPES = [:only, :ignore].freeze
+  SUPPORTED_FILTERS = [:architectures, :event, :repositories].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token
 
@@ -22,6 +20,9 @@ class Workflow
   validates_with WorkflowFiltersValidator
 
   def call
+    # TODO: This could be in a custom validator WorkflowEventFilterValidator
+    return unless event_matches_event_filter?
+
     case
     when scm_webhook.closed_merged_pull_request?
       destroy_target_projects
@@ -47,27 +48,15 @@ class Workflow
   end
 
   def filters
-    filters = {}
+    return {} if supported_filters.blank?
 
-    return filters if supported_filters.blank?
-
-    SUPPORTED_FILTERS.each do |filter|
-      SUPPORTED_FILTER_TYPES.each do |filter_type|
-        # The filter type might not be present... so in that case, we go to the next
-        next unless (filter_values = supported_filters.dig(filter, filter_type))
-
-        filters[filter] = { "#{filter_type}": filter_values }
-
-        # As soon as a supported filter type is present, we get out of the loop since the following filter types have a lower precedence
-        break
-      end
+    @filters ||= SUPPORTED_FILTERS.index_with do |filter|
+      supported_filters[filter]
     end
-
-    filters
   end
 
   def workflow_steps
-    workflow_instructions.fetch(:steps, [])
+    @workflow_steps ||= workflow_instructions.fetch(:steps, [])
   end
 
   private
@@ -79,7 +68,15 @@ class Workflow
   end
 
   def supported_filters
-    @supported_filters ||= workflow_instructions[:filters]&.select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
+    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
+  end
+
+  def event_matches_event_filter?
+    return true unless supported_filters.key?(:event)
+    return true if filters[:event] == 'push' && scm_webhook.push_event?
+    return true if filters[:event] == 'pull_request' && scm_webhook.pull_request_event?
+
+    false
   end
 
   def destroy_target_projects
