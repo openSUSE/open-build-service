@@ -111,7 +111,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
         it 'a validation fails complaining about a missing project' do
           subject.call
-          expect(subject.errors.full_messages).to include("Project name can't be blank")
+          expect(subject.errors.full_messages).to include("The 'project' key is missing")
         end
       end
 
