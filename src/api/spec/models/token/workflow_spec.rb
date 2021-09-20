@@ -203,6 +203,9 @@ RSpec.describe Token::Workflow, vcr: true do
     end
 
     context 'when the webhook and configuration is correct' do
+      let(:scm) { 'github' }
+      let(:event) { 'pull_request' }
+      let(:payload) { github_payload }
       let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
       let!(:package) { create(:package, name: 'test-package', project: project) }
       let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
@@ -216,6 +219,11 @@ RSpec.describe Token::Workflow, vcr: true do
         # Stub SCMStatusReporter#call
         allow(SCMStatusReporter).to receive(:new).and_return(reporter)
         allow(reporter).to receive(:call)
+        login token_user
+      end
+
+      it 'runs the workflow' do
+        expect { subject }.to change(Project, :count).from(2).to(3)
       end
 
       context 'when the SCM is GitHub' do
