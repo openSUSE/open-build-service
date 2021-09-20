@@ -5,4 +5,5 @@
         %i.close.fas.fa-times{ data: { dismiss: 'modal' } }
         = link_to(root_path, class: 'd-block text-center', alt: 'Logo') do
           = image_tag('favicon.svg', height: '60')
-        = render partial: 'layouts/webui/sign_up_form'
+        .h2.text-center.py-2 Sign Up
+        = render SignUpComponent.new

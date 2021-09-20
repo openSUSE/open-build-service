@@ -23,7 +23,10 @@
       = password_field_tag(:password_confirmation, nil, id: 'pwd_confirmation', placeholder: 'Password confirmation', autocomplete: 'off',
         class: 'form-control', required: true)
     = hidden_field_tag 'register', 'true'
-    = submit_tag submit_btn_text, class: 'btn btn-primary'
+    = submit_tag submit_btn_text, class: 'btn btn-primary w-100'
     - unless User.session
-      or
-      = link_to('Log In', new_session_path)
+      .login-separator.text-center
+        %hr.my-4
+        %span.bg-white.px-3.text-muted or
+      .text-center
+        = link_to('Log In', new_session_path)
