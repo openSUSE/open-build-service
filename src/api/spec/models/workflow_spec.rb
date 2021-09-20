@@ -1,12 +1,51 @@
 require 'rails_helper'
 
-RSpec.describe Workflow, type: :model do
+RSpec.describe Workflow, type: :model, vcr: true do
   include_context 'a scm payload hash'
 
-  let!(:token) { create(:workflow_token) }
+  let(:user) { create(:confirmed_user, :with_home) }
+  let!(:token) { create(:workflow_token, user: user) }
 
   subject do
     described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: github_extractor_payload), token: token)
+  end
+
+  describe '#call' do
+    let(:yaml) { { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] } }
+
+    context 'PR was reopened' do
+      let(:github_extractor_payload) do
+        {
+          scm: 'github',
+          action: 'reopened',
+          event: 'pull_request',
+          pr_number: 4
+        }
+      end
+
+      before { allow(Project).to receive(:restore) }
+
+      it 'restores a project' do
+        subject.call
+        expect(Project).to have_received(:restore)
+      end
+    end
+
+    context 'PR was closed' do
+      let(:github_extractor_payload) do
+        {
+          scm: 'github',
+          action: 'closed',
+          event: 'pull_request',
+          pr_number: 4
+        }
+      end
+      let!(:target_project) { create(:project, name: "home:#{user.login}:test-project:PR-4") }
+
+      it 'removes the target project' do
+        expect { subject.call }.to change(Project, :count).from(2).to(1)
+      end
+    end
   end
 
   describe '#steps' do
