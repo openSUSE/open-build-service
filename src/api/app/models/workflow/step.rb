@@ -39,12 +39,21 @@ class Workflow::Step
 
   def validate_step_instructions
     self.class::REQUIRED_KEYS.each do |required_key|
-      errors.add(:base, "The '#{required_key}' key is missing") unless step_instructions.key?(required_key)
+      unless step_instructions.key?(required_key)
+        errors.add(:base, "The '#{required_key}' key is missing")
+        next
+      end
+
+      errors.add(:base, "The '#{required_key}' key must provide a value") if step_instructions[required_key].blank?
     end
   end
 
   def source_package_name
     step_instructions[:source_package]
+  end
+
+  def source_project_name
+    step_instructions[:source_project]
   end
 
   def target_package_name

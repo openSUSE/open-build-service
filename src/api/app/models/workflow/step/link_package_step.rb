@@ -1,18 +1,11 @@
 class Workflow::Step::LinkPackageStep < ::Workflow::Step
   REQUIRED_KEYS = [:source_project, :source_package].freeze
 
-  validates :source_project_name, presence: true
-  validates :source_package_name, presence: true
-
   def call(options = {})
     return unless valid?
 
     workflow_filters = options.fetch(:workflow_filters, {})
     link_package(workflow_filters)
-  end
-
-  def source_project_name
-    step_instructions[:source_project]
   end
 
   private
