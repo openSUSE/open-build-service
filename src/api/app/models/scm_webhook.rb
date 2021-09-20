@@ -32,7 +32,19 @@ class ScmWebhook
       (gitlab_merge_request? && @payload[:action] == 'reopen')
   end
 
+  def push_event?
+    github_push_event? || gitlab_push_event?
+  end
+
   private
+
+  def github_push_event?
+    @payload[:scm] == 'github' && @payload[:event] == 'push'
+  end
+
+  def gitlab_push_event?
+    @payload[:scm] == 'gitlab' && @payload[:event] == 'Push Hook'
+  end
 
   def github_pull_request?
     @payload[:scm] == 'github' && @payload[:event] == 'pull_request'
