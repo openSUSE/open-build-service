@@ -119,25 +119,9 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = request.bot? && Rails.env.production?
     User.session = nil # reset old users hanging around
 
-    user_checker = WebuiControllerService::UserChecker.new(http_request: request, config: CONFIG)
-
-    if user_checker.proxy_enabled?
-      if user_checker.user_login.blank?
-        User.session = User.find_nobody!
-        return
-      end
-
-      User.session = user_checker.find_or_create_user!
-
-      if User.session!.is_active?
-        User.session!.update_login_values(request.env)
-      else
-        User.session!.count_login_failure
-        session[:login] = nil
-        User.session = User.find_nobody!
-        redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
-        return
-      end
+    unless WebuiControllerService::UserChecker.new(http_request: request, config: CONFIG).call
+      redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
+      return
     end
 
     User.session = User.find_by_login(session[:login]) if session[:login]
