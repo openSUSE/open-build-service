@@ -95,15 +95,16 @@
 .access-modal {
   background-color: #00000080;
   .close { cursor: pointer; }
-  .login-separator {
-    position: relative;
-    span {
-      position: absolute;
-      top: -.7rem;
-      left: 50%;
-      padding: 0 .5rem;
-      margin-left: -1.5rem;
-    }
+}
+
+.login-separator {
+  position: relative;
+  span {
+    position: absolute;
+    top: -.7rem;
+    left: 50%;
+    padding: 0 .5rem;
+    margin-left: -1.5rem;
   }
 }
 
