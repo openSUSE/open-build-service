@@ -3388,7 +3388,7 @@ sub getbuilddepinfo {
     my @sccs = @{$depends->{'sccs'} || []};
     @$_ = sort @$_ for @sccs;
     @sccs = sort {$a->[0] cmp $b->[0]} @sccs;
-    $res->{'sccs'} = [ map {{'package' => $_}} @sccs ];
+    $res->{'scc'} = [ map {{'package' => $_}} @sccs ];
   }
   return ($res, $BSXML::builddepinfo);
 }
