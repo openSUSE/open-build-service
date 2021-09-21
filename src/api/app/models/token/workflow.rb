@@ -17,6 +17,11 @@ class Token::Workflow < Token
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized => e
     raise Token::Errors::SCMTokenInvalid, e.message
   end
+
+  # Only used by rebuild steps
+  def package_find_options
+    { use_source: false, follow_project_links: true, follow_multibuild: true }
+  end
 end
 
 # == Schema Information
