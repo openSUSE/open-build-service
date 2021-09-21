@@ -1,5 +1,5 @@
 class Workflow::Step::LinkPackageStep < ::Workflow::Step
-  REQUIRED_KEYS = [:source_project, :source_package].freeze
+  REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
 
   def call(options = {})
     return unless valid?
