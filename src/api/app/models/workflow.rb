@@ -85,7 +85,7 @@ class Workflow
 
   def destroy_target_projects
     # Do not process steps for which there's nothing to do
-    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) }
+    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) }
     target_packages = steps.map(&:target_package).uniq.compact
     EventSubscription.where(channel: 'scm', token: self, package: target_packages).delete_all
 
@@ -98,7 +98,7 @@ class Workflow
     token_user_login = token.user.login
 
     # Do not process steps for which there's nothing to do
-    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) }
+    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) }
     target_project_names = processable_steps.map(&:target_project_name).uniq.compact
     target_project_names.each do |target_project_name|
       Project.restore(target_project_name, user: token_user_login)
