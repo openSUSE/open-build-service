@@ -2,7 +2,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   REQUIRED_KEYS = [:project, :repositories].freeze
   REQUIRED_REPOSITORY_KEYS = [:architectures, :name, :target_project, :target_repository].freeze
 
-  validates :project_name, presence: true
   validate :validate_repositories
   validate :validate_architectures
 
