@@ -15,7 +15,15 @@ class Workflow::Step
   end
 
   def target_project_name
-    "home:#{@token.user.login}:#{source_project_name}:PR-#{scm_webhook.payload[:pr_number]}"
+    return step_instructions[:target_project] if scm_webhook.push_event?
+
+    pr_subproject_name = if scm_webhook.payload[:scm] == 'github'
+                           scm_webhook.payload[:target_repository_full_name].tr('/', ':')
+                         else
+                           scm_webhook.payload[:path_with_namespace].tr('/', ':')
+                         end
+
+    "#{step_instructions[:target_project]}:#{pr_subproject_name}:PR-#{scm_webhook.payload[:pr_number]}"
   end
 
   def target_package
