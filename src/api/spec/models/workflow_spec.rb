@@ -9,7 +9,7 @@ RSpec.describe Workflow, type: :model do
   end
 
   describe '#call' do
-    let(:yaml) { { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] } }
+    let(:yaml) { { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package', 'target_project' => 'test-target-project' } }] } }
 
     context 'PR was reopened' do
       let(:extractor_payload) do
@@ -17,7 +17,8 @@ RSpec.describe Workflow, type: :model do
           scm: 'github',
           action: 'reopened',
           event: 'pull_request',
-          pr_number: 4
+          pr_number: 4,
+          target_repository_full_name: 'openSUSE/open-build-service'
         }
       end
 
@@ -35,10 +36,11 @@ RSpec.describe Workflow, type: :model do
           scm: 'github',
           action: 'closed',
           event: 'pull_request',
-          pr_number: 4
+          pr_number: 4,
+          target_repository_full_name: 'openSUSE/open-build-service'
         }
       end
-      let!(:target_project) { create(:project, name: "home:#{user.login}:test-project:PR-4") }
+      let!(:target_project) { create(:project, name: 'test-target-project:openSUSE:open-build-service:PR-4', maintainer: user) }
 
       before { login user }
 

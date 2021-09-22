@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, user: user) }
-  let(:target_project_name) { "home:#{user.login}:#{project.name}:PR-1" }
+  let(:target_project_name) { "home:#{user.login}" }
 
   subject do
     described_class.new(step_instructions: step_instructions,
@@ -12,13 +12,13 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
   end
 
   RSpec.shared_context 'source_project not provided' do
-    let(:step_instructions) { { source_package: package.name } }
+    let(:step_instructions) { { source_package: package.name, target_project: target_project_name } }
 
     it { expect { subject.call }.not_to(change(Package, :count)) }
   end
 
   RSpec.shared_context 'source_package not provided' do
-    let(:step_instructions) { { source_project: package.project.name } }
+    let(:step_instructions) { { source_project: package.project.name, target_project: target_project_name } }
 
     it { expect { subject.call }.not_to(change(Package, :count)) }
   end
@@ -27,7 +27,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: project.name,
-        source_package: 'this_package_does_not_exist'
+        source_package: 'this_package_does_not_exist',
+        target_project: target_project_name
       }
     end
 
@@ -38,7 +39,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: 'invalid project',
-        source_package: 'invalid package'
+        source_package: 'invalid package',
+        target_project: target_project_name
       }
     end
 
@@ -47,13 +49,14 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
 
   RSpec.shared_context 'target package already exists' do
     # Emulates that the target project and package already existed
-    let!(:linked_project) { create(:project, name: "home:#{user.login}:#{package.project.name}:PR-1", maintainer: user) }
+    let!(:linked_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
     let!(:linked_package) { create(:package_with_file, name: package.name, project: linked_project) }
 
     let(:step_instructions) do
       {
         source_project: project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
@@ -64,7 +67,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
@@ -81,13 +85,14 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: package.project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
     it { expect { subject.call }.to(change(Project, :count).by(1)) }
     it { expect { subject.call }.to(change(Package, :count).by(2)) }
-    it { expect(subject.call.project.name).to eq(target_project_name) }
+    it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
@@ -102,12 +107,13 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: package.project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
     # Emulate the linked project/package and the subcription created in a previous new PR/MR event
-    let!(:linked_project) { create(:project, name: target_project_name, maintainer: user) }
+    let!(:linked_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
     let!(:linked_package) { create(:package_with_file, name: package.name, project: linked_project) }
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
@@ -145,7 +151,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: package.project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
@@ -172,7 +179,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
                          action: action,
                          pr_number: 1,
                          source_repository_full_name: 'reponame',
-                         commit_sha: commit_sha
+                         commit_sha: commit_sha,
+                         target_repository_full_name: 'openSUSE/open-build-service'
                        })
       end
 
@@ -209,11 +217,12 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
           it_behaves_like 'successful update event when the linked_package already exists' do
             let(:action) { 'synchronize' }
             let(:creation_payload) do
-              { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame' }
+              { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+                'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
               { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-                'workflow_filters' => {} }
+                'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
@@ -247,7 +256,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
                          action: action,
                          pr_number: 1,
                          source_repository_full_name: 'reponame',
-                         commit_sha: commit_sha
+                         commit_sha: commit_sha,
+                         path_with_namespace: 'openSUSE/open-build-service'
                        })
       end
 
@@ -284,11 +294,12 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
           it_behaves_like 'successful update event when the linked_package already exists' do
             let(:action) { 'update' }
             let(:creation_payload) do
-              { 'action' => 'open', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame' }
+              { 'action' => 'open', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
+                'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
               { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'workflow_filters' => {} }
+                'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
