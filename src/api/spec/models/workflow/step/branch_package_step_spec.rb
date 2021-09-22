@@ -156,6 +156,19 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
   end
 
+  RSpec.shared_context 'fails with insufficient write permission on target project' do
+    let(:step_instructions) do
+      {
+        source_project: package.project.name,
+        source_package: package.name,
+        target_project: 'project_without_maintainer_rights'
+      }
+    end
+    let!(:project_without_permission) { create(:project, name: 'project_without_maintainer_rights') }
+
+    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
+  end
+
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
@@ -204,6 +217,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'failed without branch permissions'
+        it_behaves_like 'fails with insufficient write permission on target project'
       end
 
       context 'for an updated PR event' do
@@ -279,6 +293,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'failed without branch permissions'
+        it_behaves_like 'fails with insufficient write permission on target project'
       end
 
       context 'for an updated MR event' do
