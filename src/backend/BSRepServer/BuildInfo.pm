@@ -180,7 +180,8 @@ sub addurltopath {
   my $remoteprojs = $ctx->{'gctx'}->{'remoteprojs'};
   for my $r (@{$binfo->{'path'}}) {
     delete $r->{'server'};
-    next if $remoteprojs->{$r->{'project'}};	# what to do with those?
+    # what to do with projects from remote instances?
+    next if $remoteprojs->{$r->{'project'}} && !$remoteprojs->{$r->{'project'}}->{'partition'};
     my $rurl = BSUrlmapper::get_downloadurl("$r->{'project'}/$r->{'repository'}");
     $r->{'url'} = $rurl if $rurl;
   }
