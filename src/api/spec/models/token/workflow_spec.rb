@@ -14,7 +14,10 @@ RSpec.describe Token::Workflow, vcr: true do
           }
         },
         base: {
-          ref: 'main'
+          ref: 'main',
+          repo: {
+            full_name: 'openSUSE/open-build-service'
+          }
         }
       },
       number: 4,
@@ -34,7 +37,8 @@ RSpec.describe Token::Workflow, vcr: true do
         action: 'open'
       },
       project: {
-        http_url: 'https://gitlab.com/eduardoj2/test.git'
+        http_url: 'https://gitlab.com/eduardoj2/test.git',
+        path_with_namespace: 'openSUSE/open-build-service'
       },
       action: 'opened'
     }
@@ -136,6 +140,7 @@ RSpec.describe Token::Workflow, vcr: true do
       let(:payload) { github_payload }
       let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
       let!(:package) { create(:package, name: 'test-package', project: project) }
+      let!(:target_project) { create(:project, name: 'test-target-project', maintainer: workflow_token.user) }
       let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
       let(:downloader) { instance_double(Workflows::YAMLDownloader) }
       let(:reporter) { instance_double(SCMStatusReporter) }
