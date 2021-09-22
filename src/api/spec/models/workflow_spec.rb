@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Workflow, type: :model do
-  let(:user) { create(:confirmed_user, :with_home) }
+  let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
   let!(:token) { create(:workflow_token, user: user) }
 
   subject do
@@ -39,6 +39,8 @@ RSpec.describe Workflow, type: :model do
         }
       end
       let!(:target_project) { create(:project, name: "home:#{user.login}:test-project:PR-4") }
+
+      before { login user }
 
       it 'removes the target project' do
         expect { subject.call }.to change(Project, :count).from(2).to(1)
@@ -114,6 +116,103 @@ RSpec.describe Workflow, type: :model do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+      end
+    end
+
+    context 'when the webhook event is against none of the branches in the branches/ignore filters' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+          'filters' => { 'branches' => { 'ignore' => ['something', 'main'] } } }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request',
+          target_branch: 'master'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'the workflow runs' do
+        subject.call
+        expect(subject.steps.first).to have_received(:call)
+      end
+    end
+
+    context 'when the webhook event is against none of the branches in the branches/only filters' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+          'filters' => { 'branches' => { 'only' => ['something', 'main'] } } }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request',
+          target_branch: 'master'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'the workflow does not run' do
+        subject.call
+        expect(subject.steps.first).not_to have_received(:call)
+      end
+    end
+
+    context 'when the webhook event is against one of the branches in the branches/ignore filters' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+          'filters' => { 'branches' => { 'ignore' => ['something', 'main'] } } }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request',
+          target_branch: 'main'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'the workflow does not run' do
+        subject.call
+        expect(subject.steps.first).not_to have_received(:call)
+      end
+    end
+
+    context 'when the webhook event is against one of the branches in the branches/only filters' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+          'filters' => { 'branches' => { 'only' => ['master', 'develop'] } } }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request',
+          source_branch: 'test_branch',
+          target_branch: 'master'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'the workflow runs' do
+        subject.call
+        expect(subject.steps.first).to have_received(:call)
       end
     end
   end

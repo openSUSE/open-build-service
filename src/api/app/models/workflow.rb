@@ -7,7 +7,7 @@ class Workflow
     configure_repositories: Workflow::Step::ConfigureRepositories
   }.freeze
 
-  SUPPORTED_FILTERS = [:architectures, :event, :repositories].freeze
+  SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token
 
@@ -22,6 +22,8 @@ class Workflow
   def call
     # TODO: This could be in a custom validator WorkflowEventFilterValidator
     return unless event_matches_event_filter?
+    # TODO: This could be in a custom validator WorkflowBranchesFilterValidator
+    return unless branch_matches_branches_filter?
 
     case
     when scm_webhook.closed_merged_pull_request?
@@ -52,7 +54,7 @@ class Workflow
 
     @filters ||= SUPPORTED_FILTERS.index_with do |filter|
       supported_filters[filter]
-    end
+    end.compact
   end
 
   def workflow_steps
@@ -79,6 +81,19 @@ class Workflow
     false
   end
 
+  def branch_matches_branches_filter?
+    return true unless supported_filters.key?(:branches)
+
+    branches_only = filters[:branches].fetch(:only, [])
+    branches_ignore = filters[:branches].fetch(:ignore, [])
+
+    return true if branches_only.present? && branches_only.include?(scm_webhook.payload[:target_branch])
+    return true if branches_ignore.present? && branches_ignore.exclude?(scm_webhook.payload[:target_branch])
+
+    false
+  end
+
+  # TODO: Extract this into a service
   def destroy_target_projects
     # Do not process steps for which there's nothing to do
     processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) }
@@ -90,6 +105,7 @@ class Workflow
     Project.where(name: target_project_names).destroy_all
   end
 
+  # TODO: Extract this into a service
   def restore_target_projects
     token_user_login = token.user.login
 

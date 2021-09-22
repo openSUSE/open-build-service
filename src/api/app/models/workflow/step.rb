@@ -103,7 +103,7 @@ class Workflow::Step
   # TODO: Move to a query object.
   def workflow_repositories(target_project_name, filters)
     repositories = Project.get_by_name(target_project_name).repositories
-    return repositories if filters.blank?
+    return repositories unless filters.key?(:repositories)
 
     return repositories.where(name: filters[:repositories][:only]) if filters[:repositories][:only]
 
@@ -115,7 +115,7 @@ class Workflow::Step
   # TODO: Move to a query object.
   def workflow_architectures(repository, filters)
     architectures = repository.architectures
-    return architectures if filters.blank?
+    return architectures unless filters.key?(:architectures)
 
     return architectures.where(name: filters[:architectures][:only]) if filters[:architectures][:only]
 
