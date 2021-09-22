@@ -74,6 +74,65 @@ sub expand {
   return 1, splice(@_, 3);
 }
 
+
+sub get_modulemd {
+  my ($ctx) = @_;
+  require Build::Modulemd;
+  # we need to get the modularity data from the src server ;-(
+  my @args;
+  push @args, "project=$ctx->{'project'}", "package=$ctx->{'modularity_package'}", "srcmd5=$ctx->{'modularity_srcmd5'}", "arch=$ctx->{'gctx'}->{'arch'}";
+  push @args, map {"module=$_"} @{$ctx->{'conf'}->{'modules'} || []};
+  push @args, "modularityplatform=$ctx->{'modularity_platform'}";
+  push @args, "modularitylabel=$ctx->{'modularity_label'}";
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getmodulemd", 
+    'timeout' => 300,
+  };
+  my $modulemd = BSRPC::rpc($param, \&BSUtil::fromstorable, @args);
+  my @mds_good = grep {$_->{'document'} eq 'modulemd'} @$modulemd;
+  die("need exactly one modulemd document\n") unless @mds_good == 1;
+  my $mdd = $mds_good[0]->{'data'};
+  die("no data element in modulemd\n") unless $mdd;
+  delete $mdd->{'artifacts'};
+  delete $mdd->{'license'}->{'content'} if $mdd->{'license'} && $mdd->{'license'}->{'content'};
+  die("modulemd has no name\n") unless defined $mdd->{'name'};
+  die("modulemd has no stream\n") unless defined $mdd->{'stream'};
+  return $modulemd;
+}
+
+sub add_modulemd_artifact {
+  my ($modulemd, $rpm) = @_;
+  my $r = eval { Build::Rpm::query($rpm, 'evra' => 1, 'license' => 1, 'modularitylabel' => 1) };
+  if ($@) {
+    warn($@);
+    return undef;
+  }
+  return undef unless $r->{'modularitylabel'};
+  my @ml = split(':', $r->{'modularitylabel'});
+  my $mdd = ((grep {$_->{'document'} eq 'modulemd'} @$modulemd)[0])->{'data'};
+  # also check context?
+  return undef unless $ml[0] eq $mdd->{'name'} && $ml[1] eq $mdd->{'stream'};
+  $r->{'epoch'} ||= 0;
+  my $nevra = "$r->{'name'}-$r->{'epoch'}:$r->{'version'}-$r->{'release'}.$r->{'arch'}";
+  push  @{$mdd->{'artifacts'}->{'rpms'}}, $nevra unless grep {$_ eq $nevra} @{($mdd->{'artifacts'} || {})->{'rpms'} || []};
+  my $license = $r->{'license'};
+  if ($license) {
+    my %licenses = map {$_ => 1} @{$mdd->{'license'}->{'content'} || []};
+    if (!$licenses{$license}) {
+      $licenses{$license} = 1;
+      $mdd->{'license'}->{'content'} = [ sort keys %licenses ];
+    }
+  }
+  return 1;
+}
+
+sub write_modulemd {
+  my ($modulemd, $file) = @_;
+  my $yaml = '';
+  $yaml .= Build::Modulemd::mdtoyaml($_) for @$modulemd;
+  writestr($file, undef, $yaml);
+}
+
 =head2 check - check if an aggregate needs to be rebuilt
 
  TODO: add description
@@ -300,6 +359,16 @@ sub build {
   my $jobrepo = {};
   my %jobbins;
   my $error;
+  my $modulemd;
+  my $have_modulemd_artifacts;
+  if ($ctx->{'modularity_label'}) {
+    $modulemd = eval { get_modulemd($ctx) };
+    if ($@) {
+      warn($@);
+      chomp $@;
+      return ('broken', $@);
+    }
+  }
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
@@ -438,6 +507,8 @@ sub build {
 	  # FIXME: How is debian handling debug packages ?
 	  next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  next if $jobbins{$filename};  # first one wins
+	  next if $modulemd && !add_modulemd_artifact($modulemd, $d);
+	  $have_modulemd_artifacts = 1 if $modulemd;
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
 	  $jobrepo->{"$jobdatadir/$filename"} = $r;
@@ -466,6 +537,7 @@ sub build {
     rmdir($jobdatadir);
     return ('failed', $error);
   }
+  write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml") if $modulemd && $have_modulemd_artifacts;
   writestr("$jobdatadir/meta", undef, $new_meta);
   my $needsign;
   $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %$jobrepo;
