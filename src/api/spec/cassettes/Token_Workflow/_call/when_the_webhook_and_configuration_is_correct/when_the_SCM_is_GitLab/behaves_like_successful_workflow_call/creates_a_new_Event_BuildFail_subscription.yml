@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:16:11 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project/_meta?user=user_1
+    uri: http://backend:5352/source/test-project/_meta?user=user_16
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>Ring of Bright Water</title>
+          <title>The Last Enemy</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>Ring of Bright Water</title>
+          <title>The Last Enemy</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:16:11 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_2
+    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,55 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-target-project/_meta?user=user_18
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-target-project">
+          <title>An Instant In The Wind</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-target-project">
+          <title>An Instant In The Wind</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test-package%22%20and%20linkinfo/@project=%22test-project%22%20and%20@project=%22test-project%22)
@@ -151,14 +191,14 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-3">
+        <project name="test-target-project:openSUSE:open-build-service:PR-3">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -182,25 +222,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '265'
+      - '290'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-3">
+        <project name="test-target-project:openSUSE:open-build-service:PR-3">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-3">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-3">
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -221,18 +261,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '210'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-3">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-3">
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=Iggy
     body:
       encoding: UTF-8
       string: ''
@@ -261,24 +301,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
+        <revision rev="3" vrev="3">
           <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
           <version>unknown</version>
-          <time>1623161772</time>
+          <time>1632308499</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-3">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-3">
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -299,18 +339,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '210'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-3">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-3">
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -337,14 +377,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="9" vrev="9" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+        <directory name="test-package" rev="3" vrev="3" srcmd5="411c6fd260778a3381a135e5cc0c1797">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?view=info
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -371,14 +411,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test-package" rev="9" vrev="9" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="test-package" rev="3" vrev="3" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -405,14 +445,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="9" vrev="9" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+        <directory name="test-package" rev="3" vrev="3" srcmd5="411c6fd260778a3381a135e5cc0c1797">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -437,21 +477,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '340'
+      - '390'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="75b465f221df411313de38bfcb8fb4d2">
-          <old project="home:Iggy:test-project:PR-3" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-3" package="test-package" rev="9" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+        <sourcediff key="d01854382570c0e1c6ce6939d622ca0f">
+          <old project="test-target-project:openSUSE:open-build-service:PR-3" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-3" package="test-package" rev="3" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -476,23 +516,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '364'
+      - '389'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8a6af69cf41142c36694c3f05afc9881">
+        <sourcediff key="695d555013f6ec4091561cfbe207cce8">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-3" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-3" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
           <files/>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-3">
+        <project name="test-target-project:openSUSE:open-build-service:PR-3">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -519,11 +559,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '305'
+      - '330'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-3">
+        <project name="test-target-project:openSUSE:open-build-service:PR-3">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -531,13 +571,13 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package/_branch_request?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package/_branch_request?user=Iggy
     body:
       encoding: UTF-8
-      string: '{"object_kind":"merge_request","project":{"http_url":null},"object_attributes":{"source":{"default_branch":null}}}'
+      string: '{"object_kind":"merge_request","project":{"http_url":"https://gitlab.com/eduardoj2/test.git"},"object_attributes":{"source":{"default_branch":null}}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -557,28 +597,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '204'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>f14c95a8699c85b68de530c9b8060d5c</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>9082cd296bc89ddbf2414a8292db6821</srcmd5>
           <version>unknown</version>
-          <time>1623161772</time>
+          <time>1632308500</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-3">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-3">
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -599,18 +639,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '210'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-3">
-          <title>O Pioneers!</title>
-          <description>Optio voluptas fugit commodi.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-3">
+          <title>I Sing the Body Electric</title>
+          <description>Nulla reprehenderit est explicabo.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -633,19 +673,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '533'
+      - '531'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="10" vrev="10" srcmd5="f14c95a8699c85b68de530c9b8060d5c">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="d097703241cb290c7ed6122b049dcf31" lsrcmd5="f14c95a8699c85b68de530c9b8060d5c"/>
-          <entry name="_branch_request" md5="b8cf7070f6f77f83a014c4cd5d228748" size="114" mtime="1623161473"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+        <directory name="test-package" rev="4" vrev="4" srcmd5="9082cd296bc89ddbf2414a8292db6821">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="f89815f3adf9c7030e5ca6473f9024da" lsrcmd5="9082cd296bc89ddbf2414a8292db6821"/>
+          <entry name="_branch_request" md5="221ce078ff803f16456e3177ef033e40" size="149" mtime="1632308499"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?view=info
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -668,18 +708,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '333'
+      - '331'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test-package" rev="10" vrev="10" srcmd5="d097703241cb290c7ed6122b049dcf31" lsrcmd5="f14c95a8699c85b68de530c9b8060d5c" verifymd5="b347991eda489ac2dbd914f4b56a5b0b">
+        <sourceinfo package="test-package" rev="4" vrev="4" srcmd5="f89815f3adf9c7030e5ca6473f9024da" lsrcmd5="9082cd296bc89ddbf2414a8292db6821" verifymd5="1af7233d1c1be463f8359cba22151f30">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -702,19 +742,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '533'
+      - '531'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="10" vrev="10" srcmd5="f14c95a8699c85b68de530c9b8060d5c">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="d097703241cb290c7ed6122b049dcf31" lsrcmd5="f14c95a8699c85b68de530c9b8060d5c"/>
-          <entry name="_branch_request" md5="b8cf7070f6f77f83a014c4cd5d228748" size="114" mtime="1623161473"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+        <directory name="test-package" rev="4" vrev="4" srcmd5="9082cd296bc89ddbf2414a8292db6821">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="f89815f3adf9c7030e5ca6473f9024da" lsrcmd5="9082cd296bc89ddbf2414a8292db6821"/>
+          <entry name="_branch_request" md5="221ce078ff803f16456e3177ef033e40" size="149" mtime="1632308499"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -739,21 +779,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '341'
+      - '390'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="839689c7537f9af5caa4b6a6ac4eb970">
-          <old project="home:Iggy:test-project:PR-3" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-3" package="test-package" rev="10" srcmd5="f14c95a8699c85b68de530c9b8060d5c"/>
+        <sourcediff key="bccaaffd8d3c1421a23e11f7b9755a2f">
+          <old project="test-target-project:openSUSE:open-build-service:PR-3" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-3" package="test-package" rev="4" srcmd5="9082cd296bc89ddbf2414a8292db6821"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-3/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-3/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -774,7 +814,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '387'
+      - '412'
       Cache-Control:
       - no-cache
       Connection:
@@ -782,12 +822,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="6c814dd4cc028b08eb6bc579a32b8f1c">
+        <sourcediff key="a836a5ad5781ff36bb675aab005856a6">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-3" package="test-package" rev="d097703241cb290c7ed6122b049dcf31" srcmd5="d097703241cb290c7ed6122b049dcf31"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-3" package="test-package" rev="f89815f3adf9c7030e5ca6473f9024da" srcmd5="f89815f3adf9c7030e5ca6473f9024da"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:16:12 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:40 GMT
 recorded_with: VCR 6.0.0
