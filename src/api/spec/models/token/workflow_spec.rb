@@ -78,7 +78,7 @@ RSpec.describe Token::Workflow, vcr: true do
       context 'when the SCM is GitHub' do
         it_behaves_like 'not-allowed event or action' do
           let(:scm) { 'github' }
-          let(:event) { 'push' }
+          let(:event) { 'synchronize' }
           let(:payload) { github_payload }
         end
       end
@@ -86,7 +86,7 @@ RSpec.describe Token::Workflow, vcr: true do
       context 'when the SCM is GitLab' do
         it_behaves_like 'not-allowed event or action' do
           let(:scm) { 'gitlab' }
-          let(:event) { 'Push Hook' }
+          let(:event) { 'Issue Hook' }
           let(:payload) { gitlab_payload }
         end
       end
