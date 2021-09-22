@@ -71,8 +71,15 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
     end
 
+<<<<<<< HEAD
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq(target_project_final_name) }
+=======
+    let(:target_project_name_with_pr_suffix) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
+
+    it { expect { subject.call }.to(change(Package, :count).by(1)) }
+    it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
+>>>>>>> 316f132acf (Adapt specs to take the target_project key into account)
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -82,6 +89,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     # RSpec/MultipleExpectations, RSpec/ExampleLength - We want to test those expectations together since they depend on each other to be true
     # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
     it 'only reports for repositories and architectures matching the filters' do
+<<<<<<< HEAD
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'i586' },
                                                       scm_webhook.payload, token.scm_token).and_call_original
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'x86_64' },
@@ -92,6 +100,18 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'aarch64' },
                                                           scm_webhook.payload, token.scm_token)
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
+=======
+      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'i586' },
+                                                      scm_webhook.payload, token.scm_token).and_call_original
+      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'x86_64' },
+                                                      scm_webhook.payload, token.scm_token).and_call_original
+
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'ppc' },
+                                                          scm_webhook.payload, token.scm_token)
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'aarch64' },
+                                                          scm_webhook.payload, token.scm_token)
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
+>>>>>>> 316f132acf (Adapt specs to take the target_project key into account)
                                                           scm_webhook.payload, token.scm_token)
       subject.call({ workflow_filters: workflow_filters })
     end

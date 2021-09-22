@@ -49,7 +49,11 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
 
   RSpec.shared_context 'target package already exists' do
     # Emulates that the target project and package already existed
+<<<<<<< HEAD
     let!(:linked_project) { create(:project, name: final_target_project_name, maintainer: user) }
+=======
+    let!(:linked_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
+>>>>>>> 316f132acf (Adapt specs to take the target_project key into account)
     let!(:linked_package) { create(:package_with_file, name: package.name, project: linked_project) }
 
     let(:step_instructions) do
@@ -93,6 +97,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect { subject.call }.to(change(Project, :count).by(1)) }
     it { expect { subject.call }.to(change(Package, :count).by(2)) }
     it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
+<<<<<<< HEAD
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
@@ -115,6 +120,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect { subject.call }.to(change(Project, :count).by(0)) }
     it { expect { subject.call }.to(change(Package, :count).by(2)) }
     it { expect(subject.call.project.name).to eq(target_project_name) }
+=======
+>>>>>>> 316f132acf (Adapt specs to take the target_project key into account)
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
