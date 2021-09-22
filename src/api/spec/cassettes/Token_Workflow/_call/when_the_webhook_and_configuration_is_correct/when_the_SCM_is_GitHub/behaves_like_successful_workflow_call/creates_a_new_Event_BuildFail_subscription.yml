@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project/_meta?user=user_1
+    uri: http://backend:5352/source/test-project/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>Nine Coaches Waiting</title>
+          <title>The Moving Toyshop</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>Nine Coaches Waiting</title>
+          <title>The Moving Toyshop</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_2
+    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,55 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-target-project/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-target-project">
+          <title>In a Glass Darkly</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-target-project">
+          <title>In a Glass Darkly</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test-package%22%20and%20linkinfo/@project=%22test-project%22%20and%20@project=%22test-project%22)
@@ -151,14 +191,14 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-4">
+        <project name="test-target-project:openSUSE:open-build-service:PR-4">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -182,25 +222,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '265'
+      - '290'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-4">
+        <project name="test-target-project:openSUSE:open-build-service:PR-4">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-4">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-4">
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -221,18 +261,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '198'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-4">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-4">
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=Iggy
     body:
       encoding: UTF-8
       string: ''
@@ -264,21 +304,21 @@ http_interactions:
         <revision rev="5" vrev="5">
           <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
           <version>unknown</version>
-          <time>1623161959</time>
+          <time>1632308496</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-4">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-4">
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -299,18 +339,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '198'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-4">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-4">
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -339,12 +379,12 @@ http_interactions:
       string: |
         <directory name="test-package" rev="5" vrev="5" srcmd5="411c6fd260778a3381a135e5cc0c1797">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:19:19 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?view=info
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -375,10 +415,10 @@ http_interactions:
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -407,12 +447,12 @@ http_interactions:
       string: |
         <directory name="test-package" rev="5" vrev="5" srcmd5="411c6fd260778a3381a135e5cc0c1797">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -437,21 +477,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '340'
+      - '390'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="37765be80e53d48c57de6ccbf89b0e40">
-          <old project="home:Iggy:test-project:PR-4" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-4" package="test-package" rev="5" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+        <sourcediff key="7b9afd9177a6be2361242fe259026579">
+          <old project="test-target-project:openSUSE:open-build-service:PR-4" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-4" package="test-package" rev="5" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -476,23 +516,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '364'
+      - '389'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="2ed48d1faed509c13a6d1bc9bd36407d">
+        <sourcediff key="422c138776aff567ace7bf7e625c8ae8">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-4" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-4" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
           <files/>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-4">
+        <project name="test-target-project:openSUSE:open-build-service:PR-4">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -519,11 +559,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '305'
+      - '330'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:test-project:PR-4">
+        <project name="test-target-project:openSUSE:open-build-service:PR-4">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
@@ -531,10 +571,10 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package/_branch_request?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package/_branch_request?user=Iggy
     body:
       encoding: UTF-8
       string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"username/test_repo"},"sha":null}}}'
@@ -564,21 +604,21 @@ http_interactions:
         <revision rev="6" vrev="6">
           <srcmd5>e8d0ddbf3cd22e52520a074eb37b5259</srcmd5>
           <version>unknown</version>
-          <time>1623161960</time>
+          <time>1632308496</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package/_meta?user=Iggy
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-4">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-4">
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -599,18 +639,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '188'
+      - '198'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="home:Iggy:test-project:PR-4">
-          <title>The Way Through the Woods</title>
-          <description>Laboriosam voluptatem voluptatem ut.</description>
+        <package name="test-package" project="test-target-project:openSUSE:open-build-service:PR-4">
+          <title>Fame Is the Spur</title>
+          <description>Qui ratione facere temporibus.</description>
         </package>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -639,13 +679,13 @@ http_interactions:
       string: |
         <directory name="test-package" rev="6" vrev="6" srcmd5="e8d0ddbf3cd22e52520a074eb37b5259">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2f8f66d64fd327463204b8b238fede8e" lsrcmd5="e8d0ddbf3cd22e52520a074eb37b5259"/>
-          <entry name="_branch_request" md5="dea1816075f5d14403700c04bfefc8f2" size="98" mtime="1623161833"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+          <entry name="_branch_request" md5="dea1816075f5d14403700c04bfefc8f2" size="98" mtime="1632308494"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?view=info
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -676,10 +716,10 @@ http_interactions:
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -708,13 +748,13 @@ http_interactions:
       string: |
         <directory name="test-package" rev="6" vrev="6" srcmd5="e8d0ddbf3cd22e52520a074eb37b5259">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2f8f66d64fd327463204b8b238fede8e" lsrcmd5="e8d0ddbf3cd22e52520a074eb37b5259"/>
-          <entry name="_branch_request" md5="dea1816075f5d14403700c04bfefc8f2" size="98" mtime="1623161833"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1623161473"/>
+          <entry name="_branch_request" md5="dea1816075f5d14403700c04bfefc8f2" size="98" mtime="1632308494"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1632308494"/>
         </directory>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -739,21 +779,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '340'
+      - '390'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="55a09b86e63423dff62523b02da67850">
-          <old project="home:Iggy:test-project:PR-4" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-4" package="test-package" rev="6" srcmd5="e8d0ddbf3cd22e52520a074eb37b5259"/>
+        <sourcediff key="e6ab027bba683fac0d473c473c211dfb">
+          <old project="test-target-project:openSUSE:open-build-service:PR-4" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-4" package="test-package" rev="6" srcmd5="e8d0ddbf3cd22e52520a074eb37b5259"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy:test-project:PR-4/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-target-project:openSUSE:open-build-service:PR-4/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -774,7 +814,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '387'
+      - '412'
       Cache-Control:
       - no-cache
       Connection:
@@ -782,12 +822,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="4215d181fa14622e6168914e9b5813db">
+        <sourcediff key="fd59bc0a2723cb9920a1de4175ac5678">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:test-project:PR-4" package="test-package" rev="2f8f66d64fd327463204b8b238fede8e" srcmd5="2f8f66d64fd327463204b8b238fede8e"/>
+          <new project="test-target-project:openSUSE:open-build-service:PR-4" package="test-package" rev="2f8f66d64fd327463204b8b238fede8e" srcmd5="2f8f66d64fd327463204b8b238fede8e"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 08 Jun 2021 14:19:20 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:37 GMT
 recorded_with: VCR 6.0.0

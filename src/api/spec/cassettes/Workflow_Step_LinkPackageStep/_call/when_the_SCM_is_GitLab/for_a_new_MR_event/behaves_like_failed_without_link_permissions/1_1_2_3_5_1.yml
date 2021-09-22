@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 Jul 2021 09:27:36 GMT
+  recorded_at: Wed, 22 Sep 2021 12:00:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/_meta?user=user_45
+    uri: http://backend:5352/source/foo_project/_meta?user=user_83
     body:
       encoding: UTF-8
       string: |
-        <project name="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">
-          <title>The Moving Toyshop</title>
+        <project name="foo_project">
+          <title>A Scanner Darkly</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '337'
+      - '148'
     body:
       encoding: UTF-8
       string: |
-        <project name="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">
-          <title>The Moving Toyshop</title>
+        <project name="foo_project">
+          <title>A Scanner Darkly</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 Jul 2021 09:27:36 GMT
+  recorded_at: Wed, 22 Sep 2021 12:00:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bar_package/_meta?user=user_46
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_84
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">
-          <title>Cover Her Face</title>
-          <description>Et nihil omnis officiis.</description>
+        <package name="bar_package" project="foo_project">
+          <title>The Millstone</title>
+          <description>Cupiditate iure ut accusantium.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '335'
+      - '154'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">
-          <title>Cover Her Face</title>
-          <description>Et nihil omnis officiis.</description>
+        <package name="bar_package" project="foo_project">
+          <title>The Millstone</title>
+          <description>Cupiditate iure ut accusantium.</description>
         </package>
-  recorded_at: Mon, 19 Jul 2021 09:27:36 GMT
+  recorded_at: Wed, 22 Sep 2021 12:00:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bar_package/_config
+    uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Eos iste aliquam. Animi natus deleniti. Autem reiciendis autem.
+      string: Sit corporis tempore. Sed quis dignissimos. Qui dolorem animi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>c84203e2853dd6b1c8469d3fb005bd02</srcmd5>
+        <revision rev="179" vrev="179">
+          <srcmd5>55a06ae1a4578df86f0c191f2df8c803</srcmd5>
           <version>unknown</version>
-          <time>1626686856</time>
+          <time>1632312052</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 Jul 2021 09:27:36 GMT
+  recorded_at: Wed, 22 Sep 2021 12:00:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bar_package/somefile.txt
+    uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Architecto eius natus. Aut corrupti ratione. Soluta est quia.
+      string: Qui quia asperiores. Omnis ut dolorem. Minima voluptatem blanditiis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>ed1017d861fd01a3d113483a1721ff2d</srcmd5>
+        <revision rev="180" vrev="180">
+          <srcmd5>c1babfc519233703a4a7fb31e14de9d7</srcmd5>
           <version>unknown</version>
-          <time>1626686856</time>
+          <time>1632312052</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 Jul 2021 09:27:36 GMT
+  recorded_at: Wed, 22 Sep 2021 12:00:52 GMT
 recorded_with: VCR 6.0.0

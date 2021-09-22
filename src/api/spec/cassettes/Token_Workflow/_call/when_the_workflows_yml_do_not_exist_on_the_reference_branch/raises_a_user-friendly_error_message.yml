@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 02 Jul 2021 07:53:03 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project/_meta?user=user_1
+    uri: http://backend:5352/source/test-project/_meta?user=user_22
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>After Many a Summer Dies the Swan</title>
+          <title>What's Become of Waring</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>After Many a Summer Dies the Swan</title>
+          <title>What's Become of Waring</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 02 Jul 2021 07:53:04 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_2
+    uri: http://backend:5352/source/test-project/test-package/_meta?user=user_23
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>Infinite Jest</title>
-          <description>Non iure aut accusantium.</description>
+          <title>East of Eden</title>
+          <description>Numquam beatae odit impedit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,13 +109,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>Infinite Jest</title>
-          <description>Non iure aut accusantium.</description>
+          <title>East of Eden</title>
+          <description>Numquam beatae odit impedit.</description>
         </package>
-  recorded_at: Fri, 02 Jul 2021 07:53:04 GMT
+  recorded_at: Wed, 22 Sep 2021 11:01:43 GMT
 recorded_with: VCR 6.0.0
