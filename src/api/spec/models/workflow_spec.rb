@@ -1,20 +1,18 @@
 require 'rails_helper'
 
-RSpec.describe Workflow, type: :model, vcr: true do
-  include_context 'a scm payload hash'
-
+RSpec.describe Workflow, type: :model do
   let(:user) { create(:confirmed_user, :with_home) }
   let!(:token) { create(:workflow_token, user: user) }
 
   subject do
-    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: github_extractor_payload), token: token)
+    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: extractor_payload), token: token)
   end
 
   describe '#call' do
     let(:yaml) { { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] } }
 
     context 'PR was reopened' do
-      let(:github_extractor_payload) do
+      let(:extractor_payload) do
         {
           scm: 'github',
           action: 'reopened',
@@ -32,7 +30,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
     end
 
     context 'PR was closed' do
-      let(:github_extractor_payload) do
+      let(:extractor_payload) do
         {
           scm: 'github',
           action: 'closed',
@@ -46,14 +44,94 @@ RSpec.describe Workflow, type: :model, vcr: true do
         expect { subject.call }.to change(Project, :count).from(2).to(1)
       end
     end
+
+    context 'with an unsupported event filter' do
+      let(:yaml) { { filters: { event: 'nonexistent' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitHub "pull_request" event not matching the "push" event filter' do
+      let(:yaml) { { filters: { event: 'push' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitHub "push" event not matching the "pull_request" event filter' do
+      let(:yaml) { { filters: { event: 'pull_request' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          event: 'push'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitLab "Merge Request Hook" event not matching the "push" event filter' do
+      let(:yaml) { { filters: { event: 'push' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'gitlab',
+          event: 'Merge Request Hook'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitLab "Push Hook" event not matching the "pull_request" event filter' do
+      let(:yaml) { { filters: { event: 'pull_request' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'gitlab',
+          event: 'Push Hook'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
   end
 
   describe '#steps' do
-    let(:yaml) do
-      { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
+    let(:extractor_payload) do
+      {
+        scm: 'github',
+        action: 'opened',
+        event: 'pull_request'
+      }
     end
 
     context 'with a supported step' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
+      end
+
       it 'initializes the supported step objects' do
         expect(subject.steps.first).to be_a(Workflow::Step::BranchPackageStep)
       end
@@ -96,19 +174,28 @@ RSpec.describe Workflow, type: :model, vcr: true do
   end
 
   describe '#filters' do
-    ['architectures', 'repositories'].each do |filter|
-      context "with #{filter} filters having valid values" do
-        let(:yaml) do
-          {
-            'filters' => {
-              filter => { 'only' => ['s390x', 12.3, 567], 'ignore' => ['i586'] }
-            }
-          }
-        end
+    let(:extractor_payload) do
+      {
+        scm: 'github',
+        action: 'opened',
+        event: 'pull_request'
+      }
+    end
 
-        it "returns #{filter} filters with 'only' having precedence over 'ignore'" do
-          expect(subject.filters).to eq({ "#{filter}": { only: ['s390x', 12.3, 567] } })
-        end
+    context 'with filters having valid values' do
+      let(:yaml) do
+        {
+          'filters' => {
+            'architectures' => { 'only' => ['s390x', 12.3, 567], 'ignore' => ['i586'] },
+            'event' => 'push',
+            'repositories' => { 'only' => ['openSUSE_Tumbleweed', 'openSUSE_Leap_15.3'], 'ignore' => ['openSUSE_Leap_15.1'] }
+          }
+        }
+      end
+
+      it 'returns filters' do
+        expect(subject.filters).to eq({ architectures: { ignore: ['i586'], only: ['s390x', 12.3, 567] }, event: 'push',
+                                        repositories: { ignore: ['openSUSE_Leap_15.1'], only: ['openSUSE_Tumbleweed', 'openSUSE_Leap_15.3'] } })
       end
     end
 

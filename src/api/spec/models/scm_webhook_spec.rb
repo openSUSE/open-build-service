@@ -224,4 +224,38 @@ RSpec.describe ScmWebhook, type: :model do
       it { is_expected.to be true }
     end
   end
+
+  describe '#pull_request_event?' do
+    subject { described_class.new(payload: payload).pull_request_event? }
+
+    context 'for an unsupported SCM' do
+      let(:payload) { { scm: 'GitHoob', event: 'pull_request' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported event from GitHub' do
+      let(:payload) { { scm: 'github', event: 'something' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported event from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'something' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for a pull request event from GitHub' do
+      let(:payload) { { scm: 'github', event: 'pull_request' } }
+
+      it { is_expected.to be true }
+    end
+
+    context 'for a merge request event from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'Merge Request Hook' } }
+
+      it { is_expected.to be true }
+    end
+  end
 end

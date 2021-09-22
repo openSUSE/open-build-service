@@ -33,17 +33,18 @@ RSpec.describe WorkflowFiltersValidator do
       end
     end
 
-    context 'with unsupported filter types' do
-      let(:workflow_instructions) { { filters: { repositories: { only: [], something: [] }, architectures: { else: [] } } } }
+    context 'with unsupported filter values' do
+      let(:workflow_instructions) { { filters: { event: [], repositories: { only: [], something: [] }, architectures: { else: [] } } } }
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq("Filters repositories and architectures have unsupported keys, 'only' and 'ignore' are the only supported keys")
+        expect(subject.errors.full_messages.to_sentence).to eq('Filter event only supports a string value and ' \
+                                                               "Filters repositories and architectures have unsupported values, 'only' and 'ignore' are the only supported values.")
       end
     end
 
-    context 'with supported filters and filter types' do
-      let(:workflow_instructions) { { filters: { repositories: { only: [] }, architectures: { ignore: [] } } } }
+    context 'with supported filters and filter values' do
+      let(:workflow_instructions) { { filters: { event: 'something', repositories: { only: [] }, architectures: { ignore: [] } } } }
 
       it { is_expected.to be_valid }
     end

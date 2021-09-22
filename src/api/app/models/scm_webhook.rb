@@ -36,6 +36,10 @@ class ScmWebhook
     github_push_event? || gitlab_push_event?
   end
 
+  def pull_request_event?
+    github_pull_request? || gitlab_merge_request?
+  end
+
   private
 
   def github_push_event?
