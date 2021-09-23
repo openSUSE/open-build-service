@@ -35,12 +35,16 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
     raise PackageAlreadyExists, "Can not link package. The package #{target_package_name} already exists." if target_package.present?
 
     if target_project.nil?
-      project = Project.create!(name: target_project_name)
+      project = Project.new(name: target_project_name)
+      Pundit.authorize(@token.user, project, :create?)
+
+      project.save!
       project.commit_user = User.session
       project.relationships.create!(user: User.session, role: Role.find_by_title('maintainer'))
       project.store
     end
 
+    Pundit.authorize(@token.user, target_project, :update?)
     target_project.packages.create(name: target_package_name)
   end
 
