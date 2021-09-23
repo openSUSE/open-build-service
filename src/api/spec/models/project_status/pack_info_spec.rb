@@ -35,7 +35,7 @@ RSpec.describe ProjectStatus::PackInfo do
       let(:time) { now }
       let(:release) { '43' }
 
-      context 'with short version ' do
+      context 'with short version' do
         let(:version) { '2.0' }
 
         before do

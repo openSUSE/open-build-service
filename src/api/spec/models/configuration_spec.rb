@@ -12,7 +12,7 @@ RSpec.describe Configuration do
     expect(Configuration.count).to eq(1)
   end
 
-  it 'does not create a new Configuration if a Configuration exists ' do
+  it 'does not create a new Configuration if a Configuration exists' do
     # The first configuration is created by db/seeds.rb
     expect(Configuration.count).to eq(1)
     Configuration.title

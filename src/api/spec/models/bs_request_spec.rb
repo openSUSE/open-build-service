@@ -206,7 +206,7 @@ RSpec.describe BsRequest do
       end
     end
 
-    context 'final state declined cannot be changed ' do
+    context 'final state declined cannot be changed' do
       let(:request) do
         create(:declined_bs_request,
                target_package: target_package,
