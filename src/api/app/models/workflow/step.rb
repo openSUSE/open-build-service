@@ -65,9 +65,14 @@ class Workflow::Step
   end
 
   def target_package_name
-    return step_instructions[:target_package] if step_instructions[:target_package].present?
+    package_name = step_instructions[:target_package] || source_package_name
 
-    source_package_name
+    case
+    when scm_webhook.pull_request_event?
+      package_name
+    when scm_webhook.push_event?
+      "#{package_name}-#{scm_webhook.payload[:commit_sha]}"
+    end
   end
 
   private
