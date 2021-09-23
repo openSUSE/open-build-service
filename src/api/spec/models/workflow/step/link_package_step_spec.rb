@@ -160,6 +160,32 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
   end
 
+  RSpec.shared_context 'insufficient permission on target project' do
+    let(:step_instructions) do
+      {
+        source_project: package.project.name,
+        source_package: package.name,
+        target_project: 'target_project_no_permission'
+      }
+    end
+
+    let!(:target_project_no_permission) { create(:project, name: 'target_project_no_permission') }
+
+    it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
+  end
+
+  RSpec.shared_context 'insufficient permission to create new target project' do
+    let(:step_instructions) do
+      {
+        source_project: package.project.name,
+        source_package: package.name,
+        target_project: 'target_project_not_existing'
+      }
+    end
+
+    it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
+  end
+
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
@@ -210,6 +236,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it_behaves_like 'project and package does not exist'
         it_behaves_like 'target package already exists'
         it_behaves_like 'failed without link permissions'
+        it_behaves_like 'insufficient permission on target project'
+        it_behaves_like 'insufficient permission to create new target project'
       end
 
       context 'for an updated PR event' do
@@ -287,6 +315,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it_behaves_like 'project and package does not exist'
         it_behaves_like 'target package already exists'
         it_behaves_like 'failed without link permissions'
+        it_behaves_like 'insufficient permission on target project'
+        it_behaves_like 'insufficient permission to create new target project'
       end
 
       context 'for an updated MR event' do
