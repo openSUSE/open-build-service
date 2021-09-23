@@ -3,6 +3,9 @@ class Webui::Users::TokenTriggersController < Webui::WebuiController
   include Triggerable
 
   before_action :set_token
+  before_action :set_project_name
+  before_action :set_package_name
+  # From Triggerable
   before_action :set_project, except: [:show]
   before_action :set_package, except: [:show]
   before_action :set_object_to_authorize, except: [:show]
@@ -48,5 +51,13 @@ class Webui::Users::TokenTriggersController < Webui::WebuiController
   rescue ActiveRecord::RecordNotFound => e
     flash[:error] = e.message
     redirect_to tokens_url
+  end
+
+  def set_project_name
+    @project_name = params[:project]
+  end
+
+  def set_package_name
+    @package_name = params[:package]
   end
 end
