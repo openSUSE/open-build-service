@@ -8,8 +8,11 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   def call(_options = {})
     return unless valid?
 
+    target_project = Project.get_by_name(target_project_name)
+    Pundit.authorize(@token.user, target_project, :update?)
+
     step_instructions[:repositories].each do |repository_instructions|
-      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: Project.get_by_name(target_project_name))
+      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
 
       target_repository = Repository.find_by_project_and_name(repository_instructions[:target_project], repository_instructions[:target_repository])
       repository.path_elements.find_or_create_by(link: target_repository)
@@ -26,8 +29,18 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     step_instructions[:project]
   end
 
+  # This method needs to be public because it is used in the Workflow model.
   def target_project_name
-    "home:#{@token.user.login}:#{project_name}:PR-#{scm_webhook.payload[:pr_number]}"
+    if scm_webhook.pull_request_event?
+      case scm_webhook.payload[:scm]
+      when 'github'
+        "#{project_name}:#{scm_webhook.payload[:target_repository_full_name]}:PR-#{scm_webhook.payload[:pr_number]}".tr('/', '-')
+      when 'gitlab'
+        "#{project_name}:#{scm_webhook.payload[:path_with_namespace]}:PR-#{scm_webhook.payload[:pr_number]}".tr('/', '-')
+      end
+    elsif scm_webhook.push_event?
+      project_name
+    end
   end
 
   private
