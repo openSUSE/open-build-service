@@ -31,7 +31,7 @@ class Workflow
       destroy_target_projects
     when scm_webhook.reopened_pull_request?
       restore_target_projects
-    when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?
+    when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?, scm_webhook.push_event?
       steps.each do |step|
         step.call({ workflow_filters: filters })
       end
