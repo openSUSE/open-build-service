@@ -1,15 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Workflow::Step::ConfigureRepositories do
+  let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let(:token) { create(:workflow_token, user: user) }
+
   describe '#call' do
-    let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
-    let(:token) { create(:workflow_token, user: user) }
-    let(:project) { create(:project, name: 'openSUSE:Factory', maintainer: user) }
+    let(:project) { create(:project, name: 'openSUSE:Factory') }
     let!(:repository) { create(:repository, project: project, name: 'snapshot', architectures: ['i586', 'aarch64']) }
     let(:target_project_name) do
-      'home:Iggy:OBS:Server:Unstable:PR-1'
+      'OBS:Server:Unstable:openSUSE-repo123:PR-1'
     end
-    let(:target_project) { create(:project, name: target_project_name) }
+    let(:target_project) { create(:project, name: target_project_name, maintainer: user) }
     let(:step_instructions) do
       {
         project: 'OBS:Server:Unstable',
@@ -33,7 +34,8 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                        event: 'pull_request',
                        action: 'opened',
                        pr_number: 1,
-                       source_repository_full_name: 'reponame',
+                       source_repository_full_name: 'openSUSE/repo123',
+                       target_repository_full_name: 'openSUSE/repo123',
                        commit_sha: '123'
                      })
     end
@@ -45,6 +47,29 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       described_class.new(step_instructions: step_instructions,
                           scm_webhook: scm_webhook,
                           token: token)
+    end
+
+    context 'when the token user does not have enough permissions' do
+      let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
+      let(:token) { create(:workflow_token, user: another_user) }
+      let(:scm_webhook) do
+        ScmWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'pull_request',
+                         action: 'opened',
+                         pr_number: 1,
+                         target_repository_full_name: 'openSUSE/repo123',
+                         commit_sha: '123'
+                       })
+      end
+
+      before do
+        target_project
+        project
+        login(another_user)
+      end
+
+      it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
     end
 
     context 'when the target branch project is present' do
@@ -276,7 +301,87 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
 
       it 'raises an error due to an inexistent target project' do
-        expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError, 'Project not found: home:Iggy:OBS:Server:Unstable:PR-1')
+        expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError, "Project not found: #{target_project_name}")
+      end
+    end
+  end
+
+  describe '#target_project_name' do
+    let(:step_instructions) do
+      {
+        project: 'OBS:Server:Unstable',
+        repositories:
+          [
+            {
+              name: 'openSUSE_Tumbleweed',
+              target_project: 'openSUSE:Factory',
+              target_repository: 'snapshot',
+              architectures: [
+                'x86_64',
+                'ppc'
+              ]
+            }
+          ]
+      }
+    end
+    let(:scm_webhook) { ScmWebhook.new(payload: payload) }
+
+    subject do
+      described_class.new(step_instructions: step_instructions,
+                          scm_webhook: scm_webhook,
+                          token: token).target_project_name
+    end
+
+    context 'for an unsupported event' do
+      let(:payload) do
+        {
+          scm: 'github',
+          event: 'unsupported'
+        }
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'for a pull request webhook event' do
+      context 'from GitHub' do
+        let(:payload) do
+          {
+            scm: 'github',
+            event: 'pull_request',
+            pr_number: 1,
+            target_repository_full_name: 'openSUSE/repo123'
+          }
+        end
+
+        it { is_expected.to eq('OBS:Server:Unstable:openSUSE-repo123:PR-1') }
+      end
+
+      context 'from GitLab' do
+        let(:payload) do
+          {
+            scm: 'gitlab',
+            event: 'Merge Request Hook',
+            pr_number: 1,
+            path_with_namespace: 'openSUSE/repo123'
+          }
+        end
+
+        it { is_expected.to eq('OBS:Server:Unstable:openSUSE-repo123:PR-1') }
+      end
+    end
+
+    context 'for a push webhook event' do
+      context 'from GitHub' do
+        let(:payload) { { scm: 'github', event: 'push' } }
+
+        it { is_expected.to eq('OBS:Server:Unstable') }
+      end
+
+      context 'from GitLab' do
+        let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+
+        it { is_expected.to eq('OBS:Server:Unstable') }
       end
     end
   end
