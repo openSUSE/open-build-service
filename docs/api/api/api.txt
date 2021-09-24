@@ -1366,6 +1366,7 @@ Parameters:
   arch: architecture, optional, multiple
   repository: name of repository, optional, multiple
   code: build status code, optional, multiple
+  lastbuild: use the state of last build result (together with code)
 
 XmlResult: status
 
