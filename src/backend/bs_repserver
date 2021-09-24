@@ -3001,7 +3001,21 @@ sub docommand {
     if (%code) {
       my $ps = readpackstatus($prpa);
       fixpackstatus($prpa, $ps, \%buildingjobs);
-      @packids = grep {$code{$ps->{'packstatus'}->{$_} || 'unknown'}} @packids;
+      if ($cgi->{'lastbuild'}) {
+	for my $packid (splice @packids) {
+	  my $code;
+	  if (-e "$reporoot/$prpa/:logfiles.fail/$packid") {
+	    $code = 'failed';
+	  } elsif (-e "$reporoot/$prpa/:logfiles.success/$packid") {
+	    $code = 'succeeded';
+	  } else {
+	    $code = $ps->{'packstatus'}->{$packid} || 'unknown';
+	  }
+	  push @packids, $packid if $code{$code};
+	}
+      } else {
+        @packids = grep {$code{$ps->{'packstatus'}->{$_} || 'unknown'}} @packids;
+      }
     }
     if ($cmd eq 'rebuild') {
       if (@packids) {
@@ -4445,7 +4459,7 @@ my $dispatches = [
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/_jobhistory $prpa+ package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
-  'POST:/_command $cmd: $prpa+ package* code:* sysrq:?' => \&docommand,
+  'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:?' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,
