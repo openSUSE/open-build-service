@@ -3,6 +3,7 @@ workflow123:
     - branch_package:
         source_project: "test-project"
         source_package: "test-package"
+        target_project: "test-target-project"
   filters:
     branches:
       only:

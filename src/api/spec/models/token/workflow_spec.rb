@@ -14,7 +14,10 @@ RSpec.describe Token::Workflow, vcr: true do
           }
         },
         base: {
-          ref: 'main'
+          ref: 'main',
+          repo: {
+            full_name: 'openSUSE/open-build-service'
+          }
         }
       },
       number: 4,
@@ -34,7 +37,8 @@ RSpec.describe Token::Workflow, vcr: true do
         action: 'open'
       },
       project: {
-        http_url: 'https://gitlab.com/eduardoj2/test.git'
+        http_url: 'https://gitlab.com/eduardoj2/test.git',
+        path_with_namespace: 'openSUSE/open-build-service'
       },
       action: 'opened'
     }
@@ -49,26 +53,6 @@ RSpec.describe Token::Workflow, vcr: true do
 
     it 'does not create a new branched project with PR suffix' do
       expect { subject }.not_to change(Project.where('name LIKE ?', '%:PR-%'), :count)
-    end
-  end
-
-  RSpec.shared_context 'successful workflow call' do
-    it 'creates a new branched project with PR suffix' do
-      token_user.run_as do
-        expect { subject }.to change(Project.where('name LIKE ?', '%:PR-%'), :count)
-      end
-    end
-
-    it 'creates a new Event::BuildSuccess subscription' do
-      token_user.run_as do
-        expect { subject }.to change(EventSubscription.where(eventtype: 'Event::BuildSuccess', channel: 'scm'), :count)
-      end
-    end
-
-    it 'creates a new Event::BuildFail subscription' do
-      token_user.run_as do
-        expect { subject }.to change(EventSubscription.where(eventtype: 'Event::BuildFail', channel: 'scm'), :count)
-      end
     end
   end
 
@@ -136,9 +120,11 @@ RSpec.describe Token::Workflow, vcr: true do
       let(:payload) { github_payload }
       let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
       let!(:package) { create(:package, name: 'test-package', project: project) }
+      let!(:target_project) { create(:project, name: 'test-target-project', maintainer: workflow_token.user) }
       let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
       let(:downloader) { instance_double(Workflows::YAMLDownloader) }
       let(:reporter) { instance_double(SCMStatusReporter) }
+      let(:stubbed_workflow) { instance_double(Workflow) }
 
       before do
         # Stub Workflows::YAMLDownloader#call
@@ -148,26 +134,33 @@ RSpec.describe Token::Workflow, vcr: true do
         allow(SCMStatusReporter).to receive(:new).and_return(reporter)
         allow(reporter).to receive(:call)
         login token_user
+        allow(Workflow).to receive(:new).and_return(stubbed_workflow)
+        allow(stubbed_workflow).to receive(:call)
+        allow(stubbed_workflow).to receive(:valid?).and_return(true)
       end
 
       context 'when the SCM is GitHub' do
-        it_behaves_like 'successful workflow call' do
-          let(:scm) { 'github' }
-          let(:event) { 'pull_request' }
-          let(:payload) { github_payload }
+        let(:scm) { 'github' }
+        let(:event) { 'pull_request' }
+        let(:payload) { github_payload }
+
+        before { subject }
+
+        it 'runs the workflow' do
+          expect(stubbed_workflow).to have_received(:call)
         end
       end
 
       context 'when the SCM is GitLab' do
-        it_behaves_like 'successful workflow call' do
-          let(:scm) { 'gitlab' }
-          let(:event) { 'Merge Request Hook' }
-          let(:payload) { gitlab_payload }
-        end
-      end
+        let(:scm) { 'gitlab' }
+        let(:event) { 'Merge Request Hook' }
+        let(:payload) { gitlab_payload }
 
-      it 'raises a user-friendly error message' do
-        expect { subject }.to change(Project, :count)
+        before { subject }
+
+        it 'runs the workflow' do
+          expect(stubbed_workflow).to have_received(:call)
+        end
       end
     end
   end

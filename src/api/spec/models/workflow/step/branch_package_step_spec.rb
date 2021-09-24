@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, user: user) }
+  let(:target_project_name) { "home:#{user.login}" }
 
   subject do
     described_class.new(step_instructions: step_instructions,
@@ -11,13 +12,13 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
   end
 
   RSpec.shared_context 'source_project not provided' do
-    let(:step_instructions) { { source_package: package.name } }
+    let(:step_instructions) { { source_package: package.name, target_project: target_project_name } }
 
     it { expect { subject.call }.to(change(Package, :count).by(0)) }
   end
 
   RSpec.shared_context 'source_package not provided' do
-    let(:step_instructions) { { source_project: package.project.name } }
+    let(:step_instructions) { { source_project: package.project.name, target_project: target_project_name } }
 
     it { expect { subject.call }.to(change(Package, :count).by(0)) }
   end
@@ -26,23 +27,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: project.name,
-        source_package: 'this_package_does_not_exist'
+        source_package: 'this_package_does_not_exist',
+        target_project: target_project_name
       }
     end
 
     it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNotFound) }
-  end
-
-  RSpec.shared_context 'failed when project name is invalid' do
-    let(:project) { create(:project, name: 'a' * 198, maintainer: user) }
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackage) }
   end
 
   RSpec.shared_context 'failed without branch permissions' do
@@ -55,7 +45,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
@@ -71,7 +62,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: package.project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
@@ -79,10 +71,10 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
     end
 
-    let(:target_project_name) { "home:#{user.login}:#{project.name}:PR-1" }
+    let(:target_project_name_with_pr_suffix) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
 
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
-    it { expect(subject.call.project.name).to eq("home:#{user.login}:#{project.name}:PR-1") }
+    it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -92,16 +84,16 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     # RSpec/MultipleExpectations, RSpec/ExampleLength - We want to test those expectations together since they depend on each other to be true
     # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
     it 'only reports for repositories and architectures matching the filters' do
-      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'i586' },
+      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'i586' },
                                                       scm_webhook.payload, token.scm_token).and_call_original
-      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'x86_64' },
+      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'x86_64' },
                                                       scm_webhook.payload, token.scm_token).and_call_original
 
-      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'ppc' },
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'ppc' },
                                                           scm_webhook.payload, token.scm_token)
-      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'Unicorn_123', arch: 'aarch64' },
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'Unicorn_123', arch: 'aarch64' },
                                                           scm_webhook.payload, token.scm_token)
-      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
+      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_name_with_pr_suffix, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
                                                           scm_webhook.payload, token.scm_token)
 
       subject.call({ workflow_filters: workflow_filters })
@@ -113,12 +105,13 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: package.project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
     # Emulate the branched project/package and the subcription created in a previous new PR/MR event
-    let!(:branched_project) { create(:project, name: "home:#{user.login}:#{package.project.name}:PR-1", maintainer: user) }
+    let!(:branched_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
     let!(:branched_package) { create(:package_with_file, name: package.name, project: branched_project) }
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
@@ -154,12 +147,26 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:step_instructions) do
       {
         source_project: package.project.name,
-        source_package: package.name
+        source_package: package.name,
+        target_project: target_project_name
       }
     end
 
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
+  end
+
+  RSpec.shared_context 'fails with insufficient write permission on target project' do
+    let(:step_instructions) do
+      {
+        source_project: package.project.name,
+        source_package: package.name,
+        target_project: 'project_without_maintainer_rights'
+      }
+    end
+    let!(:project_without_permission) { create(:project, name: 'project_without_maintainer_rights') }
+
+    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
   end
 
   describe '#call' do
@@ -181,7 +188,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                          action: action,
                          pr_number: 1,
                          source_repository_full_name: 'reponame',
-                         commit_sha: commit_sha
+                         commit_sha: commit_sha,
+                         target_repository_full_name: 'openSUSE/open-build-service'
                        })
       end
 
@@ -208,8 +216,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed when project name is invalid'
         it_behaves_like 'failed without branch permissions'
+        it_behaves_like 'fails with insufficient write permission on target project'
       end
 
       context 'for an updated PR event' do
@@ -217,11 +225,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
           it_behaves_like 'successful update event when the branch_package already exists' do
             let(:action) { 'synchronize' }
             let(:creation_payload) do
-              { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame' }
+              { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+                'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
               { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-                'workflow_filters' => {} }
+                'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
@@ -255,7 +264,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                          action: action,
                          pr_number: 1,
                          source_repository_full_name: 'reponame',
-                         commit_sha: commit_sha
+                         commit_sha: commit_sha,
+                         path_with_namespace: 'openSUSE/open-build-service'
                        })
       end
 
@@ -282,8 +292,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed when project name is invalid'
         it_behaves_like 'failed without branch permissions'
+        it_behaves_like 'fails with insufficient write permission on target project'
       end
 
       context 'for an updated MR event' do
@@ -291,11 +301,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
           it_behaves_like 'successful update event when the branch_package already exists' do
             let(:action) { 'update' }
             let(:creation_payload) do
-              { 'action' => 'open', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame' }
+              { 'action' => 'open', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
+                'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
               { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'workflow_filters' => {} }
+                'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do

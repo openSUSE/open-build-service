@@ -33,7 +33,7 @@ RSpec.describe WorkflowStepsValidator do
     end
 
     context 'with unsupported and supported steps' do
-      let(:step_instructions) { { source_project: 'project', source_package: 'package' } }
+      let(:step_instructions) { { source_project: 'project', source_package: 'package', target_project: 'target_project' } }
       let(:steps) { [Workflow::Step::BranchPackageStep.new(step_instructions: step_instructions)] }
       let(:workflow_steps) { [unsupported_step: {}, branch_package: step_instructions] }
 
@@ -51,7 +51,7 @@ RSpec.describe WorkflowStepsValidator do
       it 'is not valid and has an error message' do
         subject.valid?
         expect(subject.errors.full_messages.to_sentence).to eq("The following workflow steps are unsupported: 'unsupported_step' and " \
-                                                               "The 'source_package' key is missing")
+                                                               "The 'source_package' key is missing and The 'target_project' key is missing")
       end
     end
   end
