@@ -220,7 +220,7 @@ sub signisotag {
   my $blk = readblk($fd, 0, 17);
   die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
   my $tags = ';'.substr($blk, 0x8373, 0x200);
-  return unless $tags =~ /;signature=(\d+)/;
+  return unless $tags =~ /;signature ?= ?(\d+)/i;
   my $sigblkno = $1;
   my $b = readblk($fd, $sigblkno, 4, 512);
   return if ord(substr($b, 64, 1));	# do not re-sign already signed isos
@@ -233,11 +233,71 @@ sub signisotag {
   writeblk($fd, $sigblkno, $b, 512);
 }
 
+sub retagiso_rh {
+  my ($fd) = @_;
+  my $blk = readblk($fd, 0, 17);
+  die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  my $tags = ';'.substr($blk, 0x8373, 0x200);
+  return unless $tags =~ /;(ISO MD5SUM = [0-9a-fA-F]{32})/;
+  my $sum = $1;
+  my ($frag_count, $frags, $skip_sect);
+  $frag_count = $1 if $tags =~ /;FRAGMENT COUNT = (\d+)/;
+  $frags = $1 if $tags =~ /;FRAGMENT SUMS = ([0-9a-fA-F]+)/;
+  my $frag_len = 3;
+  undef $frags if $frags && $frag_count * $frag_len != length($frags);
+  $skip_sect = $1 if $tags =~ /;SKIPSECTORS = (\d+)/;
+  print "updating rh iso tags\n";
+  if ($tags =~ /;SIGNATURE = (\d+)/) {
+    # remove old signature
+    my $sigblkno = $1;
+    my $b = readblk($fd, $sigblkno, 4, 512);
+    substr($b, 64, 2048 - 64) = "\0" x (2048 - 64);
+    writeblk($fd, $sigblkno, $b, 512);
+  }
+  substr($blk, 0x8373, 0x200) = ' ' x 0x200;
+  my $numblks = unpack("V", substr($blk, 0x8050, 4));
+  die("bad block number\n") if $numblks < 17;
+  my $ctx = Digest::MD5->new();
+  $numblks -= $skip_sect if $skip_sect; 
+  my $blkno = 0;
+  my $newfrags = '';
+  my $frag_bytes = $frags ? int(($numblks * 2048) / ($frag_count + 1)) : 0;
+  my $last_fragment = 0;
+  while ($numblks > 0) {
+    my $bc = $numblks > 16 ? 16 : $numblks;
+    my $b = readblk($fd, $blkno, $bc);
+    substr($b, 0, 0x0800, substr($blk, 0x8000, 0x0800)) if $blkno == 16;
+    $ctx->add($b);
+    $numblks -= $bc;
+    if ($frags && $numblks) {
+      my $fragment = int(($blkno * 2048) / $frag_bytes);
+      if ($fragment != $last_fragment) {
+        my @d = unpack("C$frag_len", $ctx->clone->digest);
+        $newfrags .= substr(sprintf("%x", $_), 0, 1) for @d;
+	$last_fragment = $fragment;
+      }
+    }
+    $blkno += $bc;
+  }
+  my $newsum = "ISO MD5SUM = ".$ctx->hexdigest;
+  $tags =~ s/;\Q$sum\E/;$newsum/;
+  if ($frags) {
+    die unless length($frags) == length($newfrags);
+    $tags =~ s/;FRAGMENT SUMS = [0-9a-fA-F]+/;FRAGMENT SUMS = $newfrags/;
+  }
+  substr($blk, 0x8373, 0x200) = substr($tags, 1);
+  writeblk($fd, 16, substr($blk, 0x8000, 0x800));
+}
+
 sub retagiso {
   my ($fd) = @_;
   my $blk = readblk($fd, 0, 17);
   die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
   my $tags = ';'.substr($blk, 0x8373, 0x200);
+  if ($tags =~ /^;(?:SKIPSECTORS|RHLISOSTATUS|ISO [A-Z0-9]*SUM)/) {
+    retagiso_rh($fd);
+    return;
+  }
   return unless $tags =~ /;(md5sum=[0-9a-fA-F]{32}|sha1sum=[0-9a-fA-F]{40}|sha256sum=[0-9a-fA-F]{64})/;
   my $sum = $1;
   my $sumtype = (split('=', $sum, 2))[0];
