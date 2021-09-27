@@ -91,7 +91,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
             commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
             target_branch: 'main/fix-bug',
             source_repository_full_name: 'iggy/repo123',
-            target_repository_full_name: 'iggy/repo123'
+            target_repository_full_name: 'iggy/repo123',
+            ref: 'refs/heads/main/fix-bug'
           }
         end
 
@@ -174,7 +175,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
             project_id: 3,
             path_with_namespace: 'eduardoj2/test',
             event: 'Push Hook',
-            api_endpoint: 'https://gitlab.com'
+            api_endpoint: 'https://gitlab.com',
+            ref: 'refs/heads/main/fix-bug'
           }
         end
 
