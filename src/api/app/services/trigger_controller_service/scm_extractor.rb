@@ -43,7 +43,8 @@ module TriggerControllerService
                          # We need this for Workflow::Step#branch_request_content_github
                          source_repository_full_name: @payload.dig(:repository, :full_name),
                          # We need this for SCMStatusReporter#call
-                         target_repository_full_name: @payload.dig(:repository, :full_name) })
+                         target_repository_full_name: @payload.dig(:repository, :full_name),
+                         ref: @payload[:ref] })
       end
       payload
     end
@@ -74,7 +75,8 @@ module TriggerControllerService
                          target_branch: @payload[:ref].sub('refs/heads/', ''),
                          # We need this for Workflows::YAMLDownloader#download_url
                          path_with_namespace: @payload.dig(:project, :path_with_namespace),
-                         project_id: @payload[:project_id] })
+                         project_id: @payload[:project_id],
+                         ref: @payload[:ref] })
       end
       payload
     end

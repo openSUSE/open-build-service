@@ -49,7 +49,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
 
   RSpec.shared_context 'target package already exists' do
     # Emulates that the target project and package already existed
-    let!(:linked_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
+    let!(:linked_project) { create(:project, name: final_target_project_name, maintainer: user) }
     let!(:linked_package) { create(:package_with_file, name: package.name, project: linked_project) }
 
     let(:step_instructions) do
@@ -93,6 +93,28 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect { subject.call }.to(change(Project, :count).by(1)) }
     it { expect { subject.call }.to(change(Package, :count).by(2)) }
     it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
+    it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+    it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+    it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+    it { expect(subject.call.source_file('_branch_request')).to include('123') }
+    it { expect { subject.call.source_file('_link') }.not_to raise_error }
+    it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
+    it { expect(subject.call.project.packages.map(&:name)).to include('_project') }
+    it { expect { subject.call.project.packages.find_by(name: '_project').source_file('_service') }.not_to raise_error }
+  end
+
+  RSpec.shared_context 'successful on a new push event' do
+    let(:step_instructions) do
+      {
+        source_project: package.project.name,
+        source_package: package.name,
+        target_project: target_project_name
+      }
+    end
+
+    it { expect { subject.call }.to(change(Project, :count).by(0)) }
+    it { expect { subject.call }.to(change(Package, :count).by(2)) }
+    it { expect(subject.call.project.name).to eq(target_project_name) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
@@ -225,6 +247,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       context 'for a new PR event' do
         let(:action) { 'opened' }
         let(:octokit_client) { instance_double(Octokit::Client) }
+        let(:final_target_project_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
 
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
@@ -273,6 +296,34 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
           end
         end
       end
+
+      context 'for a push event' do
+        let(:scm_webhook) do
+          ScmWebhook.new(payload: {
+                           scm: 'github',
+                           event: 'push',
+                           target_branch: 'main',
+                           source_repository_full_name: 'reponame',
+                           commit_sha: commit_sha,
+                           target_repository_full_name: 'openSUSE/open-build-service'
+                         })
+        end
+        let(:final_target_project_name) { target_project_name }
+
+        let(:octokit_client) { instance_double(Octokit::Client) }
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+        end
+
+        it_behaves_like 'successful on a new push event'
+        it_behaves_like 'failed when source_package does not exist'
+        it_behaves_like 'project and package does not exist'
+        it_behaves_like 'failed without link permissions'
+        it_behaves_like 'insufficient permission on target project'
+        it_behaves_like 'insufficient permission to create new target project'
+      end
     end
 
     context 'when the SCM is GitLab' do
@@ -304,6 +355,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       context 'for a new MR event' do
         let(:action) { 'open' }
         let(:gitlab_client) { instance_double(Gitlab::Client) }
+        let(:final_target_project_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
 
         before do
           allow(Gitlab).to receive(:client).and_return(gitlab_client)
@@ -345,6 +397,34 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
             let(:action) { 'update' }
           end
         end
+      end
+
+      context 'for a push event' do
+        let(:scm_webhook) do
+          ScmWebhook.new(payload: {
+                           scm: 'gitlab',
+                           event: 'Push Hook',
+                           target_branch: 'main',
+                           source_repository_full_name: 'reponame',
+                           commit_sha: commit_sha,
+                           path_with_namespace: 'openSUSE/open-build-service'
+                         })
+        end
+        let(:final_target_project_name) { target_project_name }
+
+        let(:gitlab_client) { instance_double(Gitlab::Client) }
+
+        before do
+          allow(Gitlab).to receive(:client).and_return(gitlab_client)
+          allow(gitlab_client).to receive(:update_commit_status).and_return(true)
+        end
+
+        it_behaves_like 'successful on a new push event'
+        it_behaves_like 'failed when source_package does not exist'
+        it_behaves_like 'project and package does not exist'
+        it_behaves_like 'failed without link permissions'
+        it_behaves_like 'insufficient permission on target project'
+        it_behaves_like 'insufficient permission to create new target project'
       end
     end
   end

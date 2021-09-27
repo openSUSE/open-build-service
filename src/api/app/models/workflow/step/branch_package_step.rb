@@ -11,7 +11,7 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   private
 
   def branch_package(workflow_filters = {})
-    create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?)
+    create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event?
 
     create_or_update_subscriptions(target_package, workflow_filters)
     add_branch_request_file(package: target_package)
