@@ -117,6 +117,7 @@ sub check {
   my @deps = @{$info->{'dep'} || []};   # expanded?
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
+  $deps{'empty-modulemd-hack'} = 1 unless $deps{'-empty-modulemd-hack'};
 
   my @aprps = BSSched::BuildJob::expandkiwipath($ctx, $info);
   my @bprps = @{$ctx->{'prpsearchpath'}};
