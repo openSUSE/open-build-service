@@ -1,7 +1,7 @@
-- if CONFIG['sponsors'].present?
-  .sponsors-header #{Configuration.title} is sponsored by
+- if sponsors?
+  .sponsors-header #{obs_title} is sponsored by
   .container-fluid#sponsor
     .container-xxl.sponsors.d-flex.flex-wrap.justify-content-center
-      - CONFIG['sponsors'].each do |sponsor|
+      - sponsors.each do |sponsor|
         .sponsor-item
           = link_to_sponsor(sponsor)
