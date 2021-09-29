@@ -125,10 +125,9 @@ set out the reasons in the PR description. Some examples are:
 
 Please make sure to mind our continuous integration cycle that includes:
 
-- code style linting with tools like rubocop, jshint, haml-lint etc.
-- static code analysis with [codeclimate](https://codeclimate.com/github/openSUSE/open-build-service)
-- security code analysis with [hakiri](https://hakiri.io/github/openSUSE/open-build-service/)
-- automated test runs for the frontend and backend test suites with [circle-ci](https://circleci.com/gh/openSUSE/workflows/open-build-service)
+- linting with tools like [RuboCop](https://github.com/rubocop/rubocop), [JSHint](https://github.com/jshint/jshint), [haml-lint](https://github.com/sds/haml-lint) and [brakeman](https://github.com/presidentbeef/brakeman).
+- static code analysis with [CodeClimate](https://codeclimate.com/github/openSUSE/open-build-service)
+- automated test runs for the frontend and backend test suites with [CircleCI](https://circleci.com/gh/openSUSE/workflows/open-build-service)
 
 If one of the goes wrong for your pull request please address the issue.
 
