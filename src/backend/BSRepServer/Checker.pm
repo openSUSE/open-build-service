@@ -82,7 +82,7 @@ sub setup_modulemd {
   my $bconf = $ctx->{'conf'};
   my $dependency = BSSched::Modulemd::select_dependency($bconf, $modulemd);
   die("cannot build this module\n") unless $dependency;
-  my $errors = BSSched::Modulemd::extend_modules($bconf, $dependency->{'buildrequires'} || []);
+  my $errors = BSSched::Modulemd::extend_modules($bconf, $modulemd, $dependency->{'buildrequires'} || []);
   die(join(', ', @$errors)."\n") if $errors;
   my $ml = BSSched::Modulemd::calc_modularitylabel($bconf, $modulemd, $dependency->{'requires'} || []);
   die("modularitylabel calculation failed\n") unless $ml;
