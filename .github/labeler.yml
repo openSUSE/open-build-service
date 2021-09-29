@@ -7,8 +7,6 @@ Backend:
 
 "Documentation :book:":
 - docs/**/*
-- '**/*.md'
-- src/api/public/apidocs-new/**/*
 
 "Test Suite / CI :syringe:":
 - .circleci/**/*
@@ -18,4 +16,3 @@ Backend:
 - .rubocop_todo.yml
 - src/api/.rubocop.yml
 - src/api/.rubocop_todo.yml
-- .codeclimate.yml
