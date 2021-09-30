@@ -520,6 +520,7 @@ sub build {
 	  my $filename = $d->[2];
 	  $d = $d->[0];
 	  next if $jobbins{$filename};  # first one wins
+	  next if $modulemd && !add_modulemd_artifact($modulemd, $d);
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
 	  $jobrepo->{"$jobdatadir/$filename"} = $r;
