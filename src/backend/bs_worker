@@ -1764,9 +1764,8 @@ sub getbinaries_kiwiproduct {
 	}
 	if (!$bv->{'hdrmd5'}) {
 	  if ($bin eq '_modulemd.yaml') {
-	    rename("$ddir/$rarch/$bin.new.rpm", "$ddir/$rarch/$packid.modulemd.yaml.new.rpm") || die("rename $ddir/$rarch/$bin.new.rpm $ddir/$rarch/$packid.modulemd.yaml.new.rpm: $!\n");
-	    push @done, "$rarch/$packid.modulemd.yaml";
-	    next;
+	    rename("$ddir/$rarch/$bin.new.rpm", "$ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm") || die("rename $ddir/$rarch/$bin.new.rpm $ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm: $!\n");
+	    $bin = "$packid.$arch.modulemd.yaml";
 	  }
 	  push @done, "$rarch/$bin";
 	  next;
@@ -1817,7 +1816,7 @@ sub getbinaries_kiwiproduct {
 	    $rarch = 'appdata';
 	  } elsif ($name eq '_modulemd.yaml') {
 	    $rarch = 'modulemd';
-	    $name = "$packid.modulemd.yaml";
+	    $name = "$packid.$arch.modulemd.yaml";
 	  }
 	  return undef unless $rarch;
 	  return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
