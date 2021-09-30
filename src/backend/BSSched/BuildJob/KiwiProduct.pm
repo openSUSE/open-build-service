@@ -332,7 +332,8 @@ sub check {
 	next if $apackid eq '_volatile';
 	next if ($pdatas->{$apackid} || {})->{'patchinfo'};
 
-	if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
+	my $apackid2 = $known{$apackid} || $apackid;
+	if (($allpacks && !$deps{"-$apackid"} && !$deps{"-$apackid2"}) || $deps{$apackid} || $deps{$apackid2}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
 	  if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
