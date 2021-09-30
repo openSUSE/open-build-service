@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Person::NotificationsController do
+<<<<<<< HEAD
   let(:user) { create(:confirmed_user, :with_home, :in_beta) }
 
   render_views
@@ -53,6 +54,16 @@ RSpec.describe Person::NotificationsController do
 
       before do
         Flipper[:notifications_redesign].enable
+=======
+  render_views
+
+  describe 'index' do
+    context 'called by authorized user' do
+      let(:user) { create(:confirmed_user, :with_home) }
+      let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user) }
+
+      before do
+>>>>>>> bdb45c668c (Create a read-only api for notifications)
         login user
         get :index, format: :xml
 
@@ -66,9 +77,17 @@ RSpec.describe Person::NotificationsController do
       it { expect(response.body).to include('<notifications count="2">') }
 
       context 'filter by project finds results' do
+<<<<<<< HEAD
         before do
           login user
           get :index, params: { format: :xml, project: user.home_project_name }
+=======
+        let(:project) { notifications.first.projects.first }
+
+        before do
+          login user
+          get :index, params: { format: :xml, project: project }
+>>>>>>> bdb45c668c (Create a read-only api for notifications)
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -76,6 +95,11 @@ RSpec.describe Person::NotificationsController do
       end
 
       context 'filter by project doe not find results' do
+<<<<<<< HEAD
+=======
+        let(:project) { notifications.first.projects.first }
+
+>>>>>>> bdb45c668c (Create a read-only api for notifications)
         before do
           login user
           get :index, params: { format: :xml, project: 'home:hans' }
