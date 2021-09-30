@@ -85,7 +85,7 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     assert_equal ['tschmidt@example.com'], email.to
     should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).reject { |l| l =~ /^Date:/ }.join("\n")
+    assert_equal should, email.encoded.lines.map(&:chomp).grep_v(/^Date:/).join("\n")
   end
 
   test 'cleanup job' do
