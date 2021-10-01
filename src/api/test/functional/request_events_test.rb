@@ -14,7 +14,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
   def verify_email(fixture_name, myid, email)
     should = load_fixture("event_mailer/#{fixture_name}").gsub('REQUESTID', myid).chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).reject { |l| l =~ /^Date:/ }.join("\n")
+    assert_equal should, email.encoded.lines.map(&:chomp).grep_v(/^Date:/).join("\n")
   end
 
   def test_request_event

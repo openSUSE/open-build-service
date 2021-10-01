@@ -75,7 +75,7 @@ module OwnerSearch
 
     def all_packages
       ret = Package.where(project_id: @projects).pluck(:name)
-      ret.reject { |p| p =~ /\A_product:\w[-+\w.]*\z/ }
+      ret.grep_v(/\A_product:\w[-+\w.]*\z/)
     end
   end
 end
