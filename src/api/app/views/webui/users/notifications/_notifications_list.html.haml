@@ -29,7 +29,7 @@
                     = check_box_tag('notification_ids[]', notification.id, false,
                                     id: "notification_ids_#{notification.id}", class: 'custom-control-input')
                     = label_tag("notification_ids_#{notification.id}", '', class: 'custom-control-label')
-                .col
+                .col-10
                   .row
                     .col
                       - if notification.notifiable_type == 'BsRequest'
@@ -56,7 +56,7 @@
                     .col-auto.pr-0
                       = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
                     .col-auto.pl-xs-2
-                      %span.text-word-break-all= action_description(notification)
+                      .smart-overflow= action_description(notification)
                   .row.d-none.d-md-block.pl-4
                     .col
                       %p.mt-3.mb-0= notification.excerpt
@@ -64,3 +64,5 @@
 
 - content_for :ready_function do
   handleNotificationCheckboxSelection();
+  applySmartOverflow();
+  window.onresize = applySmartOverflow;

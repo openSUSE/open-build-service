@@ -55,3 +55,4 @@
 //= require webui/notification.js
 //= require webui/navigation.js
 //= require webui/user_profile.js
+//= require webui/long_text.js
