@@ -6,6 +6,7 @@ Disallow: /project/monitor
 Disallow: /project/buildresult
 Disallow: /package/dependency
 Disallow: /package/reload_buildstatus
+Disallow: /package/view_file
 Disallow: /project/buildstatus
 Disallow: /project/status
 Disallow: /stage
