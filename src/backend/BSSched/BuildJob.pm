@@ -1161,6 +1161,7 @@ sub create {
         $_->{'version'}    = $d->{'version'};
         $_->{'release'}    = $d->{'release'} if defined $d->{'release'};
         $_->{'arch'}       = $d->{'arch'} if $d->{'arch'};
+        $_->{'hdrmd5'}     = $d->{'hdrmd5'} if $d->{'hdrmd5'};
         $_->{'preimghdrmd5'} = $d->{'hdrmd5'} if !$_->{'noinstall'} && $d->{'hdrmd5'};
 	$_->{'repoarch'}   = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
       }
