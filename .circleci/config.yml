@@ -103,7 +103,7 @@ jobs:
       - run:
           name: Run brakeman
           # Same brakeman version is pinned in our Dockerfile to have reproducible images (the license forbids us from shipping the gem in our appliance)
-          command: sudo gem install --no-format-executable brakeman --version 5.0.2; brakeman --rails6 -p src/api
+          command: sudo gem install --no-format-executable brakeman --version 5.1.1; brakeman --rails6 -p src/api
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
