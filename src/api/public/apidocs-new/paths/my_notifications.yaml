@@ -1,0 +1,45 @@
+get:
+  summary: List the notifications of the authenticated user.
+  description:  "**(Beta/Unstable)** List user's notifications."
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: path
+      name: project
+      required: false
+      schema:
+        type: string
+    - in: path
+      name: page
+      required: false
+      schema:
+        type: int
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/notifications.yaml'
+          example:
+            count: 2
+            total_pages: 1
+            current_page: 0
+            notification:
+              - id: 3
+                title: test 1
+                who: Administrator
+                state: new
+                when: 2021-09-30T07:12:02
+                event_type: review_wanted
+              - id: 25
+                title: test 2
+                who: User 2
+                event_type: comment_for_package
+                when: 2021-09-27T07:16:19
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Notifications
