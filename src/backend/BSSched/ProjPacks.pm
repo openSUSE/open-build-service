@@ -868,7 +868,8 @@ sub expandprojlink {
 
 # check if a prp is related to a project
 sub is_related {
-  my ($projid1, $prp2) = @_;
+  my ($projid1, $repoid1, $prp2) = @_;
+  #$projid1 =~ s/^([^:]+:[^:]+):.*/$1/;
   my $projid2 = (split('/', $prp2, 2))[0];
   return 1 if $projid1 eq $projid2;
   my $lprojid1 = length($projid1);
@@ -1148,7 +1149,7 @@ sub setup_projects {
 	$prpdeps->{$prp} = [ sort keys %xsp ];
       }
       # get list of related prp
-      my @related_prps = grep { $prp ne $_ && is_related($projid, $_) } @{$prpdeps->{$prp} || []};
+      my @related_prps = grep { $prp ne $_ && is_related($projid, $repoid, $_) } @{$prpdeps->{$prp} || []};
       $relatedprpdeps->{$prp} = \@related_prps if @related_prps;
 
       # expand hostsystem for cross builds
