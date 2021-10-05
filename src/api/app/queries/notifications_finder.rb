@@ -21,7 +21,7 @@ class NotificationsFinder
 
   def for_subscribed_user(user = User.session)
     @relation.where("(subscriber_type = 'User' AND subscriber_id = ?) OR (subscriber_type = 'Group' AND subscriber_id IN (?))",
-                    user, user.groups.pluck(:id))
+                    user, user.groups.select(:id))
   end
 
   def for_incoming_requests(user = User.session)
