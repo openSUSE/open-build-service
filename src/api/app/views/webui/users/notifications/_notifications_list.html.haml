@@ -10,10 +10,12 @@
         - else
           There are no notifications, but there's a world of opportunities!
 - else
-  - update_path = my_notifications_path(type: selected_filter[:type], project: selected_filter[:project],
-                                       page: params[:page], show_all: params[:show_all])
+  :ruby
+    update_path = my_notifications_path(type: selected_filter[:type], project: selected_filter[:project],
+                                          page: params[:page], show_all: params[:show_all])
+    show_read_all_button = notifications.count > Notification::MAX_PER_PAGE
   = form_tag(update_path, method: :put, remote: true) do
-    = render partial: 'notification_action_bar', locals: { type: selected_filter[:type] }
+    = render(NotificationActionBarComponent.new(type: selected_filter[:type], update_path: update_path, show_read_all_button: show_read_all_button))
     .card
       .card-body
         .text-center

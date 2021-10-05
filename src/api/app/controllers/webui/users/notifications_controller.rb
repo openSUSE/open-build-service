@@ -1,5 +1,4 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
-  MAX_PER_PAGE = 300
   VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests'].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
@@ -16,8 +15,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    notifications = fetch_notifications.where(id: params[:notification_ids])
-
+    notifications = if params[:update_all]
+                      fetch_notifications
+                    else
+                      fetch_notifications.where(id: params[:notification_ids])
+                    end
     # rubocop:disable Rails/SkipsModelValidations
     unless notifications.update_all('delivered = !delivered')
       flash.now[:error] = "Couldn't mark the notifications as #{notifications.first.unread? ? 'read' : 'unread'}"
@@ -57,8 +59,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def show_all(notifications)
     total = notifications.size
-    flash.now[:info] = "You have too many notifications. Displaying a maximum of #{MAX_PER_PAGE} notifications per page." if total > MAX_PER_PAGE
-    notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
+    flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
+    notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
 
   # Returns a hash where the key is the name of the project and the value is the amount of notifications
