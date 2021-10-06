@@ -26,6 +26,8 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = "Unable to submit: The source of package #{params[:project_name]}/#{params[:package_name]} is broken"
     rescue APIError, ActiveRecord::RecordInvalid => e
       flash[:error] = e.message
+    rescue Backend::Error => e
+      flash[:error] = e.summary
     end
 
     if params.key?(:package_name)
