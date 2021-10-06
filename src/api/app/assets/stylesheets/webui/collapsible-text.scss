@@ -1,4 +1,4 @@
-@mixin collapsible($maxHeight: 4.5em, $maxWidth: $seventy-five-chars) {
+@mixin collapsible($maxHeight: 4.5em, $maxWidth: $seventy-five-chars, $moreButtonLabel: 'Show more ', $lessButtonLabel: 'Show less ') {
   .obs-collapsible-textbox {
     padding-right: 1em;
     @extend .text-break;
@@ -20,11 +20,11 @@
       @extend .mt-2;
 
       &.more{
-        &:before { content: 'Show more '; }
+        &:before { content: $moreButtonLabel; }
         i { @extend .fa-chevron-down; }
       }
       &.less{
-        &:before { content: 'Show less '; }
+        &:before { content: $lessButtonLabel; }
         i { @extend .fa-chevron-up; }
       }
     }
@@ -43,6 +43,10 @@
 #involvement-description {
   @include collapsible($maxHeight: 2.75em, $maxWidth: 'none');
   .obs-collapsible-textbox {  @extend .pr-0; }
+}
+
+.list-group-item {
+  @include collapsible($maxHeight: 2.75em, $maxWidth: 'none', $moreButtonLabel: 'Expand name ', $lessButtonLabel: 'Shrink name ');
 }
 
 #issue-summary {
