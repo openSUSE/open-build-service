@@ -161,11 +161,12 @@ sub check {
     my $delayed_errors = '';
     for my $aprp (@bprps) {
       if (!$ctx->checkprpaccess($aprp)) {
+	my $error = "repository '$aprp' is unavailable";
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (kiwi-product)\n";
-	  print "        repository $aprp is unavailable for sysbuild";
+	  print "        $error\n";
 	}
-	return ('broken', "repository $aprp is unavailable");
+	return ('broken', $error);
       }
       my $r = $ctx->addrepo($pool, $aprp, $localbuildarch);
       if (!$r) {
@@ -206,9 +207,9 @@ sub check {
       if (!$ctx->checkprpaccess($aprp)) {
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (kiwi-product)\n";
-	  print "        repository $aprp is unavailable";
+	  print "        repository '$aprp' is unavailable\n";
 	}
-	return ('broken', "repository $aprp is unavailable");
+	return ('broken', "repository '$aprp' is unavailable");
       }
     }
     # check if we are blocked
