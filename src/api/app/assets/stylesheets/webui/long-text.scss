@@ -1,0 +1,19 @@
+.smart-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+}
+a.ellipsis-link {
+    display: none;
+}
+.smart-overflow a.ellipsis-link {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    text-decoration: underline;
+}
