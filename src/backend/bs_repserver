@@ -2501,10 +2501,15 @@ sub copybuild {
         my $oldsetrelease;
         $oldsetrelease = readstr("$odir/.setrelease") if -e "$odir/.setrelease";
 	if (defined($oldsetrelease)) {
-	  if ($oldsetrelease ne $oldsetrelease) {
+	  if ($setrelease ne $oldsetrelease) {
             # kiwi product || appliance
-            $nbin =~ s/(-\Q$oldsetrelease\E)(-Media\d?(?:\..*?)?)$/-$setrelease$2/ ||
-               $nbin =~ s/$oldsetrelease\./$setrelease./;
+	    if ($oldsetrelease eq '') {
+              $nbin =~ s/(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
+                 $nbin =~ s/(^.*-)/$1$setrelease/;
+	    } else {
+              $nbin =~ s/(\Q$oldsetrelease\E)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
+                 $nbin =~ s/\Q$oldsetrelease\E\./$setrelease./;
+	    }
           }
         } else {
           # kiwi product || appliance
