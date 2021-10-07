@@ -7,7 +7,7 @@ delete:
       name: id
       schema:
         type: string
-        required: true
+      required: true
       description: Id of the token to be removed.
       example: 3
   responses:
