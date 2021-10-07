@@ -8,7 +8,8 @@ post:
     - $ref: '../components/parameters/request.yaml#/RequestId'
     - in: query
       name: diff_to_superseded
-      type: integer
+      schema:
+        type: integer
       description: |
         Diff relative to a given superseded request. State the id of the corresponding superseded request.
       example: 10401
