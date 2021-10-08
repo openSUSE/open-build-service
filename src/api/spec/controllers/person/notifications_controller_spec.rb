@@ -1,36 +1,54 @@
 require 'rails_helper'
 
 RSpec.describe Person::NotificationsController do
+  let(:user) { create(:confirmed_user, :with_home, :in_beta) }
+
   render_views
 
   describe 'Check if user is in beta or feature flag is enabled' do
-    context 'user not in beta' do
-      let(:user) { create(:confirmed_user, :with_home) }
+    let(:user) { create(:confirmed_user, :with_home) }
 
-      before do
-        login user
-        get :index, format: :xml
-      end
+    before do
+      toggle_notifications_redesign
+      login user
+      get :index, format: :xml
+    end
+
+    context 'user not in beta' do
+      let(:toggle_notifications_redesign) { Flipper[:notifications_redesign].enable }
 
       it { expect(response).to have_http_status(:not_found) }
     end
 
     context 'Feature :notifications_redesign is disabled' do
-      let(:user) { create(:confirmed_user, :with_home, :in_beta) }
-
-      before do
-        Flipper[:notifications_redesign].disable
-        login user
-        get :index, format: :xml
-      end
+      let(:toggle_notifications_redesign) { Flipper[:notifications_redesign].disable }
 
       it { expect(response).to have_http_status(:not_found) }
     end
   end
 
+  describe 'filter check' do
+    before do
+      Flipper[:notifications_redesign].enable
+      login user
+      get :index, params: params
+    end
+
+    context 'default filter' do
+      let(:params) { { format: :xml } }
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'bad filter' do
+      let(:params) { { format: :xml, notifications_type: 'foobar' } }
+
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+  end
+
   describe 'index' do
     context 'called by authorized user' do
-      let(:user) { create(:confirmed_user, :with_home, :in_beta) }
       let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user) }
 
       before do
@@ -48,11 +66,9 @@ RSpec.describe Person::NotificationsController do
       it { expect(response.body).to include('<notifications count="2">') }
 
       context 'filter by project finds results' do
-        let(:project) { notifications.first.projects.first }
-
         before do
           login user
-          get :index, params: { format: :xml, project: project }
+          get :index, params: { format: :xml, project: user.home_project_name }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -60,8 +76,6 @@ RSpec.describe Person::NotificationsController do
       end
 
       context 'filter by project doe not find results' do
-        let(:project) { notifications.first.projects.first }
-
         before do
           login user
           get :index, params: { format: :xml, project: 'home:hans' }

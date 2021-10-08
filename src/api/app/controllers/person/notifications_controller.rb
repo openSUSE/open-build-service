@@ -7,15 +7,23 @@ module Person
       setup 'not_found', 404, 'Make sure you are in the beta program'
     end
 
+    class FilterNotSupportedError < APIError
+      setup 'bad_request', 400, 'Filter not supported'
+    end
+
     MAX_PER_PAGE = 300
+    ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
 
     before_action :check_feature_and_beta_toggles
+    before_action :check_filter_type
 
     # GET /my/notifications
     def index
       @notifications = paginated_notifications
       @notifications_total = @notifications.count
     end
+
+    private
 
     def show_all(notifications)
       total = notifications.size
@@ -31,13 +39,18 @@ module Person
                                  notifications_for_subscribed_user.for_subscribed_user
                                end
       # We are limiting it just for BsRequests
-      NotificationsFinder.new(filtered_notifications).for_notifiable_type('requests')
+      NotificationsFinder.new(filtered_notifications).for_notifiable_type(@filter_type)
     end
 
     def paginated_notifications
       notifications = fetch_notifications
       params[:page] = notifications.page(params[:page]).total_pages if notifications.page(params[:page]).out_of_range?
       params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
+    end
+
+    def check_filter_type
+      @filter_type = params.fetch(:notifications_type, 'requests')
+      raise FilterNotSupportedError unless ALLOWED_FILTERS.include?(@filter_type)
     end
 
     def check_feature_and_beta_toggles
