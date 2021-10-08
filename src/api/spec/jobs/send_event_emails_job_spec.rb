@@ -4,50 +4,53 @@ RSpec.describe SendEventEmailsJob, type: :job do
   include ActiveJob::TestHelper
 
   describe '#perform' do
-    let(:user) { create(:confirmed_user) }
-    let(:group) { create(:group) }
-    let(:project) { create(:project, name: 'comment_project', maintainer: [user, group]) }
+    let(:group1) { create(:group) }
+    let(:group2) { create(:group) }
+    let(:user) { create(:confirmed_user, groups: [group1, group2]) }
+    let(:project) { create(:project, name: 'comment_project', maintainer: [user, group1, group2]) }
     let(:comment_author) { create(:confirmed_user) }
     let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author) }
-    let(:user_maintainer) { create(:group) }
 
     before do
       ActionMailer::Base.deliveries = []
       # Needed for X-OBS-URL
       allow_any_instance_of(Configuration).to receive(:obs_url).and_return('https://build.example.com')
-      group.add_user(user)
     end
 
     context 'with no errors being raised' do
       let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
-      let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group, channel: :web) }
-      let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :web) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :web) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
+      let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1) }
+      let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1, channel: :web) }
+      let!(:subscription6) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group2, channel: :web) }
 
       subject! { SendEventEmailsJob.new.perform }
 
       it 'sends an email to the subscribers' do
         email = ActionMailer::Base.deliveries.first
 
-        expect(email.to).to match_array([user.email, group.email])
+        expect(email.to).to match_array([user.email, group1.email])
         expect(email.subject).to include('New comment')
       end
 
-      it "not creates an rss notification for user's email if users doesn't have rss token" do
+      it "does not create a rss notification if the user doesn't have a rss token" do
         expect(Notification.find_by(subscriber: user, rss: true)).to be_nil
       end
 
-      it "creates an web notification for user's email" do
+      # rubocop:disable RSpec/ExampleLength
+      it 'creates a user web notification for a user with a web subscription' do
         notification = Notification.find_by(subscriber: user, web: true)
 
         expect(notification.event_type).to eq('Event::CommentForProject')
         expect(notification.event_payload['comment_body']).to include('how are things?')
         expect(notification.subscription_receiver_role).to eq('maintainer')
         expect(notification.delivered).to be_falsey
+        expect(notification.groups.pluck(:title)).to match_array([group1, group2].pluck(:title))
       end
+      # rubocop:enable RSpec/ExampleLength
 
-      it "creates an web notification with the same raw value of the corresponding event's payload" do
+      it "creates a web notification with the same raw value of the corresponding event's payload" do
         notification = Notification.find_by(subscriber: user, web: true)
         raw_event_payload = Event::Base.first.attributes_before_type_cast['payload']
         raw_notification_payload = notification.attributes_before_type_cast['event_payload']
@@ -55,21 +58,12 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(raw_event_payload).to eq(raw_notification_payload)
       end
 
-      it "creates an web notification for group's email" do
-        notification = Notification.find_by(subscriber: group, web: true)
-
-        expect(notification.event_type).to eq('Event::CommentForProject')
-        expect(notification.event_payload['comment_body']).to include('how are things?')
-        expect(notification.subscription_receiver_role).to eq('maintainer')
-        expect(notification.delivered).to be_falsey
-      end
-
-      it 'only creates two notifications' do
-        expect(Notification.count).to eq(2)
+      it 'creates only one notification' do
+        expect(Notification.count).to eq(1)
       end
     end
 
-    context 'when user has rss token' do
+    context 'when the user has a rss token' do
       let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
 
       before do
@@ -78,7 +72,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
 
       subject! { SendEventEmailsJob.new.perform }
 
-      it "creates an rss notification for user's email" do
+      it 'creates a rss notification' do
         notification = Notification.find_by(subscriber: user, rss: true)
 
         expect(notification.event_type).to eq('Event::CommentForProject')
@@ -90,7 +84,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
 
     context 'with an error being raised' do
       let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1) }
       let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
 
       before do
@@ -110,7 +104,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
       end
     end
 
-    context 'with no subscriptions for the event' do
+    context 'without any subscriptions to the event' do
       subject! { SendEventEmailsJob.new.perform }
 
       it 'updates the event mails_sent = true' do
@@ -118,7 +112,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(event.mails_sent).to be_truthy
       end
 
-      it 'sends no emails' do
+      it 'does not send any email' do
         expect(ActionMailer::Base.deliveries.count).to eq(0)
       end
     end

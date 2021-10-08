@@ -193,6 +193,7 @@ namespace :dev do
 
       # Users
       admin = User.where(login: 'Admin').first || create(:admin_user, login: 'Admin')
+      group = create(:groups_user, user: admin, group: create(:group, title: Faker::Creature::Cat.name)).group
       subscribe_to_all_notifications(admin)
       requestor = User.where(login: 'Requestor').first || create(:confirmed_user, login: 'Requestor')
       User.session = requestor
@@ -216,8 +217,9 @@ namespace :dev do
           source_package: requestor_package
         )
 
-        # Will create a notification (ReviewWanted event) for this review.
+        # Will create notifications (ReviewWanted event) for those reviews.
         request.addreview(by_user: admin, comment: Faker::Lorem.paragraph)
+        request.addreview(by_group: group, comment: Faker::Lorem.paragraph)
 
         # Will create a notification (CommentForRequest event) for this comment.
         create(:comment_request, commentable: request, user: requestor)
@@ -441,4 +443,14 @@ def subscribe_to_all_notifications(user)
   create(:event_subscription_comment_for_project, channel: :web, user: user, receiver_role: 'maintainer')
   create(:event_subscription_comment_for_package, channel: :web, user: user, receiver_role: 'maintainer')
   create(:event_subscription_comment_for_request, channel: :web, user: user, receiver_role: 'target_maintainer')
+
+  user.groups.each do |group|
+    create(:event_subscription_request_created, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
+    create(:event_subscription_review_wanted, channel: 'web', user: nil, group: group, receiver_role: 'reviewer')
+    create(:event_subscription_request_statechange, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
+    create(:event_subscription_request_statechange, channel: :web, user: nil, group: group, receiver_role: 'source_maintainer')
+    create(:event_subscription_comment_for_project, channel: :web, user: nil, group: group, receiver_role: 'maintainer')
+    create(:event_subscription_comment_for_package, channel: :web, user: nil, group: group, receiver_role: 'maintainer')
+    create(:event_subscription_comment_for_request, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
+  end
 end
