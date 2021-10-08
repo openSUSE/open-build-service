@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_19_103830) do
+ActiveRecord::Schema.define(version: 2021_10_05_112031) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -474,6 +474,13 @@ ActiveRecord::Schema.define(version: 2021_07_19_103830) do
     t.index ["title"], name: "index_groups_on_title"
   end
 
+  create_table "groups_notifications", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "notification_id", null: false
+    t.bigint "group_id", null: false
+    t.index ["group_id", "notification_id"], name: "index_groups_notifications_on_group_id_and_notification_id"
+    t.index ["notification_id", "group_id"], name: "index_groups_notifications_on_notification_id_and_group_id"
+  end
+
   create_table "groups_roles", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "group_id", default: 0, null: false
     t.integer "role_id", default: 0, null: false
@@ -487,6 +494,7 @@ ActiveRecord::Schema.define(version: 2021_07_19_103830) do
     t.integer "user_id", default: 0, null: false
     t.datetime "created_at"
     t.boolean "email", default: true
+    t.boolean "web", default: true
     t.index ["group_id", "user_id"], name: "groups_users_all_index", unique: true
     t.index ["user_id"], name: "user_id"
   end
