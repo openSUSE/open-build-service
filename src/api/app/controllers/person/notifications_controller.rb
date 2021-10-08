@@ -2,6 +2,7 @@ module Person
   class NotificationsController < ApplicationController
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     include Person::Errors
 
     MAX_PER_PAGE = 300
@@ -26,6 +27,9 @@ module Person
     class FilterNotSupportedError < APIError
       setup 'bad_request', 400, 'Filter not supported'
     end
+=======
+    include Person::Errors
+>>>>>>> 83aa40cfa2 (Extract Errors to its own module)
 
     MAX_PER_PAGE = 300
     ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
