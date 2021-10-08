@@ -1,15 +1,6 @@
 module Person
   class NotificationsController < ApplicationController
-    # TODO
-    # rename it
-    # move to the right errors.rb
-    class NotFoundError < APIError
-      setup 'not_found', 404, 'Make sure you are in the beta program'
-    end
-
-    class FilterNotSupportedError < APIError
-      setup 'bad_request', 400, 'Filter not supported'
-    end
+    include Person::Errors
 
     MAX_PER_PAGE = 300
     ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
