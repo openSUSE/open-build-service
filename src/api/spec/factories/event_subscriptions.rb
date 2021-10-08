@@ -7,6 +7,7 @@ FactoryBot.define do
       receiver_role { 'commenter' }
       channel { :instant_email }
       user
+      group { nil }
     end
 
     factory :event_subscription_comment_for_project_without_subscriber do
@@ -20,6 +21,7 @@ FactoryBot.define do
       receiver_role { 'commenter' }
       channel { :instant_email }
       user
+      group { nil }
     end
 
     factory :event_subscription_comment_for_request do
@@ -27,6 +29,7 @@ FactoryBot.define do
       receiver_role { 'commenter' }
       channel { :instant_email }
       user
+      group { nil }
     end
 
     factory :event_subscription_comment_for_request_without_subscriber do
@@ -40,6 +43,7 @@ FactoryBot.define do
       receiver_role { 'target_maintainer' }
       channel { :instant_email }
       user
+      group { nil }
     end
 
     factory :event_subscription_request_statechange do
@@ -47,6 +51,7 @@ FactoryBot.define do
       receiver_role { 'target_maintainer' }
       channel { :instant_email }
       user
+      group { nil }
     end
 
     factory :event_subscription_review_wanted do
@@ -54,6 +59,7 @@ FactoryBot.define do
       receiver_role { 'reviewer' }
       channel { :instant_email }
       user
+      group { nil }
     end
   end
 end
