@@ -13,10 +13,14 @@ class EventSubscription
         # Find the users/groups who are receivers for this event
         receivers = event.send("#{receiver_role}s")
 <<<<<<< HEAD
+<<<<<<< HEAD
         receivers = filter_and_convert_groups_without_emails_to_users(receivers)
 =======
         receivers = filter_and_convert_groups_without_emails_to_users(receivers, channel)
 >>>>>>> d9737cfc90 (Create web notification for subscribed group members)
+=======
+        receivers = filter_receivers(receivers, channel)
+>>>>>>> 8aa27a4c15 (Create web notification for subscribed group members)
 
         options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
@@ -53,10 +57,14 @@ class EventSubscription
     private
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def filter_and_convert_groups_without_emails_to_users(receivers)
 =======
     def filter_and_convert_groups_without_emails_to_users(receivers, channel)
 >>>>>>> d9737cfc90 (Create web notification for subscribed group members)
+=======
+    def filter_receivers(receivers, channel)
+>>>>>>> 8aa27a4c15 (Create web notification for subscribed group members)
       new_receivers = []
 
       receivers.each do |receiver|
@@ -65,6 +73,8 @@ class EventSubscription
           new_receivers << receiver if receiver.is_active?
 
         when Group
+          # We don't split events which come through the web channel, for a group subscriber.
+          # They are split in the NotificationService::WebChannel service, if needed.
           if channel == :web || receiver.email.present?
             new_receivers << receiver
           else
