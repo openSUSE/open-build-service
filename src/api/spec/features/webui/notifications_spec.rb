@@ -41,19 +41,19 @@ RSpec.describe 'Notifications', type: :feature, js: true do
     end
   end
 
-  context 'update group notification' do
+  context 'update group notifications settings' do
     let(:user) { create(:confirmed_user, login: 'Tom') }
     let!(:group) { create(:group_with_user, title: 'test', user: user) }
 
-    it 'disable group notification' do
+    it "disable a group's notifications for the email channel" do
       login user
       visit my_subscriptions_path
 
-      find("label[for='checkbox-#{group}']").click
+      find("label[for='groups_#{group}_email']").click
 
       visit my_subscriptions_path
 
-      expect(find_field(group.title, visible: false)).not_to be_checked
+      expect(find_field("groups_#{group}_email", visible: false)).not_to be_checked
     end
   end
 end
