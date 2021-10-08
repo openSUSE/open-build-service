@@ -18,11 +18,21 @@ module Person
       setup 'not_found', 404, 'Make sure you are in the beta program'
     end
 
+<<<<<<< HEAD
 >>>>>>> d9f2a53e17 (Add check for feature flag and beta to the notifications API endpoint)
     MAX_PER_PAGE = 300
 >>>>>>> bdb45c668c (Create a read-only api for notifications)
+=======
+    class FilterNotSupportedError < APIError
+      setup 'bad_request', 400, 'Filter not supported'
+    end
+
+    MAX_PER_PAGE = 300
+    ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
+>>>>>>> 49b77d92ef (Add filter options to the Notifications API endpoint)
 
     before_action :check_feature_and_beta_toggles
+    before_action :check_filter_type
 
     # GET /my/notifications
     def index
@@ -31,10 +41,15 @@ module Person
     end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     private
 
 =======
 >>>>>>> bdb45c668c (Create a read-only api for notifications)
+=======
+    private
+
+>>>>>>> 49b77d92ef (Add filter options to the Notifications API endpoint)
     def show_all(notifications)
       total = notifications.size
       notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
@@ -50,10 +65,14 @@ module Person
                                end
       # We are limiting it just for BsRequests
 <<<<<<< HEAD
+<<<<<<< HEAD
       NotificationsFinder.new(filtered_notifications).for_notifiable_type(@filter_type)
 =======
       NotificationsFinder.new(filtered_notifications).for_notifiable_type('requests')
 >>>>>>> bdb45c668c (Create a read-only api for notifications)
+=======
+      NotificationsFinder.new(filtered_notifications).for_notifiable_type(@filter_type)
+>>>>>>> 49b77d92ef (Add filter options to the Notifications API endpoint)
     end
 
     def paginated_notifications
@@ -70,6 +89,11 @@ module Person
     end
 =======
 >>>>>>> d9f2a53e17 (Add check for feature flag and beta to the notifications API endpoint)
+
+    def check_filter_type
+      @filter_type = params.fetch(:notifications_type, 'requests')
+      raise FilterNotSupportedError unless ALLOWED_FILTERS.include?(@filter_type)
+    end
 
     def check_feature_and_beta_toggles
       raise NotFoundError unless Flipper.enabled?(:notifications_redesign, User.session) && User.session.in_beta?
