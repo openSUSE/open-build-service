@@ -3,12 +3,38 @@ require 'rails_helper'
 RSpec.describe Person::NotificationsController do
   render_views
 
+  describe 'Check if user is in beta or feature flag is enabled' do
+    context 'user not in beta' do
+      let(:user) { create(:confirmed_user, :with_home) }
+
+      before do
+        login user
+        get :index, format: :xml
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
+    context 'Feature :notifications_redesign is disabled' do
+      let(:user) { create(:confirmed_user, :with_home, :in_beta) }
+
+      before do
+        Flipper[:notifications_redesign].disable
+        login user
+        get :index, format: :xml
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+  end
+
   describe 'index' do
     context 'called by authorized user' do
-      let(:user) { create(:confirmed_user, :with_home) }
+      let(:user) { create(:confirmed_user, :with_home, :in_beta) }
       let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user) }
 
       before do
+        Flipper[:notifications_redesign].enable
         login user
         get :index, format: :xml
 
