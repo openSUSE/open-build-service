@@ -15,7 +15,7 @@ module NotificationService
     def call
       return nil unless @subscription.present? && @event.present?
 
-      # Create a new, up-to-date notification
+      # Create an up-to-date notification
       if @subscription.subscriber.is_a?(Group)
         # Having a single notification for a subscriber_type Group won't allow users of
         # this group to have their own notifications (like marking them as read/unread).
