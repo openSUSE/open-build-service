@@ -24,6 +24,7 @@ end
 #
 #  id         :integer          not null, primary key
 #  email      :boolean          default(TRUE)
+#  web        :boolean          default(TRUE)
 #  created_at :datetime
 #  group_id   :integer          default(0), not null, indexed => [user_id]
 #  user_id    :integer          default(0), not null, indexed => [group_id], indexed

@@ -11,6 +11,7 @@ class Group < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
   has_many :reviews, dependent: :nullify
   has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
+  has_and_belongs_to_many :created_notifications, class_name: 'Notification'
 
   validates :title,
             format: { with: /\A[\w.\-]*\z/,
@@ -141,6 +142,11 @@ class Group < ApplicationRecord
   # returns the users that actually want email for this group's notifications
   def email_users
     User.where(id: groups_users.where(email: true).select(:user_id), state: 'confirmed')
+  end
+
+  # Returns the users which want web notifications for this group
+  def web_users
+    User.where(id: groups_users.where(web: true).select(:user_id), state: 'confirmed')
   end
 
   def display_name
