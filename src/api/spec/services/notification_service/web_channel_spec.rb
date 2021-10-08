@@ -264,5 +264,11 @@ RSpec.describe NotificationService::WebChannel do
         end
       end
     end
+
+    context 'when the subscriber is a group' do
+      context "the notification's groups contain this group" do
+        skip 'Not implemented'
+      end
+    end
   end
 end

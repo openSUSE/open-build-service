@@ -20,6 +20,7 @@ class NotificationsFinder
   end
 
   def for_subscribed_user(user = User.session)
+    # TODO: There are no notifications anymore with subscriber_type 'Group' since we create a notification for every group member instead
     @relation.where("(subscriber_type = 'User' AND subscriber_id = ?) OR (subscriber_type = 'Group' AND subscriber_id IN (?))",
                     user, user.groups.map(&:id))
   end
@@ -53,6 +54,10 @@ class NotificationsFinder
 
   def for_project_name(project_name)
     unread.joins(:projects).where(projects: { name: project_name })
+  end
+
+  def for_group_title(group_title)
+    unread.joins(:groups).where(groups: { title: group_title })
   end
 
   def for_subscribed_user_by_id(notification_id)
