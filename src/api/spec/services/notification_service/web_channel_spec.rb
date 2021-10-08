@@ -23,6 +23,7 @@ RSpec.describe NotificationService::WebChannel do
              channel: :web)
     end
 
+    # TODO: Do not use shared contexts
     RSpec.shared_examples 'creating a new notification' do
       it { expect(subject).to be_present }
     end
@@ -155,6 +156,12 @@ RSpec.describe NotificationService::WebChannel do
 
       it 'sets no last_seen_at date for the new notification' do
         expect(subject.last_seen_at).to be_nil
+      end
+    end
+
+    context 'when the subscriber is a group' do
+      context "the notification's groups contain this group" do
+        skip 'Not implemented'
       end
     end
   end
