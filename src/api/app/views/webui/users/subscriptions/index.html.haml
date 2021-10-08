@@ -8,12 +8,13 @@
       %h4.card-title Groups
       .card-text#notifications-groups
         %p You will receive emails from the checked groups
-        - @groups_users.each do |group_user|
-          .custom-control.custom-checkbox.custom-control-inline
-            = check_box_tag group_user.group, '1', group_user.email, class: 'custom-control-input', id: "checkbox-#{group_user.group}",
-              data: { url: update_my_subscriptions_path, method: :put, remote: true }
-            = label_tag nil, group_user.group.title, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
-            %i.fas.fa-spinner.invisible
+        = form_tag(update_my_subscriptions_path, method: :put, remote: true) do
+          - @groups_users.each do |group_user|
+            .custom-control.custom-checkbox.custom-control-inline
+              = check_box_tag group_user.group, '1', group_user.email, class: 'custom-control-input', id: "checkbox-#{group_user.group}",
+                onclick: "javascript:$('#notifications-groups form').submit();"
+              = label_tag nil, group_user.group.title, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
+              %i.fas.fa-spinner.invisible
   .card-body
     %h4.card-title Events
     %p Choose events you want to get notified about and the corresponding channels.
