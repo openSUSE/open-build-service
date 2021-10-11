@@ -15,15 +15,21 @@ class NotificationPresenter < SimpleDelegator
       { text: "#{type_of_action(@model.notifiable)} Request ##{@model.notifiable.number}",
         path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number, notification_id: @model.id) }
     when 'Event::CommentForRequest'
-      { text: "Comment on #{type_of_action(@model.notifiable.commentable)} Request",
-        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, notification_id: @model.id, anchor: 'comments-list') }
+      # TODO: It would be better to eager load the commentable association with `includes(...)`,
+      #      but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
+      bs_request = @model.notifiable.commentable
+      { text: "Comment on #{type_of_action(bs_request)} Request",
+        path: Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @model.id, anchor: 'comments-list') }
     when 'Event::CommentForProject'
       { text: 'Comment on Project',
         path: Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, notification_id: @model.id, anchor: 'comments-list') }
     when 'Event::CommentForPackage'
+      # TODO: It would be better to eager load the commentable association with `includes(...)`,
+      #       but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
+      package = @model.notifiable.commentable
       { text: 'Comment on Package',
-        path: Rails.application.routes.url_helpers.package_show_path(package: @model.notifiable.commentable,
-                                                                     project: @model.notifiable.commentable.project,
+        path: Rails.application.routes.url_helpers.package_show_path(package: package,
+                                                                     project: package.project,
                                                                      notification_id: @model.id,
                                                                      anchor: 'comments-list') }
     else

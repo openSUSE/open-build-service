@@ -15,26 +15,51 @@ module NotificationService
     def call
       return nil unless @subscription.present? && @event.present?
 
-      # Find and delete older notifications
-      finder = finder_class.new(notification_scope, @parameters_for_notification)
-      outdated_notifications = finder.call
-      oldest_notification = outdated_notifications.last
-      outdated_notifications.destroy_all
+      # Create an up-to-date notification
+      if @subscription.subscriber.is_a?(Group)
+        # Having a single notification for a subscriber_type Group won't allow users of
+        # this group to have their own notifications (like marking them as read/unread).
+        # We need to create a notification for every group member.
+        @subscription.subscriber.web_users.map do |user|
+          finder = finder_class.new(notification_scope(user: user), @parameters_for_notification.merge!(subscriber: user))
 
-      # Create a new, up-to-date one
-      notification = Notification.create!(parameters(oldest_notification))
-      notification.projects << NotifiedProjects.new(notification).call
-      notification
+          renew_notification(finder: finder)
+        end
+      else
+        # Subscriber is a user
+        finder = finder_class.new(notification_scope(user: @subscription.subscriber), @parameters_for_notification)
+
+        [renew_notification(finder: finder)]
+      end
     end
 
     private
+
+    def renew_notification(finder:)
+      # Find and delete older notifications
+      outdated_notifications = finder.call
+      oldest_notification = outdated_notifications.last
+      oldest_notification_groups = oldest_notification.present? ? oldest_notification.groups.to_a : []
+      outdated_notifications.destroy_all
+
+      notification = Notification.create!(parameters(oldest_notification))
+      notification.projects << NotifiedProjects.new(notification).call
+      notification.groups << notification_groups(oldest_notification_groups)
+      notification
+    end
+
+    def notification_groups(previous_groups)
+      return previous_groups unless @subscription.subscriber.is_a?(Group)
+
+      previous_groups | [@subscription.subscriber]
+    end
 
     def finder_class
       ALLOWED_FINDERS[@parameters_for_notification[:notifiable_type]]
     end
 
-    def notification_scope
-      NotificationsFinder.new(@subscription.subscriber.notifications.for_web).with_notifiable
+    def notification_scope(user:)
+      NotificationsFinder.new(user.notifications.for_web).with_notifiable
     end
 
     def parameters(oldest_notification)

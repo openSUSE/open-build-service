@@ -8,7 +8,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     @subscriptions_form = authorize(subscriptions_form(default_form: params[:default_form]))
 
     @user = User.session!
-    @groups_users = @user.groups_users
+    @groups_users = @user.groups_users.includes(:group).order('groups.title')
 
     respond_to do |format|
       format.html
@@ -19,12 +19,10 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   def update
     @subscriptions_form = authorize(subscriptions_form)
 
-    User.session!.groups_users.each do |gu|
-      gu.email = params[gu.group.title] == '1'
-      gu.save
-    end
-
     begin
+      groups_users = User.session!.groups_users.includes(:group).find_by(groups: { title: params[:groups].keys }) if params[:groups]
+      groups_users.update!(params[:groups][groups_users.group.title].slice(:web, :email).permit!) if groups_users
+
       @subscriptions_form.update!(params[:subscriptions]) if params[:subscriptions]
       flash.now[:success] = 'Notifications settings updated'
     rescue ActiveRecord::RecordInvalid => e

@@ -63,15 +63,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
 
-  # Returns a hash where the key is the name of the project and the value is the amount of notifications
-  # associated to that project. The hash is sorted by amount and then name.
-  def projects_for_filter
-    Project.joins(:notifications)
-           .where(notifications: { subscriber: User.session, delivered: false, web: true })
-           .order('name desc').group(:name).count # this query returns a sorted-by-name hash like { "home:b" => 1, "home:a" => 3  }
-           .sort_by(&:last).reverse.to_h # this sorts the hash by amount: { "home:a" => 3, "home:b" => 1 }
-  end
-
   def notifications_count
     finder = NotificationsFinder.new(User.session.notifications.for_web)
     counted_notifications = finder.unread.group(:notifiable_type).count
@@ -81,9 +72,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def fetch_notifications
-    notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification))
+    notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification).includes(:notifiable))
     if params[:project]
       notifications_for_subscribed_user.for_project_name(params[:project])
+    elsif params[:group]
+      notifications_for_subscribed_user.for_group_title(params[:group])
     else
       notifications_for_subscribed_user.for_notifiable_type(params[:type])
     end
@@ -96,9 +89,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def notifications_filter
-    NotificationsFilterPresenter.new(projects_for_filter,
-                                     notifications_count,
+    NotificationsFilterPresenter.new(notifications_count,
                                      params[:type],
-                                     params[:project])
+                                     params[:project],
+                                     params[:group])
   end
 end

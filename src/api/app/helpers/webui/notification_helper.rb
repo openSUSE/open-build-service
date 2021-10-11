@@ -61,6 +61,8 @@ module Webui::NotificationHelper
   def notification_filter_matches(filter_item, selected_filter)
     if selected_filter[:project].present?
       filter_item[:project] == selected_filter[:project]
+    elsif selected_filter[:group].present?
+      filter_item[:group] == selected_filter[:group]
     elsif selected_filter[:type].present?
       filter_item[:type] == selected_filter[:type]
     else
