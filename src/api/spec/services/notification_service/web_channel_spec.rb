@@ -117,6 +117,7 @@ RSpec.describe NotificationService::WebChannel do
         it_behaves_like 'creating a new notification'
         it_behaves_like 'ensuring the number of notifications is the same'
 
+<<<<<<< HEAD
         it 'sets the last_seen_at date to the oldest notification' do
           expect(subject.first.unread_date).to eql(previous_notification.created_at)
         end
@@ -147,6 +148,46 @@ RSpec.describe NotificationService::WebChannel do
         it_behaves_like 'creating a new notification'
         it_behaves_like 'ensuring the number of notifications is the same'
 
+=======
+        it 'sets the last_seen_at date' do
+          expect(subject.first.unread_date).to be_present
+        end
+
+        it 'sets the last_seen_at date to the oldest notification' do
+          expect(subject.first.unread_date).to eql(previous_notification.created_at)
+        end
+
+        it 'does not set the last_seen_at date to the oldest notifications last_seen_at date' do
+          expect(subject.first.unread_date).not_to eql(previous_notification.last_seen_at)
+        end
+      end
+
+      context 'when having a previous notification read already' do
+        let(:first_comment) do
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 2.hours.ago, body: 'Previous comment')
+        end
+        let(:second_comment) do
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago, body: 'Latest comment')
+        end
+        let(:previous_notification) do
+          create(:web_notification, :comment_for_request, subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true)
+        end
+
+        before do
+          event_subscription_user
+          first_comment
+          previous_notification
+          second_comment
+        end
+
+        subject do
+          described_class.new(event_subscription_user, event).call
+        end
+
+        it_behaves_like 'creating a new notification'
+        it_behaves_like 'ensuring the number of notifications is the same'
+
+>>>>>>> f0a4143064 (Add specs for group subscriptions in web channel service)
         it 'sets no last_seen_at date for the new notification' do
           expect(subject.first.last_seen_at).to be_nil
         end
@@ -158,6 +199,7 @@ RSpec.describe NotificationService::WebChannel do
       let(:group_heroes) { create(:group, title: 'heroes') }
       let(:owner) { create(:confirmed_user, login: 'bob', groups: [group_maintainers, group_heroes]) }
       let(:project) { create(:project, name: 'bob_project', maintainer: [owner, group_maintainers]) }
+<<<<<<< HEAD
 
       let(:event_subscription_group) do
         create(:event_subscription_comment_for_request,
@@ -208,12 +250,28 @@ RSpec.describe NotificationService::WebChannel do
           first_comment
           previous_notification
           second_comment
+=======
+
+      let(:event_subscription_group) do
+        create(:event_subscription_comment_for_request,
+               receiver_role: 'target_maintainer',
+               user: nil,
+               group: group_maintainers,
+               channel: :web)
+      end
+
+      context 'when having no previous notifications' do
+        before do
+          event_subscription_group
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago)
+>>>>>>> f0a4143064 (Add specs for group subscriptions in web channel service)
         end
 
         subject do
           described_class.new(event_subscription_group, event).call
         end
 
+<<<<<<< HEAD
         it 'creates a new notification for the group members' do
           expect(subject.first.groups.pluck(:title)).to match_array([group_maintainers].pluck(:title))
         end
@@ -228,6 +286,83 @@ RSpec.describe NotificationService::WebChannel do
       end
 
       context 'when having a previous notification read already' do
+=======
+        it 'only creates one notification' do
+          expect(subject.count).to eq(1)
+        end
+
+        it 'creates a new notification for the group members' do
+          expect(subject.first.groups.pluck(:title)).to match_array([group_maintainers].pluck(:title))
+        end
+
+        it 'sets no last_seen_at date for the new notification' do
+          expect(subject.first.last_seen_at).to be_nil
+        end
+      end
+
+      context 'when having a previous unread notification' do
+>>>>>>> f0a4143064 (Add specs for group subscriptions in web channel service)
+        let(:first_comment) do
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 2.hours.ago, body: 'Previous comment')
+        end
+        let(:second_comment) do
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago, body: 'Latest comment')
+        end
+        let(:previous_notification) do
+          create(:web_notification, :comment_for_request,
+<<<<<<< HEAD
+                 subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true,
+                 groups: [group_maintainers])
+=======
+                 subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: false,
+                 groups: [group_maintainers]
+                )
+>>>>>>> f0a4143064 (Add specs for group subscriptions in web channel service)
+        end
+
+        before do
+          event_subscription_group
+          first_comment
+          previous_notification
+          second_comment
+        end
+
+        subject do
+          described_class.new(event_subscription_group, event).call
+        end
+
+        it 'creates a new notification for the group members' do
+          expect(subject.first.groups.pluck(:title)).to match_array([group_maintainers].pluck(:title))
+        end
+<<<<<<< HEAD
+
+        it 'the number of notifications stays the same' do
+          expect { subject }.not_to change(Notification, :count)
+        end
+
+        it 'sets no last_seen_at date for the new notification' do
+          expect(subject.first.last_seen_at).to be_nil
+=======
+
+        it 'the number of notifications stays the same' do
+          expect { subject }.not_to change(Notification, :count)
+        end
+
+        it 'sets the last_seen_at date' do
+          expect(subject.first.unread_date).to be_present
+        end
+
+        it 'sets the last_seen_at date to the oldest notification' do
+          expect(subject.first.unread_date).to eql(previous_notification.created_at)
+        end
+
+        it 'does not set the last_seen_at date to the oldest notifications last_seen_at date' do
+          expect(subject.first.unread_date).not_to eql(previous_notification.last_seen_at)
+>>>>>>> f0a4143064 (Add specs for group subscriptions in web channel service)
+        end
+      end
+
+      context 'when having a previous notification read already' do
         let(:first_comment) do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 2.hours.ago, body: 'Previous comment')
         end
@@ -237,8 +372,10 @@ RSpec.describe NotificationService::WebChannel do
         let(:previous_notification) do
           create(:web_notification, :comment_for_request,
                  subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true,
-                 groups: [group_maintainers])
+                 groups: [group_maintainers]
+                )
         end
+
 
         before do
           event_subscription_group
@@ -262,12 +399,6 @@ RSpec.describe NotificationService::WebChannel do
         it 'sets no last_seen_at date for the new notification' do
           expect(subject.first.last_seen_at).to be_nil
         end
-      end
-    end
-
-    context 'when the subscriber is a group' do
-      context "the notification's groups contain this group" do
-        skip 'Not implemented'
       end
     end
   end
