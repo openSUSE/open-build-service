@@ -387,6 +387,7 @@ sub build {
         $b->{'version'} = $d->{'version'};
         $b->{'release'} = $d->{'release'} if defined $d->{'release'};
         $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+        $b->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
       }
       $b->{'noinstall'} = 1;
       push @bdeps, $b;
