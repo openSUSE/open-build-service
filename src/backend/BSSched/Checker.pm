@@ -1558,7 +1558,7 @@ sub append_info_path {
     @oldpath = splice(@oldpath, -$info->{'extrapathlevel'});
   }
   if (!BSUtil::identical(\@oldpath, $path)) {
-    print "append_info_path: different path\n";
+    print "    append_info_path: updating path\n";
     # path has changed. remove old one
     splice(@{$info->{'path'}}, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
     delete $info->{'extrapathlevel'};
@@ -1567,8 +1567,6 @@ sub append_info_path {
     $info->{'extrapathlevel'} = @$path if @$path;
     # we changed dependencies, trigger a postprocess
     $gctx->{'get_projpacks_postprocess_needed'} = 1;
-  } else {
-    print "append_info_path: same path\n";
   }
 
   # check if we have missing remotemap entries
