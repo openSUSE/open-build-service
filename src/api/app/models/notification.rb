@@ -8,6 +8,7 @@ class Notification < ApplicationRecord
 
   has_many :notified_projects, dependent: :destroy
   has_many :projects, through: :notified_projects
+  has_and_belongs_to_many :groups
 
   serialize :event_payload, JSON
 
