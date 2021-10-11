@@ -155,36 +155,41 @@ sub check {
   my %dep2pkg;
   if ($myarch eq $buildarch || $myarch eq $localbuildarch) {
     # calculate packages needed for building
-    $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-    my $delayed_errors = '';
-    for my $aprp (@bprps) {
-      if (!$ctx->checkprpaccess($aprp)) {
-	my $error = "repository '$aprp' is unavailable";
-	if ($ctx->{'verbose'}) {
-	  print "      - $packid (kiwi-product)\n";
-	  print "        $error\n";
+    if ($ctx->{'pool'} && BSUtil::identical(\@bprps, $ctx->{'prpsearchpath'})) {
+      $pool = $ctx->{'pool'};	# we can reuse the ctx pool, nice!
+    } else {
+      $pool = BSSolv::pool->new();
+      $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+      $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+      $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
+      my $delayed_errors = '';
+      for my $aprp (@bprps) {
+	if (!$ctx->checkprpaccess($aprp)) {
+	  my $error = "repository '$aprp' is unavailable";
+	  if ($ctx->{'verbose'}) {
+	    print "      - $packid (kiwi-product)\n";
+	    print "        $error\n";
+	  }
+	  return ('broken', $error);
 	}
-	return ('broken', $error);
+	my $r = $ctx->addrepo($pool, $aprp, $localbuildarch);
+	if (!$r) {
+	  my $error = "repository '$aprp' is unavailable";
+	  $error .= " (delayed)" if defined $r;
+	  if ($ctx->{'verbose'}) {
+	    print "      - $packid (kiwi-product)\n";
+	    print "        $error\n";
+	  }
+	  if (defined $r) {
+	    $delayed_errors .= ", $error";
+	    next;
+	  }
+	  return ('broken', $error);
+	}
       }
-      my $r = $ctx->addrepo($pool, $aprp, $localbuildarch);
-      if (!$r) {
-	my $error = "repository '$aprp' is unavailable";
-	$error .= " (delayed)" if defined $r;
-	if ($ctx->{'verbose'}) {
-	  print "      - $packid (kiwi-product)\n";
-	  print "        $error\n";
-	}
-	if (defined $r) {
-	  $delayed_errors .= ", $error";
-	  next;
-	}
-	return ('broken', $error);
-      }
+      return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
+      $pool->createwhatprovides();
     }
-    return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-    $pool->createwhatprovides();
     my $xp = BSSolv::expander->new($pool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
@@ -457,11 +462,14 @@ sub check {
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} grep {$rpms_meta{$_}} @rpms) {
     my $id = $rpms_hdrmd5{$rpm};
-    eval { $id ||= Build::queryhdrmd5("$reporoot/$rpm"); };
-    $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
+    if (!$id) {
+      eval { $id = Build::queryhdrmd5("$reporoot/$rpm") };
+      $rpms_hdrmd5{$rpm} = $id if $id;
+      $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
+    }
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
-  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg ]);
+  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg, \%rpms_hdrmd5 ]);
 }
 
 
@@ -483,7 +491,7 @@ sub build {
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $gdst = $ctx->{'gdst'};
 
-  my ($bconf, $rpms, $pool, $dep2pkg, $reason) = @$data;
+  my ($bconf, $rpms, $pool, $dep2pkg, $rpms_hdrmd5, $reason) = @$data;
   my $prp = "$projid/$repoid";
 
   my $dobuildinfo = $ctx->{'dobuildinfo'};
@@ -515,6 +523,7 @@ sub build {
       next;
     }
     if ($dobuildinfo) {
+      $b->{'hdrmd5'} = $rpms_hdrmd5->{$rpm} if $rpms_hdrmd5->{$rpm};
       $b->{'noinstall'} = 1;
       $b->{'binary'} = $b[4];
       delete $b->{'repoarch'} if $b->{'repoarch'} eq $myarch;
