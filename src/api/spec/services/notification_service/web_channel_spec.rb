@@ -117,16 +117,8 @@ RSpec.describe NotificationService::WebChannel do
         it_behaves_like 'creating a new notification'
         it_behaves_like 'ensuring the number of notifications is the same'
 
-        it 'sets the last_seen_at date' do
-          expect(subject.first.unread_date).to be_present
-        end
-
         it 'sets the last_seen_at date to the oldest notification' do
           expect(subject.first.unread_date).to eql(previous_notification.created_at)
-        end
-
-        it 'does not set the last_seen_at date to the oldest notifications last_seen_at date' do
-          expect(subject.first.unread_date).not_to eql(previous_notification.last_seen_at)
         end
       end
 
@@ -208,8 +200,7 @@ RSpec.describe NotificationService::WebChannel do
         let(:previous_notification) do
           create(:web_notification, :comment_for_request,
                  subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: false,
-                 groups: [group_maintainers]
-                )
+                 groups: [group_maintainers])
         end
 
         before do
@@ -231,16 +222,8 @@ RSpec.describe NotificationService::WebChannel do
           expect { subject }.not_to change(Notification, :count)
         end
 
-        it 'sets the last_seen_at date' do
-          expect(subject.first.unread_date).to be_present
-        end
-
         it 'sets the last_seen_at date to the oldest notification' do
           expect(subject.first.unread_date).to eql(previous_notification.created_at)
-        end
-
-        it 'does not set the last_seen_at date to the oldest notifications last_seen_at date' do
-          expect(subject.first.unread_date).not_to eql(previous_notification.last_seen_at)
         end
       end
 
@@ -254,10 +237,8 @@ RSpec.describe NotificationService::WebChannel do
         let(:previous_notification) do
           create(:web_notification, :comment_for_request,
                  subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true,
-                 groups: [group_maintainers]
-                )
+                 groups: [group_maintainers])
         end
-
 
         before do
           event_subscription_group
