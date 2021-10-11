@@ -209,50 +209,55 @@ sub check {
   }
   $bconf->{'type'} = 'docker';
   $bconf->{'no_vminstall_expand'} = 1 if @{$repo->{'path'} || []};
-
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-  $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-
-  my $delayed_errors = '';
-  for my $aprp (@aprps) {
-    if (!$ctx->checkprpaccess($aprp)) {
-      if ($ctx->{'verbose'}) {
-        print "      - $packid ($buildtype)\n";
-        print "        repository $aprp is unavailable";
-      }
-      return ('broken', "repository $aprp is unavailable");
-    }
-    my $r = $ctx->addrepo($pool, $aprp);
-    if (!$r) {
-      my $error = "repository '$aprp' is unavailable";
-      if (defined $r) {
-	$error .= " (delayed)";
-	$delayed_errors .= ", $error";
-	next;
-      }
-      if ($ctx->{'verbose'}) {
-        print "      - $packid ($buildtype)\n";
-        print "        $error\n";
-      }
-      return ('broken', $error);
-    }
-  }
-  return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-
   my $unorderedrepos = 0;
   if (!grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
     if ($bconf->{"expandflags:unorderedimagerepos"} || grep {$_ eq '--unorderedimagerepos'} @{$info->{'dep'} || []}) {
       $unorderedrepos = 1;
     }
   }
-  if ($unorderedrepos) {
-    return ('broken', 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
-    $_->setpriority($aprpprios{$_->name()} || 0) for $pool->repos();
-    $pool->createwhatprovides(1);
+
+  my $pool;
+  if ($ctx->{'pool'} && !$unorderedrepos && BSUtil::identical(\@aprps, $ctx->{'prpsearchpath'})) {
+    $pool = $ctx->{'pool'};    # we can reuse the ctx pool, nice!
   } else {
-    $pool->createwhatprovides();
+    $pool = BSSolv::pool->new();
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
+
+    my $delayed_errors = '';
+    for my $aprp (@aprps) {
+      if (!$ctx->checkprpaccess($aprp)) {
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid ($buildtype)\n";
+	  print "        repository $aprp is unavailable";
+	}
+	return ('broken', "repository $aprp is unavailable");
+      }
+      my $r = $ctx->addrepo($pool, $aprp);
+      if (!$r) {
+	my $error = "repository '$aprp' is unavailable";
+	if (defined $r) {
+	  $error .= " (delayed)";
+	  $delayed_errors .= ", $error";
+	  next;
+	}
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid ($buildtype)\n";
+	  print "        $error\n";
+	}
+	return ('broken', $error);
+      }
+    }
+    return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
+
+    if ($unorderedrepos) {
+      return ('broken', 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
+      $_->setpriority($aprpprios{$_->name()} || 0) for $pool->repos();
+      $pool->createwhatprovides(1);
+    } else {
+      $pool->createwhatprovides();
+    }
   }
 
   my $bconfignore = $bconf->{'ignore'};
