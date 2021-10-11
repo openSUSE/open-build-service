@@ -35,6 +35,7 @@ sub bdepkey {
 sub cmp_buildinfo {
   my ($got, $expected, $comment) = @_;
 
+  delete $_->{'hdrmd5'} for @{$got->{'bdep'} || []};
   $got->{'bdep'}       = [ sort {bdepkey($a) cmp bdepkey($b)} @{$got->{'bdep'} || []} ];
   $expected->{'bdep'}  = [ sort {bdepkey($a) cmp bdepkey($b)} @{$expected->{'bdep'} || []} ];
   $got->{subpack}      = [ sort { $a cmp $b }  @{ $got->{subpack}  || []} ];
