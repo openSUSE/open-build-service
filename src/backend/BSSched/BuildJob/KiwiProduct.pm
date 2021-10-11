@@ -454,14 +454,11 @@ sub check {
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} grep {$rpms_meta{$_}} @rpms) {
     my $id = $rpms_hdrmd5{$rpm};
-    if (!$id) {
-      eval { $id = Build::queryhdrmd5("$reporoot/$rpm") };
-      $rpms_hdrmd5{$rpm} = $id if $id;
-      $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
-    }
+    eval { $id ||= Build::queryhdrmd5("$reporoot/$rpm"); };
+    $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
-  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg, \%rpms_hdrmd5 ]);
+  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg ]);
 }
 
 
@@ -483,7 +480,7 @@ sub build {
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $gdst = $ctx->{'gdst'};
 
-  my ($bconf, $rpms, $pool, $dep2pkg, $rpms_hdrmd5, $reason) = @$data;
+  my ($bconf, $rpms, $pool, $dep2pkg, $reason) = @$data;
   my $prp = "$projid/$repoid";
 
   my $dobuildinfo = $ctx->{'dobuildinfo'};
@@ -515,7 +512,6 @@ sub build {
       next;
     }
     if ($dobuildinfo) {
-      $b->{'hdrmd5'} = $rpms_hdrmd5->{$rpm} if $rpms_hdrmd5->{$rpm};
       $b->{'noinstall'} = 1;
       $b->{'binary'} = $b[4];
       delete $b->{'repoarch'} if $b->{'repoarch'} eq $myarch;
