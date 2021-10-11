@@ -13,6 +13,7 @@ tags:
   - name: Groups
   - name: Issue Trackers
   - name: Person
+  - name: Notifications
   - name: Published Binaries
   - name: Request
     description: |
@@ -214,6 +215,9 @@ paths:
     $ref: 'paths/person_login_token.yaml'
   /person/{login}/token/{id}:
     $ref: 'paths/person_login_token_id.yaml'
+
+  /my/notifications:
+    $ref: 'paths/my_notifications.yaml'
 
   /published:
     $ref: 'paths/published.yaml'
