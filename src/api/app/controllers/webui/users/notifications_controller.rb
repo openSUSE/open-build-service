@@ -72,7 +72,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def fetch_notifications
-    notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification))
+    notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification).includes(:notifiable))
     if params[:project]
       notifications_for_subscribed_user.for_project_name(params[:project])
     elsif params[:group]
