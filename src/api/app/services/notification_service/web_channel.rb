@@ -37,7 +37,7 @@ module NotificationService
         # Subscriber is a user
         finder = finder_class.new(notification_scope(user: @subscription.subscriber), @parameters_for_notification)
 
-        [renew_notification(finder)]
+        [renew_notification(finder: finder)]
       end
     end
 
