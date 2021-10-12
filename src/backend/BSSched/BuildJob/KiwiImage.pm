@@ -163,10 +163,13 @@ sub check {
 
   my $cpool;	# pool used for container expansion
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   my $cdep;     # container dependency
   my $cprp;     # container prp
 >>>>>>> c6854f7594 ([backend] use correct pool for container DoD check)
+=======
+>>>>>>> 273de5d1a5 ([backend] refactor container handling in Docker/Kiwi builds)
   my $cbdep;    # container bdep for job
   my $cmeta;    # container meta entry
   my $expanddebug = $ctx->{'expanddebug'};
