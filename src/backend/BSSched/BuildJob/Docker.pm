@@ -97,6 +97,7 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
   my @deps = @{$info->{'dep'} || []};
+  my $cpool;
   my @cbdep;
   my @cmeta;
   my $expanddebug = $ctx->{'expanddebug'};
@@ -106,7 +107,7 @@ sub check {
     @deps = grep {!/^container:/} @deps;
 
     # setup container pool
-    my $cpool = $ctx->{'pool'};
+    $cpool = $ctx->{'pool'};
 
     # expand to container package name
     my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
@@ -323,7 +324,7 @@ sub check {
   if ($state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
-    $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, map {$_->{'name'}} @cbdep);
+    $dods = BSSched::DoD::dodcheck($ctx, $cpool, $myarch, map {$_->{'name'}} @cbdep) if $cpool && @cbdep;
     return ('blocked', $dods) if $dods;
   }
   return ($state, $data);
