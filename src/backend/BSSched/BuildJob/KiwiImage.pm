@@ -162,6 +162,11 @@ sub check {
   my @deps = @{$info->{'dep'} || []};
 
   my $cpool;	# pool used for container expansion
+<<<<<<< HEAD
+=======
+  my $cdep;     # container dependency
+  my $cprp;     # container prp
+>>>>>>> c6854f7594 ([backend] use correct pool for container DoD check)
   my $cbdep;    # container bdep for job
   my $cmeta;    # container meta entry
   my $expanddebug = $ctx->{'expanddebug'};
