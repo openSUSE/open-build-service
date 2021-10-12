@@ -471,6 +471,16 @@ class Package < ApplicationRecord
     package_kinds.exists?(kind: kind)
   end
 
+  def is_upgrade
+    files = Backend::Api::Sources::Package.files(project.name, name, expand: 1)
+    Xmlhash.parse(files).elements('entry').each do |entry|
+      if entry['name'] == '_service:check_upgrade:newer_versions'
+        return true
+      end
+    end
+    return false  
+  end
+
   def ignored_requests
     YAML.safe_load(source_file('ignored_requests')) if file_exists?('ignored_requests')
   end
