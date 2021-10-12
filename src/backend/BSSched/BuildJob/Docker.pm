@@ -82,6 +82,45 @@ sub maptoremote {
   return "$proj->{'root'}:$1$repoid";
 }
 
+# map all repos and add to newpath array
+# returns undef on success, otherwise an error message
+sub getpathfromannotation {
+  my ($ctx, $annotation, $annotationbdep, $newpath) = @_;
+  my $containerprojid = $annotationbdep->{'project'};
+  my $remoteprojs = $ctx->{'gctx'}->{'remoteprojs'} || {};
+  my $rproj = $containerprojid ? $remoteprojs->{$containerprojid} : undef;
+  undef $rproj if $rproj && !defined($rproj->{'root'});	# no partitions
+  for my $r (@{$annotation->{'repo'} || []}) {
+    my $url = $r->{'url'};
+    next unless $url;
+    # see Build::Kiwi
+    my $urlprp;
+    if ($url eq 'obsrepositories:/') {
+      $urlprp = '_obsrepositories/';
+    } elsif ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
+      $urlprp = "$1/$2";
+      $urlprp = maptoremote($rproj, $1, $2) if $rproj;
+    } else {
+      if ($Build::Kiwi::urlmapper) {
+	$urlprp = $Build::Kiwi::urlmapper->($url);
+      } else {
+	$ctx->{'urlmappercache'} ||= {};
+	$urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
+      }
+    }
+    # if we can't map fall back to project/repository element from annotation
+    if (!$urlprp && $r->{'project'} && $r->{'repository'}) {
+      $urlprp = "$r->{'project'}/$r->{'repository'}";
+      $urlprp = maptoremote($rproj, $r->{'project'}, $r->{'repository'}) if $rproj;
+    }
+    return "repository url '$url' cannot be handled" unless $urlprp;
+    my ($pr, $rp) = split('/', $urlprp, 2);
+    push @$newpath, {'project' => $pr, 'repository' => $rp};
+    $newpath->[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
+  }
+  return undef;
+}
+
 sub check {
   my ($self, $ctx, $packid, $pdata, $info, $buildtype) = @_;
 
@@ -116,7 +155,6 @@ sub check {
     return ('unresolvable', join(', ', @cdeps)) unless $cok;
     return ('unresolvable', 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps;
 
-    my ($lastbdep, $lastp);
     for my $cdep (@cdeps) {
       # find container package
       my $p;
@@ -126,10 +164,10 @@ sub check {
       return ('unresolvable', 'weird result of container expansion') unless $p;
 
       # generate bdep entry
-      my $cbdep = {'name' => $cdep, 'noinstall' => 1};
+      my $cbdep = {'name' => $cdep, 'noinstall' => 1, 'p' => $p};
       my $cprp = $cpool->pkg2reponame($p);
       push @cmeta, $cpool->pkg2pkgid($p) . "  $cprp/$cdep";
-      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
+      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
       if ($ctx->{'dobuildinfo'}) {
         my $d = $cpool->pkg2data($p);
         $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
@@ -139,54 +177,23 @@ sub check {
         $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
       }
       push @cbdep, $cbdep;
-      $lastbdep = $cbdep;
-      $lastp = $p;
     }
 
-    # append container repositories to path
+    # append repositories defined in the container annotation to our path
     my @infopath = @{$info->{'path'} || []};
     splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
     my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
     my @newpath;
-    my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $lastp, $lastbdep);
+    my $annotationbdep = $cbdep[-1];
+    my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $annotationbdep->{'p'}, $annotationbdep);
     if (!$annotation && !$haveobsrepositories) {
       # no annotation, assume obsrepositories:/
       push @newpath, {'project' => '_obsrepositories', 'repository' => ''};
       $annotation = { 'repo' => [ { 'url' => 'obsrepositories:/' } ] };
-      $lastbdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) if $lastbdep;
+      $annotationbdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
     } elsif ($annotation && !$haveobsrepositories) {
-      # map all repos and add to path
-      my $remoteprojs = $gctx->{'remoteprojs'} || {};
-      my $rproj = $remoteprojs->{$lastbdep->{'project'}};
-      undef $rproj if $rproj && !defined($rproj->{'root'});	# no partitions
-      for my $r (@{$annotation->{'repo'} || []}) {
-	my $url = $r->{'url'};
-	next unless $url;
-	# see Build::Kiwi
-	my $urlprp;
-	if ($url eq 'obsrepositories:/') {
-	  $urlprp = '_obsrepositories/';
-	} elsif ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
-	  $urlprp = "$1/$2";
-	  $urlprp = maptoremote($rproj, $1, $2) if $rproj;
-	} else {
-	  if ($Build::Kiwi::urlmapper) {
-	    $urlprp = $Build::Kiwi::urlmapper->($url);
-	  } else {
-	    $ctx->{'urlmappercache'} ||= {};
-	    $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
-	  }
-	}
-	# if we can't map fall back to project/repository element from annotation
-	if (!$urlprp && $r->{'project'} && $r->{'repository'}) {
-	  $urlprp = "$r->{'project'}/$r->{'repository'}";
-	  $urlprp = maptoremote($rproj, $r->{'project'}, $r->{'repository'}) if $rproj;
-	}
-	return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
-	my ($pr, $rp) = split('/', $urlprp, 2);
-	push @newpath, {'project' => $pr, 'repository' => $rp};
-	$newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
-      }
+      my $error = getpathfromannotation($ctx, $annotation, $annotationbdep, \@newpath);
+      return ('broken', $error) if $error;
     }
     my $r = $ctx->append_info_path($info, \@newpath);
     return ('delayed', 'remotemap entry missing') unless $r;
@@ -330,20 +337,6 @@ sub check {
   return ($state, $data);
 }
 
-=head2 add_container_deps - add container data to the cloned context
-
- TODO: add description
-
-=cut
-
-sub add_container_deps {
-  my ($ctx, $cbdep) = @_;
-  return unless @{$cbdep || []};
-  push @{$ctx->{'extrabdeps'}}, @$cbdep;
-  $ctx->{'containerpath'} = [ BSUtil::unify(map {"$_->{'project'}/$_->{'repository'}"} @$cbdep) ];
-  $ctx->{'containerannotation'} = delete $_->{'annotation'} for @$cbdep;
-}
-
 =head2 build - TODO: add summary
 
  TODO: add description
@@ -372,7 +365,7 @@ sub build {
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
-    add_container_deps($ctx, $cbdep);
+    BSSched::BuildJob::add_container_deps($ctx, $cbdep);
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -402,7 +395,7 @@ sub build {
     $edeps = [];
   }
 
-  add_container_deps($ctx, $cbdep);
+  BSSched::BuildJob::add_container_deps($ctx, $cbdep);
 
   # repo has a configured path, expand docker build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);

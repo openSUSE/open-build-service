@@ -1426,6 +1426,7 @@ sub expandkiwipath {
 
 sub getcontainerannotation {
   my ($pool, $p, $bdep) = @_;
+  return undef unless $p;
   return undef unless defined &BSSolv::pool::pkg2annotation;
   my $annotation = $pool->pkg2annotation($p);
   return undef unless $annotation;
@@ -1443,6 +1444,27 @@ sub getcontainerannotation {
     $bdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
   }
   return $annotation;
+}
+
+=head2 add_container_deps - add container data to the context
+
+ This adds the container bdeps as extrabdeps and sets the containerpath and
+ containerannotation.
+
+ We also strip out the package ids from the bdeps as side effect.
+
+ Note that the context should be cloned before calling this so that the data does
+ not leak.
+
+=cut
+
+sub add_container_deps {
+  my ($ctx, $cbdeps) = @_;
+  return unless @{$cbdeps || []};
+  delete $_->{'p'} for @$cbdeps;	# strip package ids
+  push @{$ctx->{'extrabdeps'}}, @$cbdeps;
+  $ctx->{'containerpath'} = [ BSUtil::unify(map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'}} @$cbdeps) ];
+  $ctx->{'containerannotation'} = delete $_->{'annotation'} for @$cbdeps;
 }
 
 1;
