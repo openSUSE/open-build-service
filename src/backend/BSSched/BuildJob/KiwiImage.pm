@@ -161,6 +161,7 @@ sub check {
 
   my @deps = @{$info->{'dep'} || []};
 
+  my $cpool;	# pool used for container expansion
   my $cdep;     # container dependency
   my $cprp;     # container prp
   my $cbdep;    # container bdep for job
@@ -174,7 +175,7 @@ sub check {
     @deps = grep {!/^container:/} @deps;
 
     # setup container pool
-    my $cpool = $ctx->{'pool'};
+    $cpool = $ctx->{'pool'};
     if (@{$info->{'containerpath'} || []}) {
       $cpool = BSSolv::pool->new();
       my @cprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'containerpath'}};
@@ -278,7 +279,7 @@ sub check {
   if ($state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
-    $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, $cbdep->{'name'}) if $cbdep;
+    $dods = BSSched::DoD::dodcheck($ctx, $cpool, $myarch, $cbdep->{'name'}) if $cpool && $cbdep;
     return ('blocked', $dods) if $dods;
   }
   return ($state, $data);
