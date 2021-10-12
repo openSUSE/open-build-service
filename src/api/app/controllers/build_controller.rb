@@ -107,6 +107,15 @@ class BuildController < ApplicationController
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
     path += "?#{request.query_string}" unless request.query_string.empty?
 
+    # we need to protect broken osc versions, which try to handle hdrmd5, but have a broken
+    # implementation since python 3. this would break all local builds otherwise with unfixed
+    # osc python 3 versions
+    # Fixed for osc: https://github.com/openSUSE/osc/pull/958
+    if request.user_agent.present? && (request.user_agent[0..5] == 'osc/0.' && request.user_agent[6..-1].to_i < 175)
+      path += request.query_string.empty? ? '?' : '&'
+      path += 'striphdrmd5'
+    end
+
     pass_to_backend(path)
   end
 

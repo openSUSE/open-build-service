@@ -4595,6 +4595,12 @@ sub getbuildinfo {
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'internal', 'debug', 'add');
   my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
+  if ($cgi->{'striphdrmd5'}) {
+    # FIXME3.0: workaround broken osc python3 versions not able to deal with hdrmd5 correctly
+    for (@{$buildinfo->{'bdep'} || []}) {
+      delete $_->{'hdrmd5'} unless $_->{'name'} =~ /^container:/;
+    }
+  }
   return ($buildinfo, $BSXML::buildinfo);
 }
 
@@ -4610,6 +4616,12 @@ sub getbuildinfo_post {
     'chunked' => 1,
   };
   my $buildinfo = BSWatcher::rpc($param, $BSXML::buildinfo, @args);
+  if ($cgi->{'striphdrmd5'}) {
+    # FIXME3.0: workaround broken osc python3 versions not able to deal with hdrmd5 correctly
+    for (@{$buildinfo->{'bdep'} || []}) {
+      delete $_->{'hdrmd5'} unless $_->{'name'} =~ /^container:/;
+    }
+  }
   return ($buildinfo, $BSXML::buildinfo);
 }
 
@@ -7323,8 +7335,8 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? multibuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool?' => \&getbinarylist,
-  'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
-  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
+  'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* debug:bool? striphdrmd5:bool?' => \&getbuildinfo_post,
+  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? striphdrmd5:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
