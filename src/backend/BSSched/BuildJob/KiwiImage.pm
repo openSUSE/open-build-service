@@ -161,20 +161,18 @@ sub check {
 
   my @deps = @{$info->{'dep'} || []};
 
-  my $cdep;     # container dependency
-  my $cprp;     # container prp
+  my $cpool;	# pool used for container expansion
   my $cbdep;    # container bdep for job
   my $cmeta;    # container meta entry
   my $expanddebug = $ctx->{'expanddebug'};
 
   my @containerdeps = grep {/^container:/} @deps;
   if (@containerdeps) {
-    return ('broken', 'multiple containers') if @containerdeps != 1;
-    $cdep = $containerdeps[0];
     @deps = grep {!/^container:/} @deps;
+    return ('broken', 'multiple containers') if @containerdeps != 1;
 
     # setup container pool
-    my $cpool = $ctx->{'pool'};
+    $cpool = $ctx->{'pool'};
     if (@{$info->{'containerpath'} || []}) {
       $cpool = BSSolv::pool->new();
       my @cprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'containerpath'}};
@@ -191,7 +189,7 @@ sub check {
 
     # expand the container dependency
     my $xp = BSSolv::expander->new($cpool, $bconf);
-    my ($cok, @cdeps) = $xp->expand($cdep);
+    my ($cok, @cdeps) = $xp->expand(@containerdeps);
     BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
     return ('unresolvable', join(', ', @cdeps)) unless $cok;
     return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
@@ -204,11 +202,11 @@ sub check {
     return ('unresolvable', 'weird result of container expansion') unless $p;
 
     # generate bdep entry
-    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
-    $cprp = $cpool->pkg2reponame($p);
+    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1, 'p' => $p};
+    my $cprp = $cpool->pkg2reponame($p);
     $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
+    ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
     if ($ctx->{'dobuildinfo'}) {
-      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
       my $d = $cpool->pkg2data($p);
       $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
       $cbdep->{'version'} = $d->{'version'};
@@ -274,11 +272,11 @@ sub check {
   push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34) || $a cmp $b} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp, $unorderedrepos ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $unorderedrepos ]);
   if ($state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
-    $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, $cbdep->{'name'}) if $cbdep;
+    $dods = BSSched::DoD::dodcheck($ctx, $cpool, $myarch, $cbdep->{'name'}) if $cpool && $cbdep;
     return ('blocked', $dods) if $dods;
   }
   return ($state, $data);
@@ -298,9 +296,8 @@ sub build {
   my $epool = $data->[2];
   my $edep2pkg = $data->[3];
   my $cbdep = $data->[4];
-  my $cprp = $data->[5];
-  my $unorderedrepos = $data->[6];
-  my $reason = $data->[7];
+  my $unorderedrepos = $data->[5];
+  my $reason = $data->[6];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
@@ -313,11 +310,7 @@ sub build {
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'prpsearchpath' => $ctx->{'prpsearchpath_host'} }, ref($ctx);
-    if ($cbdep) {
-      $ctx->{'extrabdeps'} = [ $cbdep ];
-      $ctx->{'containerpath'} = [ $cprp ] if $cprp;
-      $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
-    }
+    BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -328,11 +321,7 @@ sub build {
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
-    if ($cbdep) {
-      $ctx->{'extrabdeps'} = [ $cbdep ];
-      $ctx->{'containerpath'} = [ $cprp ] if $cprp;
-      $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
-    }
+    BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -362,12 +351,7 @@ sub build {
     $edeps = [];
   }
 
-  # add container deps
-  if ($cbdep) {
-    push @{$ctx->{'extrabdeps'}}, $cbdep;
-    $ctx->{'containerpath'} = [ $cprp ] if $cprp;
-    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
-  }
+  BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
 
   # repo has a configured path, expand kiwi build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
