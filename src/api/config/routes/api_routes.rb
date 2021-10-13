@@ -42,7 +42,6 @@ OBSApi::Application.routes.draw do
 
     ### /service
     get 'service' => 'service#index'
-    get 'service/:service' => 'service#index_service', constraints: cons
 
     ### /source
     get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons
