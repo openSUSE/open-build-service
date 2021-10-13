@@ -1,25 +1,4 @@
 version: "2"
-# We disable checks which have equivalents in RuboCop to avoid reporting twice the same things
-# Documentation: https://docs.codeclimate.com/docs/maintainability#section-checks
-checks:
-  # Same as cop Metrics/ParameterLists from RuboCop
-  argument-count:
-    enabled: false
-  # Same as cops Metrics/ClassLength and Metrics/ModuleLength from RuboCop
-  file-lines:
-    enabled: false
-  # Same as cop Metrics/PerceivedComplexity from RuboCop
-  method-complexity:
-    enabled: false
-  # Same as cop Metrics/MethodLength from RuboCop
-  method-length:
-    enabled: false
-  # Same as cop Metrics/BlockNesting from RuboCop
-  nested-control-flow:
-    enabled: false
-  # Same as cop Metrics/CyclomaticComplexity from RuboCop
-  return-statements:
-    enabled: false
 exclude_patterns:
   - "dist/"
   - "src/api/test/"
