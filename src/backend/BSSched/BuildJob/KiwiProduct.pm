@@ -154,9 +154,12 @@ sub check {
   my $pool;
   my %dep2pkg;
   if ($myarch eq $buildarch || $myarch eq $localbuildarch) {
+    my $is_identical = BSUtil::identical(\@bprps, $ctx->{'prpsearchpath'});
     # calculate packages needed for building
-    if ($ctx->{'pool'} && BSUtil::identical(\@bprps, $ctx->{'prpsearchpath'})) {
+    if ($myarch eq $localbuildarch && $ctx->{'pool'} && $is_identical) {
       $pool = $ctx->{'pool'};	# we can reuse the ctx pool, nice!
+    } elsif ($myarch eq $buildarch && $ctx->{'pool_local'} && $is_identical) {
+      $pool = $ctx->{'pool_local'};	# we can reuse the cached local pool, nice!
     } else {
       $pool = BSSolv::pool->new();
       $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
@@ -189,6 +192,7 @@ sub check {
       }
       return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
       $pool->createwhatprovides();
+      $ctx->{'pool_local'} = $pool if $is_identical && $myarch eq $buildarch && $buildarch ne $localbuildarch;
     }
     my $xp = BSSolv::expander->new($pool, $bconf);
     no warnings 'redefine';
