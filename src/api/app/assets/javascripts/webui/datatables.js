@@ -17,7 +17,14 @@ var DEFAULT_DT_PARAMS = {
   pageLength: 25,
   stateSave: true,
   pagingType: 'full',
-  stateDuration: 0 // forever
+  stateDuration: 0, // forever
+  // Save the state of the columns sort and the number of shown entries per page
+  stateSaveParams: function (_settings, data) {
+    // Do not keep the selected page in the datatable state
+    data.start = 0;
+    // Do not save the state of the search string
+    data.search.search = "";
+  }
 };
 
 function initializeDataTable(cssSelector, params){ // jshint ignore:line

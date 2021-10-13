@@ -78,7 +78,6 @@
                 %td{ data: { package_name: package['name'] } }
                   = render partial: 'webui/project/status_comment', locals: { package_name: package['name'], editable: package['firstfail'].present?,
                                                                 comment: package['failedcomment'], project: @project }
-
         - content_for :ready_function do
           :plain
             $('#status-table').dataTable({
@@ -86,7 +85,14 @@
               responsive: true,
               columnDefs: [ { 'width': '20%', 'targets': 0 } ],
               stateSave: true,
-              stateDuration: #{2.days}
+              stateDuration: 0, // forever
+              // Save the state of the columns sort and the number of shown entries per page
+              stateSaveParams: function (_settings, data) {
+                // Do not keep the selected page in the datatable state
+                data.start = 0;
+                // Do not save the state of the search string
+                data.search.search = "";
+              }
             });
 
 - if User.possibly_nobody.can_modify?(@project) && parsed_result[:comments_to_clear].present?
