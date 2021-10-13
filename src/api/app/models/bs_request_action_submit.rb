@@ -131,17 +131,6 @@ class BsRequestActionSubmit < BsRequestAction
     raise PostRequestNoPermission, msg
   end
 
-  def contains_change?
-    source_pkg = Package.find_by_project_and_name(source_project, source_package)
-    target_pkg = Package.find_by_project_and_name(target_project, target_package)
-    target_entries = [target_pkg.dir_hash['entry']].flatten.compact
-    source_entries = [source_pkg.dir_hash['entry']].flatten.compact
-
-    target_info = target_entries.map { |e| { e['name'] => e['md5'] } }
-    source_info = source_entries.map { |e| { e['name'] => e['md5'] } unless e['name'] == '_link' }.compact
-    source_info != target_info
-  end
-
   #### Alias of methods
 end
 
