@@ -827,6 +827,7 @@ class BsRequestAction < ApplicationRecord
     # part of the test suite and requires to update 100's of VCR cassettes.
     # global_write_through is only disabled in test env. Otherwise, it's always enabled.
     return unless CONFIG['global_write_through']
+        
     set_sourceupdate_default(User.session!)
     BsRequestActionWebuiInfosJob.perform_later(self)
   end
