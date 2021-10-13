@@ -1,4 +1,5 @@
 version: "2"
+<<<<<<< HEAD
 # Align the configuration of CodeClimate checks with those of RuboCop cops
 # Documentation: https://docs.codeclimate.com/docs/maintainability#section-checks
 checks:
@@ -32,6 +33,8 @@ checks:
   return-statements:
     config:
       threshold: 7
+=======
+>>>>>>> 80942978ab (Revert "Disable CodeClimate checks which have RuboCop equivalents")
 exclude_patterns:
   - "dist/"
   - "src/api/test/"
