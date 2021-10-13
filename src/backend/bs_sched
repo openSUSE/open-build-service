@@ -1116,6 +1116,8 @@ eval {
     Build::forgetdeps($bconf);
     delete $ctx->{'expander'};
     delete $ctx->{'pool'};
+    delete $ctx->{'pool_host'};
+    delete $ctx->{'pool_local'};
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
