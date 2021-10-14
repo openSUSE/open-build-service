@@ -17,3 +17,4 @@ Backend:
 - .rubocop_todo.yml
 - src/api/.rubocop.yml
 - src/api/.rubocop_todo.yml
+- .codeclimate.yml
