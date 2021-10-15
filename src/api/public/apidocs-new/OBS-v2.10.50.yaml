@@ -12,8 +12,8 @@ tags:
   - name: Distributions
   - name: Groups
   - name: Issue Trackers
-  - name: Person
   - name: Notifications
+  - name: Person
   - name: Published Binaries
   - name: Request
     description: |
@@ -203,6 +203,9 @@ paths:
   /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
     $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
 
+  /my/notifications:
+    $ref: 'paths/my_notifications.yaml'
+
   /person:
     $ref: 'paths/person.yaml'
   /person/register:
@@ -215,9 +218,6 @@ paths:
     $ref: 'paths/person_login_token.yaml'
   /person/{login}/token/{id}:
     $ref: 'paths/person_login_token_id.yaml'
-
-  /my/notifications:
-    $ref: 'paths/my_notifications.yaml'
 
   /published:
     $ref: 'paths/published.yaml'
