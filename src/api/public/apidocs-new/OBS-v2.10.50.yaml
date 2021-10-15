@@ -243,6 +243,9 @@ paths:
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
 
+  /service:
+    $ref: 'paths/service.yaml'
+
   /worker/status:
     $ref: 'paths/worker_status.yaml'
   /worker/{architecture_name}:{worker_id}:
