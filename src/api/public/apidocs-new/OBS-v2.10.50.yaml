@@ -5,6 +5,7 @@ servers:
 
 tags:
   - name: General Information
+  - name: Announcements
   - name: Attributes
   - name: Attribute Namespaces
   - name: Build
@@ -128,6 +129,11 @@ info:
 paths:
   /about:
     $ref: 'paths/about.yaml'
+
+  /announcements:
+    $ref: 'paths/announcements.yaml'
+  /announcements/{announcement_id}:
+    $ref: 'paths/announcements_announcement_id.yaml'
 
   /architectures:
     $ref: 'paths/architectures.yaml'
