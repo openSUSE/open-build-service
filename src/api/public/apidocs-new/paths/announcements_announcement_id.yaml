@@ -1,5 +1,8 @@
 get:
+<<<<<<< HEAD
   deprecated: true
+=======
+>>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
   summary: Show an announcement.
   description: Show the content of an announcement.
   security:
@@ -35,7 +38,10 @@ get:
     - Announcements
 
 put:
+<<<<<<< HEAD
   deprecated: true
+=======
+>>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
   summary: Update an announcement.
   description: |
     Update the content of an announcement.
@@ -94,7 +100,10 @@ put:
     - Announcements
 
 delete:
+<<<<<<< HEAD
   deprecated: true
+=======
+>>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
   summary: Delete an announcement.
   description: |
     Delete an announcement.
