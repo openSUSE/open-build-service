@@ -1,0 +1,33 @@
+get:
+  summary: List all services.
+  description: Get a list of all services known to OBS.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/servicelist.yaml'
+          example:
+            - name: download_url
+              summary: Download a file
+              description: This services uses curl to download files from remote servers via supported protocols.
+              parameter:
+                - name: protocol
+                  description: Used Protocol
+                  allowedvalue:
+                    - ftp
+                    - http
+                    - https
+                - name: host
+                  description: Server Hostname
+                  required: ''
+            - name: source_validator
+              summary: Validate sources
+              description: The default SUSE source validator which catches common pitfalls before build.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - General Information
