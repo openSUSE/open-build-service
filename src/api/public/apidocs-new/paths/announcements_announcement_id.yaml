@@ -1,4 +1,5 @@
 get:
+  deprecated: true
   summary: Show an announcement.
   description: Show the content of an announcement.
   security:
@@ -34,6 +35,7 @@ get:
     - Announcements
 
 put:
+  deprecated: true
   summary: Update an announcement.
   description: |
     Update the content of an announcement.
@@ -92,6 +94,7 @@ put:
     - Announcements
 
 delete:
+  deprecated: true
   summary: Delete an announcement.
   description: |
     Delete an announcement.
