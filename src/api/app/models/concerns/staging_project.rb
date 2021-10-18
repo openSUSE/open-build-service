@@ -67,7 +67,7 @@ module StagingProject
   end
 
   def untracked_requests
-    requests_to_review - staged_requests
+    @untracked_requests ||= requests_to_review - staged_requests
   end
 
   # The difference between staged requests and requests to review is that staged requests are assigned to the staging project.
