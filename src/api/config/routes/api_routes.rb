@@ -96,7 +96,6 @@ OBSApi::Application.routes.draw do
       get 'statistics/activity/:project(/:package)' => :activity, constraints: cons
 
       get 'statistics' => :index
-      get 'statistics/highest_rated' => :highest_rated
       get 'statistics/most_active_projects' => :most_active_projects
       get 'statistics/most_active_packages' => :most_active_packages
       get 'statistics/latest_added' => :latest_added
