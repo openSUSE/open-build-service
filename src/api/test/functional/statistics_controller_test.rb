@@ -206,19 +206,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'project', attributes: { name: 'HiddenProject' }
   end
 
-  # FIXME: works, but does not do anything usefull since 2.0 anymore
-  #        we need a working rating mechanism, but this one is too simple.
-  def test_highest_rated
-    login_tom
-    get url_for(controller: :statistics, action: :highest_rated)
-    assert_response :success
-    # assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    # assert_xml_tag :tag => 'package', :attributes => {
-    #  :name => "kdelibs",
-    #  :xxx => "xxx",
-    # }
-  end
-
   def test_active_request_creators
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
     assert_response 401

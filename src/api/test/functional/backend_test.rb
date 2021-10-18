@@ -14,7 +14,7 @@ class BackendTests < ActionDispatch::IntegrationTest
       if ['about', 'activity', 'added_timestamp', 'announcement', 'announcements', 'new_announcement', 'architecture', 'attrib', 'attrib_type',
           'attrib_namespace', 'attribute_namespace_meta', 'collection_objects_by_tag',
           'collection_objects_with_tags_by_user', 'configuration', 'directory_filelist', 'directory_view',
-          'group', 'highest_rated', 'issue_tracker',
+          'group', 'issue_tracker',
           'packageresult', 'projectresult', 'projects', 'rating', 'redirect_stats', 'status_message',
           'latest_added', 'latest_updated', 'most_active_packages', 'most_active_projects',
           'status_messages', 'tagcloud', 'taglist', 'tags', 'updated_timestamp', 'distribution', 'distributions',
