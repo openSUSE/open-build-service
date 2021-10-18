@@ -46,6 +46,7 @@ module Webui::NotificationHelper
   private
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   def css_for_filter_link(filter_item, selected_filter)
     css_class = 'list-group-item list-group-item-action'
@@ -70,6 +71,8 @@ module Webui::NotificationHelper
   end
 
 >>>>>>> 3289068f5e (Add notification filters for groups)
+=======
+>>>>>>> 281c8d47dc (Create NotificationFilterLinkComponent)
   def mark_as_read_or_unread_button(notification)
     update_path = my_notifications_path(notification_ids: [notification.id])
     title, icon = notification.unread? ? ['Mark as read', 'fa-check'] : ['Mark as unread', 'fa-undo']
