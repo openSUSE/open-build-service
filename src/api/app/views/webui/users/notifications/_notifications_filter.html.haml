@@ -1,19 +1,27 @@
 .row.list-group-flush
-  = filter_notification_link('Unread', filter.count['unread'], { type: 'unread' }, filter.selected_filter)
-  = filter_notification_link('Read', nil, { type: 'read' }, filter.selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Unread', amount: filter.count['unread'],
+                                               filter_item: { type: 'unread' }, selected_filter: filter.selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Read', filter_item: { type: 'read' },
+                                               selected_filter: filter.selected_filter)
 .row.list-group-flush.mt-5
   %h5.ml-3 Filter
-  = filter_notification_link('Comments', filter.count['Comment'], { type: 'comments' }, filter.selected_filter)
-  = filter_notification_link('Requests', filter.count['BsRequest'], { type: 'requests' }, filter.selected_filter)
-  = filter_notification_link('Incoming Requests', filter.count['incoming_requests'], { type: 'incoming_requests' }, filter.selected_filter)
-  = filter_notification_link('Outgoing Requests', filter.count['outgoing_requests'], { type: 'outgoing_requests' }, filter.selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Comments', amount: filter.count['Comment'],
+                                               filter_item: { type: 'comments' }, selected_filter: filter.selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Requests', amount: filter.count['BsRequest'],
+                                               filter_item: { type: 'requests' }, selected_filter: filter.selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Incoming Requests', amount: filter.count['incoming_requests'],
+                                               filter_item: { type: 'incoming_requests' }, selected_filter: filter.selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: filter.count['outgoing_requests'],
+                                               filter_item: { type: 'outgoing_requests' }, selected_filter: filter.selected_filter)
 - unless filter.projects_for_filter.empty?
   .row.list-group-flush.mt-5
     %h5.ml-3 Projects
     - filter.projects_for_filter.each_pair do |project_name, amount|
-      = filter_notification_link(project_name, amount, { project: project_name }, filter.selected_filter)
+      = render NotificationFilterLinkComponent.new(text: project_name, amount: amount, filter_item: { project: project_name },
+                                                   selected_filter: filter.selected_filter)
 - unless filter.groups_for_filter.empty?
   .row.list-group-flush.mt-5
     %h5.ml-3 Groups
     - filter.groups_for_filter.each_pair do |group_title, amount|
-      = filter_notification_link(group_title, amount, { group: group_title }, filter.selected_filter)
+      = render NotificationFilterLinkComponent.new(text: group_title, amount: amount, filter_item: { group: group_title },
+                                                   selected_filter: filter.selected_filter)
