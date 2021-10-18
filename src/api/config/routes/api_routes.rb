@@ -117,17 +117,6 @@ OBSApi::Application.routes.draw do
     get 'status_message' => 'status_messages#index'
     get 'status/workerstatus' => 'worker/status#index'
 
-    ### /message
-
-    # Routes for messages
-    # --------------------------
-    controller :message do
-      put 'message' => :update
-      get 'message' => :list
-      get 'message/:id' => :show
-      delete 'message/:id' => :delete
-    end
-
     ### /search
 
     controller :search do
