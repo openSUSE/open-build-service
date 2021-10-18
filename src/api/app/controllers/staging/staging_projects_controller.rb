@@ -83,7 +83,11 @@ class Staging::StagingProjectsController < Staging::StagingController
   def set_staging_project
     raise StagingWorkflowNotFound, "Staging Workflow for project \"#{@project.name}\" does not exist." unless @project.staging
 
-    @staging_project = @project.staging.staging_projects.find_by(name: params[:staging_project_name])
+    included_associations = []
+    included_associations << :staged_requests if @options && @options.key?(:requests)
+
+    @staging_project = @project.staging.staging_projects.includes(included_associations)
+                               .find_by(name: params[:staging_project_name])
     return if @staging_project
 
     raise StagingProjectNotFound, "Staging Project \"#{params[:staging_project_name]}\" does not exist."
