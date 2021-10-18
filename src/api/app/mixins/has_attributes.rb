@@ -1,11 +1,5 @@
 # a model that has attributes - e.g. a project and a package
 module HasAttributes
-  def self.included(base)
-    base.class_eval do
-      has_many(:ratings, as: :db_object, dependent: :delete_all)
-    end
-  end
-
   class AttributeSaveError < APIError
   end
 

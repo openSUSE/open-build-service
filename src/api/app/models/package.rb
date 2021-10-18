@@ -9,7 +9,6 @@ class Package < ApplicationRecord
   include CanRenderModel
   include HasRelationships
   include Package::Errors
-  include HasRatings
   include HasAttributes
   include PackageSphinx
   include MultibuildPackage
