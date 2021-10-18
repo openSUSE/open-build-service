@@ -17,6 +17,7 @@ class StatisticsController < ApplicationController
     CONFIG['min_votes_for_rating']
   end
 
+<<<<<<< HEAD
   def rating
     @project = params[:project]
     @package = params[:package]
@@ -62,6 +63,8 @@ class StatisticsController < ApplicationController
   end
 
 >>>>>>> 19e9f75679 (Remove deprecated `/statistics/highest_rated` endpoint)
+=======
+>>>>>>> e310e7d6a8 (Remove deprecated `/statistics/rating` endpoint)
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")

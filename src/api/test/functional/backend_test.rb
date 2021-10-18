@@ -18,6 +18,7 @@ class BackendTests < ActionDispatch::IntegrationTest
 <<<<<<< HEAD
           'group', 'issue_tracker',
           'packageresult', 'projectresult', 'projects', 'redirect_stats', 'status_message',
+<<<<<<< HEAD
 =======
           'group', 'highest_rated', 'issue_tracker',
 =======
@@ -25,6 +26,8 @@ class BackendTests < ActionDispatch::IntegrationTest
 >>>>>>> 19e9f75679 (Remove deprecated `/statistics/highest_rated` endpoint)
           'packageresult', 'projectresult', 'projects', 'rating', 'redirect_stats', 'status_message',
 >>>>>>> acc6f9bcb0 (Remove remainings from deprecated /message endpoints)
+=======
+>>>>>>> e310e7d6a8 (Remove deprecated `/statistics/rating` endpoint)
           'latest_added', 'latest_updated', 'most_active_packages', 'most_active_projects',
           'status_messages', 'tagcloud', 'taglist', 'tags', 'updated_timestamp', 'distribution', 'distributions',
           'productlist', 'binary_released', 'check', 'required_checks', 'status_report',
