@@ -4,7 +4,7 @@ class StatisticsController < ApplicationController
   validate_action redirect_stats: { method: :get, response: :redirect_stats }
 
   before_action :get_limit, only: [
-    :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated
+    :most_active_packages, :most_active_projects, :latest_added, :latest_updated
   ]
 
   def index
@@ -13,20 +13,6 @@ class StatisticsController < ApplicationController
 
   def min_votes_for_rating
     CONFIG['min_votes_for_rating']
-  end
-
-  def highest_rated
-    # set automatic action_cache expiry time limit
-    # response.time_to_live = 10.minutes
-
-    ratings = Rating.select('db_object_id, db_object_type, count(score) as count,' \
-                            'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
-    ratings = ratings.to_a.delete_if { |r| r.count.to_i < min_votes_for_rating }
-    @ratings = if @limit
-                 ratings[0..@limit - 1]
-               else
-                 ratings
-               end
   end
 
   def rating
