@@ -147,7 +147,7 @@ namespace :db do
           end
           key = classname.find(record.delete(primary)).fixtures_name if ['static_permissions', 'packages'].include?(table_name)
           defaultkey = record['package'] if table_name == 'backend_packages'
-          if ['event_subscriptions', 'ratings', 'package_kinds', 'package_issues',
+          if ['event_subscriptions', 'package_kinds', 'package_issues',
               'linked_db_projects', 'relationships', 'watched_projects', 'path_elements',
               'groups_users', 'flags', 'taggings', 'bs_request_histories',
               'bs_request_actions', 'project_log_entries'].include?(table_name)

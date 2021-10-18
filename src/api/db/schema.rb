@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_18_121430) do
+ActiveRecord::Schema.define(version: 2021_10_18_155524) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -808,16 +808,6 @@ ActiveRecord::Schema.define(version: 2021_10_18_121430) do
     t.index ["updated_at"], name: "updated_at_index"
   end
 
-  create_table "ratings", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "score"
-    t.integer "db_object_id"
-    t.string "db_object_type", collation: "utf8_general_ci"
-    t.datetime "created_at"
-    t.integer "user_id"
-    t.index ["db_object_id"], name: "object"
-    t.index ["user_id"], name: "user"
-  end
-
   create_table "relationships", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id"
     t.integer "project_id"
@@ -1132,7 +1122,6 @@ ActiveRecord::Schema.define(version: 2021_10_18_121430) do
   add_foreign_key "product_update_repositories", "repositories", name: "product_update_repositories_ibfk_2"
   add_foreign_key "products", "packages", name: "products_ibfk_1"
   add_foreign_key "project_log_entries", "projects", name: "project_log_entries_ibfk_1"
-  add_foreign_key "ratings", "users", name: "ratings_ibfk_1"
   add_foreign_key "relationships", "groups", name: "relationships_ibfk_3"
   add_foreign_key "relationships", "packages", name: "relationships_ibfk_5"
   add_foreign_key "relationships", "projects", name: "relationships_ibfk_4"

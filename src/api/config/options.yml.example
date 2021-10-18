@@ -12,10 +12,6 @@ default: &default
   # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
   #use_nginx_redirect: /internal_redirect
 
-  # Minimum count of rating votes a project/package needs to # be taken in account
-  # for global statistics:
-  min_votes_for_rating: 3
-
   # Set to true to verify XML reponses comply to the schema
   response_schema_validation: false
 

@@ -11,10 +11,6 @@ class StatisticsController < ApplicationController
     render plain: 'This is the statistics controller.<br/>See the api documentation for details.'
   end
 
-  def min_votes_for_rating
-    CONFIG['min_votes_for_rating']
-  end
-
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")
