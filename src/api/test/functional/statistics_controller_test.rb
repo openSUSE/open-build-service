@@ -126,20 +126,8 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
   end
 
-  def test_rating_and_activity
+  def test_activity
     login_adrian
-    get url_for(controller: :statistics, action: :rating, project: 'kde4', package: 'kdelibs')
-    assert_response :success
-
-    get url_for(controller: :statistics, action: :rating, project: 'kde4')
-    assert_response :success
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: 'NOT_EXISTING')
-    assert_response 404
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: nil)
-    assert_response :success
-
     get url_for(controller: :statistics, action: :activity, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
@@ -154,15 +142,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     # no access to HiddenProject
     login_fred
-    get url_for(controller: :statistics, action: :rating, project: 'kde4', package: 'kdelibs')
-    assert_response :success
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: nil)
-    assert_response 404
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: 'NOT_EXISTING')
-    assert_response 404
-
     get url_for(controller: :statistics, action: :activity, project: 'kde4', package: 'kdelibs')
     assert_response :success
   end
