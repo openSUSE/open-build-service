@@ -12,6 +12,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2021_10_18_155524) do
 =======
 ActiveRecord::Schema.define(version: 2021_10_05_112031) do
@@ -19,6 +20,9 @@ ActiveRecord::Schema.define(version: 2021_10_05_112031) do
 =======
 ActiveRecord::Schema.define(version: 2021_10_18_121430) do
 >>>>>>> acc6f9bcb0 (Remove remainings from deprecated /message endpoints)
+=======
+ActiveRecord::Schema.define(version: 2021_10_18_155524) do
+>>>>>>> 0aa8e5acd8 (Remove ratings in the database, mixins and models)
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"

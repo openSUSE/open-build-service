@@ -12,6 +12,7 @@ class StatisticsController < ApplicationController
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   def min_votes_for_rating
     CONFIG['min_votes_for_rating']
@@ -65,6 +66,8 @@ class StatisticsController < ApplicationController
 >>>>>>> 19e9f75679 (Remove deprecated `/statistics/highest_rated` endpoint)
 =======
 >>>>>>> e310e7d6a8 (Remove deprecated `/statistics/rating` endpoint)
+=======
+>>>>>>> 0aa8e5acd8 (Remove ratings in the database, mixins and models)
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")
