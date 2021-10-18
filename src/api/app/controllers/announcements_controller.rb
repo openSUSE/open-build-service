@@ -35,7 +35,7 @@ class AnnouncementsController < ApplicationController
     if @status_message.update(status_message_params)
       render_ok
     else
-      render_error message: status_message.errors.full_messages,
+      render_error message: @status_message.errors.full_messages,
                    status: 400, errorcode: 'invalid_announcement'
     end
   end

@@ -1,0 +1,7 @@
+in: path
+name: announcement_id
+schema:
+  type: integer
+required: true
+description: The id of the announcement.
+example: 16
