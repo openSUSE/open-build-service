@@ -11,6 +11,57 @@ class StatisticsController < ApplicationController
     render plain: 'This is the statistics controller.<br/>See the api documentation for details.'
   end
 
+<<<<<<< HEAD
+=======
+  def min_votes_for_rating
+    CONFIG['min_votes_for_rating']
+  end
+
+  def rating
+    @project = params[:project]
+    @package = params[:package]
+
+    object = Project.get_by_name(@project)
+    object = Package.get_by_project_and_name(@project, @package, use_source: false, follow_project_links: false) if @package
+
+    if request.get?
+
+      @rating = object.rating(User.session!.id)
+      return
+
+    elsif request.put?
+
+      # try to get previous rating of this user for this object
+      previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, User.session!.id).first
+      data = Xmlhash.parse(request.raw_post)
+      if previous_rating
+        # update previous rating
+        previous_rating.score = data.to_i
+        previous_rating.save
+      else
+        # create new rating entry
+        begin
+          rating = Rating.new
+          rating.score = data.to_i
+          rating.object_type = object.class.name
+          rating.object_id = object.id
+          rating.user_id = User.session!.id
+          rating.save
+        rescue StandardError
+          render_error status: 400, errorcode: 'error setting rating',
+                       message: 'rating not saved'
+          return
+        end
+      end
+      render_ok
+      return
+    end
+
+    render_error status: 400, errorcode: 'invalid_method',
+                 message: 'only GET or PUT method allowed for this action'
+  end
+
+>>>>>>> 19e9f75679 (Remove deprecated `/statistics/highest_rated` endpoint)
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")
