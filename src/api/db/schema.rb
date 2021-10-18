@@ -11,10 +11,14 @@
 # It's strongly recommended that you check this file into your version control system.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2021_10_18_155524) do
 =======
 ActiveRecord::Schema.define(version: 2021_10_05_112031) do
 >>>>>>> 1d75dab788 (Add a notification groups join table)
+=======
+ActiveRecord::Schema.define(version: 2021_10_18_121430) do
+>>>>>>> acc6f9bcb0 (Remove remainings from deprecated /message endpoints)
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
