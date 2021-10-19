@@ -1,5 +1,5 @@
 - linked_package = linkinfo[:package]
-%li
+%li#link-info
   %i.fas.fa-link.text-dark
   Links to
   - if linkinfo[:remote_project]
@@ -9,7 +9,10 @@
       \/
       = linked_package
   - else
-    = project_or_package_link(project: linked_package.project.name, package: linked_package.name, short: true)
+    .row
+      .col.obs-collapsible-textbox{ 'data-ignore-click-to-expand': 'true' }
+        .obs-collapsible-text
+          = project_or_package_link(project: linked_package.project.name, package: linked_package.name, short: true, trim_to: nil)
 - if linkinfo[:error]
   %li
     %i.fas.fa-exclamation-circle.text-danger

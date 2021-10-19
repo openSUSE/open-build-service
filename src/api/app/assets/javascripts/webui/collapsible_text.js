@@ -3,13 +3,16 @@ $(document).ready(function() {
 });
 
 function setCollapsible() {
-  $('.obs-collapsible-textbox').on('click', function() {
-    var selectedText = document.getSelection().toString();
-    if(!selectedText) {
-      $(this).find('.obs-collapsible-text').toggleClass('expanded');
-      $(this).find('.show-content').toggleClass('more less');
-    }
-  });
+  var textbox = $('.obs-collapsible-textbox');
+  if (!textbox.data('ignore-click-to-expand')) {
+    textbox.on('click', function() {
+      var selectedText = document.getSelection().toString();
+      if(!selectedText) {
+        $(this).find('.obs-collapsible-text').toggleClass('expanded');
+        $(this).find('.show-content').toggleClass('more less');
+      }
+    });
+  }
 
   $('.obs-collapsible-text').each(function(_index, element){
     if (element.scrollHeight > element.offsetHeight) {

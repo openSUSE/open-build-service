@@ -53,3 +53,8 @@
   @include collapsible($maxHeight: 1.5em);
   .obs-collapsible-textbox {  @extend .pr-0; }
 }
+
+#link-info {
+  @include collapsible($maxHeight: 1.5em, $moreButtonLabel: 'Expand name');
+  .obs-collapsible-textbox { @extend .pr-0; }
+}
