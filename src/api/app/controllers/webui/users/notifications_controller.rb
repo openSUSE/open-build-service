@@ -11,7 +11,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def index
     @notifications = paginated_notifications
     @filtered_project = Project.find_by(name: params[:project])
-    @notifications_filter = notifications_filter
+    @selected_filter = selected_filter
   end
 
   def update
@@ -31,13 +31,17 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: paginated_notifications,
-          notifications_filter: notifications_filter
+          selected_filter: selected_filter
         }
       end
     end
   end
 
   private
+
+  def selected_filter
+    { type: params[:type], project: params[:project], group: params[:group] }
+  end
 
   def check_param_type
     return if params[:type].nil? || VALID_NOTIFICATION_TYPES.include?(params[:type])
@@ -63,14 +67,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
 
-  def notifications_count
-    finder = NotificationsFinder.new(User.session.notifications.for_web)
-    counted_notifications = finder.unread.group(:notifiable_type).count
-    counted_notifications['incoming_requests'] = finder.for_incoming_requests.count
-    counted_notifications['outgoing_requests'] = finder.for_outgoing_requests.count
-    counted_notifications.merge!('unread' => User.session.unread_notifications)
-  end
-
   def fetch_notifications
     notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification).includes(:notifiable))
     if params[:project]
@@ -86,12 +82,5 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications = fetch_notifications
     params[:page] = notifications.page(params[:page]).total_pages if notifications.page(params[:page]).out_of_range?
     params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
-  end
-
-  def notifications_filter
-    NotificationsFilterPresenter.new(notifications_count,
-                                     params[:type],
-                                     params[:project],
-                                     params[:group])
   end
 end
