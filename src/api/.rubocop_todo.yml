@@ -941,7 +941,6 @@ Rails/InverseOf:
     - 'app/models/message.rb'
     - 'app/models/package.rb'
     - 'app/models/project.rb'
-    - 'app/models/rating.rb'
     - 'app/models/repository.rb'
     - 'app/models/review.rb'
     - 'app/models/staging/workflow.rb'

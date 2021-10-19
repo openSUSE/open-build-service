@@ -87,16 +87,11 @@ OBSApi::Application.routes.draw do
       get 'statistics/added_timestamp/:project(/:package)' => :added_timestamp, constraints: cons
       get 'statistics/updated_timestamp/:project(/:package)' => :updated_timestamp, constraints: cons
 
-      # Ratings
-      #
-      get 'statistics/rating/:project(/:package)' => :rating, constraints: cons
-
       # Activity
       #
       get 'statistics/activity/:project(/:package)' => :activity, constraints: cons
 
       get 'statistics' => :index
-      get 'statistics/highest_rated' => :highest_rated
       get 'statistics/most_active_projects' => :most_active_projects
       get 'statistics/most_active_packages' => :most_active_packages
       get 'statistics/latest_added' => :latest_added

@@ -126,20 +126,8 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
   end
 
-  def test_rating_and_activity
+  def test_activity
     login_adrian
-    get url_for(controller: :statistics, action: :rating, project: 'kde4', package: 'kdelibs')
-    assert_response :success
-
-    get url_for(controller: :statistics, action: :rating, project: 'kde4')
-    assert_response :success
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: 'NOT_EXISTING')
-    assert_response 404
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: nil)
-    assert_response :success
-
     get url_for(controller: :statistics, action: :activity, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
@@ -154,15 +142,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     # no access to HiddenProject
     login_fred
-    get url_for(controller: :statistics, action: :rating, project: 'kde4', package: 'kdelibs')
-    assert_response :success
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: nil)
-    assert_response 404
-
-    get url_for(controller: :statistics, action: :rating, project: 'HiddenProject', package: 'NOT_EXISTING')
-    assert_response 404
-
     get url_for(controller: :statistics, action: :activity, project: 'kde4', package: 'kdelibs')
     assert_response :success
   end
@@ -204,19 +183,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'most_active', child: { tag: 'project' }
     assert_xml_tag tag: 'project', attributes: { name: 'HiddenProject' }
-  end
-
-  # FIXME: works, but does not do anything usefull since 2.0 anymore
-  #        we need a working rating mechanism, but this one is too simple.
-  def test_highest_rated
-    login_tom
-    get url_for(controller: :statistics, action: :highest_rated)
-    assert_response :success
-    # assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    # assert_xml_tag :tag => 'package', :attributes => {
-    #  :name => "kdelibs",
-    #  :xxx => "xxx",
-    # }
   end
 
   def test_active_request_creators
