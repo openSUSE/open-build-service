@@ -203,11 +203,4 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     get comments_package_path(project: 'BaseDistro', package: 'pack1')
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "I preffer Apache1, don't you? @fred"
   end
-
-  def test_upload_mail_reply
-    # to be implemented, just for setting up the infrastructure for now
-    reset_auth
-    put '/mail_handler'
-    assert_response :success
-  end
 end
