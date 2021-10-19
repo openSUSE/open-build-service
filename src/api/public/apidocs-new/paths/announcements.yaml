@@ -1,4 +1,5 @@
 get:
+  deprecated: true
   summary: List all announcements.
   description: List all messages from type announcement.
   security:
@@ -12,6 +13,7 @@ get:
     - Announcements
 
 post:
+  deprecated: true
   summary: Create an announcement.
   description: |
     Create an announcement.
