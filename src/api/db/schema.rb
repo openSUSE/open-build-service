@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_05_112031) do
+ActiveRecord::Schema.define(version: 2021_10_18_121430) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -656,20 +656,6 @@ ActiveRecord::Schema.define(version: 2021_10_05_112031) do
     t.datetime "released_at"
     t.index ["db_project_id"], name: "index_maintenance_incidents_on_db_project_id"
     t.index ["maintenance_db_project_id"], name: "index_maintenance_incidents_on_maintenance_db_project_id"
-  end
-
-  create_table "messages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "db_object_id"
-    t.string "db_object_type", collation: "utf8_general_ci"
-    t.integer "user_id"
-    t.datetime "created_at"
-    t.boolean "send_mail"
-    t.datetime "sent_at"
-    t.boolean "private"
-    t.integer "severity"
-    t.text "text"
-    t.index ["db_object_id"], name: "object"
-    t.index ["user_id"], name: "user"
   end
 
   create_table "notifications", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
