@@ -168,10 +168,6 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    ### /mail_handler
-
-    put '/mail_handler' => 'mail_handler#upload'
-
     ### /cloud/upload
 
     scope :cloud, as: :cloud do
