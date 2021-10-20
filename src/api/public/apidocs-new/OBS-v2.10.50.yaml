@@ -101,6 +101,7 @@ tags:
       The same can be done with the following endpoint: `POST /request/44?cmd=changereviewstate&newstate=accepted&by_user=test1`
     externalDocs:
       url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
+  - name: Sitemaps
   - name: Workers
 
 
@@ -251,6 +252,13 @@ paths:
 
   /service:
     $ref: 'paths/service.yaml'
+
+  /sitemaps:
+    $ref: 'paths/sitemaps.yaml'
+  /project/sitemap:
+    $ref: 'paths/project_sitemap.yaml'
+  /package/sitemap/{project_name}:
+    $ref: 'paths/package_sitemap_project_name.yaml'
 
   /worker/status:
     $ref: 'paths/worker_status.yaml'

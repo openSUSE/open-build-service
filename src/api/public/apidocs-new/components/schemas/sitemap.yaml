@@ -1,0 +1,20 @@
+type: object
+properties: 
+  xmlns:
+    type: string
+    xml:
+      attribute: true
+  sitemap:
+    type: array
+    items:
+      type: object
+      properties:
+        loc:
+          type: string
+        priority:
+          type: string
+    xml:
+      name: url
+xml:
+  name: urlset
+  wrapped: true

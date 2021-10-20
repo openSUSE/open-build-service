@@ -1,0 +1,22 @@
+get:
+  summary: Project Sitemap.
+  description: |
+    Inform search engines about OBS projects that are available for crawling.
+
+    See: [https://www.sitemaps.org/](https://www.sitemaps.org/).
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/sitemap.yaml'
+          example:
+            xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'
+            sitemap:
+              - loc: 'https://api.opensuse.org/'
+                priority: '1.0'
+              - loc: 'https://api.opensuse.org/project/show/mozilla'
+                priority: '0.9'
+  tags:
+    - Sitemaps

@@ -1,0 +1,31 @@
+get:
+  summary: Package Sitemap.
+  description: |
+    Inform search engines about OBS packages that are available for crawling.
+
+    See: [https://www.sitemaps.org/](https://www.sitemaps.org/).
+  parameters:
+    - in: path
+      name: project_name
+      schema:
+        type: string
+      description: |
+        Project name prefix filter. Only packages belonging to projects
+        which project names start by this string will be shown.
+      example: 'home:a'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/sitemap.yaml'
+          example:
+            xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'
+            sitemap:
+              - loc: 'https://api.opensuse.org/package/show/requestor_project/package_1634636477_0'
+                priority: '0.6'
+              - loc: 'https://api.opensuse.org/package/show/requestor_project/package_1634636481_1'
+                priority: '0.6'
+  tags:
+    - Sitemaps

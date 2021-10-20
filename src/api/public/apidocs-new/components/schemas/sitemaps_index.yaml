@@ -1,0 +1,18 @@
+type: object
+properties: 
+  xmlns:
+    type: string
+    xml:
+      attribute: true
+  sitemap:
+    type: array
+    items:
+      type: object
+      properties:
+        loc:
+          type: string
+    xml:
+      name: sitemap
+xml:
+  name: sitemapindex
+  wrapped: true
