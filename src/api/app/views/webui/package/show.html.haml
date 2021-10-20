@@ -68,8 +68,7 @@
   .comments
     .card#comments-list
       %h5.card-header.text-word-break-all
-        Comments for
-        = @package.name
+        Comments
         %span.badge.badge-primary{ id: "comment-counter-package-#{@package.id}" }
           = @comments.length
       .card-body#comments
