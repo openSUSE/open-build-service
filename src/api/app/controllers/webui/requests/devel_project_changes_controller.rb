@@ -21,7 +21,7 @@ module Webui
       def check_devel_package
         return if @package.develpackage
 
-        flash[:error] = "Package #{@package} doesn't have a devel project"
+        flash[:error] = "Package #{elide(@package.name)} doesn't have a devel project"
         redirect_to package_show_path(project: @project, package: @package)
       end
     end

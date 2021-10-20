@@ -19,7 +19,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     @package = @project.packages.find_by_name('patchinfo')
     unless @package.patchinfo
-      flash[:error] = "Patchinfo not found for #{params[:project]}"
+      flash[:error] = "Patchinfo not found for #{elide(params[:project])}"
       redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
     redirect_to edit_patchinfo_path(project: @project, package: @package)
@@ -53,7 +53,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         return
       end
 
-      flash[:success] = "Successfully edited #{@package}"
+      flash[:success] = "Successfully edited #{elide(@package.name)}"
       redirect_to controller: 'patchinfo', action: 'show', project: @project.name, package: @package
     else
       flash[:error] = @patchinfo.errors.full_messages.to_sentence
@@ -147,7 +147,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       begin
         @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
       rescue Package::UnknownObjectError
-        flash[:error] = "Patchinfo '#{params[:package]}' not found in project '#{params[:project]}'"
+        flash[:error] = "Patchinfo '#{elide(params[:package])}' not found in project '#{elide(params[:project])}'"
         redirect_to project_show_path(project: params[:project])
         return
       end
@@ -156,7 +156,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     return if @package && @package.patchinfo
 
     # FIXME: should work for remote packages
-    flash[:error] = "Patchinfo not found for #{params[:project]}"
+    flash[:error] = "Patchinfo not found for #{elide(params[:project])}"
     redirect_to(controller: 'package', action: 'show', project: @project, package: @package)
   end
 

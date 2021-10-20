@@ -25,7 +25,7 @@ module Webui
         incident = MaintenanceIncident.build_maintenance_incident(@project, params[:noaccess].present?)
 
         if incident
-          flash[:success] = "Created maintenance incident project #{incident.project}"
+          flash[:success] = "Created maintenance incident project #{elide(incident.project.name)}"
           redirect_to(project_show_path(incident.project))
           return
         end

@@ -17,19 +17,19 @@ module Webui
         redirect_to edit_staging_workflow_path(@staging_workflow.project)
 
         if staging_project.staging_workflow_id?
-          flash[:error] = "\"#{staging_project}\" is already assigned to a staging workflow"
+          flash[:error] = "\"#{elide(staging_project.name)}\" is already assigned to a staging workflow"
           return
         end
 
         staging_project.staging_workflow = @staging_workflow
 
         if staging_project.valid? && staging_project.store
-          flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"
+          flash[:success] = "Staging project with name = \"#{elide(staging_project.name)}\" was successfully created"
           CreateProjectLogEntryJob.perform_later(project_log_entry_payload(staging_project), staging_project.created_at.to_s, staging_project.class.name)
           return
         end
 
-        flash[:error] = "#{staging_project} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
+        flash[:error] = "#{elide(staging_project.name)} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
       end
 
       def show
@@ -37,7 +37,7 @@ module Webui
 
         unless @staging_project
           redirect_back(fallback_location: staging_workflow_path(@staging_workflow))
-          flash[:error] = "Staging Project \"#{params[:project_name]}\" doesn't exist for this Staging."
+          flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging."
           return
         end
 
@@ -58,20 +58,20 @@ module Webui
 
         unless staging_project
           redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
-          flash[:error] = "Staging Project \"#{params[:project_name]}\" doesn't exist for this Staging"
+          flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging"
           return
         end
 
         if staging_project.staged_requests.present?
           redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
-          flash[:error] = "Staging Project \"#{params[:project_name]}\" could not be deleted because it has staged requests."
+          flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" could not be deleted because it has staged requests."
           return
         end
 
         if staging_project.destroy
-          flash[:success] = "Staging Project \"#{params[:project_name]}\" was deleted."
+          flash[:success] = "Staging Project \"#{elide(params[:project_name])}\" was deleted."
         else
-          flash[:error] = "#{staging_project} couldn't be deleted: #{staging_project.errors.full_messages.to_sentence}"
+          flash[:error] = "#{elide(staging_project.name)} couldn't be deleted: #{staging_project.errors.full_messages.to_sentence}"
         end
 
         redirect_to edit_staging_workflow_path(@staging_workflow.project)
@@ -89,7 +89,7 @@ module Webui
 
         StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session!.id)
 
-        flash[:success] = "Job to copy the staging project #{params[:project_name]} successfully queued."
+        flash[:success] = "Job to copy the staging project #{elide(params[:project_name])} successfully queued."
 
         redirect_to edit_staging_workflow_path(@staging_workflow.project)
       end

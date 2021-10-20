@@ -103,10 +103,11 @@ class Webui::Users::TokensController < Webui::WebuiController
     begin
       @package = Package.get_by_project_and_name(@extra_params[:project_name], @extra_params[:package_name])
     rescue Project::UnknownObjectError
-      flash.now[:error] = "When providing an optional package, the package must exist. Project '#{@extra_params[:project_name]}' does not exist."
+      flash.now[:error] = "When providing an optional package, the package must exist. Project '#{elide(@extra_params[:project_name])}' does not exist."
       render partial: 'create'
     rescue Package::UnknownObjectError
-      flash.now[:error] = "When providing an optional package, the package must exist. Package '#{@extra_params[:project_name]}/#{@extra_params[:package_name]}' does not exist."
+      flash.now[:error] = 'When providing an optional package, the package must exist. ' \
+                          "Package '#{elide(@extra_params[:project_name])}/#{elide(@extra_params[:package_name])}' does not exist."
       render partial: 'create'
     end
   end
