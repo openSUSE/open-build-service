@@ -1,9 +1,9 @@
-# This custom linter for haml-lint will report an offense if @pagetitle is not set in a Haml view. Partials aren't ignored by this linter.
+# This custom linter for haml-lint will report an offense if @pagetitle is not set in a Haml view. Partials are ignored by this linter.
 module HamlLint
   class Linter::SetPagetitleInView < Linter
     include LinterRegistry
 
-    # Report an offense if the instance variable @pagetitle is not set in a Haml view. Partials aren't ignored by this linter.
+    # Report an offense if the instance variable @pagetitle is not set in a Haml view. Partials are ignored by this linter.
     #
     # @param [HamlLint::Tree::RootNode] the root of a syntax tree
     def visit_root(root_node)
