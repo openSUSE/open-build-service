@@ -11,7 +11,7 @@ module Webui
             filename: "#{project.title}_ssl.cert"
           )
         else
-          flash[:error] = "Project #{params[:project_name]} does not have an SSL certificate"
+          flash[:error] = "Project #{elide(params[:project_name])} does not have an SSL certificate"
           redirect_to project_show_path(project: project)
         end
       end

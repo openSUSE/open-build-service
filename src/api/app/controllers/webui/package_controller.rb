@@ -124,7 +124,7 @@ class Webui::PackageController < Webui::WebuiController
   def dependency
     dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
     unless dependant_project
-      flash[:error] = "Project '#{params[:dependant_project]}' is invalid."
+      flash[:error] = "Project '#{elide(params[:dependant_project])}' is invalid."
       redirect_back(fallback_location: root_path)
       return
     end
@@ -293,7 +293,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
 
     if @package.save
-      flash[:success] = "Package '#{@package}' was created successfully"
+      flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
       flash[:error] = "Failed to create package: #{@package.errors.full_messages.join(', ')}"
@@ -323,9 +323,9 @@ class Webui::PackageController < Webui::WebuiController
     @package.title = params[:title]
     @package.description = params[:description]
     if @package.save
-      flash[:success] = "Package data for '#{@package.name}' was saved successfully"
+      flash[:success] = "Package data for '#{elide(@package.name)}' was saved successfully"
     else
-      flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
+      flash[:error] = "Failed to save package '#{elide(@package.name)}': #{@package.errors.full_messages.to_sentence}"
     end
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
@@ -495,10 +495,10 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     if @package.abort_build(params)
-      flash[:success] = "Triggered abort build for #{@project.name}/#{@package.name} successfully."
+      flash[:success] = "Triggered abort build for #{elide(@project.name)}/#{elide(@package.name)} successfully."
       redirect_to package_show_path(project: @project, package: @package)
     else
-      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      flash[:error] = "Error while triggering abort build for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
       redirect_to package_live_build_log_path(project: @project, package: @package, repository: params[:repository], arch: params[:arch])
     end
   end
@@ -521,9 +521,9 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     if @package.wipe_binaries(params)
-      flash[:success] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
+      flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package.name)} successfully."
     else
-      flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
     end
 
     redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
@@ -816,13 +816,13 @@ class Webui::PackageController < Webui::WebuiController
 
     # FIXME: This should be a validation in the Package model
     unless Package.valid_name?(package_name)
-      flash[:error] = "Invalid package name: '#{package_name}'"
+      flash[:error] = "Invalid package name: '#{elide(package_name)}'"
       redirect_to action: :new, project: @project
       return false
     end
     # FIXME: This should be a validation in the Package model
     if Package.exists_by_project_and_name(@project.name, package_name)
-      flash[:error] = "Package '#{package_name}' already exists in project '#{@project}'"
+      flash[:error] = "Package '#{elide(package_name)}' already exists in project '#{elide(@project.name)}'"
       redirect_to action: :new, project: @project
       return false
     end
