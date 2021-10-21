@@ -10,6 +10,7 @@ class Webui::WebuiController < ActionController::Base
   include FlipperFeature
   include Webui::RescueHandler
   include SetCurrentRequestDetails
+  include Webui::ElisionsHelper
   protect_from_forgery
 
   before_action :set_influxdb_data
