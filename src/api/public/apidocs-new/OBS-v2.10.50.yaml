@@ -101,6 +101,7 @@ tags:
       The same can be done with the following endpoint: `POST /request/44?cmd=changereviewstate&newstate=accepted&by_user=test1`
     externalDocs:
       url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
+  - name: Trigger
   - name: Workers
 
 
@@ -252,6 +253,9 @@ paths:
   /service:
     $ref: 'paths/service.yaml'
 
+  /trigger/{operation}:
+    $ref: 'paths/trigger_operation.yaml'
+
   /worker/status:
     $ref: 'paths/worker_status.yaml'
   /worker/{architecture_name}:{worker_id}:
@@ -264,6 +268,10 @@ components:
     basic_authentication:
       type: http
       scheme: basic
+    GitLab_key_authentication:
+      type: apiKey
+      in: header
+      name: X-GitLab-Token
 
 externalDocs:
   url: 'https://openbuildservice.org/help/'

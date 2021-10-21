@@ -1,0 +1,233 @@
+post:
+  summary: Trigger a specific operation.
+  description: |
+    This endpoint is meant to be used with a token, to make it possible to automate the
+    execution of an OBS operation from an external application, as, for example, GitHub
+    or GitLab.
+
+    See the [/person/{login}/token](#/Person/post_person__login__token) endpoint to
+    create a token.
+
+    The token itself must be delivered using one of these options:
+      - HTTP header `X-GitLab-Token`: <TOKEN_STRING>
+      - HTTP header `Authorization`: Token <TOKEN_STRING>
+      - The `id` param, a payload in the request body, and one of the following HTTP
+        headers to provide the signature of the request body:
+        - `X-OBS-Signature`
+        - `X-Hub-Signature-256`
+
+    A token can be bound to a package, or not. For a token not bound to a package, the `project`
+    and `package` parameters can be provided to specify the package.
+
+    A package must be provided for the operations `rebuild`, `release` and `runservice`.
+  security:
+    - GitLab_key_authentication: []
+  parameters:
+    - in: path
+      name: operation
+      schema:
+        type: string
+        enum: [ rebuild, release, runservice, workflow ]
+      required: yes
+    - in: header
+      name: X-OBS-Signature
+      schema:
+        type: string
+    - in: header
+      name: X-Hub-Signature-256
+      schema:
+        type: string
+    - in: header
+      name: X-GitLab-Event
+      description: |
+        GitLab event that triggered this call.
+
+        This header field is required for processing GitLab payloads.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        merge_request:
+          summary: Merge Request Hook
+          value: Merge Request Hook
+    - in: header
+      name: X-GitHub-Event
+      description: |
+        GitHub event that triggered this call.
+
+        This header field is required for processing GitHub payloads.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        merge_request:
+          summary: pull_request
+          value: pull_request
+    - in: query
+      name: id
+      description: Id of the token.
+      schema:
+        type: integer
+    - in: query
+      name: project
+      description: Project name.
+      schema:
+        type: string
+    - in: query
+      name: package
+      description: Package name.
+      schema:
+        type: string
+    - in: query
+      name: repository
+      description: |
+        Repository filter. Only used when the operation is 'rebuild'.
+
+        If it is present, restrict rebuilds of a package to a specific repository.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        openSUSE_Factory:
+          value: openSUSE_Factory
+        SLE_15_SP3:
+          value: SLE_15_SP3
+    - in: query
+      name: arch
+      description: |
+        Architecture filter. Only used when the operation is 'rebuild'.
+
+        If it is present, restrict rebuilds of a package to a specific architecture.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        armv7l:
+          value: armv7l
+        ppc64le:
+          value: ppc64le
+        x86_64:
+          value: x86_64
+  requestBody:
+    description: Payload.
+    content:
+      application/json:
+        schema:
+          type: string
+        examples:
+          empty:
+            summary: '- Empty -'
+            value:
+          github:
+            summary: GitHub
+            description: Example of a payload sent by GitHub when a pull request is opened.
+            value: {
+                action: 'opened',
+                pull_request: {
+                  head: {
+                    repo: {
+                      full_name: 'iggy/source_repo'
+                    },
+                    ref: 'add-changes',
+                    sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
+                  },
+                  base: {
+                    repo: {
+                      full_name: 'iggy/target_repo'
+                    },
+                    ref: 'main'
+                  }
+                },
+                project: {
+                  http_url: 'https://github.com/pop/test.git',
+                  id: 26_212_711,
+                  path_with_namespace: 'pop/test'
+                },
+                number: 4,
+                sender: {
+                  url: 'https://api.github.com'
+                }
+              }
+          gitlab:
+            summary: GitLab
+            description: Example of a payload sent by GitLab when a merge request is opened.
+            value: {
+                object_kind: 'merge_request',
+                project: {
+                  http_url: 'https://gitlab.com/pop/test.git',
+                  path_with_namespace: 'pop/test'
+                },
+                object_attributes: {
+                  last_commit: {
+                    id: '4b486afefa44177f23b4388d2147ae42407e7f64'
+                  },
+                  iid: 3,
+                  source_project_id: 26_212_710,
+                  source_branch: 'my_branch',
+                  target_branch: 'main',
+                  action: 'open'
+                },
+                action: 'opened'
+              }
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_parameter
+            summary: Parameter pull_request has non String class ActionController::Parameters
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: permission_denied
+            summary: No valid token found
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            unknown_project:
+              summary: Not Found (Project)
+              value:
+                code: unknown_project
+                details: 'Project not found: '
+            unknown_package:
+              summary: Not Found (Package)
+              value:
+                code: unknown_package
+                details: 'Package not found: home:Admin/foo'
+            non_existent_workflows_file:
+              summary: Non existent workflows file
+              value:
+                code: non_existent_workflows_file
+                summary: '.obs/workflows.yml could not be downloaded from the SCM branch main: 503 Service Temporarily Unavailable'
+  tags:
+    - Trigger
