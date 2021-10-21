@@ -52,6 +52,7 @@ class BsRequestAction
           query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : DEFAULT_FILE_LIMIT
           query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : DEFAULT_FILE_LIMIT
         end
+        query[:cacheonly] = options[:cacheonly] if options[:cacheonly].present?
         query
       end
 
