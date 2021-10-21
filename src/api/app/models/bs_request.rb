@@ -1086,6 +1086,14 @@ class BsRequest < ApplicationRecord
       action[:name] = "Release #{action[:spkg]}"
       action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
     end
+
+    if action[:sourcediff]
+      errors = action[:sourcediff].pluck(:error).compact
+      action[:diff_not_cached] = errors.any? { |e| e.include?('diff not yet in cache') }
+    else
+      action[:diff_not_cached] = false
+    end
+
     action
   end
 
