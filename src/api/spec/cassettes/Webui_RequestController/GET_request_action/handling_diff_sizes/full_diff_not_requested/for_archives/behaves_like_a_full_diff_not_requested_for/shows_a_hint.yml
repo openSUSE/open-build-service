@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer"/>
         </project>
-  recorded_at: Tue, 22 Jun 2021 10:37:37 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/_meta?user=titan
@@ -79,7 +79,7 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer"/>
         </project>
-  recorded_at: Tue, 22 Jun 2021 10:37:37 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/test-package-binary/_meta?user=kugelblitz
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test-package-binary" project="home:titan">
-          <title>No Longer at Ease</title>
-          <description>Et qui quia delectus.</description>
+          <title>The Wives of Bath</title>
+          <description>A dignissimos voluptas assumenda.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package-binary" project="home:titan">
-          <title>No Longer at Ease</title>
-          <description>Et qui quia delectus.</description>
+          <title>The Wives of Bath</title>
+          <description>A dignissimos voluptas assumenda.</description>
         </package>
-  recorded_at: Tue, 22 Jun 2021 10:37:37 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/test-package-binary/bigfile_archive.tar.gz
@@ -146,19 +146,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
+        <revision rev="9" vrev="9">
           <srcmd5>a9789ffd295bf47f77113616443547ac</srcmd5>
           <version>unknown</version>
-          <time>1624358257</time>
+          <time>1634557737</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 22 Jun 2021 10:37:38 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/test-source-package-binary/_meta?user=kugelblitz
@@ -166,8 +166,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test-source-package-binary" project="home:kugelblitz">
-          <title>Of Human Bondage</title>
-          <description>Dolor dignissimos enim laboriosam.</description>
+          <title>The Painted Veil</title>
+          <description>Dolores iure quam officia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -188,15 +188,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="test-source-package-binary" project="home:kugelblitz">
-          <title>Of Human Bondage</title>
-          <description>Dolor dignissimos enim laboriosam.</description>
+          <title>The Painted Veil</title>
+          <description>Dolores iure quam officia.</description>
         </package>
-  recorded_at: Tue, 22 Jun 2021 10:37:38 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/test-source-package-binary/bigfile_archive.tar.gz
@@ -225,19 +225,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
+        <revision rev="9" vrev="9">
           <srcmd5>f83eab96d07ccb93931e4136c117e1df</srcmd5>
           <version>unknown</version>
-          <time>1624358258</time>
+          <time>1634557737</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 22 Jun 2021 10:37:38 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:57 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/test-source-package-binary
@@ -263,14 +263,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-source-package-binary" rev="26" vrev="26" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1624357071"/>
+        <directory name="test-source-package-binary" rev="9" vrev="9" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1634553058"/>
         </directory>
-  recorded_at: Tue, 22 Jun 2021 10:37:38 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:58 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:kugelblitz/test-source-package-binary?cmd=diff&expand=1&filelimit=5&opackage=test-package-binary&oproject=home:titan&tarlimit=5&view=xml&withissues=1
@@ -298,13 +298,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '660'
+      - '658'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8a302ca0567870a233d97db2a658e6aa">
-          <old project="home:titan" package="test-package-binary" rev="26" srcmd5="a9789ffd295bf47f77113616443547ac"/>
-          <new project="home:kugelblitz" package="test-source-package-binary" rev="26" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
+        <sourcediff key="da1f3ea81d2c7467b3cac6214ea08250">
+          <old project="home:titan" package="test-package-binary" rev="9" srcmd5="a9789ffd295bf47f77113616443547ac"/>
+          <new project="home:kugelblitz" package="test-source-package-binary" rev="9" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
           <files>
             <file state="changed">
               <old name="bigfile_archive.tar.gz/bigfile.txt" md5="0ab4de70d53908fd2b2669101500a09a" size="12"/>
@@ -320,7 +320,90 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 22 Jun 2021 10:37:38 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:58 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/test-source-package-binary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '230'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-source-package-binary" rev="9" vrev="9" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1634553058"/>
+        </directory>
+  recorded_at: Mon, 18 Oct 2021 11:48:58 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/test-source-package-binary?cacheonly=1&cmd=diff&expand=1&filelimit=5&opackage=test-package-binary&oproject=home:titan&tarlimit=5&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '658'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="da1f3ea81d2c7467b3cac6214ea08250">
+          <old project="home:titan" package="test-package-binary" rev="9" srcmd5="a9789ffd295bf47f77113616443547ac"/>
+          <new project="home:kugelblitz" package="test-source-package-binary" rev="9" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
+          <files>
+            <file state="changed">
+              <old name="bigfile_archive.tar.gz/bigfile.txt" md5="0ab4de70d53908fd2b2669101500a09a" size="12"/>
+              <new name="bigfile_archive.tar.gz/bigfile.txt" md5="1703dc249d5200214dec878c59b76fb8" size="12"/>
+              <diff lines="13" shown="5">@@ -1,6 +1,6 @@
+        -a
+        -a
+        -a
+        -a
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 18 Oct 2021 11:48:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:titan/test-package-binary
@@ -346,12 +429,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '225'
+      - '223'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package-binary" rev="26" vrev="26" srcmd5="a9789ffd295bf47f77113616443547ac">
-          <entry name="bigfile_archive.tar.gz" md5="027fc222b80f4e148bc0b20afc4778e9" size="10240" mtime="1624357071"/>
+        <directory name="test-package-binary" rev="9" vrev="9" srcmd5="a9789ffd295bf47f77113616443547ac">
+          <entry name="bigfile_archive.tar.gz" md5="027fc222b80f4e148bc0b20afc4778e9" size="10240" mtime="1634553058"/>
         </directory>
-  recorded_at: Tue, 22 Jun 2021 10:37:38 GMT
+  recorded_at: Mon, 18 Oct 2021 11:48:58 GMT
 recorded_with: VCR 6.0.0

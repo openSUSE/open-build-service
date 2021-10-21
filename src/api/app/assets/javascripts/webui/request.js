@@ -135,6 +135,14 @@ $(document).ready(function(){
   });
 });
 
+function reloadRequestAction(index){ // jshint ignore:line
+  var element = $('.request-tab[data-index=' + index + ']');
+  $('.tab-pane.sourcediff.active').html('');
+  if(element) {
+    loadDiffs(element);
+  }
+}
+
 function loadDiffs(element){
   $('.loading-diff').removeClass('invisible');
   var index = element.data('index');
