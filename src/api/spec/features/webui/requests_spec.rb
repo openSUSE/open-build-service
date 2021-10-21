@@ -78,11 +78,11 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       end
 
       it 'can be accepted' do
+        login receiver
         bs_request.bs_request_actions.delete_all
         create(:bs_request_action_add_bugowner_role, target_project: target_project,
                                                      person_name: submitter,
                                                      bs_request_id: bs_request.id)
-        login receiver
         visit request_show_path(bs_request)
         click_button 'Accept'
 
@@ -146,11 +146,11 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       end
 
       it 'can be accepted' do
+        login receiver
         bs_request.bs_request_actions.delete_all
         create(:bs_request_action_add_bugowner_role, target_project: target_project,
                                                      person_name: submitter,
                                                      bs_request_id: bs_request.id)
-        login receiver
         visit request_show_path(bs_request)
         click_button 'Accept'
 

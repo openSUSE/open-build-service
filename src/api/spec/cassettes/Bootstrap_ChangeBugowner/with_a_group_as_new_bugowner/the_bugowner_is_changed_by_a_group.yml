@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source//TestPack
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dfec46d4-4755-471b-b0e4-1363abac9c1c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: projid is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '67'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>projid is empty</summary>
+        </status>
+  recorded_at: Wed, 13 Oct 2021 14:14:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source//TestPack?cmd=diff&expand=1&filelimit=10000&opackage=TestPack&oproject=home:Iggy&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - dfec46d4-4755-471b-b0e4-1363abac9c1c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: projid is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '67'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>projid is empty</summary>
+        </status>
+  recorded_at: Wed, 13 Oct 2021 14:14:28 GMT
+recorded_with: VCR 6.0.0
