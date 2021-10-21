@@ -40,13 +40,14 @@ RSpec.describe Webui::Projects::MaintenanceIncidentsController do
     context 'with a Maintenance project' do
       # Needed because we can't see local variables of the controller action
       let(:new_maintenance_incident_project) { Project.maintenance_incident.first }
+      let(:elided_maintenance_incident_project_name) { 'maintenan...roject:0' }
 
       before do
         post :create, params: { project_name: maintenance_project }
       end
 
       it { is_expected.to redirect_to(project_show_path(project: new_maintenance_incident_project.name)) }
-      it { expect(flash[:success]).to start_with("Created maintenance incident project #{new_maintenance_incident_project.name}") }
+      it { expect(flash[:success]).to start_with("Created maintenance incident project #{elided_maintenance_incident_project_name}") }
     end
 
     context 'without a Maintenance project' do

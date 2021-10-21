@@ -265,6 +265,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
   describe 'GET #revisions' do
     let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: source_project) }
+    let(:elided_package_name) { 'package_w...revision' }
 
     before do
       login(user)
@@ -277,7 +278,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         get :revisions, params: { project: source_project, package: package }
       end
 
-      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{package}\"") }
+      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{elided_package_name}\"") }
       it { expect(response).to redirect_to(project_show_path(project: source_project.name)) }
     end
 
