@@ -14,9 +14,7 @@ module Statistics
           render_error status: 404, errorcode: 'remote_project', message: "Project '#{@project}' not found"
         end
       else
-        @maintenance_statistics = MaintenanceStatisticDecorator.wrap(
-          MaintenanceStatistic.find_by_project(@project)
-        )
+        @maintenance_statistics = MaintenanceStatistic.find_by_project(@project)
       end
     end
   end
