@@ -139,7 +139,8 @@ class BsRequestTest < ActiveSupport::TestCase
                          srev: '1',
                          tprj: 'kde4',
                          tpkg: 'mypackage',
-                         name: 'Submit TestPack'
+                         name: 'Submit TestPack',
+                         diff_not_cached: false
   end
 
   def test_if_delegate_works

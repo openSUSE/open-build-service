@@ -21,9 +21,6 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
     context 'for a target package' do
       let(:diff_result) do
         <<-DIFF
-          ++++++ somefile.txt
-          --- somefile.txt
-          +++ somefile.txt
           @@ -1,1 +1,1 @@
           -a
           \\ No newline at end of file
@@ -99,7 +96,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
           rev: 0,
           orev: 0,
           oproject: source_project.name,
-          opackage: source_package.name
+          opackage: source_package.name,
+          view: 'xml',
+          withissues: 1
         }
       end
 
