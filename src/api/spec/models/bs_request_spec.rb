@@ -4,7 +4,7 @@ require 'nokogiri'
 # and start a test backend. Some of the BsRequestAction methods
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
-RSpec.describe BsRequest do
+RSpec.describe BsRequest, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
@@ -719,5 +719,17 @@ RSpec.describe BsRequest do
     end
 
     it { expect(bs_request).not_to have_received(:sanitize!) }
+  end
+
+  describe '#action_details' do
+    context 'when diffs are cached' do
+      let!(:request) { submit_request }
+      let!(:opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
+
+      it 'sets the value for diff_not_cached' do
+        action_details = request.send(:action_details, opts, xml: request.bs_request_actions.last)
+        expect(action_details[:diff_not_cached]).to eq(false)
+      end
+    end
   end
 end

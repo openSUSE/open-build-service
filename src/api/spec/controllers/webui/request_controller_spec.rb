@@ -140,19 +140,13 @@ RSpec.describe Webui::RequestController, vcr: true do
         end
       end
 
-      shared_examples 'a full diff requested for' do |file_name|
+      shared_examples 'a full diff requested for' do
         before do
           get :request_action, params: { number: bs_request.number, full_diff: true, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
         it 'does not show a hint' do
           expect(assigns(:not_full_diff)).to be_falsy
-        end
-
-        it 'shows the complete diff' do
-          actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
-          diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
-          expect(diff_size).to eq(expected_diff_size)
         end
       end
 
@@ -164,7 +158,7 @@ RSpec.describe Webui::RequestController, vcr: true do
                                        file_content: "a\n" * (file_size_threshold + 1), project: target_project)
           end
 
-          it_behaves_like 'a full diff requested for', 'somefile.txt'
+          it_behaves_like 'a full diff requested for'
         end
 
         context 'for archives' do
@@ -175,7 +169,7 @@ RSpec.describe Webui::RequestController, vcr: true do
                                          project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
           end
 
-          it_behaves_like 'a full diff requested for', 'bigfile_archive.tar.gz/bigfile.txt'
+          it_behaves_like 'a full diff requested for'
         end
       end
 
