@@ -17,10 +17,7 @@
     ajax_data['index'] = h(index) if index
 
   .card
-    .bg-light{ id: "buildresult#{index}-urls", data: {
-                                                       buildresult_url: package ?
-                                                       Rails.application.routes.url_helpers.package_buildresult_path :
-                                                       project_buildresult_path } }
+    .bg-light{ id: "buildresult#{index}-urls", data: { buildresult_url: package ? package_buildresult_path : project_buildresult_path } }
       %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap{ id: "buildresult#{index}-box", role: 'tablist', data: ajax_data }
         %li.nav-item
           = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active text-nowrap',
