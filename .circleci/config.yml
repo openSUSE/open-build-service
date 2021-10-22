@@ -194,18 +194,6 @@ jobs:
       - <<: *store_minitest_test_results
       - <<: *store_minitest_artifacts
 
-  new_documentation_linter:
-    docker:
-      - <<: *frontend_base
-    steps:
-      - attach_workspace:
-         at: .
-      - run:
-          name: Check if YAML files are parseable
-          command: |
-            cd src/api
-            find public/apidocs-new -name '*.yaml' | xargs -P8 -I % ruby -e "require 'yaml'; YAML.load_file '%'"
-
   migrations_test:
     docker:
       - <<: *frontend_backend
@@ -364,9 +352,6 @@ workflows:
   test_all:
     jobs:
       - checkout_code
-      - new_documentation_linter:
-          requires:
-            - checkout_code
       - migrations_test:
           requires:
             - checkout_code

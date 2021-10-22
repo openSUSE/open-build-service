@@ -71,6 +71,7 @@ namespace :dev do
     Rake::Task['dev:lint:haml'].invoke
     Rake::Task['dev:lint:rubocop:all'].invoke
     sh 'jshint ./app/assets/javascripts/'
+    sh 'find public/apidocs-new -name  \'*.yaml\' | xargs -P8 -I % ruby -e "require \'yaml\'; YAML.load_file \'%\'"'
   end
 
   namespace :lint do
