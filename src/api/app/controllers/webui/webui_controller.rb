@@ -4,8 +4,6 @@
 class Webui::WebuiController < ActionController::Base
   layout 'webui/webui'
 
-  helper_method :valid_xml_id
-
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
   include Pundit
@@ -24,11 +22,6 @@ class Webui::WebuiController < ActionController::Base
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
-
-  def valid_xml_id(rawid)
-    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
-    CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
-  end
 
   def home
     if params[:login].present?
