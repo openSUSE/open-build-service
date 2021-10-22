@@ -474,7 +474,7 @@ GEM
     unicode-display_width (2.1.0)
     uniform_notifier (1.14.2)
     vcr (6.0.0)
-    view_component (2.40.0)
+    view_component (2.41.0)
       activesupport (>= 5.0.0, < 8.0)
       method_source (~> 1.0)
     voight_kampff (1.1.4)
@@ -494,7 +494,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yajl-ruby (1.4.1)
-    zeitwerk (2.4.2)
+    zeitwerk (2.5.1)
 
 PLATFORMS
   ruby
