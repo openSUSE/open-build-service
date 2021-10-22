@@ -67,7 +67,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/controllers/statistics_controller.rb",
-      "line": 110,
+      "line": 38,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "Package.select(\"packages.*, #{Package.activity_algorithm}\")",
       "render_path": null,
@@ -98,6 +98,26 @@
       },
       "user_input": "union_query",
       "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "5bfd5e36955af7d64f99b0af2cca1319b332c7a14d6c06eba2d75ccb65842b9a",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/webui/request_controller.rb",
+      "line": 154,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Delayed::Job.where(\"handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{BsRequestAction.find(BsRequest.find_by_number(params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by_number(params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => params[\"id\"].to_i, :cacheonly => 1).find do\n (action[:id] == params[\"id\"].to_i)\n end[:id]).to_global_id.uri}%'\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Webui::RequestController",
+        "method": "request_action"
+      },
+      "user_input": "BsRequestAction.find(BsRequest.find_by_number(params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by_number(params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => params[\"id\"].to_i, :cacheonly => 1).find do\n (action[:id] == params[\"id\"].to_i)\n end[:id]).to_global_id",
+      "confidence": "Medium",
       "note": ""
     },
     {
@@ -168,7 +188,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/controllers/statistics_controller.rb",
-      "line": 88,
+      "line": 16,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "Package.select(\"packages.*, #{Package.activity_algorithm}\")",
       "render_path": null,
@@ -369,6 +389,6 @@
       "note": "All fields are quoted, so this is safe."
     }
   ],
-  "updated": "2021-06-08 08:41:22 +0000",
-  "brakeman_version": "5.0.2"
+  "updated": "2021-10-22 16:26:51 +0200",
+  "brakeman_version": "5.1.1"
 }
