@@ -158,6 +158,12 @@ class Webui::RequestController < Webui::WebuiController
 =======
 >>>>>>> 9966857268 (Remove backend call to generate source diffs for request#show (Fixes #11200))
 
+    if @refresh
+      bs_request_action = BsRequestAction.find(@action[:id])
+      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    end
+
     respond_to do |format|
       format.js
     end
