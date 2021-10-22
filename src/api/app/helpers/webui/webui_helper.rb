@@ -213,9 +213,8 @@ module Webui::WebuiHelper
     opts[:short] = true # for project
     out += link_to_project(prj, opts) + ' / ' +
            link_to_if(pkg, opts[:package_text],
-                      { controller: '/webui/package', action: 'show',
-                        project: opts[:project],
-                        package: opts[:package] }, class: 'package', title: opts[:package])
+                      Rails.application.routes.url_helpers.package_show_path(opts[:project], opts[:package]),
+                      class: 'package', title: opts[:package])
     if opts[:rev] && pkg
       out += ' ('.html_safe +
              link_to("revision #{elide(opts[:rev], 10)}",
@@ -234,9 +233,7 @@ module Webui::WebuiHelper
             'project '.html_safe
           end
     project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
-    out + link_to_if(prj, project_text,
-                     { controller: '/webui/project', action: 'show', project: opts[:project] },
-                     class: 'project', title: opts[:project])
+    out + link_to_if(prj, project_text, Rails.application.routes.url_helpers.project_show_path(opts[:project]), class: 'project', title: opts[:project])
   end
 
   def project_or_package_link(opts)
@@ -366,6 +363,11 @@ module Webui::WebuiHelper
 
   def sidebar_collapsed?
     cookies[:sidebar_collapsed].eql?('true')
+  end
+
+  def valid_xml_id(rawid)
+    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
   end
 end
 
