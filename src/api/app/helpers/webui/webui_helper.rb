@@ -367,6 +367,11 @@ module Webui::WebuiHelper
   def sidebar_collapsed?
     cookies[:sidebar_collapsed].eql?('true')
   end
+
+  def valid_xml_id(rawid)
+    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength
