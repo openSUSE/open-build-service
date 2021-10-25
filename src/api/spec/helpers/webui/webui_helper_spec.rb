@@ -236,4 +236,27 @@ RSpec.describe Webui::WebuiHelper do
       end
     end
   end
+
+  describe '#valid_xml_id' do
+    it "ensures that xml_id starts with '_' or a character" do
+      expect(valid_xml_id('123')).to eq('_123')
+      expect(valid_xml_id('abc')).to eq('abc')
+    end
+
+    it 'substitutes invalid characters with underscores' do
+      expect(valid_xml_id('abc+&: .()~@#')).to eq('abc__________')
+    end
+
+    it 'html escapes the input' do
+      expect(valid_xml_id('foo<bar&>?')).to eq('foo&lt;bar_&gt;?')
+    end
+
+    it 'leaves valid characters untouched' do
+      expect(valid_xml_id('aA1-?%$§{}[]\=|')).to eq('aA1-?%$§{}[]\=|')
+    end
+
+    it 'prepends an underscore if id does not start with a valid character' do
+      expect(valid_xml_id('10.2')).to eq('_10_2')
+    end
+  end
 end
