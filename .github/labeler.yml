@@ -7,11 +7,8 @@ Backend:
 
 "Documentation :book:":
 - docs/**/*
-<<<<<<< HEAD
-=======
 - '**/*.md'
 - src/api/public/apidocs-new/**/*
->>>>>>> 04888658e9 (Automatically label PRs changing the new API docs)
 
 "Test Suite / CI :syringe:":
 - .circleci/**/*

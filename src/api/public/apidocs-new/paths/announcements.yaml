@@ -1,12 +1,16 @@
 get:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   deprecated: true
 =======
 >>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
 =======
   deprecated: true
 >>>>>>> 906fd3ca50 (Document /announcements endpoints as deprecated)
+=======
+  deprecated: true
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
   summary: List all announcements.
   description: List all messages from type announcement.
   security:
@@ -22,12 +26,16 @@ get:
 post:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   deprecated: true
 =======
 >>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
 =======
   deprecated: true
 >>>>>>> 906fd3ca50 (Document /announcements endpoints as deprecated)
+=======
+  deprecated: true
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
   summary: Create an announcement.
   description: |
     Create an announcement.

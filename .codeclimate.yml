@@ -1,8 +1,4 @@
 version: "2"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> db6fcd10d7 (Align the configuration of CodeClimate checks with those of RuboCop cops)
 # Align the configuration of CodeClimate checks with those of RuboCop cops
 # Documentation: https://docs.codeclimate.com/docs/maintainability#section-checks
 checks:
@@ -36,11 +32,6 @@ checks:
   return-statements:
     config:
       threshold: 7
-<<<<<<< HEAD
-=======
->>>>>>> 80942978ab (Revert "Disable CodeClimate checks which have RuboCop equivalents")
-=======
->>>>>>> db6fcd10d7 (Align the configuration of CodeClimate checks with those of RuboCop cops)
 exclude_patterns:
   - "dist/"
   - "src/api/test/"

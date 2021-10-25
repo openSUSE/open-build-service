@@ -10,19 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 2021_10_18_155524) do
-=======
-ActiveRecord::Schema.define(version: 2021_10_05_112031) do
->>>>>>> 1d75dab788 (Add a notification groups join table)
-=======
-ActiveRecord::Schema.define(version: 2021_10_18_121430) do
->>>>>>> acc6f9bcb0 (Remove remainings from deprecated /message endpoints)
-=======
-ActiveRecord::Schema.define(version: 2021_10_18_155524) do
->>>>>>> 0aa8e5acd8 (Remove ratings in the database, mixins and models)
+ActiveRecord::Schema.define(version: 2021_07_19_103830) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -486,13 +474,6 @@ ActiveRecord::Schema.define(version: 2021_10_18_155524) do
     t.index ["title"], name: "index_groups_on_title"
   end
 
-  create_table "groups_notifications", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.bigint "notification_id", null: false
-    t.bigint "group_id", null: false
-    t.index ["group_id", "notification_id"], name: "index_groups_notifications_on_group_id_and_notification_id"
-    t.index ["notification_id", "group_id"], name: "index_groups_notifications_on_notification_id_and_group_id"
-  end
-
   create_table "groups_roles", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "group_id", default: 0, null: false
     t.integer "role_id", default: 0, null: false
@@ -506,7 +487,6 @@ ActiveRecord::Schema.define(version: 2021_10_18_155524) do
     t.integer "user_id", default: 0, null: false
     t.datetime "created_at"
     t.boolean "email", default: true
-    t.boolean "web", default: true
     t.index ["group_id", "user_id"], name: "groups_users_all_index", unique: true
     t.index ["user_id"], name: "user_id"
   end
@@ -670,6 +650,20 @@ ActiveRecord::Schema.define(version: 2021_10_18_155524) do
     t.index ["maintenance_db_project_id"], name: "index_maintenance_incidents_on_maintenance_db_project_id"
   end
 
+  create_table "messages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+    t.integer "db_object_id"
+    t.string "db_object_type", collation: "utf8_general_ci"
+    t.integer "user_id"
+    t.datetime "created_at"
+    t.boolean "send_mail"
+    t.datetime "sent_at"
+    t.boolean "private"
+    t.integer "severity"
+    t.text "text"
+    t.index ["db_object_id"], name: "object"
+    t.index ["user_id"], name: "user"
+  end
+
   create_table "notifications", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "event_type", null: false, collation: "utf8_general_ci"
     t.text "event_payload", null: false
@@ -818,6 +812,16 @@ ActiveRecord::Schema.define(version: 2021_10_18_155524) do
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"
     t.index ["updated_at"], name: "updated_at_index"
+  end
+
+  create_table "ratings", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+    t.integer "score"
+    t.integer "db_object_id"
+    t.string "db_object_type", collation: "utf8_general_ci"
+    t.datetime "created_at"
+    t.integer "user_id"
+    t.index ["db_object_id"], name: "object"
+    t.index ["user_id"], name: "user"
   end
 
   create_table "relationships", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1134,6 +1138,7 @@ ActiveRecord::Schema.define(version: 2021_10_18_155524) do
   add_foreign_key "product_update_repositories", "repositories", name: "product_update_repositories_ibfk_2"
   add_foreign_key "products", "packages", name: "products_ibfk_1"
   add_foreign_key "project_log_entries", "projects", name: "project_log_entries_ibfk_1"
+  add_foreign_key "ratings", "users", name: "ratings_ibfk_1"
   add_foreign_key "relationships", "groups", name: "relationships_ibfk_3"
   add_foreign_key "relationships", "packages", name: "relationships_ibfk_5"
   add_foreign_key "relationships", "projects", name: "relationships_ibfk_4"

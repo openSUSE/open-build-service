@@ -1,12 +1,16 @@
 get:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   deprecated: true
 =======
 >>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
 =======
   deprecated: true
 >>>>>>> 906fd3ca50 (Document /announcements endpoints as deprecated)
+=======
+  deprecated: true
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
   summary: Show an announcement.
   description: Show the content of an announcement.
   security:
@@ -44,12 +48,16 @@ get:
 put:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   deprecated: true
 =======
 >>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
 =======
   deprecated: true
 >>>>>>> 906fd3ca50 (Document /announcements endpoints as deprecated)
+=======
+  deprecated: true
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
   summary: Update an announcement.
   description: |
     Update the content of an announcement.
@@ -110,12 +118,16 @@ put:
 delete:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   deprecated: true
 =======
 >>>>>>> 7381c42a9f (Document /announcements API endpoints with OpenAPI)
 =======
   deprecated: true
 >>>>>>> 906fd3ca50 (Document /announcements endpoints as deprecated)
+=======
+  deprecated: true
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
   summary: Delete an announcement.
   description: |
     Delete an announcement.

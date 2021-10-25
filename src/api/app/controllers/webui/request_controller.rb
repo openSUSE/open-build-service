@@ -148,15 +148,6 @@ class Webui::RequestController < Webui::WebuiController
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     @diff_to_superseded_id = params[:diff_to_superseded]
     @refresh = @action[:diff_not_cached]
-<<<<<<< HEAD
-
-    if @refresh
-      bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
-      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
-    end
-=======
->>>>>>> 9966857268 (Remove backend call to generate source diffs for request#show (Fixes #11200))
 
     if @refresh
       bs_request_action = BsRequestAction.find(@action[:id])

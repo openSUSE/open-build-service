@@ -14,21 +14,9 @@ class BackendTests < ActionDispatch::IntegrationTest
       if ['about', 'activity', 'added_timestamp', 'announcement', 'announcements', 'new_announcement', 'architecture', 'attrib', 'attrib_type',
           'attrib_namespace', 'attribute_namespace_meta', 'collection_objects_by_tag',
           'collection_objects_with_tags_by_user', 'configuration', 'directory_filelist', 'directory_view',
-<<<<<<< HEAD
-<<<<<<< HEAD
-          'group', 'issue_tracker',
-          'packageresult', 'projectresult', 'projects', 'redirect_stats', 'status_message',
-<<<<<<< HEAD
-=======
           'group', 'highest_rated', 'issue_tracker',
-=======
-          'group', 'issue_tracker',
->>>>>>> 19e9f75679 (Remove deprecated `/statistics/highest_rated` endpoint)
           'packageresult', 'projectresult', 'projects', 'rating', 'redirect_stats', 'status_message',
->>>>>>> acc6f9bcb0 (Remove remainings from deprecated /message endpoints)
-=======
->>>>>>> e310e7d6a8 (Remove deprecated `/statistics/rating` endpoint)
-          'latest_added', 'latest_updated', 'most_active_packages', 'most_active_projects',
+          'latest_added', 'latest_updated', 'message', 'messages', 'most_active_packages', 'most_active_projects',
           'status_messages', 'tagcloud', 'taglist', 'tags', 'updated_timestamp', 'distribution', 'distributions',
           'productlist', 'binary_released', 'check', 'required_checks', 'status_report',
           'staged_requests', 'remove_staged_requests', 'status_ok', 'staging_project',

@@ -153,9 +153,7 @@ sub check {
   my $pool;
   my %dep2pkg;
   if ($myarch eq $buildarch || $myarch eq $localbuildarch) {
-    my $is_identical = BSUtil::identical(\@bprps, $ctx->{'prpsearchpath'});
     # calculate packages needed for building
-<<<<<<< HEAD
     $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
@@ -165,26 +163,6 @@ sub check {
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (kiwi-product)\n";
 	  print "        repository $aprp is unavailable for sysbuild";
-=======
-    if ($myarch eq $localbuildarch && $ctx->{'pool'} && $is_identical) {
-      $pool = $ctx->{'pool'};	# we can reuse the ctx pool, nice!
-    } elsif ($myarch eq $buildarch && $ctx->{'pool_local'} && $is_identical) {
-      $pool = $ctx->{'pool_local'};	# we can reuse the cached local pool, nice!
-    } else {
-      $pool = BSSolv::pool->new();
-      $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-      $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-      $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-      my $delayed_errors = '';
-      for my $aprp (@bprps) {
-	if (!$ctx->checkprpaccess($aprp)) {
-	  my $error = "repository '$aprp' is unavailable";
-	  if ($ctx->{'verbose'}) {
-	    print "      - $packid (kiwi-product)\n";
-	    print "        $error\n";
-	  }
-	  return ('broken', $error);
->>>>>>> 2c4c5e5543 ([backend] fix KiwiProduct context pool use with 'local' as arch)
 	}
 	return ('broken', "repository $aprp is unavailable");
       }
@@ -202,12 +180,6 @@ sub check {
 	}
 	return ('broken', $error);
       }
-<<<<<<< HEAD
-=======
-      return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-      $pool->createwhatprovides();
-      $ctx->{'pool_local'} = $pool if $is_identical && $myarch eq $buildarch && $buildarch ne $localbuildarch;
->>>>>>> 2c4c5e5543 ([backend] fix KiwiProduct context pool use with 'local' as arch)
     }
     return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
     $pool->createwhatprovides();

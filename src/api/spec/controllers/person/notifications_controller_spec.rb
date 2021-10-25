@@ -3,6 +3,9 @@ require 'rails_helper'
 RSpec.describe Person::NotificationsController do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
   let(:user) { create(:confirmed_user, :with_home, :in_beta) }
 
   render_views
@@ -55,6 +58,7 @@ RSpec.describe Person::NotificationsController do
 
       before do
         Flipper[:notifications_redesign].enable
+<<<<<<< HEAD
 =======
 =======
   let(:user) { create(:confirmed_user, :with_home, :in_beta) }
@@ -114,6 +118,8 @@ RSpec.describe Person::NotificationsController do
 =======
         Flipper[:notifications_redesign].enable
 >>>>>>> d9f2a53e17 (Add check for feature flag and beta to the notifications API endpoint)
+=======
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
         login user
         get :index, format: :xml
 
@@ -127,6 +133,7 @@ RSpec.describe Person::NotificationsController do
       it { expect(response.body).to include('<notifications count="2">') }
 
       context 'filter by project finds results' do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         before do
@@ -144,6 +151,11 @@ RSpec.describe Person::NotificationsController do
           login user
           get :index, params: { format: :xml, project: user.home_project_name }
 >>>>>>> 49b77d92ef (Add filter options to the Notifications API endpoint)
+=======
+        before do
+          login user
+          get :index, params: { format: :xml, project: user.home_project_name }
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -153,12 +165,15 @@ RSpec.describe Person::NotificationsController do
       context 'filter by project doe not find results' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         let(:project) { notifications.first.projects.first }
 
 >>>>>>> bdb45c668c (Create a read-only api for notifications)
 =======
 >>>>>>> 49b77d92ef (Add filter options to the Notifications API endpoint)
+=======
+>>>>>>> dd863c268e193e2460851b3ae507e0a2b9772d1c
         before do
           login user
           get :index, params: { format: :xml, project: 'home:hans' }

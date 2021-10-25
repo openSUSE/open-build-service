@@ -181,10 +181,15 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     ffi (1.15.4)
-    flipper (0.22.1)
-    flipper-active_record (0.22.1)
+    flipper (0.22.2)
+    flipper-active_record (0.22.2)
       activerecord (>= 4.2, < 7)
-      flipper (~> 0.22.1)
+      flipper (~> 0.22.2)
+    flipper-ui (0.22.2)
+      erubi (>= 1.0.0, < 2.0.0)
+      flipper (~> 0.22.2)
+      rack (>= 1.4, < 3)
+      rack-protection (>= 1.5.3, < 2.2.0)
     flot-rails (0.0.7)
       jquery-rails
     font-awesome-sass (5.15.1)
@@ -217,7 +222,7 @@ GEM
       haml (>= 4.0, < 6)
       nokogiri (>= 1.6.0)
       ruby_parser (~> 3.5)
-    httparty (0.19.0)
+    httparty (0.20.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
     i18n (1.8.10)
@@ -286,7 +291,7 @@ GEM
     next_rails (1.0.4)
       colorize (>= 0.8.1)
     nio4r (2.5.8)
-    nokogiri (1.12.4)
+    nokogiri (1.12.5)
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
     octokit (4.21.0)
@@ -313,6 +318,8 @@ GEM
       activesupport (>= 3.0.0)
     racc (1.6.0)
     rack (2.2.3)
+    rack-protection (2.1.0)
+      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (6.1.4)
@@ -380,29 +387,21 @@ GEM
     rspec-support (3.10.2)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-<<<<<<< HEAD
-    rubocop (1.21.0)
-=======
     rubocop (1.22.2)
->>>>>>> 0ee574a1de (Update rubocop to version 1.22.2)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml
-      rubocop-ast (>= 1.9.1, < 2.0)
+      rubocop-ast (>= 1.12.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.11.0)
+    rubocop-ast (1.12.0)
       parser (>= 3.0.1.1)
     rubocop-performance (1.11.5)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
-<<<<<<< HEAD
-    rubocop-rails (2.12.2)
-=======
     rubocop-rails (2.12.4)
->>>>>>> f306968eec (Update rubocop-rails to version 2.12.4)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
@@ -538,6 +537,7 @@ DEPENDENCIES
   faker
   flipper
   flipper-active_record
+  flipper-ui
   flot-rails
   font-awesome-sass
   gitlab

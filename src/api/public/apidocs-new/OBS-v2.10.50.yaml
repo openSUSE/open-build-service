@@ -5,7 +5,6 @@ servers:
 
 tags:
   - name: General Information
-  - name: Announcements
   - name: Attributes
   - name: Attribute Namespaces
   - name: Build
@@ -13,12 +12,6 @@ tags:
   - name: Distributions
   - name: Groups
   - name: Issue Trackers
-<<<<<<< HEAD
-  - name: Notifications
-  - name: Person
-=======
->>>>>>> f16562ad81 (Fix sorting of endpoints alphabetically)
-  - name: Notifications
   - name: Person
   - name: Published Binaries
   - name: Request
@@ -135,11 +128,6 @@ paths:
   /about:
     $ref: 'paths/about.yaml'
 
-  /announcements:
-    $ref: 'paths/announcements.yaml'
-  /announcements/{announcement_id}:
-    $ref: 'paths/announcements_announcement_id.yaml'
-
   /architectures:
     $ref: 'paths/architectures.yaml'
   /architectures/{architecture_name}:
@@ -214,9 +202,6 @@ paths:
   /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
     $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
 
-  /my/notifications:
-    $ref: 'paths/my_notifications.yaml'
-
   /person:
     $ref: 'paths/person.yaml'
   /person/register:
@@ -253,9 +238,6 @@ paths:
     $ref: 'paths/request_id.yaml'
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
-
-  /service:
-    $ref: 'paths/service.yaml'
 
   /worker/status:
     $ref: 'paths/worker_status.yaml'
