@@ -12,24 +12,32 @@ RSpec.describe SponsorsComponent, type: :component do
     end
     let(:config) { { 'sponsors' => [sponsor] } }
 
-    it do
-      expect(render_inline(described_class.new(config: config)).to_html).to have_text('Open Build Service is sponsored by')
+    before do
+      render_inline(described_class.new(config: config))
     end
 
     it do
-      expect(render_inline(described_class.new(config: config)).to_html).to have_css('.sponsor-item')
+      expect(rendered_component).to have_text('Open Build Service is sponsored by')
+    end
+
+    it do
+      expect(rendered_component).to have_css('.sponsor-item')
     end
   end
 
   context 'without sponsors' do
     let(:config) { {} }
 
-    it do
-      expect(render_inline(described_class.new(config: config)).to_html).not_to have_text('Open Build Service is sponsored by')
+    before do
+      render_inline(described_class.new(config: config))
     end
 
     it do
-      expect(render_inline(described_class.new(config: config)).to_html).not_to have_css('.sponsor-item')
+      expect(rendered_component).not_to have_text('Open Build Service is sponsored by')
+    end
+
+    it do
+      expect(rendered_component).not_to have_css('.sponsor-item')
     end
   end
 end

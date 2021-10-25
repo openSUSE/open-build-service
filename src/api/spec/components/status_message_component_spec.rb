@@ -5,7 +5,7 @@ RSpec.describe StatusMessageComponent, type: :component do
     let(:status_message) { build(:status_message, message: 'Everything is fine', created_at: Time.zone.now) }
 
     it do
-      expect(render_inline(described_class.new(status_message: status_message)).to_html).to have_text('Everything is fine')
+      expect(render_inline(described_class.new(status_message: status_message))).to have_text('Everything is fine')
     end
   end
 
@@ -14,7 +14,7 @@ RSpec.describe StatusMessageComponent, type: :component do
 
     before do
       User.session = create(:admin_user)
-      render_inline(described_class.new(status_message: status_message)).to_html
+      render_inline(described_class.new(status_message: status_message))
     end
 
     it do
