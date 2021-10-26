@@ -3,6 +3,7 @@ module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper
   include Webui::BuildresultHelper
+  include Webui::ElisionsHelper
 
   def bugzilla_url(email_list = '', desc = '')
     return '' if @configuration['bugzilla_url'].blank?
@@ -122,40 +123,6 @@ module Webui::WebuiHelper
     return 'outdated' if outdated
 
     status =~ /broken|building|finished|publishing|published/ ? status : 'default'
-  end
-
-  # Shortens a text if it longer than 'length'.
-  def elide(text, length = 20, mode = :middle)
-    shortened_text = text.to_s # make sure it's a String
-
-    return '' if text.blank?
-
-    return '...' if length <= 3 # corner case
-
-    if text.length > length
-      case mode
-      when :left # shorten at the beginning
-        shortened_text = '...' + text[text.length - length + 3..text.length]
-      when :middle # shorten in the middle
-        pre = text[0..(length / 2) - 2]
-        offset = 2 # depends if (shortened) length is even or odd
-        offset = 1 if length.odd?
-        post = text[text.length - (length / 2) + offset..text.length]
-        shortened_text = pre + '...' + post
-      when :right # shorten at the end
-        shortened_text = text[0..length - 4] + '...'
-      end
-    end
-    shortened_text
-  end
-
-  def elide_two(text1, text2, overall_length = 40, mode = :middle)
-    half_length = overall_length / 2
-    text1_free = half_length - text1.to_s.length
-    text1_free = 0 if text1_free.negative?
-    text2_free = half_length - text2.to_s.length
-    text2_free = 0 if text2_free.negative?
-    [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
 
   def force_utf8_and_transform_nonprintables(text)

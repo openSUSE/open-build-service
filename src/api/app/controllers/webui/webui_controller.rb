@@ -10,6 +10,7 @@ class Webui::WebuiController < ActionController::Base
   include FlipperFeature
   include Webui::RescueHandler
   include SetCurrentRequestDetails
+  include Webui::ElisionsHelper
   protect_from_forgery
 
   before_action :set_influxdb_data
@@ -150,7 +151,7 @@ class Webui::WebuiController < ActionController::Base
                                                  follow_project_links: true, follow_multibuild: true)
     rescue APIError => e
       if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser].include?(e.class)
-        flash[:error] = "You don't have access to the sources of this package: \"#{params[:package]}\""
+        flash[:error] = "You don't have access to the sources of this package: \"#{elide(params[:package])}\""
         redirect_back(fallback_location: project_show_path(@project))
         return
       end

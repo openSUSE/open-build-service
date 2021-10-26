@@ -11,7 +11,7 @@ module Webui
             filename: "#{@project.title}_key.pub"
           )
         else
-          flash[:error] = "Project #{@project.name} does not have a public key"
+          flash[:error] = "Project #{elide(@project.name)} does not have a public key"
           redirect_to project_show_path(project: @project)
         end
       end

@@ -64,7 +64,7 @@ module Webui
         @package = Package.find_by_project_and_name(params[:project], params[:package])
         return if @package.present?
 
-        flash[:error] = "Package #{params[:project]}/#{params[:package]} does not exist."
+        flash[:error] = "Package #{elide(params[:project])}/#{elide(params[:package])} does not exist."
         redirect_to cloud_upload_index_path
       end
     end

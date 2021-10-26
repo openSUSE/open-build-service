@@ -194,10 +194,10 @@ class Webui::ProjectController < Webui::WebuiController
     @project.flags.new(status: 'disable', flag: 'publish') if params[:disable_publishing]
 
     if @project.valid? && @project.store
-      flash[:success] = "Project '#{@project}' was created successfully"
+      flash[:success] = "Project '#{elide(@project.name)}' was created successfully"
       redirect_to action: 'show', project: @project.name
     else
-      flash[:error] = "Failed to save project '#{@project}'. #{@project.errors.full_messages.to_sentence}."
+      flash[:error] = "Failed to save project '#{elide(@project.name)}'. #{@project.errors.full_messages.to_sentence}."
       redirect_back(fallback_location: root_path)
     end
   end
@@ -209,7 +209,7 @@ class Webui::ProjectController < Webui::WebuiController
     if Project.deleted?(project.name)
       project = Project.restore(project.name)
 
-      flash[:success] = "Project '#{project}' was restored successfully"
+      flash[:success] = "Project '#{elide(project.name)}' was restored successfully"
       redirect_to action: 'show', project: project.name
     else
       flash[:error] = 'Project was never deleted.'
@@ -360,7 +360,7 @@ class Webui::ProjectController < Webui::WebuiController
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
     unless User.session!.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
-      flash.now[:error] = "Can't create attributes in #{@package}"
+      flash.now[:error] = "Can't create attributes in #{elide(@package.name)}"
       return
     end
 
@@ -425,7 +425,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     buildresult = Buildresult.find_hashed(find_opt)
     if buildresult.empty?
-      flash[:warning] = "No build results for project '#{@project}'"
+      flash[:warning] = "No build results for project '#{elide(@project.name)}'"
       redirect_to action: :show, project: params[:project]
       return
     end

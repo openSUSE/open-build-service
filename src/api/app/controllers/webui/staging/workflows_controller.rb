@@ -35,10 +35,10 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
         staging_project.create_project_log_entry(User.session!)
       end
 
-      flash[:success] = "Staging for #{@project} was successfully created"
+      flash[:success] = "Staging for #{elide(@project.name)} was successfully created"
       redirect_to staging_workflow_path(staging_workflow.project)
     else
-      flash[:error] = "Staging for #{@project} couldn't be created"
+      flash[:error] = "Staging for #{elide(@project.name)} couldn't be created"
       redirect_to new_staging_workflow_path(project_name: @project)
     end
   end
@@ -77,10 +77,10 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @staging_workflow.staging_projects.where(id: staging_project_ids).destroy_all if staging_project_ids
 
     if @staging_workflow.destroy
-      flash[:success] = "Staging for #{@project} was successfully deleted."
+      flash[:success] = "Staging for #{elide(@project.name)} was successfully deleted."
       render js: "window.location='#{project_show_path(@project)}'"
     else
-      flash[:error] = "Staging for #{@project} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
+      flash[:error] = "Staging for #{elide(@project.name)} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
       render js: "window.location='#{staging_workflow_path(@staging_workflow.project)}'"
     end
   end
@@ -109,7 +109,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     return if @staging_workflow
 
     redirect_back(fallback_location: root_path)
-    flash[:error] = "Project #{@project} doesn't have a Staging Workflow associated"
+    flash[:error] = "Project #{elide(@project.name)} doesn't have a Staging Workflow associated"
     nil
   end
 

@@ -172,6 +172,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
   describe 'maintenance incidents', vcr: true do
     let(:maintenance_project) { create(:maintenance_project, name: "#{project.name}:maintenance_project") }
     let(:target_repository) { create(:repository, name: 'theone') }
+    let(:elided_maintenance_project_name) { 'home:Jane...roject:0' }
 
     it 'visiting the maintenance overview' do
       login user
@@ -180,7 +181,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
       click_link('Incidents')
       page.execute_script('window.scrollBy(0,50)')
       click_link('Create Maintenance Incident')
-      expect(page).to have_css('#flash', text: "Created maintenance incident project #{project.name}:maintenance_project:0")
+      expect(page).to have_css('#flash', text: "Created maintenance incident project #{elided_maintenance_project_name}")
 
       # We can not create this via the Bootstrap UI, except by adding plain XML to the meta editor
       repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"), name: 'target')
