@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_18_155524) do
+ActiveRecord::Schema.define(version: 2021_10_27_141958) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -999,6 +999,7 @@ ActiveRecord::Schema.define(version: 2021_10_18_155524) do
     t.integer "package_id"
     t.string "type", collation: "utf8_unicode_ci"
     t.string "scm_token"
+    t.string "name", limit: 64, default: ""
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
     t.index ["string"], name: "index_tokens_on_string", unique: true
