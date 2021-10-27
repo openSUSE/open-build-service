@@ -68,6 +68,13 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def show
+
+    @checkupgrade = params[:checkupgrade]
+    if @checkupgrade
+      #FIXME Trigger delayed job
+      logger.info "Executing check upgrade......"
+    end
+    
     if @spider_bot
       params.delete(:rev)
       params.delete(:srcmd5)
