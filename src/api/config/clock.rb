@@ -91,8 +91,8 @@ module Clockwork
     Old::ConsistencyCheckJob.perform_later
   end
 
-  every(1.day, 'check upgrade service') do
-    CheckUpgradeJob.perform_later 
-  end
+  #every(1.day, 'check upgrade service') do
+  #  CheckUpgradeJob.perform_later 
+  #end
 
 end
