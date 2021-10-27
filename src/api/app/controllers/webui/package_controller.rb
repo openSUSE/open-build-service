@@ -73,6 +73,7 @@ class Webui::PackageController < Webui::WebuiController
     if @checkupgrade
       #FIXME Trigger delayed job
       logger.info "Executing check upgrade......"
+      CheckUpgradeJob.perform_later(@project.id, @package.id)
     end
     
     if @spider_bot
