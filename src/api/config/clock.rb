@@ -90,9 +90,4 @@ module Clockwork
   every(1.week, 'consistency check', at: 'Sunday 03:00') do
     Old::ConsistencyCheckJob.perform_later
   end
-
-  #every(1.day, 'check upgrade service') do
-  #  CheckUpgradeJob.perform_later 
-  #end
-
 end
