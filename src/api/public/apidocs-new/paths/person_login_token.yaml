@@ -22,6 +22,7 @@ get:
                 string: FK49K39DKK
                 kind: rss
               - id: 25
+                name: Release ghcz
                 string: 4T04JGI691
                 kind: release
                 project: 'devel:languages:haskell'
@@ -57,10 +58,17 @@ post:
   parameters:
     - $ref: '../components/parameters/login.yaml'
     - in: query
+      name: name
+      schema:
+        type: string
+      description: |
+        Token name. It helps to identify a token from the rest of the tokens of a user.
+      example: Rebuild gchz
+    - in: query
       name: project
       schema:
         type: string
-      description:  |
+      description: |
         Project name. Should be provided, together with the package query parameter,
         to limit the token to a specific package.
       example: home:hans
@@ -119,6 +127,18 @@ post:
             data:
               - i6iF4M5cn
               - 5
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_token
+            summary: 'Failed to create token: Name is too long (maximum is 64 characters).'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
