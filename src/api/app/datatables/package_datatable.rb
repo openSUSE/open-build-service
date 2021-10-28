@@ -37,10 +37,12 @@ class PackageDatatable < Datatable
   end
 
   def name_with_link(record)
+    status_checkupgrade = record.status_checkupgrade
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
     name << tag.span('Link', class: 'badge badge-info') if record.is_link?
-    name << tag.span('Upgrade', class: 'badge badge-info') if record.is_upgrade?
+    name << tag.span('Upgrade', class: 'badge badge-info') if status_checkupgrade == 'Success'
+    name << tag.span('Upgrade', class: 'badge badge-danger') if status_checkupgrade == 'Error'
     safe_join(name, ' ')
   end
 end

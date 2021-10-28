@@ -53,9 +53,6 @@ class CheckUpgradeJob < ApplicationJob
             #FIXME
             result = `/usr/lib/obs/service/check_upgrade #{params}`
 
-            #Generate the files according result value
-
-
           end  
         end
       end

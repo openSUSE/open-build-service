@@ -468,14 +468,15 @@ class Package < ApplicationRecord
     package_kinds.exists?(kind: kind)
   end
 
-  def is_upgrade?
+  def status_checkupgrade
     files = Backend::Api::Sources::Package.files(project.name, name, expand: 1)
     Xmlhash.parse(files).elements('entry').each do |entry|
       if entry['name'] == '_service:check_upgrade:newer_versions'
-        return true
+        return 'Success'
+      elsif entry['name'] == '_service:check_upgrade:error' 
+        return 'Error'
       end
     end
-    return false
   end
 
   def is_checkupgrade?
