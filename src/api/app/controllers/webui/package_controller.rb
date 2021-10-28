@@ -72,7 +72,7 @@ class Webui::PackageController < Webui::WebuiController
     @checkupgrade = params[:checkupgrade]
     if @checkupgrade
       #FIXME for test perform_now 
-      CheckUpgradeJob.perform_now(@project, @package)
+      CheckUpgradeJob.perform_now(@project.id, @package.id)
       #CheckUpgradeJob.perform_later(@project, @package)
     end
     
