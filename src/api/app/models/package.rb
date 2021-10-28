@@ -479,7 +479,7 @@ class Package < ApplicationRecord
     end
   end
 
-  def is_checkupgrade?
+  def has_checkupgrade?
     document = Backend::Api::Sources::Package.service(project.name, name)
     if document.present?
       Xmlhash.parse(document).elements('service').each do |service|
