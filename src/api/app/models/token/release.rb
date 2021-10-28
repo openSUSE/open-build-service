@@ -6,6 +6,7 @@ class Token::Release < Token
   end
 
   def call(options)
+    set_triggered_at
     return unless options[:package]
 
     # FIXME: Take repository and arch into account

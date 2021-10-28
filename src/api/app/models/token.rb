@@ -49,6 +49,10 @@ class Token < ApplicationRecord
   def follow_links?
     package_find_options[:follow_multibuild] || package_find_options[:follow_project_links]
   end
+
+  def set_triggered_at
+    update(triggered_at: Time.zone.now)
+  end
 end
 
 # == Schema Information

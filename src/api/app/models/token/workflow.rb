@@ -6,6 +6,7 @@ class Token::Workflow < Token
   end
 
   def call(options)
+    set_triggered_at
     raise ArgumentError, 'A payload is required' if options[:payload].nil?
 
     scm_webhook = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload]).call

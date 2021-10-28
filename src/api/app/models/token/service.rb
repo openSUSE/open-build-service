@@ -4,6 +4,7 @@ class Token::Service < Token
   end
 
   def call(options)
+    set_triggered_at
     Backend::Api::Sources::Package.trigger_services(options[:project].to_param,
                                                     options[:package].to_param,
                                                     user.login)
