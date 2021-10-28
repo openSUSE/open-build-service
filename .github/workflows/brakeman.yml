@@ -1,0 +1,15 @@
+name: Brakeman
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Brakeman
+      run: |
+        sudo gem install --no-format-executable brakeman -v 5.1.1
+    - name: Brakeman
+      run: |
+        brakeman --rails6 -p src/api
