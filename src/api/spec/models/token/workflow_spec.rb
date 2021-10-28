@@ -1,165 +1,133 @@
 require 'rails_helper'
 
-RSpec.describe Token::Workflow, vcr: true do
-  let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
-  let(:workflow_token) { create(:workflow_token, user: token_user) }
-  # TODO: rerun the specs with vcr on to see if we clear some of the cassettes
-  let(:github_payload) do
-    {
-      action: 'opened',
-      pull_request: {
-        head: {
-          repo: {
-            full_name: 'username/test_repo'
-          }
-        },
-        base: {
-          ref: 'main',
-          repo: {
-            full_name: 'openSUSE/open-build-service'
-          }
-        }
-      },
-      number: 4,
-      sender: {
-        url: 'https://api.github.com'
-      }
-    }
-  end
-
-  let(:gitlab_payload) do
-    {
-      object_kind: 'merge_request',
-      object_attributes: {
-        iid: 3,
-        source_branch: 'source',
-        target_branch: 'master',
-        action: 'open'
-      },
-      project: {
-        http_url: 'https://gitlab.com/eduardoj2/test.git',
-        path_with_namespace: 'openSUSE/open-build-service'
-      },
-      action: 'opened'
-    }
-  end
-
-  subject { workflow_token.call(scm: scm, event: event, payload: payload) }
-
-  RSpec.shared_context 'not-allowed event or action' do
-    it 'returns nothing' do
-      expect(subject).to be_nil
-    end
-
-    it 'does not create a new branched project with PR suffix' do
-      expect { subject }.not_to change(Project.where('name LIKE ?', '%:PR-%'), :count)
-    end
-  end
-
-  # FIXME: Create a mocked workflow to just test the workflow calling
+RSpec.describe Token::Workflow do
   describe '#call' do
-    context "when the webhook's event is not the expected one" do
-      context 'when the SCM is GitHub' do
-        it_behaves_like 'not-allowed event or action' do
-          let(:scm) { 'github' }
-          let(:event) { 'synchronize' }
-          let(:payload) { github_payload }
-        end
-      end
+    let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+    let(:workflow_token) { create(:workflow_token, user: token_user) }
 
-      context 'when the SCM is GitLab' do
-        it_behaves_like 'not-allowed event or action' do
-          let(:scm) { 'gitlab' }
-          let(:event) { 'Issue Hook' }
-          let(:payload) { gitlab_payload }
-        end
+    context 'without a payload' do
+      it do
+        expect { workflow_token.call({}) }.to raise_error(Token::Errors::MissingPayload, 'A payload is required').and(change(workflow_token, :triggered_at))
       end
     end
 
-    context "when the webhook's action is not the expected one" do
-      context 'when the SCM is GitHub' do
-        it_behaves_like 'not-allowed event or action' do
-          let(:scm) { 'github' }
-          let(:event) { 'pull_request' }
-          let(:payload) { { 'action' => 'wrong_action' } }
-        end
-      end
-
-      context 'when the SCM is GitLab' do
-        it_behaves_like 'not-allowed event or action' do
-          let(:scm) { 'gitlab' }
-          let(:event) { 'Merge Request Hook' }
-          let(:payload) { { 'object_attributes' => { 'action' => 'wrong_action' } } }
-        end
-      end
-    end
-
-    context 'when the workflows.yml do not exist on the reference branch' do
-      let(:octokit_client) { instance_double(Octokit::Client) }
+    context 'without validation errors' do
       let(:scm) { 'github' }
       let(:event) { 'pull_request' }
-      let(:payload) { github_payload }
-      let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
-      let!(:package) { create(:package, name: 'test-package', project: project) }
+      let(:github_payload) do
+        {
+          action: 'opened',
+          pull_request: {
+            head: {
+              ref: 'my_branch',
+              repo: { full_name: 'username/test_repo' },
+              sha: '12345678'
+            },
+            base: {
+              ref: 'main',
+              repo: { full_name: 'openSUSE/open-build-service' }
+            }
+          },
+          number: '4',
+          sender: { url: 'https://api.github.com' }
+        }
+      end
+      let(:github_extractor_payload) do
+        {
+          scm: 'github',
+          event: 'pull_request',
+          api_endpoint: 'https://api.github.com',
+          commit_sha: '12345678',
+          pr_number: '4',
+          source_branch: 'my_branch',
+          target_branch: 'main',
+          action: 'opened',
+          source_repository_full_name: 'username/test_repo',
+          target_repository_full_name: 'openSUSE/open-build-service'
+        }
+      end
+      let(:scm_extractor) { TriggerControllerService::ScmExtractor.new(scm, event, github_payload) }
+      let(:scm_webhook) { ScmWebhook.new(payload: github_extractor_payload) }
+      let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
+      let(:yaml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
+      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token) }
+      let(:workflow) do
+        Workflow.new(scm_webhook: scm_webhook, token: workflow_token,
+                     workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
+      end
+      let(:workflows) { [workflow] }
 
       before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
-        allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
+        # Skipping call since it's tested in the Workflow model
+        allow(workflow).to receive(:call).and_return(true)
+
+        allow(TriggerControllerService::ScmExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
+        allow(scm_extractor).to receive(:call).and_return(scm_webhook)
+        allow(Workflows::YAMLDownloader).to receive(:new).with(scm_webhook.payload, token: workflow_token).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token).and_return(yaml_to_workflows_service)
+        allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
-      it 'raises a user-friendly error message and records the datetime in the triggered_at column' do
-        expect { subject }.to raise_error(Token::Errors::NonExistentWorkflowsFile,
-                                          '.obs/workflows.yml could not be downloaded from the SCM branch main: Beep Boop, something is wrong').and(change(workflow_token, :triggered_at))
+      it 'returns no validation errors' do
+        expect(workflow_token.call(scm: scm, event: event, payload: github_payload)).to eq([])
+      end
+
+      it do
+        expect { workflow_token.call(scm: scm, event: event, payload: github_payload) }.to change(workflow_token, :triggered_at)
       end
     end
 
-    context 'when the webhook and configuration is correct' do
+    context 'with validation errors' do
       let(:scm) { 'github' }
-      let(:event) { 'pull_request' }
-      let(:payload) { github_payload }
-      let(:project) { create(:project, name: 'test-project', maintainer: workflow_token.user) }
-      let!(:package) { create(:package, name: 'test-package', project: project) }
-      let!(:target_project) { create(:project, name: 'test-target-project', maintainer: workflow_token.user) }
-      let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
-      let(:downloader) { instance_double(Workflows::YAMLDownloader) }
-      let(:reporter) { instance_double(SCMStatusReporter) }
-      let(:stubbed_workflow) { instance_double(Workflow) }
+      let(:event) { 'wrong_event' }
+      let(:github_payload) do
+        {
+          action: 'opened',
+          pull_request: {
+            head: {
+              ref: 'my_branch',
+              repo: { full_name: 'username/test_repo' },
+              sha: '12345678'
+            },
+            base: {
+              ref: 'main',
+              repo: { full_name: 'openSUSE/open-build-service' }
+            }
+          },
+          number: '4',
+          sender: { url: 'https://api.github.com' }
+        }
+      end
+      let(:github_extractor_payload) do
+        {
+          scm: 'github',
+          event: event,
+          api_endpoint: 'https://api.github.com'
+        }
+      end
+      let(:scm_extractor) { TriggerControllerService::ScmExtractor.new(scm, event, github_payload) }
+      let(:scm_webhook) { ScmWebhook.new(payload: github_extractor_payload) }
+      let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
+      let(:yaml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
+      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token) }
+      let(:workflows) { [Workflow.new(scm_webhook: scm_webhook, token: workflow_token, workflow_instructions: {})] }
 
       before do
-        # Stub Workflows::YAMLDownloader#call
-        allow(Workflows::YAMLDownloader).to receive(:new).and_return(downloader)
-        allow(downloader).to receive(:call).and_return(workflows_yml_file)
-        # Stub SCMStatusReporter#call
-        allow(SCMStatusReporter).to receive(:new).and_return(reporter)
-        allow(reporter).to receive(:call)
-        login token_user
-        allow(Workflow).to receive(:new).and_return(stubbed_workflow)
-        allow(stubbed_workflow).to receive(:call)
-        allow(stubbed_workflow).to receive(:valid?).and_return(true)
+        allow(TriggerControllerService::ScmExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
+        allow(scm_extractor).to receive(:call).and_return(scm_webhook)
+        allow(Workflows::YAMLDownloader).to receive(:new).with(scm_webhook.payload, token: workflow_token).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token).and_return(yaml_to_workflows_service)
+        allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
-      context 'when the SCM is GitHub' do
-        let(:scm) { 'github' }
-        let(:event) { 'pull_request' }
-        let(:payload) { github_payload }
-
-        it 'runs the workflow and records the datetime in the triggered_at column' do
-          expect { subject }.to change(workflow_token, :triggered_at)
-          expect(stubbed_workflow).to have_received(:call)
-        end
+      it 'returns the validation errors' do
+        expect(workflow_token.call(scm: scm, event: event, payload: github_payload)).to eq(['Event not supported.', 'Workflow steps are not present'])
       end
 
-      context 'when the SCM is GitLab' do
-        let(:scm) { 'gitlab' }
-        let(:event) { 'Merge Request Hook' }
-        let(:payload) { gitlab_payload }
-
-        before { subject }
-
-        it 'runs the workflow' do
-          expect(stubbed_workflow).to have_received(:call)
-        end
+      it do
+        expect { workflow_token.call(scm: scm, event: event, payload: github_payload) }.to change(workflow_token, :triggered_at)
       end
     end
   end
