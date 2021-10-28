@@ -165,8 +165,6 @@ jobs:
       - <<: *frontend_base
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run: *install_dependencies
       - run: *install_circle_cli
       - restore_cache:
