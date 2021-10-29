@@ -768,6 +768,14 @@ sub lsrev_expanded {
 ###  project/package management
 ###
 
+sub checkupgraderun {
+  print "Pandom79. I'm in checkupgraderun...WOW!!\n";
+  my ($cgi, $projid, $packid) = @_;
+  print "projid = " . $projid . "\n"; 
+  print "packid = " . $packid . "\n";
+  return "Ciao from backend"
+}
+
 sub findprojects {
   my ($deleted) = @_;
   # add support for remote projects?
@@ -7230,6 +7238,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:? time:num?' => \&undeletepackage,
   'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&triggerservicerun,
+  'POST:/source/$project/$package cmd=checkupgrade user:? comment:?' => \&checkupgraderun,
   'POST:/source/$project/$package cmd=waitservice' => \&waitservicerun,
   'POST:/source/$project/$package cmd=mergeservice user:? comment:?' => \&mergeservicerun,
   'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,

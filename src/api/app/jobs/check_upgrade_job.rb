@@ -1,7 +1,10 @@
 class CheckUpgradeJob < ApplicationJob
   
   def perform(project_id, package_id=nil)
+    
     Rails.logger.debug "Running check upgrade job ...."
+
+    user = User.session!.login
 
     if package_id.present?    
       packages = Package.all.where(id: package_id, project_id: project_id)
@@ -11,6 +14,11 @@ class CheckUpgradeJob < ApplicationJob
 
     packages.each do |package|
 
+      result = Backend::Api::Sources::Package.check_upgrade(package.project.name, package.name, user)
+
+      puts "Result = ", result
+
+=begin
       #Initializing the script input parameters
       urlsrc = nil
       regexurl = nil
@@ -41,21 +49,10 @@ class CheckUpgradeJob < ApplicationJob
                     debug = param['_content']                
                 end
             end
-
-            #Execute the script
-            params = "--urlsrc='" + urlsrc + "' \
-                      --regexurl='" + regexurl + "' \
-                      --regexver='" + regexver + "' \
-                      --currentver='" + currentver + "' \
-                      --separator='" + separator + "' \
-                      --debug='" + debug + "'"
-            
-            #FIXME
-            result = `/usr/lib/obs/service/check_upgrade #{params}`
-
           end  
         end
       end
+=end      
     end
 
     Rails.logger.info "Check upgrade job finished!"
