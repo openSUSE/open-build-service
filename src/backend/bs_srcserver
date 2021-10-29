@@ -769,11 +769,14 @@ sub lsrev_expanded {
 ###
 
 sub checkupgraderun {
+  #FIXME 
   print "Pandom79. I'm in checkupgraderun...WOW!!\n";
   my ($cgi, $projid, $packid) = @_;
   print "projid = " . $projid . "\n"; 
   print "packid = " . $packid . "\n";
-  return "Ciao from backend"
+  my $ret = `/usr/lib/obs/service/check_upgrade -h`;
+  print "ret = " . $ret;
+  return $ret;
 }
 
 sub findprojects {
