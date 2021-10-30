@@ -769,14 +769,23 @@ sub lsrev_expanded {
 ###
 
 sub checkupgraderun {
-  #FIXME 
-  print "Pandom79. I'm in checkupgraderun...WOW!!\n";
   my ($cgi, $projid, $packid) = @_;
-  print "projid = " . $projid . "\n"; 
-  print "packid = " . $packid . "\n";
-  #my $ret = `/usr/lib/obs/service/check_upgrade -h`;
-  #print "ret = " , $ret;
-  return "Test backend";
+  my $rev = getrev($projid, $packid);
+  my $linkinfo = {};
+  my $files = BSRevision::lsrev($rev, $linkinfo);  
+  my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
+  foreach (keys %{$services}) {
+    my @services_arr = @{$services->{$_}}; 
+    foreach (@services_arr) {
+      if ($_->{"name"} eq "check_upgrade"){
+        #Preparing parameters ....
+        #my $ret = `/usr/lib/obs/service/check_upgrade -h`;
+        #print "ret = " , $ret;
+        return "Execute the script";
+      }
+    }
+  }
+  return "Unsupported";
 }
 
 sub findprojects {
