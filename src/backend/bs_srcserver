@@ -774,9 +774,9 @@ sub checkupgraderun {
   my ($cgi, $projid, $packid) = @_;
   print "projid = " . $projid . "\n"; 
   print "packid = " . $packid . "\n";
-  my $ret = `/usr/lib/obs/service/check_upgrade -h`;
-  print "ret = " . $ret;
-  return $ret;
+  #my $ret = `/usr/lib/obs/service/check_upgrade -h`;
+  #print "ret = " , $ret;
+  return "Test backend";
 }
 
 sub findprojects {

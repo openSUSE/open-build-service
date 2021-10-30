@@ -18,7 +18,7 @@ class CheckUpgradeJob < ApplicationJob
     end
 
     Rails.logger.info "Check upgrade job finished!"
-    
+
   end
 
 end
