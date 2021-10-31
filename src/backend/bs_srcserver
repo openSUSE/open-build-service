@@ -80,6 +80,7 @@ use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
 use BSSrcServer::LinkinfoDB;
 use BSSrcServer::Modulemd;
+use Data::Dumper;
 
 require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
@@ -770,6 +771,8 @@ sub lsrev_expanded {
 
 sub checkupgraderun {
   my ($cgi, $projid, $packid) = @_;
+  print "Sono in checkupgraderun";
+  print Dumper(\@_);
   my $rev = getrev($projid, $packid);
   my $linkinfo = {};
   my $files = BSRevision::lsrev($rev, $linkinfo);  
@@ -6623,6 +6626,13 @@ sub orderkiwirepos {
   return ($kiwi, $BSKiwiXML::kiwidesc);
 }
 
+sub checkupgraderun2 {
+  my ($params) = @_; 
+  print "urlsrc = ", $params->{"urlsrc"} , "\n";
+  print "regexurl = ", $params->{"regexurl"}, "\n";
+  #FIXME Preparing parameters end execute the script......
+}
+
 ####################################################################
 
 sub add_redis_notifications {
@@ -7208,6 +7218,8 @@ my $dispatches = [
 
   'POST:/source cmd=orderkiwirepos' => \&orderkiwirepos,
   'POST:/source cmd: *:*' => \&unknowncmd,
+  'POST:/source/checkupgrade cmd=checkupgrade2 user:? urlsrc:? regexurl:?' => \&checkupgraderun2,
+
 
   # /source name space: manage project and package data
   '/source deleted:bool? project*' => \&getprojectlist,
