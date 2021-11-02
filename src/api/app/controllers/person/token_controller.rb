@@ -20,7 +20,12 @@ module Person
 
       pkg = (Package.get_by_project_and_name(params[:project], params[:package]) if params[:project] || params[:package])
 
-      @token = Token.token_type(params[:operation]).create(user: @user, package: pkg, scm_token: params[:scm_token])
+      @token = Token.token_type(params[:operation]).create(name: params[:name], user: @user, package: pkg, scm_token: params[:scm_token])
+      return if @token.valid?
+
+      render_error status: 400,
+                   errorcode: 'invalid_token',
+                   message: "Failed to create token: #{@token.errors.full_messages.to_sentence}."
     end
 
     # DELETE /person/<login>/token/<id>

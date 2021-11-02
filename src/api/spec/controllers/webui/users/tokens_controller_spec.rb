@@ -48,8 +48,14 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
 
     subject { post :create, xhr: true, params: form_parameters }
 
-    context 'type is runservice, no project and no package parameters' do
+    context 'type is runservice' do
       let(:form_parameters) { { token: { type: 'runservice' } } }
+
+      include_examples 'check for flashing a success'
+    end
+
+    context 'type is runservice, with name' do
+      let(:form_parameters) { { token: { type: 'runservice', name: 'My first token' } } }
 
       include_examples 'check for flashing a success'
     end
@@ -94,12 +100,13 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
 
     context 'updates a workflow token belonging to the logged-in user' do
       let(:token) { create(:workflow_token, user: user, scm_token: 'something') }
-      let(:update_parameters) { { id: token.id, token: { scm_token: 'something_else' } } }
+      let(:update_parameters) { { id: token.id, token: { name: 'My first token', scm_token: 'something_else' } } }
 
       include_examples 'check for flashing a success'
 
       it { is_expected.to redirect_to(tokens_path) }
       it { expect { subject }.to change { token.reload.scm_token }.from('something').to('something_else') }
+      it { expect { subject }.to change { token.reload.name }.from('').to('My first token') }
     end
 
     context 'updates the token string of a token belonging to the logged-in user' do
