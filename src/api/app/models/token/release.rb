@@ -35,6 +35,7 @@ end
 # Table name: tokens
 #
 #  id         :integer          not null, primary key
+#  name       :string(64)       default("")
 #  scm_token  :string(255)      indexed
 #  string     :string(255)      indexed
 #  type       :string(255)

@@ -23,6 +23,12 @@
               .form-group
                 = f.label(:type, 'Operation:')
                 = @token.class.token_name.capitalize
+              .form-group
+                = f.label(:name, 'Name:')
+                %span.d-none#original-token-name
+                  = @token.name
+                .input-group#token-name-text-field
+                  = f.text_field(:name, class: 'form-control', placeholder: 'Eg: Rebuild vim package', maxlength: 64)
               - if @token.package.present?
                 .form-group
                   = f.label(:type, 'Package:')
@@ -37,13 +43,13 @@
                 .form-group#scm-token-group
                   = f.label(:scm_token) do
                     SCM token:
-                    %abbr.text-danger{ title: 'required' } *
                   .input-group
-                    = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your new SCM token', required: true)
+                    = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your new SCM token')
+                  .form-text.text-muted
+                    Leaving this text field empty will not update your SCM token.
           .actions
             = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
-            - if @token.type == 'Token::Workflow'
-              = f.submit('Update', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
+            = f.submit('Update', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
 
 .modal.fade#regenerate-token-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'regenerate-token-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }

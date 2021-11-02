@@ -1,6 +1,6 @@
 class Webui::Users::TokensController < Webui::WebuiController
   before_action :set_token, only: [:edit, :update, :destroy]
-  before_action :set_params, :set_package, only: [:create]
+  before_action :set_parameters, :set_package, only: [:create]
 
   after_action :verify_authorized, except: :index
   after_action :verify_policy_scoped, only: :index
@@ -27,17 +27,15 @@ class Webui::Users::TokensController < Webui::WebuiController
           flash.now[:success] = "Token string successfully regenerated! Make sure you save it - you won't be able to access it again."
           render partial: 'update', locals: { string: @token.string }
         else
-          flash.now[:error] = 'Failed to regenerate Token string'
+          flash.now[:error] = "Failed to regenerate Token string: #{@token.errors.full_messages.to_sentence}"
           render partial: 'update'
         end
       end
       format.html do
-        new_scm_token = params.require(:token).except(:string_readonly).permit(:scm_token)
-
-        if @token.update(new_scm_token)
+        if @token.update(update_parameters)
           flash[:success] = 'Token successfully updated'
         else
-          flash[:error] = 'Failed to update Token'
+          flash[:error] = "Failed to update Token: #{@token.errors.full_messages.to_sentence}"
         end
 
         redirect_to tokens_url
@@ -79,12 +77,16 @@ class Webui::Users::TokensController < Webui::WebuiController
     redirect_to tokens_url
   end
 
-  def set_params
-    @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly).permit(:type, :scm_token).tap do |token_parameters|
+  def set_parameters
+    @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly).permit(:type, :name, :scm_token).tap do |token_parameters|
       token_parameters.require(:type)
     end
     @params = @params.except(:scm_token) unless @params[:type] == 'workflow'
     @extra_params = params.slice(:project_name, :package_name).permit!
+  end
+
+  def update_parameters
+    params.require(:token).except(:string_readonly).permit(:name, :scm_token).reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
   end
 
   def set_package

@@ -47,6 +47,16 @@
       </attribute>
 
       <optional>
+       <attribute name="name">
+        <a:documentation>
+         This attribute can be used to identify a token from the list of tokens
+         of a user.
+        </a:documentation>
+        <data type="string"/>
+       </attribute>
+      </optional>
+
+      <optional>
        <attribute name="project">
         <a:documentation>
          If this token is bound to a specific package, then the packages'
