@@ -463,10 +463,10 @@ workflows:
             - checkout_code
       - rspec:
           requires:
-            - checkout_code
+            - linters
       - minitest:
           requires:
-            - checkout_code
+            - linters
       - spider:
           requires:
             - rspec
@@ -479,5 +479,5 @@ workflows:
             - feature
       - feature:
           requires:
-            - checkout_code
+            - linters
 
