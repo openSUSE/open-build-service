@@ -147,4 +147,14 @@ class Workflow::Step
       end
     end
   end
+
+  # Only used in LinkPackageStep and BranchPackageStep.
+  def validate_source_project_and_package_name
+    errors.add(:base, "invalid source project '#{source_project_name}'") unless Project.valid_name?(source_project_name)
+    errors.add(:base, "invalid source package '#{source_package_name}'") unless Package.valid_name?(source_package_name)
+
+    return if step_instructions[:target_project].blank?
+
+    errors.add(:base, "invalid target project '#{step_instructions[:target_project]}'") unless Project.valid_name?(step_instructions[:target_project])
+  end
 end

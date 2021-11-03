@@ -38,8 +38,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
   RSpec.shared_context 'project and package does not exist' do
     let(:step_instructions) do
       {
-        source_project: 'invalid project',
-        source_package: 'invalid package',
+        source_project: 'invalid_project',
+        source_package: 'invalid_package',
         target_project: target_project_name
       }
     end
@@ -425,6 +425,55 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
+      end
+    end
+  end
+
+  describe '#validate_source_project_and_package_name' do
+    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
+    let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
+    let(:scm_webhook) do
+      ScmWebhook.new(payload: {
+                       scm: 'github',
+                       event: 'pull_request',
+                       action: 'opened',
+                       pr_number: 1,
+                       source_repository_full_name: 'reponame',
+                       commit_sha: '123',
+                       target_repository_full_name: 'openSUSE/open-build-service'
+                     })
+    end
+
+    context 'when the source project is invalid' do
+      let(:step_instructions) { { source_project: 'Invalid/format', source_package: package.name, target_project: target_project_name } }
+
+      it 'gives an error for invalid name' do
+        subject.valid?
+
+        expect { subject.call }.to change(Package, :count).by(0)
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid source project 'Invalid/format'")
+      end
+    end
+
+    context 'when the source package is invalid' do
+      let(:step_instructions) { { source_project: package.project.name, source_package: 'Invalid/format', target_project: target_project_name } }
+
+      it 'gives an error for invalid name' do
+        subject.valid?
+
+        expect { subject.call }.to change(Package, :count).by(0)
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid source package 'Invalid/format'")
+      end
+    end
+
+    context 'when the target project is invalid' do
+      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: 'Invalid/format' } }
+
+      it 'gives an error for invalid name' do
+        subject.valid?
+
+        expect { subject.call }.to change(Package, :count).by(0)
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid target project 'Invalid/format'")
       end
     end
   end
