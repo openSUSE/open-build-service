@@ -3,36 +3,10 @@
 .card
   .card-body
     %h3= @pagetitle
-
     .text-center= page_entries_info(@tokens)
-
     - if @tokens.count.positive?
-      .table-responsive
-        %table.table.table-sm.table-striped.table-bordered
-          %thead
-            %tr
-              %th Id
-              %th Operation
-              %th Package
-              %th
-          %tbody
-            - @tokens.each do |token|
-              %tr
-                %td= token.id
-                %td= token.class.token_name.capitalize
-                %td.text-word-break-all= link_to("#{truncate(token.package.project.name, length: 80)}/#{truncate(token.package.name, length: 80)}",
-                  package_show_path(project: token.package.project, package: token.package)) if token.package
-                %td
-                  - if policy(token).edit?
-                    = link_to(edit_token_path(token), title: 'Edit Token') do
-                      %i.fas.fa-edit
-                  - if policy(token).show?
-                    = link_to(token_trigger_path(token), title: 'Trigger Token') do
-                      %i.fas.fa-project-diagram
-                  = link_to '#', title: 'Delete Token',
-                    data: { toggle: 'modal', target: '#delete-token-modal', token_id: token.id, action: token_path(token) } do
-                    %i.fas.fa-times-circle.text-danger
-
+      .d-flex.flex-wrap
+        = render TokenCardComponent.with_collection(@tokens)
     .pt-4
       = link_to new_token_path do
         %i.fas.fa-plus-circle.text-primary
