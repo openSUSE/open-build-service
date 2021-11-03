@@ -10,12 +10,15 @@ RSpec.describe Token::Release, vcr: true do
   let(:repository) { create(:repository, name: 'package_test_repository', architectures: ['x86_64'], project: project_staging) }
   let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
 
-  subject { create(:release_token, package: package, user: user).call(package: package) }
+  let(:token) { create(:release_token, package: package, user: user) }
+
+  subject { token.call(package: package) }
 
   describe '#call' do
     context 'when no release target is set' do
-      it 'throws an exception' do
+      it 'throws an exception and sets the triggered_at column' do
         expect { subject }.to raise_error(Token::Errors::NoReleaseTargetFound, 'Bar:Staging has no release targets that are triggered manually')
+          .and(change(token, :triggered_at))
       end
     end
 
@@ -43,6 +46,12 @@ RSpec.describe Token::Release, vcr: true do
       it 'triggers the release process in the backend' do
         user.run_as do
           expect(subject.first).to have_attributes(repository_id: repository.id, target_repository_id: target_repository.id)
+        end
+      end
+
+      it 'records the current date and time in the triggered_at column' do
+        user.run_as do
+          expect { subject }.to change(token, :triggered_at)
         end
       end
     end

@@ -85,6 +85,12 @@
        <ref name="token-kind"/>
       </attribute>
 
+      <attribute name="triggered_at">
+       <a:documentation>
+        The date and time a token got triggered the last time.
+       </a:documentation>
+       <data type="string"/>
+      </attribute>
      </element>
     </zeroOrMore>
    </element>

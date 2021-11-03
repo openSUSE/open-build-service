@@ -1,0 +1,245 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/build/Bar?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Bar/bar_package?cmd=copy&comment=Release%20from%20Bar:Staging%20/%20bar_package&expand=1&noservice=1&opackage=bar_package&oproject=Bar:Staging&user=foo&withacceptinfo=1&withvrev=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '241'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1635851333</time>
+          <user>foo</user>
+          <comment>Release from Bar:Staging / bar_package</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Bar/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Bar/bar_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="bar_package" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Bar/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Bar/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '267'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="7352dc089e094b88cedba9cfa67ba9da">
+          <old project="Bar" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="Bar" package="bar_package" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/Bar?cmd=resumeproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Tue, 02 Nov 2021 11:08:53 GMT
+recorded_with: VCR 6.0.0
