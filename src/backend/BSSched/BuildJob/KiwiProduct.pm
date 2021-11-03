@@ -161,37 +161,13 @@ sub check {
     } elsif ($myarch eq $buildarch && $ctx->{'pool_local'} && $is_identical) {
       $pool = $ctx->{'pool_local'};	# we can reuse the cached local pool, nice!
     } else {
-      $pool = BSSolv::pool->new();
-      $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-      $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-      $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-      my $delayed_errors = '';
-      for my $aprp (@bprps) {
-	if (!$ctx->checkprpaccess($aprp)) {
-	  my $error = "repository '$aprp' is unavailable";
-	  if ($ctx->{'verbose'}) {
-	    print "      - $packid (kiwi-product)\n";
-	    print "        $error\n";
-	  }
-	  return ('broken', $error);
-	}
-	my $r = $ctx->addrepo($pool, $aprp, $localbuildarch);
-	if (!$r) {
-	  my $error = "repository '$aprp' is unavailable";
-	  $error .= " (delayed)" if defined $r;
-	  if ($ctx->{'verbose'}) {
-	    print "      - $packid (kiwi-product)\n";
-	    print "        $error\n";
-	  }
-	  if (defined $r) {
-	    $delayed_errors .= ", $error";
-	    next;
-	  }
-	  return ('broken', $error);
-	}
+      my ($error, $delayed);
+      ($pool, $error, $delayed) = BSSched::BuildJob::createextrapool($ctx, $bconf, \@bprps, undef, undef, $localbuildarch);
+      if ($error && $ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        print $delayed ? "        $error (delayed)\n" : "        $error\n";
       }
-      return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-      $pool->createwhatprovides();
+      return (($delayed ? 'delayed' : 'broken'), $error) if $error;
       $ctx->{'pool_local'} = $pool if $is_identical && $myarch eq $buildarch && $buildarch ne $localbuildarch;
     }
     my $xp = BSSolv::expander->new($pool, $bconf);

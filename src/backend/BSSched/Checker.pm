@@ -530,15 +530,22 @@ sub preparehashes {
   return (\%dep2pkg, \%dep2src, \%depislocal, \%notready, \%subpacks);
 }
 
+sub newpool {
+  my ($ctx, $bconf) = @_;
+  my $pool = BSSolv::pool->new();
+  if ($bconf) {
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
+  }
+  return $pool;
+}
+
 sub createpool {
   my ($ctx, $bconf, $prpsearchpath, $arch) = @_;
 
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-  $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-
-  my $delayed;
+  my $pool = $ctx->newpool($bconf);
+  my $delayed = '';
   my $error;
   my %missingmods;
   for my $rprp (@$prpsearchpath) {
@@ -548,7 +555,10 @@ sub createpool {
     }
     my $r = $ctx->addrepo($pool, $rprp, $arch);
     if (!$r) {
-      $delayed = 1 if defined $r;
+      if (defined($r)) {
+	$delayed .= ", repository '$rprp' is unavailable";
+	next;
+      }
       $error = "repository '$rprp' is unavailable";
       last;
     }
@@ -560,6 +570,8 @@ sub createpool {
       }
     }
   }
+  return ($pool, substr($delayed, 2), 1) if $delayed;
+  return ($pool, $error) if $error;
   if (%missingmods) {
     my $msg = '';
     for my $mod (sort keys %missingmods) {
@@ -570,9 +582,8 @@ sub createpool {
 	$msg .= ", $mod needs $m[0]";
       }
     }
-    $error = substr($msg, 2);
+    return ($pool, substr($msg, 2));
   }
-  return ($pool, $error, $delayed) if $error;
   $pool->createwhatprovides();
   return ($pool);
 }
