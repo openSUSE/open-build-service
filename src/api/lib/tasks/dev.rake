@@ -123,6 +123,10 @@ namespace :dev do
     task :haml do
       Rake::Task['haml_lint'].invoke('--parallel')
     end
+    desc 'Run apidocs linter'
+    task :apidocs do
+      sh 'find public/apidocs-new -name  \'*.yaml\' | xargs -P8 -I % ruby -e "require \'yaml\'; YAML.load_file \'%\'"'
+    end
   end
 
   namespace :sre do
