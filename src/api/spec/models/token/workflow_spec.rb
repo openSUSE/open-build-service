@@ -108,9 +108,9 @@ RSpec.describe Token::Workflow, vcr: true do
         allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
       end
 
-      it 'raises a user-friendly error message' do
+      it 'raises a user-friendly error message and records the datetime in the triggered_at column' do
         expect { subject }.to raise_error(Token::Errors::NonExistentWorkflowsFile,
-                                          '.obs/workflows.yml could not be downloaded from the SCM branch main: Beep Boop, something is wrong')
+                                          '.obs/workflows.yml could not be downloaded from the SCM branch main: Beep Boop, something is wrong').and(change(workflow_token, :triggered_at))
       end
     end
 
@@ -144,9 +144,8 @@ RSpec.describe Token::Workflow, vcr: true do
         let(:event) { 'pull_request' }
         let(:payload) { github_payload }
 
-        before { subject }
-
-        it 'runs the workflow' do
+        it 'runs the workflow and records the datetime in the triggered_at column' do
+          expect { subject }.to change(workflow_token, :triggered_at)
           expect(stubbed_workflow).to have_received(:call)
         end
       end

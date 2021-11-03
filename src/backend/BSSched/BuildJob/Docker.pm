@@ -228,44 +228,13 @@ sub check {
   if ($ctx->{'pool'} && !$unorderedrepos && BSUtil::identical(\@aprps, $ctx->{'prpsearchpath'})) {
     $pool = $ctx->{'pool'};    # we can reuse the ctx pool, nice!
   } else {
-    $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-    $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-
-    my $delayed_errors = '';
-    for my $aprp (@aprps) {
-      if (!$ctx->checkprpaccess($aprp)) {
-	if ($ctx->{'verbose'}) {
-	  print "      - $packid ($buildtype)\n";
-	  print "        repository $aprp is unavailable";
-	}
-	return ('broken', "repository $aprp is unavailable");
-      }
-      my $r = $ctx->addrepo($pool, $aprp);
-      if (!$r) {
-	my $error = "repository '$aprp' is unavailable";
-	if (defined $r) {
-	  $error .= " (delayed)";
-	  $delayed_errors .= ", $error";
-	  next;
-	}
-	if ($ctx->{'verbose'}) {
-	  print "      - $packid ($buildtype)\n";
-	  print "        $error\n";
-	}
-	return ('broken', $error);
-      }
+    my ($error, $delayed);
+    ($pool, $error, $delayed) = BSSched::BuildJob::createextrapool($ctx, $bconf, \@aprps, $unorderedrepos, \%aprpprios);
+    if ($error && $ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print $delayed ? "        $error (delayed)\n" : "        $error\n";
     }
-    return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-
-    if ($unorderedrepos) {
-      return ('broken', 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
-      $_->setpriority($aprpprios{$_->name()} || 0) for $pool->repos();
-      $pool->createwhatprovides(1);
-    } else {
-      $pool->createwhatprovides();
-    }
+    return (($delayed ? 'delayed' : 'broken'), $error) if $error;
   }
 
   my $bconfignore = $bconf->{'ignore'};

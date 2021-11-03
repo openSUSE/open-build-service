@@ -25,6 +25,11 @@ properties:
           type: string
           xml:
             attribute: true
+        triggered_at:
+          type: string
+          format: date-time
+          xml:
+            attribute: true
         project:
           type: string
           xml:

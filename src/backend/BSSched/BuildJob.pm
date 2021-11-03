@@ -1394,6 +1394,36 @@ sub diffsortedmd5 {
   return @ret;
 }
 
+=head2 createextrapool - create a pool of nonstandard repositories
+
+ TODO: add description
+
+=cut
+
+sub createextrapool {
+  my ($ctx, $bconf, $prps, $unorderedrepos, $prios, $arch) = @_;
+  my $pool = $ctx->newpool($bconf);
+  my $delayed = '';
+  for my $prp (@{$prps || []}) {
+    return (undef, "repository '$prp' is unavailable") if !$ctx->checkprpaccess($prp);
+    my $r = $ctx->addrepo($pool, $prp, $arch);
+    if (!$r) {
+      my $error = "repository '$prp' is unavailable";
+      return (undef, $error) unless defined $r;
+      $delayed .= ", $error";
+    }
+  }
+  return (undef, substr($delayed, 2), 1) if $delayed;
+  if ($unorderedrepos) {
+    return(undef, 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
+    $_->setpriority($prios->{$_->name()} || 0) for $pool->repos();
+    $pool->createwhatprovides(1);
+  } else {
+    $pool->createwhatprovides();
+  }
+  return $pool;
+}
+
 =head2 expandkiwipath - turn the path from the info into a kiwi searchpath
 
  TODO: add description

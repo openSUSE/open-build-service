@@ -171,13 +171,20 @@ sub preparehashes {
   return (\%dep2pkg, \%dep2src, \%subpacks);
 }
 
+sub newpool {
+  my ($ctx, $bconf) = @_;
+  my $pool = BSSolv::pool->new();
+  if ($bconf) {
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
+  }
+  return $pool;
+}
+
 sub createpool {
   my ($ctx, $bconf, $prpsearchpath, $arch, $ldepfile) = @_;
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-  $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-
+  my $pool = $ctx->newpool($bconf);
   addldeprepo($pool, $bconf, $ldepfile) if $ldepfile;
   for my $rprp (@$prpsearchpath) {
     $ctx->addrepo($pool, $rprp, $arch);

@@ -6,6 +6,7 @@ class Token::Release < Token
   end
 
   def call(options)
+    set_triggered_at
     return unless options[:package]
 
     # FIXME: Take repository and arch into account
@@ -34,13 +35,14 @@ end
 #
 # Table name: tokens
 #
-#  id         :integer          not null, primary key
-#  name       :string(64)       default("")
-#  scm_token  :string(255)      indexed
-#  string     :string(255)      indexed
-#  type       :string(255)
-#  package_id :integer          indexed
-#  user_id    :integer          not null, indexed
+#  id           :integer          not null, primary key
+#  name         :string(64)       default("")
+#  scm_token    :string(255)      indexed
+#  string       :string(255)      indexed
+#  triggered_at :datetime
+#  type         :string(255)
+#  package_id   :integer          indexed
+#  user_id      :integer          not null, indexed
 #
 # Indexes
 #
