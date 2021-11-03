@@ -5,6 +5,8 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
 
   attr_reader :project_name, :package_name
 
+  validate :validate_project_and_package_name
+
   def call(_options = {})
     return unless valid?
 
@@ -32,5 +34,10 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
 
   def rebuild_package
     Backend::Api::Sources::Package.rebuild(project_name, package_name)
+  end
+
+  def validate_project_and_package_name
+    errors.add(:base, "invalid project '#{step_instructions[:project]}'") unless Project.valid_name?(step_instructions[:project])
+    errors.add(:base, "invalid package '#{step_instructions[:package]}'") unless Package.valid_name?(step_instructions[:package])
   end
 end

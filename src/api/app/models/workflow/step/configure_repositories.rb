@@ -4,6 +4,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
 
   validate :validate_repositories
   validate :validate_architectures
+  validate :validate_project_name
 
   def call(_options = {})
     return unless valid?
@@ -66,5 +67,11 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
 
     inexistent_architectures_sentence ||= inexistent_architectures.map { |key| "'#{key}'" }.to_sentence
     errors.add(:base, "configure_repositories step: Architectures #{inexistent_architectures_sentence} do not exist")
+  end
+
+  def validate_project_name
+    return if Project.valid_name?(project_name)
+
+    errors.add(:base, "invalid project '#{project_name}'")
   end
 end
