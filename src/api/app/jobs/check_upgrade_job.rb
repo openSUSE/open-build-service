@@ -13,14 +13,20 @@ class CheckUpgradeJob < ApplicationJob
     end
 
     packages.each do |package|
-      result = Backend::Api::Sources::Package.check_upgrade(package.project.name, package.name, user)
-=begin
-      Should be here somethig like: 
-      checkupgrade = package.checkupgrade
+      #result = Backend::Api::Sources::Package.check_upgrade(package.project.name, package.name, user)
+      #Should be here somethig like: 
+      #checkupgrade = package.checkupgrade
       #result = Backend::Api::Sources::Package.check_upgrade2(checkupgrade.urlsrc, checkupgrade.regexurl, ...., user)
       #Tsting parameter
-      #result = Backend::Api::Sources::Package.check_upgrade2('https://archive.eclipse.org/eclipse/downloads/', 'drops[\w]*/R-[\d]+[.][\w]*[.]*[\w]*-[\w]+/', user)
-=end      
+      result = Backend::Api::Sources::Package.check_upgrade(
+        'https://archive.eclipse.org/eclipse/downloads/', 
+        'drops[\w]*/R-[\d]+[.][\w]*[.]*[\w]*-[\w]+/', 
+        '[\d]+[.][\w]*[.]*[\w]*', 
+        '4.7.1',
+        '.', 
+        'false', 
+        user)
+
       puts "Result = ", result
     end
 

@@ -83,16 +83,14 @@ module Backend
           http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :runservice, user: user_login })
         end
 
-        # Runs the command checkupgrade for that project/package
-        # @return [String]
-        def self.check_upgrade(project_name, package_name, user_login)
-          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :checkupgrade, user: user_login })
-        end
-
         # Runs the command checkupgrade
         # @return [String]
-        def self.check_upgrade2(urlsrc, regexurl, user_login)
-          http_post(['/source/checkupgrade'], params: { cmd: :checkupgrade2, user: user_login, urlsrc: urlsrc, regexurl: regexurl })
+        def self.check_upgrade(urlsrc, regexurl, regexver, currentver, separator, debug, user_login)
+          http_post(['/source/checkupgrade'], 
+                      params: { cmd: :checkupgrade, urlsrc: urlsrc, regexurl: regexurl,
+                                regexver: regexver, currentver: currentver,
+                                separator: separator, debug: debug, user: user_login  
+                              })
         end
 
         # Copy a package into another project

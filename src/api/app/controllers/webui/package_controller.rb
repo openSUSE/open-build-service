@@ -68,7 +68,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def show
-
     @checkupgrade = params[:checkupgrade]
     if @checkupgrade
       #FIXME for test perform_now 
