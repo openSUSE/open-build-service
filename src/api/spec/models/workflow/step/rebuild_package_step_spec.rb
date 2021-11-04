@@ -39,4 +39,28 @@ RSpec.describe Workflow::Step::RebuildPackage, vcr: true do
 
     it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
   end
+
+  describe '#validate_project_and_package_name' do
+    context 'when the project is invalid' do
+      let(:step_instructions) { { package: package.name, project: 'Invalid/format' } }
+
+      it 'gives an error for invalid name' do
+        subject.valid?
+
+        expect { subject.call }.to change(Package, :count).by(0)
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid project 'Invalid/format'")
+      end
+    end
+
+    context 'when the package is invalid' do
+      let(:step_instructions) { { package: 'Invalid/format', project: project.name } }
+
+      it 'gives an error for invalid name' do
+        subject.valid?
+
+        expect { subject.call }.to change(Package, :count).by(0)
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid package 'Invalid/format'")
+      end
+    end
+  end
 end
