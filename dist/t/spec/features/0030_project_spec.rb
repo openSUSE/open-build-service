@@ -24,6 +24,8 @@ RSpec.describe "Project", type: :feature do
     click_link('Repositories')
     click_link('Add from a Distribution')
     check('openSUSE Leap 15.3')
+    # wait for the ajax call to finish
+    sleep(3)
     visit current_path
     expect(page).to have_checked_field('openSUSE Leap 15.3')
   end
