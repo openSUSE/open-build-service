@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_02_144122) do
+ActiveRecord::Schema.define(version: 2021_11_04_130533) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -687,6 +687,20 @@ ActiveRecord::Schema.define(version: 2021_11_02_144122) do
     t.index ["notification_id"], name: "index_notified_projects_on_notification_id"
   end
 
+  create_table "package_checkupgrade", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "package_id", null: false
+    t.string "urlsrc", null: false
+    t.string "regexurl", null: false
+    t.string "regexver", null: false
+    t.string "currentver", null: false
+    t.string "separator", null: false
+    t.text "output"
+    t.column "state", "enum('uptodate','error','upgrade')", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["package_id"], name: "package_checkupgrade_ibfk_1"
+  end
+
   create_table "package_issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id", null: false
     t.integer "issue_id", null: false
@@ -1106,6 +1120,7 @@ ActiveRecord::Schema.define(version: 2021_11_02_144122) do
   add_foreign_key "kiwi_packages", "kiwi_package_groups", column: "package_group_id"
   add_foreign_key "maintained_projects", "projects", column: "maintenance_project_id", name: "maintained_projects_ibfk_2"
   add_foreign_key "maintained_projects", "projects", name: "maintained_projects_ibfk_1"
+  add_foreign_key "package_checkupgrade", "packages", name: "package_checkupgrade_ibfk_1"
   add_foreign_key "package_issues", "issues", name: "package_issues_ibfk_2"
   add_foreign_key "package_issues", "packages", name: "package_issues_ibfk_1"
   add_foreign_key "package_kinds", "packages", name: "package_kinds_ibfk_1"
