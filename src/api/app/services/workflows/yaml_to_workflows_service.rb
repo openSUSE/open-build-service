@@ -21,7 +21,6 @@ module Workflows
 
       parsed_workflows_yaml
         .map { |_workflow_name, workflow_instructions| Workflow.new(workflow_instructions: workflow_instructions, scm_webhook: @scm_webhook, token: @token) }
-        .select(&:valid?)
     end
   end
 end

@@ -121,7 +121,7 @@ sub verify_patchinfo {
 
 sub verify_simple {
   my $name = $_[0];
-  die("illegal characters\n") if $name =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
+  die("illegal characters\n") if $name =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~^\200-\377]/s;
 }
 
 sub verify_filename {
@@ -394,89 +394,6 @@ sub verify_channel {
   }
 }
 
-my %req_states = map {$_ => 1} qw {new revoked accepted superseded declined deleted review};
-
-sub verify_request {
-  my ($req) = @_;
-  die("request must not contain a key\n") if exists $req->{'key'};
-  verify_num($req->{'id'}) if exists $req->{'id'};
-  die("request must contain a state\n") unless $req->{'state'};
-  die("request must contain a state name\n") unless $req->{'state'}->{'name'};
-  die("request must contain a state who\n") unless $req->{'state'}->{'who'};
-  die("request must contain a state when\n") unless $req->{'state'}->{'when'};
-  die("request contains unknown state '$req->{'state'}->{'name'}'\n") unless $req_states{$req->{'state'}->{'name'}};
-  verify_num($req->{'state'}->{'superseded_by'}) if exists $req->{'state'}->{'superseded_by'};
-
-  my $actions;
-  if ($req->{'type'}) {
-    die("unknown old-stype request type\n") unless $req->{'type'} eq 'submit';
-    die("old-stype request with action element\n") if $req->{'action'};
-    die("old-stype request without submit element\n") unless $req->{'submit'};
-    my %oldsubmit = (%{$req->{'submit'}}, 'type' => 'submit');
-    $actions = [ \%oldsubmit ];
-  } else {
-    die("new-stype request with submit element\n") if $req->{'submit'};
-    $actions = $req->{'action'};
-  }
-  die("request must contain an action\n") unless $actions && @$actions;
-  my %pkgchange;
-  for my $h (@{$req->{'history'} ||[]}) {
-    die("history element has no 'who' attribute\n") unless $h->{'who'};
-    die("history element has no 'when' attribute\n") unless $h->{'when'};
-    die("history element has no 'name' attribute\n") unless $h->{'name'};
-  }
-  for my $r (@$actions) {
-    die("request action has no type\n") unless $r->{'type'};
-    if ($r->{'type'} eq 'delete') {
-      die("delete target specification missing\n") unless $r->{'target'};
-      die("delete target project specification missing\n") unless $r->{'target'}->{'project'};
-      verify_projid($r->{'target'}->{'project'});
-      verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
-      die("delete action has a source element\n") if $r->{'source'};
-    } elsif ($r->{'type'} eq 'maintenance_release') {
-      die("maintenance_release source missing\n") unless $r->{'source'};
-      die("maintenance_release target missing\n") unless $r->{'target'};
-      verify_projid($r->{'source'}->{'project'});
-      verify_projid($r->{'target'}->{'project'});
-    } elsif ($r->{'type'} eq 'maintenance_incident') {
-      die("maintenance_incident source missing\n") unless $r->{'source'};
-      die("maintenance_incident target missing\n") unless $r->{'target'};
-      verify_projid($r->{'source'}->{'project'});
-      verify_projid($r->{'target'}->{'project'});
-    } elsif ($r->{'type'} eq 'set_bugowner') {
-      die("set_bugowner target missing\n") unless $r->{'target'};
-      verify_projid($r->{'target'}->{'project'});
-      verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
-    } elsif ($r->{'type'} eq 'add_role') {
-      die("add_role target missing\n") unless $r->{'target'};
-      verify_projid($r->{'target'}->{'project'});
-      verify_packid($r->{'target'}->{'package'}) if exists $r->{'target'}->{'package'};
-    } elsif ($r->{'type'} eq 'change_devel') {
-      die("change_devel source missing\n") unless $r->{'source'};
-      die("change_devel target missing\n") unless $r->{'target'};
-      die("change_devel source with rev attribute\n") if exists $r->{'source'}->{'rev'};
-      verify_projid($r->{'source'}->{'project'});
-      verify_projid($r->{'target'}->{'project'});
-      verify_packid($r->{'source'}->{'package'}) if exists $r->{'source'}->{'package'};
-      verify_packid($r->{'target'}->{'package'});
-    } elsif ($r->{'type'} eq 'submit') {
-      die("submit source missing\n") unless $r->{'source'};
-      die("submit target missing\n") unless $r->{'target'};
-      verify_projid($r->{'source'}->{'project'});
-      verify_projid($r->{'target'}->{'project'});
-      verify_packid($r->{'source'}->{'package'});
-      verify_packid($r->{'target'}->{'package'});
-      verify_rev($r->{'source'}->{'rev'}) if exists $r->{'source'}->{'rev'};
-    } else {
-      die("unknown request action type '$r->{'type'}'\n");
-    }
-    if ($r->{'type'} eq 'submit' || ($r->{'type'} eq 'delete' && exists($r->{'target'}->{'package'}))) {
-      die("request contains multiple source changes for package \"$r->{'target'}->{'package'}\"\n") if $pkgchange{"$r->{'target'}->{'project'}/$r->{'target'}->{'package'}"};
-      $pkgchange{"$r->{'target'}->{'project'}/$r->{'target'}->{'package'}"} = 1;
-    }
-  }
-}
-
 sub verify_nevraquery {
   my ($q) = @_;
   verify_arch($q->{'arch'});
@@ -486,6 +403,7 @@ sub verify_nevraquery {
   $f .= "-$q->{'release'}" if defined $q->{'release'};
   verify_filename($f);
   verify_simple($f);
+  verify_simple($q->{'epoch'}) if defined $q->{'epoch'};
 }
 
 sub verify_attribute {

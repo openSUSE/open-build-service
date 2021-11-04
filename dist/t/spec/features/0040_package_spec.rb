@@ -38,6 +38,8 @@ RSpec.describe "Package", type: :feature do
     end
     click_link('Branch Package')
     fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
+    # In Unstable the field 'linked_package' is disabled until focus is out of 'linked_project'
+    find_field('linked_package', disabled: true).click if has_field?('linked_package', disabled: true)
     fill_in 'linked_package', with: 'build'
     click_button('Branch')
     expect(page).to have_content('build.spec')

@@ -7,14 +7,16 @@ class Token::Workflow < Token
 
   def call(options)
     set_triggered_at
-    raise ArgumentError, 'A payload is required' if options[:payload].nil?
+    raise Token::Errors::MissingPayload, 'A payload is required' if options[:payload].nil?
 
-    scm_webhook = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload]).call
-    return unless scm_webhook.valid?
+    @scm_webhook = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload]).call
+    yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self).call
 
-    yaml_file = Workflows::YAMLDownloader.new(scm_webhook.payload, token: self).call
-    workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: self).call
-    workflows.each(&:call)
+    @workflows.each(&:call) if validation_errors.none?
+
+    # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
+    validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized => e
     raise Token::Errors::SCMTokenInvalid, e.message
   end
@@ -22,6 +24,21 @@ class Token::Workflow < Token
   # Only used by rebuild steps
   def package_find_options
     { use_source: false, follow_project_links: true, follow_multibuild: true }
+  end
+
+  private
+
+  def validation_errors
+    @validation_errors ||= begin
+      error_messages = []
+
+      error_messages << @scm_webhook.errors.full_messages unless @scm_webhook.valid?
+      @workflows.each do |workflow|
+        error_messages << workflow.errors.full_messages unless workflow.valid?
+      end
+
+      error_messages.flatten
+    end
   end
 end
 
