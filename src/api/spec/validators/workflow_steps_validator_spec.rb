@@ -51,8 +51,7 @@ RSpec.describe WorkflowStepsValidator do
       it 'is not valid and has an error message' do
         subject.valid?
         expect(subject.errors.full_messages.to_sentence).to eq("The following workflow steps are unsupported: 'unsupported_step' and " \
-                                                               "The 'source_package' key is missing, The 'target_project' key is missing, " \
-                                                               "and invalid source package ''")
+                                                               "The 'source_package' key is missing and The 'target_project' key is missing")
       end
     end
   end

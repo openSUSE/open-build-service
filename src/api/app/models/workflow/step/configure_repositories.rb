@@ -70,7 +70,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   end
 
   def validate_project_name
-    return if Project.valid_name?(project_name)
+    return if step_instructions[:project].blank? || Project.valid_name?(project_name)
 
     errors.add(:base, "invalid project '#{project_name}'")
   end
