@@ -6,8 +6,13 @@ class TriggerWorkflowController < TriggerController
   def create
     authorize @token, :trigger?
     @token.user.run_as do
-      @token.call(scm: scm, event: event, payload: payload)
-      render_ok
+      validation_errors = @token.call(scm: scm, event: event, payload: payload)
+
+      if validation_errors.none?
+        render_ok
+      else
+        render_error status: 400, message: validation_errors.to_sentence
+      end
     end
   end
 

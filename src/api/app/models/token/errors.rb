@@ -9,6 +9,10 @@ module Token::Errors
     setup 404
   end
 
+  class MissingPayload < APIError
+    setup 400
+  end
+
   class SCMTokenInvalid < APIError
     setup 401
   end
