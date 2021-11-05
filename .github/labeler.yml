@@ -16,6 +16,7 @@ Backend:
 - .obs/**/*
 - .rubocop.yml
 - .rubocop_todo.yml
+- dist/t/**/*
 - src/api/.rubocop.yml
 - src/api/.rubocop_todo.yml
 - .codeclimate.yml
