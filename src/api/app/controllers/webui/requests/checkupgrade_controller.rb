@@ -8,13 +8,19 @@ module Webui
       after_action :verify_authorized 
 
       def show
+
       end
 
       def new
-        packageCheckUpgrade = PackageCheckUpgrade.new
-        authorize packageCheckUpgrade, :new?
+        puts "Sono in new di CheckupgradeController"
+        @packageCheckUpgrade = PackageCheckUpgrade.new
+        authorize @packageCheckUpgrade, :new?
       end
 
+      def create
+        print "Sono in create di CheckupgradeController"
+        
+      end
 
     end
   end
