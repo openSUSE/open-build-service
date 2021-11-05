@@ -1,4 +1,3 @@
-version: 2.1
 
 parameters:
   run-backend-tests:
@@ -49,11 +48,15 @@ images:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
     <<: *common_frontend_config
 
+  - &frontend_base_ci
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base-ci:latest
+    <<: *common_frontend_config
+
 aliases:
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
+      cd ./src/api && bundle check  || bundle install --jobs=4 --retry=3
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
@@ -106,7 +109,6 @@ aliases:
     save_cache:
       key: circlev2-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
       paths:
-        - vendor/bundle
         - src/api/tmp/rubocop_cache_root_dir
         - src/api/tmp/rubocop_cache_rails_dir
  
@@ -124,7 +126,7 @@ jobs:
 
   linters:
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_base_ci
     steps:
       - attach_workspace:
          at: .
@@ -173,9 +175,7 @@ jobs:
     
   checkout_code:
     docker:
-      - <<: *frontend_base
-    steps:
-      - checkout
+      - <<: *frontend_base_ci
       - *restore_gem_cache
       - run: *install_dependencies
       - *save_gem_cache
@@ -197,7 +197,7 @@ jobs:
   rspec:
     parallelism: 3
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_base_ci
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -275,7 +275,7 @@ jobs:
 
   migrations_tests:
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_base_ci
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -325,8 +325,7 @@ jobs:
 
   coverage:
     docker:
-      - <<: *frontend_base
-
+      - <<: *frontend_base_ci
     steps:
       - attach_workspace:
          at: .
