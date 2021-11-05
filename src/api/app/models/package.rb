@@ -44,6 +44,7 @@ class Package < ApplicationRecord
 
   has_many :package_kinds, dependent: :delete_all
   has_many :package_issues, dependent: :delete_all # defined in sources
+  has_one  :package_check_upgrades, dependent: :destroy
   has_many :issues, through: :package_issues
 
   has_many :products, dependent: :destroy

@@ -5,13 +5,16 @@ module Webui
       before_action :set_package
       before_action :set_project
 
-      after_action :verify_authorized
+      #after_action :verify_authorized 
 
       def show
       end
 
       def new
-        authorize Package.new(project: @project), :create?
+        packageCheckUpgrade = PackageCheckUpgrade.new
+        #authorize packageCheckUpgrade, :new?
+        #puts "@packageCheckUpgrade = ", @packageCheckUpgrade
+
       end
 
 

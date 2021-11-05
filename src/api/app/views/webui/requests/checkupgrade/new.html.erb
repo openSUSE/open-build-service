@@ -1,0 +1,55 @@
+<% @pagetitle = "Check upgrade for #{@package}" %>
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12">
+            <h3>
+              <%= @pagetitle %>
+            </h3>
+          </div>
+          <div class="col-12 col-md-9 col-lg-6">
+
+            <%= form_for(:packageCheckUpgrade, url: packages_url(@project)) do |f| %>
+              <div class="form-group">
+                <%= f.label("Url") %>
+                <abbr class="text-danger" title="required">*</abbr>
+                <%= f.text_field(:urlsrc, size: 80, required: true, class: 'form-control', placeholder: 'Enter the url', autofocus: true) %>
+              </div>
+              <div class="form-group">
+                <%= f.label("Regex url") %>
+                <abbr class="text-danger" title="required">*</abbr>
+                <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regex') %>
+              </div>
+
+              <div class="form-group">
+                <%= f.label("Regex Version") %>
+                <abbr class="text-danger" title="required">*</abbr>
+                <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regex') %>
+              </div>
+
+              <div class="form-group">
+                <%= f.label("Current version") %>
+                <abbr class="text-danger" title="required">*</abbr>
+                <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version') %>
+              </div>
+
+              <div class="form-group">
+                <%= f.label("Separator") %>
+                <abbr class="text-danger" title="required">*</abbr>
+                <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the version') %>
+              </div>
+
+              <div class="form-group">
+                <%= f.label("Output") %>
+                <%= f.text_area(:output, cols: 60, rows: 5, class: 'form-control') %>
+              </div>
+              <%= f.submit('Create', class: 'btn btn-primary px-4') %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
