@@ -80,7 +80,6 @@ use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
 use BSSrcServer::LinkinfoDB;
 use BSSrcServer::Modulemd;
-use Data::Dumper;
 
 require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
@@ -6612,13 +6611,9 @@ sub checkupgraderun {
   return '/usr/lib/obs/service/check_upgrade command not found!' if ! -e $cmd;
   return '/usr/lib/obs/service/check_upgrade is not executable!' if ! -x $cmd;
   my $urlsrc = $params->{"urlsrc"};
-  return 'urlsrc paramet value is not defined!' if !$urlsrc;
   my $regexurl = $params->{"regexurl"};
-  return 'regexurl paramet value is not defined!' if !$regexurl;
   my $regexver = $params->{"regexver"};
-  return 'regexver paramet value is not defined!' if !$regexver;
   my $currentver = $params->{"currentver"};
-  return 'currentver paramet value is not defined!' if !$currentver;
   my $separator = $params->{"separator"};
   $separator = '.' if !$separator;
   my $debug = $params->{"debug"};
