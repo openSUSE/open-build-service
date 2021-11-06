@@ -1,16 +1,20 @@
 class PackageCheckUpgradePolicy < ApplicationPolicy
   
-  #FIXME add check about user
+  #FIXME add check about user 
 
   def new?
     true
   end
 
-  def create?
+  def update?
     true
   end
 
-  def show?
+  def edit?
+    true
+  end
+
+  def create?
     true
   end
 

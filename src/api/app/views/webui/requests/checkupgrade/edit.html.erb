@@ -1,4 +1,4 @@
-<% @pagetitle = "Check upgrade for #{@package}" %>
+<% @pagetitle = "Edit Check upgrade for #{@package}" %>
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -10,7 +10,6 @@
       <div class="col-12 col-md-9 col-lg-6">
         <%= form_for(:packageCheckUpgrade, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
 
-          <!--FIXME test -->
           <%= f.hidden_field(:package_id, value: @package.id) %>
           <%= f.hidden_field(:state, value: 'error') %>
 
@@ -47,7 +46,7 @@
             <%= f.label("Output") %>
             <%= f.text_area(:output, cols: 60, rows: 5, class: 'form-control') %>
           </div>
-          <%= f.submit('Create', class: 'btn btn-primary px-4') %>
+   		  <%= f.submit('Update', class: 'btn btn-primary px-4') %>
         <% end %>
       </div>
     </div>
