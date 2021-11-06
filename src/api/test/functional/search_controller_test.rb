@@ -635,7 +635,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'person', attributes: { name: 'king', role: 'maintainer' }
     assert_xml_tag tag: 'group', attributes: { name: 'test_group', role: 'maintainer' }
 
-    # search for not mantainer packages
+    # search for not maintainer packages
     get '/search/missing_owner'
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 0 } # all defined
@@ -720,7 +720,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_search_for_missing_role_defintions_in_all_visible_packages
     login_Iggy
 
-    # search for not mantainer packages
+    # search for not maintainer packages
     get '/search/missing_owner?project=BaseDistro&filter=bugowner'
     assert_response :success
     assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack1' }
