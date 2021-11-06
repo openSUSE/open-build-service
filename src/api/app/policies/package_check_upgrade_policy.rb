@@ -1,5 +1,7 @@
 class PackageCheckUpgradePolicy < ApplicationPolicy
   
+  #FIXME add check about user
+
   def new?
     true
   end
