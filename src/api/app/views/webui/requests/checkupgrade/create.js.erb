@@ -1,5 +1,21 @@
+alert("ok");
+
+var message = document.querySelector("#message");
+message.style.display = "none";
+
 var output = document.querySelector("#output");
-output.insertAdjacentHTML("afterbegin", '<%= @packageCheckUpgrade.output %>');
+output.value = "";
+output.value = '<%= @packageCheckUpgrade.output %>';
+
+
+
+
+$("#flash").html("<%= j render partial: 'layouts/webui/flash.html.haml' %>");
+
+
+
+
+
 
 
 

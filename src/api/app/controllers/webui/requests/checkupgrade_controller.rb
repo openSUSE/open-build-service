@@ -11,17 +11,14 @@ module Webui
 
 
       def update
-        print "Sono in update di CheckupgradeController"  
       end
 
       def edit
-        print "Sono in edit di CheckupgradeController"
         @packageCheckUpgrade = PackageCheckUpgrade.find_by(id: params[:id])
         authorize @packageCheckUpgrade, :edit?
       end
 
       def new
-
         @packageCheckUpgrade = PackageCheckUpgrade.find_by(package_id: @package.id)
         if ! @packageCheckUpgrade
           @packageCheckUpgrade = PackageCheckUpgrade.new
@@ -54,16 +51,27 @@ module Webui
       end
 
       def run_check(packageCheckUpgrade)
+        
         result = packageCheckUpgrade.run_checkupgrade(packageCheckUpgrade.urlsrc, packageCheckUpgrade.regexurl, 
                                                       packageCheckUpgrade.regexver, packageCheckUpgrade.currentver, 
                                                       packageCheckUpgrade.separator, 'false', User.session.login)
-        packageCheckUpgrade.output = result
-
+        
+        if result.present?
+          packageCheckUpgrade.output = result.gsub("\n", "\\n")
+        else
+          packageCheckUpgrade.output = nil
+        end
+        
         respond_to do |format|
             format.html { render action: "new" }
-            format.js 
             format.json { render json: packageCheckUpgrade }
+            if ! packageCheckUpgrade.output.present?  
+              format.js { flash.now[:error] = 'An internal error has occurred' }
+            else
+              format.js {}
+            end
         end
+
       end
 
     end
