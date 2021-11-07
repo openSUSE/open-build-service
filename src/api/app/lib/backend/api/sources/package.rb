@@ -83,16 +83,6 @@ module Backend
           http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :runservice, user: user_login })
         end
 
-        # Runs the command checkupgrade
-        # @return [String]
-        def self.check_upgrade(urlsrc, regexurl, regexver, currentver, separator, debug, user_login)
-          http_post(['/source/checkupgrade'], 
-                      params: { cmd: :checkupgrade, urlsrc: urlsrc, regexurl: regexurl,
-                                regexver: regexver, currentver: currentver,
-                                separator: separator, debug: debug, user: user_login  
-                              })
-        end
-
         # Copy a package into another project
         # @option options [String] :keeplink Stay on revision after copying.
         # @option options [String] :comment Comment to attach to this operation.

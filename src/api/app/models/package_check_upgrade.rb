@@ -25,6 +25,11 @@ class PackageCheckUpgrade < ApplicationRecord
 
   #### Instance methods (public and then protected/private)
 
+  def run_checkupgrade(urlsrc, regexurl, regexver, currentver, separator, debug, user_login)
+    result = Backend::Api::Sources::PackageCheckUpgrade.check_upgrade(urlsrc, regexurl, regexver, currentver, separator, debug, user_login)
+    return result
+  end
+
   #### Alias of methods
   
 end

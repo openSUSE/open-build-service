@@ -21,18 +21,28 @@ module Webui
       end
 
       def new
-        @packageCheckUpgrade = PackageCheckUpgrade.new
+
+        @packageCheckUpgrade = PackageCheckUpgrade.find_by(package_id: @package.id)
+        if ! @packageCheckUpgrade
+          @packageCheckUpgrade = PackageCheckUpgrade.new
+        end
         authorize @packageCheckUpgrade, :new?
       end
 
       def create
         @packageCheckUpgrade = PackageCheckUpgrade.new(packageCheckUpgrade_params)
         authorize @packageCheckUpgrade, :create?
-        if @packageCheckUpgrade.save
-          #FIXME Redirect to package only if the state != error
-          redirect_to package_show_path(@project, @package)
+
+        @commit = params[:commit]
+        if @commit == 'Run check'
+          run_check(@packageCheckUpgrade)
         else
-          redirect_to new_project_package_checkupgrade_path(@project, @package)
+          if @packageCheckUpgrade.save
+            #FIXME Redirect to package only if the state != error
+            redirect_to package_show_path(@project, @package)
+          else
+            redirect_to new_project_package_checkupgrade_path(@project, @package)
+          end
         end
         
       end
@@ -41,6 +51,19 @@ module Webui
         params.require(:packageCheckUpgrade).permit(:package_id, :urlsrc, :regexurl, :regexver, :currentver, 
             :separator, :output, :state
           )
+      end
+
+      def run_check(packageCheckUpgrade)
+        result = packageCheckUpgrade.run_checkupgrade(packageCheckUpgrade.urlsrc, packageCheckUpgrade.regexurl, 
+                                                      packageCheckUpgrade.regexver, packageCheckUpgrade.currentver, 
+                                                      packageCheckUpgrade.separator, 'false', User.session.login)
+        packageCheckUpgrade.output = result
+
+        respond_to do |format|
+            format.html { render action: "new" }
+            format.js 
+            format.json { render json: packageCheckUpgrade }
+        end
       end
 
     end

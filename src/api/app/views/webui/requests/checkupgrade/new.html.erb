@@ -1,18 +1,21 @@
 <% @pagetitle = "Check upgrade for #{@package}" %>
+<% @state = @packageCheckUpgrade.state %>
 <div class="card">
   <div class="card-body">
     <div class="row">
       <div class="col-12">
         <h3>
           <%= @pagetitle %>
+          ouput = <%= @packageCheckUpgrade.output %>
+
         </h3>
       </div>
       <div class="col-12 col-md-9 col-lg-6">
-        <%= form_for(:packageCheckUpgrade, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
+        <%= form_for(:packageCheckUpgrade, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
 
           <!--FIXME test -->
           <%= f.hidden_field(:package_id, value: @package.id) %>
-          <%= f.hidden_field(:state, value: 'error') %>
+          <%= f.hidden_field(:state) %>
 
           <div class="form-group">
             <%= f.label("Url") %>
@@ -44,10 +47,19 @@
           </div>
 
           <div class="form-group">
-            <%= f.label("Output") %>
-            <%= f.text_area(:output, cols: 60, rows: 5, class: 'form-control') %>
+            <%= f.submit('Run check', class: 'btn btn-primary px-4') %>
           </div>
-          <%= f.submit('Create', class: 'btn btn-primary px-4') %>
+          <div class="form-group">
+            <%= f.label("Output") %>
+            <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
+          </div>
+          <% if @state.present? and @state != 'error' %>
+            <% if ! @packageCheckUpgrade.id.present? %>
+              <%= f.submit('Create', class: 'btn btn-primary px-4') %>
+            <% else %>
+              <%= f.submit('Update', class: 'btn btn-primary px-4') %>
+            <% end %>
+          <% end %>
         <% end %>
       </div>
     </div>
