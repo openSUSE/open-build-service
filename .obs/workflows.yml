@@ -3,6 +3,7 @@ workflow:
     - branch_package:
         source_project: OBS:Server:Unstable
         source_package: obs-server
+        target_project: home:bs-team
   filters:
     architectures:
       only:
