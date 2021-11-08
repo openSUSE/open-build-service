@@ -12,7 +12,7 @@ parameters:
   run-javascripts-linter:
     type: boolean
     default: false
-  
+
   run-apidocs-linter:
     type: boolean
     default: false
@@ -53,7 +53,7 @@ aliases:
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
+      cd ./src/api && bundle install --jobs=4 --retry=3
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
@@ -99,17 +99,17 @@ aliases:
       curl -o circleci https://circle-downloads.s3.amazonaws.com/releases/build_agent_wrapper/circleci
       chmod +x circleci
 
-  - &restore_gem_cache
+  - &restore_rubocop_cache
     restore_cache:
       key: circlev2-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
-  - &save_gem_cache
+
+  - &save_rubocop_cache
     save_cache:
       key: circlev2-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
       paths:
-        - vendor/bundle
         - src/api/tmp/rubocop_cache_root_dir
         - src/api/tmp/rubocop_cache_rails_dir
- 
+
 jobs:
   pipeline_settings:
     docker:
@@ -139,13 +139,14 @@ jobs:
                 command: cd src/api && jshint app/assets/javascripts 
       - when:
           condition: << pipeline.parameters.run-root-rubocop >> 
-          steps:   
-            - *restore_gem_cache
-            - run: 
+          steps:
+            - *restore_rubocop_cache
+            - run:
                 name: Run rubocop on root
                 command: |
                   cd src/api
                   bundle exec rake dev:lint:rubocop:root
+            - *save_rubocop_cache
             - run:
                 name: Run dist linters
                 command: |
@@ -155,7 +156,6 @@ jobs:
       - when:
           condition: << pipeline.parameters.run-haml-linter >>
           steps:
-            - *restore_gem_cache
             - run:
                 name: Run HAML linter
                 command: |
@@ -170,22 +170,22 @@ jobs:
                   cd src/api
 
                   find public/apidocs-new -name '*.yaml' | xargs -P8 -I % ruby -e "require 'yaml'; YAML.load_file '%'"
-    
+
   checkout_code:
     docker:
       - <<: *frontend_base
     steps:
       - checkout
-      - *restore_gem_cache
       - run: *install_dependencies
-      - *save_gem_cache
       - run: *install_circle_cli
+      - *restore_rubocop_cache
       - run:
           name: Run src/api rubocop
           command: |
             cd src/api;
             bundle exec rake dev:lint:rubocop:rails
       - run: rm -rf src/api/tmp/rubocop*
+      - *save_rubocop_cache
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
@@ -202,7 +202,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - *restore_gem_cache
       - run: *install_dependencies
       - run: *wait_for_database
       - run: *create_test_db
@@ -243,7 +242,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - *restore_gem_cache
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -280,7 +278,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - *restore_gem_cache
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -300,7 +297,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - *restore_gem_cache
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
@@ -330,7 +326,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - *restore_gem_cache
       - run: *install_dependencies
       - run:
           name: Merge and check coverage
@@ -353,7 +348,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - *restore_gem_cache
       - run: *install_dependencies
       - run: *wait_for_database
       - run: *create_test_db
@@ -426,7 +420,7 @@ jobs:
 
 workflows:
   version: 2
-  
+
   migration_tests:
     when: << pipeline.parameters.run-migrations-tests >>
     jobs:
@@ -443,7 +437,7 @@ workflows:
     when:
       matches:
         pattern: "^next_rails-.*$"
-        value: << pipeline.git.branch >> 
+        value: << pipeline.git.branch >>
     jobs:
       - checkout_code
       # next_rails jobs are split between RSpec and Minitest because they need a different setup
