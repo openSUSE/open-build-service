@@ -1,9 +1,31 @@
 <script language="Javascript">
-  function message_handle() {
-    var message = document.querySelector("#message");
-    message.style.display = "block";
-    return true;
+
+  function doBeforeSubmit() {
+    var myform = document.querySelector("#myform");
+    if (myform.reportValidity()) {
+      
+      //Clear the flash message 
+      $('#flash').html('');
+      
+      //Show the loading message 
+      var message = document.querySelector("#message");
+      message.style.display = "block";
+
+      //Clear output value
+      var output = document.querySelector("#output");
+      output.value = "";
+
+      //Hide the buttons
+      var createDiv = document.querySelector("#createDiv");
+      var modifyDiv = document.querySelector("#modifyDiv");
+      createDiv.style.display = "none";
+      modifyDiv.style.display = "none";
+
+      return true;
+    }
+    return false;
   }
+
 </script>
 
 <% @pagetitle = "Check upgrade for #{@package}" %>
@@ -17,43 +39,44 @@
         </h3>
       </div>
       <div class="col-12 col-md-9 col-lg-6">
-        <%= form_for(:packageCheckUpgrade, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
+        <%= form_for(:packageCheckUpgrade, html: { id: "myform" }, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
 
-          <!--FIXME test -->
+          <!--Hidden Fields-->
+          <%= f.hidden_field(:id, id: "id") %>
           <%= f.hidden_field(:package_id, value: @package.id) %>
-          <%= f.hidden_field(:state) %>
+          <%= f.hidden_field(:state, id: "state") %>
 
           <div class="form-group">
             <%= f.label("Url") %>
             <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:urlsrc, size: 80, required: true, class: 'form-control', placeholder: 'Enter the url', autofocus: true) %>
+            <%= f.text_field(:urlsrc, size: 80, required: true, class: 'form-control', placeholder: 'Enter the url', autofocus: true, value: "https://archive.eclipse.org/eclipse/downloads/") %>
           </div>
           <div class="form-group">
             <%= f.label("Regex url") %>
             <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the url') %>
+            <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the url', value: "drops[\\w]*/R-[\\d]+[.][\\w]*[.]*[\\w]*-[\\w]+/") %>
           </div>
 
           <div class="form-group">
             <%= f.label("Regex Version") %>
             <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the version') %>
+            <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the version', value: "[\\d]+[.][\\w]*[.]*[\\w]*") %>
           </div>
 
           <div class="form-group">
             <%= f.label("Current version") %>
             <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version') %>
+            <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version', value: "4.7.3") %>
           </div>
 
           <div class="form-group">
             <%= f.label("Separator") %>
             <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator') %>
+            <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator', value: ".") %>
           </div>
 
           <div class="form-group">
-            <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return message_handle();') %>
+            <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
           </div>
           <div id="message" class="row justify-content-center" style="display: none;">
             <div class="col-12">
@@ -68,13 +91,13 @@
             <%= f.label("Output") %>
             <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
           </div>
-          <% if @state.present? and @state != 'error' %>
-            <% if ! @packageCheckUpgrade.id.present? %>
-              <%= f.submit('Create', class: 'btn btn-primary px-4') %>
-            <% else %>
-              <%= f.submit('Update', class: 'btn btn-primary px-4') %>
-            <% end %>
-          <% end %>
+          <div class="form-group" id="createDiv" style="display: none;">
+            <%= f.submit('Create', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+          </div>
+          <div class="form-group" id="modifyDiv" style="display: none;">
+            <%= f.submit('Update', class: 'btn btn-primary px-4') %>
+            <%= f.submit('Delete', class: 'btn btn-primary px-4') %>
+          </div>
         <% end %>
       </div>
     </div>

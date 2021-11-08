@@ -34,43 +34,79 @@ module Webui
         if @commit == 'Run check'
           run_check(@packageCheckUpgrade)
         else
-          if @packageCheckUpgrade.save
-            #FIXME Redirect to package only if the state != error
-            redirect_to package_show_path(@project, @package)
+          #Re-execute the check because the user could change something before the
+          #submit
+          result = execute_check(@packageCheckUpgrade)
+          if result.present?
+            @packageCheckUpgrade.output = result.gsub("\n", "\\n")
+          end
+          set_state(@packageCheckUpgrade)
+          if @packageCheckUpgrade.state == 'error' or !@packageCheckUpgrade.save
+            flash[:error] = 'An internal error has occurred'
           else
-            redirect_to new_project_package_checkupgrade_path(@project, @package)
+            flash[:success] = 'Check upgrade saved successfully'
           end
         end
         
       end
 
       def packageCheckUpgrade_params
-        params.require(:packageCheckUpgrade).permit(:package_id, :urlsrc, :regexurl, :regexver, :currentver, 
+        params.require(:packageCheckUpgrade).permit(:id, :package_id, :urlsrc, :regexurl, :regexver, :currentver, 
             :separator, :output, :state
           )
       end
 
-      def run_check(packageCheckUpgrade)
-        
+      def execute_check(packageCheckUpgrade)
         result = packageCheckUpgrade.run_checkupgrade(packageCheckUpgrade.urlsrc, packageCheckUpgrade.regexurl, 
                                                       packageCheckUpgrade.regexver, packageCheckUpgrade.currentver, 
                                                       packageCheckUpgrade.separator, 'false', User.session.login)
+        return result
+      end
+
+      def run_check(packageCheckUpgrade)
         
+        flash.clear
+        result = execute_check(packageCheckUpgrade)
+        #If result is present, replace new line character
         if result.present?
           packageCheckUpgrade.output = result.gsub("\n", "\\n")
         else
           packageCheckUpgrade.output = nil
         end
-        
+
+        #Set state
+        set_state(packageCheckUpgrade)
+
+        #Respond
+        check_upgrade_respond(packageCheckUpgrade)
+
+      end
+
+      def check_upgrade_respond(packageCheckUpgrade)
         respond_to do |format|
-            format.html { render action: "new" }
             format.json { render json: packageCheckUpgrade }
-            if ! packageCheckUpgrade.output.present?  
+            if packageCheckUpgrade.state == 'error'
               format.js { flash.now[:error] = 'An internal error has occurred' }
-            else
+            elsif 
               format.js {}
             end
         end
+      end
+
+      def set_state(packageCheckUpgrade)
+        
+        #Setting the state
+        if ! packageCheckUpgrade.output.present? 
+          packageCheckUpgrade.state = 'error'
+        else
+          if packageCheckUpgrade.output.start_with?('Error:')
+            packageCheckUpgrade.state = 'error'
+          elsif packageCheckUpgrade.output.start_with?('Available')
+            packageCheckUpgrade.state = 'upgrade'
+          elsif packageCheckUpgrade.output.start_with?('The package')
+            packageCheckUpgrade.state = 'uptodate'
+          end
+        end 
 
       end
 
