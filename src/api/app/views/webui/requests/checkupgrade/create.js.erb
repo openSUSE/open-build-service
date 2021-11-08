@@ -1,10 +1,9 @@
 var decodeHTML = function (html) {
-alert("html = " + html)
 	var txt = document.createElement('textarea');
 	txt.innerHTML = html;
-alert("html dopo = " + txt.value)	
 	return txt.value;
 };
+
 
 <% if flash[:success] %>
 	//This message will be displayed in the package show after redirect
