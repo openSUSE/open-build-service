@@ -4,7 +4,6 @@ var decodeHTML = function (html) {
 	return txt.value;
 };
 
-
 <% if flash[:success] %>
 	//This message will be displayed in the package show after redirect
 	window.location.href = "/package/show/<%= @project %>/<%= @package%>";
