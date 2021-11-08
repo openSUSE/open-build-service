@@ -53,7 +53,7 @@ aliases:
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
+      cd ./src/api && bundle install --jobs=4 --retry=3
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
@@ -106,7 +106,7 @@ aliases:
     save_cache:
       key: circlev2-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
       paths:
-        - vendor/bundle
+        - /usr/lib64/ruby/gems/2.5.0/gems
         - src/api/tmp/rubocop_cache_root_dir
         - src/api/tmp/rubocop_cache_rails_dir
  
