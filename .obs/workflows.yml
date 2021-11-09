@@ -5,6 +5,7 @@ workflow:
         source_package: obs-server
         target_project: home:bs-team
   filters:
+    event: pull_request
     architectures:
       only:
         - x86_64
