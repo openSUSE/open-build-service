@@ -34,18 +34,25 @@ var modifyDiv = document.querySelector("#modifyDiv");
 var deleteDiv = document.querySelector("#deleteDiv");
 var id = document.querySelector("#id").value;
 if (state.value == '' || state.value == 'error'){
-	createDiv.style.display = "none";
-	modifyDiv.style.display = "none";
+	if (createDiv)
+		createDiv.style.display = "none";
+	if (modifyDiv)
+		modifyDiv.style.display = "none";
 	if (id != '')
-		deleteDiv.style.display = "block";
+		if (deleteDiv)
+			deleteDiv.style.display = "block";
 }
 else {
 	if (id == '') {
-		createDiv.style.display = "block";
-		modifyDiv.style.display = "none";
+		if (createDiv)
+			createDiv.style.display = "block";
+		if (modifyDiv)
+			modifyDiv.style.display = "none";
 	}
 	else {
-		createDiv.style.display = "none";
-		modifyDiv.style.display = "block";
+		if (createDiv)
+			createDiv.style.display = "none";
+		if (modifyDiv)
+			modifyDiv.style.display = "block";
 	}
 }

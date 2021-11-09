@@ -15,14 +15,6 @@
       var output = document.querySelector("#output");
       output.value = "";
 
-      //Hide the buttons
-      var createDiv = document.querySelector("#createDiv");
-      var modifyDiv = document.querySelector("#modifyDiv");
-      var deleteDiv = document.querySelector("#deleteDiv");
-      createDiv.style.display = "none";
-      modifyDiv.style.display = "none";
-      deleteDiv.style.display = "none";
-
       return true;
     }
     return false;
@@ -93,9 +85,11 @@
             <%= f.label("Output") %>
             <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
           </div>
-          <div class="form-group" id="createDiv" style="display: none;">
-            <%= f.submit('Create', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-          </div>
+          <% if ! @packageCheckUpgrade.id.present? %>
+            <div class="form-group" id="createDiv" style="display: none;">
+              <%= f.submit('Create', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+            </div>
+          <% end %>
           <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == 'error' %>
               <div class="form-group" id="deleteDiv">
                 <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
@@ -106,13 +100,6 @@
                 <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
               </div>
           <% end %>
-          <div class="form-group" id="modifyDiv" style="display: none;">
-            <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-            <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-          </div>
-          <div class="form-group" id="deleteDiv" style="display: none;">
-            <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-          </div>
         <% end %>
       </div>
     </div>

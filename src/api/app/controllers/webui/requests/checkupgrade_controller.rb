@@ -102,7 +102,7 @@ module Webui
                                                       packageCheckUpgrade.separator, 'false', User.session.login)
         
         if result.present?
-          packageCheckUpgrade.output = result.gsub("\n", "\\n")
+          packageCheckUpgrade.output = result.gsub("\n", "")
         else
           packageCheckUpgrade.output = nil
         end
