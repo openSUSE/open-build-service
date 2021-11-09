@@ -18,8 +18,10 @@
       //Hide the buttons
       var createDiv = document.querySelector("#createDiv");
       var modifyDiv = document.querySelector("#modifyDiv");
+      var deleteDiv = document.querySelector("#deleteDiv");
       createDiv.style.display = "none";
       modifyDiv.style.display = "none";
+      deleteDiv.style.display = "none";
 
       return true;
     }
@@ -94,9 +96,22 @@
           <div class="form-group" id="createDiv" style="display: none;">
             <%= f.submit('Create', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
           </div>
+          <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == 'error' %>
+              <div class="form-group" id="deleteDiv">
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+              </div>
+          <% elsif @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state != 'error' %>
+              <div class="form-group" id="modifyDiv">
+                <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+              </div>
+          <% end %>
           <div class="form-group" id="modifyDiv" style="display: none;">
-            <%= f.submit('Update', class: 'btn btn-primary px-4') %>
-            <%= f.submit('Delete', class: 'btn btn-primary px-4') %>
+            <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+            <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+          </div>
+          <div class="form-group" id="deleteDiv" style="display: none;">
+            <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
           </div>
         <% end %>
       </div>

@@ -31,10 +31,13 @@ state.value = "<%= @packageCheckUpgrade.state %>";
 //Buttons rendering management
 var createDiv = document.querySelector("#createDiv");
 var modifyDiv = document.querySelector("#modifyDiv");
+var deleteDiv = document.querySelector("#deleteDiv");
 var id = document.querySelector("#id").value;
 if (state.value == '' || state.value == 'error'){
 	createDiv.style.display = "none";
 	modifyDiv.style.display = "none";
+	if (id != '')
+		deleteDiv.style.display = "block";
 }
 else {
 	if (id == '') {

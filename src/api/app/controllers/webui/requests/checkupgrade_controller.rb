@@ -9,13 +9,24 @@ module Webui
       #FIXME add "only" scope 
       after_action :verify_authorized 
 
-
-      def update
-      end
-
-      def edit
-        @packageCheckUpgrade = PackageCheckUpgrade.find_by(id: params[:id])
-        authorize @packageCheckUpgrade, :edit?
+      def update_table?(packageCheckUpgrade)
+        
+        @packageCheckUpgrade_db = PackageCheckUpgrade.find_by(id: packageCheckUpgrade.id)
+        if ! @packageCheckUpgrade_db
+          return false
+        else
+          if @packageCheckUpgrade_db.update(urlsrc: packageCheckUpgrade.urlsrc,
+                                        regexurl: packageCheckUpgrade.regexurl,
+                                        regexver: packageCheckUpgrade.regexver,
+                                        currentver: packageCheckUpgrade.currentver,
+                                        separator: packageCheckUpgrade.separator,
+                                        output: packageCheckUpgrade.output,
+                                        state: packageCheckUpgrade.state)
+            return true
+          else
+            return false
+          end
+        end
       end
 
       def new
@@ -24,32 +35,57 @@ module Webui
           @packageCheckUpgrade = PackageCheckUpgrade.new
         end
         authorize @packageCheckUpgrade, :new?
+
+        if @packageCheckUpgrade.state == 'error' 
+          flash.now[:error] = 'An error has occurred'
+        end
+
       end
 
       def create
         flash.clear
-        @packageCheckUpgrade = PackageCheckUpgrade.new(packageCheckUpgrade_params)
-        authorize @packageCheckUpgrade, :create?
 
         #Get action
         @create_action = params[:commit] == 'Create' ? true : false
+        @delete_action = params[:commit] == 'Delete' ? true : false
+        @update_action = params[:commit] == 'Update' ? true : false
 
-        #Execute check
-        result = execute_check(@packageCheckUpgrade)
-        #Set state
-        set_state(@packageCheckUpgrade)
+        if @delete_action
+          @packageCheckUpgrade = PackageCheckUpgrade.find_by(id: params[:packageCheckUpgrade][:id])
+        else
+          @packageCheckUpgrade = PackageCheckUpgrade.new(packageCheckUpgrade_params)
+        end
+        authorize @packageCheckUpgrade, :create?
+
+        #Skip these steps only for delete action
+        if ! @delete_action
+          #Execute check
+          result = execute_check(@packageCheckUpgrade)
+          #Set state
+          set_state(@packageCheckUpgrade)
+        end
 
         #Respond
         respond_to do |format|
-            if @packageCheckUpgrade.state == 'error' or (@create_action and !@packageCheckUpgrade.save)
+          if @delete_action
+            if !@packageCheckUpgrade.destroy  
+              format.js { flash.now[:error] = 'An error has occurred' }
+            else
+              format.js { flash[:success] = 'Check upgrade deleted successfully' }
+            end
+          else
+            if @packageCheckUpgrade.state == 'error' or 
+              (@create_action and !@packageCheckUpgrade.save) or (@update_action and ! update_table?(@packageCheckUpgrade))
               format.js { flash.now[:error] = 'An error has occurred' }
             else
               if @create_action
                 format.js { flash[:success] = 'Check upgrade saved successfully' }
-              else
-                format.js {}
+              elsif @update_action
+                format.js { flash[:success] = 'Check upgrade updated successfully' }
               end
-            end
+            end    
+          end
+          format.js {}
         end
 
       end

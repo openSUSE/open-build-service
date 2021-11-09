@@ -6,14 +6,6 @@ class PackageCheckUpgradePolicy < ApplicationPolicy
     true
   end
 
-  def update?
-    true
-  end
-
-  def edit?
-    true
-  end
-
   def create?
     true
   end

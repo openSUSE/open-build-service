@@ -1,5 +1,6 @@
 # TODO: Please overwrite this comment with something explaining the model target
 class PackageCheckUpgrade < ApplicationRecord
+  self.primary_key = "id"
   #### Includes and extends
 
   #### Constants
