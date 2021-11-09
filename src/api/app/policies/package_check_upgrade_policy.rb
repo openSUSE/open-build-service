@@ -1,13 +1,18 @@
 class PackageCheckUpgradePolicy < ApplicationPolicy
   
-  #FIXME add check about user 
+  def initialize(user, record, ignore_lock = false)
+    super(user, record)
+    @ignore_lock = ignore_lock
+  end
 
   def new?
-    true
+    return true if user.login
+    false
   end
 
   def create?
-    true
+    return true if user.login
+    false
   end
 
 end

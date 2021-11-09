@@ -5,9 +5,7 @@ module Webui
       before_action :require_login
       before_action :set_package
       before_action :set_project
-
-      #FIXME add "only" scope 
-      after_action :verify_authorized 
+      after_action :verify_authorized, only: [:new, :create]
 
       def update_table?(packageCheckUpgrade)
         
@@ -16,12 +14,9 @@ module Webui
           return false
         else
           if @packageCheckUpgrade_db.update(urlsrc: packageCheckUpgrade.urlsrc,
-                                        regexurl: packageCheckUpgrade.regexurl,
-                                        regexver: packageCheckUpgrade.regexver,
-                                        currentver: packageCheckUpgrade.currentver,
-                                        separator: packageCheckUpgrade.separator,
-                                        output: packageCheckUpgrade.output,
-                                        state: packageCheckUpgrade.state)
+              regexurl: packageCheckUpgrade.regexurl, regexver: packageCheckUpgrade.regexver,
+              currentver: packageCheckUpgrade.currentver, separator: packageCheckUpgrade.separator,
+              output: packageCheckUpgrade.output, state: packageCheckUpgrade.state)
             return true
           else
             return false
@@ -79,7 +74,7 @@ module Webui
               format.js { flash.now[:error] = 'An error has occurred' }
             else
               if @create_action
-                format.js { flash[:success] = 'Check upgrade saved successfully' }
+                format.js { flash[:success] = 'Check upgrade created successfully' }
               elsif @update_action
                 format.js { flash[:success] = 'Check upgrade updated successfully' }
               end
@@ -98,11 +93,15 @@ module Webui
 
       def execute_check(packageCheckUpgrade)
         result = packageCheckUpgrade.run_checkupgrade(packageCheckUpgrade.urlsrc, packageCheckUpgrade.regexurl, 
-                                                      packageCheckUpgrade.regexver, packageCheckUpgrade.currentver, 
-                                                      packageCheckUpgrade.separator, 'false', User.session.login)
-        
-        if result.present?
-          packageCheckUpgrade.output = result.gsub("\n", "")
+                 packageCheckUpgrade.regexver, packageCheckUpgrade.currentver, 
+                 packageCheckUpgrade.separator, 'false', User.session.login)
+
+        if result.present? 
+          if result.start_with?('Error:')
+            packageCheckUpgrade.output = result.gsub("\n", "\\n")
+          else
+            packageCheckUpgrade.output = result.gsub("\n", "")
+          end
         else
           packageCheckUpgrade.output = nil
         end
