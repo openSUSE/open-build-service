@@ -13,7 +13,7 @@ my @active_daemons = qw/obsdispatcher.service  obspublisher.service    obsrepser
 my $out=`systemctl list-units`;
 my $mariadb;
 foreach my $unit (split(/\n/, $out)) {
-  if $unit =~ /^\s*((mysql|mariadb)\.service)\s+/ {
+  if ($unit =~ /^\s*((mysql|mariadb)\.service)\s+/) {
     $mariadb = $1;
     last;
   }
