@@ -162,14 +162,16 @@ sub signisofiles {
 
   my $signed = 0;
   my $vol = readblk($fd, 16);
-  die("primary volume descriptor missing\n") if substr($vol, 0, 6) ne "\001CD001";
+  die("fatal: primary volume descriptor missing\n") if substr($vol, 0, 6) ne "\001CD001";
   my ($path_table_size, $path_table_pos) = unpack('@132V@140V', $vol);
   my $path_table = readblk($fd, $path_table_pos * 2048, $path_table_size, 1);
   while ($path_table ne '') {
     my ($l, $dirpos) = unpack('C@2V', $path_table);
-    die("empty dir in path table\n") unless $l;
+    die("fatal: empty dir in path table\n") unless $l;
     $path_table = substr($path_table, 8 + $l + ($l & 1));
-    my @c = readisodir($fd, $dirpos);
+    my @c;
+    eval { @c = readisodir($fd, $dirpos) };
+    die("fatal: $@") if $@;
     for my $e (@c) {
       #print "$e->[0] $e->[1] $e->[2] $e->[3] $e->[4]\n";
       if ($e->[0] =~ /^(.*)\.asc$/i && $e->[2] == 2048) {
@@ -179,13 +181,17 @@ sub signisofiles {
 	my $len = hex(substr($signfile, 8, 8));
 	my $sum = hex(substr($signfile, 16, 8));
 	my @se = grep {$_->[0] =~ /^\Q$n\E$/i && $_->[2] == $len} @c;
-	die("don't know which file to sign: $e->[0]\n") unless @se == 1;
-	my $sf = readblk($fd, $se[0]->[1], ($len + 0x7ff) >> 11);
-	$sf = substr($sf, 0, $len);
-	die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
+	die("fatal: could not find a file named $n with size $_->[2]\n") unless @se;
+	my $sf;
+	for my $se (@se) {
+	  $sf = substr(readblk($fd, $se->[1], ($len + 0x7ff) >> 11), 0, $len);
+	  last if $sum == unpack("%32C*", $sf);
+	  undef $sf;
+	}
+	die("fatal: content of $n does not match signature\n") unless defined $sf;
 	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs, '-d');
-	die("returned signature is empty\n") unless $sig;
-	die("returned signature is too big\n") if length($sig) > 2048;
+	die("fatal: returned signature is empty\n") unless $sig;
+	die("fatal: returned signature is too big\n") if length($sig) > 2048;
 	# replace old content
 	writeblk($fd, $e->[1], $sig . ("\0" x (2048 - length($sig))));
 	my $dirblk = readblk($fd, $e->[3]);
@@ -199,8 +205,8 @@ sub signisofiles {
 	my $signfile = readblk($fd, $e->[1]);
 	next if substr($signfile, 0, 8) ne "sIGnMeP\n";
 	$pubkey ||= BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
-	die("pubkey is not available\n") unless $pubkey;
-	die("pubkey is too big\n") if length($pubkey) > 8192;
+	die("fatal: pubkey is not available\n") unless $pubkey;
+	die("fatal: pubkey is too big\n") if length($pubkey) > 8192;
 	# replace old content
 	writeblk($fd, $e->[1], $pubkey . ("\0" x (8192 - length($pubkey))));
 	my $dirblk = readblk($fd, $e->[3]);
@@ -218,15 +224,15 @@ sub signisofiles {
 sub signisotag {
   my ($fd, $pubkey, @signargs) = @_;
   my $blk = readblk($fd, 0, 17);
-  die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  die("fatal: primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
   my $tags = ';'.substr($blk, 0x8373, 0x200);
   return unless $tags =~ /;signature ?= ?(\d+)/i;
   my $sigblkno = $1;
   my $b = readblk($fd, $sigblkno, 4, 512);
   return if ord(substr($b, 64, 1));	# do not re-sign already signed isos
   my $sig = BSUtil::xsystem(substr($blk, 0x8373, 0x200), $BSConfig::sign, @signargs, '-d');
-  die("returned signature is empty\n") unless $sig;
-  die("returned signature is too big\n") if length($sig) > 2048 - 64;
+  die("fatal: returned signature is empty\n") unless $sig;
+  die("fatal: returned signature is too big\n") if length($sig) > 2048 - 64;
   $sig .= "\0" x (2048 - 64 - length($sig));
   return if substr($b, 64, 2048 - 64) eq $sig;
   substr($b, 64, 2048 - 64) = $sig;
@@ -236,7 +242,7 @@ sub signisotag {
 sub retagiso_rh {
   my ($fd) = @_;
   my $blk = readblk($fd, 0, 17);
-  die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  die("fatal: primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
   my $tags = ';'.substr($blk, 0x8373, 0x200);
   return unless $tags =~ /;(ISO MD5SUM = [0-9a-fA-F]{32})/;
   my $sum = $1;
@@ -256,7 +262,7 @@ sub retagiso_rh {
   }
   substr($blk, 0x8373, 0x200) = ' ' x 0x200;
   my $numblks = unpack("V", substr($blk, 0x8050, 4));
-  die("bad block number\n") if $numblks < 17;
+  die("fatal: bad block number\n") if $numblks < 17;
   my $ctx = Digest::MD5->new();
   $numblks -= $skip_sect if $skip_sect; 
   my $blkno = 0;
@@ -292,7 +298,7 @@ sub retagiso_rh {
 sub retagiso {
   my ($fd) = @_;
   my $blk = readblk($fd, 0, 17);
-  die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  die("fatal: primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
   my $tags = ';'.substr($blk, 0x8373, 0x200);
   if ($tags =~ /^;(?:SKIPSECTORS|RHLISOSTATUS|ISO [A-Z0-9]*SUM)/) {
     retagiso_rh($fd);
@@ -316,7 +322,7 @@ sub retagiso {
   substr($blk, 0x0000, 0x200) = "\0" x 0x200;
   substr($blk, 0x8373, 0x200) = ' ' x 0x200;
   my $numblks = unpack("V", substr($blk, 0x8050, 4));
-  die("bad block number\n") if $numblks < 17;
+  die("fatal: bad block number\n") if $numblks < 17;
   my $chkmap = { 'md5sum' => 'MD5', 'sha1sum' => 'SHA-1', 'sha256sum' => 'SHA-256' };
   my $ctx = Digest->new($chkmap->{$sumtype});
   $ctx->add($blk);
@@ -355,7 +361,7 @@ sub retagiso {
 }
 
 sub signiso {
-  my ($file, $pubkey, @signargs) = @_;
+  my ($jobstatus, $file, $pubkey, @signargs) = @_;
   local *ISO;
   open(ISO, '+<', $file) || die("$file: $!\n");
   my $signed = signisofiles(\*ISO, $pubkey, @signargs);
@@ -365,7 +371,7 @@ sub signiso {
 }
 
 sub rsasign {
-  my ($signfile, $jobstatus, @signargs) = @_;
+  my ($jobstatus, $signfile, @signargs) = @_;
   my @opensslsignargs = ('-h', 'sha256');
   if ($signfile !~ /\.cpio\.rsasign$/) {
     BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile);
@@ -403,7 +409,7 @@ sub rsasign {
 }
 
 sub signappx {
-  my ($signfile, $jobdir, $projid, $signkey, $cert, @signargs) = @_;
+  my ($jobstatus, $signfile, $jobdir, $projid, $signkey, $cert, @signargs) = @_;
 
   if ((!$signkey || length($signkey) <= 2) && $BSConfig::sign_type) {
     # special signkey, ask for cert again with signtype appx
@@ -421,15 +427,13 @@ sub signappx {
   my $certfile = "$uploaddir/signer.cert.$$";
   mkdir_p($uploaddir);
   writestr($certfile, undef, $cert);
-  eval {
-    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '--appx', '--cert', $certfile, @othercerts, $signfile);
-  };
+  eval { BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '--appx', '--cert', $certfile, @othercerts, $signfile) };
   unlink($certfile);
   die($@) if $@;
 }
 
 sub signhelm {
-  my ($signfile, $jobdir, @signargs) = @_;
+  my ($jobstatus, $signfile, $jobdir, @signargs) = @_;
   my $chart = $signfile;
   $chart =~ s/.*\///;
   return unless $chart =~ s/\.helminfo$/\.tgz/;
@@ -659,19 +663,19 @@ sub signjob {
     eval {
       for my $signfile (@signfiles) {
 	if ($signfile =~ /\.helminfo$/) {
-	  signhelm("$jobdir/$signfile", $jobdir, @signargs);
+	  signhelm($jobstatus, "$jobdir/$signfile", $jobdir, @signargs);
 	  next;
 	}
 	if ($signfile =~ /\.appx$/) {
-	  signappx("$jobdir/$signfile", $jobdir, $projid, $signkey, $cert, @signargs);
+	  signappx($jobstatus, "$jobdir/$signfile", $jobdir, $projid, $signkey, $cert, @signargs);
 	  next;
         }
 	if ($signfile =~ /\.iso$/) {
-	  signiso("$jobdir/$signfile", $pubkey, @signargs);
+	  signiso($jobstatus, "$jobdir/$signfile", $pubkey, @signargs);
 	  next;
 	}
 	if ($signfile =~ /\.rsasign$/) {
-	  rsasign("$jobdir/$signfile", $jobstatus, @signargs) if $followupfile;
+	  rsasign($jobstatus, "$jobdir/$signfile", @signargs) if $followupfile;
 	  next;
 	}
 	my $signfilefinal;
@@ -761,6 +765,7 @@ sub signjob {
 	$error = "Need an RSA key for openssl signing, please create a new key\n";
 	$jobstatus->{'result'} = 'failed';
       }
+      $jobstatus->{'result'} = 'failed' if !$jobstatus->{'result'} && $error =~ s/^fatal: //;
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
         warn("rebuilding: $error\n");
 	if ($info->{'followupfile'}) {
