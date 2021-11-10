@@ -7,23 +7,6 @@ module Webui
       before_action :set_project
       after_action :verify_authorized, only: [:new, :create]
 
-      def update_table?(packageCheckUpgrade)
-        
-        @packageCheckUpgrade_db = PackageCheckUpgrade.find_by(id: packageCheckUpgrade.id)
-        if ! @packageCheckUpgrade_db
-          return false
-        else
-          if @packageCheckUpgrade_db.update(urlsrc: packageCheckUpgrade.urlsrc,
-              regexurl: packageCheckUpgrade.regexurl, regexver: packageCheckUpgrade.regexver,
-              currentver: packageCheckUpgrade.currentver, separator: packageCheckUpgrade.separator,
-              output: packageCheckUpgrade.output, state: packageCheckUpgrade.state)
-            return true
-          else
-            return false
-          end
-        end
-      end
-
       def new
         @packageCheckUpgrade = PackageCheckUpgrade.find_by(package_id: @package.id)
         if ! @packageCheckUpgrade
@@ -85,10 +68,29 @@ module Webui
 
       end
 
+      private
+
       def packageCheckUpgrade_params
         params.require(:packageCheckUpgrade).permit(:id, :package_id, :urlsrc, :regexurl, :regexver, :currentver, 
             :separator, :output, :state
           )
+      end
+
+      def update_table?(packageCheckUpgrade)
+        
+        @packageCheckUpgrade_db = PackageCheckUpgrade.find_by(id: packageCheckUpgrade.id)
+        if ! @packageCheckUpgrade_db
+          return false
+        else
+          if @packageCheckUpgrade_db.update(urlsrc: packageCheckUpgrade.urlsrc,
+              regexurl: packageCheckUpgrade.regexurl, regexver: packageCheckUpgrade.regexver,
+              currentver: packageCheckUpgrade.currentver, separator: packageCheckUpgrade.separator,
+              output: packageCheckUpgrade.output, state: packageCheckUpgrade.state)
+            return true
+          else
+            return false
+          end
+        end
       end
 
       def execute_check(packageCheckUpgrade)
@@ -111,7 +113,6 @@ module Webui
 
       def set_state(packageCheckUpgrade)
         
-        #Setting the state
         if ! packageCheckUpgrade.output.present? 
           packageCheckUpgrade.state = 'error'
         else

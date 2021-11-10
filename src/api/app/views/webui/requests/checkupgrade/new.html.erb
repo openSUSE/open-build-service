@@ -89,9 +89,13 @@
             </div>
           <% end %>
           <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == 'error' %>
-              <div class="form-group" id="deleteDiv" style="display: none;">
+              <div class="form-group" id="deleteDiv">
                 <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
               </div>
+              <div class="form-group" id="modifyDiv" style="display: none;">
+                <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+              </div>              
           <% elsif @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state != 'error' %>
               <div class="form-group" id="modifyDiv" >
                 <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>

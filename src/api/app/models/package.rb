@@ -469,29 +469,10 @@ class Package < ApplicationRecord
     package_kinds.exists?(kind: kind)
   end
 
-  def status_checkupgrade
-    file_name = ""
-    files = Backend::Api::Sources::Package.files(project.name, name, expand: 1)
-    Xmlhash.parse(files).elements('entry').each do |entry|
-      file_name = entry['name']
-      if file_name == '_service:check_upgrade:newer_versions'
-        return 'Success'
-      elsif file_name == '_service:check_upgrade:error' 
-        return 'Error'
-      end
-    end
-  end
-
-  def has_checkupgrade?
-    document = Backend::Api::Sources::Package.service(project.name, name)
-    if document.present?
-      Xmlhash.parse(document).elements('service').each do |service|
-        if service['name'] == 'check_upgrade'
-          return true
-        end  
-      end
-    end
-    return false
+  def check_upgrade_state
+    packageCheckUpgrade = PackageCheckUpgrade.find_by(package_id: id)
+    return packageCheckUpgrade.state if packageCheckUpgrade
+    nil
   end
 
   def ignored_requests
