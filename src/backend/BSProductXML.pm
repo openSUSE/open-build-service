@@ -322,7 +322,7 @@ our $productdesc = [
                'use_suggested',
                'use_required',
                'create_pattern',
-               [[ 'package' => 'name', 'medium', 'relationship', 'arch', 'addarch' ]],
+               [[ 'package' => 'name', 'medium', 'module', 'relationship', 'arch', 'addarch' ]],
                [[ 'include' => 'group', 'relationship' ]],
             ]],
             # product dependency got moved to product definition
