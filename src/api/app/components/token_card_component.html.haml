@@ -6,6 +6,8 @@
     - else
       %h5.card-title.font-italic No name
     %p.card-text
+      Id: #{@token.id}
+    %p.card-text
       = operation
     - if @token.package
       %p.card-text.text-word-break-all
@@ -13,7 +15,7 @@
         = token_package_link
     - if @token.triggered_at.present?
       %p.card-text
-        "Last trigger on #{@token.triggered_at}"
+        Last trigger on #{@token.triggered_at}
     .row
       .col
         - if policy(@token).edit?

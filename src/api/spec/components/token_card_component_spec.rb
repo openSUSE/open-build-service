@@ -19,6 +19,7 @@ RSpec.describe TokenCardComponent, type: :component do
     let(:token) { build_stubbed(:rebuild_token, user: user) }
 
     it { expect(rendered_component).to have_text('No name') }
+    it { expect(rendered_component).to have_text("Id: #{token.id}") }
     it { expect(rendered_component).to have_text("Operation: #{token.class.token_name.capitalize}") }
     it { expect(rendered_component).to have_link(href: "/my/tokens/#{token.id}/edit") }
     it { expect(rendered_component).to have_link(href: "/my/token_triggers/#{token.id}") }
