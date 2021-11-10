@@ -1,0 +1,25 @@
+<!-- FIXME -->
+<div aria-hidden aria-labelledby='delete-modal-label' class='modal fade' id='delete-modal' role='dialog' tabindex='-1'>
+	<div class='modal-dialog modal-dialog-centered' role='document'>
+		<div class='modal-content'>
+			<div class='modal-header'>
+				<h5 class='modal-title' id='delete-modal-label'>Do you really want to delete this package?</h5>
+			</div>
+			<div class='modal-body'>
+				<p>Please confirm deletion of package <a class="project" title="home:Admin" href="/project/show/home:Admin">home:Admin</a> / <a class="package" title="pfetch" href="/package/show/home:Admin/pfetch">pfetch</a></p>
+
+				<form action="/package/remove/home:Admin/pfetch" accept-charset="UTF-8" method="post">
+
+					<input type="hidden" name="authenticity_token" value="cw5EjUC2Y3btvsL1AorzHAydPuA6f0Pkz5cWaohyudq0Nm74st19l/Uqe8dWS69/xcEqv7koZ5WyJVuYnIWILA==" />
+					<input type="hidden" name="project" id="project" value="home:Admin" />
+					<input type="hidden" name="package" id="package" value="pfetch" />
+
+					<div class='modal-footer'>
+						<a class='btn btn-sm btn-outline-secondary px-4' data-dismiss='modal'>Cancel</a>
+						<input type="submit" name="commit" value="Delete" class="btn btn-sm btn-danger px-4" data-disable-with="Delete" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
