@@ -5,7 +5,7 @@ var decodeHTML = function (html) {
 };
 
 <% if flash[:success] %>
-	//This message will be displayed in the package show after redirect
+	//This message will be displayed in the "package show" after redirect
 	window.location.href = "/package/show/<%= @project %>/<%= @package%>";
 <% end %>
 
@@ -38,21 +38,14 @@ if (state.value == '' || state.value == 'error'){
 		createDiv.style.display = "none";
 	if (modifyDiv)
 		modifyDiv.style.display = "none";
-	if (id != '')
-		if (deleteDiv)
-			deleteDiv.style.display = "block";
+	if (id != '') 
+		deleteDiv.style.display = "block";
 }
 else {
-	if (id == '') {
-		if (createDiv)
-			createDiv.style.display = "block";
-		if (modifyDiv)
-			modifyDiv.style.display = "none";
-	}
+	if (id == '') 
+		createDiv.style.display = "block";
 	else {
-		if (createDiv)
-			createDiv.style.display = "none";
-		if (modifyDiv)
-			modifyDiv.style.display = "block";
+		modifyDiv.style.display = "block";
+		deleteDiv.style.display = "none";
 	}
 }
