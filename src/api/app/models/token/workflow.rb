@@ -1,4 +1,6 @@
 class Token::Workflow < Token
+  has_many :workflow_runs, dependent: :destroy, foreign_key: 'token_id', inverse_of: false
+
   validates :scm_token, presence: true
 
   def self.token_name

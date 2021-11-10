@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_02_144122) do
+ActiveRecord::Schema.define(version: 2021_11_10_142710) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -1053,6 +1053,18 @@ ActiveRecord::Schema.define(version: 2021_11_02_144122) do
     t.integer "user_id", default: 0, null: false
     t.integer "project_id", null: false
     t.index ["user_id"], name: "watched_projects_users_fk_1"
+  end
+
+  create_table "workflow_runs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.text "request_headers", null: false
+    t.text "request_payload", null: false
+    t.integer "status", limit: 1, default: 0, null: false
+    t.text "response_body"
+    t.string "response_url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "token_id", null: false
+    t.index ["token_id"], name: "index_workflow_runs_on_token_id"
   end
 
   add_foreign_key "attrib_allowed_values", "attrib_types", name: "attrib_allowed_values_ibfk_1"
