@@ -44,7 +44,6 @@ class Package < ApplicationRecord
 
   has_many :package_kinds, dependent: :delete_all
   has_many :package_issues, dependent: :delete_all # defined in sources
-  has_one  :package_check_upgrades, dependent: :destroy
   has_many :issues, through: :package_issues
 
   has_many :products, dependent: :destroy
@@ -65,6 +64,7 @@ class Package < ApplicationRecord
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
+  before_destroy :remove_check_upgrade
 
   after_destroy :delete_from_sphinx
   after_save :write_to_backend
@@ -1118,6 +1118,10 @@ class Package < ApplicationRecord
       devel_package.store
       devel_package.reset_cache
     end
+  end
+
+  def remove_check_upgrade
+    PackageCheckUpgrade.find_by(package_id: id).delete
   end
 
   def close_requests

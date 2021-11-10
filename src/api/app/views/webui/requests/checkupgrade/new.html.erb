@@ -1,6 +1,11 @@
 <script language="Javascript">
 
-  function doBeforeSubmit() {
+  //FIXME open pop up dialog like _delete_dialog.html.haml about package 
+  function remove() {
+    return window.confirm("Are you sure ?");
+  }
+
+  function doBeforeSubmit(cancel) {
     var myform = document.querySelector("#myform");
     if (myform.reportValidity()) {
       
@@ -89,20 +94,20 @@
             </div>
           <% end %>
           <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == 'error' %>
-              <div class="form-group" id="deleteDiv">
-                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-              </div>
               <div class="form-group" id="modifyDiv" style="display: none;">
                 <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return remove();') %>
               </div>              
+              <div class="form-group" id="deleteDiv">
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return remove();') %>
+              </div>
           <% elsif @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state != 'error' %>
               <div class="form-group" id="modifyDiv" >
                 <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return remove();') %>
               </div>
               <div class="form-group" id="deleteDiv" style="display: none;">
-                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                <%= f.submit('Delete', class: 'btn btn-primary px-4', onclick: 'return remove();') %>
               </div>
           <% end %>
         <% end %>

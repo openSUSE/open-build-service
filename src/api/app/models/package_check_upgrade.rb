@@ -1,6 +1,5 @@
 # TODO: Please overwrite this comment with something explaining the model target
 class PackageCheckUpgrade < ApplicationRecord
-  self.primary_key = "id"
   #### Includes and extends
 
   #### Constants
@@ -10,7 +9,6 @@ class PackageCheckUpgrade < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  has_one :packages
   
   #### Callbacks macros: before_save, after_save, etc.
 
