@@ -49,6 +49,8 @@ images:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
     <<: *common_frontend_config
 
+  - &frontend_base_ci
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base-ci:latest
 aliases:
   - &install_dependencies
     name: install dependencies
@@ -124,7 +126,7 @@ jobs:
 
   linters:
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_base_ci
     steps:
       - attach_workspace:
          at: .
@@ -173,7 +175,7 @@ jobs:
 
   checkout_code:
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_base_ci
     steps:
       - checkout
       - run: *install_dependencies
@@ -273,7 +275,7 @@ jobs:
 
   migrations_tests:
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_base_ci
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -321,7 +323,7 @@ jobs:
 
   coverage:
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_base_ci
 
     steps:
       - attach_workspace:
