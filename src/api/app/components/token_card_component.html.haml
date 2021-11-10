@@ -13,7 +13,7 @@
         = token_package_link
     - if @token.triggered_at.present?
       %p.card-text
-        "Last trigger on #{@token.triggered_at}"
+        Last trigger on #{@token.triggered_at}
     .row
       .col
         - if policy(@token).edit?
