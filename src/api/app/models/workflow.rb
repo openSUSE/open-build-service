@@ -19,12 +19,12 @@ class Workflow
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
+  validates_with WorkflowBranchesFiltersValidator
 
   def call
     # TODO: This could be in a custom validator WorkflowEventFilterValidator
     return unless event_matches_event_filter?
-    # TODO: This could be in a custom validator WorkflowBranchesFilterValidator
-    return unless branch_matches_branches_filter?
+    return unless valid?
 
     case
     when scm_webhook.closed_merged_pull_request?
@@ -62,6 +62,10 @@ class Workflow
     @workflow_steps ||= workflow_instructions.fetch(:steps, [])
   end
 
+  def supported_filters
+    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
+  end
+
   private
 
   def initialize_step(step_name, step_instructions)
@@ -70,26 +74,10 @@ class Workflow
                                    token: token)
   end
 
-  def supported_filters
-    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
-  end
-
   def event_matches_event_filter?
     return true unless supported_filters.key?(:event)
     return true if filters[:event] == 'push' && scm_webhook.push_event?
     return true if filters[:event] == 'pull_request' && scm_webhook.pull_request_event?
-
-    false
-  end
-
-  def branch_matches_branches_filter?
-    return true unless supported_filters.key?(:branches)
-
-    branches_only = filters[:branches].fetch(:only, [])
-    branches_ignore = filters[:branches].fetch(:ignore, [])
-
-    return true if branches_only.present? && branches_only.include?(scm_webhook.payload[:target_branch])
-    return true if branches_ignore.present? && branches_ignore.exclude?(scm_webhook.payload[:target_branch])
 
     false
   end
