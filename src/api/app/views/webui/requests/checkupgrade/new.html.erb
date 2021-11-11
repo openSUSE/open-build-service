@@ -1,10 +1,4 @@
 <script language="Javascript">
-
-  //FIXME open pop up dialog like _delete_dialog.html.haml about package 
-  function remove() {
-    return window.confirm("Are you sure ?");
-  }
-
   function doBeforeSubmit(cancel) {
     var myform = document.querySelector("#myform");
     if (myform.reportValidity()) {
@@ -24,16 +18,13 @@
     }
     return false;
   }
-
 </script>
-
 <% @pagetitle = "Check upgrade for #{@package}" %>
 <% @id = @packageCheckUpgrade.id %>
 <!-- Show actions for this page only if id is present --> 
 <% if @id.present? %>
   <%= render partial: 'show_actions', locals: { packageCheckUpgrade: @packageCheckUpgrade} %>
 <% end %>
-
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -44,12 +35,10 @@
       </div>
       <div class="col-12 col-md-9 col-lg-6">
         <%= form_for(:packageCheckUpgrade, html: { id: "myform" }, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
-
           <!--Hidden Fields-->
           <%= f.hidden_field(:id, id: "id") %>
           <%= f.hidden_field(:package_id, value: @package.id) %>
           <%= f.hidden_field(:state, id: "state") %>
-
           <div class="form-group">
             <%= f.label("Url") %>
             <abbr class="text-danger" title="required">*</abbr>
@@ -60,25 +49,21 @@
             <abbr class="text-danger" title="required">*</abbr>
             <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the url', value: "drops[\\w]*/R-[\\d]+[.][\\w]*[.]*[\\w]*-[\\w]+/") %>
           </div>
-
           <div class="form-group">
             <%= f.label("Regex Version") %>
             <abbr class="text-danger" title="required">*</abbr>
             <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the version', value: "[\\d]+[.][\\w]*[.]*[\\w]*") %>
           </div>
-
           <div class="form-group">
             <%= f.label("Current version") %>
             <abbr class="text-danger" title="required">*</abbr>
             <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version', value: "4.7.3") %>
           </div>
-
           <div class="form-group">
             <%= f.label("Separator") %>
             <abbr class="text-danger" title="required">*</abbr>
             <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator', value: ".") %>
           </div>
-
           <div class="form-group">
             <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
           </div>
@@ -90,7 +75,6 @@
               </div>
             </div>
           </div>
-
           <div class="form-group">
             <%= f.label("Output") %>
             <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
