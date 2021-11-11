@@ -28,7 +28,7 @@
           .form-row
             .col
               .form-group
-                = f.label(:type, class: 'col-form-label col-form-label-lg mr-2')
+                = f.label(:type, 'Type:', class: 'col-form-label mr-2')
                 .w-100.d-sm-none
                 = f.collection_radio_buttons(:type, type_options, :to_s, :to_s, class: 'custom-control-input', required: true) do |radio|
                   .custom-control.custom-radio.custom-control-inline
@@ -38,7 +38,7 @@
           .form-row
             .col-sm
               .form-group.ui-front
-                = f.label(:name, 'Name')
+                = f.label(:name, 'Name:')
                 = f.text_field(:name, class: 'form-control', placeholder: 'Eg: Rebuild vim package')
                 .form-text.text-muted
                   Optional: provide a name to identify your token.
@@ -57,7 +57,7 @@
           .form-row
             .col-12.col-md-10.col-lg-9
               .form-group.d-none#fieldset-token-scm-token
-                = f.label(:scm_token, 'SCM Token')
+                = f.label(:scm_token, 'SCM Token:')
                 %abbr.text-danger{ title: 'required' } *
                 = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your SCM token')
 
