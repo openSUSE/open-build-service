@@ -19,10 +19,11 @@ class Workflow
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
+  validates_with WorkflowEventFilterValidator
 
   def call
     # TODO: This could be in a custom validator WorkflowEventFilterValidator
-    return unless event_matches_event_filter?
+    return unless valid?
     # TODO: This could be in a custom validator WorkflowBranchesFilterValidator
     return unless branch_matches_branches_filter?
 
@@ -62,24 +63,16 @@ class Workflow
     @workflow_steps ||= workflow_instructions.fetch(:steps, [])
   end
 
+  def supported_filters
+    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
+  end
+
   private
 
   def initialize_step(step_name, step_instructions)
     SUPPORTED_STEPS[step_name].new(step_instructions: step_instructions,
                                    scm_webhook: scm_webhook,
                                    token: token)
-  end
-
-  def supported_filters
-    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
-  end
-
-  def event_matches_event_filter?
-    return true unless supported_filters.key?(:event)
-    return true if filters[:event] == 'push' && scm_webhook.push_event?
-    return true if filters[:event] == 'pull_request' && scm_webhook.pull_request_event?
-
-    false
   end
 
   def branch_matches_branches_filter?
