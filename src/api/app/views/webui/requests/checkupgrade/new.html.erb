@@ -20,11 +20,7 @@
   }
 </script>
 <% @pagetitle = "Check upgrade for #{@package}" %>
-<% @id = @packageCheckUpgrade.id %>
-<!-- Show actions for this page only if id is present --> 
-<% if @id.present? %>
-  <%= render partial: 'show_actions', locals: { packageCheckUpgrade: @packageCheckUpgrade} %>
-<% end %>
+<%= render partial: 'show_actions', locals: { packageCheckUpgrade: @packageCheckUpgrade} %>
 <div class="card">
   <div class="card-body">
     <div class="row">
@@ -98,6 +94,4 @@
     </div>
   </div>
 </div>
-<% if @id.present? %>
-  <%= render partial: 'delete_check_upgrade', locals: { packageCheckUpgrade: @packageCheckUpgrade } %>
-<% end %>
+<%= render partial: 'delete_dialog_check_upgrade', locals: { packageCheckUpgrade: @packageCheckUpgrade } %>

@@ -469,10 +469,8 @@ class Package < ApplicationRecord
     package_kinds.exists?(kind: kind)
   end
 
-  def check_upgrade_state
-    packageCheckUpgrade = PackageCheckUpgrade.find_by(package_id: id)
-    return packageCheckUpgrade.state if packageCheckUpgrade
-    nil
+  def check_upgrade
+    return PackageCheckUpgrade.find_by(package_id: id)
   end
 
   def ignored_requests

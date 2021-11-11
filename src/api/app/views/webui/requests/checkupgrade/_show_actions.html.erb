@@ -1,3 +1,5 @@
-<% content_for :actions do %>
-	<%= render partial: 'webui/requests/checkupgrade/show_actions/delete_check_upgrade', locals: { packageCheckUpgrade: packageCheckUpgrade} %>
+<% if packageCheckUpgrade.id %>
+	<% content_for :actions do %>
+		<%= render partial: 'webui/requests/checkupgrade/show_actions/delete_check_upgrade', locals: { packageCheckUpgrade: packageCheckUpgrade} %>
+	<% end %>
 <% end %>
