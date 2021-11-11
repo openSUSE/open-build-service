@@ -410,7 +410,7 @@ GEM
     ruby-ldap (0.9.20)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
-    ruby_parser (3.18.0)
+    ruby_parser (3.18.1)
       sexp_processor (~> 4.16)
     rubyzip (2.3.2)
     sassc (2.4.0)
