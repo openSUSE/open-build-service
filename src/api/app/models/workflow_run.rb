@@ -9,6 +9,10 @@ class WorkflowRun < ApplicationRecord
     success: 1,
     fail: 2
   }
+
+  def update_to_fail(message)
+    update(response_body: message, status: 'fail')
+  end
 end
 
 # == Schema Information
