@@ -1,0 +1,21 @@
+<div aria-hidden aria-labelledby='delete-modal-label' class='modal fade' id='delete-modal' role='dialog' tabindex='-1'>
+
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delete-modal-label">Do you really want to delete ?</h5>
+      </div>
+      <div class="modal-body">
+        <p>Please confirm deletion</p>
+        <%= form_for(:packageCheckUpgrade, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
+          <%= f.hidden_field(:id, value: @packageCheckUpgrade.id) %>
+          <div class="modal-footer">
+            <a class='btn btn-sm btn-outline-secondary px-4' data-dismiss='modal'>Cancel</a>
+            <%= f.submit('Delete', class: 'btn btn-sm btn-danger px-4') %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
