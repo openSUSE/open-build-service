@@ -1,15 +1,16 @@
 workflow:
   steps:
-    - branch_package:
+    - link_package:
         source_project: OBS:Server:Unstable
         source_package: obs-server
         target_project: home:bs-team
+    - configure_repositories:
+        project: home:bs-team
+        repositories:
+          - name: 15.3
+            target_project: SUSE:SLE-15-SP3:GA
+            target_repository: standard
+            architectures:
+              - x86_64
   filters:
     event: pull_request
-    architectures:
-      only:
-        - x86_64
-    repositories:
-      only:
-        - openSUSE_Factory
-        - SLE_15_SP3

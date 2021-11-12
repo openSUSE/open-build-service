@@ -105,13 +105,13 @@ sub add_modulemd_artifact {
   my $r = eval { Build::Rpm::query($rpm, 'evra' => 1, 'license' => 1, 'modularitylabel' => 1) };
   if ($@) {
     warn($@);
-    return undef;
+    return 0;
   }
-  return undef unless $r->{'modularitylabel'};
+  return -1 unless $r->{'modularitylabel'};
   my @ml = split(':', $r->{'modularitylabel'});
   my $mdd = ((grep {$_->{'document'} eq 'modulemd'} @$modulemd)[0])->{'data'};
   # also check context?
-  return undef unless $ml[0] eq $mdd->{'name'} && $ml[1] eq $mdd->{'stream'};
+  return 0 unless $ml[0] eq $mdd->{'name'} && $ml[1] eq $mdd->{'stream'};
   $r->{'epoch'} ||= 0;
   my $nevra = "$r->{'name'}-$r->{'epoch'}:$r->{'version'}-$r->{'release'}.$r->{'arch'}";
   push  @{$mdd->{'artifacts'}->{'rpms'}}, $nevra unless grep {$_ eq $nevra} @{($mdd->{'artifacts'} || {})->{'rpms'} || []};
@@ -507,8 +507,11 @@ sub build {
 	  # FIXME: How is debian handling debug packages ?
 	  next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
 	  next if $jobbins{$filename};  # first one wins
-	  next if $modulemd && !add_modulemd_artifact($modulemd, $d);
-	  $have_modulemd_artifacts = 1 if $modulemd;
+	  if ($modulemd) {
+	    my $art = add_modulemd_artifact($modulemd, $d);
+	    next unless $art;
+	    $have_modulemd_artifacts = 1 if $art > 0;
+	  }
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
 	  $jobrepo->{"$jobdatadir/$filename"} = $r;
@@ -520,7 +523,11 @@ sub build {
 	  my $filename = $d->[2];
 	  $d = $d->[0];
 	  next if $jobbins{$filename};  # first one wins
-	  next if $modulemd && !add_modulemd_artifact($modulemd, $d);
+	  if ($modulemd) {
+	    my $art = add_modulemd_artifact($modulemd, $d);
+	    next unless $art;
+	    $have_modulemd_artifacts = 1 if $art > 0;
+	  }
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
 	  $jobrepo->{"$jobdatadir/$filename"} = $r;
