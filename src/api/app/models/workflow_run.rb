@@ -1,6 +1,6 @@
 class WorkflowRun < ApplicationRecord
   validates :response_url, length: { maximum: 255 }
-  validates :request_headers, :request_payload, :status, presence: true
+  validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow'
 
