@@ -5,12 +5,12 @@ class WorkflowFiltersValidator < ActiveModel::Validator
     @workflow = record
     @workflow_instructions = record.workflow_instructions
 
-    valid_filters?
+    validate_filters
   end
 
   private
 
-  def valid_filters?
+  def validate_filters
     # Filters aren't mandatory in a workflow
     return unless @workflow_instructions.key?(:filters)
 
