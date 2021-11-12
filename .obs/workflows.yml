@@ -11,5 +11,4 @@ workflow:
         - x86_64
     repositories:
       only:
-        - openSUSE_Factory
-        - SLE_15_SP3
+        - 15.3
