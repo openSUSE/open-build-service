@@ -1411,12 +1411,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(parent: { tag: 'state' }, tag: 'comment', content: 'All reviewers accepted request')
 
     get '/search/request', params: { match: 'review/@when>="2010-07-12"' }
-    print @response.body
     assert_response :success
     assert_xml_tag tag: 'request', attributes: { id: reqid }
 
     get '/search/request', params: { match: 'review/history/@when>="1975-07-12"' }
-    print @response.body
     assert_response :success
     assert_xml_tag tag: 'request', attributes: { id: reqid }
 
