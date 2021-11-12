@@ -32,7 +32,7 @@ state.value = "<%= @packageCheckUpgrade.state %>";
 var createDiv = document.querySelector("#createDiv");
 var modifyDiv = document.querySelector("#modifyDiv");
 var id = document.querySelector("#id").value;
-if (state.value == '' || state.value == 'error'){
+if (state.value == '' || state.value == "<%= PackageCheckUpgrade::STATE_ERROR %>"){
 	if (createDiv)
 		createDiv.style.display = "none";
 	if (modifyDiv)

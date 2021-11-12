@@ -14,7 +14,7 @@ module Webui
         end
         authorize @packageCheckUpgrade, :new?
 
-        if @packageCheckUpgrade.state == 'error' 
+        if @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR 
           flash.now[:error] = 'An error has occurred'
         end
 
@@ -37,10 +37,7 @@ module Webui
 
         #Skip these steps only for delete action
         if ! @delete_action
-          #Execute check
-          result = execute_check(@packageCheckUpgrade)
-          #Set state
-          set_state(@packageCheckUpgrade)
+          execute_check(@packageCheckUpgrade)
         end
 
         #Respond
@@ -52,7 +49,8 @@ module Webui
               format.js { flash[:success] = 'Check upgrade deleted successfully' }
             end
           else
-            if @packageCheckUpgrade.state == 'error' or 
+
+            if @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR or 
               (@create_action and !@packageCheckUpgrade.save) or (@update_action and ! update_table?(@packageCheckUpgrade))
               format.js { flash.now[:error] = 'An error has occurred' }
             else
@@ -94,37 +92,9 @@ module Webui
       end
 
       def execute_check(packageCheckUpgrade)
-        result = packageCheckUpgrade.run_checkupgrade(packageCheckUpgrade.urlsrc, packageCheckUpgrade.regexurl, 
-                 packageCheckUpgrade.regexver, packageCheckUpgrade.currentver, 
-                 packageCheckUpgrade.separator, 'false', User.session.login)
-
-        if result.present? 
-          if result.start_with?('Error:')
-            packageCheckUpgrade.output = result.gsub("\n", "\\n")
-          else
-            packageCheckUpgrade.output = result.gsub("\n", "")
-          end
-        else
-          packageCheckUpgrade.output = nil
-        end
-
-        return result
-      end
-
-      def set_state(packageCheckUpgrade)
-        
-        if ! packageCheckUpgrade.output.present? 
-          packageCheckUpgrade.state = 'error'
-        else
-          if packageCheckUpgrade.output.start_with?('Error:')
-            packageCheckUpgrade.state = 'error'
-          elsif packageCheckUpgrade.output.start_with?('Available')
-            packageCheckUpgrade.state = 'upgrade'
-          elsif packageCheckUpgrade.output.start_with?('The package')
-            packageCheckUpgrade.state = 'uptodate'
-          end
-        end 
-
+        result = packageCheckUpgrade.run_checkupgrade(User.session.login)
+        #Set the output and state by result
+        packageCheckUpgrade.set_output_and_state_by_result(result)
       end
 
     end

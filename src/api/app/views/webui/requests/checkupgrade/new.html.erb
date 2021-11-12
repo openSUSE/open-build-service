@@ -80,11 +80,11 @@
               <%= f.submit('Create', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
             </div>
           <% end %>
-          <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == 'error' %>
+          <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR %>
               <div class="form-group" id="modifyDiv" style="display: none;">
                 <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
               </div>              
-          <% elsif @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state != 'error' %>
+          <% elsif @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state != PackageCheckUpgrade::STATE_ERROR %>
               <div class="form-group" id="modifyDiv" >
                 <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
               </div>
