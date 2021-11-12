@@ -69,5 +69,63 @@ RSpec.describe SCMStatusReporter, type: :service do
 
       it { expect { subject }.to change(EventSubscription, :count).by(-1) }
     end
+
+    context 'when sending a report back to GitHub' do
+      let(:event_payload) do
+        { project: 'home:danidoni', package: 'hello_world',
+          repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
+      end
+      let(:event_subscription_payload) do
+        { scm: 'github', short_package_name: 'hello_world-1234567',
+          target_repository_full_name: 'danidoni/hello_world', commit_sha: '123456789' }
+      end
+      let(:token) { 'XYCABC' }
+      let(:event_type) { nil }
+      let(:state) { 'pending' }
+      let(:status_options) do
+        {
+          context: 'OBS: hello_world-1234567 - openSUSE_Tumbleweed/x86_64',
+          target_url: 'https://unconfigured.openbuildservice.org/package/show/home:danidoni/hello_world'
+        }
+      end
+      let(:octokit_client) { instance_spy('Octokit::Client', create_status: true) }
+
+      subject { scm_status_reporter.call }
+
+      it 'sends a short commit sha' do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        subject
+        expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, status_options)
+      end
+    end
+
+    context 'when sending a report back to GitLub' do
+      let(:event_payload) do
+        { project: 'home:danidoni', package: 'hello_world',
+          repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
+      end
+      let(:event_subscription_payload) do
+        { scm: 'gitlab', short_package_name: 'hello_world-1234567',
+          project_id: '26_212_710', commit_sha: '123456789' }
+      end
+      let(:token) { 'XYCABC' }
+      let(:event_type) { nil }
+      let(:state) { 'pending' }
+      let(:status_options) do
+        {
+          context: 'OBS: hello_world-1234567 - openSUSE_Tumbleweed/x86_64',
+          target_url: 'https://unconfigured.openbuildservice.org/package/show/home:danidoni/hello_world'
+        }
+      end
+      let(:gitlab_instance) { instance_spy('Client', update_commit_status: true) }
+
+      subject { scm_status_reporter.call }
+
+      it 'sends a short commit sha' do
+        allow(Gitlab).to receive(:client).and_return(gitlab_instance)
+        subject
+        expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state, status_options)
+      end
+    end
   end
 end
