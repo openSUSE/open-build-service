@@ -64,6 +64,7 @@ end
 #  output     :text(65535)
 #  regexurl   :string(255)
 #  regexver   :string(255)
+#  send_email :boolean          default(FALSE)
 #  separator  :string(255)
 #  state      :string           not null
 #  urlsrc     :string(255)
