@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_10_142710) do
+ActiveRecord::Schema.define(version: 2021_11_12_134215) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -1060,7 +1060,6 @@ ActiveRecord::Schema.define(version: 2021_11_10_142710) do
     t.text "request_payload", null: false
     t.integer "status", limit: 1, default: 0, null: false
     t.text "response_body"
-    t.string "response_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "token_id", null: false
