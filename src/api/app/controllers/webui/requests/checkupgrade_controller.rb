@@ -17,7 +17,6 @@ module Webui
         if @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR 
           flash.now[:error] = 'An error has occurred'
         end
-
       end
 
       def create
@@ -50,7 +49,6 @@ module Webui
               format.js { flash[:success] = 'Check upgrade deleted successfully' }
             end
           else
-
             if @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR or 
               (@create_action and !@packageCheckUpgrade.save) or (@update_action and ! update_table?(@packageCheckUpgrade))
               format.js { flash.now[:error] = 'An error has occurred' }
@@ -64,7 +62,6 @@ module Webui
           end
           format.js {}
         end
-
       end
 
       private
@@ -74,8 +71,7 @@ module Webui
             :separator, :output, :state, :send_email)
       end
 
-      def update_table?(packageCheckUpgrade)
-        
+      def update_table?(packageCheckUpgrade)        
         @packageCheckUpgrade_db = PackageCheckUpgrade.find_by(id: packageCheckUpgrade.id)
         if ! @packageCheckUpgrade_db
           return false
