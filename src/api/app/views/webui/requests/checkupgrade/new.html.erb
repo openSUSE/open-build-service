@@ -60,6 +60,12 @@
             <abbr class="text-danger" title="required">*</abbr>
             <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator', value: ".") %>
           </div>
+           <div class="form-group">
+            <div class='custom-control custom-checkbox'>
+              <%= f.check_box(:send_email, { class: 'custom-control-input' }) %>
+              <%= f.label(:send_email, 'Send email notification', class: 'custom-control-label') %>
+            </div>
+          </div>
           <div class="form-group">
             <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
           </div>

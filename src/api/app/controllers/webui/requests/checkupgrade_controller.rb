@@ -70,8 +70,7 @@ module Webui
 
       def packageCheckUpgrade_params
         params.require(:packageCheckUpgrade).permit(:id, :package_id, :urlsrc, :regexurl, :regexver, :currentver, 
-            :separator, :output, :state
-          )
+            :separator, :output, :state, :send_email)
       end
 
       def update_table?(packageCheckUpgrade)
@@ -83,7 +82,8 @@ module Webui
           if @packageCheckUpgrade_db.update(urlsrc: packageCheckUpgrade.urlsrc,
               regexurl: packageCheckUpgrade.regexurl, regexver: packageCheckUpgrade.regexver,
               currentver: packageCheckUpgrade.currentver, separator: packageCheckUpgrade.separator,
-              output: packageCheckUpgrade.output, state: packageCheckUpgrade.state)
+              output: packageCheckUpgrade.output, state: packageCheckUpgrade.state, 
+              send_email: packageCheckUpgrade.send_email)
             return true
           else
             return false
