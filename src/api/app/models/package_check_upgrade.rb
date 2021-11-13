@@ -68,6 +68,7 @@ end
 #  separator  :string(255)
 #  state      :string           not null
 #  urlsrc     :string(255)
+#  user_email :string(255)
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  package_id :integer          indexed

@@ -32,6 +32,7 @@ module Webui
           @packageCheckUpgrade = PackageCheckUpgrade.find_by(id: params[:packageCheckUpgrade][:id])
         else
           @packageCheckUpgrade = PackageCheckUpgrade.new(packageCheckUpgrade_params)
+          @packageCheckUpgrade.user_email = User.session.email
         end
         authorize @packageCheckUpgrade, :create?
 
