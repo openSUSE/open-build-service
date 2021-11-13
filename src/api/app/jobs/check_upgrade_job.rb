@@ -1,8 +1,9 @@
 class CheckUpgradeJob < ApplicationJob
+
   
   def perform(project_id, package_id=nil)
     
-    Rails.logger.debug "Running check upgrade job ...."
+    logger.debug "Running check upgrade job ...."
 
     user = User.session!.login
 
@@ -30,7 +31,21 @@ class CheckUpgradeJob < ApplicationJob
       puts "Result = ", result
     end
 
-    Rails.logger.info "Check upgrade job finished!"
+    logger.debug "Check upgrade job finished!"
+
+  end
+
+  private
+
+  def logger
+    Rails.logger
+  end
+
+  def get_conf_params
+
+  end
+
+  def set_conf_params
 
   end
 
