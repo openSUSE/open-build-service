@@ -2,13 +2,17 @@
   function enable_edit(num) {
     dynamic_f = document.querySelector("#dynamic-form");
     static_f = document.querySelector("#static-form");
+    pagetitle = document.querySelector("#pagetitle");
+    pagetitle_edit = document.querySelector("#pagetitle-edit");
     if (num == 1) {
       static_f.style.display = "none";
       dynamic_f.style.display = "block";
+      pagetitle.style.display = "none";
+      pagetitle_edit.style.display = "block";
     }
     else {
-      static_f.style.display = "block";
-      dynamic_f.style.display = "none";
+      //Reload the data from db 
+      window.location.href = '<%= new_project_package_checkupgrade_path(@project, @package) %>';
     }
   }
 
@@ -39,13 +43,14 @@
 <div class="card">
   <div class="card-body">
     <div class="row">
-      <div class="col-12">
+      <div class="col-12" id="pagetitle">
         <h3>
-          <% if ! @has_id %>
             <%= @pagetitle %>
-          <% else %>
+        </h3>
+      </div>
+      <div class="col-12" id="pagetitle-edit" style="display: none;">
+        <h3>
             <%= @pagetitle_edit %>
-          <% end %>
         </h3>
       </div>
 
