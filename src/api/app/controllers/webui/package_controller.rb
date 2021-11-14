@@ -68,13 +68,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def show
-    @checkupgrade = params[:checkupgrade]
-    if @checkupgrade
-      #FIXME for test perform_now 
-      CheckUpgradeJob.perform_now(@project.id, @package.id)
-      #CheckUpgradeJob.perform_later(@project, @package)
-    end
-    
     if @spider_bot
       params.delete(:rev)
       params.delete(:srcmd5)
