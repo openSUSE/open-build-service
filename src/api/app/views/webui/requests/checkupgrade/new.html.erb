@@ -1,4 +1,17 @@
 <script language="Javascript">
+  function enable_edit(num) {
+    dynamic_f = document.querySelector("#dynamic-form");
+    static_f = document.querySelector("#static-form");
+    if (num == 1) {
+      static_f.style.display = "none";
+      dynamic_f.style.display = "block";
+    }
+    else {
+      static_f.style.display = "block";
+      dynamic_f.style.display = "none";
+    }
+  }
+
   function doBeforeSubmit(cancel) {
     var myform = document.querySelector("#myform");
     if (myform.reportValidity()) {
@@ -20,83 +33,202 @@
   }
 </script>
 <% @pagetitle = "Check upgrade for #{@package}" %>
+<% @pagetitle_edit = "Edit check upgrade for #{@package}" %>
+<% @has_id = @packageCheckUpgrade.id.present? ? true : false %>
 <%= render partial: 'show_actions', locals: { packageCheckUpgrade: @packageCheckUpgrade} %>
 <div class="card">
   <div class="card-body">
     <div class="row">
       <div class="col-12">
         <h3>
-          <%= @pagetitle %>
+          <% if ! @has_id %>
+            <%= @pagetitle %>
+          <% else %>
+            <%= @pagetitle_edit %>
+          <% end %>
         </h3>
       </div>
-      <div class="col-12 col-md-9 col-lg-6">
-        <%= form_for(:packageCheckUpgrade, html: { id: "myform" }, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
-          <!--Hidden Fields-->
-          <%= f.hidden_field(:id, id: "id") %>
-          <%= f.hidden_field(:package_id, value: @package.id) %>
-          <%= f.hidden_field(:state, id: "state") %>
+
+      <% if @has_id %>
+
+        <div class="col-12 col-md-9 col-lg-6" id="static-form">      
           <div class="form-group">
-            <%= f.label("Url") %>
-            <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:urlsrc, size: 80, required: true, class: 'form-control', placeholder: 'Enter the url', autofocus: true, value: "https://archive.eclipse.org/eclipse/downloads/") %>
+              <%= "Url" %><br/>
+              <span class="text-info"><%= @packageCheckUpgrade.urlsrc %></span>
           </div>
           <div class="form-group">
-            <%= f.label("Regex url") %>
-            <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the url', value: "drops[\\w]*/R-[\\d]+[.][\\w]*[.]*[\\w]*-[\\w]+/") %>
+              <%= "Regex url" %><br/>
+              <span class="text-info"><%= @packageCheckUpgrade.regexurl %></span>
           </div>
           <div class="form-group">
-            <%= f.label("Regex Version") %>
-            <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the version', value: "[\\d]+[.][\\w]*[.]*[\\w]*") %>
+              <%= "Regex version" %><br/>
+              <span class="text-info"><%= @packageCheckUpgrade.regexver %></span>
           </div>
           <div class="form-group">
-            <%= f.label("Current version") %>
-            <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version', value: "4.7.3") %>
+              <%= "Current version" %><br/>
+              <span class="text-info"><%= @packageCheckUpgrade.currentver %></span>
           </div>
           <div class="form-group">
-            <%= f.label("Separator") %>
-            <abbr class="text-danger" title="required">*</abbr>
-            <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator', value: ".") %>
+              <%= "Separator" %><br/>
+              <span class="text-info"><%= @packageCheckUpgrade.separator %></span>
           </div>
-           <div class="form-group">
-            <div class='custom-control custom-checkbox'>
-              <%= f.check_box(:send_email, { class: 'custom-control-input' }) %>
-              <%= f.label(:send_email, 'Send email notification', class: 'custom-control-label') %>
+          <div class="form-group">
+              <%= "Send email notification" %><br/>
+              <% if ! @packageCheckUpgrade.send_email %>
+                <span class="text-info">No</span>
+              <% else %>
+                <span class="text-info">Yes</span>
+              <% end %>            
+          </div>
+          <div class="form-group">
+              <%= "Output" %><br/>
+              <%= text_area_tag(:output, @packageCheckUpgrade.output, id: "output-static", disabled: true, cols: 60, rows: 5) %>
+          </div>
+          <div class="form-group">
+            <a id="toggle-in-place-editing" class="nav-link pl-0" title="Edit" href="javascript:enable_edit(1);">
+              <i class='fas fa-edit'></i>
+              <span class='nav-item-name'>Edit</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-9 col-lg-6" id="dynamic-form" style="display: none;">
+          <%= form_for(:packageCheckUpgrade, html: { id: "myform" }, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
+            <!--Hidden Fields-->
+            <%= f.hidden_field(:id, id: "id") %>
+            <%= f.hidden_field(:package_id, value: @package.id) %>
+            <%= f.hidden_field(:state, id: "state") %>
+            <div class="form-group">
+              <%= f.label("Url") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:urlsrc, size: 80, required: true, class: 'form-control', placeholder: 'Enter the url', autofocus: true, value: "https://archive.eclipse.org/eclipse/downloads/") %>
             </div>
-          </div>
-          <div class="form-group">
-            <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-          </div>
-          <div id="message" class="row justify-content-center" style="display: none;">
-            <div class="col-12">
-              <div class="alert alert-dismissible fade show alert-notice">
-                <i class="fas"></i>
-                  Please, wait a moment ....
+            <div class="form-group">
+              <%= f.label("Regex url") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the url', value: "drops[\\w]*/R-[\\d]+[.][\\w]*[.]*[\\w]*-[\\w]+/") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Regex version") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the version', value: "[\\d]+[.][\\w]*[.]*[\\w]*") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Current version") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version', value: "4.7.3") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Separator") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator', value: ".") %>
+            </div>
+             <div class="form-group">
+              <div class='custom-control custom-checkbox'>
+                <%= f.check_box(:send_email, { class: 'custom-control-input' }) %>
+                <%= f.label(:send_email, 'Send email notification', class: 'custom-control-label') %>
               </div>
             </div>
-          </div>
-          <div class="form-group">
-            <%= f.label("Output") %>
-            <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
-          </div>
-          <% if ! @packageCheckUpgrade.id.present? %>
+            <div class="form-group">
+              <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+            </div>
+            <div id="message" class="row justify-content-center" style="display: none;">
+              <div class="col-12">
+                <div class="alert alert-dismissible fade show alert-notice">
+                  <i class="fas"></i>
+                    Please, wait a moment ....
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= f.label("Output") %>
+              <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
+            </div>
+            <% if @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR %>
+                <div class="form-group" id="modifyDiv" style="display: none;">
+                  <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
+                  <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                </div>              
+                <div class="form-group" id="deleteDiv">
+                  <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
+                </div>
+            <% else %>
+                <div class="form-group" id="deleteDiv" style="display: none;">
+                  <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
+                </div>
+                <div class="form-group" id="modifyDiv">
+                  <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
+                  <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+                </div>              
+            <% end %>
+          <% end %>
+        </div>
+
+
+      <% else %>
+
+        <div class="col-12 col-md-9 col-lg-6" id="dynamic-form">
+          <%= form_for(:packageCheckUpgrade, html: { id: "myform" }, remote: true, url: project_package_checkupgrade_index_path(@project, @package)) do |f| %>
+            <!--Hidden Fields-->
+            <%= f.hidden_field(:id, id: "id") %>
+            <%= f.hidden_field(:package_id, value: @package.id) %>
+            <%= f.hidden_field(:state, id: "state") %>
+            <div class="form-group">
+              <%= f.label("Url") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:urlsrc, size: 80, required: true, class: 'form-control', placeholder: 'Enter the url', autofocus: true, value: "https://archive.eclipse.org/eclipse/downloads/") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Regex url") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:regexurl, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the url', value: "drops[\\w]*/R-[\\d]+[.][\\w]*[.]*[\\w]*-[\\w]+/") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Regex version") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:regexver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the regular expression for the version', value: "[\\d]+[.][\\w]*[.]*[\\w]*") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Current version") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:currentver, size: 80, required: true, class: 'form-control', placeholder: 'Enter the version', value: "4.7.3") %>
+            </div>
+            <div class="form-group">
+              <%= f.label("Separator") %>
+              <abbr class="text-danger" title="required">*</abbr>
+              <%= f.text_field(:separator, maxlength: 1, required: true, size: 10, class: 'form-control', placeholder: 'Enter the separator', value: ".") %>
+            </div>
+             <div class="form-group">
+              <div class='custom-control custom-checkbox'>
+                <%= f.check_box(:send_email, { class: 'custom-control-input' }) %>
+                <%= f.label(:send_email, 'Send email notification', class: 'custom-control-label') %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= f.submit('Run check', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
+            </div>
+            <div id="message" class="row justify-content-center" style="display: none;">
+              <div class="col-12">
+                <div class="alert alert-dismissible fade show alert-notice">
+                  <i class="fas"></i>
+                    Please, wait a moment ....
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= f.label("Output") %>
+              <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
+            </div>
             <div class="form-group" id="createDiv" style="display: none;">
               <%= f.submit('Create', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
             </div>
+            
           <% end %>
-          <% if @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR %>
-              <div class="form-group" id="modifyDiv" style="display: none;">
-                <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-              </div>              
-          <% elsif @packageCheckUpgrade.id.present? and @packageCheckUpgrade.state != PackageCheckUpgrade::STATE_ERROR %>
-              <div class="form-group" id="modifyDiv" >
-                <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
-              </div>
-          <% end %>
-        <% end %>
-      </div>
+        </div>
+
+      <% end %>  
+
+
     </div>
   </div>
 </div>
