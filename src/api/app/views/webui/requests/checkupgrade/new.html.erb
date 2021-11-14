@@ -82,7 +82,7 @@
           </div>
           <div class="form-group">
               <%= "Output" %><br/>
-              <%= text_area_tag(:output, @packageCheckUpgrade.output, id: "output-static", disabled: true, cols: 60, rows: 5) %>
+              <%= text_area_tag(:output, @packageCheckUpgrade.output, id: "output-static", readonly: true, class: 'form-control', cols: 60, rows: 5) %>
           </div>
           <div class="form-group">
             <a id="toggle-in-place-editing" class="nav-link pl-0" title="Edit" href="javascript:enable_edit(1);">
@@ -145,18 +145,18 @@
               <%= f.text_area(:output, id: "output", readonly: true, cols: 60, rows: 5, class: 'form-control') %>
             </div>
             <% if @packageCheckUpgrade.state == PackageCheckUpgrade::STATE_ERROR %>
-                <div class="form-group" id="modifyDiv" style="display: none;">
+                <div class="form-group text-right" id="modifyDiv" style="display: none;">
                   <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
                   <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
                 </div>              
-                <div class="form-group" id="deleteDiv">
+                <div class="form-group text-right" id="deleteDiv">
                   <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
                 </div>
             <% else %>
-                <div class="form-group" id="deleteDiv" style="display: none;">
+                <div class="form-group text-right" id="deleteDiv" style="display: none;">
                   <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
                 </div>
-                <div class="form-group" id="modifyDiv">
+                <div class="form-group text-right" id="modifyDiv">
                   <a class="btn btn-outline-danger px-4" onclick="javascript:enable_edit(0);">Cancel</a>
                   <%= f.submit('Update', class: 'btn btn-primary px-4', onclick: 'return doBeforeSubmit();') %>
                 </div>              
