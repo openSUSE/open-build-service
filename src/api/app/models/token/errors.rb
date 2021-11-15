@@ -5,6 +5,10 @@ module Token::Errors
     setup 404
   end
 
+  class NonExistentRepository < APIError
+    setup 404
+  end
+
   class NonExistentWorkflowsFile < APIError
     setup 404
   end

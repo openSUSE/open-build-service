@@ -27,6 +27,8 @@ module Workflows
       when 'gitlab'
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
       end
+    rescue Octokit::InvalidRepository => e
+      raise Token::Errors::NonExistentRepository, e.message
     rescue Octokit::NotFound => e
       raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded from the SCM branch #{@scm_payload[:target_branch]}: #{e.message}"
     end
