@@ -23,6 +23,9 @@ class CheckUpgradeJob < ApplicationJob
       check_upgrades.each do |check_upgrade|
         affected_rows += 1
 
+        logger.debug "Check upgrade for package id ="
+        logger.debug check_upgrade.package_id
+
         #Execute check
         result = check_upgrade.run_checkupgrade(user.login)
         if ! result.present?
@@ -32,24 +35,57 @@ class CheckUpgradeJob < ApplicationJob
         #Set state and output
         check_upgrade.set_output_and_state_by_result(result)
 
+        logger.debug "Check upgrade state = "
+        logger.debug check_upgrade.state
+        logger.debug "Check upgrade output = "
+        logger.debug check_upgrade.output
+
         begin
           #Update the data
-          check_upgrade.update!(output: check_upgrade.output, state: check_upgrade.state)
+          ret = check_upgrade.update(output: check_upgrade.output, state: check_upgrade.state)
 
-          #FIXME adding the send email
+          logger.debug "ret di update"
+          logger.debug ret.to_s
+
+          logger.debug "Update execute successfully!"
+
+          #FIXME Add the eventual sending of the email ....
 
         rescue => exception
-          logger.error "Update failed!"
+          logger.error "Exception in check upgrade job!"
           exception.message
           exception.backtrace
           is_error = true
-        ensure
-
-          #FIXME here always update the offset in yaml file whatever happens.....
-
+          break
         end
 
       end
+
+      logger.debug "Offset before = "
+      logger.debug offset
+      logger.debug "Affected rows = "
+      logger.debug affected_rows
+      logger.debug "is_error = "
+      logger.debug is_error.to_s
+
+      if is_error
+        #If an error has occurred, restart from this offset
+        set_conf_params(offset)
+      else
+        if ! is_error and offset == check_upgrades_count
+          #If nothing error has occurred and the offset is equal to the total number of records then
+          #reset the offset to restart from 0
+          set_conf_params(0)
+        else
+          #Process new offset and update it
+          offset += affected_rows
+          set_conf_params(offset)
+        end
+      end
+
+      logger.debug "Offset after = "
+      logger.debug offset
+
     end
 
     logger.debug "Check upgrade job finished!"
@@ -65,7 +101,7 @@ class CheckUpgradeJob < ApplicationJob
   def get_conf_params
     check_upgrade_param = YAML.load_file("#{Rails.root}/config/check_upgrade.yml")
     if ! check_upgrade_param.present?
-      raise "Error: check_upgrade.yml not found!"
+      raise "Error in get_conf_params: check_upgrade.yml not found!"
     else
       limit = check_upgrade_param['checkupgrade']['limit']
       offset = check_upgrade_param['checkupgrade']['offset'] 
@@ -78,7 +114,14 @@ class CheckUpgradeJob < ApplicationJob
   end
 
   def set_conf_params(offset)
-
+    check_upgrade_param = YAML.load_file("#{Rails.root}/config/check_upgrade.yml")
+    if ! check_upgrade_param.present?
+      raise "Error in set_conf_params: check_upgrade.yml not found!"
+    else
+      check_upgrade_param['checkupgrade']['offset'] = offset
+      #Store
+      File.open("#{Rails.root}/config/check_upgrade.yml", "w") { |file| file.write check_upgrade_param.to_yaml } 
+    end
   end
 
 end
