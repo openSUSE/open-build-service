@@ -1,0 +1,4 @@
+---
+checkupgrade:
+  limit: 1
+  offset: 0
