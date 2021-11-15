@@ -1,0 +1,57 @@
+- @pagetitle = 'Workflow Runs'
+
+.card
+  .card-body
+    %h3= @pagetitle
+    - if @workflow_runs.blank?
+      %p There are no workflow runs for this token yet
+    - else
+      .accordion.pt-3#workflow-runs-accordion
+        .card
+        - @workflow_runs.each do |workflow_run|
+          .card-header{ id: "workflow-run-heading#{workflow_run.id}" }
+            .mb-0
+              %button.btn.btn-block{ type: 'button', data: { toggle: 'collapse', target: "#workflow-run#{workflow_run.id}" },
+                                      aria: { expanded: 'false', controls: "workflow-run#{workflow_run.id}" } }
+                .row
+                  .col-1.text-left
+                    - case workflow_run.status
+                      - when 'running'
+                        %i.fas.fa-running{ title: 'Status: running' }
+                      - when 'success'
+                        %i.fas.fa-check.text-primary{ title: 'Status: success' }
+                      - else
+                        %i.fas.fa-exclamation-triangle.text-danger{ title: 'Status: failed' }
+                  .col.text-left
+                    Workflow Run #{workflow_run.id}
+                  .col.text-right
+                    = workflow_run.created_at
+          .collapse{ id: "workflow-run#{workflow_run.id}", aria: { labelledby: "#workflow-run-heading#{workflow_run.id}" },
+                      data: { parent: '#workflow-runs-accordion' } }
+            .card-body
+              %ul.nav.nav-tabs#workflow-run-tabs{ role: 'tablist' }
+                %li.nav-item{ role: 'presentation' }
+                  %a.nav-link.active{ id: "request-tab#{workflow_run.id}", data: { toggle: 'tab' }, href: "#request-tab-content#{workflow_run.id}",
+                                      role: 'tab', aria: { controls: "request-tab-content#{workflow_run.id}", selected: 'true' } }
+                    Request
+                %li.nav-item{ role: 'presentation' }
+                  %a.nav-link{ id: "response-tab#{workflow_run.id}", data: { toggle: 'tab' }, href: "#response-tab-content#{workflow_run.id}",
+                                role: 'tab', aria: { controls: "response-tab-content#{workflow_run.id}", selected: 'false' } }
+                    Response
+              .tab-content.p-3#workflow-run-tabs-content
+                .tab-pane.fade.show.active{ id: "request-tab-content#{workflow_run.id}", role: 'tabpanel',
+                                            aria: { labelledby: "request-tab#{workflow_run.id}" } }
+                  %h3 Request Headers
+                  %pre.border.p-2#request-headers
+                    = workflow_run.request_headers
+                  %h3 Request Payload
+                  %pre.border.p-2#request-payload
+                    = workflow_run.request_payload
+                .tab-pane.fade{ id: "response-tab-content#{workflow_run.id}", role: 'tabpanel',
+                                aria: { labelledby: "response-tab#{workflow_run.id}" } }
+                  %h3 Response URL
+                  %pre.border.p-2#response-url
+                    = workflow_run.response_url
+                  %h3 Response Body
+                  %pre.border.p-2#response-body
+                    = workflow_run.response_body
