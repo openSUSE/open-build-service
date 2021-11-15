@@ -2493,7 +2493,9 @@ sub copybuild {
         $setrelease = '' if $bin =~ /^(.*)\.report$/ && -d "$odir/$1";    # need to keep report in sync with dir
         $setrelease = '' if $bin =~ /^(.*)\.milestone$/ && -d "$odir/$1"; # need to keep milestone as well
       }
-      if (!defined($oldsetrelease)) {
+      if (defined($oldsetrelease) && $oldsetrelease eq '-') {
+        # we use '-' as "released without setrelease" marker
+        undef $oldsetrelease;
         $oldsetrelease = '' if -d "$odir/$bin";
         $oldsetrelease = '' if $bin =~ /^(.*)\.report$/ && -d "$odir/$1";    # need to keep report in sync with dir
         $oldsetrelease = '' if $bin =~ /^(.*)\.milestone$/ && -d "$odir/$1"; # need to keep milestone as well
@@ -2522,7 +2524,7 @@ sub copybuild {
              $nbin =~ s/-Build[\d.]+\./$setrelease./;
         }
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
-        writestr("$dir/.setrelease", undef, $setrelease) if defined $cgi->{'setrelease'};
+        writestr("$dir/.setrelease", undef, defined($cgi->{'setrelease'}) ? $setrelease : "-");
       }
       $renamed{$bin} = $nbin if $bin ne $nbin;
       if (-d "$odir/$bin") {
