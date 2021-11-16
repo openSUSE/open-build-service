@@ -23,68 +23,49 @@ class CheckUpgradeJob < ApplicationJob
       check_upgrades.each do |check_upgrade|
         affected_rows += 1
 
-        logger.debug "Check upgrade for package id ="
-        logger.debug check_upgrade.package_id
-
         #Execute check
         result = check_upgrade.run_checkupgrade(user.login)
         if ! result.present?
-          logger.error "An error has occurred in run_checkupgrade(). Result is not defined!"
-          return
+          #This error never should have to happen. I check it anyway
+          raise "An error has occurred in run_checkupgrade(). Result is not defined!"
         end
         #Set state and output
         check_upgrade.set_output_and_state_by_result(result)
 
-        logger.debug "Check upgrade state = "
-        logger.debug check_upgrade.state
-        logger.debug "Check upgrade output = "
-        logger.debug check_upgrade.output
-
         begin
+          #Serialize the access on the record to avoid eventual race condition with "front end"
+          check_upgrade_db = PackageCheckUpgrade.lock.find_by(id: check_upgrade.id)
+          
           #Update the data
-          ret = check_upgrade.update(output: check_upgrade.output, state: check_upgrade.state)
-
-          logger.debug "ret di update"
-          logger.debug ret.to_s
-
-          logger.debug "Update execute successfully!"
+          check_upgrade_db.update!(output: check_upgrade.output, state: check_upgrade.state, 
+                                   updated_at: Time.now)
 
           #FIXME Add the eventual sending of the email ....
 
-        rescue => exception
+        rescue => ex
           logger.error "Exception in check upgrade job!"
-          exception.message
-          exception.backtrace
+          ex.message
+          ex.backtrace
           is_error = true
           break
         end
 
       end
 
-      logger.debug "Offset before = "
-      logger.debug offset
-      logger.debug "Affected rows = "
-      logger.debug affected_rows
-      logger.debug "is_error = "
-      logger.debug is_error.to_s
-
       if is_error
         #If an error has occurred, restart from this offset
         set_conf_params(offset)
       else
+        #Process new offset
+        offset += affected_rows
         if ! is_error and offset == check_upgrades_count
-          #If nothing error has occurred and the offset is equal to the total number of records then
-          #reset the offset to restart from 0
+          #If the records are terminated then restart from 0
           set_conf_params(0)
         else
-          #Process new offset and update it
-          offset += affected_rows
+          #Update the new offset
           set_conf_params(offset)
         end
       end
-
-      logger.debug "Offset after = "
-      logger.debug offset
 
     end
 

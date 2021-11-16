@@ -72,7 +72,9 @@ module Webui
       end
 
       def update_table?(packageCheckUpgrade)        
-        @packageCheckUpgrade_db = PackageCheckUpgrade.find_by(id: packageCheckUpgrade.id)
+        #Could be there a race condition on the record between "front end" and job (remote probability)
+        #Serialize the access is much better. Add a lock "FOR UPDATE"
+        @packageCheckUpgrade_db = PackageCheckUpgrade.lock.find_by(id: packageCheckUpgrade.id)
         if ! @packageCheckUpgrade_db
           return false
         else
