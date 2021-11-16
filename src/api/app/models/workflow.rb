@@ -21,9 +21,7 @@ class Workflow
   validates_with WorkflowFiltersValidator
 
   def call
-    # TODO: This could be in a custom validator WorkflowEventFilterValidator
     return unless event_matches_event_filter?
-    # TODO: This could be in a custom validator WorkflowBranchesFilterValidator
     return unless branch_matches_branches_filter?
 
     case
