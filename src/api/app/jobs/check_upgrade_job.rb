@@ -52,20 +52,20 @@ class CheckUpgradeJob < ApplicationJob
 
       end
 
+      #Offset management
       if is_error
-        #If an error has occurred, restart from this offset
-        set_conf_params(offset)
+        #If something went wrong, restart from this offset
+        offset += affected_rows - 1
       else
         #Process new offset
         offset += affected_rows
-        if ! is_error and offset == check_upgrades_count
-          #If the records are terminated then restart from 0
-          set_conf_params(0)
-        else
-          #Update the new offset
-          set_conf_params(offset)
-        end
+        if offset == check_upgrades_count
+          #The records are terminated, restart from zero
+          offset = 0
+        end     
       end
+      #Update offset
+      set_conf_params(offset)
 
     end
 
