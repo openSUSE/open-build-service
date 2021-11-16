@@ -26,25 +26,11 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     end
   end
 
-  def project_name
+  private
+
+  def target_project_base_name
     step_instructions[:project]
   end
-
-  # This method needs to be public because it is used in the Workflow model.
-  def target_project_name
-    if scm_webhook.pull_request_event?
-      case scm_webhook.payload[:scm]
-      when 'github'
-        "#{project_name}:#{scm_webhook.payload[:target_repository_full_name]}:PR-#{scm_webhook.payload[:pr_number]}".tr('/', '-')
-      when 'gitlab'
-        "#{project_name}:#{scm_webhook.payload[:path_with_namespace]}:PR-#{scm_webhook.payload[:pr_number]}".tr('/', '-')
-      end
-    elsif scm_webhook.push_event?
-      project_name
-    end
-  end
-
-  private
 
   def validate_repositories
     return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }
@@ -70,8 +56,8 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   end
 
   def validate_project_name
-    return if step_instructions[:project].blank? || Project.valid_name?(project_name)
+    return if step_instructions[:project].blank? || Project.valid_name?(target_project_base_name)
 
-    errors.add(:base, "invalid project '#{project_name}'")
+    errors.add(:base, "invalid project '#{target_project_base_name}'")
   end
 end

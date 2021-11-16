@@ -11,6 +11,10 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
 
   private
 
+  def target_project_base_name
+    step_instructions[:target_project]
+  end
+
   def branch_package(workflow_filters = {})
     create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event?
 
