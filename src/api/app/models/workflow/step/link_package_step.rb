@@ -21,6 +21,10 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
     target_package
   end
 
+  def target_project_base_name
+    step_instructions[:target_project]
+  end
+
   def target_project
     Project.find_by(name: target_project_name)
   end

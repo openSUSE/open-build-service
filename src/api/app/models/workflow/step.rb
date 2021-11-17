@@ -15,15 +15,17 @@ class Workflow::Step
   end
 
   def target_project_name
-    return step_instructions[:target_project] if scm_webhook.push_event?
+    return target_project_base_name if scm_webhook.push_event?
+
+    return nil unless scm_webhook.pull_request_event?
 
     pr_subproject_name = if scm_webhook.payload[:scm] == 'github'
-                           scm_webhook.payload[:target_repository_full_name].tr('/', ':')
+                           scm_webhook.payload[:target_repository_full_name]&.tr('/', ':')
                          else
-                           scm_webhook.payload[:path_with_namespace].tr('/', ':')
+                           scm_webhook.payload[:path_with_namespace]&.tr('/', ':')
                          end
 
-    "#{step_instructions[:target_project]}:#{pr_subproject_name}:PR-#{scm_webhook.payload[:pr_number]}"
+    "#{target_project_base_name}:#{pr_subproject_name}:PR-#{scm_webhook.payload[:pr_number]}"
   end
 
   def target_package
@@ -76,6 +78,10 @@ class Workflow::Step
   end
 
   private
+
+  def target_project_base_name
+    raise AbstractMethodCalled
+  end
 
   def remote_source?
     Project.find_remote_project(source_project_name).present?
