@@ -39,8 +39,12 @@ class CheckUpgradeJob < ApplicationJob
           #Update the data
           check_upgrade_db.update!(output: check_upgrade.output, state: check_upgrade.state, 
                                    updated_at: Time.now)
-
-          #FIXME Add the eventual sending of the email ....
+          #Email
+          if check_upgrade.send_email
+            #FIXME Add the eventual sending of the email ....
+            #CheckUpgradeMailer...(params).deliver_now
+            #Crate the templates (html and text)
+          end
 
         rescue => ex
           logger.error "Exception in check upgrade job!"
