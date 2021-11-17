@@ -9,9 +9,11 @@ class Token::Workflow < Token
 
   def call(options)
     set_triggered_at
+
     raise Token::Errors::MissingPayload, 'A payload is required' if options[:payload].nil?
 
     @scm_webhook = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload]).call
+    options[:workflow_run].update(response_url: @scm_webhook.payload[:api_endpoint])
     yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
     @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self).call
 

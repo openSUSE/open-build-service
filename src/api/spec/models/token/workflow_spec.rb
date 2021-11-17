@@ -4,10 +4,11 @@ RSpec.describe Token::Workflow do
   describe '#call' do
     let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
     let(:workflow_token) { create(:workflow_token, user: token_user) }
+    let(:workflow_run) { create(:workflow_run, token: workflow_token) }
 
     context 'without a payload' do
       it do
-        expect { workflow_token.call({}) }.to raise_error(Token::Errors::MissingPayload, 'A payload is required').and(change(workflow_token, :triggered_at))
+        expect { workflow_token.call({ workflow_run: workflow_run }) }.to raise_error(Token::Errors::MissingPayload, 'A payload is required').and(change(workflow_token, :triggered_at))
       end
     end
 
@@ -69,13 +70,13 @@ RSpec.describe Token::Workflow do
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
+      subject { workflow_token.call(scm: scm, event: event, payload: github_payload, workflow_run: workflow_run) }
+
       it 'returns no validation errors' do
-        expect(workflow_token.call(scm: scm, event: event, payload: github_payload)).to eq([])
+        expect(subject).to eq([])
       end
 
-      it do
-        expect { workflow_token.call(scm: scm, event: event, payload: github_payload) }.to change(workflow_token, :triggered_at)
-      end
+      it { expect { subject }.to change(workflow_token, :triggered_at) & change(workflow_run, :response_url).to('https://api.github.com') }
     end
 
     context 'with validation errors' do
@@ -122,13 +123,13 @@ RSpec.describe Token::Workflow do
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
+      subject { workflow_token.call(scm: scm, event: event, payload: github_payload, workflow_run: workflow_run) }
+
       it 'returns the validation errors' do
-        expect(workflow_token.call(scm: scm, event: event, payload: github_payload)).to eq(['Event not supported.', 'Workflow steps are not present'])
+        expect(subject).to eq(['Event not supported.', 'Workflow steps are not present'])
       end
 
-      it do
-        expect { workflow_token.call(scm: scm, event: event, payload: github_payload) }.to change(workflow_token, :triggered_at)
-      end
+      it { expect { subject }.to change(workflow_token, :triggered_at) & change(workflow_run, :response_url).to('https://api.github.com') }
     end
   end
 end
