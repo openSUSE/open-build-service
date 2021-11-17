@@ -1,7 +1,7 @@
 class CheckUpgradeJob < ApplicationJob
   
   def perform
-    affected_rows = 0 
+    affected_rows = 0
     is_error = false
     
     logger.debug "Running check upgrade job ...."
@@ -55,7 +55,7 @@ class CheckUpgradeJob < ApplicationJob
       #Offset management
       if is_error
         #If something went wrong, restart from this offset
-        offset += affected_rows - 1
+        offset += (affected_rows - 1)
       else
         #Process new offset
         offset += affected_rows
