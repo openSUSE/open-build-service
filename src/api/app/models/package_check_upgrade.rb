@@ -30,3 +30,26 @@ class PackageCheckUpgrade < ApplicationRecord
   end
   
 end
+
+# == Schema Information
+#
+# Table name: package_check_upgrades
+#
+#  id         :integer          not null, primary key
+#  currentver :string(255)
+#  output     :text(65535)
+#  regexurl   :string(255)
+#  regexver   :string(255)
+#  send_email :boolean          default(FALSE)
+#  separator  :string(255)
+#  state      :string           not null
+#  urlsrc     :string(255)
+#  user_email :string(255)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  package_id :integer          indexed
+#
+# Indexes
+#
+#  index_package_check_upgrades_on_package_id  (package_id)
+#

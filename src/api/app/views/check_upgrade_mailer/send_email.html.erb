@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+	<p>
+	<%= @packageCheckUpgrade.output %>
+	</p>
+	<p>
+	Last check updated at <%= @packageCheckUpgrade.updated_at.strftime("%d %b %Y %H:%M:%S") %>
+	</p>
+  </body>
+</html>

@@ -1,10 +1,7 @@
 class CheckUpgradeMailer < ActionMailer::Base
-  helper 'webui/markdown'
-
   def set_headers
     @host = ::Configuration.obs_url
     @configuration = ::Configuration.first
-
     headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
     headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
@@ -17,17 +14,14 @@ class CheckUpgradeMailer < ActionMailer::Base
     'OBS Notification <' + ::Configuration.admin_email + '>'
   end
 
-  def send
+  def send_email
+    #set_headers
+    @packageCheckUpgrade = params[:packageCheckUpgrade]
 
-    #FIXME 
-    #Get params
+    package_name = Package.find_by(id: @packageCheckUpgrade.package_id).name
+    subject = "Check upgrade for #{package_name} package"
 
-    mail(to: user_email,
-         subject: subject,
-         from: mail_sender,
-         date: updated_at) do |format|
-      format.html { render template_name, locals: locals } if template_exists?("event_mailer/#{template_name}", formats: [:html])
-      format.text { render template_name, locals: locals } if template_exists?("event_mailer/#{template_name}", formats: [:text])
-    end
+    mail(to: @packageCheckUpgrade.user_email, subject: subject, from: mail_sender,
+         date: @packageCheckUpgrade.updated_at)
   end
 end

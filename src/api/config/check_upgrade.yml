@@ -1,4 +1,4 @@
 ---
 checkupgrade:
-  limit: 100
-  offset: 0
+  limit: 1
+  offset: 2
