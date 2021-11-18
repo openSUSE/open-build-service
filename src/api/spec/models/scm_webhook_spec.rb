@@ -212,14 +212,72 @@ RSpec.describe ScmWebhook, type: :model do
       it { is_expected.to be false }
     end
 
-    context 'for a push event from GitHub' do
-      let(:payload) { { scm: 'github', event: 'push' } }
+    context 'with a push event from GitHub for a tag' do
+      let(:payload) { { scm: 'github', event: 'push', ref: 'refs/tags/release_abc' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'with a push event from GitLab for a tag' do
+      let(:payload) { { scm: 'gitlab', event: 'Tag Push Hook' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'with a push event from GitHub for a commit' do
+      let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/branch_123' } }
 
       it { is_expected.to be true }
     end
 
-    context 'for a push event from GitLab' do
+    context 'with a push event from GitLab for a commit' do
       let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+
+      it { is_expected.to be true }
+    end
+  end
+
+  describe '#tag_push_event?' do
+    subject { described_class.new(payload: payload).tag_push_event? }
+
+    context 'for an unsupported SCM' do
+      let(:payload) { { scm: 'GitHoob', event: 'push' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported event from GitHub' do
+      let(:payload) { { scm: 'github', event: 'something' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'for an unsupported event from GitLab' do
+      let(:payload) { { scm: 'gitlab', event: 'something' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'with a push event from GitHub for a commit' do
+      let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/branch_123' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'with a push event from GitLab for a commit' do
+      let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'with a push event from GitHub for a tag' do
+      let(:payload) { { scm: 'github', event: 'push', ref: 'refs/tags/release_abc' } }
+
+      it { is_expected.to be true }
+    end
+
+    context 'with a push event from GitLab for a tag' do
+      let(:payload) { { scm: 'gitlab', event: 'Tag Push Hook' } }
 
       it { is_expected.to be true }
     end

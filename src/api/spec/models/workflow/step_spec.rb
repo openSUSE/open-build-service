@@ -76,9 +76,9 @@ RSpec.describe Workflow::Step do
       end
     end
 
-    context 'for a push webhook event' do
+    context 'with a push webhook event for a commit' do
       context 'from GitHub' do
-        let(:payload) { { scm: 'github', event: 'push' } }
+        let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/branch_123' } }
 
         it { is_expected.to eq('OBS:Server:Unstable') }
       end
