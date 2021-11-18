@@ -6,6 +6,8 @@
     - if @workflow_runs.blank?
       %p There are no workflow runs for this token yet
     - else
+      .text-center
+        %span.ml-3= page_entries_info @workflow_runs, entry_name: ''
       .accordion.pt-3#workflow-runs-accordion
         .card
         - @workflow_runs.each do |workflow_run|
@@ -55,3 +57,4 @@
                   %h3 Response Body
                   %pre.border.p-2#response-body
                     = workflow_run.response_body
+        = paginate @workflow_runs, views_prefix: 'webui'
