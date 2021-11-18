@@ -15,7 +15,7 @@ class CheckUpgradeMailer < ActionMailer::Base
   end
 
   def send_email
-    #set_headers
+    set_headers
     @packageCheckUpgrade = params[:packageCheckUpgrade]
 
     package_name = Package.find_by(id: @packageCheckUpgrade.package_id).name

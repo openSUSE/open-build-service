@@ -7,17 +7,17 @@ class PackageCheckUpgrade < ApplicationRecord
 
   def set_output_and_state_by_result(result)
     if result.present?
-      if result.start_with?('Error:')
-        self.state = STATE_ERROR
-        self.output = result.gsub("\n", "\\n")
-      else
-        if result.start_with?('Available')
+      case 
+        when result.start_with?("Error:")
+          self.state = STATE_ERROR
+        when result.start_with?("Available")  
           self.state = STATE_UPGRADE 
-        elsif result.start_with?('The package')
+        when result.start_with?("The package")
           self.state = STATE_UPTODATE
-        end
-        self.output = result.gsub("\n", "")
+        else
+          raise "Exception in set_output_and_state_by_result(). Result has an unrecognized value!"
       end
+      self.output = result.gsub("\n", "")
     else
       self.state = STATE_ERROR
       self.output = nil
@@ -30,26 +30,3 @@ class PackageCheckUpgrade < ApplicationRecord
   end
   
 end
-
-# == Schema Information
-#
-# Table name: package_check_upgrades
-#
-#  id         :integer          not null, primary key
-#  currentver :string(255)
-#  output     :text(65535)
-#  regexurl   :string(255)
-#  regexver   :string(255)
-#  send_email :boolean          default(FALSE)
-#  separator  :string(255)
-#  state      :string           not null
-#  urlsrc     :string(255)
-#  user_email :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  package_id :integer          indexed
-#
-# Indexes
-#
-#  index_package_check_upgrades_on_package_id  (package_id)
-#

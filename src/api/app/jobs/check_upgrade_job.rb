@@ -40,15 +40,7 @@ class CheckUpgradeJob < ApplicationJob
           check_upgrade_db.update!(output: check_upgrade.output, state: check_upgrade.state, 
                                    updated_at: Time.now)
           #Email
-          logger.debug "send_email = "
-          logger.debug check_upgrade_db.send_email
-          logger.debug "State = "
-          logger.debug check_upgrade_db.state
-
           if check_upgrade_db.send_email and check_upgrade_db.state != PackageCheckUpgrade::STATE_UPTODATE
-            logger.debug "Provo a inviare l'email"
-
-            #FIXME Add the eventual sending of the email ....
             CheckUpgradeMailer.with(packageCheckUpgrade: check_upgrade_db).send_email.deliver_now
           end
 
