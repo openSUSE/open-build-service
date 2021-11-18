@@ -84,7 +84,23 @@ RSpec.describe Workflow, type: :model do
       let(:extractor_payload) do
         {
           scm: 'github',
-          event: 'push'
+          event: 'push',
+          ref: 'refs/heads/branch_123'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitHub "push" event not matching the "tag_push" event filter' do
+      let(:yaml) { { filters: { event: 'tag_push' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          event: 'push',
+          ref: 'refs/heads/branch_123'
         }
       end
 
@@ -118,6 +134,66 @@ RSpec.describe Workflow, type: :model do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitLab "Push Hook" event not matching the "tag_push" event filter' do
+      let(:yaml) { { filters: { event: 'tag_push' } } }
+      let(:extractor_payload) do
+        {
+          scm: 'gitlab',
+          event: 'Push Hook'
+        }
+      end
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
+    context 'with GitHub "push" event for a tag' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          event: 'push',
+          ref: 'refs/tags/release_abc',
+          target_branch: 'master'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'the workflow runs' do
+        subject.call
+        expect(subject.steps.first).to have_received(:call)
+      end
+    end
+
+    context 'with GitLab "Tag Push Hook" event' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'gitlab',
+          event: 'Tag Push Hook',
+          ref: 'refs/tags/release_abc',
+          target_branch: 'master'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'the workflow runs' do
+        subject.call
+        expect(subject.steps.first).to have_received(:call)
       end
     end
 
