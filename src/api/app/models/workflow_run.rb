@@ -1,6 +1,6 @@
 class WorkflowRun < ApplicationRecord
   validates :response_url, length: { maximum: 255 }
-  validates :request_headers, :request_payload, :status, presence: true
+  validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow'
 
@@ -9,6 +9,10 @@ class WorkflowRun < ApplicationRecord
     success: 1,
     fail: 2
   }
+
+  def update_to_fail(message)
+    update(response_body: message, status: 'fail')
+  end
 end
 
 # == Schema Information
