@@ -1,3 +1,4 @@
+# TODO: Extract SCM-specific code to separate classes. This class is too big for GitHub and GitLab.
 module TriggerControllerService
   # NOTE: this class is coupled to GitHub pull requests events and GitLab merge requests events.
   class ScmExtractor
@@ -36,15 +37,8 @@ module TriggerControllerService
                          action: @payload[:action],
                          source_repository_full_name: @payload.dig(:pull_request, :head, :repo, :full_name),
                          target_repository_full_name: @payload.dig(:pull_request, :base, :repo, :full_name) })
-      when 'push'
-        payload.merge!({ commit_sha: @payload[:after],
-                         # We need this for Workflows::YAMLDownloader#download_url
-                         target_branch: @payload[:ref].sub('refs/heads/', ''),
-                         # We need this for Workflow::Step#branch_request_content_github
-                         source_repository_full_name: @payload.dig(:repository, :full_name),
-                         # We need this for SCMStatusReporter#call
-                         target_repository_full_name: @payload.dig(:repository, :full_name),
-                         ref: @payload[:ref] })
+      when 'push' # GitHub doesn't have different push events for commits and tags
+        github_payload_push(payload)
       end
       payload
     end
@@ -75,8 +69,12 @@ module TriggerControllerService
                          target_branch: @payload[:ref].sub('refs/heads/', ''),
                          # We need this for Workflows::YAMLDownloader#download_url
                          path_with_namespace: @payload.dig(:project, :path_with_namespace),
+                         # We need this for SCMStatusReporter#call
                          project_id: @payload[:project_id],
+                         # We need this for ScmWebhookEventValidator#valid_push_event
                          ref: @payload[:ref] })
+      when 'Tag Push Hook'
+        gitlab_payload_tag(payload)
       end
       payload
     end
@@ -98,6 +96,42 @@ module TriggerControllerService
 
       uri = URI.parse(http_url)
       "#{uri.scheme}://#{uri.host}"
+    end
+
+    def github_payload_push(payload)
+      payload_ref = @payload.fetch(:ref, '')
+      payload.merge!({
+                       # We need this for Workflow::Step#branch_request_content_github
+                       source_repository_full_name: @payload.dig(:repository, :full_name),
+                       # We need this for SCMStatusReporter#call
+                       target_repository_full_name: @payload.dig(:repository, :full_name),
+                       ref: payload_ref,
+                       # We need this for Workflow::Step#branch_request_content_{github,gitlab}
+                       commit_sha: @payload[:after],
+                       # We need this for Workflows::YAMLDownloader#download_url
+                       # base_ref is nil when the push event is for commits
+                       target_branch: (@payload[:base_ref] || payload_ref).sub('refs/heads/', '')
+                     })
+
+      return unless payload_ref.start_with?('refs/tags/')
+
+      # We need this for Workflow::Step#target_package_name
+      payload.merge!({ tag_name: payload_ref.sub('refs/tags/', '') })
+    end
+
+    def gitlab_payload_tag(payload)
+      payload.merge!({ # We need this for Workflow::Step#target_package_name
+                       tag_name: @payload[:ref].sub('refs/tags/', ''),
+                       # We need this for Workflows::YAMLDownloader#download_url
+                       # This will contain a commit SHA
+                       target_branch: @payload[:after],
+                       # We need this for Workflows::YAMLDownloader#download_url
+                       path_with_namespace: @payload.dig(:project, :path_with_namespace),
+                       # We need this for ScmWebhookEventValidator#valid_push_event
+                       ref: @payload[:ref],
+                       # We need this for Workflow::Step#branch_request_content_{github,gitlab}
+                       commit_sha: @payload[:after]
+                     })
     end
   end
 end
