@@ -36,6 +36,10 @@ class ScmWebhook
     github_push_event? || gitlab_push_event?
   end
 
+  def tag_push_event?
+    github_tag_push_event? || gitlab_tag_push_event?
+  end
+
   def pull_request_event?
     github_pull_request? || gitlab_merge_request?
   end
@@ -43,11 +47,19 @@ class ScmWebhook
   private
 
   def github_push_event?
-    @payload[:scm] == 'github' && @payload[:event] == 'push'
+    @payload[:scm] == 'github' && @payload[:event] == 'push' && @payload.fetch(:ref, '').start_with?('refs/heads/')
   end
 
   def gitlab_push_event?
     @payload[:scm] == 'gitlab' && @payload[:event] == 'Push Hook'
+  end
+
+  def github_tag_push_event?
+    @payload[:scm] == 'github' && @payload[:event] == 'push' && @payload.fetch(:ref, '').starts_with?('refs/tags/')
+  end
+
+  def gitlab_tag_push_event?
+    @payload[:scm] == 'gitlab' && @payload[:event] == 'Tag Push Hook'
   end
 
   def github_pull_request?

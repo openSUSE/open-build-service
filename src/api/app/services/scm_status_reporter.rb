@@ -24,7 +24,15 @@ class SCMStatusReporter < SCMExceptionHandler
                                          @state,
                                          status_options)
     end
-  rescue Octokit::Error, Octokit::InvalidRepository, Gitlab::Error::Error => e
+  rescue Octokit::InvalidRepository
+    package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
+    return if package.blank?
+
+    tokens = Token::Workflow.where(scm_token: @scm_token).pluck(:id)
+    return if tokens.none?
+
+    EventSubscription.where(channel: 'scm', token: tokens, package: package).delete_all
+  rescue Octokit::Error, Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
   end
 

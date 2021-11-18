@@ -253,7 +253,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         end
       end
 
-      context 'for a push event' do
+      context 'with a push event for a commit' do
         let(:scm_webhook) do
           ScmWebhook.new(payload: {
                            scm: 'github',
@@ -261,7 +261,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                            target_branch: 'main',
                            source_repository_full_name: 'reponame',
                            commit_sha: commit_sha,
-                           target_repository_full_name: 'openSUSE/open-build-service'
+                           target_repository_full_name: 'openSUSE/open-build-service',
+                           ref: 'refs/heads/branch_123'
                          })
         end
 
@@ -354,7 +355,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         end
       end
 
-      context 'for a push event' do
+      context 'with a push event for a commit' do
         let(:scm_webhook) do
           ScmWebhook.new(payload: {
                            scm: 'gitlab',

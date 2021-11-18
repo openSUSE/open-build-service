@@ -37,4 +37,37 @@ RSpec.describe SCMStatusReporter, type: :service do
       it { expect(subject.state).to eq('failed') }
     end
   end
+
+  describe '#call' do
+    context "repository doesn't exist" do
+      let!(:user) { create(:confirmed_user, :with_home, login: 'jane_doe') }
+      let!(:package) { create(:package, name: 'bye', project: user.home_project) }
+
+      let(:workflow_token) { create(:workflow_token, user: user) }
+      let(:token) { workflow_token.scm_token }
+
+      let(:event_payload) do
+        { project: user.home_project_name, package: package.name, repository: 'openSUSE_Leap', arch: 'x86_64' }
+      end
+
+      let(:event_subscription_payload) { { scm: 'github' } }
+
+      let(:event_type) { 'Event::BuildSuccess' }
+
+      let!(:event_subscription) do
+        EventSubscription.create(channel: 'scm', package: package, eventtype: event_type, receiver_role: 'reader', token: workflow_token)
+      end
+
+      let(:octokit_client) { Octokit::Client.new }
+
+      subject { scm_status_reporter.call }
+
+      before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_raise(Octokit::InvalidRepository)
+      end
+
+      it { expect { subject }.to change(EventSubscription, :count).by(-1) }
+    end
+  end
 end
