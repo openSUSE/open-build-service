@@ -15,7 +15,7 @@ class Workflow::Step
   end
 
   def target_project_name
-    return target_project_base_name if scm_webhook.push_event?
+    return target_project_base_name if scm_webhook.push_event? || scm_webhook.tag_push_event?
 
     return nil unless scm_webhook.pull_request_event?
 
@@ -74,6 +74,8 @@ class Workflow::Step
       package_name
     when scm_webhook.push_event?
       "#{package_name}-#{scm_webhook.payload[:commit_sha]}"
+    when scm_webhook.tag_push_event?
+      "#{package_name}-#{scm_webhook.payload[:tag_name]}"
     end
   end
 
