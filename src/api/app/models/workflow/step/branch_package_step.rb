@@ -16,11 +16,16 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   end
 
   def branch_package(workflow_filters = {})
-    create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event?
+    create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event? || scm_webhook.tag_push_event?
 
-    create_or_update_subscriptions(target_package, workflow_filters)
     add_branch_request_file(package: target_package)
-    report_to_scm(workflow_filters)
+
+    # SCMs don't support statuses for tags, so we don't need to report back in this case
+    unless scm_webhook.tag_push_event?
+      create_or_update_subscriptions(target_package, workflow_filters)
+      report_to_scm(workflow_filters)
+    end
+
     target_package
   end
 
