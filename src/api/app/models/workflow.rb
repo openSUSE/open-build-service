@@ -29,7 +29,7 @@ class Workflow
       destroy_target_projects
     when scm_webhook.reopened_pull_request?
       restore_target_projects
-    when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?, scm_webhook.push_event?
+    when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
       steps.each do |step|
         step.call({ workflow_filters: filters })
       end
@@ -74,10 +74,17 @@ class Workflow
 
   def event_matches_event_filter?
     return true unless supported_filters.key?(:event)
-    return true if filters[:event] == 'push' && scm_webhook.push_event?
-    return true if filters[:event] == 'pull_request' && scm_webhook.pull_request_event?
 
-    false
+    case filters[:event]
+    when 'push'
+      scm_webhook.push_event?
+    when 'tag_push'
+      scm_webhook.tag_push_event?
+    when 'pull_request'
+      scm_webhook.pull_request_event?
+    else
+      false
+    end
   end
 
   def branch_matches_branches_filter?

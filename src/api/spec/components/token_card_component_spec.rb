@@ -39,4 +39,10 @@ RSpec.describe TokenCardComponent, type: :component do
 
     it { expect(rendered_component).to have_text("Last trigger on #{time_now}") }
   end
+
+  context 'token of type workflow' do
+    let(:token) { build_stubbed(:workflow_token, user: user) }
+
+    it { expect(rendered_component).to have_link(href: "/my/tokens/#{token.id}/workflow_runs") }
+  end
 end

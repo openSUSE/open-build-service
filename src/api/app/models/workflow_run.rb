@@ -3,6 +3,7 @@ class WorkflowRun < ApplicationRecord
   validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow'
+  paginates_per 20
 
   enum status: {
     running: 0,

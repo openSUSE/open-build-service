@@ -337,7 +337,9 @@ OBSApi::Application.routes.draw do
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
 
-      resources :tokens, controller: 'webui/users/tokens'
+      resources :tokens, controller: 'webui/users/tokens' do
+        resources :workflow_runs, only: [:index], controller: 'webui/workflow_runs'
+      end
       resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
     end
 
