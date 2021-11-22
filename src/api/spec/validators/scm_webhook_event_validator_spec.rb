@@ -64,17 +64,23 @@ RSpec.describe ScmWebhookEventValidator do
         it { is_expected.to be_valid }
       end
 
-      context "for a push event which isn't for a branch" do
+      context 'for a push event with a non-valid branch/tag reference' do
         let(:payload) { { scm: 'github', event: 'push', ref: 'something' } }
 
         it 'is not valid and has an error message' do
           subject.valid?
-          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches.')
+          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches/tags with a valid reference.')
         end
       end
 
-      context 'for a push event which is for a branch' do
+      context 'for a push event with a valid branch reference' do
         let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/master' } }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'for a push event with a valid tag reference' do
+        let(:payload) { { scm: 'github', event: 'push', ref: 'refs/tags/release_abc' } }
 
         it { is_expected.to be_valid }
       end
@@ -129,17 +135,32 @@ RSpec.describe ScmWebhookEventValidator do
         it { is_expected.to be_valid }
       end
 
-      context "for a push event which isn't for a branch" do
+      context 'for a push event with a non-valid branch reference' do
         let(:payload) { { scm: 'gitlab', event: 'Push Hook', ref: 'something' } }
 
         it 'is not valid and has an error message' do
           subject.valid?
-          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches.')
+          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches/tags with a valid reference.')
         end
       end
 
-      context 'for a push event which is for a branch' do
+      context 'for a push event with a non-valid tag reference' do
+        let(:payload) { { scm: 'gitlab', event: 'Tag Push Hook', ref: 'something' } }
+
+        it 'is not valid and has an error message' do
+          subject.valid?
+          expect(subject.errors.full_messages.to_sentence).to eq('Push event supported only for branches/tags with a valid reference.')
+        end
+      end
+
+      context 'for a push event which is for a valid branch reference' do
         let(:payload) { { scm: 'gitlab', event: 'Push Hook', ref: 'refs/heads/master' } }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'for a push event which is for a valid tag reference' do
+        let(:payload) { { scm: 'gitlab', event: 'Tag Push Hook', ref: 'refs/tags/release_abc' } }
 
         it { is_expected.to be_valid }
       end

@@ -1,0 +1,881 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 22 Nov 2021 10:27:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Gone with the Wind</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Gone with the Wind</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 22 Nov 2021 10:27:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+  recorded_at: Mon, 22 Nov 2021 10:27:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_config
+    body:
+      encoding: UTF-8
+      string: Et itaque delectus. Numquam praesentium temporibus. Sapiente et ipsam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="25" vrev="25">
+          <srcmd5>986d60a19deb9bb262a02f16a629d087</srcmd5>
+          <version>unknown</version>
+          <time>1637576858</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Nov 2021 10:27:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Ex voluptas officia. Provident ad unde. Nemo laborum dolor.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="26" vrev="26">
+          <srcmd5>02166fcdd46c71058a838c4fb3dc8fdb</srcmd5>
+          <version>unknown</version>
+          <time>1637576858</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Nov 2021 10:27:38 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package-release_abc" project="home:Iggy">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package-release_abc" project="home:Iggy">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>3481943b6d472a480610148925b6b0fe</srcmd5>
+          <version>unknown</version>
+          <time>1637576859</time>
+          <user>Iggy</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package-release_abc" project="home:Iggy">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package-release_abc" project="home:Iggy">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '632'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package-release_abc" rev="15" vrev="15" srcmd5="3481943b6d472a480610148925b6b0fe">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="02166fcdd46c71058a838c4fb3dc8fdb" baserev="02166fcdd46c71058a838c4fb3dc8fdb" xsrcmd5="4403726cd60b001d751f7a4fa8fc17c3" lsrcmd5="3481943b6d472a480610148925b6b0fe"/>
+          <entry name="_config" md5="a634219e027a25556a80bbb540ce6f82" size="70" mtime="1637576858"/>
+          <entry name="_link" md5="74d3a9ca88ecc1ca30b8d4994b661a4b" size="141" mtime="1637576859"/>
+          <entry name="somefile.txt" md5="9f9db898810eb8b39b879dc3b795664e" size="59" mtime="1637576858"/>
+        </directory>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '342'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="bar_package-release_abc" rev="15" vrev="41" srcmd5="4403726cd60b001d751f7a4fa8fc17c3" lsrcmd5="3481943b6d472a480610148925b6b0fe" verifymd5="02166fcdd46c71058a838c4fb3dc8fdb">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="foo_project" package="bar_package"/>
+        </sourceinfo>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '632'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package-release_abc" rev="15" vrev="15" srcmd5="3481943b6d472a480610148925b6b0fe">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="02166fcdd46c71058a838c4fb3dc8fdb" baserev="02166fcdd46c71058a838c4fb3dc8fdb" xsrcmd5="4403726cd60b001d751f7a4fa8fc17c3" lsrcmd5="3481943b6d472a480610148925b6b0fe"/>
+          <entry name="_config" md5="a634219e027a25556a80bbb540ce6f82" size="70" mtime="1637576858"/>
+          <entry name="_link" md5="74d3a9ca88ecc1ca30b8d4994b661a4b" size="141" mtime="1637576859"/>
+          <entry name="somefile.txt" md5="9f9db898810eb8b39b879dc3b795664e" size="59" mtime="1637576858"/>
+        </directory>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '327'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="522fb2bd2693a9dde8ea4b8a3950a878">
+          <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="15" srcmd5="3481943b6d472a480610148925b6b0fe"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '378'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="48c8a052cb6216f940482eeca151ce35">
+          <old project="foo_project" package="bar_package" rev="02166fcdd46c71058a838c4fb3dc8fdb" srcmd5="02166fcdd46c71058a838c4fb3dc8fdb"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="4403726cd60b001d751f7a4fa8fc17c3" srcmd5="4403726cd60b001d751f7a4fa8fc17c3"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+          <repository name="openSUSE_Tumbleweed">
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="Unicorn_123">
+            <arch>x86_64</arch>
+            <arch>i586</arch>
+            <arch>ppc</arch>
+            <arch>aarch64</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '354'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+          <repository name="openSUSE_Tumbleweed">
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="Unicorn_123">
+            <arch>x86_64</arch>
+            <arch>i586</arch>
+            <arch>ppc</arch>
+            <arch>aarch64</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_branch_request?user=Iggy
+    body:
+      encoding: UTF-8
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"openSUSE/open-build-service"},"sha":"123456789012345"}}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>93360bfa8d77e0d2df579161619353fe</srcmd5>
+          <version>unknown</version>
+          <time>1637576859</time>
+          <user>Iggy</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package-release_abc" project="home:Iggy">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package-release_abc" project="home:Iggy">
+          <title>When the Green Woods Laugh</title>
+          <description>Non inventore consequatur aut.</description>
+        </package>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '735'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package-release_abc" rev="16" vrev="16" srcmd5="93360bfa8d77e0d2df579161619353fe">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="02166fcdd46c71058a838c4fb3dc8fdb" baserev="02166fcdd46c71058a838c4fb3dc8fdb" xsrcmd5="f678d5f58b7e75c5e501d47b45be4126" lsrcmd5="93360bfa8d77e0d2df579161619353fe"/>
+          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1637576859"/>
+          <entry name="_config" md5="a634219e027a25556a80bbb540ce6f82" size="70" mtime="1637576858"/>
+          <entry name="_link" md5="74d3a9ca88ecc1ca30b8d4994b661a4b" size="141" mtime="1637576859"/>
+          <entry name="somefile.txt" md5="9f9db898810eb8b39b879dc3b795664e" size="59" mtime="1637576858"/>
+        </directory>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '342'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="bar_package-release_abc" rev="16" vrev="42" srcmd5="f678d5f58b7e75c5e501d47b45be4126" lsrcmd5="93360bfa8d77e0d2df579161619353fe" verifymd5="19cd487861fcde51dcf4cc7963ab5977">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="foo_project" package="bar_package"/>
+        </sourceinfo>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '735'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package-release_abc" rev="16" vrev="16" srcmd5="93360bfa8d77e0d2df579161619353fe">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="02166fcdd46c71058a838c4fb3dc8fdb" baserev="02166fcdd46c71058a838c4fb3dc8fdb" xsrcmd5="f678d5f58b7e75c5e501d47b45be4126" lsrcmd5="93360bfa8d77e0d2df579161619353fe"/>
+          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1637576859"/>
+          <entry name="_config" md5="a634219e027a25556a80bbb540ce6f82" size="70" mtime="1637576858"/>
+          <entry name="_link" md5="74d3a9ca88ecc1ca30b8d4994b661a4b" size="141" mtime="1637576859"/>
+          <entry name="somefile.txt" md5="9f9db898810eb8b39b879dc3b795664e" size="59" mtime="1637576858"/>
+        </directory>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '327'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="0fb2b676b63daf25db27da7266c72f8c">
+          <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="16" srcmd5="93360bfa8d77e0d2df579161619353fe"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '378'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a16d80ea0d12ef8f1955c97ab989825e">
+          <old project="foo_project" package="bar_package" rev="02166fcdd46c71058a838c4fb3dc8fdb" srcmd5="02166fcdd46c71058a838c4fb3dc8fdb"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="f678d5f58b7e75c5e501d47b45be4126" srcmd5="f678d5f58b7e75c5e501d47b45be4126"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_branch_request
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '120'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"openSUSE/open-build-service"},"sha":"123456789012345"}}}'
+  recorded_at: Mon, 22 Nov 2021 10:27:39 GMT
+recorded_with: VCR 6.0.0

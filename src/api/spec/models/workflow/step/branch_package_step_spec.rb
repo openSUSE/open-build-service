@@ -289,6 +289,57 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it_behaves_like 'failed without branch permissions'
         it_behaves_like 'fails with insufficient write permission on target project'
       end
+
+      context 'with a push event for a tag' do
+        let(:scm_webhook) do
+          ScmWebhook.new(payload: {
+                           scm: 'github',
+                           event: 'push',
+                           target_branch: 'main',
+                           source_repository_full_name: 'openSUSE/open-build-service',
+                           tag_name: 'release_abc',
+                           commit_sha: '123456789012345',
+                           target_repository_full_name: 'openSUSE/open-build-service',
+                           ref: 'refs/tags/release_abc'
+                         })
+        end
+        let(:octokit_client) { instance_double(Octokit::Client) }
+        let(:target_project_final_name) { "home:#{user.login}" }
+        let(:final_package_name) { "#{package.name}-release_abc" }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name
+          }
+        end
+
+        before do
+          # branching a package to an existing project doesn't take over the set repositories
+          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
+
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+        end
+
+        it { expect { subject.call }.to(change(Package, :count).by(1)) }
+        it { expect(subject.call.project.name).to eq(target_project_final_name) }
+        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+        it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
+        it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
+        it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
+
+        it 'does not report back to the SCM' do
+          allow(SCMStatusReporter).to receive(:new)
+          subject.call
+          expect(SCMStatusReporter).not_to have_received(:new)
+        end
+
+        it_behaves_like 'failed when source_package does not exist'
+        it_behaves_like 'failed without branch permissions'
+        it_behaves_like 'fails with insufficient write permission on target project'
+      end
     end
 
     context 'when the SCM is GitLab' do
