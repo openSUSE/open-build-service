@@ -16,9 +16,15 @@ module TriggerControllerService
 
     private
 
+    def extract_token_string_from_authorization_header
+      http_auth = @http_request.env['HTTP_AUTHORIZATION']
+
+      http_auth.slice(6..-1) if http_auth.present? && http_auth[0..4] == 'Token'
+    end
+
     def extract_auth_token_from_headers
       auth_token = @http_request.env['HTTP_X_GITLAB_TOKEN'] ||
-                   @http_request.env['HTTP_AUTHORIZATION'].to_s.slice(6..-1)
+                   extract_token_string_from_authorization_header
 
       return unless auth_token
 
