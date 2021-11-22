@@ -48,7 +48,7 @@
                     = workflow_run.request_headers
                   %h3 Request Payload
                   %pre.border.p-2#request-payload
-                    = workflow_run.request_payload
+                    = JSON.pretty_generate(JSON.parse(workflow_run.request_payload))
                 .tab-pane.fade{ id: "response-tab-content#{workflow_run.id}", role: 'tabpanel',
                                 aria: { labelledby: "response-tab#{workflow_run.id}" } }
                   %h3 Response URL
