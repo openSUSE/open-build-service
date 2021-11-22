@@ -7,7 +7,7 @@
       %p There are no workflow runs for this token yet
     - else
       .text-center
-        %span.ml-3= page_entries_info @workflow_runs, entry_name: ''
+        %span.ml-3= page_entries_info(@workflow_runs)
       .accordion.pt-3#workflow-runs-accordion
         .card
         - @workflow_runs.each do |workflow_run|
