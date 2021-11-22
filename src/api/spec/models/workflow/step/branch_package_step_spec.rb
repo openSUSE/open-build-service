@@ -4,6 +4,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, user: user) }
   let(:target_project_name) { "home:#{user.login}" }
+  let(:long_commit_sha) { '123456789' }
+  let(:short_commit_sha) { '1234567' }
 
   subject do
     described_class.new(step_instructions: step_instructions,
@@ -83,9 +85,11 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
     it 'only reports for repositories and architectures matching the filters' do
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'i586' },
-                                                      scm_webhook.payload, token.scm_token).and_call_original
+                                                      scm_webhook.payload.merge({ short_package_name: final_short_package_name }),
+                                                      token.scm_token).and_call_original
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'x86_64' },
-                                                      scm_webhook.payload, token.scm_token).and_call_original
+                                                      scm_webhook.payload.merge({ short_package_name: final_short_package_name }),
+                                                      token.scm_token).and_call_original
 
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'ppc' },
                                                           scm_webhook.payload, token.scm_token)
@@ -171,6 +175,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:target_project_final_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
     let(:final_package_name) { package.name }
+    let(:final_short_package_name) { package.name }
 
     before do
       project
@@ -179,7 +184,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     end
 
     context 'when the SCM is GitHub' do
-      let(:commit_sha) { '123' }
       let(:scm_webhook) do
         ScmWebhook.new(payload: {
                          scm: 'github',
@@ -187,7 +191,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                          action: action,
                          pr_number: 1,
                          source_repository_full_name: 'reponame',
-                         commit_sha: commit_sha,
+                         commit_sha: long_commit_sha,
                          target_repository_full_name: 'openSUSE/open-build-service'
                        })
       end
@@ -224,14 +228,14 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
           it_behaves_like 'successful update event when the branch_package already exists' do
             let(:action) { 'synchronize' }
             let(:creation_payload) do
-              { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+              { 'action' => 'opened', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
                 'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
-              { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+              { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
+                'scm' => 'github', 'source_repository_full_name' => 'reponame', 'short_package_name' => package.name,
                 'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
-            let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
               {
                 action: 'synchronize',
@@ -260,7 +264,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                            event: 'push',
                            target_branch: 'main',
                            source_repository_full_name: 'reponame',
-                           commit_sha: commit_sha,
+                           commit_sha: long_commit_sha,
                            target_repository_full_name: 'openSUSE/open-build-service',
                            ref: 'refs/heads/branch_123'
                          })
@@ -268,7 +272,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
         let(:octokit_client) { instance_double(Octokit::Client) }
         let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-#{commit_sha}" }
+        let(:final_package_name) { "#{package.name}-#{long_commit_sha}" }
+        let(:final_short_package_name) { "#{package.name}-#{short_commit_sha}" }
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
@@ -287,7 +292,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     end
 
     context 'when the SCM is GitLab' do
-      let(:commit_sha) { '123' }
       let(:scm_webhook) do
         ScmWebhook.new(payload: {
                          scm: 'gitlab',
@@ -295,7 +299,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                          action: action,
                          pr_number: 1,
                          source_repository_full_name: 'reponame',
-                         commit_sha: commit_sha,
+                         commit_sha: long_commit_sha,
                          path_with_namespace: 'openSUSE/open-build-service'
                        })
       end
@@ -332,14 +336,16 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
           it_behaves_like 'successful update event when the branch_package already exists' do
             let(:action) { 'update' }
             let(:creation_payload) do
-              { 'action' => 'open', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
+              { 'action' => 'open', 'commit_sha' => long_commit_sha, 'event' => 'Merge Request Hook',
+                'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
                 'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
-              { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
+              { 'action' => 'update', 'commit_sha' => long_commit_sha, 'event' => 'Merge Request Hook',
+                'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
+                'short_package_name' => package.name, 'path_with_namespace' => 'openSUSE/open-build-service',
+                'workflow_filters' => {} }
             end
-            let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
               { object_kind: 'update',
                 project: { http_url: 'http_url' },
@@ -362,14 +368,15 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                            event: 'Push Hook',
                            target_branch: 'main',
                            source_repository_full_name: 'reponame',
-                           commit_sha: commit_sha,
+                           commit_sha: long_commit_sha,
                            path_with_namespace: 'openSUSE/open-build-service'
                          })
         end
 
         let(:gitlab_client) { instance_double(Gitlab::Client) }
         let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-#{commit_sha}" }
+        let(:final_package_name) { "#{package.name}-#{long_commit_sha}" }
+        let(:final_short_package_name) { "#{package.name}-#{short_commit_sha}" }
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
@@ -398,7 +405,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
                        action: 'opened',
                        pr_number: 1,
                        source_repository_full_name: 'reponame',
-                       commit_sha: '123',
+                       commit_sha: long_commit_sha,
                        target_repository_full_name: 'openSUSE/open-build-service'
                      })
     end

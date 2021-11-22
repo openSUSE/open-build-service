@@ -1,6 +1,8 @@
 class Workflow::Step
   include ActiveModel::Model
 
+  SHORT_COMMIT_SHA_LENGTH = 7
+
   validate :validate_step_instructions
 
   attr_accessor :scm_webhook, :step_instructions, :token
@@ -41,7 +43,7 @@ class Workflow::Step
                                                           enabled: true,
                                                           token: @token,
                                                           package: package)
-      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
+      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters, short_package_name: target_package_name(short_commit_sha: true) }))
     end
   end
 
@@ -66,14 +68,19 @@ class Workflow::Step
     step_instructions[:source_project]
   end
 
-  def target_package_name
+  def target_package_name(short_commit_sha: false)
     package_name = step_instructions[:target_package] || source_package_name
 
     case
     when scm_webhook.pull_request_event?
       package_name
     when scm_webhook.push_event?
-      "#{package_name}-#{scm_webhook.payload[:commit_sha]}"
+      commit_sha = scm_webhook.payload[:commit_sha]
+      if short_commit_sha
+        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
+      else
+        "#{package_name}-#{commit_sha}"
+      end
     when scm_webhook.tag_push_event?
       "#{package_name}-#{scm_webhook.payload[:tag_name]}"
     end
@@ -151,7 +158,7 @@ class Workflow::Step
       workflow_architectures(repository, workflow_filters).each do |architecture|
         # We cannot report multibuild flavors here... so they will be missing from the initial report
         SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
-                              scm_webhook.payload, @token.scm_token).call
+                              scm_webhook.payload.merge({ short_package_name: target_package_name(short_commit_sha: true) }), @token.scm_token).call
       end
     end
   end
