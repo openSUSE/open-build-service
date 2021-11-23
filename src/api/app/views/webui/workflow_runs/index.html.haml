@@ -7,7 +7,7 @@
       %p There are no workflow runs for this token yet
     - else
       .text-center
-        %span.ml-3= page_entries_info @workflow_runs, entry_name: ''
+        %span.ml-3= page_entries_info(@workflow_runs)
       .accordion.pt-3#workflow-runs-accordion
         .card
         - @workflow_runs.each do |workflow_run|
@@ -43,18 +43,18 @@
               .tab-content.p-3#workflow-run-tabs-content
                 .tab-pane.fade.show.active{ id: "request-tab-content#{workflow_run.id}", role: 'tabpanel',
                                             aria: { labelledby: "request-tab#{workflow_run.id}" } }
-                  %h3 Request Headers
+                  %h5 Request Headers
                   %pre.border.p-2#request-headers
                     = workflow_run.request_headers
-                  %h3 Request Payload
+                  %h5 Request Payload
                   %pre.border.p-2#request-payload
-                    = workflow_run.request_payload
+                    = JSON.pretty_generate(JSON.parse(workflow_run.request_payload))
                 .tab-pane.fade{ id: "response-tab-content#{workflow_run.id}", role: 'tabpanel',
                                 aria: { labelledby: "response-tab#{workflow_run.id}" } }
-                  %h3 Response URL
+                  %h5 Response URL
                   %pre.border.p-2#response-url
                     = workflow_run.response_url
-                  %h3 Response Body
+                  %h5 Response Body
                   %pre.border.p-2#response-body
                     = workflow_run.response_body
         = paginate @workflow_runs, views_prefix: 'webui'

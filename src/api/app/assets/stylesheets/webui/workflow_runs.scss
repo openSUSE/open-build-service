@@ -1,0 +1,9 @@
+#request-payload {
+  max-height: 20rem;
+}
+
+@include media-breakpoint-up(md) {
+  #request-payload {
+    max-height: 30rem;
+  }
+}
