@@ -641,6 +641,7 @@ class SourceController < ApplicationController
 
     # create new project object based on oproject
     unless @project
+      # rubocop:disable Metrics/BlockLength
       Project.transaction do
         if oprj.is_a?(String) # remote project
           rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
@@ -651,8 +652,17 @@ class SourceController < ApplicationController
           oprj.flags.each do |f|
             @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
           end
+          oprj.linking_to.each do |lp|
+            @project.linking_to.create(linked_db_project_id: lp.linked_db_project_id,
+                                       linked_remote_project_name: lp.linked_remote_project_name,
+                                       vrevmode: lp.vrevmode,
+                                       position: lp.position)
+          end
           oprj.repositories.each do |repo|
-            r = @project.repositories.create(name: repo.name)
+            r = @project.repositories.create(name: repo.name,
+                                             block: repo.block,
+                                             linkedbuild: repo.linkedbuild,
+                                             rebuild: repo.rebuild)
             repo.repository_architectures.each do |ra|
               r.repository_architectures.create!(architecture: ra.architecture, position: ra.position)
             end
@@ -665,6 +675,7 @@ class SourceController < ApplicationController
         end
         @project.store
       end
+      # rubocop:enable Metrics/BlockLength
     end
 
     job_params = params.slice(
