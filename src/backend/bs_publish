@@ -1128,10 +1128,10 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
         $link = "${1}_${3}.snap";
         $link = "${1}_${3}_$2.snap" if $versioned;
-      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+\.\d+)(-Media\d?)(\.iso?(\.sha256(?:\.asc)?)?)$/s) {
+      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(-Media\d?)\.iso$/s) {
         # product builds
-        $link = "$1$2$3"; # no support for versioned links
-      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256(?:\.asc)?)?)$/s) {
+        $link = "$1$2.iso"; # no support for versioned links
+      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$5";
@@ -1141,6 +1141,24 @@ sub createrepo_staticlinks {
       unlink("$extrep/$arch/.$link"); # drop left over
       symlink($_, "$extrep/$arch/.$link");
       rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomic update
+
+      # check for detached sha256 files
+      if ( -e "$extrep/$arch/$_.sha256" ) {
+        # copy and patch the filename
+        my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$_.sha256"));
+        $econtent =~ s/([ \/])\Q$_\E\n/$link\n/g;
+        unlink("$extrep/$arch/$link.sha256");
+        writestr("$extrep/$arch/$link.sha256", undef, $econtent);
+      }
+      if ( -e "$extrep/$arch/$_.sha256.asc" ) {
+        # regenerate signature
+        if ($BSConfig::sign && -e "$extrep/$arch/$link.sha256") {
+          my @signargs;
+          push @signargs, '--project', $projid if $BSConfig::sign_project;
+          push @signargs, @{$data->{'signargs'} || []};
+          qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$link.sha256") && die("    sign failed: $?\n");
+        }
+      }
     }
   }
 }
