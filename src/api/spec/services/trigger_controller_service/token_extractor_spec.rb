@@ -75,15 +75,15 @@ RSpec.describe ::TriggerControllerService::TokenExtractor do
                        env: { 'HTTP_AUTHORIZATION' => token.string })
       end
 
-      it 'raises ActiveRecord::RecordNotFound' do
-        expect { subject }.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find Token")
+      it 'returns nil' do
+        expect(subject).to be_nil
       end
     end
 
     context 'with a token in the HTTP header HTTP_AUTHORIZATION' do
       let(:request) do
         OpenStruct.new(params: {}, body: StringIO.new(request_body),
-                       env: { 'HTTP_AUTHORIZATION' => "Basic #{token.string}" })
+                       env: { 'HTTP_AUTHORIZATION' => "Token #{token.string}" })
       end
 
       it 'returns the token' do
