@@ -1,0 +1,30 @@
+get:
+  summary: Search for published patterns.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      required: true
+      description: XPath expression.
+      example: project='home:foo'+and+name='bar'
+    - $ref: '../components/parameters/limit.yaml'
+    - $ref: '../components/parameters/withdownloadurl.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/search/published_pattern_id.yaml'
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 400
+            summary: missing string terminator 
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
