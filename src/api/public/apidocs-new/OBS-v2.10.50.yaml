@@ -17,6 +17,7 @@ tags:
   - name: Person
   - name: Published Binaries
   - name: Requests
+  - name: Sources
   - name: Trigger
   - name: Workers
 
@@ -168,6 +169,9 @@ paths:
 
   /service:
     $ref: 'paths/service.yaml'
+
+  /source?cmd=createmaintenanceincident:
+    $ref: 'paths/source_createmaintenanceincident.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

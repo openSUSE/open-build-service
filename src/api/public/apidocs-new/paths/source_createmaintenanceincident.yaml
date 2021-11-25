@@ -1,0 +1,46 @@
+post:
+  summary: Create maintenance incident projects
+  description: Create a mainatenance incident project based on attribute search.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: attribute
+      schema:
+        type: string
+      example: OBS:MaintenanceProject
+      description: attribute used for package search, default is OBS:MaintenanceProject
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+            data:
+              - MaintenanceProject:1
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/code_and_summary.yaml'
+          example:
+            code: incident_has_no_maintenance_project
+            summary: incident projects shall only create below maintenance projects
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/code_and_summary.yaml'
+          example:
+            code: modify_project_no_permission
+            summary: no permission to modify project 'MaintenanceProject'
+  tags:
+    - Sources
