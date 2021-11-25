@@ -169,6 +169,8 @@ paths:
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
 
+  /search:
+    $ref: 'paths/search.yaml'
   /search/missing_owner:
     $ref: 'paths/search_missing_owner.yaml'
   /search/owner:
