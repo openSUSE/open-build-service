@@ -75,7 +75,7 @@ RSpec.describe Person::NotificationsController do
         it { expect(response.body).to include('<notifications count="2">') }
       end
 
-      context 'filter by project doe not find results' do
+      context 'filter by project does not find results' do
         before do
           login user
           get :index, params: { format: :xml, project: 'home:hans' }
