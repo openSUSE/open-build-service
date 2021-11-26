@@ -172,9 +172,10 @@ paths:
 
   /source?cmd=createmaintenanceincident:
     $ref: 'paths/source_createmaintenanceincident.yaml'
-
   /source?cmd=branch:
     $ref: 'paths/source_branch.yaml'
+  /source?cmd=orderkiwirepos:
+    $ref: 'paths/source_orderkiwirepos.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
