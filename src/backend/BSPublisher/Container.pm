@@ -463,6 +463,7 @@ sub upload_to_notary {
   mkdir_p($uploaddir);
   unlink($pubkeyfile);
   writestr($pubkeyfile, undef, $pubkey);
+  my %failed_uploads;
   for my $uploadkey (sort keys %$notary_uploads) {
     my $uploaddata = $notary_uploads->{$uploadkey};
     my $registry = $uploaddata->{'registry'};
@@ -474,12 +475,14 @@ sub upload_to_notary {
     print "Uploading to notary: @cmd\n";
     my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
     unlink($containerdigestfile);
-    if ($result) {
-      unlink($pubkeyfile);
-      die("Error while uploading to notary: $result\n");
-    }
+    $failed_uploads{$uploaddata->{'gun'}} = $result if $result;
   }
   unlink($pubkeyfile);
+  if (%failed_uploads) {
+     warn("Error while uploading to notary:\n");
+     warn("failed for $_ $failed_uploads{$_}\n") for sort keys(%failed_uploads);
+     die("Error while uploading to notary\n");
+  }
 }
 
 =head2 delete_from_notary - delete collected repositories

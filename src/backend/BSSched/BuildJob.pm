@@ -1012,6 +1012,7 @@ sub create {
 
   my $kiwimode;
   $kiwimode = $buildtype if $buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'fissile';
+  my $ccache;
 
   my $syspath;
   my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
@@ -1067,7 +1068,8 @@ sub create {
     my $opackid = $packid;
     $opackid = $pdata->{'releasename'} if $pdata->{'releasename'};
     if (grep {$_ eq "useccache:$opackid" || $_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
-      push @bdeps, @{$bconf->{'substitute'}->{'build-packages:ccache'} || [ 'ccache' ] };
+      $ccache = $bconf->{'buildflags:ccachetype'} || 'ccache';
+      push @bdeps, @{$bconf->{'substitute'}->{"build-packages:$ccache"} || [ $ccache ] };
     }
   }
 
@@ -1186,6 +1188,7 @@ sub create {
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
   $binfo->{'nounchanged'} = 1 if $info->{'nounchanged'};
+  $binfo->{'ccache'} = $ccache if $ccache;
   if (!$ctx->{'isreposerver'} && ($proj->{'kind'} || '') eq 'maintenance_incident' && $pdata->{'releasename'}) {
     $binfo->{'releasename'} = $pdata->{'releasename'};
   }

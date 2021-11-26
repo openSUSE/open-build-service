@@ -564,6 +564,7 @@ our $buildinfo = [
 	'release',
         'config',
 	'debuginfo',
+	'ccache',
 	'constraintsmd5',
       [ 'prjconfconstraint' ],
       [ 'subpack' ],
