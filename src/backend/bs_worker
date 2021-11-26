@@ -3332,13 +3332,8 @@ sub dobuild {
 
 
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
-  my $useccache = 0;
-  if (exists $bconf->{'buildflags:useccache'}) {
-      my $opackid = $buildinfo->{'releasename'} || $packid;
-      if (grep {$_ eq "useccache:$opackid" || $_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
-        $useccache = 1;
-    }
-  }
+  my $useccache = $buildinfo->{'ccache'} ? 1 : 0;
+  my $ccachetype = $useccache ? $buildinfo->{'ccache'} : undef;
 
   if ($buildinfo->{'modularity_meta'}) {
     getmodulemddata($buildinfo, $srcdir, $bconf);
@@ -3493,6 +3488,8 @@ sub dobuild {
   push @args, '--arch', $arch;
   push @args, '--jobs', $jobs if $jobs;
   push @args, '--ccache' if $useccache && $oldpkgdir;
+  push @args, '--ccache-create-archive' if $useccache && $oldpkgdir;
+  push @args, "--ccache-type=$ccachetype" if $useccache && $oldpkgdir && $ccachetype;
   push @args, '--threads', $threads if $threads;
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
