@@ -222,6 +222,8 @@ namespace :dev do
         )
 
         # Will create notifications (ReviewWanted event) for those reviews.
+        # The creation and these two reviews are finally displayed as
+        # one single notification in the UI.
         request.addreview(by_user: admin, comment: Faker::Lorem.paragraph)
         request.addreview(by_group: group, comment: Faker::Lorem.paragraph)
 
