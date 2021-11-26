@@ -39,6 +39,8 @@ module Person
       params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
     end
 
+    # The 'requests' type will be the default value unless another allowed
+    # filter is specified in the URL. I.e. "?notifications_type=incoming_requests"
     def check_filter_type
       @filter_type = params.fetch(:notifications_type, 'requests')
       raise FilterNotSupportedError unless ALLOWED_FILTERS.include?(@filter_type)
