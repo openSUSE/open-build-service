@@ -1,3 +1,6 @@
+# TODO: move this test out of the beta directory as soon as the
+# user_profile_redesign feature flag is removed.
+
 require 'browser_helper'
 
 RSpec.shared_examples 'a contribution graph' do
@@ -61,6 +64,8 @@ RSpec.describe 'Bootstrap_User Contributions', type: :feature, js: true do
         click_link('Contributions')
         expect(page).to have_text('3 contributions')
       end
+
+      # TODO: test single day contributions by clicking on a percentil and check the resulting text.
     end
   end
 end
