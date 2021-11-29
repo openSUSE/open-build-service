@@ -22,7 +22,7 @@ get:
             code: not_found
             summary: Couldn't find request with id '5'
   tags:
-    - Request
+    - Requests
 
 post:
   summary: Apply certain actions on a specified request.
@@ -173,7 +173,7 @@ post:
                 code: not_found
                 summary: Couldn't find request with id '120'
   tags:
-    - Request
+    - Requests
 
 put:
   summary: Modify a given request.
@@ -221,7 +221,7 @@ put:
             code: not_found
             summary: Couldn't find request with id '10'
   tags:
-    - Request
+    - Requests
 
 delete:
   summary: Delete a given request.
@@ -245,4 +245,4 @@ delete:
             code: not_found
             summary: Couldn't find request with id '10'
   tags:
-    - Request
+    - Requests

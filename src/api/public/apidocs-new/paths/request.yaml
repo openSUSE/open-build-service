@@ -20,7 +20,7 @@ get:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
   tags:
-    - Request
+    - Requests
 
 post:
   summary: Create a request
@@ -91,5 +91,5 @@ post:
             code: create_bs_request_not_authorized
             summary: You are not authorized to create this Bs request.
   tags:
-    - Request
+    - Requests
 
