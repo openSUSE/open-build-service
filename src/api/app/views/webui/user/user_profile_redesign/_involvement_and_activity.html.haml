@@ -1,9 +1,9 @@
 .card
   -# Header that replaces the tabs when the contribution graph is not displayed (in small viewports or when not enabled).
-  .card-header{ class: CONFIG['contribution_graph'] == :off ? 'd-block' : 'd-block d-md-none' }
+  .card-header{ class: contribution_graph? ? 'd-block d-md-none' : 'd-block' }
     %h5 Involved Projects and Packages
 
-  - unless CONFIG['contribution_graph'] == :off
+  - if contribution_graph?
     -# Tabs
     .bg-light.d-none.d-md-block
       %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
@@ -20,7 +20,7 @@
     = render partial: 'webui/user/user_profile_redesign/involvement', locals: { involved_items_service: involved_items_service }
 
     -# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
-    - unless CONFIG['contribution_graph'] == :off
+    - if contribution_graph?
       .tab-content.d-none.d-md-block
         .tab-pane.fade.show.active#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
         -# Content to be injected by JavaScript
