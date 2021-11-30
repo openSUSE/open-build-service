@@ -58,5 +58,5 @@ post:
             code: not_found
             summary: Couldn't find request with id '355'
   tags:
-    - Request
+    - Requests
 
