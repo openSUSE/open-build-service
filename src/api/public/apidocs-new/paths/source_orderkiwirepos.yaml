@@ -1,0 +1,54 @@
+post:
+  summary: Sort the repositories inside of a kiwi file according to path relationships.
+  description: This API takes kiwi XML file in the request body and sort the repositories based on priority.
+  requestBody:
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/kiwi.yaml'
+        example: |
+          <image name="{exc_image_base_name}" schemaversion="7.4">
+            <repository type="rpm-md" priority="99" alias="kiwi">
+              <source path="obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.3"/>
+            </repository>
+            <repository type="rpm-md" priority="1" alias="OS" imageinclude="true">
+              <source path="{exc_repo}"/>
+            </repository>
+          </image>
+  responses:
+    '200':
+      description: Sorted list of repositories
+      content:
+        text/xml:
+          schema:
+            $ref: '../components/schemas/kiwi.yaml'
+          example: |
+            <image name="{exc_image_base_name}" schemaversion="7.4">
+              <repository type="rpm-md" priority="1" alias="OS" imageinclude="true">
+                <source path="{exc_repo}"/>
+              </repository>
+              <repository type="rpm-md" priority="99" alias="kiwi">
+                <source path="obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.3"/>
+              </repository>
+            </image>
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                xml:
+                  attribute: true
+              summary:
+                type: string
+            xml:
+              name: status
+          example:
+            code: 400
+            summary: '/srv/obs/sources/:upload/1344: not xml'
+  tags:
+    - Sources
