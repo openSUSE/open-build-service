@@ -171,6 +171,8 @@ paths:
 
   /search/owner:
     $ref: 'paths/search_owner.yaml'
+  /search/missing_owner:
+    $ref: 'paths/missing_owner.yaml'
 
   /service:
     $ref: 'paths/service.yaml'
