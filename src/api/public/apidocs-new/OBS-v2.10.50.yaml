@@ -184,6 +184,8 @@ paths:
 
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
+  /source/{project_name}?cmd=copy:
+    $ref: 'paths/source_project_name_cmd_copy.yaml'
   /source/{project_name}?cmd=createmaintenanceincident:
     $ref: 'paths/source_project_name_cmd_createmaintenanceincident.yaml'
   /source/{project_name}?cmd=createpatchinfo:
