@@ -4,20 +4,20 @@ servers:
   - url: '/'
 
 tags:
-  - name: General Information
   - name: Announcements
-  - name: Attributes
   - name: Attribute Namespaces
+  - name: Attributes
   - name: Build
   - name: Configuration
   - name: Distributions
+  - name: General Information
   - name: Groups
   - name: Issue Trackers
   - name: Notifications
   - name: Person
   - name: Published Binaries
   - name: Requests
-  - name: Sources
+  - name: Sources - Projects
   - name: Trigger
   - name: Workers
 
@@ -176,6 +176,8 @@ paths:
     $ref: 'paths/source_branch.yaml'
   /source?cmd=orderkiwirepos:
     $ref: 'paths/source_orderkiwirepos.yaml'
+  /source/{project_name}?cmd=addchannels:
+    $ref: 'paths/source_project_name_cmd_addchannels.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
