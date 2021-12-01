@@ -27,7 +27,7 @@ post:
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '../components/schemas/code_and_summary.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: incident_has_no_maintenance_project
             summary: incident projects shall only create below maintenance projects
@@ -38,7 +38,7 @@ post:
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '../components/schemas/code_and_summary.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: modify_project_no_permission
             summary: no permission to modify project 'MaintenanceProject'
