@@ -1,0 +1,33 @@
+post:
+  summary: Add channels and extend repository list.
+  description: |
+    Add channels for each one of the provided project packages.
+    If the mode parameter is provided, that mode is added to the package channel.
+    The mode parameter can be:
+      - 'skip_disabled'
+      - 'enable_all'
+      - 'add_disabled' being the default.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: path
+      name: mode
+      schema:
+        type: string
+        enum:
+          - skip_disabled
+          - enable_all
+          - add_disabled
+      required: false
+      description: The channel will be added to the package using this mode.
+      example: "add_disabled"
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
