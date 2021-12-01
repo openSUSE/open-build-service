@@ -1,0 +1,54 @@
+post:
+  summary: Unlocks the project.
+  description: |
+    Unlocks the previously locked project, given as parameter. You can pass a comment with the reason of the lock.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: comment
+      required: true
+      schema:
+        type: string
+      description: Comment that should be added to describe the reasoning behind the unlock.
+      example: Unlocked project beacause A, B and C.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            missing_parameter:
+              value:
+                code: missing_parameter
+                summary: Required Parameter comment missing.
+              summary: Missing Parameter
+            not_locked:
+              value:
+                code: not_locked
+                summary: project 'Sandbox' is not locked.
+              summary: Not Locked
+    '403':
+      description: |
+        No permission to execute command 'unlock' because the user do not have permission to modify the project.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'cmd_execution_no_permission'
+            summary: no permission to execute command 'unlock'.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

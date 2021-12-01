@@ -194,6 +194,8 @@ paths:
     $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
   /source/{project_name}?cmd=lock:
     $ref: 'paths/source_project_name_cmd_lock.yaml'
+  /source/{project_name}?cmd=unlock:
+    $ref: 'paths/source_project_name_cmd_unlock.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
