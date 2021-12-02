@@ -187,6 +187,11 @@ paths:
   /source/{project_name}?cmd=createpatchinfo:
     $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
 
+  /source/{project_name}?cmd=createkey:
+    $ref: 'paths/source_project_cmd_createkey.yaml'
+  /source/{project_name}?cmd=createmaintenanceincident:
+    $ref: 'paths/source_project_cmd_createmaintenanceincident.yaml'
+
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
 
