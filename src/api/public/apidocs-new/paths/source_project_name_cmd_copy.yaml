@@ -1,0 +1,70 @@
+post:
+  summary: Copy the entire project.
+  description: |
+    The `copy` command copies the entire project from the source project provided by `oproject` to the target project provided by `project`.
+
+    The params `makeolder` and `makeoriginolder` update the relevant vrev.
+    The param `withbinaries` ensures we copy also the binaries.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: oproject
+      schema:
+        type: string
+      required: true
+      description: Origin project name
+      example: "home:Admin"
+    - in: query
+      name: opackage
+      schema:
+        type: string
+      required: true
+      description: Origin package name
+      example: "ctris"
+    - in: query
+      name: makeolder
+      schema:
+        type: string
+      description: Make target older, the source vrev is bumped by two numbers and target by one. This parameter is interpreted as `true` if present, `false` otherwise.
+      example: 1
+    - in: query
+      name: makeoriginolder
+      schema:
+        type: string
+      description: Make origin older, the source vrev is extended and target is guaranteed to be newer. This parameter is interpreted as `true` if present, `false` otherwise.
+      example: 1
+    - in: query
+      name: withbinaries
+      schema:
+        type: string
+      description: Copies also binaries on copy command. This parameter is interpreted as `true` if present, `false` otherwise.
+      example: 1
+    - in: query
+      name: nodelay
+      schema:
+        type: string
+      description: If the parameter is present, the copying is done right away. If not present, the copying is done as a deferred job.
+      example: 1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        no permission to execute command 'copy'.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: no_permission_to_change
+            summary: no permission to execute command 'copy' ...
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
