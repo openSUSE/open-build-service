@@ -1,0 +1,58 @@
+post:
+  summary: Move all sources and binaries.
+  description: |
+    Admin permissions required and schedulers need to be stopped.
+    This api moves all sources and binaries from a source project (oproject) to a new project (project_name).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: oproject
+      required: true
+      schema:
+        type: string
+      description: The project you want to move. Source project.
+      example: 'home:Admin'
+    - in: query
+      name: comment
+      schema:
+        type: string
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Project Exists:
+              value:
+                code: project_exists
+                summary: Target project exists already.
+            Move Failed:
+              value:
+                code: move_failed
+                summary: Move operation failed
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: Admin permissions required. STOP SCHEDULER BEFORE.
+  tags:
+    - Sources - Projects
