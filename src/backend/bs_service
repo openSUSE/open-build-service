@@ -73,6 +73,17 @@ my $proxy = $BSConfig::proxy;
 my $noproxy = $BSConfig::noproxy;
 my $maxchild = $BSConfig::service_maxchild;
 
+my $servicedef_obs_scm_bridge = {
+  'name' => 'obs_scm_bridge',
+  'parameter' => [
+    {
+      'name' => 'url' ,
+      'description' => 'Specify URL to checkout.',
+      'required' => undef,
+    }
+  ],
+};
+
 use warnings;
 
 sub usage {
@@ -155,6 +166,8 @@ sub run_source_update {
 
   # run all services
   my $error;
+  my $obs_scm_bridge;
+  my $nservice = 0;
   for my $sf ('_service', '_serviceproject') {
     next unless -e $sf;
     my $infoxml = readstr($sf);
@@ -166,8 +179,16 @@ sub run_source_update {
         print "Skip $name\n";
         next;
       }
+      $nservice++;
       BSUtil::printlog("Run for $name");
-      my $servicedef = readxml("$rootservicedir/$name.service", $BSXML::servicetype);
+      my $servicedef;
+      if ($name eq 'obs_scm_bridge') {
+	$servicedef = $servicedef_obs_scm_bridge;
+	$obs_scm_bridge = 1;
+      } else {
+        $servicedef = readxml("$rootservicedir/$name.service", $BSXML::servicetype);
+      }
+      die("obs_scm_bridge must be the only service\n") if $obs_scm_bridge && $nservice != 1;
       my @run;
       if (defined $BSConfig::service_wrapper->{$name} ) {
         push @run, $BSConfig::service_wrapper->{$name};
@@ -220,8 +241,10 @@ sub run_source_update {
         for my $file (grep {!/^[:\.]/} ls("$myworkdir/out")) {
 	  next if -l "$myworkdir/out/$file" || ! -f _;	# only plain files for now
 	  my $tfile = $file;
-	  $tfile =~ s/^_service://s;
-	  $tfile = "_service:$name:$tfile";
+          if (!$obs_scm_bridge) {
+	    $tfile =~ s/^_service://s;
+	    $tfile = "_service:$name:$tfile";
+          }
 	  rename("$myworkdir/out/$file", $tfile) || die("rename $myworkdir/out/$file $tfile: $!\n");
         }
       } else { 
@@ -248,11 +271,14 @@ sub run_source_update {
   rm_rf('.old');
 
   # get all generate files
-  my @send = map {{'name' => $_, 'filename' => "$_"}} grep {/^_service[_:]/} ls('.');
+  my @send = sort(ls('.'));
+  @send = grep {/^_service[_:]/} @send unless $obs_scm_bridge;
+  @send = grep {$_ ne '_service'} @send if $obs_scm_bridge;
+  @send = map {{'name' => $_, 'filename' => "$_"}} @send;
 
   # check for non files (symlinks or directories)
   for my $file (@send) {
-    die("Service result contains unreadable file '$file->{'filename'}'\n") unless -f $file->{'filename'};
+    die("Service result contains unreadable file '$file->{'filename'}'\n") unless ! -l $file->{'filename'} && -f _;
   }
 
   # send everything back for real
