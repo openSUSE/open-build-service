@@ -17,6 +17,7 @@ tags:
   - name: Person
   - name: Published Binaries
   - name: Requests
+  - name: Sources
   - name: Sources - Projects
   - name: Trigger
   - name: Workers
@@ -170,14 +171,21 @@ paths:
   /service:
     $ref: 'paths/service.yaml'
 
+  # Sources
+
   /source?cmd=createmaintenanceincident:
     $ref: 'paths/source_createmaintenanceincident.yaml'
   /source?cmd=branch:
     $ref: 'paths/source_branch.yaml'
   /source?cmd=orderkiwirepos:
     $ref: 'paths/source_orderkiwirepos.yaml'
+
+  # Sources - Projects
+
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
+  /source/{project_name}?cmd=createpatchinfo:
+    $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

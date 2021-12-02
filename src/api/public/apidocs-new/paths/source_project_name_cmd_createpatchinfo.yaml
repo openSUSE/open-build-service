@@ -1,0 +1,80 @@
+post:
+  summary: Creates a patchinfo inside the given project
+  description: |
+    Creates a new patchinfo package, in the given project, containing a '_patchinfo' file.
+    The file will include all the issues in other project's sources, if any.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: name
+      schema:
+        type: string
+      description: Name of the patchinfo package. If not passed, 'patchinfo' is the default value.
+      example: BaseDistro_patchinfo
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment to be included in the 'summary' XML tag of the patchinfo.
+      example: Security update for the Linux Kernel
+    - in: query
+      name: force
+      schema:
+        type: string
+      description: |
+        If the patchinfo with the given name already existed and the force parameter is passed,
+        then the patchinfo will be overwritten.
+        If the force parameter is not passed, an error will be raised giving you some suggestions.
+      example: 1
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example: |
+            <status code="ok">
+              <summary>Ok</summary>
+              <data name="targetproject">home:Admin</data>
+              <data name="targetpackage">BaseDistro_patchinfo</data>
+            </status>
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_project_name:
+              value:
+                code: invalid_project_name
+                summary: "invalid project name '0'"
+              summary: Invalid Project Name
+            invalid_package_name:
+              value:
+                code: invalid_package_name
+                summary: "invalid package name 'base:distro'"
+              summary: Invalid Package Name
+            patchinfo_file_exists:
+              value:
+                code: patchinfo_file_exists
+                summary: "createpatchinfo command: the patchinfo BaseDistro exists already. Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating."
+              summary: Patchinfo File Exists
+            package_already_exists:
+              value:
+                code: package_already_exists
+                summary: "createpatchinfo command: the package BaseDistro exists already, but is  no patchinfo. Please create a new package instead."
+              summary: Package Already Exists
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Sources - Projects
