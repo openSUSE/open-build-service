@@ -202,6 +202,8 @@ paths:
     $ref: 'paths/source_project_name_cmd_lock.yaml'
   /source/{project_name}?cmd=unlock:
     $ref: 'paths/source_project_name_cmd_unlock.yaml'
+  /source/{project_name}?cmd=extendkey:
+    $ref: 'paths/source_project_name_cmd_extendkey.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
