@@ -21,6 +21,7 @@ use warnings;
 
 use Digest::MD5 ();
 use BSConfiguration;
+use BSRPC ':https';
 use BSUtil;
 use BSXML;
 use BSRevision;
@@ -96,6 +97,30 @@ sub genservicemark {
   return $smd5;
 }
 
+#
+# Send a notification of the service run result
+#
+sub notify_serviceresult {
+  my ($rev, $error) = @_;
+  if ($error) {
+    $error =~ s/[\r\n]+$//s;
+    $error =~ s/.*[\r\n]//s;
+    $error = str2utf8xml($error) || 'unknown service error';
+  }
+  my $user = $rev->{'user'};
+  my $comment = $rev->{'comment'};
+  my $requestid = $rev->{'requestid'};
+  $user = '' unless defined $user;
+  $user = 'unknown' if $user eq '';
+  $user = str2utf8xml($user);
+  $comment = '' unless defined $comment;
+  $comment = str2utf8xml($comment);
+  my %ndata = (project => $rev->{'project'}, package => $rev->{'package'}, rev => $rev->{'rev'},
+               user => $user, comment => $comment, requestid => $requestid);
+  $ndata{'error'} = $error if $error;
+  $notify->($error ? 'SRCSRV_SERVICE_FAIL' : 'SRCSRV_SERVICE_SUCCESS', \%ndata);
+}
+
 # called from runservice when the service run is finished. it
 # either does the service commit (old style), or creates the
 # xsrcmd5 service revision (new style).
@@ -133,24 +158,8 @@ sub addrev_service {
     };
     $error = $@ if $@;
   }
-  if ($error) {
-    BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error);
-    $error =~ s/[\r\n]+$//s;
-    $error =~ s/.*[\r\n]//s;
-    $error = str2utf8xml($error) || 'unknown service error';
-  }
-  my $user = $rev->{'user'};
-  my $comment = $rev->{'comment'};
-  my $requestid = $rev->{'requestid'};
-  $user = '' unless defined $user;
-  $user = 'unknown' if $user eq '';
-  $user = str2utf8xml($user);
-  $comment = '' unless defined $comment;
-  $comment = str2utf8xml($comment);
-  my %ndata = (project => $projid, package => $packid, rev => $rev->{'rev'},
-               user => $user, comment => $comment, requestid => $requestid);
-  $ndata{'error'} = $error if $error;
-  $notify->($error ? 'SRCSRV_SERVICE_FAIL' : 'SRCSRV_SERVICE_SUCCESS', \%ndata);
+  BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
+  notify_serviceresult($rev, $error);
   $notify_repservers->('package', $projid, $packid);
 }
 
@@ -178,6 +187,89 @@ sub fake_service_run {
     $error = $@ if $@;
   }
   BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
+}
+
+sub writeservicedispatchevent {
+  my ($projid, $packid, $servicemark, $rev, $projectservices, $lxservicemd5, $oldfilesrev) = @_;
+  my $projectservicesmd5;
+  if ($projectservices) {
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/_serviceproject$$", undef, BSUtil::toxml($projectservices, $BSXML::services));
+    $projectservicesmd5 = BSSrcrep::addfile($projid, '_project', "$uploaddir/_serviceproject$$", '_serviceproject');
+  }
+  my $ev = {
+    'type' => 'servicedispatch',
+    'project' => $projid,
+    'package' => $packid,
+    'job' => $servicemark,
+    'srcmd5' => $rev->{'srcmd5'},
+    'rev' => $rev->{'rev'},
+    'time' => time(),
+  };
+  $ev->{'linksrcmd5'} = $lxservicemd5 if $lxservicemd5;
+  $ev->{'projectservicesmd5'} = $projectservicesmd5 if $projectservicesmd5;
+  $ev->{'oldsrcmd5'} = $oldfilesrev->{'srcmd5'} if $oldfilesrev;
+  mkdir_p("$eventdir/servicedispatch");
+  my $evname = "servicedispatch:${projid}::${packid}::$rev->{'srcmd5'}::$servicemark";
+  $evname = "servicedispatch:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  writexml("$eventdir/servicedispatch/.$evname.$$", "$eventdir/servicedispatch/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/servicedispatch/.ping");
+}
+
+# send the request to the service deamon and collect the result
+# modifies the files hash
+sub doservicerpc {
+  my ($projid, $packid, $files, $send) = @_;
+
+  my $enforceprefix = $files ? 1 : 0;
+  $files ||= {};
+  my $odir = "$uploaddir/runservice$$";
+  BSUtil::cleandir($odir) if -d $odir;
+  mkdir_p($odir);
+  my $receive;
+  eval {
+    $receive = BSRPC::rpc({
+      'uri'       => "$BSConfig::serviceserver/sourceupdate/$projid/$packid",
+      'request'   => 'POST',
+      'headers'   => [ 'Content-Type: application/x-cpio' ],
+      'chunked'   => 1,
+      'data'      => \&BSHTTP::cpio_sender,
+      'cpiofiles' => $send,
+      'directory' => $odir,
+      'timeout'   => $BSConfig::service_timeout,
+      'withmd5'   => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef, "timeout=$BSConfig::service_timeout");
+  };
+
+  if ($@ || !$receive) {
+    BSUtil::cleandir($odir);
+    rmdir($odir);
+    my $error = $@ || 'error';
+    die("Transient error for $projid/$packid: $error") if $error =~ /^5/;
+    die("RPC error for $projid/$packid: $error") if $error !~ /^\d/;
+    $error = "service daemon error:\n $error";
+    return $error;
+  }
+
+  # update source repository with the result
+  # drop all existing service files
+  for (keys %$files) {
+    delete $files->{$_} if /^_service[_:]/;
+  }
+  # add new service files
+  eval {
+    die(readstr("$odir/.errors") || "empty .errors file\n") if -e "$odir/.errors";
+    for my $pfile (ls($odir)) {
+      die("service returned a non-_service file: $pfile\n") if $enforceprefix && $pfile !~ /^_service[_:]/;
+      BSVerify::verify_filename($pfile);
+      $files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
+    }
+  };
+  my $error = $@;
+  BSUtil::cleandir($odir);
+  rmdir($odir);
+  return $error;
 }
 
 # called *after* addrev to trigger service run
@@ -281,29 +373,8 @@ sub runservice {
 
   # handoff to dispatcher if configured
   if ($servicemark && $BSConfig::servicedispatch) {
-    my $projectservicesmd5;
-    if ($projectservices) {
-      mkdir_p($uploaddir);
-      writestr("$uploaddir/_serviceproject$$", undef, BSUtil::toxml($projectservices, $BSXML::services));
-      $projectservicesmd5 = BSSrcrep::addfile($projid, '_project', "$uploaddir/_serviceproject$$", '_serviceproject');
-    }
-    my $ev = {
-      'type' => 'servicedispatch',
-      'project' => $projid,
-      'package' => $packid,
-      'job' => $servicemark,
-      'srcmd5' => $rev->{'srcmd5'},
-      'rev' => $rev->{'rev'},
-      'time' => time(),
-    };
-    $ev->{'linksrcmd5'} = $lxservicemd5 if $lxservicemd5;
-    $ev->{'projectservicesmd5'} = $projectservicesmd5 if $projectservicesmd5;
-    $ev->{'oldsrcmd5'} = $oldfilesrev->{'srcmd5'} if %$oldfiles && $oldfilesrev;
-    mkdir_p("$eventdir/servicedispatch");
-    my $evname = "servicedispatch:${projid}::${packid}::$rev->{'srcmd5'}::$servicemark";
-    $evname = "servicedispatch:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-    writexml("$eventdir/servicedispatch/.$evname.$$", "$eventdir/servicedispatch/$evname", $ev, $BSXML::event);
-    BSUtil::ping("$eventdir/servicedispatch/.ping");
+    $oldfilesrev = undef if $oldfilesrev && !%$oldfiles;
+    writeservicedispatchevent($projid, $packid, $servicemark, $rev, $projectservices, $lxservicemd5, $oldfilesrev);
     return;
   }
 
@@ -323,26 +394,8 @@ sub runservice {
   return if $pid;
 
   # child continues...
-  my $odir = "$uploaddir/runservice$$";
-  BSUtil::cleandir($odir) if -d $odir;
-  mkdir_p($odir);
-  my $receive;
-  eval {
-    $receive = BSRPC::rpc({
-      'uri'       => "$BSConfig::serviceserver/sourceupdate/$projid/$packid",
-      'request'   => 'POST',
-      'headers'   => [ 'Content-Type: application/x-cpio' ],
-      'chunked'   => 1,
-      'data'      => \&BSHTTP::cpio_sender,
-      'cpiofiles' => \@send,
-      'directory' => $odir,
-      'timeout'   => 3600,
-      'withmd5'   => 1,
-      'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef);
-  };
-
-  my $error = $@;
+  my $error = eval { doservicerpc($projid, $packid, $files, \@send) };
+  $error = $@ if $@;
   
   if (!$servicemark) {
     # make sure that there was no other commit in the meantime, for old style only
@@ -353,31 +406,7 @@ sub runservice {
     }
   }
 
-  # and update source repository with the result
-  if ($receive) {
-    # drop all existing service files
-    for my $pfile (keys %$files) {
-      delete $files->{$pfile} if $pfile =~ /^_service[_:]/;
-    }
-    # add new service files
-    eval {
-      for my $pfile (ls($odir)) {
-        if ($pfile eq '.errors') {
-          my $e = readstr("$odir/.errors");
-          die($e || "empty .errors file\n");
-        }
-	die("service returned a non-_service file: $pfile\n") unless $pfile =~ /^_service[_:]/;
-	BSVerify::verify_filename($pfile);
-	$files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
-      }
-    };
-    $error = $@ if $@;
-  } else {
-    $error ||= 'error';
-    $error = "service daemon error:\n $error";
-  }
-  BSUtil::cleandir($odir);
-  rmdir($odir);
+  # commit the service run result
   addrev_service($rev, $servicemark, $files, $error, $lxservicemd5);
   exit(0);
 }
