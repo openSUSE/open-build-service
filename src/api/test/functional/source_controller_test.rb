@@ -2009,7 +2009,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     login_king
     post '/source/kde4', params: { cmd: :undelete }
-    assert_response :success
+    assert_response 200
 
     # content got restored ?
     get '/source/kde4'
