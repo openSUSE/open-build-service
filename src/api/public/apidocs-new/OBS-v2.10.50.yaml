@@ -17,6 +17,8 @@ tags:
   - name: Person
   - name: Published Binaries
   - name: Requests
+  - name: Search
+  - name: Sources
   - name: Sources - Projects
   - name: Trigger
   - name: Workers
@@ -167,17 +169,43 @@ paths:
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
 
+  /search/owner:
+    $ref: 'paths/search_owner.yaml'
+  /search/missing_owner:
+    $ref: 'paths/missing_owner.yaml'
+
   /service:
     $ref: 'paths/service.yaml'
 
-  /source?cmd=createmaintenanceincident:
-    $ref: 'paths/source_createmaintenanceincident.yaml'
+  # Sources
+
   /source?cmd=branch:
     $ref: 'paths/source_branch.yaml'
+  /source?cmd=createmaintenanceincident:
+    $ref: 'paths/source_createmaintenanceincident.yaml'
   /source?cmd=orderkiwirepos:
     $ref: 'paths/source_orderkiwirepos.yaml'
+
+  # Sources - Projects
+
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
+  /source/{project_name}?cmd=copy:
+    $ref: 'paths/source_project_name_cmd_copy.yaml'
+  /source/{project_name}?cmd=createkey:
+    $ref: 'paths/source_project_name_cmd_createkey.yaml'
+  /source/{project_name}?cmd=createmaintenanceincident:
+    $ref: 'paths/source_project_name_cmd_createmaintenanceincident.yaml'
+  /source/{project_name}?cmd=createpatchinfo:
+    $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
+  /source/{project_name}?cmd=lock:
+    $ref: 'paths/source_project_name_cmd_lock.yaml'
+  /source/{project_name}?cmd=unlock:
+    $ref: 'paths/source_project_name_cmd_unlock.yaml'
+  /source/{project_name}?cmd=extendkey:
+    $ref: 'paths/source_project_name_cmd_extendkey.yaml'
+  /source/{project_name}?cmd=move:
+    $ref: 'paths/source_project_name_cmd_move.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

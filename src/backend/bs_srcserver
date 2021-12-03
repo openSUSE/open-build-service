@@ -340,6 +340,12 @@ sub notify_all_repservers {
 sub triggerservicerun {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid);
+  my $pack = BSRevision::readpack_local($projid, $packid, 1);
+  if ($pack && $pack->{'title'} =~ /^obs-scm:(.*)/) {
+    die("Cannot use the scm bridge with old style services\n") if $BSConfig::old_style_services;
+    BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $1);
+    return $BSStdServer::return_ok;
+  }
   my $linkinfo = {};
   my $files = BSRevision::lsrev($rev, $linkinfo);
   $cgi->{'triggerservicerun'} = 1;	# hack
@@ -364,16 +370,24 @@ sub waitservicerun {
   my ($cgi, $projid, $packid) = @_;
   die("not implemented for old style services\n") if $BSConfig::old_style_services;
   if (!$BSStdServer::isajax) {
-    my $rev = getrev($projid, $packid);
-    my $linkinfo = {};
-    my $files = BSRevision::lsrev($rev, $linkinfo);
-    my $servicemark = $linkinfo->{'xservicemd5'};
-    return $BSStdServer::return_ok unless $servicemark;
-    eval {
-      BSSrcServer::Service::handleservice($rev, $files, $servicemark);
-    };
-    return $BSStdServer::return_ok unless $@;
-    die($@) if $@ !~ /service in progress/;
+    my $servicemark;
+    my $serror;
+    my $pack = BSRevision::readpack_local($projid, $packid, 1);
+    if ($pack && $pack->{'title'} =~ /^obs-scm:(.*)/) {
+      $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, $packid);
+      $serror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
+    } else {
+      my $rev = getrev($projid, $packid);
+      my $linkinfo = {};
+      my $files = BSRevision::lsrev($rev, $linkinfo);
+      $servicemark = $linkinfo->{'xservicemd5'};
+      return $BSStdServer::return_ok unless $servicemark;
+      eval { BSSrcServer::Service::handleservice($rev, $files, $servicemark) };
+      $serror = $@;
+      chomp $serror;
+    }
+    return $BSStdServer::return_ok unless $serror;
+    die("$serror\n") if $serror !~ /service in progress/;
     # pass on to ajax
     BSHandoff::handoff("/source/$projid/$packid", undef, 'cmd=waitservice', "servicemark=$servicemark");
   }
@@ -622,6 +636,11 @@ sub addrev {
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
   die("bad files (slash)\n") if grep {/\// && $_ ne '/SERVICE'} keys %$files;
   die("bad files (glyph)\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
+
+  if ($packid ne '_project' && !$cgi->{'commitobsscm'}) {
+    my $pack = BSRevision::readpack_local($projid, $packid);
+    die("Package $packid is controlled by obs-scm\n") if $pack->{'title'} =~ /^obs-scm:/;
+  }
 
   if ($files->{'_patchinfo'}) {
     die("bad files in patchinfo container\n") if grep {$_ ne '_patchinfo'} keys %$files;
@@ -2869,6 +2888,13 @@ sub getfile {
   } else {
     $files = BSRevision::lsrev($rev);
   }
+  if (!$cgi->{'meta'} && !$cgi->{'deleted'} && !$cgi->{'rev'} && !$files->{$filename} && $filename eq '_serviceerror') {
+    my $pack = BSRevision::readpack_local($projid, $packid, 1);
+    if ($pack && $pack->{'title'} =~ /^obs-scm:/) {
+      $rev = BSRevision::getrev_local($projid, $packid, BSSrcServer::Service::genservicemark_obsscm($projid, $packid));
+      $files = BSRevision::lsrev($rev);
+    }
+  }
   die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = BSRevision::revstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
@@ -3285,6 +3311,24 @@ sub sourcecommitfilelist {
   BSSrcServer::Service::runservice($cgi, $rev, $files) unless $cgi->{'noservice'};
   $cgi->{'rev'} = $rev->{'rev'};
   return getfilelist($cgi, $projid, $packid);
+}
+
+sub sourcecommitobsscm {
+  my ($cgi, $projid, $packid) = @_;
+  my $pack = BSRevision::readpack_local($projid, $packid);
+  die("Package $packid is not controlled by obs-scm\n") unless $pack->{'title'} =~ /^obs-scm:/;
+  my $rev = BSRevision::getrev_local($projid, $packid, $cgi->{'srcmd5'});
+  die("No such revision $cgi->{'srcmd5'}\n") unless $rev;
+  my $linkinfo = {};
+  my $files = BSRevision::lsrev($rev, $linkinfo);
+  die("Weird service run result\n") if %$linkinfo;
+  $rev->{'user'} = $cgi->{'user'} if $cgi->{'user'};
+  $rev->{'comment'} = $cgi->{'comment'} if $cgi->{'comment'};
+  $rev->{'run'} = $cgi->{'run'};
+  my $newrev = BSSrcServer::Service::commitobsscm($projid, $packid, $cgi->{'servicemark'}, $rev, $files) || {};
+  delete $newrev->{'project'};
+  delete $newrev->{'package'};
+  return ($newrev, $BSXML::revision);
 }
 
 # admin only, move entire project
@@ -7245,6 +7289,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:? withvalidate:?' => \&sourcecommitfilelist,
+  'POST:/source/$project/$package cmd=commitobsscm srcmd5 servicemark: run:md5 user:? comment:?' => \&sourcecommitobsscm,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool? freezelink:bool? vrevbump:num? instantiate:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool? time:num? extendvrev:bool? simplelink:bool?' => \&sourcebranch,
