@@ -7,6 +7,7 @@ class Project::RemoteURL
     ENV['http_proxy'] = Configuration.first.http_proxy if ENV['http_proxy'].blank?
     ENV['https_proxy'] = Configuration.first.http_proxy if ENV['https_proxy'].blank?
     ENV['no_proxy'] = Configuration.first.no_proxy if ENV['no_proxy'].blank?
+    Rails.logger.info "uri: #{uri} proxy: #{ENV['http_proxy']}"
     begin
       uri.open.read
     rescue OpenURI::HTTPError, SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,
