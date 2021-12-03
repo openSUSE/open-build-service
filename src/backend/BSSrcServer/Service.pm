@@ -50,7 +50,7 @@ our $readpackage = sub {
   return $pack;
 };
 
-# only used for old style services
+# used for old style services and obsscm commits
 our $addrev = sub {
   my ($cgi, $projid, $packid, $files, $target) = @_;
   die("BSSrcServer::Service::addrev not implemented\n");
@@ -121,6 +121,25 @@ sub notify_serviceresult {
   $notify->($error ? 'SRCSRV_SERVICE_FAIL' : 'SRCSRV_SERVICE_SUCCESS', \%ndata);
 }
 
+sub commitobsscm {
+  my ($projid, $packid, $servicemark, $rev, $files) = @_;
+  die("Hey!\n") if $packid eq '_project';
+  die("obs_scm_bridge must not return _service files\n") if grep {$_ eq '_service' || $_ eq '_serviceerror' || /^_service[:_]/} keys %$files;
+  my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
+  my $data = BSSrcrep::readobsscmdata($projid, $packid, $servicemark);
+  if (!$data || $data->{'run'} ne $rev->{'run'}) {
+    close $fd;
+    return undef;	# obsolete run
+  }
+  my $cgi = {};
+  $cgi->{'user'} = $rev->{'user'} || $data->{'user'};
+  $cgi->{'comment'} = $rev->{'comment'} || $data->{'comment'};
+  $cgi->{'commitobsscm'} = 1;   # Hack
+  my $newrev = $addrev->($cgi, $projid, $packid, $files);
+  BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
+  return $newrev;
+}
+
 # called from runservice when the service run is finished. it
 # either does the service commit (old style), or creates the
 # xsrcmd5 service revision (new style).
@@ -154,13 +173,17 @@ sub addrev_service {
   }
   if (!$error) {
     eval {
-      BSSrcrep::addmeta_service($projid, $packid, $files, $servicemark, $rev->{'srcmd5'}, $lxservicemd5);
+      if ($rev->{'rev'} eq 'obsscm') {
+	commitobsscm($projid, $packid, $servicemark, $rev, $files);
+      } else {
+	BSSrcrep::addmeta_service($projid, $packid, $files, $servicemark, $rev->{'srcmd5'}, $lxservicemd5);
+      }
     };
     $error = $@ if $@;
   }
   BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
   notify_serviceresult($rev, $error);
-  $notify_repservers->('package', $projid, $packid);
+  $notify_repservers->('package', $projid, $packid) unless $rev->{'rev'} eq 'obsscm';
 }
 
 # store the faked result of a service run. Note that this is done before
@@ -189,6 +212,59 @@ sub fake_service_run {
   BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
 }
 
+sub genservicemark_obsscm {
+  my ($projid, $packid) = @_;
+  return Digest::MD5::md5_hex("obsscm/$projid/$packid");
+}
+
+sub generate_obs_scm_bridge_service {
+  my ($data) = @_;
+  die("bad obs_scm_bridge data\n") unless $data->{'name'} eq 'obs_scm_bridge' && $data->{'url'};
+  my $services = { 
+    'service' => [ { 
+      'name' => 'obs_scm_bridge',
+      'param' => [ { 'name' => 'url', '_content' => $data->{'url'} } ],
+    } ],
+  };  
+  return BSUtil::toxml($services, $BSXML::services);
+}
+
+# generate a pseudo revision for obsscm services
+sub generate_obsscm_rev {
+  my ($projid, $packid, $data) = @_;
+  my $rev = { 'project' => $projid, 'package' => $packid, 'rev' => 'obsscm', 'run' => $data->{'run'}, 'user' => $data->{'user'}, 'comment' => $data->{'comment'} };
+  return $rev;
+}
+
+sub runservice_obsscm {
+  my ($cgi, $projid, $packid, $scmurl) = @_;
+  my $servicemark = genservicemark_obsscm($projid, $packid);
+  # generate random run id, store "in progress" marker with the run id
+  my $run = Digest::MD5::md5_hex("obsscm/$projid/$packid/".time()."/$$\n");
+  my $data = { 'name' => 'obs_scm_bridge', 'run' => $run, 'url' => $scmurl };
+  $data->{'user'} = $cgi->{'user'} if $cgi->{'user'};
+  $data->{'commit'} = $cgi->{'comment'} if $cgi->{'comment'};
+  my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
+  BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, $data);
+  close($fd);
+  my $rev = generate_obsscm_rev($projid, $packid, $data);
+  if ($BSConfig::servicedispatch) {
+    writeservicedispatchevent($projid, $packid, $servicemark, $rev);
+    return;
+  }
+  my $pid = xfork();
+  return if $pid;
+  # run the service
+  my @send;
+  push @send, { 'name' => '_service', 'data' => generate_obs_scm_bridge_service($data) };
+  my $files = {};
+  my $error = eval { doservicerpc($projid, $packid, $files, \@send, 1) };
+  $error = $@ if $@;
+  # commit the service run result
+  addrev_service($rev, $servicemark, $files, $error);
+  exit(0);
+}
+
 sub writeservicedispatchevent {
   my ($projid, $packid, $servicemark, $rev, $projectservices, $lxservicemd5, $oldfilesrev) = @_;
   my $projectservicesmd5;
@@ -202,7 +278,7 @@ sub writeservicedispatchevent {
     'project' => $projid,
     'package' => $packid,
     'job' => $servicemark,
-    'srcmd5' => $rev->{'srcmd5'},
+    'srcmd5' => $rev->{'rev'} eq 'obsscm' ? $rev->{'run'} : $rev->{'srcmd5'},
     'rev' => $rev->{'rev'},
     'time' => time(),
   };
@@ -210,7 +286,7 @@ sub writeservicedispatchevent {
   $ev->{'projectservicesmd5'} = $projectservicesmd5 if $projectservicesmd5;
   $ev->{'oldsrcmd5'} = $oldfilesrev->{'srcmd5'} if $oldfilesrev;
   mkdir_p("$eventdir/servicedispatch");
-  my $evname = "servicedispatch:${projid}::${packid}::$rev->{'srcmd5'}::$servicemark";
+  my $evname = "servicedispatch:${projid}::${packid}::$ev->{'srcmd5'}::$servicemark";
   $evname = "servicedispatch:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   writexml("$eventdir/servicedispatch/.$evname.$$", "$eventdir/servicedispatch/$evname", $ev, $BSXML::event);
   BSUtil::ping("$eventdir/servicedispatch/.ping");
@@ -219,10 +295,8 @@ sub writeservicedispatchevent {
 # send the request to the service deamon and collect the result
 # modifies the files hash
 sub doservicerpc {
-  my ($projid, $packid, $files, $send) = @_;
+  my ($projid, $packid, $files, $send, $noprefix) = @_;
 
-  my $enforceprefix = $files ? 1 : 0;
-  $files ||= {};
   my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
   mkdir_p($odir);
@@ -261,7 +335,7 @@ sub doservicerpc {
   eval {
     die(readstr("$odir/.errors") || "empty .errors file\n") if -e "$odir/.errors";
     for my $pfile (ls($odir)) {
-      die("service returned a non-_service file: $pfile\n") if $enforceprefix && $pfile !~ /^_service[_:]/;
+      die("service returned a non-_service file: $pfile\n") if !$noprefix && $pfile !~ /^_service[_:]/;
       BSVerify::verify_filename($pfile);
       $files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
     }

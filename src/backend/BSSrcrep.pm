@@ -526,4 +526,43 @@ sub serviceerrorfile {
   return "$treedir/$srcmd5-_serviceerror";
 }
 
+sub lockobsscmfile {
+  my ($projid, $packid, $srcmd5, $fg) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  mkdir_p($treedir);
+  my $fd;
+  BSUtil::lockopen($fd, '+>>', "$treedir/$srcmd5-_serviceerror");
+  return $fd;
+}
+
+sub readobsscmdata {
+  my ($projid, $packid, $srcmd5) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  my $r = readstr("$treedir/$srcmd5-_serviceerror", 1);
+  return undef unless $r;
+  return undef unless $r =~ /^service in progress\n/s;
+  my $f = {};
+  for (split("\n", $r)) {
+    $f->{$1} = $2 if /^([^=]+)=(.*)$/;
+  }
+  s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for values %$f;
+  return $f;
+}
+
+sub writeobsscmdata {
+  my ($projid, $packid, $srcmd5, $f) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  if ($f) {
+    $f = { %$f };
+    s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for values %$f;
+    my $content = "service in progress\n";
+    $content .= "$_=$f->{$_}\n" for sort keys %$f;
+    $content .= "service in progress\n";
+    mkdir_p($treedir);
+    writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", $content);
+  } else {
+    unlink("$treedir/$srcmd5-_serviceerror");
+  }
+}
+
 1;
