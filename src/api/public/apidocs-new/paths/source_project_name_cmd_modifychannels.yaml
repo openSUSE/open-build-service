@@ -1,0 +1,48 @@
+post:
+  summary: Modify existing channels.
+  description: Add repositories or enable them for existing channels.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: mode
+      schema:
+        type: string
+        enum: [add_disabled, enable_all]
+      example: add_disabled
+      description: The channel will be added to the package using this mode.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_parameter
+            summary: Internal Server Error
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to execute command 'modifychannels'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: unknown_project
+            summary: 'Project not found: home:Admin'
+  tags:
+    - Sources - Projects
