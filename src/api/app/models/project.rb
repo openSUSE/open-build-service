@@ -129,6 +129,8 @@ class Project < ApplicationRecord
     end
 
     def restore(project_name, backend_opts = {})
+      return nil if find_by_name(project_name)
+
       Backend::Api::Sources::Project.undelete(project_name, backend_opts)
 
       # read meta data from backend to restore database object

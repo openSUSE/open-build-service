@@ -532,8 +532,12 @@ class SourceController < ApplicationController
   def project_command_undelete
     raise CmdExecutionNoPermission, "no permission to execute command 'undelete'" unless User.session!.can_create_project?(params[:project])
 
-    Project.restore(params[:project])
-    render_ok
+    if Project.restore(params[:project])
+      render_ok
+    else
+      render_error status: 400, errorcode: 'not_removed_project',
+                   message: "The project '#{params[:project]}' already exists, it can't be undeleted."
+    end
   end
 
   # POST /source/<project>?cmd=release

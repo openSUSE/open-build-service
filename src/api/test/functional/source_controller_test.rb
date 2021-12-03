@@ -2030,8 +2030,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # undelete project again
     post '/source/kde4', params: { cmd: :undelete }
-    assert_response 404
-    assert_match(/project 'kde4' already exists/, @response.body)
+    assert_response 400
+    assert_match(/project 'kde4' already exists, it can't be undeleted/, @response.body)
   end
 
   def test_remove_project_and_verify_repositories
