@@ -533,6 +533,7 @@ class SourceController < ApplicationController
     raise CmdExecutionNoPermission, "no permission to execute command 'undelete'" unless User.session!.can_create_project?(params[:project])
 
     Project.restore(params[:project])
+    render_ok
   end
 
   # POST /source/<project>?cmd=release
