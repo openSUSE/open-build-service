@@ -62,7 +62,7 @@ post:
       in: query
       schema:
         type: string
-        enum: [all local never]
+        enum: [all, local, never]
     - name: newinstance
       description: The target package exists only via project links, but the link should point to given project
       in: query
