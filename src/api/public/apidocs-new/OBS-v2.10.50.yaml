@@ -17,6 +17,7 @@ tags:
   - name: Person
   - name: Published Binaries
   - name: Requests
+  - name: Search
   - name: Sources
   - name: Sources - Projects
   - name: Trigger
@@ -167,6 +168,11 @@ paths:
     $ref: 'paths/request_id.yaml'
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
+
+  /search/owner:
+    $ref: 'paths/search_owner.yaml'
+  /search/missing_owner:
+    $ref: 'paths/missing_owner.yaml'
 
   /service:
     $ref: 'paths/service.yaml'

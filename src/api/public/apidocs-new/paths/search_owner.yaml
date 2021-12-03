@@ -1,0 +1,100 @@
+get:
+  summary: Search for the default responsible person or group (the owner).
+  description: |
+    Search for the default responsible person or group (the owner) by a user, group
+    or binary name.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: binary
+      schema:
+        type: string
+      description: |
+        The name of a build binary. Either the `binary`, `user` or `group`
+        parameter must be provided.
+    - in: query
+      name: user
+      schema:
+        type: string
+      description: |
+        The login of a user. Either the `binary`, `user` or `group`
+        parameter must be provided.
+    - in: query
+      name: group
+      schema:
+        type: string
+      description: |
+        The title of a group. Either the `binary`, `user` or `group`
+        parameter must be provided.
+    - in: query
+      name: limit
+      schema:
+        type: string
+      description: |
+        Limit the number of returned results. This is only available for
+        the search with the `binary` parameter. The default is set to `1`,
+        use `0` to receive all results or `-1` for the deepest match.
+    - in: query
+      name: devel
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+        - 1
+        - 0
+      description: Include/exclude devel package definitions in the result.
+    - in: query
+      name: project
+      schema:
+        type: string
+      description: Only return results for a given project.
+    - in: query
+      name: filter
+      schema:
+        type: string
+      description: |
+        A comma separated list of role names that should be
+        taken into account in the result.
+      example: 'bugowner,maintainer'
+    - in: query
+      name: attribute
+      schema:
+        type: string
+      description: |
+        Choose the attribute name that marks the rootproject which defines the
+        owner's for all corresponding subprojects and limit the returned results
+        to those. The default value is `OBS:OwnerRootProject`.
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/owner_collection.yaml'
+    '400':
+      description: Bad request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: no_binary
+            summary: |
+              The search needs at least a 'binary' or 'user' parameter
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: unknown_project
+                summary: 'Project not found: bla'
+  tags:
+    - Search

@@ -1,0 +1,24 @@
+type: object
+properties:
+  missing_owner:
+    type: array
+    items:
+      type: object
+      properties:
+        rootproject:
+          type: string
+          example: 'openSUSE'
+          xml:
+            attribute: true
+        project:
+          type: string
+          example: 'openSUSE:Factory'
+          xml:
+            attribute: true
+        package:
+          type: string
+          example: 'yast2-branding-openSUSE'
+          xml:
+            attribute: true
+xml:
+  name: collection

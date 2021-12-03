@@ -1,0 +1,54 @@
+type: object
+properties:
+  owner:
+    type: array
+    items:
+      type: object
+      properties:
+        rootproject:
+          type: string
+          example: 'openSUSE'
+          xml:
+            attribute: true
+        project:
+          type: string
+          example: 'openSUSE:Factory'
+          xml:
+            attribute: true
+        package:
+          type: string
+          example: 'yast2-branding-openSUSE'
+          xml:
+            attribute: true
+        person:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 'foo'
+                xml:
+                  attribute: true
+              role:
+                type: string
+                example: 'bugowner'
+                xml:
+                  attribute: true
+        group:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 'bar'
+                xml:
+                  attribute: true
+              role:
+                type: string
+                example: 'maintainer'
+                xml:
+                  attribute: true
+xml:
+  name: collection
