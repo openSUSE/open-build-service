@@ -477,7 +477,7 @@ GEM
     unicode-display_width (2.1.0)
     uniform_notifier (1.14.2)
     vcr (6.0.0)
-    view_component (2.45.0)
+    view_component (2.46.0)
       activesupport (>= 5.0.0, < 8.0)
       method_source (~> 1.0)
     voight_kampff (1.1.4)
