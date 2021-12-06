@@ -358,4 +358,19 @@ our $local_registry_signatures_extension = 1;
 # network name required for services using a local proxy/cache like gemianbox
 # our $obs_service_network = "obs_services";
 
+if (-e '/etc/sysconfig/proxy') {
+  open my $proxysettings, '<', '/etc/sysconfig/proxy' or die "Unable to open file:$!\n";
+  my %hash = map { split /=|\s+/; } <$proxysettings>;
+  close $proxysettings;
+  our $proxy = $proxysettings{HTTP_PROXY};
+  our $noproxy = $proxysettings{NO_PROXY};
+}
+
+if (not defined $proxy) {
+  our $proxy = "http://172.16.0.2:3128/";
+}
+if (not defined $noproxy) {
+  our $noproxy = "localhost, 127.0.0.1";
+}
+
 1;

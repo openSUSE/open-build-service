@@ -2,6 +2,15 @@ class Project::RemoteURL
   require 'open-uri'
 
   def self.load(remote_project, path)
+    if File.file?('/etc/sysconfig/proxy')
+      proxysettings = Hash[File.read('/etc/sysconfig/proxy').scan(/(\S+)\s*=\s*"([^"]+)/)]
+      Rails.logger.info "var HTTP_PROXY: #{proxysettings.fetch("HTTP_PROXY")} var HTTPS_PROXY: #{proxysettings.fetch("HTTPS_PROXY")} var NO_PROXY: #{proxysettings.fetch("NO_PROXY")}"
+      ENV['http_proxy'] = proxysettings.fetch("HTTPS_PROXY") if proxysettings.has_key?("HTTPS_PROXY")
+      ENV['https_proxy'] = proxysettings.fetch("HTTPS_PROXY") if proxysettings.has_key?("HTTPS_PROXY")
+      ENV['ftp_proxy'] = proxysettings.fetch("HTTPS_PROXY") if proxysettings.has_key?("FTP_PROXY")
+      ENV['no_Proxy'] = proxysettings.fetch("NO_PROXY") if proxysettings.has_key?("NO_PROXY")
+    end
+
     uri = URI.parse(remote_project.remoteurl + path)
     # prefer environment variables if set
     ENV['http_proxy'] = Configuration.first.http_proxy if ENV['http_proxy'].blank?
