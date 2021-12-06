@@ -169,16 +169,16 @@ paths:
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
 
+  /search/missing_owner:
+    $ref: 'paths/search_missing_owner.yaml'
   /search/owner:
     $ref: 'paths/search_owner.yaml'
-  /search/missing_owner:
-    $ref: 'paths/missing_owner.yaml'
   /search/published/binary/id:
     $ref: 'paths/search_published_binary_id.yaml'
-  /search/published/repoinfo/id:
-    $ref: 'paths/search_published_repoinfo_id.yaml'
   /search/published/pattern/id:
     $ref: 'paths/search_published_pattern_id.yaml'
+  /search/published/repoinfo/id:
+    $ref: 'paths/search_published_repoinfo_id.yaml'
 
   /service:
     $ref: 'paths/service.yaml'
