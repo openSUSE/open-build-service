@@ -343,10 +343,18 @@ sub doservicerpc {
   # add new service files
   eval {
     die(readstr("$odir/.errors") || "empty .errors file\n") if -e "$odir/.errors";
-    for my $pfile (ls($odir)) {
-      die("service returned a non-_service file: $pfile\n") if !$noprefix && $pfile !~ /^_service[_:]/;
-      BSVerify::verify_filename($pfile);
-      $files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
+    for my $pfile (sort {$b cmp $a} ls($odir)) {
+      my $qfile = $pfile;
+      if ($noprefix) {
+	$qfile = $1 if /^_service:.*:(.*?)$/s;
+	next if $files->{$qfile};
+	next if $qfile eq '_service';	# hmm?
+	die("service returned forbidden file: $qfile\n") if $qfile eq '_link' || $qfile eq '_meta';
+      } else {
+        die("service returned a non-_service file: $qfile\n") if $qfile !~ /^_service[_:]/;
+      }
+      BSVerify::verify_filename($qfile);
+      $files->{$qfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $qfile);
     }
   };
   my $error = $@;
