@@ -1,28 +1,32 @@
-type: array
-items:
-  type: object
-  properties:
-    name:
-      type: string
-      xml:
-        attribute: true
-    title:
-      type: string
-    description:
-      type: string
-    person:
+type: object
+properties:
+  matches:
+    type: integer
+    xml:
+      attribute: true
+  project:
+    type: array
+    items:
       type: object
       properties:
-        userid:
+        name:
           type: string
           xml:
             attribute: true
-        role:
+        title:
           type: string
-          xml:
-            attribute: true
-  xml:
-    name: project
+        description:
+          type: string
+        person:
+          type: object
+          properties:
+            userid:
+              type: string
+              xml:
+                attribute: true
+            role:
+              type: string
+              xml:
+                attribute: true
 xml:
   name: collection
-  wrapped: true
