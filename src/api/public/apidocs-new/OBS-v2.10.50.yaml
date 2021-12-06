@@ -173,6 +173,12 @@ paths:
     $ref: 'paths/search_owner.yaml'
   /search/missing_owner:
     $ref: 'paths/missing_owner.yaml'
+  /search/published/binary/id:
+    $ref: 'paths/search_published_binary_id.yaml'
+  /search/published/repoinfo/id:
+    $ref: 'paths/search_published_repoinfo_id.yaml'
+  /search/published/pattern/id:
+    $ref: 'paths/search_published_pattern_id.yaml'
 
   /service:
     $ref: 'paths/service.yaml'

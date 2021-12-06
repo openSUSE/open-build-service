@@ -1,0 +1,57 @@
+description: OK. The request has succeeded.
+content:
+  application/xml; charset=utf-8:
+    schema:
+      type: object
+      properties:
+        matches:
+          type: integer
+          xml:
+            attribute: true
+        limited:
+          type: boolean
+          xml:
+            attribute: true
+        repoinfo:
+          type: array
+          items:
+            type: object
+            properties:
+              project:
+                type: string
+                xml:
+                  attribute: true
+              repository:
+                type: string
+                xml:
+                  attribute: true
+      xml:
+        name: collection
+        wrapped: true
+    examples:
+      including_download_urls:
+        value:
+          matches: 1
+          repoinfo:
+            - project: OBS:Server:Unstable
+              repository: SLE_12_SP4
+              downloadurl: https://download.opensuse.org/repositories/OBS:/Server:/Unstable/SLE_12_SP4/SLE_12_SP4/OBS_Server.ymp
+        summary: Including download urls
+        description: Result after adding the `withdownloadurl=1` parameter/value pair to the request.
+      with_limit:
+        value:
+          matches: 2
+          limited: true
+          repoinfo:
+            - project: OBS:Server:Unstable
+              repository: SLE_12_SP4
+            - project: OBS:Server:Unstable
+              repository: SLE_12_SP5
+        summary: Limiting results
+        description: Result after adding `limit=2` parameter/value pair to the request.
+      without_matches:
+        value:
+          matches: 0
+        summary: No matches
+        description: |
+          Empty result, when there is no matches. For example: `?match=project='home:bs-team:OBS'`.

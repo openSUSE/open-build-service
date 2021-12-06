@@ -1,0 +1,6 @@
+in: query
+name: limit
+schema:
+  type: integer
+description: Override default maximum value of 1000 entries to be returned.
+example: 20

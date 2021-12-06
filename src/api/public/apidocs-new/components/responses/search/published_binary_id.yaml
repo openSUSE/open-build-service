@@ -1,0 +1,130 @@
+description: OK. The request has succeeded.
+content:
+  application/xml; charset=utf-8:
+    schema:
+      type: object
+      properties:
+        matches:
+          type: integer
+          xml:
+            attribute: true
+        limited:
+          type: boolean
+          xml:
+            attribute: true
+        binary:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                xml:
+                  attribute: true
+              project:
+                type: string
+                xml:
+                  attribute: true
+              package:
+                type: string
+                xml:
+                  attribute: true
+              repository:
+                type: string
+                xml:
+                  attribute: true
+              version:
+                type: string
+                xml:
+                  attribute: true
+              release:
+                type: string
+                xml:
+                  attribute: true
+              arch:
+                type: string
+                xml:
+                  attribute: true
+              filename:
+                type: string
+                xml:
+                  attribute: true
+              filepath:
+                type: string
+                xml:
+                  attribute: true
+              baseproject:
+                type: string
+                xml:
+                  attribute: true
+              type:
+                type: string
+                xml:
+                  attribute: true
+              downloadurl:
+                type: string
+                xml:
+                  attribute: true
+      xml:
+        name: collection
+        wrapped: true
+    examples:
+      including_download_urls:
+        value:
+          matches: 2
+          binary:
+            - name: package_name
+              project: home:foo
+              package: package_name
+              repository: openSUSE_Tumbleweed
+              version: 20201220
+              release: 3.1
+              arch: src
+              filename: package_name-20201220-3.1.src.rpm
+              filepath: home:/foo/openSUSE_Tumbleweed/src/package_name-20201220-3.1.src.rpm
+              baseproject: home:bar
+              type: rpm
+              downloadurl: https://server1.myorg.org/repositories/home:/foo/openSUSE_Tumbleweed/src/package_name-20201220-3.1.src.rpm
+            - name: package_name2
+              project: home:foo
+              package: package_name2
+              repository: openSUSE_Tumbleweed
+              version: 20201220
+              release: 3.1
+              arch: src
+              filename: package_name2-20201220-3.1.src.rpm
+              filepath: home:/foo/openSUSE_Tumbleweed/src/package_name2-20201220-3.1.src.rpm
+              baseproject: home:bar
+              type: rpm
+              downloadurl: https://server1.myorg.org/repositories/home:/foo/openSUSE_Tumbleweed/src/package_name2-20201220-3.1.src.rpm
+        summary: Including download urls
+        description: Result after adding the `withdownloadurl=1` parameter/value pair to the request.
+      with_limit:
+        value:
+          matches: 2
+          limited: true
+          binary:
+            - name: package_name
+              project: home:foo
+              repository: openSUSE_Tumbleweed
+              package: package_name
+              version: 20201220
+              release: 3.1
+              arch: src
+              filename: package_name-20201220-3.1.src.rpm
+              filepath: home:/foo/openSUSE_Tumbleweed/src/package_name-20201220-3.1.src.rpm
+              baseproject: home:bar
+              type: rpm
+            - name: package_name2
+              project: home:foo
+              package: package_name2
+              repository: openSUSE_Tumbleweed
+              version: 20201220
+              release: 3.1
+              arch: src
+              filename: package_name2-20201220-3.1.src.rpm
+              filepath: home:/foo/openSUSE_Tumbleweed/src/package_name2-20201220-3.1.src.rpm
+              baseproject: home:bar
+              type: rpm
+        summary: Limiting results
+        description: Result after adding `limit=2` parameter/value pair to the request.
