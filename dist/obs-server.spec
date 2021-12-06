@@ -257,7 +257,8 @@ Requires:       screen
 Requires:       psmisc
 # For runlevel script:
 Requires:       curl
-Recommends:     openslp lvm2
+Requires:       openslp
+Recommends:     lvm2
 Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
