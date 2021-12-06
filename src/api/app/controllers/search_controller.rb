@@ -178,8 +178,7 @@ class SearchController < ApplicationController
                    end
     search_items = filter_items_from_cache(items, xml, key_template)
 
-    search_finder = SearchFinder.new(what: what, search_items: search_items,
-                                     render_all: render_all, params: params)
+    search_finder = SearchFinder.new(what: what, search_items: search_items, render_all: render_all)
 
     relation = search_finder.call
 
