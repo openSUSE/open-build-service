@@ -27,7 +27,6 @@ use BSXML;
 use BSRevision;
 use BSSrcrep;
 use BSVerify;
-use BSSrcServer::Link;	# for link expansion
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
@@ -60,6 +59,10 @@ our $notify = sub {
 };
 
 our $notify_repservers = sub {
+};
+
+our $handlelinks = sub {
+  die("BSSrcServer::Service::handlelinks not implemented\n");
 };
 
 
@@ -433,7 +436,7 @@ sub runservice {
     $sendfiles = { %$files };
     eval {
       my $lrev = {%$rev, 'ignoreserviceerrors' => 1};
-      $sendfiles = BSSrcServer::Link::handlelinks($lrev, $sendfiles);
+      $sendfiles = $handlelinks->($lrev, $sendfiles);
       die("bad link: $sendfiles\n") unless ref $sendfiles;
       $lxservicemd5 = $lrev->{'srcmd5'};
     };

@@ -97,6 +97,7 @@ $BSSrcServer::Service::readpackage  = \&readpackage;
 $BSSrcServer::Service::addrev = \&addrev;
 $BSSrcServer::Service::notify = \&notify;
 $BSSrcServer::Service::notify_repservers = \&notify_repservers;
+$BSSrcServer::Service::handlelinks = \&BSSrcServer::Link::handlelinks;
 
 $BSSrcServer::Blame::getrev = \&getrev;
 $BSSrcServer::Blame::lsrev_expanded = \&lsrev_expanded;
