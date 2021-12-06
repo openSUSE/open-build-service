@@ -1,0 +1,60 @@
+get:
+  summary: |
+    Search for packages that miss the definition for a by default
+    responsible person or group.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: project
+      schema:
+        type: string
+      description: Only return results for a given project.
+    - in: query
+      name: filter
+      schema:
+        type: string
+      description: |
+        A comma separated list of role names that should be
+        taken into account in the result.
+      example: 'bugowner,maintainer'
+    - in: query
+      name: attribute
+      schema:
+        type: string
+      description: |
+        Choose the attribute name that marks the rootproject which defines the
+        owner's for all corresponding subprojects and limit the returned results
+        to those. The default value is `OBS:OwnerRootProject`.
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/missing_owner_collection.yaml'
+    '400':
+      description: Bad request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_attribute
+            summary: |
+              Attribute 'foo' must be in the $NAMESPACE:$NAME style
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: unknown_project
+                summary: 'Project not found: bla'
+  tags:
+    - Search

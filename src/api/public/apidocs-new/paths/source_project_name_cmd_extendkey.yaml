@@ -1,0 +1,38 @@
+post:
+  summary: Extend the expiration date of GPG keys.
+  description: Extend the expiration date of GPG key for the given project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to execute command 'extendkey'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: unknown_project
+            summary: 'Project not found: home:Admin'
+  tags:
+    - Sources - Projects

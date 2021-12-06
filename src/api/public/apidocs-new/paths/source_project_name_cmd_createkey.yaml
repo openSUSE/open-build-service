@@ -1,0 +1,45 @@
+post:
+  summary: Generate a new GPG key for a project.
+  description: Generate a new GPG key. If the project already has a GPG key, the old key is discarded.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                xml:
+                  attribute: true
+            xml:
+              name: status
+          example:
+            code: ok
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_project_name
+            summary: invalid project name '{project_name}'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to execute command 'createkey'
+  tags:
+    - Sources - Projects

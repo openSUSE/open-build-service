@@ -60,7 +60,7 @@ case "$COMMAND" in
     fi
     WITH_NET="1"
     ;;
-  */tar_scm|*/obs_scm)
+  */tar_scm|*/obs_scm|*/obs_scm_bridge)
     SCM_COMMAND=1
     WITH_NET="1"
   ;;

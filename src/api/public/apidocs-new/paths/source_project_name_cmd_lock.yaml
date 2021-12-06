@@ -1,0 +1,34 @@
+post:
+  summary: Locks the project.
+  description: |
+    Locks the project given as parameter. You can pass a comment with the reason of the lock.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment that can be added to describe the reasoning behind the lock.
+      example: Locked project beacause A, B and C.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '403':
+      description: |
+        No permission to execute command 'lock' because the project is already locked or
+        because the user do not have permission to modify the project.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'cmd_execution_no_permission'
+            summary: no permission to execute command 'lock'.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
