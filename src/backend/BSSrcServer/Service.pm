@@ -27,7 +27,6 @@ use BSXML;
 use BSRevision;
 use BSSrcrep;
 use BSVerify;
-use BSSrcServer::Link;	# for link expansion
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
@@ -61,6 +60,12 @@ our $notify = sub {
 
 our $notify_repservers = sub {
 };
+
+our $handlelinks = sub {
+  die("BSSrcServer::Service::handlelinks not implemented\n");
+};
+
+our $commitobsscm = \&commitobsscm;
 
 
 # check if a service run is needed for the upcoming commit
@@ -140,6 +145,20 @@ sub commitobsscm {
   return $newrev;
 }
 
+sub addrev_service_oldstyle {
+  my ($projid, $packid, $files, $error) = @_;
+  # old style, do a real commit
+  if ($error) {
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/_service_error$$", undef, "$error\n");
+    $files->{'_service_error'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
+  }
+  # addrev will notify the rep servers for us
+  $addrev->({'user' => '_service', 'comment' => 'generated via source service', 'noservice' => 1}, $projid, $packid, $files);
+  my $lockfile = "$eventdir/service/${projid}::$packid";
+  unlink($lockfile);
+}
+
 # called from runservice when the service run is finished. it
 # either does the service commit (old style), or creates the
 # xsrcmd5 service revision (new style).
@@ -153,19 +172,9 @@ sub addrev_service {
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
   if (!$servicemark) {
-    # old style, do a real commit
-    if ($error) {
-      mkdir_p($uploaddir);
-      writestr("$uploaddir/_service_error$$", undef, "$error\n");
-      $files->{'_service_error'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
-    }
-    $addrev->({'user' => '_service', 'comment' => 'generated via source service', 'noservice' => 1}, $projid, $packid, $files);
-    my $lockfile = "$eventdir/service/${projid}::$packid";
-    unlink($lockfile);
-    # addrev will notify the rep servers for us
+    addrev_service_oldstyle($projid, $packid, $files, $error);
     return;
   }
-  # new style services
   if ($files->{'_service_error'} && !$error) {
     $error = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
     chomp $error;
@@ -174,7 +183,7 @@ sub addrev_service {
   if (!$error) {
     eval {
       if ($rev->{'rev'} eq 'obsscm') {
-	commitobsscm($projid, $packid, $servicemark, $rev, $files);
+	$commitobsscm->($projid, $packid, $servicemark, $rev, $files);
       } else {
 	BSSrcrep::addmeta_service($projid, $packid, $files, $servicemark, $rev->{'srcmd5'}, $lxservicemd5);
       }
@@ -433,7 +442,7 @@ sub runservice {
     $sendfiles = { %$files };
     eval {
       my $lrev = {%$rev, 'ignoreserviceerrors' => 1};
-      $sendfiles = BSSrcServer::Link::handlelinks($lrev, $sendfiles);
+      $sendfiles = $handlelinks->($lrev, $sendfiles);
       die("bad link: $sendfiles\n") unless ref $sendfiles;
       $lxservicemd5 = $lrev->{'srcmd5'};
     };
