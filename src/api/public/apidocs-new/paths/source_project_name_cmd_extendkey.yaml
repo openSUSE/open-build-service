@@ -1,6 +1,6 @@
 post:
-  summary: Extend the expiration date of gpg keys.
-  description: Extend the expiration date of gpg key for the given project.
+  summary: Extend the expiration date of GPG keys.
+  description: Extend the expiration date of GPG key for the given project.
   security:
     - basic_authentication: []
   parameters:

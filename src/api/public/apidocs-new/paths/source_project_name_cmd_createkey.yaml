@@ -1,6 +1,6 @@
 post:
-  summary: Generate a new gpg key for a project.
-  description: Generate a new gpg key. If the project already has a gpg key, the old key is discarded.
+  summary: Generate a new GPG key for a project.
+  description: Generate a new GPG key. If the project already has a GPG key, the old key is discarded.
   security:
     - basic_authentication: []
   parameters:
