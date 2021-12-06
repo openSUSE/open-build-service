@@ -216,6 +216,8 @@ paths:
     $ref: 'paths/source_project_name_cmd_move.yaml'
   /source/{project_name}?cmd=freezelink:
     $ref: 'paths/source_project_name_cmd_freezelink.yaml'
+  /source/{project_name}?cmd=modifychannels:
+    $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
