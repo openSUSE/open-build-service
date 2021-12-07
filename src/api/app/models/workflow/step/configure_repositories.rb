@@ -24,6 +24,10 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
         repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
       end
     end
+
+    # We have to store the changes on the backend
+    target_project.store(comment: "Added the following repositories to the project: #{step_instructions[:repositories].pluck(:name).compact.to_sentence}",
+                         login: @token.user.login)
   end
 
   private
