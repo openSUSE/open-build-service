@@ -4,11 +4,11 @@ class Project::RemoteURL
   def self.load(remote_project, path)
     if File.file?('/etc/sysconfig/proxy')
       proxysettings = Hash[File.read('/etc/sysconfig/proxy').scan(/(\S+)\s*=\s*"([^"]+)/)]
-      Rails.logger.info "var HTTP_PROXY: #{proxysettings.fetch("HTTP_PROXY")} var HTTPS_PROXY: #{proxysettings.fetch("HTTPS_PROXY")} var NO_PROXY: #{proxysettings.fetch("NO_PROXY")}"
-      ENV['http_proxy'] = proxysettings.fetch("HTTP_PROXY") if proxysettings.has_key?("HTTP_PROXY")
-      ENV['https_proxy'] = proxysettings.fetch("HTTPS_PROXY") if proxysettings.has_key?("HTTPS_PROXY")
-      ENV['ftp_proxy'] = proxysettings.fetch("FTP_PROXY") if proxysettings.has_key?("FTP_PROXY")
-      ENV['no_proxy'] = proxysettings.fetch("NO_PROXY") if proxysettings.has_key?("NO_PROXY")
+      Rails.logger.info "var HTTP_PROXY: #{proxysettings["HTTP_PROXY"]} var HTTPS_PROXY: #{proxysettings["HTTPS_PROXY"]} var FTP_PROXY: #{proxysettings["FTP_PROXY"]} `var NO_PROXY: #{proxysettings["NO_PROXY"]}"
+      ENV['http_proxy'] = proxysettings["HTTP_PROXY"] if proxysettings.has_key?("HTTP_PROXY")
+      ENV['https_proxy'] = proxysettings["HTTPS_PROXY"] if proxysettings.has_key?("HTTPS_PROXY")
+      ENV['ftp_proxy'] = proxysettings["FTP_PROXY"] if proxysettings.has_key?("FTP_PROXY")
+      ENV['no_proxy'] = proxysettings["NO_PROXY"] if proxysettings.has_key?("NO_PROXY")
     end
 
     uri = URI.parse(remote_project.remoteurl + path)
