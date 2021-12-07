@@ -1,15 +1,14 @@
 class SearchFinder
   include ActiveModel::Validations
 
-  attr_reader :included_classes, :relation, :what, :render_all, :params, :search_items, :preloaded_classes
+  attr_reader :included_classes, :relation, :what, :render_all, :search_items, :preloaded_classes
 
   validates :what, inclusion: [:package, :project, :repository, :request, :person, :channel, :channel_binary, :released_binary, :issue]
 
-  def initialize(what:, search_items: [], render_all: false, params: {})
+  def initialize(what:, search_items: [], render_all: false)
     @what = what
     @render_all = render_all
     @search_items = search_items
-    @params = params
     @included_classes = []
     @preloaded_classes = []
   end
