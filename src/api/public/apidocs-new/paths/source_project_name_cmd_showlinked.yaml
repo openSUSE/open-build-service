@@ -1,0 +1,43 @@
+post:
+  summary: List projects linking to the provided project.
+  description: |
+    Return a list of projects linking to the provided project. This command doesn't perform any action.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  xml:
+                    attribute: true
+              xml:
+                name: project
+            xml:
+              name: collection
+              wrapped : true
+          examples:
+            no_results:
+              summary: No results
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <collection/>
+            one_result:
+              summary: One result
+              value:
+                - name: OBS:Server:Unstable:Containers:ruby2.7
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

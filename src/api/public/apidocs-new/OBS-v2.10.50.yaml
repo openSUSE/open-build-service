@@ -222,6 +222,8 @@ paths:
     $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
   /source/{project_name}?cmd=release:
     $ref: 'paths/source_project_name_cmd_release.yaml'
+  /source/{project_name}?cmd=showlinked:
+    $ref: 'paths/source_project_name_cmd_showlinked.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
