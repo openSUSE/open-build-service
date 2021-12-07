@@ -360,14 +360,23 @@ our $local_registry_signatures_extension = 1;
 
 if (-e '/etc/sysconfig/proxy') {
   open my $proxysettings, '<', '/etc/sysconfig/proxy' or die "Unable to open file:$!\n";
-  my %hash = map { split /=|\s+/; } <$proxysettings>;
+  while (<$proxysettings>) {
+    chomp;                  # no newline
+    s/#.*//;                # no comments
+    s/^\s+//;               # no leading white
+    s/\s+$//;               # no trailing white
+    next unless length;     # anything left?
+    my ($var, $value) = split /=|\s+/;
+    $value =~ s/"//g;       # remove the quotes
+    $proxyhash{$var} = $value;
+  }
   close $proxysettings;
-  our $proxy = $proxysettings{HTTP_PROXY};
-  our $noproxy = $proxysettings{NO_PROXY};
+  our $proxy = $proxyhash{HTTP_PROXY};
+  our $noproxy = $proxyhash{NO_PROXY};
 }
 
 if (not defined $proxy) {
-  our $proxy = "http://172.16.0.2:3128/";
+  our $proxy = "http://<ip/fqdn>:3128/";
 }
 if (not defined $noproxy) {
   our $noproxy = "localhost, 127.0.0.1";
