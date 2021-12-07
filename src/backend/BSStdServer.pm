@@ -335,6 +335,14 @@ sub server {
   if ($args && @$args) {
     my $rundir = ($conf ? $conf->{'rundir'} : undef) || $BSConfig::rundir || "$BSConfig::bsdir/run";
     if ($args->[0] eq '--test') {
+      if ($conf) {
+	$conf->{'verifiers'} ||= $BSVerify::verifiers;
+	BSDispatch::compile($conf);
+      }
+      if ($aconf) {
+	$aconf->{'verifiers'} ||= $BSVerify::verifiers;
+	BSDispatch::compile($aconf);
+      }
       exit 0;
     }
     if ($args->[0] eq '--stop' || $args->[0] eq '--exit') {

@@ -183,7 +183,12 @@ sub run {
     }
   }
 
-  exit(0) if @$args && $args->[0] eq '--test';
+  if (@$args && $args->[0] eq '--test') {
+    if ($conf) {
+      compile_dispatches($conf);
+    }
+    exit(0);
+  }
   
   die("no eventdir configured\n") unless $conf->{'eventdir'};
   my $bsdir = $BSConfig::bsdir || "/srv/obs";
