@@ -1,0 +1,28 @@
+type: array
+items:
+  type: object
+  properties:
+    name:
+      type: string
+      xml:
+        attribute: true
+    title:
+      type: string
+    description:
+      type: string
+    person:
+      type: object
+      properties:
+        userid:
+          type: string
+          xml:
+            attribute: true
+        role:
+          type: string
+          xml:
+            attribute: true
+  xml:
+    name: project
+xml:
+  name: collection
+  wrapped: true

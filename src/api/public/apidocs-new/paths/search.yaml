@@ -1,0 +1,150 @@
+get:
+  summary: Search in projects or in packages.
+  description: |
+    Get a list of projects or a list of packages that match a XPath expression, passed in the query parameter `match`.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: in
+      required: true
+      schema:
+        type: string
+        enum:
+          - projects
+          - packages
+        example: projects
+      description: |
+        Where to search and apply a XPath expression: either the list of projects or the list of packages.
+
+        Example of a result when `projects` is selected:
+        ```
+        <collection>
+          <project name="home:Admin">
+            <title></title>
+            <description></description>
+            <person userid="Admin" role="maintainer"/>
+            <repository name="openSUSE_Tumbleweed">
+              <path project="openSUSE.org:openSUSE:Factory" repository="snapshot"/>
+              <arch>x86_64</arch>
+            </repository>
+            <repository name="15.3">
+              <path project="openSUSE.org:openSUSE:Leap:15.3" repository="standard"/>
+              <arch>x86_64</arch>
+            </repository>
+          </project>
+          <project name="openSUSE.org">
+            <title>Standard OBS instance at build.opensuse.org</title>
+            <description>This instance delivers the default build targets for OBS.</description>
+            <remoteurl>https://api.opensuse.org/public</remoteurl>
+          </project>
+        </collection>
+        ```
+
+        Example of a result when `packages` is selected:
+        ```
+        <collection>
+          <package name="ctris" project="home:Admin">
+            <title></title>
+            <description></description>
+          </package>
+        </collection>
+        ```
+    - in: query
+      name: match
+      required: true
+      schema:
+        type: string
+      description: XPath expression used to filter the results.
+      examples:
+        non_empty_element:
+          summary: Non empty element
+          value: repository/arch
+        non_empty_attribute:
+          summary: Non empty attribute
+          value: repository/name
+        element_content:
+          summary: Element content
+          value: repository/arch='x86_64'
+        attribute_content:
+          summary: Attribute content
+          value: repository/name='openSUSE_Tumbleweed'
+        compound_condition:
+          summary: Compound condition
+          value: name='OBS:Server:Unstable'+and+repository/arch='x86_64'
+    - in: query
+      name: return
+      schema:
+        type: string
+        example: repository/name
+      description: |
+        XPath expression that defines which values will be returned.
+
+        Instead of returning a collection of projects or packages, the result will be a collection of:
+          - contents of elements, when that XPath expression match elements, or,
+          - values of atttributes, when that XPath expression match atttributes.
+
+        Example of result, for a query string like `?in=projects&match=repository/arch='x86_64'&return=repository/name`:
+        ```
+        <collection>
+          <value>openSUSE_Tumbleweed</value>
+          <value>15.3</value>
+        </collection>
+        ```
+    - in: query
+      name: values
+      schema:
+        type: string
+        example: 1
+      description: |
+        When set to `1`, return a list of values, instead of returning a list of projects or packages.
+
+        The result will be a collection of:
+          - contents of elements, when the expression defined in the `match` query parameter match elements.
+            For example: `match=repository/arch`.
+          - values of atttributes, when the expression defined in the `match` query parameter match atttributes.
+            For example: `match=repository/name`.
+
+        Example of result, for a query string like `?in=projects&match=repository/path/project&values=1`:
+        ```
+        <collection>
+          <value>openSUSE.org:openSUSE:Factory</value>
+          <value>openSUSE.org:openSUSE:Leap:15.3</value>
+        </collection>
+        ```
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            oneOf:
+              - $ref: '../components/schemas/search/collection_projects.yaml'
+              - $ref: '../components/schemas/search/collection_packages.yaml'
+          # TODO: Due to this issue the examples of the responses can not be rendered:
+          # Issue: "Multiple responses using oneOf attribute do not appear in UI"
+          # https://github.com/swagger-api/swagger-ui/issues/3803
+          # The examples can be found in the description of the `in` parameter.
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_in_parameter:
+              summary: Invalid in parameter
+              value:
+                code: 400
+                origin: backend
+                summary: "'in' parameter needs to be either 'projects' or 'packages'"
+            missing_match_parameter:
+              summary: Missing match parameter
+              value:
+                code: 400
+                origin: backend
+                summary: parameter 'match' is missing
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search

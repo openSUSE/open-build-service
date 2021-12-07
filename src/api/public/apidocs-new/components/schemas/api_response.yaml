@@ -4,6 +4,10 @@ properties:
     type: string
     xml:
       attribute: true
+  origin:
+    type: string
+    xml:
+      attribute: true
   summary:
     type: string
   details:
