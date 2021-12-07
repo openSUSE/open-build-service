@@ -206,20 +206,16 @@ paths:
     $ref: 'paths/source_project_name_cmd_createmaintenanceincident.yaml'
   /source/{project_name}?cmd=createpatchinfo:
     $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
-  /source/{project_name}?cmd=lock:
-    $ref: 'paths/source_project_name_cmd_lock.yaml'
-  /source/{project_name}?cmd=undelete:
-    $ref: 'paths/source_project_name_cmd_undelete.yaml'
-  /source/{project_name}?cmd=unlock:
-    $ref: 'paths/source_project_name_cmd_unlock.yaml'
   /source/{project_name}?cmd=extendkey:
     $ref: 'paths/source_project_name_cmd_extendkey.yaml'
-  /source/{project_name}?cmd=move:
-    $ref: 'paths/source_project_name_cmd_move.yaml'
   /source/{project_name}?cmd=freezelink:
     $ref: 'paths/source_project_name_cmd_freezelink.yaml'
+  /source/{project_name}?cmd=lock:
+    $ref: 'paths/source_project_name_cmd_lock.yaml'
   /source/{project_name}?cmd=modifychannels:
     $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
+  /source/{project_name}?cmd=move:
+    $ref: 'paths/source_project_name_cmd_move.yaml'
   /source/{project_name}?cmd=release:
     $ref: 'paths/source_project_name_cmd_release.yaml'
   /source/{project_name}?cmd=remove_flag:
@@ -228,6 +224,10 @@ paths:
     $ref: 'paths/source_project_name_cmd_set_flag.yaml'
   /source/{project_name}?cmd=showlinked:
     $ref: 'paths/source_project_name_cmd_showlinked.yaml'
+  /source/{project_name}?cmd=undelete:
+    $ref: 'paths/source_project_name_cmd_undelete.yaml'
+  /source/{project_name}?cmd=unlock:
+    $ref: 'paths/source_project_name_cmd_unlock.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
