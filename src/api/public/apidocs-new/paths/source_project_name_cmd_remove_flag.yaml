@@ -1,0 +1,61 @@
+post:
+  summary: Delete a flag for the project.
+  description: |
+    For the project, you can delete a flag with the provided flag name, repository and architecture.
+    You can only delete the flag if you have the permissions to do so.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: flag
+      required: true
+      schema:
+        type: string
+      description: Name of the flag to be deleted
+      example: access
+    - in: query
+      name: repository
+      schema:
+        type: string
+      description: Repository for which the flag is set
+      example: openSUSE_Tumbleweed
+    - in: query
+      name: arch
+      schema:
+        type: string
+      description: Architecture for which the flag is set
+      example: x86_64
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            missing_parameter:
+              value:
+                code: missing_parameter
+                summary: Required Parameter flag missing.
+              summary: Missing Parameter
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to execute command 'remove_flag'.
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

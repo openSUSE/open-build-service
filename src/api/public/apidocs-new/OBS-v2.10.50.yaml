@@ -169,16 +169,18 @@ paths:
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
 
+  /search:
+    $ref: 'paths/search.yaml'
+  /search/missing_owner:
+    $ref: 'paths/search_missing_owner.yaml'
   /search/owner:
     $ref: 'paths/search_owner.yaml'
-  /search/missing_owner:
-    $ref: 'paths/missing_owner.yaml'
   /search/published/binary/id:
     $ref: 'paths/search_published_binary_id.yaml'
-  /search/published/repoinfo/id:
-    $ref: 'paths/search_published_repoinfo_id.yaml'
   /search/published/pattern/id:
     $ref: 'paths/search_published_pattern_id.yaml'
+  /search/published/repoinfo/id:
+    $ref: 'paths/search_published_repoinfo_id.yaml'
 
   /service:
     $ref: 'paths/service.yaml'
@@ -204,22 +206,28 @@ paths:
     $ref: 'paths/source_project_name_cmd_createmaintenanceincident.yaml'
   /source/{project_name}?cmd=createpatchinfo:
     $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
+  /source/{project_name}?cmd=extendkey:
+    $ref: 'paths/source_project_name_cmd_extendkey.yaml'
+  /source/{project_name}?cmd=freezelink:
+    $ref: 'paths/source_project_name_cmd_freezelink.yaml'
   /source/{project_name}?cmd=lock:
     $ref: 'paths/source_project_name_cmd_lock.yaml'
+  /source/{project_name}?cmd=modifychannels:
+    $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
+  /source/{project_name}?cmd=move:
+    $ref: 'paths/source_project_name_cmd_move.yaml'
+  /source/{project_name}?cmd=release:
+    $ref: 'paths/source_project_name_cmd_release.yaml'
+  /source/{project_name}?cmd=remove_flag:
+    $ref: 'paths/source_project_name_cmd_remove_flag.yaml'
+  /source/{project_name}?cmd=set_flag:
+    $ref: 'paths/source_project_name_cmd_set_flag.yaml'
+  /source/{project_name}?cmd=showlinked:
+    $ref: 'paths/source_project_name_cmd_showlinked.yaml'
   /source/{project_name}?cmd=undelete:
     $ref: 'paths/source_project_name_cmd_undelete.yaml'
   /source/{project_name}?cmd=unlock:
     $ref: 'paths/source_project_name_cmd_unlock.yaml'
-  /source/{project_name}?cmd=extendkey:
-    $ref: 'paths/source_project_name_cmd_extendkey.yaml'
-  /source/{project_name}?cmd=move:
-    $ref: 'paths/source_project_name_cmd_move.yaml'
-  /source/{project_name}?cmd=freezelink:
-    $ref: 'paths/source_project_name_cmd_freezelink.yaml'
-  /source/{project_name}?cmd=modifychannels:
-    $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
-  /source/{project_name}?cmd=release:
-    $ref: 'paths/source_project_name_cmd_release.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

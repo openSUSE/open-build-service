@@ -1,0 +1,21 @@
+type: array
+items:
+  type: object
+  properties:
+    name:
+      type: string
+      xml:
+        attribute: true
+    project:
+      type: string
+      xml:
+        attribute: true
+    title:
+      type: string
+    description:
+      type: string
+  xml:
+    name: package
+xml:
+  name: collection
+  wrapped: true
