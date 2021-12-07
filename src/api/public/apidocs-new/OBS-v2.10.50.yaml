@@ -222,6 +222,10 @@ paths:
     $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
   /source/{project_name}?cmd=release:
     $ref: 'paths/source_project_name_cmd_release.yaml'
+  /source/{project_name}?cmd=remove_flag:
+    $ref: 'paths/source_project_name_cmd_remove_flag.yaml'
+  /source/{project_name}?cmd=set_flag:
+    $ref: 'paths/source_project_name_cmd_set_flag.yaml'
   /source/{project_name}?cmd=showlinked:
     $ref: 'paths/source_project_name_cmd_showlinked.yaml'
 
