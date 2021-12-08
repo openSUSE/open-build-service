@@ -1,19 +1,29 @@
 post:
-  summary: Extend the expiration date of GPG keys.
-  description: Extend the expiration date of GPG key for the given project.
+  summary: Modify existing channels.
+  description: Add repositories or enable them for existing channels.
   security:
     - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: mode
+      schema:
+        type: string
+        enum: [add_disabled, enable_all]
+      example: add_disabled
+      description: The channel will be added to the package using this mode.
   responses:
     '200':
-      description: ok
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request
       content:
         application/xml; charset=utf-8:
           schema:
             $ref: '../components/schemas/api_response.yaml'
           example:
-            code: ok
+            code: invalid_parameter
+            summary: Internal Server Error
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
@@ -24,7 +34,7 @@ post:
             $ref: '../components/schemas/api_response.yaml'
           example:
             code: cmd_execution_no_permission
-            summary: no permission to execute command 'extendkey'
+            summary: no permission to execute command 'modifychannels'
     '404':
       description: Not Found
       content:

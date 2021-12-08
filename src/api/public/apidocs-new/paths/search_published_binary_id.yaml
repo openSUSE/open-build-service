@@ -1,0 +1,43 @@
+get:
+  summary: Search for currently available binaries in the publish area.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      required: true
+      description: XPath expression.
+      example: project='home:foo'+and+name='bar'
+    - $ref: '../components/parameters/limit.yaml'
+    - $ref: '../components/parameters/withdownloadurl.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/search/published_binary_id.yaml'
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 400
+            summary: missing string terminator 
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_not_found:
+              value:
+                code: 404
+                summary: project 'home:foo' does not exist
+                description: 404 project 'home:foo' does not exist
+              summary: Not Found
+  tags:
+    - Search

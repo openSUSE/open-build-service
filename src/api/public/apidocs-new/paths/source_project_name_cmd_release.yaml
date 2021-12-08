@@ -1,0 +1,47 @@
+post:
+  summary: Release the project.
+  description: |
+    Release source and binaries for a repository of the project, if you have the permissions to do so.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: nodelay
+      schema:
+        type: string
+      description: If this parameter is present, do not delay the relase. If this parameter is not present, the release will be delayed to be done later.
+      example: 1
+    - in: query
+      name: target_project
+      schema:
+        type: string
+      description: Project containing the repository targeted by the release.
+      example: 'openSUSE:Factory'
+    - in: query
+      name: target_repository
+      schema:
+        type: string
+      description: Repository targeted by the release.
+      example: standard
+    - in: query
+      name: repository
+      schema:
+        type: string
+      description: Repository for which source and binaries will be released.
+      example: openSUSE_Tumbleweed
+    - in: query
+      name: setrelease
+      schema:
+        type: string
+      description: If this parameter is present, the release will be tagged with this parameter's value.
+      example: Beta1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

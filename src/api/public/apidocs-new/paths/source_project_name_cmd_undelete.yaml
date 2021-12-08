@@ -1,0 +1,43 @@
+post:
+  summary: Restore a deleted project.
+  description: |
+    If the given project was previously deleted, you can restore it.
+    You can only restore it if you have the permissions to do so.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to execute command 'undelete'.
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: |
+              <status code="not_found">
+                <summary>
+                  &lt;status code="404"&gt;
+                  &lt;summary&gt;project 'Sandbox' already exists&lt;/summary&gt;
+                  &lt;details&gt;404 project 'Sandbox' already exists&lt;/details&gt;
+                  &lt;/status&gt;
+                </summary>
+              </status>
+            description: Response when trying to "undelete" a project that was not deleted previously.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Sources - Projects
