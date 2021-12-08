@@ -205,7 +205,7 @@ sub fetchremoteconfig {
     $param = {
       'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
       'timeout' => 60,
-      'proxy' => $proj->{'remoteproxy'},
+      'proxy' => $proxy,
     };
   } else {
     $param = {
