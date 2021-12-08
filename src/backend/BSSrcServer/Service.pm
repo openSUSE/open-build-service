@@ -346,7 +346,7 @@ sub doservicerpc {
     for my $pfile (sort {$b cmp $a} ls($odir)) {
       my $qfile = $pfile;
       if ($noprefix) {
-	$qfile = $1 if /^_service:.*:(.*?)$/s;
+	$qfile = $1 if $qfile =~ /^_service:.*:(.*?)$/s;
 	next if $files->{$qfile};
 	next if $qfile eq '_service';	# hmm?
 	die("service returned forbidden file: $qfile\n") if $qfile eq '_link' || $qfile eq '_meta';
