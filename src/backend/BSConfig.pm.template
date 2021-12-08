@@ -376,10 +376,16 @@ if (-e '/etc/sysconfig/proxy') {
 }
 
 if (not defined $proxy) {
-  our $proxy = "http://<ip/fqdn>:3128/";
+# When you didn't configure the proxy server via /etc/sysconfig/proxy
+# but you still want to use a proxy server to conect to the internet
+# correct en and enable our $proxy = "http://<ip/fqdn>:3128/";
+#  our $proxy = "http://<ip/fqdn>:3128/";
 }
 if (not defined $noproxy) {
-  our $noproxy = "localhost, 127.0.0.1";
+# When you didn't configure the proxy server via /etc/sysconfig/proxy
+# but you still want to use a proxy server to conect to the internet
+# correct en and enable our $noproxy = "localhost, 127.0.0.1";
+#  our $noproxy = "localhost, 127.0.0.1";
 }
 
 1;
