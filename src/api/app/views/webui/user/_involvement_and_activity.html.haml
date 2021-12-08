@@ -17,7 +17,7 @@
             Contributions
 
   .card-body.p-0#involvement-and-activity
-    = render partial: 'webui/user/user_profile_redesign/involvement', locals: { involved_items_service: involved_items_service }
+    = render partial: 'webui/user/involvement', locals: { involved_items_service: involved_items_service }
 
     -# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
     - if contribution_graph?

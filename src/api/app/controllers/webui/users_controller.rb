@@ -18,14 +18,7 @@ class Webui::UsersController < Webui::WebuiController
 
   def show
     @groups = @displayed_user.groups
-
-    if Flipper.enabled?(:user_profile_redesign, User.possibly_nobody)
-      @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
-    else
-      @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
-      @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
-      @owned = @displayed_user.owned_packages
-    end
+    @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
 
     return if CONFIG['contribution_graph'] == :off
 

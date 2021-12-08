@@ -10,7 +10,7 @@
       = @pagetitle.capitalize
   - when 'show'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      - if feature_enabled?('user_profile_redesign') && @is_displayed_user
+      - if @is_displayed_user
         Your Profile
       - else
         Profile of #{@displayed_user}

@@ -1,6 +1,3 @@
-# TODO: move this test out of the beta directory as soon as the
-# user_profile_redesign feature flag is removed.
-
 require 'browser_helper'
 
 RSpec.shared_examples 'a contribution graph' do
