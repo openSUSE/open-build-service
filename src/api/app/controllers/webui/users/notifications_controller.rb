@@ -63,7 +63,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     feature_enabled?(:notifications_redesign)
   end
 
-  def show_all(notifications)
+  def show_more(notifications)
     total = notifications.size
     flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
@@ -83,7 +83,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def paginated_notifications
     notifications = fetch_notifications
     params[:page] = notifications.page(params[:page]).total_pages if notifications.page(params[:page]).out_of_range?
-    params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
+    params[:show_more] ? show_more(notifications) : notifications.page(params[:page])
   end
 
   def show_read_all_button?

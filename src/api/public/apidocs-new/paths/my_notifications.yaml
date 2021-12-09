@@ -6,14 +6,17 @@ get:
   parameters:
     - in: path
       name: project
-      required: false
       schema:
         type: string
     - in: path
       name: page
-      required: false
       schema:
         type: int
+    - in: query
+      name: show_maximum
+      schema:
+        type: string
+      example: 1
   responses:
     '200':
       description: |
