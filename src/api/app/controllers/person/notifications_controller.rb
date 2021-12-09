@@ -11,7 +11,7 @@ module Person
     # GET /my/notifications
     def index
       @notifications = paginated_notifications
-      @notifications_total = @notifications.count
+      @notifications_count = @notifications.count
     end
 
     private
