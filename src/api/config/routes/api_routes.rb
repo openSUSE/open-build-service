@@ -25,6 +25,7 @@ OBSApi::Application.routes.draw do
 
     ### notifications
     get '/my/notifications' => 'person/notifications#index'
+    put '/my/notifications/:id' => 'person/notifications#update'
 
     # /FIXME3.0
     get 'person/:login' => 'person#get_userinfo', constraints: cons

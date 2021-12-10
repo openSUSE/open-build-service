@@ -6,12 +6,20 @@ module Person
     ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
 
     before_action :check_feature_and_beta_toggles
-    before_action :check_filter_type
+    before_action :check_filter_type, except: [:update]
 
     # GET /my/notifications
     def index
       @notifications = paginated_notifications
       @notifications_count = @notifications.count
+    end
+
+    def update
+      notification = authorize Notification.find(params[:id])
+
+      notification.toggle(:delivered).save!
+
+      render_ok
     end
 
     private
