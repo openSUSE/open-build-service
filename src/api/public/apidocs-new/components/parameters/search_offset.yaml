@@ -1,0 +1,6 @@
+in: query
+name: offset
+schema:
+  type: integer
+description: Return results starting from the element specified by offset.
+example: 10

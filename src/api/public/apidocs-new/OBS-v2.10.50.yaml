@@ -175,6 +175,8 @@ paths:
     $ref: 'paths/search_missing_owner.yaml'
   /search/owner:
     $ref: 'paths/search_owner.yaml'
+  /search/project/id:
+    $ref: 'paths/search_project_id.yaml'
   /search/published/binary/id:
     $ref: 'paths/search_published_binary_id.yaml'
   /search/published/pattern/id:
