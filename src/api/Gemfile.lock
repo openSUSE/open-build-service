@@ -456,7 +456,7 @@ GEM
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     terminal-table (1.6.0)
-    test-unit (3.5.1)
+    test-unit (3.5.2)
       power_assert
     thinking-sphinx (5.3.0)
       activerecord (>= 4.2.0)
