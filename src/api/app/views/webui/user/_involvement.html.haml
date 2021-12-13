@@ -1,60 +1,91 @@
-.card.mb-3#involvement
-  = render partial: 'webui/user/tabs_profile', locals: { involved_packages: involved_packages,
-                                                         involved_projects: involved_projects, owned: owned }
-  .card-body
-    .tab-content.obs-dataTable
-      .tab-pane.fade.show.active#involved-packages{ role: 'tabpanel', aria: { labelledby: 'involved-packages-tab' } }
-        - if involved_packages.blank?
-          %p.md-3
-            #{user.name} is not involved in any package
-        - else
-          %table.table.table-sm.table-fixed.table-bordered.table-hover#involved-packages-table
-            %thead
-              %tr
-                %th Package
-                %th Project
-            %tbody
-              - involved_packages.each do |package_name, project_name|
-                %tr
-                  %td
-                    = link_to(package_name, package_show_path(package: package_name, project: project_name))
-                  %td
-                    = link_to(project_name, project_show_path(project: project_name))
-      .tab-pane.fade#involved-projects{ role: 'tabpanel', aria: { labelledby: 'involved-projects-tab' } }
-        - if involved_projects.blank?
-          %p.mt-3
-            #{user.name} is not involved in any project
-        - else
-          %table.table.table-sm.table-fixed.table-bordered.table-hover#involved-projects-table
-            %thead
-              %tr
-                %th Name
-                %th Title
-            %tbody
-              - involved_projects.each do |project_name, project_title|
-                %tr
-                  %td
-                    = link_to(project_name, project_show_path(project: project_name))
-                  %td
-                    = project_title
-      .tab-pane.fade#owned{ role: 'tabpanel', aria: { labelledby: 'owned-tab' } }
-        - if owned.blank?
-          %p.mt-3
-            #{user.name} doesn't own any project or package
-        - else
-          %table.table.table-sm.table-fixed.table-bordered.table-hover#owned-table
-            %thead
-              %tr
-                %th Package
-                %th Project
-            %tbody
-              - owned.each do |package_name, project_name|
-                %tr
-                  %td
-                    - if package_name
-                      = link_to(package_name, package_show_path(package: package_name, project: project_name))
-                  %td
-                    = link_to(project_name, project_show_path(project: project_name))
+:ruby
+  displayed_user = involved_items_service.user
+  filters = involved_items_service.filters
+  involved_items = involved_items_service.involved_pkg_and_prj_paginated
+  involved_items_as_owner = involved_items_service.involved_items_as_owner
+  owner_root_project_exists = involved_items_service.owner_root_project_exists?
 
+  projects_packages = ['projects', 'packages']
+  projects_packages_html_ids = projects_packages.map { |p| "involved_#{p}" }
+  projects_packages_selected = (filters.keys & projects_packages_html_ids).count
+  roles = Role.local_roles
+  roles_html_ids = (roles.map(&:title) << 'owner').map { |role| "role_#{role}" }
+  roles_selected = (filters.keys & roles_html_ids).count
+
+#involvement
+  .card.sticky-top.border-0#involved-filters
+    .card-body
+      = form_with(model: displayed_user, method: :get, local: true, class: 'form-inline justify-content-between') do
+        .form-group
+          %input.form-control{ 'aria-label': 'Search', name: 'search_text', placeholder: 'Search', type: 'text', value: filters[:search_text] }
+        %span.dropdown.form-group#involved-project-package
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
+            %span.caret
+            Projects / Packages
+            - if projects_packages_selected.positive?
+              %span.badge.badge-secondary.ml-2= projects_packages_selected
+          .dropdown-menu.keep-open
+            - projects_packages.each do |project_or_package|
+              - involved_html_id = "involved_#{project_or_package}"
+              .dropdown-item
+                .custom-control.custom-checkbox
+                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'custom-control-input'
+                  %label.custom-control-label{ for: involved_html_id }
+                    = project_or_package.capitalize
+        %span.dropdown.form-group#involved-role
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
+            %span.caret
+            Role
+            - if roles_selected.positive?
+              %span.badge.badge-secondary.ml-2= roles_selected
+          .dropdown-menu.keep-open
+            - if owner_root_project_exists
+              .dropdown-item
+                .custom-control.custom-checkbox
+                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'custom-control-input'
+                  %label.custom-control-label{ for: 'role_owner' }
+                    Owner
+            - roles.each do |role|
+              - role_html_id = "role_#{role}"
+              .dropdown-item
+                .custom-control.custom-checkbox
+                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'custom-control-input'
+                  %label.custom-control-label{ for: role_html_id }
+                    = role.to_s.capitalize
+        .form-group
+          %button.btn.btn-primary.form-control#filter-button{ type: :submit }
+            Apply Filter
+
+    - if display_filters?(filters.keys)
+      = display_applied_filters(filters, displayed_user)
+  .card-body.pt-0
+    - if involved_items.blank?
+      = filter_message(params)
+    - else
+      .list-group.list-group-flush
+        - involved_items.each do |involved_item|
+          .list-group-item
+            .row
+              .col.obs-collapsible-textbox
+                .obs-collapsible-text
+                  - if involved_item.is_a?(Package)
+                    = link_to(involved_item.project, project_show_path(involved_item.project))
+                    \/
+                    = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pr-2')
+                  - else
+                    = link_to(involved_item, project_show_path(involved_item), class: 'pr-2')
+                - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
+                  %span.badge.badge-info Owner
+                - roles.each do |role|
+                  - if involved_item.user_has_role?(displayed_user, role)
+                    %span.badge.badge-info= role.title.capitalize
+            .row.mt-1
+              .col
+                #involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }
+
+      = paginate involved_items, window: 2, views_prefix: 'webui'
 - content_for :ready_function do
-  initializeDataTable('#involved-packages-table, #involved-projects-table, #owned-table');
+  :plain
+    $('.dropdown-menu.keep-open').on('click', function(e) {
+      e.stopPropagation();
+    });

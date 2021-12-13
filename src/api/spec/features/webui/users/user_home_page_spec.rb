@@ -17,12 +17,14 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
       expect(page).not_to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
-      expect(page).not_to have_text('Edit Your account')
-      expect(page).not_to have_text('Change Your password')
+      expect(page).not_to have_link('Edit Your Account')
+      expect(page).not_to have_link('Change Your Password')
 
-      expect(page).to have_link('Involved Packages')
-      expect(page).to have_link('Involved Projects')
-      expect(page).to have_link('Owned Projects/Packages')
+      if mobile?
+        expect(page).to have_text('Involved Projects and Packages')
+      else
+        expect(page).to have_link('Involved Projects/Packages')
+      end
     end
   end
 
@@ -36,13 +38,16 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
       expect(page).to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
-      within('#bottom-navigation-area') { click_link('Actions') } if mobile?
-      expect(page).to have_text('Edit Your Account')
-      expect(page).to have_text('Change Your Password')
+      expect(page).to have_link('Edit Your Account')
 
-      expect(page).to have_link('Involved Packages')
-      expect(page).to have_link('Involved Projects')
-      expect(page).to have_link('Owned Projects/Packages')
+      if mobile?
+        expect(page).to have_text('Involved Projects and Packages')
+        within('#bottom-navigation-area') { click_link('Actions') }
+      else
+        expect(page).to have_link('Involved Projects/Packages')
+      end
+
+      expect(page).to have_link('Change Your Password')
     end
 
     it 'view tasks page' do
@@ -58,12 +63,7 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
     end
 
     it 'edit account information' do
-      if mobile?
-        within('#bottom-navigation-area') { click_link('Actions') }
-        within('#bottom-navigation-area') { click_link('Edit Your Account') }
-      else
-        click_link('Edit Your Account')
-      end
+      click_link('Edit Your Account')
 
       fill_in('user_realname', with: 'John Doe')
       fill_in('user_email', with: 'john.doe@opensuse.org')

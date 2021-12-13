@@ -12,11 +12,10 @@
           .form-group
             = f.label(:email, 'Email:')
             = f.text_field(:email, required: true, email: true, class: 'form-control')
-          - if feature_enabled?(:user_profile_redesign)
-            .form-group
-              = f.label(:biography) do
-                Biography:
-              = f.text_area(:biography, rows: 6, class: 'form-control', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED)
-              %small.form-text.float-right#bio-chars-counter
+          .form-group
+            = f.label(:biography) do
+              Biography:
+            = f.text_area(:biography, rows: 6, class: 'form-control', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED)
+            %small.form-text.float-right#bio-chars-counter
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Update' }

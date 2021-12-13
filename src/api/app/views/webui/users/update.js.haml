@@ -11,7 +11,7 @@ resetFormValidation();
     }, 400, function() {
       scrollToInPlace();
       $('.in-place-editing').html(
-        "#{escape_javascript(render(partial: 'webui/user/user_profile_redesign/basic_info', locals: locals))}");
+        "#{escape_javascript(render(partial: 'webui/user/basic_info', locals: locals))}");
       setCollapsible();
       $('.in-place-editing').animate({ opacity: 1 }, 400, function() {
         $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");

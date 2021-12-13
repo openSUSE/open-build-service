@@ -289,7 +289,6 @@ module Webui::WebuiHelper
 
   def feature_css_class
     css_classes = []
-    css_classes << 'user-profile-redesign' if feature_enabled?(:user_profile_redesign)
     css_classes << 'notifications-redesign' if feature_enabled?(:notifications_redesign)
     css_classes.join(' ')
   end
