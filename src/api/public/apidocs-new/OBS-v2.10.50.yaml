@@ -131,6 +131,8 @@ paths:
 
   /my/notifications:
     $ref: 'paths/my_notifications.yaml'
+  /my/notifications/{id}:
+    $ref: 'paths/my_notifications_id.yaml'
 
   /person:
     $ref: 'paths/person.yaml'
