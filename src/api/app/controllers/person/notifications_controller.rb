@@ -16,7 +16,7 @@ module Person
 
     private
 
-    def show_all(notifications)
+    def show_maximum(notifications)
       total = notifications.size
       notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
     end
@@ -36,7 +36,7 @@ module Person
     def paginated_notifications
       notifications = fetch_notifications
       params[:page] = notifications.page(params[:page]).total_pages if notifications.page(params[:page]).out_of_range?
-      params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
+      params[:show_maximum] ? show_maximum(notifications) : notifications.page(params[:page])
     end
 
     # The 'requests' type will be the default value unless another allowed
