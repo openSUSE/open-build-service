@@ -94,4 +94,45 @@ RSpec.describe Person::NotificationsController do
       it { expect(response).to have_http_status(:unauthorized) }
     end
   end
+
+  describe '#update' do
+    let!(:notification) { create(:web_notification, :comment_for_package, subscriber: user) }
+
+    before do
+      Flipper[:notifications_redesign].enable
+    end
+
+    context 'called by an unauthorized user' do
+      let(:other_user) { create(:confirmed_user, :in_beta) }
+
+      before do
+        login other_user
+        put :update, params: { format: :xml, id: notification.id }
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+    end
+
+    context 'called by an authorized user' do
+      before do
+        login user
+        put :update, params: { format: :xml, id: notification.id }
+      end
+
+      it 'toggles the delivered attribute' do
+        expect(notification.reload.delivered).to eq(true)
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "notification doesn't exist" do
+      before do
+        login user
+        put :update, params: { format: :xml, id: notification.id + 1 }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+  end
 end
