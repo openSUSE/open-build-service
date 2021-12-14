@@ -5,7 +5,7 @@ module Person
     MAX_PER_PAGE = 300
     ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
 
-    before_action :check_feature_and_beta_toggles
+    before_action :check_feature_toggle
     before_action :check_filter_type, except: [:update]
 
     # GET /my/notifications
@@ -54,8 +54,8 @@ module Person
       raise FilterNotSupportedError unless ALLOWED_FILTERS.include?(@filter_type)
     end
 
-    def check_feature_and_beta_toggles
-      raise NotFoundError unless Flipper.enabled?(:notifications_redesign, User.session) && User.session.in_beta?
+    def check_feature_toggle
+      raise NotFoundError unless Flipper.enabled?(:notifications_redesign, User.session)
     end
   end
 end
