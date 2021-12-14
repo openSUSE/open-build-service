@@ -87,7 +87,11 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo] = binary['updateinfoid']
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
+
+        # Send the binary to Airbrake, to get a deeper understanding when there is no binary['package']
+        Airbrake.notify('Binary release with no package payload', binary: binary) unless binary['package']
         source_package = Package.striping_multibuild_suffix(binary['package'])
+
         rp = Package.find_by_project_and_name(binary['project'], source_package)
         if source_package.include?(':') && !source_package.start_with?('_product:')
           flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
