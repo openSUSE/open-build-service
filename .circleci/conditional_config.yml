@@ -55,7 +55,8 @@ aliases:
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle install --jobs=4 --retry=3
+      cd ./src/api && bundle install --jobs=4 --retry=3 --path vendor/bundle
+
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
