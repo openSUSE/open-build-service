@@ -5,19 +5,17 @@ RSpec.describe Person::NotificationsController do
 
   render_views
 
-  describe 'Check if user is in beta or feature flag is enabled' do
-    let(:user) { create(:confirmed_user, :with_home) }
-
+  describe 'Check if feature flag is enabled' do
     before do
       toggle_notifications_redesign
       login user
       get :index, format: :xml
     end
 
-    context 'user not in beta' do
+    context 'Feature :notifications_redesign is enabled' do
       let(:toggle_notifications_redesign) { Flipper[:notifications_redesign].enable }
 
-      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'Feature :notifications_redesign is disabled' do
