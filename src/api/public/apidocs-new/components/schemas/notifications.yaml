@@ -27,3 +27,5 @@ properties:
           type: string
         event_type:
           type: string
+xml:
+  name: notifications

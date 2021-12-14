@@ -5,19 +5,17 @@ RSpec.describe Person::NotificationsController do
 
   render_views
 
-  describe 'Check if user is in beta or feature flag is enabled' do
-    let(:user) { create(:confirmed_user, :with_home) }
-
+  describe 'Check if feature flag is enabled' do
     before do
       toggle_notifications_redesign
       login user
       get :index, format: :xml
     end
 
-    context 'user not in beta' do
+    context 'Feature :notifications_redesign is enabled' do
       let(:toggle_notifications_redesign) { Flipper[:notifications_redesign].enable }
 
-      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'Feature :notifications_redesign is disabled' do
@@ -92,6 +90,47 @@ RSpec.describe Person::NotificationsController do
       end
 
       it { expect(response).to have_http_status(:unauthorized) }
+    end
+  end
+
+  describe '#update' do
+    let!(:notification) { create(:web_notification, :comment_for_package, subscriber: user) }
+
+    before do
+      Flipper[:notifications_redesign].enable
+    end
+
+    context 'called by an unauthorized user' do
+      let(:other_user) { create(:confirmed_user, :in_beta) }
+
+      before do
+        login other_user
+        put :update, params: { format: :xml, id: notification.id }
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+    end
+
+    context 'called by an authorized user' do
+      before do
+        login user
+        put :update, params: { format: :xml, id: notification.id }
+      end
+
+      it 'toggles the delivered attribute' do
+        expect(notification.reload.delivered).to eq(true)
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "notification doesn't exist" do
+      before do
+        login user
+        put :update, params: { format: :xml, id: notification.id + 1 }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
     end
   end
 end

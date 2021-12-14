@@ -611,9 +611,9 @@ class ProjectTest < ActiveSupport::TestCase
       </project>
     XML
 
-    actual = Project.validate_maintenance_xml_attribute(Xmlhash.parse(xml))
     expected = { error: 'No write access to maintained project Apache' }
-    assert_equal actual, expected
+    actual = Project.validate_maintenance_xml_attribute(Xmlhash.parse(xml))
+    assert_equal expected, actual
   end
 
   test 'validate_maintenance_xml_attribute returns no error if User can modify target project' do
@@ -628,7 +628,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_maintenance_xml_attribute(Xmlhash.parse(xml))
-    assert_equal actual, {}
+    assert_equal({}, actual)
   end
 
   test 'validate_link_xml_attribute returns no error if target project is not disabled' do
@@ -644,7 +644,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), project.name)
-    assert_equal actual, {}
+    assert_equal({}, actual)
   end
 
   test 'validate_link_xml_attribute returns an error if target project access is disabled' do
@@ -662,9 +662,9 @@ class ProjectTest < ActiveSupport::TestCase
     flag = project.add_flag('access', 'disable')
     flag.save
 
-    actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
     expected = { error: 'Project links work only when both projects have same read access protection level: the_project -> home:Iggy' }
-    assert_equal actual, expected
+    actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
+    assert_equal expected, actual
   end
 
   test 'validate_repository_xml_attribute returns no error if project access is not disabled' do
@@ -679,8 +679,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
-    expected = {}
-    assert_equal actual, expected
+    assert_equal({}, actual)
   end
 
   test 'returns an error if repository access is disabled' do
@@ -697,9 +696,9 @@ class ProjectTest < ActiveSupport::TestCase
       </project>
     XML
 
-    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
     expected = { error: 'The current backend implementation is not using binaries from read access protected projects home:Iggy' }
-    assert_equal actual, expected
+    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
+    assert_equal expected, actual
   end
 
   test 'returns no error if target project equals project' do
@@ -717,8 +716,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'home:Iggy')
-    expected = {}
-    assert_equal actual, expected
+    assert_equal({}, actual)
   end
 
   test 'get_removed_repositories returns all repositories if new_repositories does not contain the old repositories' do
@@ -736,7 +734,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
-    assert_equal actual, project.repositories.to_a
+    assert_equal project.repositories.to_a, actual
   end
 
   test 'get_removed_repositories returns the repository if new_repositories does not include it' do
@@ -754,7 +752,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
-    assert_equal actual, [repositories(:repositories_96)]
+    assert_equal [repositories(:repositories_96)], actual
   end
 
   test 'get_removed_repositories returns no repository if new_repositories matches old_repositories' do
@@ -772,7 +770,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
-    assert_equal actual, []
+    assert_equal [], actual
   end
 
   test 'get_removed_repositories returns all repositories if new_repositories is empty' do
@@ -788,7 +786,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
-    assert_equal actual, project.repositories.to_a
+    assert_equal project.repositories.to_a, actual
   end
 
   test 'get_removed_repositories returns nothing if repositories is empty' do
@@ -806,7 +804,7 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
-    assert_equal actual, []
+    assert_equal [], actual
   end
 
   test 'get_removed_repositories does not include repositories which belong to a remote project' do
@@ -827,13 +825,13 @@ class ProjectTest < ActiveSupport::TestCase
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
-    assert_equal actual, [first_repository]
+    assert_equal [first_repository], actual
   end
 
   test 'check repositories returns no error if no linking and no linking taget repository exists' do
     User.session = users(:Iggy)
     actual = Project.check_repositories(@project.repositories)
-    assert_equal actual, {}
+    assert_equal({}, actual)
   end
 
   test 'check repositories returns an error if a linking repository exists' do
@@ -843,12 +841,12 @@ class ProjectTest < ActiveSupport::TestCase
     repository = @project.repositories.first
     repository.links << path
 
-    actual = Project.check_repositories(@project.repositories)
     expected = {
       error: "Unable to delete repository; following repositories depend on this project:\nhome:tom/home_coolo_standard"
     }
+    actual = Project.check_repositories(@project.repositories)
 
-    assert_equal actual, expected
+    assert_equal expected, actual
   end
 
   test 'check repositories returns an error if a linking target repository exists' do
@@ -858,12 +856,12 @@ class ProjectTest < ActiveSupport::TestCase
     repository = @project.repositories.first
     repository.targetlinks << release_target
 
-    actual = Project.check_repositories(@project.repositories)
     expected = {
       error: "Unable to delete repository; following target repositories depend on this project:\nhome:Iggy/10.2"
     }
+    actual = Project.check_repositories(@project.repositories)
 
-    assert_equal actual, expected
+    assert_equal expected, actual
   end
 
   test 'linked_packages returns all packages from projects inherited by one level' do
@@ -964,7 +962,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'config file exists and have the right content' do
-    assert_equal @project.config.content.strip, File.read('test/fixtures/files/home_iggy_project_config.txt').strip
+    assert_equal File.read('test/fixtures/files/home_iggy_project_config.txt').strip, @project.config.content.strip
   end
 
   test 'update config file and reload it, it also should have the right content' do
@@ -974,17 +972,17 @@ class ProjectTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
     query_params = { user: User.session!.login, comment: 'Updated by test' }
     assert @project.config.save(query_params, new_project_config)
-    assert_equal @project.config.content, new_project_config
+    assert_equal new_project_config, @project.config.content
 
     # Leave the backend file as it was
     assert @project.config.save(query_params, project_config)
   end
 
   def test_open_requests
-    apache = projects(:Apache)
-    assert_equal apache.open_requests, reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: []
+    expected = { reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: [] }
+    assert_equal expected, projects(:Apache).open_requests
 
-    maintenance = projects(:My_Maintenance)
-    assert_equal maintenance.open_requests, reviews: [], targets: [6], incidents: [6], maintenance_release: [7]
+    expected = { reviews: [], targets: [6], incidents: [6], maintenance_release: [7] }
+    assert_equal expected, projects(:My_Maintenance).open_requests
   end
 end

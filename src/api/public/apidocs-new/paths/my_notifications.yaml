@@ -4,16 +4,24 @@ get:
   security:
     - basic_authentication: []
   parameters:
-    - in: path
+    - in: query
       name: project
-      required: false
       schema:
         type: string
-    - in: path
+    - in: query
       name: page
-      required: false
       schema:
-        type: int
+        type: integer
+    - in: query
+      name: show_maximum
+      schema:
+        type: string
+      example: 1
+    - in: query
+      name: notifications_type
+      schema:
+        type: string
+        enum: ['requests', 'incoming_requests', 'outgoing_requests']
   responses:
     '200':
       description: |

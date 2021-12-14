@@ -1,5 +1,5 @@
-xml.notifications(count: @notifications_total) do
-  if @notifications_total.positive?
+xml.notifications(count: @notifications_count) do
+  if @notifications_count.positive?
     xml.total_pages @notifications.total_pages
     xml.current_page @notifications.current_page
   end
