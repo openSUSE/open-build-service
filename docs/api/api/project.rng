@@ -97,6 +97,12 @@
         </optional>
 
         <optional>
+          <element ns="" name="scmsync">
+            <text/>
+          </element>
+        </optional>
+
+        <optional>
           <element ns="" name="devel">
             <attribute name="project"/>
             <empty/>
