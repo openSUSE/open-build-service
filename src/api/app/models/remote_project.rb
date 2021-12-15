@@ -22,6 +22,7 @@ end
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)
 #  required_checks     :string(255)
+#  scmsync             :string(255)
 #  title               :string(255)
 #  url                 :string(255)
 #  created_at          :datetime
