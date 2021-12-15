@@ -162,9 +162,9 @@ class Patchinfo
     xml = patchinfo_node(project)
 
     description = req.description || ''
-    xml.add_child("<packager>#{req.creator}</packager>")
-    xml.add_child("<summary>#{description.split(/\n|\r\n/)[0]}</summary>") # first line only
-    xml.add_child("<description>#{description}</description>")
+    xml.add_child("<packager>#{CGI.escapeHTML(req.creator)}</packager>")
+    xml.add_child("<summary>#{CGI.escapeHTML(description.split(/\n|\r\n/)[0] || '')}</summary>") # first line only
+    xml.add_child("<description>#{CGI.escapeHTML(description)}</description>")
 
     xml = update_patchinfo(project, xml, enfore_issue_update: true)
     Backend::Api::Sources::Package.write_patchinfo(@pkg.project.name, @pkg.name, User.session!.login, xml.to_xml,
@@ -210,8 +210,12 @@ class Patchinfo
 
     # create patchinfo XML file
     xml = patchinfo_node(@pkg.project)
-    xml.add_child("<packager>#{User.session!.login}</packager>")
-    xml.add_child("<summary>#{opts[:comment]}</summary>")
+    xml.add_child("<packager>#{CGI.escapeHTML(User.session!.login)}</packager>")
+    if opts[:comment].present?
+      xml.add_child("<summary>#{CGI.escapeHTML(opts[:comment])}</summary>")
+    else
+      xml.add_child('<summary/>')
+    end
     xml.add_child('<description/>')
     xml = update_patchinfo(@pkg.project, xml)
     if CONFIG['global_write_through']
