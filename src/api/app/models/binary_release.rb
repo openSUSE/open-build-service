@@ -87,13 +87,16 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo] = binary['updateinfoid']
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
-        source_package = Package.striping_multibuild_suffix(binary['package'])
-        rp = Package.find_by_project_and_name(binary['project'], source_package)
-        if source_package.include?(':') && !source_package.start_with?('_product:')
-          flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
-          hash[:flavor] = flavor_name
+        if binary['package'].present?
+          # the package may be missing if the binary comes via DoD
+          source_package = Package.striping_multibuild_suffix(binary['package'])
+          rp = Package.find_by_project_and_name(binary['project'], source_package)
+          if source_package.include?(':') && !source_package.start_with?('_product:')
+            flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
+            hash[:flavor] = flavor_name
+          end
+          hash[:release_package_id] = rp.id if binary['project'] && rp
         end
-        hash[:release_package_id] = rp.id if binary['project'] && rp
         if binary['patchinforef']
           begin
             patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
