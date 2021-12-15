@@ -29,6 +29,7 @@ class Project
       project.url = xmlhash.value('url')
       project.remoteurl = xmlhash.value('remoteurl')
       project.remoteproject = xmlhash.value('remoteproject')
+      project.scmsync = xmlhash.value('scmsync')
       project.kind = xmlhash.value('kind') if xmlhash.value('kind').present?
       project.save!
 

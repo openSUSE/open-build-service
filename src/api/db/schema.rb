@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_16_111900) do
+ActiveRecord::Schema.define(version: 2021_12_14_111900) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -715,6 +715,7 @@ ActiveRecord::Schema.define(version: 2021_11_16_111900) do
     t.boolean "delta", default: true, null: false
     t.string "releasename", collation: "utf8_bin"
     t.integer "kiwi_image_id"
+    t.string "scmsync"
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
@@ -802,6 +803,7 @@ ActiveRecord::Schema.define(version: 2021_11_16_111900) do
     t.string "url", collation: "utf8_bin"
     t.string "required_checks"
     t.integer "staging_workflow_id"
+    t.string "scmsync"
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"

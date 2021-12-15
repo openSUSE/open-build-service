@@ -120,6 +120,11 @@
         </element>
       </optional>
       <optional>
+        <element ns="" name="scmsync">
+          <text/>
+        </element>
+      </optional>
+      <optional>
         <element ns="" name="bcntsynctag">
           <text/>
         </element>
