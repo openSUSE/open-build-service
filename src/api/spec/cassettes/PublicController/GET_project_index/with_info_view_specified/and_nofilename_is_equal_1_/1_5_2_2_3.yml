@@ -1,6 +1,44 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_meta?user=user_24
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 15 Dec 2021 16:30:54 GMT
+- request:
     method: get
     uri: http://backend:5352/source/public_controller_project?nofilename=1&view=info
     body:
@@ -25,12 +63,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '195'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <sourceinfolist>
-          <sourceinfo package="public_controller_package" rev="108" vrev="108" srcmd5="ab8d34688dc73760067e8371dc7f7f82" verifymd5="ab8d34688dc73760067e8371dc7f7f82"/>
+          <sourceinfo package="public_controller_package" rev="12" vrev="12" srcmd5="9d45ffd57d530020adf0e20f5249e7aa" verifymd5="9d45ffd57d530020adf0e20f5249e7aa"/>
         </sourceinfolist>
-  recorded_at: Fri, 23 Oct 2020 09:01:20 GMT
+  recorded_at: Wed, 15 Dec 2021 16:30:54 GMT
 recorded_with: VCR 6.0.0
