@@ -915,6 +915,7 @@ sub findfile {
     @files = grep {/^\Q$packid-$repoid\E/i} @files if @files > 1;
     return $files{$files[0]} if @files == 1;
   }
+  return $files{'debian.control'} if $ext eq 'dsc' && $files{'debian.control'};
   return undef;
 }
 
