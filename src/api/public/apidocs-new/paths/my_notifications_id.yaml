@@ -1,7 +1,7 @@
 put:
   summary: Mark a notification as read/unread.
   description: |
-    If a notification is unread, it will be marked as read. If a notification is read, it will be marked as unread.
+    **(Beta/Unstable)** If a notification is unread, it will be marked as read. If a notification is read, it will be marked as unread.
   security:
     - basic_authentication: []
   parameters:
