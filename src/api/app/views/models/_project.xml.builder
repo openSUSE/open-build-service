@@ -15,6 +15,7 @@ xml.project(project_attributes) do
   xml.url(my_model.url) if my_model.url.present?
   xml.remoteurl(my_model.remoteurl) if my_model.remoteurl.present?
   xml.remoteproject(my_model.remoteproject) if my_model.remoteproject.present?
+  xml.scmsync(my_model.scmsync) if my_model.scmsync.present?
   xml.devel(project: my_model.develproject.name) unless my_model.develproject.nil?
 
   my_model.render_relationships(xml)

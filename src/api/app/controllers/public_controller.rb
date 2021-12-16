@@ -36,7 +36,11 @@ class PublicController < ApplicationController
     # project visible/known ?
     Project.get_by_name(params[:project])
 
-    pass_to_backend(unshift_public(request.path_info))
+    path = unshift_public(request.path_info)
+    # we should do this via user agent instead, but BSRPC is not only used for interconnect.
+    # so we do not have a way atm.
+    path += '?interconnect=1'
+    pass_to_backend(path)
   end
 
   # GET /public/source/:project
@@ -92,7 +96,11 @@ class PublicController < ApplicationController
   def package_meta
     check_package_access(params[:project], params[:package], false)
 
-    pass_to_backend(unshift_public(request.path_info))
+    path = unshift_public(request.path_info)
+    # we should do this via user agent instead, but BSRPC is not only used for interconnect.
+    # so we do not have a way atm.
+    path += '?interconnect=1'
+    pass_to_backend(path)
   end
 
   # GET /public/source/:project/:package/:filename

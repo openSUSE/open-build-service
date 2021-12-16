@@ -142,6 +142,7 @@ our $proj = [
         'title',
         'description',
         'url',
+        'scmsync',
 	'config',	# for 'withconfig' option
      [[	'link' =>
 	    'project',
@@ -167,6 +168,7 @@ our $pack = [
         'title',
         'description',
         'releasename',
+        'scmsync',
       [ 'devel' =>
 	    'project',
 	    'package',

@@ -1,6 +1,4 @@
 - content_for :actions do
-  - if configuration.accounts_editable?(user) && !feature_enabled?('user_profile_redesign') && policy(user).update?
-    = render partial: 'webui/user/index_actions/edit_account', locals: { account_edit_link: account_edit_link, user: user }
   - if configuration.passwords_changable?(user)
     = render partial: 'webui/user/index_actions/change_password'
   = render partial: 'webui/user/index_actions/change_notifications'

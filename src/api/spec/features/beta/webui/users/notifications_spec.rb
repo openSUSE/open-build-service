@@ -103,5 +103,20 @@ RSpec.describe 'User notifications', type: :feature, js: true do
         end
       end
     end
+
+    context 'when having less notifications than the maximum per page' do
+      it { expect(page).not_to have_text("Mark all as 'Read'") }
+    end
+
+    context 'when having more notifications than the maximum per page' do
+      before do
+        # Instead of creating Notification::MAX_PER_PAGE + 1 notifications, we better reduce the constant value.
+        # The total amount of notifications exceeds the maximum per page, so the button should be displayed.
+        stub_const('Notification::MAX_PER_PAGE', 1)
+        visit my_notifications_path
+      end
+
+      it { expect(page).to have_text("Mark all as 'Read'") }
+    end
   end
 end

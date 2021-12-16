@@ -3,30 +3,24 @@
 
 .card.mb-3
   .card-body
-    = image_tag_for(user)
+    .in-place-editing
+      = render partial: 'webui/user/basic_info',
+               locals: { user: user, role_titles: role_titles, configuration: configuration, account_edit_link: account_edit_link }
 
-    %h4.mb-0.mt-4#home-realname
-      = user.realname
-    %h5.d-inline-block.mb-0.align-middle.text-muted#home-login
-      = user.login
-    - if User.session
-      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-        %i.fas.fa-envelope
-        = user.email
-    - role_titles.each do |title|
-      %span.badge.badge-secondary
-        = title.upcase
+    - if user.rss_token && is_user
+      = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
+                                            title: 'RSS Feed for Notifications', class: 'd-block') do
+        %i.fas.fa-rss.mr-1
+        RSS for Notifications
 
     - if groups.any?
-      .mt-4
-        Member of the #{'group'.pluralize(groups.size)}
-        %ul
-          - groups.each do |group|
-            %li
-              = link_to(group_path(group)) do
-                #{group.title}
-                %span.badge.badge-primary.align-baseline
-                  #{group.tasks} #{'task'.pluralize(group.tasks)}
+      .h5.mt-4.mb-0 Member of the #{'group'.pluralize(groups.size)}
+      %ul.list-group.list-group-flush
+        - groups.each do |group|
+          %li.list-group-item.d-flex.justify-content-between.align-items-center.p-2
+            = link_to(group.title, group_path(group))
+            %span.badge.badge-primary
+              #{group.tasks} #{'task'.pluralize(group.tasks)}
 
     - if is_user
       .mt-4
@@ -39,12 +33,6 @@
             %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
                                                         content: 'Join the <strong>beta program</strong> to try the latest ' + |
                                                                  'features we develop and give us feedback on them before they go live.' } } |
-
-        - if user.rss_token
-          = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
-                                                title: 'RSS Feed for Notifications', class: 'd-block') do
-            %i.fas.fa-rss-square
-            RSS for Notifications
 
 :javascript
   switchBeta();

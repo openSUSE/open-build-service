@@ -1,61 +1,36 @@
 :ruby
-  @pagetitle = if feature_enabled?('user_profile_redesign')
-                 @is_displayed_user ? 'Your Profile' : "Profile of #{@displayed_user}"
-               else
-                 "Profile of #{@displayed_user}"
-               end
+  @pagetitle = @is_displayed_user ? 'Your Profile' : "Profile of #{@displayed_user}"
 
   content_for(:meta_title, @pagetitle)
   content_for(:meta_image, gravatar_url(@displayed_user.email))
 
 .row
-  - if feature_enabled?('user_profile_redesign')
-    .col-12.col-md-4.col-xxl-3
-      = render partial: 'webui/user/user_profile_redesign/info', locals: { user: @displayed_user,
-                                                                           is_user: @is_displayed_user,
-                                                                           groups: @groups,
-                                                                           role_titles: @role_titles,
-                                                                           configuration: @configuration,
-                                                                           account_edit_link: @account_edit_link }
-    .col-12.col-md-8.col-xxl-9.pl-md-0
-      - locals = { involved_items_service: @involved_items_service }
-      - locals.merge!({ displayed_user: @displayed_user,
-                        activities_per_year: @activities_per_year,
-                        first_day: @first_day,
-                        last_day: @last_day,
-                        date: @date,
-                        activities_per_day: @activities_per_day }) if contribution_graph?
-      = render partial: 'webui/user/user_profile_redesign/involvement_and_activity', locals: locals
-    - content_for :ready_function do
-      :plain
-          // Show biography characters counter
-          $('body').on('focus keyup keydown', '#user_biography', function(e) {
-            updateCharactersCount(e);
-          });
-          // Hide biography characters counter
-          $('body').on('focusout', '#user_biography', function() {
-            $('#bio-chars-counter').css("visibility", "hidden");
-          });
-  - else
-    .col-12.col-md-4.col-lg-3
-      = render partial: 'webui/user/info', locals: { user: @displayed_user,
-                                                     is_user: @is_displayed_user,
-                                                     groups: @groups,
-                                                     role_titles: @role_titles,
-                                                     configuration: @configuration,
-                                                     account_edit_link: @account_edit_link }
-    .col-12.col-md-8.col-lg-9
-      - if contribution_graph?
-        = render partial: 'webui/user/activity', locals: { activities_per_year: @activities_per_year,
-                                                           first_day: @first_day,
-                                                           last_day: @last_day,
-                                                           user: @displayed_user,
-                                                           date: @date,
-                                                           activities_per_day: @activities_per_day }
-      = render partial: 'webui/user/involvement', locals: { user: @displayed_user,
-                                                            owned: @owned,
-                                                            involved_projects: @iprojects,
-                                                            involved_packages: @ipackages }
+  .col-12.col-md-4.col-xxl-3
+    = render partial: 'webui/user/info', locals: { user: @displayed_user,
+                                                                         is_user: @is_displayed_user,
+                                                                         groups: @groups,
+                                                                         role_titles: @role_titles,
+                                                                         configuration: @configuration,
+                                                                         account_edit_link: @account_edit_link }
+  .col-12.col-md-8.col-xxl-9.pl-md-0
+    - locals = { involved_items_service: @involved_items_service }
+    - locals.merge!({ displayed_user: @displayed_user,
+                      activities_per_year: @activities_per_year,
+                      first_day: @first_day,
+                      last_day: @last_day,
+                      date: @date,
+                      activities_per_day: @activities_per_day }) if contribution_graph?
+    = render partial: 'webui/user/involvement_and_activity', locals: locals
+  - content_for :ready_function do
+    :plain
+        // Show biography characters counter
+        $('body').on('focus keyup keydown', '#user_biography', function(e) {
+          updateCharactersCount(e);
+        });
+        // Hide biography characters counter
+        $('body').on('focusout', '#user_biography', function() {
+          $('#bio-chars-counter').css("visibility", "hidden");
+        });
 
 = render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }
 = render partial: 'webui/user/edit_dialog', locals: { user: @displayed_user }

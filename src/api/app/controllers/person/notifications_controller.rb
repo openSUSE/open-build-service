@@ -5,8 +5,8 @@ module Person
     MAX_PER_PAGE = 300
     ALLOWED_FILTERS = ['requests', 'incoming_requests', 'outgoing_requests'].freeze
 
-    before_action :check_feature_and_beta_toggles
-    before_action :check_filter_type
+    before_action :check_feature_toggle
+    before_action :check_filter_type, except: [:update]
 
     # GET /my/notifications
     def index
@@ -14,9 +14,17 @@ module Person
       @notifications_count = @notifications.count
     end
 
+    def update
+      notification = authorize Notification.find(params[:id])
+
+      notification.toggle(:delivered).save!
+
+      render_ok
+    end
+
     private
 
-    def show_all(notifications)
+    def show_maximum(notifications)
       total = notifications.size
       notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
     end
@@ -36,7 +44,7 @@ module Person
     def paginated_notifications
       notifications = fetch_notifications
       params[:page] = notifications.page(params[:page]).total_pages if notifications.page(params[:page]).out_of_range?
-      params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
+      params[:show_maximum] ? show_maximum(notifications) : notifications.page(params[:page])
     end
 
     # The 'requests' type will be the default value unless another allowed
@@ -46,8 +54,8 @@ module Person
       raise FilterNotSupportedError unless ALLOWED_FILTERS.include?(@filter_type)
     end
 
-    def check_feature_and_beta_toggles
-      raise NotFoundError unless Flipper.enabled?(:notifications_redesign, User.session) && User.session.in_beta?
+    def check_feature_toggle
+      raise NotFoundError unless Flipper.enabled?(:notifications_redesign, User.session)
     end
   end
 end
