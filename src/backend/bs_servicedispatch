@@ -53,12 +53,24 @@ sub commitobsscm {
   my $data = BSSrcrep::readobsscmdata($projid, $packid, $servicemark);
   return if !$data || $data->{'run'} ne $rev->{'run'};
   my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
+  my @args = ("servicemark=$servicemark", "run=$rev->{'run'}");
+  if (!$rev->{'cpiofd'}) {
+    my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
+    push @args, "srcmd5=$srcmd5";
+  }
   my $param = {
     'uri' => "$BSConfig::srcserver/source/$projid/$packid",
     'request' => 'POST',
     'timeout'   => 300,
   };
-  BSRPC::rpc($param, undef, "cmd=commitobsscm", "srcmd5=$srcmd5", "servicemark=$servicemark", "run=$rev->{'run'}");
+  if ($rev->{'cpiofd'}) {
+    sysseek($rev->{'cpiofd'}, 0, 0);
+    $param->{'chunked'} = 1;
+    $param->{'filename'} = $rev->{'cpiofd'};
+    $param->{'data'} = \&BSHTTP::file_sender;
+    $param->{'headers'} = [ 'Content-Type: application/x-cpio' ];
+  }
+  BSRPC::rpc($param, undef, "cmd=commitobsscm", @args);
 }
 
 sub getrev {
@@ -76,7 +88,7 @@ sub runservice_obsscm {
   my @send;
   push @send, { 'name' => '_service', 'data' => BSSrcServer::Service::generate_obs_scm_bridge_service($data) };
   my $files = {};
-  my $error = BSSrcServer::Service::doservicerpc($projid, $packid, $files, \@send, 1);
+  my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send, 1);
   BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error);
   return $error ? 'failed' : 'succeeded';
 }
@@ -126,7 +138,7 @@ sub runservice {
   push @send, BSRevision::revcpiofile({'project' => $projid, 'package' => '_project'}, '_serviceproject', $projectservicesmd5) if $projectservicesmd5;
   push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$sendfiles->{$_}} sort(keys %$oldfiles);
 
-  my $error = BSSrcServer::Service::doservicerpc($projid, $packid, $files, \@send);
+  my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send);
   BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error, $lxservicemd5);
   return $error ? 'failed' : 'succeeded';
 }

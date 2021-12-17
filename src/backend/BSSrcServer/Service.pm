@@ -27,6 +27,7 @@ use BSXML;
 use BSRevision;
 use BSSrcrep;
 use BSVerify;
+use BSCpio;
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
@@ -51,8 +52,11 @@ our $readpackage = sub {
 
 # used for old style services and obsscm commits
 our $addrev = sub {
-  my ($cgi, $projid, $packid, $files, $target) = @_;
   die("BSSrcServer::Service::addrev not implemented\n");
+};
+
+our $addrev_obsscmproject = sub {
+  die("BSSrcServer::Service::addrev_obsscmproject not implemented\n");
 };
 
 our $notify = sub {
@@ -128,7 +132,6 @@ sub notify_serviceresult {
 
 sub commitobsscm {
   my ($projid, $packid, $servicemark, $rev, $files) = @_;
-  die("Hey!\n") if $packid eq '_project';
   die("obs_scm_bridge must not return _service files\n") if grep {$_ eq '_service' || $_ eq '_serviceerror' || /^_service[:_]/} keys %$files;
   my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
   my $data = BSSrcrep::readobsscmdata($projid, $packid, $servicemark);
@@ -140,7 +143,12 @@ sub commitobsscm {
   $cgi->{'user'} = $rev->{'user'} || $data->{'user'};
   $cgi->{'comment'} = $rev->{'comment'} || $data->{'comment'};
   $cgi->{'commitobsscm'} = 1;   # Hack
-  my $newrev = $addrev->($cgi, $projid, $packid, $files);
+  my $newrev;
+  if ($packid eq '_project') {
+    $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
+  } else {
+    $newrev = $addrev->($cgi, $projid, $packid, $files);
+  }
   BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
   return $newrev;
 }
@@ -229,12 +237,12 @@ sub genservicemark_obsscm {
 sub generate_obs_scm_bridge_service {
   my ($data) = @_;
   die("bad obs_scm_bridge data\n") unless $data->{'name'} eq 'obs_scm_bridge' && $data->{'url'};
+  my @params;
+  push @params, { 'name' => 'url', '_content' => $data->{'url'} };
+  push @params, { 'name' => 'projectmode', '_content' => '1' } if $data->{'projectmode'};
   my $services = { 
-    'service' => [ { 
-      'name' => 'obs_scm_bridge',
-      'param' => [ { 'name' => 'url', '_content' => $data->{'url'} } ],
-    } ],
-  };  
+    'service' => [ { 'name' => 'obs_scm_bridge', 'param' => \@params } ],
+  };
   return BSUtil::toxml($services, $BSXML::services);
 }
 
@@ -247,12 +255,14 @@ sub generate_obsscm_rev {
 
 sub runservice_obsscm {
   my ($cgi, $projid, $packid, $scmurl) = @_;
+  die("Cannot use the scm bridge with old style services\n") if $BSConfig::old_style_services;
   my $servicemark = genservicemark_obsscm($projid, $packid);
   # generate random run id, store "in progress" marker with the run id
   my $run = Digest::MD5::md5_hex("obsscm/$projid/$packid/".time()."/$$\n");
   my $data = { 'name' => 'obs_scm_bridge', 'run' => $run, 'url' => $scmurl };
   $data->{'user'} = $cgi->{'user'} if $cgi->{'user'};
   $data->{'commit'} = $cgi->{'comment'} if $cgi->{'comment'};
+  $data->{'projectmode'} = 1 if $packid eq '_project';
   my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
   BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, $data);
   close($fd);
@@ -267,7 +277,7 @@ sub runservice_obsscm {
   my @send;
   push @send, { 'name' => '_service', 'data' => generate_obs_scm_bridge_service($data) };
   my $files = {};
-  my $error = eval { doservicerpc($projid, $packid, $files, \@send, 1) };
+  my $error = eval { doservicerpc($rev, $files, \@send, 1) };
   $error = $@ if $@;
   # commit the service run result
   addrev_service($rev, $servicemark, $files, $error);
@@ -301,11 +311,28 @@ sub writeservicedispatchevent {
   BSUtil::ping("$eventdir/servicedispatch/.ping");
 }
 
+# create a cpio file from the service run result
+sub writeresultascpio {
+  my ($rev, $newfiles) = @_;
+  mkdir_p($uploaddir);
+  unlink("$uploaddir/obsscm.$$");
+  my $cpiofd;
+  open($cpiofd, '+>', "$uploaddir/obsscm.$$") || die("$uploaddir/obsscm.$$: $!\n");
+  unlink("$uploaddir/obsscm.$$");
+  $rev->{'cpiofd'} = $cpiofd;
+  my @cpio;
+  push @cpio, { 'name' => $_, 'file' => $newfiles->{$_}} for sort keys %$newfiles;
+  BSCpio::writecpio($cpiofd, \@cpio);
+  $cpiofd->flush();
+}
+
 # send the request to the service deamon and collect the result
 # modifies the files hash
 sub doservicerpc {
-  my ($projid, $packid, $files, $send, $noprefix) = @_;
+  my ($rev, $files, $send, $noprefix) = @_;
 
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
   my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
   mkdir_p($odir);
@@ -340,10 +367,11 @@ sub doservicerpc {
   for (keys %$files) {
     delete $files->{$_} if /^_service[_:]/;
   }
-  # add new service files
+  # find new service files
+  my %newfiles;
   eval {
     die(readstr("$odir/.errors") || "empty .errors file\n") if -e "$odir/.errors";
-    for my $pfile (sort {$b cmp $a} ls($odir)) {
+    for my $pfile (sort(ls($odir))) {
       my $qfile = $pfile;
       if ($noprefix) {
 	$qfile = $1 if $qfile =~ /^_service:.*:(.*?)$/s;
@@ -354,10 +382,19 @@ sub doservicerpc {
         die("service returned a non-_service file: $qfile\n") if $qfile !~ /^_service[_:]/;
       }
       BSVerify::verify_filename($qfile);
-      $files->{$qfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $qfile);
+      $newfiles{$qfile} = "$odir/$pfile";
     }
   };
   my $error = $@;
+  # create cpio archive from new service files for project obsscm service runs
+  if (!$error && $rev->{'rev'} eq 'obsscm' && $packid eq '_project') {
+    $error ||= readstr($newfiles{"_service_error"}) if $newfiles{"_service_error"};
+    writeresultascpio($rev, \%newfiles) unless $error;
+  }
+  # add new service files to file list
+  if (!$error && !$rev->{'cpiofd'}) {
+    $files->{$_} = BSSrcrep::addfile($projid, $packid, $newfiles{$_}, $_) for sort keys %newfiles;
+  }
   BSUtil::cleandir($odir);
   rmdir($odir);
   return $error;
@@ -485,7 +522,7 @@ sub runservice {
   return if $pid;
 
   # child continues...
-  my $error = eval { doservicerpc($projid, $packid, $files, \@send) };
+  my $error = eval { doservicerpc($rev, $files, \@send) };
   $error = $@ if $@;
   
   if (!$servicemark) {
