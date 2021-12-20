@@ -31,12 +31,9 @@ my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
 
 
-our $notify = sub {
-};
-
-our $notify_repservers = sub {
-};
-
+our $notify = sub {};
+our $notify_repservers = sub {};
+our $runservice = sub {};
 
 #
 # low level helpers
@@ -88,7 +85,7 @@ sub putconfig {
 # sync functions
 #
 sub sync_package {
-  my ($cgi, $projid, $packid, $pack) = @_;
+  my ($cgi, $projid, $packid, $pack, $info) = @_;
 
   if (!$pack) {
     return unless -e "$projectsdir/$projid.pkg/$packid.xml";
@@ -110,15 +107,26 @@ sub sync_package {
   }
   my $oldpack = BSRevision::readpack_local($projid, $packid, 1);
 
-  return if !$undeleted && $oldpack && BSUtil::identical($pack, $oldpack);
-
-  print "scmsync: update $projid/$packid\n";
-  putpackage($cgi, $projid, $packid, $pack);
-  my %except = map {$_ => 1} qw{title description devel person group url};
-  if ($undeleted || !BSUtil::identical($oldpack, $pack, \%except)) {
-    $notify_repservers->('package', $projid, $packid);
+  if ($undeleted || !$oldpack || !BSUtil::identical($pack, $oldpack)) {
+    print "scmsync: update $projid/$packid\n";
+    putpackage($cgi, $projid, $packid, $pack);
+    my %except = map {$_ => 1} qw{title description devel person group url};
+    if ($undeleted || !BSUtil::identical($oldpack, $pack, \%except)) {
+      $notify_repservers->('package', $projid, $packid);
+    }
+    $notify->($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
   }
-  $notify->($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
+
+  my $needtrigger;
+  $needtrigger = 1 if $pack->{'scmsync'} && (!$oldpack || $undeleted || $oldpack->{'scmsync'} ne $pack->{'scmsync'});
+  if ($pack->{'scmsync'} && !$needtrigger && $info) {
+    my $lastrev = eval { BSRevision::getrev_local($projid, $packid) };
+    $needtrigger = 1 if $lastrev && $lastrev->{'commit'} =~ /\[info=([0-9a-f]{1,128})\]$/ && $info ne $1;
+  }
+  if ($needtrigger) {
+    print "scmsync: trigger $projid/$packid\n";
+    $runservice->($cgi, $projid, $packid, $pack->{'scmsync'});
+  }
 }
 
 sub sync_config {
@@ -168,7 +176,11 @@ sub sync_project {
       warn($@);
       next;
     }
-    sync_package($cgi, $projid, $packid, $pack);
+    my $info;
+    my $infoent = $files{"$packid.info"};
+    $info = BSCpio::extract($cpiofd, $infoent) if $infoent && $infoent->{'size'} < 100000;
+    chomp $info;
+    sync_package($cgi, $projid, $packid, $pack, $info);
   }
 
   # delete packages that no longer exist

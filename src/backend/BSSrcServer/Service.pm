@@ -143,7 +143,9 @@ sub commitobsscm {
   $cgi->{'user'} = $rev->{'user'} || $data->{'user'};
   $cgi->{'comment'} = $rev->{'comment'} || $data->{'comment'};
   $cgi->{'commitobsscm'} = 1;   # Hack
-  if ($rev->{'_service_info'} && $rev->{'_service_info'} =~ /\A[0-9a-f]{1,128}\z/s) {
+  my $info = $rev->{'_service_info'};
+  chomp $info;
+  if ($info && $info =~ /\A[0-9a-f]{1,128}\z/s) {
     $cgi->{'comment'} = $cgi->{'comment'} ? "$cgi->{'comment'} " : '';
     $cgi->{'comment'} .= "[info=$rev->{'_service_info'}]";
   }
