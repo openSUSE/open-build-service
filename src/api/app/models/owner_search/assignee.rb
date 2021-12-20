@@ -4,7 +4,6 @@ module OwnerSearch
       @match_all = limit.zero?
       @deepest = limit.negative?
 
-      @instances_without_definition = []
       @maintainers = []
 
       # search in each marked project
@@ -15,8 +14,6 @@ module OwnerSearch
         @lookup_limit = limit.to_i
         @devel_disabled = devel_disabled?(project)
         find_assignees(search_string)
-        webui_mode = params[:webui_mode].present?
-        return @instances_without_definition if webui_mode && @maintainers.empty?
       end
       @maintainers
     end
@@ -101,11 +98,7 @@ module OwnerSearch
 
       m = lookup_package_owner(pkg)
 
-      unless m
-        # collect all no matched entries
-        @instances_without_definition << create_owner(pkg)
-        return false
-      end
+      return false unless m
 
       # remember as deepest candidate
       if @deepest
