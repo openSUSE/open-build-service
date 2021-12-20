@@ -58,6 +58,7 @@ sub commitobsscm {
     my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
     push @args, "srcmd5=$srcmd5";
   }
+  push @args, "info=$rev->{'_service_info'}" if $rev->{'_service_info'} && $rev->{'_service_info'} =~ /\A[0-9a-f]{1,128}\z/s;
   my $param = {
     'uri' => "$BSConfig::srcserver/source/$projid/$packid",
     'request' => 'POST',

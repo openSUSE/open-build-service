@@ -143,6 +143,10 @@ sub commitobsscm {
   $cgi->{'user'} = $rev->{'user'} || $data->{'user'};
   $cgi->{'comment'} = $rev->{'comment'} || $data->{'comment'};
   $cgi->{'commitobsscm'} = 1;   # Hack
+  if ($rev->{'_service_info'} && $rev->{'_service_info'} =~ /\A[0-9a-f]{1,128}\z/s) {
+    $cgi->{'comment'} = $cgi->{'comment'} ? "$cgi->{'comment'} " : '';
+    $cgi->{'comment'} .= "[info=$rev->{'_service_info'}]";
+  }
   my $newrev;
   if ($packid eq '_project') {
     $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
@@ -249,7 +253,7 @@ sub generate_obs_scm_bridge_service {
 # generate a pseudo revision for obsscm services
 sub generate_obsscm_rev {
   my ($projid, $packid, $data) = @_;
-  my $rev = { 'project' => $projid, 'package' => $packid, 'rev' => 'obsscm', 'run' => $data->{'run'}, 'user' => $data->{'user'}, 'comment' => $data->{'comment'} };
+  my $rev = { 'project' => $projid, 'package' => $packid, 'rev' => 'obsscm', 'run' => $data->{'run'}, 'user' => $data->{'user'}, 'comment' => $data->{'comment'}, '_service_info' => undef };
   return $rev;
 }
 
@@ -377,6 +381,13 @@ sub doservicerpc {
 	$qfile = $1 if $qfile =~ /^_service:.*:(.*?)$/s;
 	next if $files->{$qfile};
 	next if $qfile eq '_service';	# hmm?
+	if ($qfile ne '_service_error' && $qfile =~ /^_service_/) {
+	  if (exists($rev->{$qfile}) && -s "$odir/$pfile" < 100000) {
+	    $rev->{$qfile} = readstr("$odir/$pfile");
+	    next;
+	  }
+	  die("service returned forbidden file: $qfile\n");
+	}
 	die("service returned forbidden file: $qfile\n") if $qfile eq '_link' || $qfile eq '_meta';
       } else {
         die("service returned a non-_service file: $qfile\n") if $qfile !~ /^_service[_:]/;
