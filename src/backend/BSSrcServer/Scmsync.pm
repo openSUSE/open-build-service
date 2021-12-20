@@ -121,7 +121,7 @@ sub sync_package {
   $needtrigger = 1 if $pack->{'scmsync'} && (!$oldpack || $undeleted || $oldpack->{'scmsync'} ne $pack->{'scmsync'});
   if ($pack->{'scmsync'} && !$needtrigger && $info) {
     my $lastrev = eval { BSRevision::getrev_local($projid, $packid) };
-    $needtrigger = 1 if $lastrev && $lastrev->{'commit'} =~ /\[info=([0-9a-f]{1,128})\]$/ && $info ne $1;
+    $needtrigger = 1 if $lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/ && $info ne $1;
   }
   if ($needtrigger) {
     print "scmsync: trigger $projid/$packid\n";
