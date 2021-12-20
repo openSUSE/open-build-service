@@ -167,7 +167,7 @@ sub sync_project {
       die("bad package '$packid'\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
       die("$packid: xml is too big\n") if $ent->{'size'} > 1000000;
       my $packxml = BSCpio::extract($cpiofd, $ent);
-      $pack = BSUtil::fromxml($packxml, $BSXML::pack, 1);
+      $pack = BSUtil::fromxml($packxml, $BSXML::pack);
       $pack->{'project'} = $projid;
       $pack->{'name'} = $packid;
       BSVerify::verify_pack($pack);
@@ -179,7 +179,7 @@ sub sync_project {
     my $info;
     my $infoent = $files{"$packid.info"};
     $info = BSCpio::extract($cpiofd, $infoent) if $infoent && $infoent->{'size'} < 100000;
-    chomp $info;
+    chomp $info if $info;
     sync_package($cgi, $projid, $packid, $pack, $info);
   }
 
