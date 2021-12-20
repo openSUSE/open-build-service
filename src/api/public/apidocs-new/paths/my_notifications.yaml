@@ -1,6 +1,9 @@
 get:
   summary: List the notifications of the authenticated user.
-  description:  "**(Beta/Unstable)** List user's notifications."
+  description:  |
+    **(Unstable)** List user's notifications.
+
+    **NOTE:** Available only in OBS Unstable.
   security:
     - basic_authentication: []
   parameters:
