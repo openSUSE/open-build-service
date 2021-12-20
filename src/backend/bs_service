@@ -80,6 +80,10 @@ my $servicedef_obs_scm_bridge = {
       'name' => 'url' ,
       'description' => 'Specify URL to checkout.',
       'required' => undef,
+    },
+    {
+      'name' => 'projectmode' ,
+      'description' => 'Run a project update.',
     }
   ],
 };
