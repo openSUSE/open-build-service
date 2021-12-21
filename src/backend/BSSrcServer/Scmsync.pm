@@ -121,7 +121,7 @@ sub sync_package {
   $needtrigger = 1 if $pack->{'scmsync'} && (!$oldpack || $undeleted || $oldpack->{'scmsync'} ne $pack->{'scmsync'});
   if ($pack->{'scmsync'} && !$needtrigger && $info) {
     my $lastrev = eval { BSRevision::getrev_local($projid, $packid) };
-    $needtrigger = 1 if $lastrev && $lastrev->{'commit'} =~ /\[info=([0-9a-f]{1,128})\]$/ && $info ne $1;
+    $needtrigger = 1 if $lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/ && $info ne $1;
   }
   if ($needtrigger) {
     print "scmsync: trigger $projid/$packid\n";
@@ -167,7 +167,7 @@ sub sync_project {
       die("bad package '$packid'\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
       die("$packid: xml is too big\n") if $ent->{'size'} > 1000000;
       my $packxml = BSCpio::extract($cpiofd, $ent);
-      $pack = BSUtil::fromxml($packxml, $BSXML::pack, 1);
+      $pack = BSUtil::fromxml($packxml, $BSXML::pack);
       $pack->{'project'} = $projid;
       $pack->{'name'} = $packid;
       BSVerify::verify_pack($pack);
@@ -179,7 +179,7 @@ sub sync_project {
     my $info;
     my $infoent = $files{"$packid.info"};
     $info = BSCpio::extract($cpiofd, $infoent) if $infoent && $infoent->{'size'} < 100000;
-    chomp $info;
+    chomp $info if $info;
     sync_package($cgi, $projid, $packid, $pack, $info);
   }
 
