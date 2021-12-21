@@ -676,6 +676,7 @@ class Package < ApplicationRecord
       self.description = xmlhash.value('description')
       self.bcntsynctag = xmlhash.value('bcntsynctag')
       self.releasename = xmlhash.value('releasename')
+      self.scmsync = xmlhash.value('scmsync')
 
       #--- devel project ---#
       self.develpackage = nil
@@ -1426,6 +1427,7 @@ end
 #  description     :text(65535)
 #  name            :string(200)      not null, indexed => [project_id]
 #  releasename     :string(255)
+#  scmsync         :string(255)
 #  title           :string(255)
 #  url             :string(255)
 #  created_at      :datetime

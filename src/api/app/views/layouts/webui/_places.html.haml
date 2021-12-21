@@ -8,10 +8,16 @@
         = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link') do
           = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light mr-2')
           Profile
-    %li.nav-item
-      = link_to(my_tasks_path, class: 'nav-link', title: 'Tasks') do
-        %i.fas.fa-tasks.fa-lg.mr-2
-        %span.nav-item-name Tasks
+    -# Without this, we would have two links to the tasks, one here and one in the top navigation.
+       This is going to be resolved once the notifications_redesign is rolled out.
+    - if feature_enabled?(:notifications_redesign)
+      %li.nav-item
+        - tasks = User.session!.tasks
+        = link_to(my_tasks_path, class: 'nav-link', title: 'Tasks') do
+          %i.fas.fa-tasks.fa-lg.mr-2
+          %span.nav-item-name Tasks
+          - unless tasks.zero?
+            %span.badge.badge-primary.align-text-top= tasks
     %li.nav-item
       - if User.session!.home_project
         = link_to(project_show_path(User.session!.home_project), class: 'nav-link', title: 'Your Home Project') do

@@ -1,7 +1,9 @@
 put:
   summary: Mark a notification as read/unread.
   description: |
-    If a notification is unread, it will be marked as read. If a notification is read, it will be marked as unread.
+    **(Unstable)** If a notification is unread, it will be marked as read. If a notification is read, it will be marked as unread.
+
+    **NOTE:** Available only in OBS Unstable.
   security:
     - basic_authentication: []
   parameters:

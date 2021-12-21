@@ -60,6 +60,7 @@ class BsRequestActionSubmit < BsRequestAction
         target_package.flags.destroy_all
         target_package.remove_all_persons
         target_package.remove_all_groups
+        target_package.scmsync = nil
         if initialize_devel_package
           target_package.develpackage = Package.find_by_project_and_name(source_project, source_package)
           relink_source = true
