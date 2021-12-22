@@ -7,6 +7,7 @@ module MultibuildPackage
     end
 
     def striping_multibuild_suffix(name)
+      return if name.blank?
       # exception for package names used to have a collon
       return name if name.start_with?('_patchinfo:', '_product:')
 

@@ -88,6 +88,8 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
         source_package = Package.striping_multibuild_suffix(binary['package'])
+        next if source_package.blank?
+
         rp = Package.find_by_project_and_name(binary['project'], source_package)
         if source_package.include?(':') && !source_package.start_with?('_product:')
           flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
