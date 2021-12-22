@@ -4258,7 +4258,7 @@ if ($ex == 0) {
   my @d;
   push @d, map {"RPMS/$_"} sort(ls("$buildroot/.build.packages/RPMS"));
   push @d, 'SRPMS';
-  @d = ('DEBS') if $buildinfo->{'file'} =~ /(?:\.dsc|build\.collax)$/;
+  @d = ('DEBS') if $buildinfo->{'file'} =~ /(?:\.dsc|build\.collax|debian\.control)$/;
   if (-d "$buildroot/.build.packages/SDEBS") {
     @d = map {"DEBS/$_"} sort(ls("$buildroot/.build.packages/DEBS"));	# assume debbuild
     push @d, 'SDEBS';

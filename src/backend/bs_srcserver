@@ -80,6 +80,7 @@ use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
 use BSSrcServer::LinkinfoDB;
 use BSSrcServer::Modulemd;
+use BSSrcServer::Scmsync;
 
 require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
@@ -95,9 +96,14 @@ $BSSrcServer::Link::lsrev_linktarget = \&lsrev_service;
 $BSSrcServer::Service::getrev = \&getrev;
 $BSSrcServer::Service::readpackage  = \&readpackage;
 $BSSrcServer::Service::addrev = \&addrev;
+$BSSrcServer::Service::addrev_obsscmproject = \&BSSrcServer::Scmsync::sync_project;
 $BSSrcServer::Service::notify = \&notify;
 $BSSrcServer::Service::notify_repservers = \&notify_repservers;
 $BSSrcServer::Service::handlelinks = \&BSSrcServer::Link::handlelinks;
+
+$BSSrcServer::Scmsync::notify = \&notify;
+$BSSrcServer::Scmsync::notify_repservers = \&notify_repservers;
+$BSSrcServer::Scmsync::runservice = \&BSSrcServer::Service::runservice_obsscm;
 
 $BSSrcServer::Blame::getrev = \&getrev;
 $BSSrcServer::Blame::lsrev_expanded = \&lsrev_expanded;
@@ -340,10 +346,18 @@ sub notify_all_repservers {
 
 sub triggerservicerun {
   my ($cgi, $projid, $packid) = @_;
+  if ($packid eq '_project') {
+    my $proj = BSRevision::readproj_local($projid);
+    die("$projid is a remote project\n") if $proj->{'remoteurl'};
+    if ($proj->{'scmsync'}) {
+      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $proj->{'scmsync'});
+      return $BSStdServer::return_ok;
+    }
+    die("triggerservicerun does not work with _project\n");
+  }
   my $rev = getrev($projid, $packid);
   my $pack = BSRevision::readpack_local($projid, $packid, 1);
   if ($pack && $pack->{'scmsync'}) {
-    die("Cannot use the scm bridge with old style services\n") if $BSConfig::old_style_services;
     BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'});
     return $BSStdServer::return_ok;
   }
@@ -3327,9 +3341,25 @@ sub sourcecommitfilelist {
 
 sub sourcecommitobsscm {
   my ($cgi, $projid, $packid) = @_;
-  my $pack = BSRevision::readpack_local($projid, $packid);
-  die("Package $packid is not controlled by obs-scm\n") unless $pack->{'scmsync'};
-  my $rev = BSRevision::getrev_local($projid, $packid, $cgi->{'srcmd5'});
+  my $rev;
+  if ($packid eq '_project') {
+    die("Cannot use a srcmd5 for obsscm projects commits\n") if $cgi->{'srcmd5'};
+    my $proj = BSRevision::readproj_local($projid);
+    die("Project $projid is not controlled by obs-scm\n") unless $proj->{'scmsync'};
+    die("Project $projid is a remote project\n") if $proj->{'remoteurl'};
+    mkdir_p($uploaddir);
+    my $uploaded = BSServer::read_file("$uploaddir/$$");
+    die("upload failed\n") unless $uploaded;
+    my $cpiofd;
+    open($cpiofd, '<', "$uploaddir/$$") || die("$uploaddir/$$: $!\n");
+    $rev = BSRevision::getrev_local($projid, $packid, '0');
+    $rev->{'cpiofd'} = $cpiofd;
+  } else {
+    die("Need a srcmd5 for obsscm package commits\n") unless $cgi->{'srcmd5'};
+    my $pack = BSRevision::readpack_local($projid, $packid);
+    die("Package $packid is not controlled by obs-scm\n") unless $pack->{'scmsync'};
+    $rev = BSRevision::getrev_local($projid, $packid, $cgi->{'srcmd5'});
+  }
   die("No such revision $cgi->{'srcmd5'}\n") unless $rev;
   my $linkinfo = {};
   my $files = BSRevision::lsrev($rev, $linkinfo);
@@ -3337,6 +3367,7 @@ sub sourcecommitobsscm {
   $rev->{'user'} = $cgi->{'user'} if $cgi->{'user'};
   $rev->{'comment'} = $cgi->{'comment'} if $cgi->{'comment'};
   $rev->{'run'} = $cgi->{'run'};
+  $rev->{'_service_info'} = $cgi->{'info'} if $cgi->{'info'};
   my $newrev = BSSrcServer::Service::commitobsscm($projid, $packid, $cgi->{'servicemark'}, $rev, $files) || {};
   delete $newrev->{'project'};
   delete $newrev->{'package'};
@@ -7301,7 +7332,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:? withvalidate:?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=commitobsscm srcmd5 servicemark: run:md5 user:? comment:?' => \&sourcecommitobsscm,
+  'POST:/source/$project/$package cmd=commitobsscm srcmd5? servicemark: run:md5 user:? comment:? info:?' => \&sourcecommitobsscm,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool? freezelink:bool? vrevbump:num? instantiate:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool? time:num? extendvrev:bool? simplelink:bool?' => \&sourcebranch,

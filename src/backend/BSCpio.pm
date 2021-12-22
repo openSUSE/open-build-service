@@ -70,6 +70,7 @@ sub parsecpiohead {
     $size += hex(substr($cpiohead, 78, 8)) * 4294967296;
     return undef if $size < 0xffffffff;
   }
+  return undef if $namesize > 8192;
   my $ent = { 'namesize' => $size , 'size' => $size, 'mtime' => $mtime, 'mode' => $mode, 'cpiotype' => ($mode >> 12 & 0xf) };
   return ($ent, $namesize, $namepad, $size, $pad);
 }
@@ -179,6 +180,59 @@ sub writecpiofile {
   my $mtime = $opts{'mtime'};
   utime($mtime, $mtime, $fn) if defined $mtime;
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n") if defined $fnf;
+}
+
+sub readchunk {
+  my ($fd, $l) = @_;
+  my $r = '';
+  die("bad cpio file\n") unless !$l || (read($fd, $r, $l) || 0) == $l;
+  return $r;
+}
+
+sub list {
+  my ($fd) = @_;
+  my $offset = 0;
+  my @cpio;
+  while (1) {
+    my $cpiohead = readchunk($fd, 110);
+    my ($ent, $namesize, $namepad, $size, $pad) = parsecpiohead($cpiohead);
+    last unless $ent;
+    my $name = substr(readchunk($fd, $namesize + $namepad), 0, $namesize);
+    $offset += 110 + $namesize + $namepad;
+    $name =~ s/\0.*//s;
+    last if !$size && $name eq 'TRAILER!!!';
+    $ent->{'name'} = $name;
+    if ($ent->{'cpiotype'} == 8 || $ent->{'cpiotype'} == 10) {
+      $ent->{'offset'} = $offset;
+      $size += $pad;
+      while ($size > 0) {
+        my $l = $size > 65536 ? 65536 : $size;
+        readchunk($fd, $l);
+	$offset += $l;
+	$size -= $l;
+      }
+    }
+    push @cpio, $ent;
+  }
+  return \@cpio;
+}
+
+sub extract {
+  my ($handle, $ent, $offset, $length) = @_;
+  die("cannot extract this type of entry\n") if defined($ent->{'cpiotype'}) && ($ent->{'cpiotype'} != 8 && $ent->{'cpiotype'} != 10);
+  return '' if defined($length) && $length <= 0;
+  $offset = 0 unless defined($offset) && $offset >= 0;
+  if (exists $ent->{'data'}) {
+    return substr($ent->{'data'}, $offset) unless defined $length;
+    return substr($ent->{'data'}, $offset, $length);
+  }
+  my $size = $ent->{'size'};
+  return '' if $offset >= $size;
+  $length = $size - $offset if !defined($length) || $length > $size - $offset;
+  die("cannot seek to $ent->{name} entry\n") unless seek($handle, $ent->{'offset'} + $offset, 0);
+  my $data = '';
+  die("cannot read $ent->{name} entry\n") unless (read($handle, $data, $length) || 0) == $length;
+  return $data;
 }
 
 1;
