@@ -1,0 +1,30 @@
+.list-group-item.px-0.px-md-1.py-3
+  .row
+    .col-auto.pr-0
+      .custom-control.custom-checkbox
+        = check_box_tag('notification_ids[]', @notification.id, false,
+                        id: "notification_ids_#{@notification.id}", class: 'custom-control-input')
+        = label_tag("notification_ids_#{@notification.id}", '', class: 'custom-control-label')
+    .col-10
+      .row
+        .col
+          - if @notification.notifiable_type == 'BsRequest'
+            = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
+            = render NotificationNotifiableLinkComponent.new(@notification)
+            %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
+            %span.badge.ml-1{ class: "badge badge-#{helpers.request_badge_color(@notification.notifiable.state)}" }
+              = @notification.notifiable.state
+          - else
+            %i.fas.fa-comments{ title: 'Comment notification' }
+            = render NotificationNotifiableLinkComponent.new(@notification)
+            %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
+        .col-auto.actions.ml-auto.align-self-end.align-self-md-start
+          = render NotificationMarkButtonComponent.new(@notification, @selected_filter, params[:page], params[:show_more])
+      .row.mt-1.pl-sm-4
+        .col-auto.pr-0
+          = render NotificationAvatarsComponent.new(@notification)
+        .col-auto.pl-xs-2
+          = render NotificationActionDescriptionComponent.new(@notification)
+      .row.d-none.d-md-block.pl-4
+        .col
+          = render NotificationExcerptComponent.new(@notification)

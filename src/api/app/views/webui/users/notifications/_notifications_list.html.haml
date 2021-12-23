@@ -21,38 +21,7 @@
           %span.ml-3= page_entries_info notifications, entry_name: ''
           = link_to_show_less_or_more unless notifications.total_pages == 1 && params[:show_more].nil?
         .list-group.list-group-flush.mt-3
-          - notifications.each do |n|
-            - notification = NotificationPresenter.new(n)
-            .list-group-item.px-0.px-md-1.py-3
-              .row
-                .col-auto.pr-0
-                  .custom-control.custom-checkbox
-                    = check_box_tag('notification_ids[]', notification.id, false,
-                                    id: "notification_ids_#{notification.id}", class: 'custom-control-input')
-                    = label_tag("notification_ids_#{notification.id}", '', class: 'custom-control-label')
-                .col-10
-                  .row
-                    .col
-                      - if n.notifiable_type == 'BsRequest'
-                        = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
-                        = render NotificationNotifiableLinkComponent.new(n)
-                        %small.text-nowrap #{time_ago_in_words(n.created_at)} ago
-                        %span.badge.ml-1{ class: "badge badge-#{request_badge_color(n.notifiable.state)}" }
-                          = n.notifiable.state
-                      - else
-                        %i.fas.fa-comments{ title: 'Comment notification' }
-                        = render NotificationNotifiableLinkComponent.new(n)
-                        %small.text-nowrap #{time_ago_in_words(n.created_at)} ago
-                    .col-auto.actions.ml-auto.align-self-end.align-self-md-start
-                      = render NotificationMarkButtonComponent.new(n, selected_filter, params[:page], params[:show_more])
-                  .row.mt-1.pl-sm-4
-                    .col-auto.pr-0
-                      = render NotificationAvatarsComponent.new(n)
-                    .col-auto.pl-xs-2
-                      = render NotificationActionDescriptionComponent.new(n)
-                  .row.d-none.d-md-block.pl-4
-                    .col
-                      = render NotificationExcerptComponent.new(n)
+          = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter)
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
 
 - content_for :ready_function do
