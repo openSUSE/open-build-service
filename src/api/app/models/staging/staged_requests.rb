@@ -124,7 +124,7 @@ class Staging::StagedRequests
   def remove_packages(staging_project_packages)
     staging_project_packages.collect do |package|
       (package.find_project_local_linking_packages | [package]).collect { |pkg| pkg unless pkg.destroy }
-    end.flatten.reject(&:nil?)
+    end.flatten.compact
   end
 
   def staged_packages(staging_project, request)
