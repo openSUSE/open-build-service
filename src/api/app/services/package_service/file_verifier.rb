@@ -23,7 +23,7 @@ module PackageService
     private
 
     def content_readable(content)
-      content.is_a?(ActionDispatch::Http::UploadedFile) ? File.open(content.path).read : content
+      content.is_a?(ActionDispatch::Http::UploadedFile) ? File.read(content.path) : content
     end
 
     def file_name_invalid?

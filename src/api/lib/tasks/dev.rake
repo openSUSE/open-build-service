@@ -12,9 +12,7 @@ namespace :dev do
     database_yml = YAML.load_file('config/database.yml') || {}
     database_yml['test']['host'] = 'db'
     database_yml['development']['host'] = 'db'
-    File.open('config/database.yml', 'w') do |f|
-      f.write(YAML.dump(database_yml))
-    end
+    File.write('config/database.yml', YAML.dump(database_yml))
 
     puts 'Setting up the application configuration...'
     copy_example_file('config/options.yml')
@@ -145,9 +143,7 @@ namespace :dev do
       options_yml['development']['amqp_options'] = { host: 'rabbit', port: '5672', user: 'guest', pass: 'guest', vhost: '/' }
       options_yml['development']['amqp_exchange_name'] = 'pubsub'
       options_yml['development']['amqp_exchange_options'] = { type: :topic, persistent: 'true', passive: 'true' }
-      File.open('config/options.yml', 'w') do |f|
-        f.write(YAML.dump(options_yml))
-      end
+      File.write('config/options.yml', YAML.dump(options_yml))
     end
   end
 
