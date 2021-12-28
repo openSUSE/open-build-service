@@ -8,7 +8,9 @@ class AlterNotificationsToUsePolymorphic < ActiveRecord::Migration[5.0]
     # Since this is for a feature that just got introduced we can drop them.
     Notification.delete_all
 
+    # rubocop:disable Rails/ReversibleMigration
     remove_reference :notifications, :group
     remove_reference :notifications, :user
+    # rubocop:enable Rails/ReversibleMigration
   end
 end
