@@ -11,7 +11,7 @@
         - users_and_groups.each do |role, records|
           %li.mt-3
             :ruby
-              emails = records.map(&:email).reject(&:blank?).join(', ')
+              emails = records.map(&:email).compact_blank.join(', ')
             %h6
               = role.capitalize.pluralize
               - if emails.present? && User.session
