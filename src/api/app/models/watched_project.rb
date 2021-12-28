@@ -2,7 +2,6 @@
 class WatchedProject < ApplicationRecord
   belongs_to :user, inverse_of: :watched_projects
   belongs_to :project, inverse_of: :watched_projects
-
 end
 
 # == Schema Information
