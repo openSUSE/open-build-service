@@ -21,7 +21,7 @@ class EventMailer < ActionMailer::Base
     subscribers = subscribers.to_a
     return if subscribers.empty?
 
-    recipients = subscribers.map(&:display_name).reject(&:blank?)
+    recipients = subscribers.map(&:display_name).compact_blank
     return if recipients.empty?
 
     set_headers

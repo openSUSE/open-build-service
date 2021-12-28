@@ -106,6 +106,6 @@ class Status::RequiredChecksController < ApplicationController
 
   def names
     result = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
-    [result[:name]].flatten.reject(&:blank?)
+    [result[:name]].flatten.compact_blank
   end
 end
