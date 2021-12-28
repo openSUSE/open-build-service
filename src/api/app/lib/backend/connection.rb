@@ -87,7 +87,7 @@ module Backend
                         else
                           Net::HTTP::Post.new(path, in_headers)
                         end
-      if data.respond_to?('read')
+      if data.respond_to?(:read)
         backend_request.content_length = data.size
         backend_request.body_stream = data
       else
