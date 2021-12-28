@@ -3,7 +3,6 @@ class StatusMessage < ApplicationRecord
   has_many :status_message_acknowledgements, dependent: :destroy
   has_many :users, through: :status_message_acknowledgements
 
-
   scope :announcements, -> { order('created_at DESC').where(severity: 'announcement') }
   scope :for_current_user, -> { where(communication_scope: communication_scopes_for_current_user) }
   scope :newest, -> { order('created_at DESC') }

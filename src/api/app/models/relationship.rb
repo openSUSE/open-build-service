@@ -9,7 +9,6 @@ class Relationship < ApplicationRecord
   belongs_to :project, inverse_of: :relationships
   belongs_to :package, inverse_of: :relationships
 
-
   validate :check_global_role
 
   validates :project_id, uniqueness: {
