@@ -9,7 +9,6 @@ class Relationship < ApplicationRecord
   belongs_to :project, inverse_of: :relationships
   belongs_to :package, inverse_of: :relationships
 
-  validates :role, presence: true
 
   validate :check_global_role
 
@@ -22,16 +21,12 @@ class Relationship < ApplicationRecord
     message: 'Package has non unique id'
   }
 
-  validates :package, presence: {
-    message: 'Neither package nor project exists'
-  }, unless: proc { |relationship| relationship.project.present? }
+  validates :package, unless: proc { |relationship| relationship.project.present? }
   validates :package, absence: {
     message: 'Package and project can not exist at the same time'
   }, if: proc { |relationship| relationship.project.present? }
 
-  validates :user, presence: {
-    message: 'Neither user nor group exists'
-  }, unless: proc { |relationship| relationship.group.present? }
+  validates :user, unless: proc { |relationship| relationship.group.present? }
   validates :user, absence: {
     message: 'User and group can not exist at the same time'
   }, if: proc { |relationship| relationship.group.present? }

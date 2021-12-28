@@ -23,10 +23,10 @@ class Review < ApplicationRecord
   validates :reviewer, length: { maximum: 250 }
   validates :reason, length: { maximum: 65_534 }
 
-  validates :user, presence: true, if: :by_user?
-  validates :group, presence: true, if: :by_group?
-  validates :project, presence: true, if: :by_project?, on: :create
-  validates :package, presence: true, if: :by_package?, on: :create
+  validates :user, if: :by_user?
+  validates :group, if: :by_group?
+  validates :project, if: :by_project?, on: :create
+  validates :package, if: :by_package?, on: :create
   validates :by_project, presence: true, if: :by_package?, on: :create
 
   validate :review_assignment
