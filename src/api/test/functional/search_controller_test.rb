@@ -565,7 +565,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     put '/source/TEMPORARY/pack/_meta',
         params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
     assert_response :success
-    raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put '/source/TEMPORARY/pack/package.spec', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
     run_scheduler('i586')
     inject_build_job('TEMPORARY', 'pack', 'standard', 'i586')
@@ -754,9 +754,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
                                                  <person userid='fred' role='bugowner' />
                                                </package>"
     assert_response :success
-    raw_put '/source/TEMPORARY:GA/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put '/source/TEMPORARY:GA/package/package.spec', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
-    raw_put '/source/TEMPORARY:Update/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put '/source/TEMPORARY:Update/package/package.spec', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
 
     # package exists only in Update

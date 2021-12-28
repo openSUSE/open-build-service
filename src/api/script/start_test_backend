@@ -231,21 +231,21 @@ Backend::Connection.put('/source/BaseDistro/pack2/my_file?user=king', 'different
 Backend::Connection.put('/source/BaseDistro/pack2/my_file?user=king', 'second commit')
 Backend::Connection.put('/source/BaseDistro/Pack3/my_file?user=king', 'just a file')
 Backend::Connection.put('/source/BaseDistro/_product/fixed.product?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read)
-Backend::Connection.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product"))
+Backend::Connection.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.read("#{Rails.root}/test/fixtures/backend/source/_patchinfo"))
 Backend::Connection.put('/source/BaseDistro2.0/_config?user=king', 'Type: spec')
 # set vrev like it get created with makeolder=1
 Backend::Connection.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>')
 Backend::Connection.put('/source/BaseDistro2.0/pack2/myfile?user=king', 'DummyContent of BaseDistro2.0/pack2')
 Backend::Connection.put('/source/BaseDistro2.0/pack2/package.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 Backend::Connection.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<link package=\"pack2\" cicount='copy' />")
 Backend::Connection.put('/source/BaseDistro2.0:LinkedUpdateProject/_config?user=king', 'cicntstart: 42.1')
 Backend::Connection.put('/source/BaseDistro3/_config?user=king', "Type: spec\nRepotype: rpm-md suse")
-Backend::Connection.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+Backend::Connection.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 Backend::Connection.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><flavor>package_multibuild</flavor></multibuild>')
 Backend::Connection.put('/source/BaseDistro3/pack2/package_multibuild.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 Backend::Connection.put('/source/BaseDistro:Update/pack2/_link?user=king', '<link project="BaseDistro" package="pack2" />')
 Backend::Connection.put('/source/Devel:BaseDistro:Update/pack2/_link?user=king', '<link project="BaseDistro:Update" package="pack2" />')
 Backend::Connection.put('/source/Devel:BaseDistro:Update/pack2/from_devel_project?user=king', 'no content')
@@ -255,23 +255,23 @@ Backend::Connection.put('/source/Devel:BaseDistro:Update/Pack3/from_devel_projec
 Backend::Connection.put('/source/HiddenProject/_config?user=king', 'Type: spec')
 Backend::Connection.put('/source/HiddenProject/pack/my_file?user=king', 'Protected Content')
 Backend::Connection.put('/source/HiddenProject/pack/package.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 Backend::Connection.put('/source/HiddenProject/target/my_file?user=king', 'Protected Content target')
 # BinaryprotectedProject
 Backend::Connection.put('/source/BinaryprotectedProject/_config?user=king', 'Type: spec')
 Backend::Connection.put('/source/BinaryprotectedProject/bdpack/my_file?user=king', 'Protected Content')
 Backend::Connection.put('/source/BinaryprotectedProject/bdpack/package.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 # SourceaccessProject (sourceaccess flag)
 Backend::Connection.put('/source/SourceprotectedProject/_config?user=king', 'Type: spec')
 Backend::Connection.put('/source/SourceprotectedProject/pack/my_file?user=king', 'Protected Content')
 Backend::Connection.put('/source/SourceprotectedProject/pack/package.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 Backend::Connection.put('/source/SourceprotectedProject/target/my_file?user=king', 'Protected Content target')
 # Copytest
 Backend::Connection.put('/source/CopyTest/_config?user=king', 'Type: spec')
 Backend::Connection.put('/source/CopyTest/test/my_file?user=king', 'CopyTest content')
-Backend::Connection.put('/source/CopyTest/test/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+Backend::Connection.put('/source/CopyTest/test/package.spec?user=king', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 # Apache, gets wipe binaries and similar calls
 Backend::Connection.put('/source/Apache/apache2/my_file?user=king', 'just a file')
 Backend::Connection.put('/source/Apache/libapr-util1/onefile?user=king', 'just another file')
@@ -284,7 +284,7 @@ Backend::Connection.put('/source/home:Iggy/_config?user=king',
                         "Type: spec\nSubstitute: kiwi package\nSubstitute: kiwi-packagemanager:instsource package\nIgnore: package:bash")
 Backend::Connection.put('/source/home:Iggy/TestPack/myfile?user=king', 'DummyContent')
 Backend::Connection.put('/source/home:Iggy/TestPack/TestPack.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec"))
 Backend::Connection.put('/source/home:Iggy:branches:kde4/BranchPack/myfile?user=king', 'DummyContent')
 Backend::Connection.put('/source/kde4/kdebase/myfile2?user=king', 'DummyContent')
 Backend::Connection.put('/source/kde4/kdelibs/my_patch.diff?user=king', 'argl')
@@ -296,7 +296,7 @@ Backend::Connection.put('/source/BrokenPublishing/_config?user=king', "Type: spe
 Backend::Connection.post('/source/BrokenPublishing/pack_broken_publish?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>')
 Backend::Connection.put('/source/BrokenPublishing/pack_broken_publish/myfile?user=king', 'DummyContent of BrokenPublishing/pack_broken_publish')
 Backend::Connection.put('/source/BrokenPublishing/pack_broken_publish/package.spec?user=king',
-                        File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
+                        File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec"))
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{backend_data}/projects/BaseDistro.pkg/_pubkey")
@@ -379,7 +379,7 @@ scheduler_thread = Thread.new do
 
   # upload a binary file to repository directly
   Backend::Connection.put('/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1',
-                          File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read)
+                          File.read("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm"))
 
   # run scheduler again to handle the build result
   Backend::Test::Tasks.run_scheduler('i586')

@@ -85,7 +85,7 @@ FactoryBot.define do
       after(:create) do |package, evaluator|
         if CONFIG['global_write_through']
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.target_file_name}",
-                                  File.open(evaluator.file_name).read)
+                                  File.read(evaluator.file_name))
         end
       end
     end
@@ -94,12 +94,12 @@ FactoryBot.define do
       after(:create) do |package|
         if CONFIG['global_write_through']
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
-                                  File.open('spec/support/files/bigfile_archive.tar.gz').read)
+                                  File.read('spec/support/files/bigfile_archive.tar.gz'))
 
           # this is required to generate a diff - the backend treats binary files a bit different and only shows a diff if the
           # file has been changed.
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
-                                  File.open('spec/support/files/bigfile_archive_2.tar.gz').read)
+                                  File.read('spec/support/files/bigfile_archive_2.tar.gz'))
         end
       end
     end
