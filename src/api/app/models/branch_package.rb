@@ -90,6 +90,22 @@ class BranchPackage
 
   private
 
+  def branch_target_package(package_hash)
+    return unless package_hash.key?(:target_package)
+
+    package_hash[:target_package].tr(':', '_')
+  end
+
+  def copy_package_message(package_hash)
+    copy_from_devel = package_hash[:copy_from_devel]
+
+    if copy_from_devel.project.is_maintenance_incident?
+      "fetch updates from open incident project #{copy_from_devel.project.name}"
+    else
+      "fetch updates from devel package #{copy_from_devel.project.name}/#{copy_from_devel.name}"
+    end
+  end
+
   def add_request_cloned_attribute(project)
     type = AttribType.find_by_namespace_and_name!('OBS', 'RequestCloned')
     value = AttribValue.new(value: params[:request], position: 1)
@@ -121,12 +137,12 @@ class BranchPackage
       pac = p[:package]
 
       # find origin package to be branched
-      branch_target_package = p[:target_package]
-      pack_name = branch_target_package.tr(':', '_')
+      pack_name = branch_target_package(p)
 
       # create branch package
       # no find_package call here to check really this project only
       tpkg = tprj.packages.find_by_name(pack_name)
+
       if tpkg
         raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}" unless params[:force]
       else
@@ -181,11 +197,7 @@ class BranchPackage
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
-          msg = if p[:copy_from_devel].project.is_maintenance_incident?
-                  "fetch updates from open incident project #{p[:copy_from_devel].project.name}"
-                else
-                  "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
-                end
+          msg = copy_package_message(p)
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:copy_from_devel].project.name, p[:copy_from_devel].name,
                                               User.session!.login, comment: msg, keeplink: 1, expand: 1)
         end
