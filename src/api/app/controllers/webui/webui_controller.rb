@@ -4,7 +4,7 @@
 class Webui::WebuiController < ActionController::Base
   layout 'webui/webui'
 
-  Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
+  Rails.cache.set_domain if Rails.cache.respond_to?(:set_domain)
 
   include Pundit
   include FlipperFeature
