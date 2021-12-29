@@ -1056,7 +1056,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend(path)
 
-    @package.sources_changed
+    @package.sources_changed unless params[:package] == '_project'
   end
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev

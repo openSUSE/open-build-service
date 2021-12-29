@@ -56,7 +56,7 @@ RSpec.describe Backend::File, vcr: true do
     end
 
     it { expect(subject.file.class).to eq(Tempfile) }
-    it { expect(File.open(subject.file.path).read).to eq("hello\n") }
+    it { expect(File.read(subject.file.path)).to eq("hello\n") }
   end
 
   describe '#file_from_path' do
@@ -69,7 +69,7 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.response[:type]).to eq('text/plain') }
       it { expect(subject.response[:status]).to eq(200) }
       it { expect(subject.response[:size]).to eq(6) }
-      it { expect(File.open(subject.file.path).read).to eq("hello\n") }
+      it { expect(File.read(subject.file.path)).to eq("hello\n") }
     end
 
     context 'with a file without extension' do
@@ -81,7 +81,7 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.response[:type]).to be_nil }
       it { expect(subject.response[:status]).to eq(200) }
       it { expect(subject.response[:size]).to eq(13) }
-      it { expect(File.open(subject.file.path).read).to eq("hello world!\n") }
+      it { expect(File.read(subject.file.path)).to eq("hello world!\n") }
     end
   end
 
@@ -95,7 +95,7 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.response[:type]).to eq('text/plain') }
       it { expect(subject.response[:status]).to eq(200) }
       it { expect(subject.response[:size]).to eq(6) }
-      it { expect(File.open(subject.file.path).read).to eq("hello\n") }
+      it { expect(File.read(subject.file.path)).to eq("hello\n") }
     end
 
     context 'without a file already loaded' do
@@ -117,7 +117,7 @@ RSpec.describe Backend::File, vcr: true do
         it { expect(subject.response[:type]).to eq('application/octet-stream') }
         it { expect(subject.response[:status]).to eq('200') }
         it { expect(subject.response[:size]).to be > 0 }
-        it { expect(File.open(subject.file.path).read).not_to be_empty }
+        it { expect(File.read(subject.file.path)).not_to be_empty }
       end
     end
 
@@ -176,7 +176,7 @@ RSpec.describe Backend::File, vcr: true do
         subject.save({}, 'hello') # Change the content of the file
       end
 
-      it { expect(File.open(subject.reload.path).read).not_to eq(@previous_content) }
+      it { expect(File.read(subject.reload.path)).not_to eq(@previous_content) }
     end
   end
 
@@ -187,8 +187,8 @@ RSpec.describe Backend::File, vcr: true do
         subject.save!({}, 'hello') # Change the content of the file with a string
       end
 
-      it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
-      it { expect(File.open(subject.file.path).read).to eq('hello') }
+      it { expect(File.read(subject.file.path)).not_to eq(@previous_content) }
+      it { expect(File.read(subject.file.path)).to eq('hello') }
     end
 
     context 'with a file as content' do
@@ -199,8 +199,8 @@ RSpec.describe Backend::File, vcr: true do
         subject.save!
       end
 
-      it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
-      it { expect(File.open(subject.file.path).read).to eq("hello\n") }
+      it { expect(File.read(subject.file.path)).not_to eq(@previous_content) }
+      it { expect(File.read(subject.file.path)).to eq("hello\n") }
     end
   end
 

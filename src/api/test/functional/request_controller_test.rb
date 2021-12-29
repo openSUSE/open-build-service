@@ -2963,7 +2963,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # version update
-    spec = File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read
+    spec = File.read("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec")
     spec.gsub!(/^Version:.*/, 'Version: 2.42')
     spec.gsub!(/^Release:.*/, 'Release: 1')
     Backend::Connection.put('/source/home:tom:branches:home:Iggy/TestPack/TestPack.spec?user=king', spec)
@@ -3030,7 +3030,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     delete '/source/home:tom:branches:home:Iggy'
     assert_response :success
     # restore original spec file
-    Backend::Connection.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read)
+    Backend::Connection.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.read("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec"))
     assert_response :success
   end
 

@@ -4,7 +4,8 @@ module OwnerSearch
       @match_all = limit.zero?
       @deepest = limit.negative?
 
-      @maintainers = []
+      # "package_owners" could be "maintainers" or "bugowners", depending on the configuration.
+      @package_owners = []
 
       # search in each marked project
       projects_to_look_at.each do |project|
@@ -15,99 +16,99 @@ module OwnerSearch
         @devel_disabled = devel_disabled?(project)
         find_assignees(search_string)
       end
-      @maintainers
+      @package_owners
     end
 
     protected
 
-    def create_owner(pkg)
-      Owner.new(rootproject: @rootproject.name, filter: @rolefilter, project: pkg.project.name, package: pkg.name)
+    def create_owner(package)
+      Owner.new(rootproject: @rootproject.name, filter: @rolefilter, project: package.project.name, package: package.name)
     end
 
-    def extract_maintainer_project_level(owner, pkg)
+    def extract_maintainer_project_level(owner, package)
       return owner if owner.user_or_group?
 
       owner.package = nil
-      extract_from_container(owner, pkg.project, @rolefilter)
+      extract_from_container(owner, package.project, @rolefilter)
       # still not matched? Ignore it
       return owner if owner.user_or_group?
 
       nil
     end
 
-    def extract_maintainer(pkg)
-      return unless pkg && Package.check_access?(pkg)
+    def extract_maintainer(package)
+      return unless package && Package.check_access?(package)
 
-      owner = create_owner(pkg)
+      owner = create_owner(package)
       # no filter defined, so do not check for roles and just return container
       return owner if @rolefilter.empty?
 
       # lookup in package container
-      extract_from_container(owner, pkg, @rolefilter)
+      extract_from_container(owner, package, @rolefilter)
 
       # eventually fallback
-      extract_maintainer_project_level(owner, pkg)
+      extract_maintainer_project_level(owner, package)
     end
 
-    def extract_owner(pkg)
+    def extract_owner(package)
       # optional check for devel package instance first
       owner = if @devel_disabled
                 nil
               else
-                extract_maintainer(pkg.resolve_devel_package)
+                extract_maintainer(package.resolve_devel_package)
               end
-      owner || extract_maintainer(pkg)
+      owner || extract_maintainer(package)
     end
 
-    def lookup_package_owner(pkg)
-      return nil if @already_checked[pkg.id]
+    def lookup_package_owner(package)
+      return nil if @already_checked[package.id]
 
-      @already_checked[pkg.id] = 1
+      @already_checked[package.id] = 1
       @lookup_limit -= 1
 
-      m = extract_owner(pkg)
+      package_owner = extract_owner(package)
       # found entry
-      return m if m
+      return package_owner if package_owner
 
       # no match, loop about projects below with this package container name
-      pkg.project.expand_all_projects(allow_remote_projects: false).each do |prj|
-        p = prj.packages.find_by_name(pkg.name)
-        next if p.nil? || @already_checked[p.id]
+      package.project.expand_all_projects(allow_remote_projects: false).each do |project|
+        project_package = project.packages.find_by_name(package.name)
+        next if project_package.nil? || @already_checked[project_package.id]
 
-        @already_checked[p.id] = 1
+        @already_checked[project_package.id] = 1
 
-        m = extract_owner(p)
-        break if m && !@deepest
+        package_owner = extract_owner(project_package)
+        break if package_owner && !@deepest
       end
 
       # found entry
-      m
+      package_owner
     end
 
-    def parse_binary_info(b, prj)
+    def parse_binary_info(binary, project)
       # a binary without a package container? can only only happen
       # with manual snapshot repos...
-      return false if b['project'] != prj.name || b['package'].blank?
+      return false if binary['project'] != project.name || binary['package'].blank?
 
-      package_name = b['package']
-      package_name.gsub!(/\.[^.]*$/, '') if prj.is_maintenance_release?
+      package_name = binary['package']
+      package_name.gsub!(/\.[^.]*$/, '') if project.is_maintenance_release?
       package_name = Package.striping_multibuild_suffix(package_name)
-      pkg = prj.packages.find_by_name(package_name)
+      package = project.packages.find_by_name(package_name)
 
-      return false if pkg.nil? || pkg.is_patchinfo?
+      return false if package.nil? || package.is_patchinfo?
 
-      m = lookup_package_owner(pkg)
+      package_owner = lookup_package_owner(package)
 
-      return false unless m
+      return false unless package_owner
 
       # remember as deepest candidate
       if @deepest
-        @deepest_match = m
+        @deepest_match = package_owner
         return false
       end
 
       # add matching entry
-      @maintainers << m
+      @package_owners << package_owner
       @lookup_limit -= 1
       true
     end
@@ -121,14 +122,14 @@ module OwnerSearch
       return [] if data['matches'].to_i.zero?
 
       @deepest_match = nil
-      projects.each do |prj| # project link order
-        data.elements('binary').each do |b| # no order
-          next unless parse_binary_info(b, prj)
-          return @maintainers if @lookup_limit < 1 && !@match_all
+      projects.each do |project| # project link order
+        data.elements('binary').each do |binary| # no order
+          next unless parse_binary_info(binary, project)
+          return @package_owners if @lookup_limit < 1 && !@match_all
         end
       end
 
-      @maintainers << @deepest_match if @deepest_match
+      @package_owners << @deepest_match if @deepest_match
     end
   end
 end

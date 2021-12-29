@@ -284,7 +284,7 @@ module ActionDispatch
     end
 
     def load_fixture(path)
-      File.open(File.join(ActionController::TestCase.fixture_path, path)).read
+      File.read(File.join(ActionController::TestCase.fixture_path, path))
     end
 
     def load_backend_file(path)
@@ -365,7 +365,7 @@ class ActiveSupport::TestCase
   end
 
   def load_fixture(path)
-    File.open(File.join(ActionController::TestCase.fixture_path, path)).read
+    File.read(File.join(ActionController::TestCase.fixture_path, path))
   end
 
   def load_backend_file(path)

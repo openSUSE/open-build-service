@@ -156,7 +156,7 @@ RSpec.describe 'Repositories', type: :feature, js: true, vcr: true do
     before do
       login admin_user
 
-      fake_distribution_body = File.open(Rails.root.join('test/fixtures/backend/distributions.xml')).read
+      fake_distribution_body = File.read(Rails.root.join('test/fixtures/backend/distributions.xml'))
 
       stub_request(:get, 'https://api.opensuse.org/public/distributions.xml')
         .to_return(status: 200, body: fake_distribution_body, headers: {})

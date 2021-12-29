@@ -21,7 +21,7 @@ class APIError < RuntimeError
   end
 
   def errorcode
-    err = self.class.instance_variable_get('@errorcode')
+    err = self.class.instance_variable_get(:@errorcode)
     return err if err
 
     err = self.class.name.demodulize.underscore
@@ -30,11 +30,11 @@ class APIError < RuntimeError
   end
 
   def status
-    self.class.instance_variable_get('@status')
+    self.class.instance_variable_get(:@status)
   end
 
   def default_message
-    self.class.instance_variable_get('@default_message')
+    self.class.instance_variable_get(:@default_message)
   end
 end
 

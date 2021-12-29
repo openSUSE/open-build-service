@@ -87,7 +87,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/BaseDistro2.0/kgraft-GA', params: { cmd: 'branch', missingok: 1, extend_package_names: 1, add_repositories: 1, ignoredevel: 1 }
     assert_response :success
     raw_put '/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec',
-            File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+            File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
 
     # add channel
@@ -127,7 +127,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/' + kernel_incident_project + '/kgraft-incident-' + kernel_incident_id, params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', maintenance: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}/packageNew.spec",
-            File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
+            File.read("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec")
     assert_response :success
 
     # branch channel
