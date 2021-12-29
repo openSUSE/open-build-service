@@ -6,7 +6,7 @@ require_relative 'application'
 path = Rails.root.join('config', 'options.yml')
 
 begin
-  config = YAML.load_file(path, aliases: true)
+  config = YAML.load_file(path)
   if config.key?(Rails.env)
     CONFIG = config[Rails.env]
   else
