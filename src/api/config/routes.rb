@@ -435,7 +435,7 @@ OBSApi::Application.routes.draw do
     # in check_display_user before filter. Overwriting of the parameter is not
     # possible for nested resources atm.
     controller 'webui/users/bs_requests' do
-      get 'users/(:user)/requests' => :index, as: 'user_requests'
+      get 'users/(:user)/requests' => :index, constraints: cons, as: 'user_requests'
     end
 
     controller 'webui/groups/bs_requests' do
