@@ -89,7 +89,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     # upload sources in right order
     ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'simple.product'].each do |file|
       raw_put "/source/home:tom:temporary/_product/#{file}",
-              File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}").read
+              File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}")
       assert_response :success
     end
 
@@ -154,7 +154,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_equal pm.repository.name, 'BaseDistro_repo'
 
     # invalid uploads
-    put '/source/home:tom:temporary/_product/obs.group', params: File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read
+    put '/source/home:tom:temporary/_product/obs.group', params: File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group")
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: '400', origin: 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
@@ -237,7 +237,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     # upload sources in right order
     ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'SUSE_SLES.product'].each do |file|
       raw_put "/source/home:tom:temporary/_product/#{file}",
-              File.open("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}").read
+              File.read("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}")
       assert_response :success
     end
 
@@ -355,7 +355,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     # upload sources in right order
     ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'SUSE_SLES.product'].each do |file|
       raw_put "/source/home:adrian:branches:home:tom:temporary/_product/#{file}",
-              File.open("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}").read
+              File.read("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}")
       assert_response :success
     end
 

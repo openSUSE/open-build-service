@@ -7,9 +7,7 @@ RSpec.describe 'Apidocs', type: :feature, js: true do
 
   before do
     login user
-    File.open(tmp_file, 'w') do |f|
-      f.write('<html><head></head><body><h1>API Documentation</h1></body></html>')
-    end
+    File.write(tmp_file, '<html><head></head><body><h1>API Documentation</h1></body></html>')
     CONFIG['apidocs_location'] = tmp_dir
     visit apidocs_index_path
   end

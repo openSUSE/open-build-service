@@ -7,9 +7,7 @@ RSpec.describe Webui::ApidocsController, type: :controller do
       let(:tmp_file) { "#{tmp_dir}/index.html" }
 
       before do
-        File.open(tmp_file, 'w') do |f|
-          f.write('<html><head></head><body></body></html>')
-        end
+        File.write(tmp_file, '<html><head></head><body></body></html>')
         CONFIG['apidocs_location'] = tmp_dir
 
         get :index

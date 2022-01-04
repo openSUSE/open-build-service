@@ -482,7 +482,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'simple.product'].each do |file|
       raw_put "/source/BaseDistro2.0/_product/#{file}",
-              File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}").read
+              File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}")
       assert_response :success
     end
     prepare_request_with_user('maintenance_coord', 'buildservice')
@@ -956,7 +956,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/BaseDistro3/pack2/_meta', params: '<package project="BaseDistro3" name="pack2"><title/><description/></package>'
     assert_response :success
-    raw_put '/source/BaseDistro3/pack2/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put '/source/BaseDistro3/pack2/package.spec', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
 
     # FIXME: re-run schedulers and check that updates got removed

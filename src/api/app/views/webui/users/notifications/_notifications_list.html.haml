@@ -47,8 +47,8 @@
                       :ruby
                         title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
                         update_path = my_notifications_path(notification_ids: [notification.id], type: selected_filter[:type],
-                                                            project: selected_filter[:project], page: params[:page],
-                                                            show_more: params[:show_more])
+                                                            project: selected_filter[:project], group: selected_filter[:group],
+                                                            page: params[:page], show_more: params[:show_more])
                       = link_to(update_path, id: format('update-notification-%d', notification.id),
                                 method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title,
                                 data: { remote: true, 'disable-with': tag.i(class: 'fas fa-spinner fa-spin') }) do
