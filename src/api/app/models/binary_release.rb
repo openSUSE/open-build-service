@@ -195,18 +195,22 @@ class BinaryRelease < ApplicationRecord
   end
 
   def identical_to?(binary_hash)
-    # handle nil/NULL case
-    buildtime = binary_hash['buildtime'].blank? ? nil : Time.strptime(binary_hash['buildtime'].to_s, '%s')
-
     # We ignore not set binary_id in db because it got introduced later
     # we must not touch the modification time in that case
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
       (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
-      binary_buildtime == buildtime
+      binary_buildtime == binary_hash_build_time(binary_hash)
   end
 
   private
+
+  def binary_hash_build_time(binary_hash)
+    # handle nil/NULL case
+    return if binary_hash['buildtime'].blank?
+
+    Time.strptime(binary_hash['buildtime'].to_s, '%s')
+  end
 
   def product_medium
     repository.product_medium.find_by(name: medium)
