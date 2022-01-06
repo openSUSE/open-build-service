@@ -80,7 +80,7 @@ module CloudUploader
     private
 
     def write_result(result)
-      File.open(@result_path, "w+") { |file| file.write(result) }
+      File.write(@result_path, result)
     end
 
     def credentials

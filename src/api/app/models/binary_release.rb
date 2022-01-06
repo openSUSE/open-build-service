@@ -1,22 +1,12 @@
 class BinaryRelease < ApplicationRecord
-  #### Includes and extends
-  #### Constants
-  #### Self config
   class SaveError < APIError; end
 
-  #### Attributes
-  #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
   belongs_to :release_package, class_name: 'Package' # optional
   belongs_to :on_medium, class_name: 'BinaryRelease'
 
-  #### Callbacks macros: before_save, after_save, etc.
   before_create :set_release_time
 
-  #### Scopes (first the default_scope macro if is used)
-
-  #### Validations macros
-  #### Class methods using self. (public and then private)
   def self.update_binary_releases(repository, key, time = Time.now)
     begin
       notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(key))
@@ -25,7 +15,6 @@ class BinaryRelease < ApplicationRecord
       return
     end
     update_binary_releases_via_json(repository, notification_payload, time)
-    # drop it
     Backend::Api::Server.delete_notification_payload(key)
   end
 
@@ -123,14 +112,10 @@ class BinaryRelease < ApplicationRecord
 
         e.obsolete_time = time
         e.save!
-        # create an additional "removed" entry here? No one asked for it yet ....
       end
     end
   end
 
-  #### To define class methods as private use private_class_method
-  #### private
-  #### Instance methods (public and then protected/private)
   def set_release_time!
     self.binary_releasetime = Time.now
   end
@@ -195,18 +180,22 @@ class BinaryRelease < ApplicationRecord
   end
 
   def identical_to?(binary_hash)
-    # handle nil/NULL case
-    buildtime = binary_hash['buildtime'].blank? ? nil : Time.strptime(binary_hash['buildtime'].to_s, '%s')
-
     # We ignore not set binary_id in db because it got introduced later
     # we must not touch the modification time in that case
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
       (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
-      binary_buildtime == buildtime
+      binary_buildtime == binary_hash_build_time(binary_hash)
   end
 
   private
+
+  def binary_hash_build_time(binary_hash)
+    # handle nil/NULL case
+    return if binary_hash['buildtime'].blank?
+
+    Time.strptime(binary_hash['buildtime'].to_s, '%s')
+  end
 
   def product_medium
     repository.product_medium.find_by(name: medium)
@@ -233,8 +222,6 @@ class BinaryRelease < ApplicationRecord
   def update_for_product
     repository.product_update_repositories.map(&:product).uniq
   end
-
-  #### Alias of methods
 end
 
 # == Schema Information
