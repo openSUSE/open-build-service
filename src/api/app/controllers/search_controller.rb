@@ -71,13 +71,27 @@ class SearchController < ApplicationController
     end
   end
 
-  def owner_package_or_project
-    return if params[:project].blank?
+  def owner_packages_or_projects
+    return if params[:project].blank? && params[:package].blank?
 
     if params[:package].present?
-      Package.get_by_project_and_name(params[:project], params[:package])
+      if params[:project].blank?
+        attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
+        # Find marked projects
+        projects = Project.find_by_attribute_type(attribute)
+        return projects unless params[:package]
+
+        pkgs = []
+        projects.each do |prj|
+          pkgs << prj.find_package(params[:package])
+        end
+        pkgs.delete(nil)
+        return pkgs
+      end
+
+      [Package.get_by_project_and_name(params[:project], params[:package])]
     else
-      Project.get_by_name(params[:project])
+      [Project.get_by_name(params[:project])]
     end
   end
 
@@ -89,13 +103,17 @@ class SearchController < ApplicationController
     elsif (obj = owner_group_or_user)
       owners = OwnerSearch::Owned.new(params).for(obj)
     end
-    if owners.nil? && (obj = owner_package_or_project)
-      owners = OwnerSearch::Container.new(params).for(obj)
+    if owners.nil? && (objs = owner_packages_or_projects)
+      objs.each do |object|
+        owners = OwnerSearch::Container.new(params).for(object)
+        @owners ||= owners.map(&:to_hash)
+      end
+      return @owners unless owners.nil?
     end
 
     if owners.nil?
       render_error status: 400, errorcode: 'no_binary',
-                   message: "The search needs at least a 'binary' or 'user' parameter"
+                   message: "The search needs at least a 'binary', 'package' or 'user' parameter"
       return
     end
 

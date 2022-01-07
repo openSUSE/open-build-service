@@ -509,11 +509,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/owner?user=fred&filter=INVALID'
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
-    get '/search/owner?package=TestPack'
-    assert_response 400
-    assert_xml_tag tag: 'status', attributes: { code: 'no_binary' }
     get '/search/owner?project=DOESNOTEXIST'
     assert_response 404
+
+    # search by package container name, base projects are set via attribute
+    get '/search/owner?package=TestPack'
+    assert_response :success
+    assert_xml_tag tag: 'owner', attributes: { project: 'home:Iggy', package: 'TestPack' }
 
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name('home:Iggy', 'TestPack')
