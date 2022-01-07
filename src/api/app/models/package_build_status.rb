@@ -41,6 +41,9 @@ class PackageBuildStatus
       end
     end
     archs.uniq!
+
+    # TODO
+    # unless trepo will evaluate true even if trepo is empty. We should use if trepo.blank? instead
     raise NoRepositoriesFound, 'Can not find repository building against target' unless trepo
 
     gather_target_packages(trepo)
