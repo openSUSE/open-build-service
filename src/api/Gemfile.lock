@@ -473,7 +473,7 @@ GEM
     thor (1.1.0)
     tilt (2.0.10)
     timecop (0.9.4)
-    tins (1.30.0)
+    tins (1.31.0)
       sync
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
