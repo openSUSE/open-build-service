@@ -36,10 +36,10 @@ class Review < ApplicationRecord
   validate :validate_not_self_assigned
   validates_with AllowedUserValidator
 
-  belongs_to :user
-  belongs_to :group
-  belongs_to :project
-  belongs_to :package
+  belongs_to :user, optional: true
+  belongs_to :group, optional: true
+  belongs_to :project, optional: true
+  belongs_to :package, optional: true
 
   belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
   has_one :review_assigned_to, class_name: 'Review'

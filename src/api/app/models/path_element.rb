@@ -6,7 +6,6 @@ class PathElement < ApplicationRecord
   # FIXME: This should be called repository
   belongs_to :link, class_name: 'Repository', foreign_key: 'repository_id', inverse_of: :links
 
-  validates :link, :repository, presence: true
   validates :repository, uniqueness: { scope: [:link, :kind] }
 end
 

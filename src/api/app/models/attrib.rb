@@ -8,8 +8,8 @@ class Attrib < ApplicationRecord
   delegate :namespace, to: :attrib_type
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :package
-  belongs_to :project
+  belongs_to :package, optional: true
+  belongs_to :project, optional: true
   belongs_to :attrib_type
   has_many :attrib_issues
   has_many :issues, through: :attrib_issues, dependent: :destroy
@@ -21,7 +21,6 @@ class Attrib < ApplicationRecord
   #### Validations macros
   validates_associated :values
   validates_associated :issues
-  validates :attrib_type, presence: true
   # Either we belong to a project or to a package
   validates :package, presence: true, if: proc { |attrib| attrib.project_id.nil? }
   validates :package_id, absence: { message: "can't also be present" }, if: proc { |attrib| attrib.project_id.present? }

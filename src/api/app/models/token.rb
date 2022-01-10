@@ -12,7 +12,6 @@ class Token < ApplicationRecord
   end
 
   validates :name, length: { maximum: 64 }
-  validates :user, presence: true
   validates :string, uniqueness: { case_sensitive: false }
   validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
 

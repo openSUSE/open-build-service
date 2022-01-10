@@ -17,7 +17,6 @@ class Status::Report < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
-  validates :checkable, presence: true
   validates :uuid, presence: true
 
   validates_each :checkable do |record, attr, value|
