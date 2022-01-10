@@ -41,4 +41,38 @@ RSpec.describe PackageBuildStatus, vcr: true do
     it { expect { subject }.not_to raise_error }
     it { expect(subject).to be_a(Hash) }
   end
+
+  describe '#check_everbuilt' do
+    let(:arch_name) { 'i386' }
+    let(:repo_hash) { { 'name' => 'foo' } }
+    let(:package_build_status) { described_class.new(package) }
+
+    subject { package_build_status.check_everbuilt(repo_hash, arch_name) }
+
+    context 'no job history' do
+      it { expect { subject }.not_to raise_error }
+      it { expect(subject.instance_variable_get(:@everbuilt)).to be_falsey }
+    end
+
+    context 'with job history' do
+      let(:md5sum) { 'c157a79031e1c40f85931829bc5fc552' }
+      let(:local_job_history) do
+        LocalJobHistory.new(
+          arch: arch_name,
+          repository: repo_hash['name'],
+          verifymd5: md5sum,
+          srcmd5: md5sum,
+          code: 'succeeded'
+        )
+      end
+
+      before do
+        package_build_status.instance_variable_set(:@srcmd5, md5sum)
+        allow(Backend::Api::BuildResults::JobHistory).to receive(:for_package).and_return([local_job_history])
+        subject
+      end
+
+      it { expect(package_build_status.instance_variable_get(:@everbuilt)).to be_truthy }
+    end
+  end
 end
