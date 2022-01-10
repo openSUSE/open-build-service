@@ -1,6 +1,6 @@
 module Kiwi
   class Package < ApplicationRecord
-    belongs_to :package_group
+    belongs_to :package_group, optional: true
     has_one :kiwi_image, through: :package_groups
 
     validates :name, presence: { message: 'can\'t be blank' }

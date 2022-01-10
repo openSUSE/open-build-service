@@ -11,7 +11,7 @@ module Kiwi
     #### Attributes
 
     #### Associations macros (Belongs to, Has one, Has many)
-    belongs_to :image
+    belongs_to :image, optional: true
 
     #### Callbacks macros: before_save, after_save, etc.
     before_validation :map_to_allowed_repository_types, on: :create

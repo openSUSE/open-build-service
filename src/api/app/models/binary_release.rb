@@ -2,8 +2,8 @@ class BinaryRelease < ApplicationRecord
   class SaveError < APIError; end
 
   belongs_to :repository
-  belongs_to :release_package, class_name: 'Package' # optional
-  belongs_to :on_medium, class_name: 'BinaryRelease'
+  belongs_to :release_package, class_name: 'Package', optional: true
+  belongs_to :on_medium, class_name: 'BinaryRelease', optional: true
 
   before_create :set_release_time
 

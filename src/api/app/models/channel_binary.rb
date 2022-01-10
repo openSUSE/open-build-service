@@ -1,8 +1,8 @@
 class ChannelBinary < ApplicationRecord
   belongs_to :channel_binary_list
-  belongs_to :project
-  belongs_to :repository
-  belongs_to :architecture
+  belongs_to :project, optional: true
+  belongs_to :repository, optional: true
+  belongs_to :architecture, optional: true
 
   validate do |channel_binary|
     if channel_binary.project && channel_binary.repository

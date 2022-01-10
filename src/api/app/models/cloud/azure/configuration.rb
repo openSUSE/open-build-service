@@ -8,7 +8,7 @@ module Cloud
 
       before_save :encrypt_credentials
 
-      belongs_to :user
+      belongs_to :user, optional: true
 
       def self.table_name_prefix
         'cloud_azure_'

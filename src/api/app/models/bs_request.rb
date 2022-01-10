@@ -77,7 +77,7 @@ class BsRequest < ApplicationRecord
   has_many :review_history_elements, through: :reviews, source: :history_elements
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
   has_many :target_project_objects, through: :bs_request_actions
-  belongs_to :staging_project, class_name: 'Project'
+  belongs_to :staging_project, class_name: 'Project', optional: true
   has_one :request_exclusion, class_name: 'Staging::RequestExclusion', dependent: :destroy
   has_many :not_accepted_reviews, -> { where.not(state: :accepted) }, class_name: 'Review'
   has_many :notifications, as: :notifiable, dependent: :delete_all

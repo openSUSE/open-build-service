@@ -1,5 +1,5 @@
 class Kiwi::Preference < ApplicationRecord
-  belongs_to :image, inverse_of: :preferences
+  belongs_to :image, inverse_of: :preferences, optional: true
 
   enum type_image: {
     btrfs: 0,

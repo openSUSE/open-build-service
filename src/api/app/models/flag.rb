@@ -1,8 +1,8 @@
 class Flag < ApplicationRecord
-  belongs_to :project, inverse_of: :flags
-  belongs_to :package, inverse_of: :flags
+  belongs_to :project, inverse_of: :flags, optional: true
+  belongs_to :package, inverse_of: :flags, optional: true
 
-  belongs_to :architecture
+  belongs_to :architecture, optional: true
 
   scope :of_type, ->(type) { where(flag: type) }
 
