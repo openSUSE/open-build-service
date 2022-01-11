@@ -698,7 +698,7 @@ sub signjob {
 	my @signmode;
 	@signmode = ('-r', '-T', $signtime) if $signtime;
 	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
-	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz|zst)$/;
+	@signmode = ('-D', '-4') if $signfile =~ /\.pkg\.tar\.(?:gz|xz|zst)$/;
 	@signmode = ('-a') if $signfile =~ /\.AppImage$/;
 	@signmode = ('-d') if $signfile =~ /\.sha256$/;
 	if ($signfile =~ /\.key$/s) {
