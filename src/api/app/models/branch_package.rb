@@ -257,7 +257,11 @@ class BranchPackage
 
     if params[:newinstance]
       p[:link_target_project] = Project.get_by_name(params[:project])
-      p[:target_package] = p[:package].name
+      p[:target_package] = if p[:package].is_a?(Package)
+                             p[:package].name
+                           else
+                             p[:package]
+                           end
       p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
     end
     if @extend_names

@@ -143,6 +143,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                         requestid: bs_request.number,
                         maintenance: 1,
                         force: 1,
+                        newinstance: 1,
                         comment: 'Initial new branch from specified release project',
                         project: target_releaseproject, package: package_name }
       # accept branching from former update incidents or GM (for kgraft case)
