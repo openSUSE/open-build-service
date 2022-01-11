@@ -184,7 +184,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.15.4)
+    ffi (1.15.5)
     flipper (0.23.0)
     flipper-active_record (0.23.0)
       activerecord (>= 4.2, < 8)
