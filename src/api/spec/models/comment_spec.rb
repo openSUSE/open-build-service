@@ -26,8 +26,6 @@ RSpec.describe Comment do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:body) }
-    it { is_expected.to validate_presence_of(:commentable) }
-    it { is_expected.to validate_presence_of(:user) }
 
     it {
       expect { create(:comment_package, parent: comment_package) }.to raise_error(
