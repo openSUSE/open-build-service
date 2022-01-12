@@ -162,6 +162,8 @@ class Package < ApplicationRecord
     prj = internal_get_project(project)
     return unless prj # remote prjs
 
+    return nil if prj.scmsync.present?
+
     if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
     elsif pkg.nil?
