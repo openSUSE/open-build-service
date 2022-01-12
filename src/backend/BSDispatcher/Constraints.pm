@@ -167,7 +167,7 @@ sub mergeconstraints {
       }
     }
     if ($con2->{'hardware'}) {
-      for my $el (qw{processors jobs disk memory physicalmemory}) {
+      for my $el (qw{processors jobs disk memory memoryperjob physicalmemory}) {
         next unless defined $con2->{'hardware'}->{$el};
         $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? BSUtil::clone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
       }
