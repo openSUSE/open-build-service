@@ -33,7 +33,7 @@ module Webui
       def bs_request_params
         # We remove any key from the empty nested attribute if its value is empty
         # This is for target_package which might be empty since it's not required
-        params[:bs_request][:bs_request_actions_attributes]['0'].reject! { |_key, value| value.empty? }
+        params[:bs_request][:bs_request_actions_attributes]['0'].compact_blank!
 
         params.require(:bs_request).permit(:description,
                                            bs_request_actions_attributes: [:target_package, :target_project,

@@ -8,7 +8,7 @@ class ConsistencyCheckJob < ApplicationJob
   def check_one_project(project, fix = false)
     package_existence_consistency_check(project, fix)
     @errors << project_meta_check(project, fix)
-    @errors.flatten.reject(&:empty?).join("\n")
+    @errors.flatten.compact_blank.join("\n")
   end
 
   # method called by the rake task `fix_project`
@@ -28,7 +28,7 @@ class ConsistencyCheckJob < ApplicationJob
       answer = import_project_from_backend(project_name)
       if answer.present?
         @errors << answer
-        return @errors.flatten.reject(&:empty?).join("\n")
+        return @errors.flatten.compact_blank.join("\n")
       end
     ensure
       project = Project.get_by_name(project_name)
@@ -48,7 +48,7 @@ class ConsistencyCheckJob < ApplicationJob
   private
 
   def errors
-    @errors.flatten.reject(&:empty?)
+    @errors.flatten.compact_blank
   end
 
   def initialize
