@@ -138,9 +138,9 @@ jobs:
                 command: sudo npm install -g jshint
             - run:
                 name: Run jshint
-                command: cd src/api && jshint app/assets/javascripts 
+                command: cd src/api && jshint app/assets/javascripts
       - when:
-          condition: << pipeline.parameters.run-root-rubocop >> 
+          condition: << pipeline.parameters.run-root-rubocop >>
           steps:
             - *restore_rubocop_cache
             - run:
@@ -158,6 +158,7 @@ jobs:
       - when:
           condition: << pipeline.parameters.run-haml-linter >>
           steps:
+            - run: *install_dependencies
             - run:
                 name: Run HAML linter
                 command: |
