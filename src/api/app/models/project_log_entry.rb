@@ -2,8 +2,8 @@
 # Log entries are created from events and deleted after a time threshold
 # @see ProjectLogRotate
 class ProjectLogEntry < ApplicationRecord
-  belongs_to :project
-  belongs_to :bs_request
+  belongs_to :project, optional: true
+  belongs_to :bs_request, optional: true
 
   validates :event_type, :datetime, :project_id, presence: true
 

@@ -4,8 +4,6 @@ class GroupsUser < ApplicationRecord
   belongs_to :user
   belongs_to :group
 
-  validates :user, presence: true
-  validates :group, presence: true
   validate :validate_duplicates, on: :create
   validates_with AllowedUserValidator
 

@@ -6,7 +6,7 @@ RSpec.describe Token, type: :model do
 
     it { expect(release_token).to validate_uniqueness_of(:string).case_insensitive }
     it { is_expected.to have_secure_token(:string) }
-    it { is_expected.to validate_presence_of(:user) }
+    it { is_expected.to belong_to(:user) }
   end
 
   describe '.token_type' do

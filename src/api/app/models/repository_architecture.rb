@@ -6,7 +6,7 @@ class RepositoryArchitecture < ApplicationRecord
 
   acts_as_list scope: [:repository_id], top_of_list: 0
 
-  validates :repository, :architecture, :position, presence: true
+  validates :position, presence: true
   validates :repository, uniqueness: { scope: :architecture }
 
   def build_id

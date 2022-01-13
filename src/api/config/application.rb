@@ -39,8 +39,6 @@ module OBSApi
 
     # Enable rails version 6.0 defaults
     config.load_defaults(6.0)
-    # Require `belongs_to` associations by default. Previous versions had false.
-    config.active_record.belongs_to_required_by_default = false
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)

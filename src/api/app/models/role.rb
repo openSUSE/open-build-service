@@ -25,11 +25,11 @@ class Role < ApplicationRecord
   validates :title, uniqueness: { case_sensitive: true,
                                   message: 'is the name of an already existing role' }
 
-  belongs_to :groups_roles
-  belongs_to :attrib_type_modifiable_bies
-  belongs_to :relationships
-  belongs_to :roles_static_permissions
-  belongs_to :roles_users
+  belongs_to :groups_roles, optional: true
+  belongs_to :attrib_type_modifiable_bies, optional: true
+  belongs_to :relationships, optional: true
+  belongs_to :roles_static_permissions, optional: true
+  belongs_to :roles_users, optional: true
 
   # roles have n:m relations for users
   has_and_belongs_to_many :users, -> { distinct }

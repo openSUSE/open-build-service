@@ -1,7 +1,7 @@
 class Token < ApplicationRecord
   belongs_to :user
   has_many :event_subscriptions, dependent: :destroy
-  belongs_to :package, inverse_of: :tokens
+  belongs_to :package, inverse_of: :tokens, optional: true
 
   attr_accessor :object_to_authorize
 
@@ -12,7 +12,6 @@ class Token < ApplicationRecord
   end
 
   validates :name, length: { maximum: 64 }
-  validates :user, presence: true
   validates :string, uniqueness: { case_sensitive: false }
   validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
 

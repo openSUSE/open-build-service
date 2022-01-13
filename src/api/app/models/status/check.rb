@@ -19,7 +19,7 @@ class Status::Check < ApplicationRecord
   validates :name, uniqueness: { scope: :status_report, case_sensitive: true }
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :status_report, class_name: 'Status::Report', foreign_key: 'status_reports_id'
+  belongs_to :status_report, class_name: 'Status::Report', foreign_key: 'status_reports_id', optional: true
 
   #### Callbacks macros: before_save, after_save, etc.
 

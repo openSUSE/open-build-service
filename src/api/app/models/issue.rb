@@ -6,7 +6,7 @@ class Issue < ApplicationRecord
   has_many :package_issues, dependent: :delete_all
 
   belongs_to :issue_tracker
-  belongs_to :owner, class_name: 'User'
+  belongs_to :owner, class_name: 'User', optional: true
 
   validate :name_validation, on: :create
 

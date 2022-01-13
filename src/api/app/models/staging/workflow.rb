@@ -30,8 +30,6 @@ class Staging::Workflow < ApplicationRecord
   has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id', dependent: :destroy
   has_many :excluded_requests, through: :request_exclusions, source: :bs_request
 
-  validates :managers_group, :project, presence: true
-
   after_create :create_staging_projects
   after_create :add_reviewer_group
   before_update :update_managers_group

@@ -2,7 +2,7 @@ class WorkflowRun < ApplicationRecord
   validates :response_url, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 
-  belongs_to :token, class_name: 'Token::Workflow'
+  belongs_to :token, class_name: 'Token::Workflow', optional: true
   paginates_per 20
 
   enum status: {

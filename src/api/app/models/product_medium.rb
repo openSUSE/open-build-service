@@ -1,7 +1,7 @@
 class ProductMedium < ApplicationRecord
-  belongs_to :product
-  belongs_to :repository
-  belongs_to :arch_filter, class_name: 'Architecture'
+  belongs_to :product, optional: true
+  belongs_to :repository, optional: true
+  belongs_to :arch_filter, class_name: 'Architecture', optional: true
 end
 
 # == Schema Information

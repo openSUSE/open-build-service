@@ -21,8 +21,8 @@ RSpec.describe Staging::Workflow, type: :model do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_presence_of(:managers_group) }
-    it { is_expected.to validate_presence_of(:project) }
+    it { is_expected.to belong_to(:managers_group) }
+    it { is_expected.to belong_to(:project) }
   end
 
   context 'when created' do

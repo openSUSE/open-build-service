@@ -19,7 +19,6 @@ module Kiwi
     #### Validations macros
     validates :name, presence: true
     validates :description, presence: true
-    validates :image, presence: true
     validates :selected, inclusion: { in: [true, false] }
     validates :name, uniqueness: {
       scope: :image,

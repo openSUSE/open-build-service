@@ -26,10 +26,10 @@ class EventSubscription < ApplicationRecord
 
   serialize :payload, JSON
 
-  belongs_to :user, inverse_of: :event_subscriptions
-  belongs_to :group, inverse_of: :event_subscriptions
-  belongs_to :token, inverse_of: :event_subscriptions
-  belongs_to :package
+  belongs_to :user, inverse_of: :event_subscriptions, optional: true
+  belongs_to :group, inverse_of: :event_subscriptions, optional: true
+  belongs_to :token, inverse_of: :event_subscriptions, optional: true
+  belongs_to :package, optional: true
 
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,

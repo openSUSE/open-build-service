@@ -21,7 +21,7 @@ class Package < ApplicationRecord
                        '.xpm', '.xz', '.z', '.zip', '.ttf'].freeze
 
   has_many :relationships, dependent: :destroy, inverse_of: :package
-  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
+  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package, optional: true
   accepts_nested_attributes_for :kiwi_image
 
   belongs_to :project, inverse_of: :packages
@@ -37,7 +37,7 @@ class Package < ApplicationRecord
 
   has_many :flags, -> { order(:position) }, dependent: :delete_all, inverse_of: :package
 
-  belongs_to :develpackage, class_name: 'Package'
+  belongs_to :develpackage, class_name: 'Package', optional: true
   has_many :develpackages, class_name: 'Package', foreign_key: 'develpackage_id'
 
   has_many :attribs, dependent: :destroy

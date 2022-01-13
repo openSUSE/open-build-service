@@ -4,7 +4,7 @@ class Comment < ApplicationRecord
   belongs_to :commentable, polymorphic: true # belongs to a Project, Package or BsRequest
   belongs_to :user, inverse_of: :comments
 
-  validates :body, :commentable, :user, presence: true
+  validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
   validates :body, length: { maximum: 65_535 }
   validates :body, format: { with: /\A[^\u0000]*\Z/,
