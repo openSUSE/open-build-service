@@ -14,6 +14,55 @@ class WorkflowRun < ApplicationRecord
   def update_to_fail(message)
     update(response_body: message, status: 'fail')
   end
+
+  def payload
+    @payload ||= JSON.parse(request_payload)
+  end
+
+  def hook_action
+    payload['action']
+  end
+
+  def parsed_request_headers
+    request_headers.split("\n").each_with_object({}) do |h, headers|
+      k, v = h.split(':')
+      headers[k] = v.strip
+    end
+  end
+
+  def hook_event
+    parsed_request_headers['HTTP_X_GITHUB_EVENT']
+  end
+
+  def repository_name
+    payload['repository']['full_name']
+  end
+
+  def repository_url
+    payload['repository']['html_url']
+  end
+
+  def hook_source_name
+    case hook_event
+    when 'pull_request'
+      "##{payload['pull_request']['number']}"
+    when 'push'
+      "#{payload.dig('head_commit', 'id')}"
+    else
+      payload['repository']['full_name']
+    end
+  end
+
+  def hook_source_url
+    case hook_event
+    when 'pull_request'
+      payload['pull_request']['url']
+    when 'push'
+      payload.dig('head_commit', 'url')
+    else
+      payload['repository']['html_url']
+    end
+  end
 end
 
 # == Schema Information

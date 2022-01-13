@@ -25,7 +25,14 @@
                       - else
                         %i.fas.fa-exclamation-triangle.text-danger{ title: 'Status: failed' }
                   .col.text-left
-                    Workflow Run #{workflow_run.id}
+                    = workflow_run.hook_event.humanize
+                    Event
+                    - if workflow_run.hook_action
+                      %span.badge.badge-primary= workflow_run.hook_action.humanize
+                  .col.text-left
+                    = link_to workflow_run.repository_name, workflow_run.repository_url
+                    - if workflow_run.hook_source_name
+                      = link_to workflow_run.hook_source_name, workflow_run.hook_source_url, { class: 'link-secondary' }
                   .col.text-right
                     = workflow_run.created_at
           .collapse{ id: "workflow-run#{workflow_run.id}", aria: { labelledby: "#workflow-run-heading#{workflow_run.id}" },
