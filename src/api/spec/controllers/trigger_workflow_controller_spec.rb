@@ -60,10 +60,44 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
       end
 
       it { expect(response).to have_http_status(:bad_request) }
+      it { expect(WorkflowRun.count).to eq(0) }
+    end
 
-      it { expect(WorkflowRun.count).to eq(1) }
-      it { expect(WorkflowRun.last.status).to eq('fail') }
-      it { expect(response.body).to include(WorkflowRun.last.response_body) }
+    context 'scm action is invalid' do
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, user: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:github_payload) do
+        {
+          action: 'assigned',
+          pull_request: {
+            head: {
+              repo: { full_name: 'username/test_repo' }
+            },
+            base: {
+              ref: 'main',
+              repo: { full_name: 'rubhanazeem/hello_world' }
+            }
+          },
+          number: 4,
+          sender: { url: 'https://api.github.com' }
+        }
+      end
+
+      before do
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
+        allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+        post :create, body: github_payload.to_json
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+      it { expect(WorkflowRun.count).to eq(0) }
     end
 
     context 'scm payload is invalid' do
@@ -84,10 +118,6 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
         end
 
         it { expect(response).to have_http_status(:bad_request) }
-
-        it { expect(WorkflowRun.count).to eq(1) }
-        it { expect(WorkflowRun.last.status).to eq('fail') }
-        it { expect(response.body).to include(WorkflowRun.last.response_body) }
       end
 
       context 'payload can not be parsed' do
@@ -96,10 +126,6 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
         end
 
         it { expect(response).to have_http_status(:bad_request) }
-
-        it { expect(WorkflowRun.count).to eq(1) }
-        it { expect(WorkflowRun.last.status).to eq('fail') }
-        it { expect(response.body).to include(WorkflowRun.last.response_body) }
       end
     end
 
