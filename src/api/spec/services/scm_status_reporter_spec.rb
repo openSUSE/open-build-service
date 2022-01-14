@@ -92,9 +92,12 @@ RSpec.describe SCMStatusReporter, type: :service do
 
       subject { scm_status_reporter.call }
 
-      it 'sends a short commit sha' do
+      before do
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
         subject
+      end
+
+      it 'sends a short commit sha' do
         expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, status_options)
       end
     end
@@ -121,9 +124,12 @@ RSpec.describe SCMStatusReporter, type: :service do
 
       subject { scm_status_reporter.call }
 
-      it 'sends a short commit sha' do
+      before do
         allow(Gitlab).to receive(:client).and_return(gitlab_instance)
         subject
+      end
+
+      it 'sends a short commit sha' do
         expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state, status_options)
       end
     end
