@@ -2,14 +2,12 @@ class Relationship < ApplicationRecord
   belongs_to :role
 
   # only one is true
-  belongs_to :user, inverse_of: :relationships
-  belongs_to :group, inverse_of: :relationships
+  belongs_to :user, inverse_of: :relationships, optional: true
+  belongs_to :group, inverse_of: :relationships, optional: true
   has_many :groups_users, through: :group
 
-  belongs_to :project, inverse_of: :relationships
-  belongs_to :package, inverse_of: :relationships
-
-  validates :role, presence: true
+  belongs_to :project, inverse_of: :relationships, optional: true
+  belongs_to :package, inverse_of: :relationships, optional: true
 
   validate :check_global_role
 
@@ -25,6 +23,7 @@ class Relationship < ApplicationRecord
   validates :package, presence: {
     message: 'Neither package nor project exists'
   }, unless: proc { |relationship| relationship.project.present? }
+
   validates :package, absence: {
     message: 'Package and project can not exist at the same time'
   }, if: proc { |relationship| relationship.project.present? }
@@ -32,6 +31,7 @@ class Relationship < ApplicationRecord
   validates :user, presence: {
     message: 'Neither user nor group exists'
   }, unless: proc { |relationship| relationship.group.present? }
+
   validates :user, absence: {
     message: 'User and group can not exist at the same time'
   }, if: proc { |relationship| relationship.group.present? }

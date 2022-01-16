@@ -1,8 +1,8 @@
 class AttribTypeModifiableBy < ApplicationRecord
   belongs_to :attrib_type
-  belongs_to :user
-  belongs_to :group
-  belongs_to :role
+  belongs_to :user, optional: true
+  belongs_to :group, optional: true
+  belongs_to :role, optional: true
 end
 
 # == Schema Information

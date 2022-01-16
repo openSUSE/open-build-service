@@ -5,7 +5,7 @@ class BsRequestActionAcceptInfo < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :bs_request_action
+  belongs_to :bs_request_action, optional: true
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)

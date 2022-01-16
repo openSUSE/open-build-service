@@ -9,7 +9,7 @@ class Review < ApplicationRecord
 
   VALID_REVIEW_STATES = [:new, :declined, :accepted, :superseded, :obsoleted].freeze
 
-  belongs_to :bs_request, touch: true
+  belongs_to :bs_request, touch: true, optional: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
   has_many :history_elements_assigned, class_name: 'HistoryElement::ReviewAssigned', foreign_key: :op_object_id
   has_many :notifications, as: :notifiable, dependent: :delete_all
@@ -36,12 +36,12 @@ class Review < ApplicationRecord
   validate :validate_not_self_assigned
   validates_with AllowedUserValidator
 
-  belongs_to :user
-  belongs_to :group
-  belongs_to :project
-  belongs_to :package
+  belongs_to :user, optional: true
+  belongs_to :group, optional: true
+  belongs_to :project, optional: true
+  belongs_to :package, optional: true
 
-  belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
+  belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id, optional: true
   has_one :review_assigned_to, class_name: 'Review'
 
   scope :assigned, lambda {

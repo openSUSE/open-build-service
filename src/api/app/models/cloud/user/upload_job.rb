@@ -1,7 +1,7 @@
 module Cloud
   module User
     class UploadJob < ApplicationRecord
-      belongs_to :user, class_name: '::User'
+      belongs_to :user, class_name: '::User', optional: true
 
       validates :job_id, presence: true, uniqueness: true
 

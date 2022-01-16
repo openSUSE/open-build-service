@@ -6,7 +6,7 @@ class BackendPackage < ApplicationRecord
 
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :links_to, class_name: 'Package'
+  belongs_to :links_to, class_name: 'Package', optional: true
   belongs_to :package, inverse_of: :backend_package
 
   #### Callbacks macros: before_save, after_save, etc.

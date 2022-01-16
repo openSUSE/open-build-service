@@ -28,7 +28,7 @@ class User < ApplicationRecord
 
   has_many :event_subscriptions, inverse_of: :user
 
-  belongs_to :owner, class_name: 'User'
+  belongs_to :owner, class_name: 'User', optional: true
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
 
   has_many :requests_created, foreign_key: 'creator', primary_key: :login, class_name: 'BsRequest'

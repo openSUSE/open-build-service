@@ -1,8 +1,8 @@
 class ChannelBinaryList < ApplicationRecord
   belongs_to :channel
-  belongs_to :project
-  belongs_to :repository
-  belongs_to :architecture
+  belongs_to :project, optional: true
+  belongs_to :repository, optional: true
+  belongs_to :architecture, optional: true
   has_many :channel_binaries, dependent: :delete_all
 
   def self._sync_keys

@@ -67,7 +67,7 @@ RSpec.describe BsRequestAction do
     it_behaves_like 'it skips validation for type', 'maintenance_incident'
   end
 
-  it { is_expected.to belong_to(:bs_request).touch(true) }
+  it { is_expected.to belong_to(:bs_request).touch(true).optional }
 
   describe '.set_source_and_target_associations' do
     let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }

@@ -1,8 +1,8 @@
 # The maintenance incident class represents the entry in the database.
 #
 class MaintenanceIncident < ApplicationRecord
-  belongs_to :project, class_name: 'Project', foreign_key: :db_project_id
-  belongs_to :maintenance_db_project, class_name: 'Project'
+  belongs_to :project, class_name: 'Project', foreign_key: :db_project_id, optional: true
+  belongs_to :maintenance_db_project, class_name: 'Project', optional: true
 
   # <project> - The maintenance project
   # target_project - The maintenance incident project

@@ -1,5 +1,5 @@
 class PackageKind < ApplicationRecord
-  belongs_to :package
+  belongs_to :package, optional: true
 end
 
 # == Schema Information

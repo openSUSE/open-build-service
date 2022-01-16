@@ -6,14 +6,54 @@ RSpec.describe BinaryRelease do
       'disturl' => '/foo/bar',
       'supportstatus' => 'foo',
       'binaryid' => '31337',
-      'buildtime' => '1640772016'
+      'buildtime' => '1640772016',
+      'binaryarch' => 'i386',
+      'name' => 'foo'
     }
   end
 
-  describe '.update_binary_releases_via_json' do
-    let(:user) { create(:confirmed_user, :with_home, login: 'foo') }
-    let!(:repository) { create(:repository, project: user.home_project) }
+  let(:user) { create(:confirmed_user, :with_home, login: 'foo') }
+  let!(:repository) { create(:repository, project: user.home_project) }
 
+  describe '.update_binary_releases' do
+    subject { described_class.update_binary_releases(repository, 'foo') }
+
+    context 'no binary release existed before' do
+      before do
+        allow(Backend::Api::Server).to receive(:notification_payload).and_return([binary_hash].to_json)
+        allow(Backend::Api::Server).to receive(:delete_notification_payload).and_return('')
+      end
+
+      it { expect { subject }.not_to raise_error }
+      it { expect { subject }.to change(BinaryRelease, :count).by(1) }
+    end
+
+    context 'an existing binary release should be updated' do
+      let!(:binary_release) { create(:binary_release, repository: repository) }
+      let(:repeated_binary_hash) do
+        {
+          'disturl' => binary_release.binary_disturl,
+          'supportstatus' => binary_release.binary_supportstatus,
+          'binaryid' => '31338', # change a value to avoid both objects to be identical
+          'buildtime' => binary_release.binary_buildtime,
+          'name' => binary_release.binary_name,
+          'binaryarch' => binary_release.binary_arch
+        }
+      end
+
+      before do
+        allow(Backend::Api::Server).to receive(:notification_payload).and_return([repeated_binary_hash].to_json)
+        allow(Backend::Api::Server).to receive(:delete_notification_payload).and_return('')
+        subject
+      end
+
+      it { expect(BinaryRelease.first.modify_time).not_to be_nil }
+      it { expect(BinaryRelease.last.binary_id).to eq('31338') }
+      it { expect(BinaryRelease.last.operation).to eq('modified') }
+    end
+  end
+
+  describe '.update_binary_releases_via_json' do
     context 'with empty json' do
       it { expect { described_class.update_binary_releases_via_json(repository, []) }.not_to raise_error }
     end

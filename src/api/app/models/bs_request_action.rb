@@ -10,11 +10,11 @@ class BsRequestAction < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :bs_request, touch: true
+  belongs_to :bs_request, touch: true, optional: true
   has_one :bs_request_action_accept_info, dependent: :delete
 
-  belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id'
-  belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id'
+  belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id', optional: true
+  belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id', optional: true
 
   scope :bs_request_ids_of_involved_projects, ->(project_ids) { where(target_project_id: project_ids).select(:bs_request_id) }
   scope :bs_request_ids_of_involved_packages, ->(package_ids) { where(target_package_id: package_ids).select(:bs_request_id) }

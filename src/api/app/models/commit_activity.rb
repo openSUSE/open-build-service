@@ -1,7 +1,7 @@
 class CommitActivity < ApplicationRecord
   belongs_to :user
 
-  validates :user, :date, :project, :package, :count, presence: true
+  validates :date, :project, :package, :count, presence: true
 
   validates :count, numericality: { more_than_or_equal_to: 1,
                                     only_integer: true }

@@ -61,7 +61,7 @@ class Project < ApplicationRecord
 
   # develproject is history, use develpackage instead. FIXME3.0: clean this up
   has_many :develprojects, class_name: 'Project', foreign_key: 'develproject_id'
-  belongs_to :develproject, class_name: 'Project'
+  belongs_to :develproject, class_name: 'Project', optional: true
 
   has_many :comments, as: :commentable, dependent: :destroy
 
