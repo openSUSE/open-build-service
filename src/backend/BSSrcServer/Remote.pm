@@ -200,11 +200,20 @@ sub fetchremoteconfig {
     }
   }
   print "fetching remote project config for $projid\n";
-  my $param = {
-    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
-    'timeout' => 60,
-    'proxy' => $proj->{'remoteproxy'},
-  };
+  my $param;
+  if (defined $proxy) {
+    $param = {
+      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
+      'timeout' => 60,
+      'proxy' => $proxy,
+    };
+  } else {
+    $param = {
+      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
+      'timeout' => 60,
+      'proxy' => $proj->{'remoteproxy'},
+    };
+  }
   my $c;
   eval {
     $c = BSRPC::rpc($param, undef);
