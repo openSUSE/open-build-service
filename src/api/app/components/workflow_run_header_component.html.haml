@@ -1,0 +1,14 @@
+%h3
+  #{hook_event.humanize} event
+%p
+  - if hook_action
+    %span.badge.badge-primary= hook_action.humanize
+  %span.badge{ class: status_class }= status.humanize
+%p Repository: #{link_to(repository_name, repository_url)}
+- case hook_event
+  - when 'pull_request'
+  %p PR: #{link_to("##{event_source_name}", event_source_url)}
+  - when 'Merge Request Hook'
+  %p MR: #{link_to("##{event_source_name}", event_source_url)}
+  - when 'push', 'Push Hook'
+  %p Commit: #{link_to(event_source_name, event_source_url)}

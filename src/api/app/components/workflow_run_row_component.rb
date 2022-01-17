@@ -7,7 +7,7 @@ class WorkflowRunRowComponent < ApplicationComponent
   }.freeze
 
   SOURCE_URL_PAYLOAD_MAPPING = {
-    'pull_request' => ['pull_request', 'url'],
+    'pull_request' => ['pull_request', 'html_url'],
     'Merge Request Hook' => ['object_attributes', 'url'],
     'push' => ['head_commit', 'url'],
     'Push Hook' => ['commits', 0, 'url']
@@ -43,7 +43,8 @@ class WorkflowRunRowComponent < ApplicationComponent
   end
 
   def event_source_name
-    payload.dig(*SOURCE_NAME_PAYLOAD_MAPPING[hook_event])
+    path = SOURCE_NAME_PAYLOAD_MAPPING[hook_event]
+    payload.dig(*path) if path
   end
 
   def event_source_url
