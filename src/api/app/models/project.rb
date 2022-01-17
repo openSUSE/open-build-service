@@ -350,7 +350,7 @@ class Project < ApplicationRecord
               if target_project.instance_of?(Project) &&
                  target_project.disabled_for?('access', nil, nil) &&
                  !target_project.builddep_allowed?(project_name)
-                return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
+                return { error: "Trying to use binaries from read access protected project #{target_project_name}" }
               end
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
