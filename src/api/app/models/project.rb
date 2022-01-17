@@ -761,7 +761,7 @@ class Project < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch("xml_project_#{id}") do
+    Rails.cache.fetch("xml_project_#{User.possibly_nobody.login}_#{id}") do
       # CanRenderModel
       render_xml
     end
@@ -1459,7 +1459,7 @@ class Project < ApplicationRecord
   end
 
   def reset_cache
-    Rails.cache.delete("xml_project_#{id}") if id
+    Rails.cache.delete("xml_project_#{User.possibly_nobody.login}_#{id}") if id
   end
 
   def delete_on_backend

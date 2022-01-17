@@ -41,7 +41,7 @@ module ProjectLinks
       LinkedProject.where(linked_db_project: self).find_each do |lp|
         id = lp.db_project_id
         lp.destroy
-        Rails.cache.delete("xml_project_#{id}")
+        Rails.cache.delete("xml_project_#{User.possibly_nobody.login}_#{id}")
       end
     end
   end
