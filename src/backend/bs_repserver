@@ -4197,6 +4197,11 @@ sub registry_manifest {
   die("404 NAME_UNKNOWN\n") unless -d $repodir;
   my $mani_json;
   my $is_manifest;
+  if ($manifest =~ /^sha256-([0-9a-f]{64}).sig$/) {
+    my $digest = "sha256:$1";
+    my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
+    $manifest = $sigs->{'digests'}->{$digest} if $sigs && $sigs->{'digests'}->{$digest};
+  }
   if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
     $mani_json = readstr("$repodir/:tags/$manifest", 1);
   } else {

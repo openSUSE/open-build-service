@@ -141,6 +141,17 @@ sub push_blob {
   return $blobid;
 }
 
+sub push_blob_string {
+  my ($repodir, $blobdata) = @_;
+  my $blob_id = 'sha256:'.Digest::SHA::sha256_hex($blobdata);
+  my $dir = "$repodir/:blobs";
+  return $blob_id if -e "$dir/$blob_id";
+  mkdir_p($dir) unless -d $dir;
+  unlink("$dir/.$blob_id.$$");
+  writestr("$dir/.$blob_id.$$", "$dir/$blob_id", $blobdata);
+  return $blob_id;
+}
+
 sub push_manifest {
   my ($repodir, $mani_json) = @_;
   my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
@@ -420,6 +431,66 @@ sub update_sigs {
   }
 }
 
+sub update_cosign {
+  my ($prp, $repo, $gun, $imagedigests, $pubkey, $signargs, $oci, $knownmanifests, $knownblobs) = @_;
+
+  my $creator = 'OBS';
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my @signcmd;
+  push @signcmd, $BSConfig::sign;
+  push @signcmd, '--project', $projid if $BSConfig::sign_project;
+  push @signcmd, @{$signargs || []};
+  my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+  my $repodir = "$registrydir/$repo";
+  my $oldsigs = BSUtil::retrieve("$repodir/:cosign", 1) || {};
+  return if !%$oldsigs && !%$imagedigests;
+  my $gpgpubkey = BSPGP::unarmor($pubkey);
+  my $pubkey_fp = BSPGP::pk2fingerprint($gpgpubkey);
+  if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp || ($oldsigs->{'gun'} || '') ne $gun || ($oldsigs->{'creator'} || '') ne ($creator || '')) {
+    $oldsigs = {};	# fingerprint/gun/creator mismatch, do not use old signatures
+  }
+  my $sigs = { 'pubkey' => $pubkey_fp, 'gun' => $gun, 'creator' => $creator, 'digests' => {} };
+  for my $digest (sort keys %$imagedigests) {
+    my $old = ($oldsigs->{'digests'} || {})->{$digest};
+    if ($old) {
+      $sigs->{'digests'}->{$digest} = $old;
+      next;
+    }
+    print "creating cosign signature for $gun $digest\n";
+    my ($config, $payload_layer, $payload) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
+    my $config_blobid = push_blob_string($repodir, $config);
+    $knownblobs->{$config_blobid} = 1;
+    my $payload_blobid = push_blob_string($repodir, $payload);
+    $knownblobs->{$payload_blobid} = 1;
+    die unless $payload_blobid eq $payload_layer->{'digest'};
+     my $config_data = {
+      'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
+      'size' => length($config),
+      'digest' => $config_blobid,
+    };
+    my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
+    my $mani = { 
+      'schemaVersion' => 2,
+      'mediaType' => $mediaType,
+      'config' => $config_data,
+      'layers' => [ $payload_layer ],
+    };
+    my $mani_json = BSContar::create_dist_manifest($mani);
+    my $mani_id = push_manifest($repodir, $mani_json);
+    $knownmanifests->{$mani_id} = 1;
+    $sigs->{'digests'}->{$digest} = $mani_id;
+  }
+  if (BSUtil::identical($oldsigs, $sigs)) {
+    print "local cosign signatures: no change.\n";
+    return;
+  }
+  if (%{$sigs->{'digests'}}) {
+    BSUtil::store("$repodir/.cosign.$$", "$repodir/:cosign", $sigs);
+  } else {
+    unlink("$repodir/:cosign");
+  }
+}
+
 sub push_containers {
   my ($prp, $repo, $gun, $multiarch, $tags, $pubkey, $signargs) = @_;
 
@@ -621,6 +692,13 @@ sub push_containers {
     $info{$tag} = $taginfo;
   }
 
+  # write signatures file
+  if ($gun && %knownimagedigests) {
+    update_cosign($prp, $repo, $gun, \%knownimagedigests, $pubkey, $signargs, 0, \%knownmanifests, \%knownblobs);
+  } elsif (-e "$repodir/:cosign") {
+    unlink("$repodir/:cosign");
+  }
+
   # now get rid of old entries
   for (sort(ls("$repodir/:tags"))) {
     next if $knowntags{$_};
@@ -645,6 +723,7 @@ sub push_containers {
     unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");
     unlink("$repodir/:sigs");
+    unlink("$repodir/:cosign");
     disownrepo($prp, $repo);
     return $containerdigests;
   }
