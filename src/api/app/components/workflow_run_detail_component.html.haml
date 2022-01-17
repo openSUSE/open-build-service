@@ -1,0 +1,26 @@
+%ul.nav.nav-tabs#workflow-run-tabs{ role: 'tablist' }
+  %li.nav-item{ role: 'presentation' }
+    %a.nav-link.active{ id: "request-tab#{id}", data: { toggle: 'tab' }, href: "#request-tab-content#{id}",
+                        role: 'tab', aria: { controls: "request-tab-content#{id}", selected: 'true' } }
+      Request
+  %li.nav-item{ role: 'presentation' }
+    %a.nav-link{ id: "response-tab#{id}", data: { toggle: 'tab' }, href: "#response-tab-content#{id}",
+                  role: 'tab', aria: { controls: "response-tab-content#{id}", selected: 'false' } }
+      Response
+.tab-content.p-3#workflow-run-tabs-content
+  .tab-pane.fade.show.active{ id: "request-tab-content#{id}", role: 'tabpanel',
+                              aria: { labelledby: "request-tab#{id}" } }
+    %h5 Request Headers
+    %pre.border.p-2#request-headers
+      = request_headers
+    %h5 Request Payload
+    %pre.border.p-2#request-payload
+      = pretty_request_payload
+  .tab-pane.fade{ id: "response-tab-content#{id}", role: 'tabpanel',
+                  aria: { labelledby: "response-tab#{id}" } }
+    %h5 Response URL
+    %pre.border.p-2#response-url
+      = response_url
+    %h5 Response Body
+    %pre.border.p-2#response-body
+      = response_body
