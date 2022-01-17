@@ -662,7 +662,7 @@ class ProjectTest < ActiveSupport::TestCase
     flag = project.add_flag('access', 'disable')
     flag.save
 
-    expected = { error: 'Project links work only when both projects have same read access protection level: the_project -> home:Iggy' }
+    expected = { error: 'Project the_project depends on restricted project home:Iggy' }
     actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
     assert_equal expected, actual
   end
