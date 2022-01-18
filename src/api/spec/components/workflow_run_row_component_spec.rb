@@ -121,7 +121,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it 'does not show the action anywhere' do
-        expect(rendered_component).to have_text('Unsupported')
+        expect(rendered_component).not_to have_text('Unsupported')
       end
     end
   end

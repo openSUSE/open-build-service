@@ -11,8 +11,6 @@ class WorkflowRunRowComponent < ApplicationComponent
   def hook_action
     return payload['action'] if
       hook_event == 'pull_request' && ScmWebhookEventValidator::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
-
-    'Unsupported'
   end
 
   def hook_event
