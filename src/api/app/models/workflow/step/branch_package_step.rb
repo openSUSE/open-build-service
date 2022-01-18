@@ -1,12 +1,15 @@
 class Workflow::Step::BranchPackageStep < ::Workflow::Step
   REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
+
   validate :validate_source_project_and_package_name
 
   def call(options = {})
-    return unless valid?
+    run_callbacks(:call) do
+      return unless valid?
 
-    workflow_filters = options.fetch(:workflow_filters, {})
-    branch_package(workflow_filters)
+      workflow_filters = options.fetch(:workflow_filters, {})
+      branch_package(workflow_filters)
+    end
   end
 
   private
@@ -63,5 +66,10 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
                                 user: @token.user.login)
 
     target_package
+  end
+
+  def summary
+    "Branched package #{source_package_name} from source project #{source_project_name} to
+     target project #{target_project_name} with target package name #{target_package_name}"
   end
 end

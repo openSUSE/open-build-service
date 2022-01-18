@@ -1,5 +1,9 @@
 class Workflow::Step
   include ActiveModel::Model
+  extend ActiveModel::Callbacks
+
+  define_model_callbacks :call, only: [:after]
+  after_call :create_artifacts
 
   SHORT_COMMIT_SHA_LENGTH = 7
 
@@ -87,6 +91,15 @@ class Workflow::Step
   end
 
   private
+
+  def summary
+    raise AbstractMethodCalled
+  end
+
+  def create_artifacts
+    executed_workflow_step = ExecutedWorkflowStep.new(summary: summary, name: self.model_name.human)
+    @token.workflow_runs.last.executed_workflow_steps << executed_workflow_step
+  end
 
   def target_project_base_name
     raise AbstractMethodCalled

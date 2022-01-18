@@ -4,10 +4,12 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   validate :validate_source_project_and_package_name
 
   def call(options = {})
-    return unless valid?
+    run_callbacks(:call) do
+      return unless valid?
 
-    workflow_filters = options.fetch(:workflow_filters, {})
-    link_package(workflow_filters)
+      workflow_filters = options.fetch(:workflow_filters, {})
+      link_package(workflow_filters)
+    end
   end
 
   private
@@ -94,5 +96,9 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   def link_xml(opts = {})
     # "<link package=\"foo\" project=\"bar\" />"
     Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
+  end
+
+  def summary
+    # TODO
   end
 end

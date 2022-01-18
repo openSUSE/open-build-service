@@ -7,27 +7,29 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_project_name
 
   def call(_options = {})
-    return unless valid?
+    run_callbacks(:call) do
+      return unless valid?
 
-    target_project = Project.get_by_name(target_project_name)
-    Pundit.authorize(@token.user, target_project, :update?)
+      target_project = Project.get_by_name(target_project_name)
+      Pundit.authorize(@token.user, target_project, :update?)
 
-    step_instructions[:repositories].each do |repository_instructions|
-      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
+      step_instructions[:repositories].each do |repository_instructions|
+        repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
 
-      target_repository = Repository.find_by_project_and_name(repository_instructions[:target_project], repository_instructions[:target_repository])
-      repository.path_elements.find_or_create_by(link: target_repository)
+        target_repository = Repository.find_by_project_and_name(repository_instructions[:target_project], repository_instructions[:target_repository])
+        repository.path_elements.find_or_create_by(link: target_repository)
 
-      repository.repository_architectures.destroy_all
+        repository.repository_architectures.destroy_all
 
-      repository_instructions[:architectures].uniq.each do |architecture_name|
-        repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+        repository_instructions[:architectures].uniq.each do |architecture_name|
+          repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+        end
       end
-    end
 
-    # We have to store the changes on the backend
-    target_project.store(comment: "Added the following repositories to the project: #{step_instructions[:repositories].pluck(:name).compact.to_sentence}",
-                         login: @token.user.login)
+      # We have to store the changes on the backend
+      target_project.store(comment: "Added the following repositories to the project: #{step_instructions[:repositories].pluck(:name).compact.to_sentence}",
+                           login: @token.user.login)
+    end
   end
 
   private
@@ -63,5 +65,9 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     return if step_instructions[:project].blank? || Project.valid_name?(target_project_base_name)
 
     errors.add(:base, "invalid project '#{target_project_base_name}'")
+  end
+
+  def summary
+    # TODO
   end
 end
