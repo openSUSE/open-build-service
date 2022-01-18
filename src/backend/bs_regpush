@@ -220,7 +220,7 @@ sub manifest_upload {
 sub manifest_append {
   my ($manifest, $tag) = @_;
   my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
-  my $str = "$maniid ".length($manifest)." $tag\n";
+  my $str = "$maniid ".length($manifest).(defined($tag) ? " $tag" : '')."\n";
   if ($digestfile ne '-') {
     BSUtil::appendstr($digestfile, $str);
   } else {
@@ -230,7 +230,11 @@ sub manifest_append {
 
 sub manifest_upload_tags {
   my ($manifest, $tags, $content_type) = @_;
-  return manifest_upload($manifest, undef, $content_type) unless @{$tags || []};
+  if (!@{$tags || []}) {
+    manifest_upload($manifest, undef, $content_type);
+    manifest_append($manifest, undef) if defined $digestfile;
+    return;
+  }
   for my $tag (BSUtil::unify(@$tags)) {
     manifest_upload($manifest, $tag, $content_type);
     manifest_append($manifest, $tag) if defined $digestfile;
@@ -358,6 +362,7 @@ sub tags_from_digestfile {
   while (<DIG>) {
     chomp;
     next if /^#/ || /^\s*$/;
+    next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;	# ignore anonymous images
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     push @ret, $4;
   }
@@ -646,7 +651,7 @@ for my $tarfile (@tarfiles) {
   my $mani_json = BSContar::create_dist_manifest($mani);
 
   if ($multiarch) {
-    manifest_upload($mani_json, undef, $mediaType);	# upload anonymous image
+    manifest_upload_tags($mani_json, undef, $mediaType);	# upload anonymous image
     my $multimani = {
       'mediaType' => $mediaType,
       'size' => length($mani_json),

@@ -200,6 +200,7 @@ if ($digestfile) {
   while(<DIG>) {
     chomp;
     next if /^#/ || /^\s*$/;
+    next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;	# ignore anonymous images
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     $manifests->{$4} = {
       'hashes' => { $1 => MIME::Base64::encode_base64(pack('H*', $2), '') },
