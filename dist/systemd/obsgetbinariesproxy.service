@@ -3,6 +3,7 @@ Description=OBS binaries proxy cache
 After=network.target
 
 [Service]
+LimitNOFILE=16384
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_getbinariesproxy --logfile getbinariesproxy.log
 ExecStop=/usr/lib/obs/server/bs_getbinariesproxy --stop
