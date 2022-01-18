@@ -5,7 +5,7 @@
 - when 'index'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Tokens
-- when 'new'
+- when 'new', 'create'
   %li.breadcrumb-item
     = link_to 'Tokens', tokens_path
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
@@ -15,3 +15,8 @@
     = link_to 'Tokens', tokens_path
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Edit Token
+- when 'show'
+  %li.breadcrumb-item
+    = link_to 'Tokens', tokens_path
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Show Token

@@ -1,10 +1,11 @@
 .card.m-1.p-2
   .card-body
-    - if @token.name.present?
-      %h5.card-title
-        = @token.name
-    - else
-      %h5.card-title.font-italic No name
+    = link_to token_path(@token) do
+      - if @token.name.present?
+        %h5.card-title
+          = @token.name
+      - else
+        %h5.card-title.font-italic No name
     %p.card-text
       Id: #{@token.id}
     %p.card-text
@@ -21,7 +22,7 @@
         - if policy(@token).edit?
           = link_to(edit_token_path(@token), title: 'Edit Token') do
             %i.fas.fa-edit
-        - if policy(@token).show?
+        - if policy(@token).webui_trigger?
           = link_to(token_trigger_path(@token), title: 'Trigger Token') do
             %i.fas.fa-project-diagram
         = link_to '#', title: 'Delete Token',

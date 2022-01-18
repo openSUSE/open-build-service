@@ -7,24 +7,7 @@
 
     .row
       .col-12.col-md-10.col-lg-8
-        = form_with(model: @token, method: :post, local: false) do |f|
-          .visible-when-created.d-none
-            %p.font-weight-bold Your new OBS Personal Access Token
-
-            .form-row#token-id
-              .col-sm
-                .form-group.mb-0
-                  = f.label(:id, 'Id:')
-                  %span= @token.id
-
-            .form-row#created-token
-              .col-12.col-md-10.col-lg-9
-                %fieldset.form-group
-                  = f.label(:string_readonly, 'Secret:', class: 'col-form-label')
-                  .input-group
-                    = render CopyToClipboardInputComponent.new(form_builder: f)
-                %hr
-
+        = form_with(model: @token ||= Token.new, method: :post, local: true) do |f|
           .form-row
             .col
               .form-group

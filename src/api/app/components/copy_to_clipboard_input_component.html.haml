@@ -1,5 +1,4 @@
--# TODO: Relying on a form builder is a bit weird. We could perhaps directly use `text_field_tag` instead and pass an input value to the component.
-= @form_builder.text_field(:string_readonly, id: 'copy-to-clipboard-readonly', class: 'form-control', readonly: true)
+= text_field_tag(nil, @token_string, readonly: true, id: 'copy-to-clipboard-readonly', class: 'form-control')
 .input-group-append#copy-to-clipboard
   %span.input-group-text
     %i.fas.fa-clipboard

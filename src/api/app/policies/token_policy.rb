@@ -43,6 +43,6 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def show?
-    webui_trigger?
+    record.user == user && !record.type.in?(['Token::Rss'])
   end
 end

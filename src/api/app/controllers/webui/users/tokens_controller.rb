@@ -1,5 +1,5 @@
 class Webui::Users::TokensController < Webui::WebuiController
-  before_action :set_token, only: [:edit, :update, :destroy]
+  before_action :set_token, only: [:edit, :update, :destroy, :show]
   before_action :set_parameters, :set_package, only: [:create]
 
   after_action :verify_authorized, except: :index
@@ -49,13 +49,14 @@ class Webui::Users::TokensController < Webui::WebuiController
     authorize @token
 
     respond_to do |format|
-      format.js do
+      format.html do
         if @token.save
-          flash.now[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
-          render partial: 'create', locals: { string: @token.string }
+          flash[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
+          session[:show_token] = 'true'
+          redirect_to token_path(@token)
         else
-          flash.now[:error] = "Failed to create token: #{@token.errors.full_messages.to_sentence}."
-          render partial: 'create'
+          flash[:error] = "Failed to create token: #{@token.errors.full_messages.to_sentence}."
+          render :new
         end
       end
     end
@@ -66,6 +67,10 @@ class Webui::Users::TokensController < Webui::WebuiController
     @token.destroy
     flash[:success] = 'Token was successfully deleted.'
     redirect_to tokens_url
+  end
+
+  def show
+    authorize @token
   end
 
   private
@@ -97,20 +102,20 @@ class Webui::Users::TokensController < Webui::WebuiController
 
     # Check if only project_name or only package_name are present
     if @extra_params[:project_name].present? ^ @extra_params[:package_name].present?
-      flash.now[:error] = 'When providing an optional package, both Project name and Package name must be provided.'
-      render partial: 'create' and return
+      flash[:error] = 'When providing an optional package, both Project name and Package name must be provided.'
+      render :new and return
     end
 
     # If both project_name and package_name are present, check if this is an existing package
     begin
       @package = Package.get_by_project_and_name(@extra_params[:project_name], @extra_params[:package_name])
     rescue Project::UnknownObjectError
-      flash.now[:error] = "When providing an optional package, the package must exist. Project '#{elide(@extra_params[:project_name])}' does not exist."
-      render partial: 'create'
+      flash[:error] = "When providing an optional package, the package must exist. Project '#{elide(@extra_params[:project_name])}' does not exist."
+      render :new
     rescue Package::UnknownObjectError
-      flash.now[:error] = 'When providing an optional package, the package must exist. ' \
-                          "Package '#{elide(@extra_params[:project_name])}/#{elide(@extra_params[:package_name])}' does not exist."
-      render partial: 'create'
+      flash[:error] = 'When providing an optional package, the package must exist. ' \
+                      "Package '#{elide(@extra_params[:project_name])}/#{elide(@extra_params[:package_name])}' does not exist."
+      render :new
     end
   end
 end

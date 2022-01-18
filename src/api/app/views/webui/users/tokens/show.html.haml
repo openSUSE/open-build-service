@@ -1,0 +1,68 @@
+- @pagetitle = "Token - #{@token.name.presence || 'No name'}"
+
+.card
+  .card-body
+    %h3.mb-3
+      = @pagetitle
+
+    .row
+      .col-12.col-md-10.col-lg-8
+        - if session[:show_token]
+          %p.font-weight-bold Your new OBS Personal Access Token
+
+        .form-row
+          .col-sm
+            %label.font-weight-bold
+              Id:
+            %span
+              = @token.id
+
+        - if session[:show_token]
+          - session[:show_token] = nil # Ensure we're only showing the token once
+          .form-row
+            .col-12.col-md-10.col-lg-9
+              %fieldset.form-group
+                %label.col-form-label.font-weight-bold
+                  Secret:
+                .input-group
+                  = render CopyToClipboardInputComponent.new(token_string: @token.string)
+              %hr
+
+        .form-row
+          .col
+            .form-group
+              %label.col-form-label.mr-2.font-weight-bold
+                Type:
+              %span
+                = @token.token_name
+
+        - if @token.package
+          .form-row
+            .col-sm
+              .form-group.ui-front
+                %label.font-weight-bold
+                  Project:
+                %span
+                  = link_to(@token.package.project.name, project_show_path(@token.package.project))
+
+          .form-row
+            .col-sm
+              .form-group.ui-front
+                %label.font-weight-bold
+                  Package:
+                %span
+                  = link_to(@token.package.name, package_show_path(@token.package.project, @token.package))
+
+        .actions
+          - if policy(@token).edit?
+            = link_to(edit_token_path(@token), class: 'pl-2', title: 'Edit') do
+              %i.fas.fa-edit
+              %span.nav-item-name Edit
+          - if policy(@token).webui_trigger?
+            = link_to(token_trigger_path(@token), class: 'pl-2', title: 'Trigger Token') do
+              %i.fas.fa-project-diagram
+              %span.nav-item-name Trigger Token
+          - if @token.type == 'Token::Workflow'
+            = link_to(token_workflow_runs_path(@token.id), class: 'pl-2', title: 'Workflow Runs') do
+              %i.fas.fa-book-open
+              %span.nav-item-name Workflow Runs
