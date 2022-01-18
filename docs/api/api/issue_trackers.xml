@@ -40,6 +40,16 @@
     <enable-fetch>false</enable-fetch>
   </issue-tracker>
   <issue-tracker>
+    <name>beo</name>
+    <kind>bugzilla</kind>
+    <description>Eclipse Bugzilla</description>
+    <url>https://bugs.eclipse.org/bugs/</url>
+    <show-url>https://bugs.eclipse.org/bugs/show_bug.cgi?id=@@@</show-url>
+    <regex>beo#(\d+)</regex>
+    <label>beo#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
     <name>fdo</name>
     <kind>bugzilla</kind>
     <description>Freedesktop.org Bugzilla</description>
