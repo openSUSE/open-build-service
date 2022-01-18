@@ -194,6 +194,12 @@ IssueTracker.where(name: 'deb').first_or_create(description: 'Debian Bugzilla',
                                                 url: 'http://bugs.debian.org/',
                                                 label: 'deb#@@@',
                                                 show_url: 'http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@')
+IssueTracker.where(name: 'beo').first_or_create(description: 'Eclipse Bugzilla',
+                                                kind: 'bugzilla',
+                                                regex: 'beo#(\d+)',
+                                                url: 'https://bugs.eclipse.org/bugs/',
+                                                label: 'beo#@@@',
+                                                show_url: 'https://bugs.eclipse.org/bugs/show_bug.cgi?id=@@@')
 IssueTracker.where(name: 'fdo').first_or_create(description: 'Freedesktop.org Bugzilla',
                                                 kind: 'bugzilla',
                                                 regex: 'fdo#(\d+)',

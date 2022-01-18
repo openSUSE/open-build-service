@@ -75,6 +75,17 @@ deb:
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
+beo:
+  id: 46
+  name: beo
+  kind: bugzilla
+  description: Eclipse Bugzilla
+  url: https://bugs.eclipse.org/bugs/
+  show_url: https://bugs.eclipse.org/bugs/show_bug.cgi?id=@@@
+  regex: beo#(\d+)
+  label: '@@@'
+  issues_updated: 2011-07-29 14:00:21.000000000 Z
+  enable_fetch: 0
 fdo:
   id: 29
   name: fdo
