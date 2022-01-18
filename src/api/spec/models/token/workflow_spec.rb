@@ -8,7 +8,10 @@ RSpec.describe Token::Workflow do
 
     context 'without a payload' do
       it do
-        expect { workflow_token.call({ workflow_run: workflow_run }) }.to raise_error(Token::Errors::MissingPayload, 'A payload is required').and(change(workflow_token, :triggered_at))
+        expect do
+          workflow_token.call({ workflow_run: workflow_run,
+                                scm_webhook: ScmWebhook.new(payload: {}) })
+        end.to raise_error(Token::Errors::MissingPayload, 'A payload is required').and(change(workflow_token, :triggered_at))
       end
     end
 
@@ -70,7 +73,7 @@ RSpec.describe Token::Workflow do
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
-      subject { workflow_token.call(scm: scm, event: event, payload: github_payload, workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
 
       it 'returns no validation errors' do
         expect(subject).to eq([])
@@ -123,7 +126,7 @@ RSpec.describe Token::Workflow do
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
-      subject { workflow_token.call(scm: scm, event: event, payload: github_payload, workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
 
       it 'returns the validation errors' do
         expect(subject).to eq(['Event not supported.', 'Workflow steps are not present'])

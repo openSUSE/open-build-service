@@ -1,14 +1,15 @@
 class TriggerWorkflowController < TriggerController
   # We don't need to validate that the body of the request is XML. We receive JSON
   skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
-  before_action :create_workflow_run
   before_action :set_scm_event
+  before_action :abort_trigger_if_ignored_pull_request_action
+  before_action :create_workflow_run
   before_action :validate_scm_event
 
   def create
     authorize @token, :trigger?
     @token.user.run_as do
-      validation_errors = @token.call(scm: scm, event: event, payload: payload, workflow_run: @workflow_run)
+      validation_errors = @token.call(workflow_run: @workflow_run, scm_webhook: @scm_webhook)
 
       if validation_errors.none?
         @workflow_run.update(status: 'success', response_body: render_ok)
@@ -59,5 +60,11 @@ class TriggerWorkflowController < TriggerController
   def create_workflow_run
     request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
     @workflow_run = @token.workflow_runs.create(request_headers: request_headers, request_payload: request.body.read)
+  end
+
+  def abort_trigger_if_ignored_pull_request_action
+    @scm_webhook = TriggerControllerService::ScmExtractor.new(scm, event, payload).call
+
+    render_ok if @scm_webhook && @scm_webhook.ignored_pull_request_action?
   end
 end

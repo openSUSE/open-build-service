@@ -6,6 +6,11 @@ class ScmWebhook
 
   validates_with ScmWebhookEventValidator
 
+  IGNORED_PULL_REQUEST_ACTIONS = ['assigned', 'auto_merge_disabled', 'auto_merge_enabled', 'converted_to_draft',
+                                  'edited', 'labeled', 'locked', 'ready_for_review', 'review_request_removed',
+                                  'review_requested', 'unassigned', 'unlabeled', 'unlocked'].freeze
+  IGNORED_MERGE_REQUEST_ACTIONS = ['approved', 'unapproved'].freeze
+
   def initialize(attributes = {})
     super
     # To safely navigate the hash and compare keys
@@ -44,6 +49,10 @@ class ScmWebhook
     github_pull_request? || gitlab_merge_request?
   end
 
+  def ignored_pull_request_action?
+    ignored_github_pull_request_action? || ignored_gitlab_merge_request_action?
+  end
+
   private
 
   def github_push_event?
@@ -68,5 +77,13 @@ class ScmWebhook
 
   def gitlab_merge_request?
     @payload[:scm] == 'gitlab' && @payload[:event] == 'Merge Request Hook'
+  end
+
+  def ignored_github_pull_request_action?
+    github_pull_request? && IGNORED_PULL_REQUEST_ACTIONS.include?(@payload[:action])
+  end
+
+  def ignored_gitlab_merge_request_action?
+    gitlab_merge_request? && IGNORED_MERGE_REQUEST_ACTIONS.include?(@payload[:action])
   end
 end
