@@ -10,7 +10,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     login_king
     get '/issue_trackers'
     assert_response :success
-    assert_select 'issue-tracker', 25
+    assert_select 'issue-tracker', 26
   end
 
   def test_create_and_update_new_trackers
