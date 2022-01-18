@@ -1,4 +1,4 @@
-domain_name: obs-server-tumbleweed
+domain_name: obs-server
 default_job: tumbleweed
 
 jobs:
@@ -13,15 +13,15 @@ jobs:
     options:
       api_url: https://api.opensuse.org/public/
       project: devel:kanku:images
-      package: openSUSE-Tumbleweed-JeOS:ext4
-      repository: images_tumbleweed
-      preferred_extension: qcow2
+      package: openSUSE-Leap-15.4-JeOS
+      repository: images_leap_15_4
+      arch: x86_64
   -
     use_module: Kanku::Handler::ImageDownload
   -
     use_module: Kanku::Handler::CreateDomain
     options:
-      memory: 4G
+      memory: 6G
       vcpu: 2
       use_9p: 1
       management_interface: eth0
@@ -33,9 +33,10 @@ jobs:
     use_module: Kanku::Handler::ExecuteCommandViaSSH
     options:
       commands:
-        - zypper ar https://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_Factory/OBS:Server:Unstable.repo
+        - zypper ar https://download.opensuse.org/repositories/OBS:/Server:/Unstable/15.4//OBS:Server:Unstable.repo
         - zypper -n --gpg-auto-import-keys ref -s
-        - zypper -n install perl ruby2.5-rubygem-bundler zlib-devel ruby-devel ruby2.5-devel rsync bsdtar less git patch openldap2-devel libxml2-devel libmysqld-devel gcc make gcc-c++ libxslt-devel cyrus-sasl-devel nodejs-common obs-api-deps
+        #- zypper -n install perl ruby2.5-rubygem-bundler zlib-devel ruby-devel ruby2.5-devel rsync bsdtar less git patch openldap2-devel libxml2-devel libmysqld-devel gcc make gcc-c++ libxslt-devel cyrus-sasl-devel nodejs-common obs-api-deps
+        - zypper -n install ruby2.5-rubygem-bundler zlib-devel ruby-devel ruby2.5-devel rsync bsdtar git patch openldap2-devel libxml2-devel libmysqld-devel gcc make gcc-c++ libxslt-devel cyrus-sasl-devel nodejs-common obs-api-deps
         - rsync -av /tmp/kanku/ /root/open-build-service
         - zypper -n install obs-server obs-api obs-worker obs-signd obs-service-tar_scm obs-service-obs_scm obs-service-set_version obs-service-tar
         - perl -p -i -e 's/^OBS_API_AUTOSETUP=.*/OBS_API_AUTOSETUP="yes"/' /etc/sysconfig/obs-server || exit 1
