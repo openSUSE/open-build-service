@@ -27,13 +27,18 @@ use strict;
 use BSPGP;
 use JSON::XS ();
 use Digest::MD5 ();
+use Digest::SHA ();
 use MIME::Base64 ();
 use IO::Compress::RawDeflate;
 
-sub createsig {
-  my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
+sub canonical_json {
+  return JSON::XS->new->utf8->canonical->encode($_[0]);
+}
+
+sub createpayload {
+  my ($type, $digest, $reference, $creator, $timestamp) = @_;
   my $critical = {
-    'type' => 'atomic container signature',
+    'type' => $type,
     'image' => { 'docker-manifest-digest' => $digest },
     'identity' => { 'docker-reference' => $reference },
   };
@@ -41,8 +46,13 @@ sub createsig {
   $optional->{'creator'} = $creator if $creator;
   $optional->{'timestamp'} = $timestamp if $timestamp;
   my $data = { 'critical' => $critical, 'optional' => $optional };
-  my $data_json = JSON::XS->new->utf8->canonical->encode($data);
-  my $sig = $signfunc->($data_json);
+  return canonical_json($data);
+}
+
+sub createsig {
+  my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
+  my $payload = createpayload('atomic container signature', $digest, $reference, $creator, $timestamp);
+  my $sig = $signfunc->($payload);
   my $sd = BSPGP::pk2sigdata($sig);
   die("no issuer\n") unless $sd->{'issuer'};
   # create onepass_sig packet
@@ -51,7 +61,7 @@ sub createsig {
   # create literal data packet
   my $fn = 'rpmsig-req.bin';
   my $t = $sd->{'signtime'} || time();
-  my $literal_data_pkt = pack('CCa*N', 0x62, length($fn), $fn, $t).$data_json;
+  my $literal_data_pkt = pack('CCa*N', 0x62, length($fn), $fn, $t).$payload;
   $literal_data_pkt = BSPGP::pkencodepacket(11, $literal_data_pkt);
   # create compressed packet
   my $packets = "$onepass_sig_pkt$literal_data_pkt$sig";
@@ -70,6 +80,30 @@ sub sig2openshift {
     'content' => MIME::Base64::encode_base64($sig, ''),
   };
   return $data;
+}
+
+sub createcosign {
+  my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
+  my $payload = createpayload('cosign container image signature', $digest, $reference, $creator, $timestamp);
+  my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
+  # signfunc must return the openssl rsa signature
+  my $sig = MIME::Base64::encode_base64($signfunc->($payload), '');
+  my $config = {
+    'architecture' => '',
+    'config' => {},
+    'created' => '0001-01-01T00:00:00Z',
+    'history' => [ { 'created' => '0001-01-01T00:00:00Z' } ],
+    'os' => '',
+    'rootfs' => { 'type' => 'layers', 'diff_ids' => [ $payload_digest ] },
+  };
+  my $config_json = canonical_json($config);
+  my $payload_layer = {
+    'annotations' => { 'dev.cosignproject.cosign/signature' => $sig },
+    'digest' => $payload_digest,
+    'mediaType' => 'application/vnd.dev.cosign.simplesigning.v1+json',
+    'size' => length($payload),
+  };
+  return ($config_json, $payload_layer, $payload);
 }
 
 1;
