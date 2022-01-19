@@ -52,8 +52,8 @@ my $gettimeout = 3600;
 
 my $port = 5254;        
 my $proto = 'http';        
-$port = $1 if $BSConfig::getbinariesproxyserver =~ /:(\d+)$/;
-$proto = $1 if $BSConfig::getbinariesproxyserver =~ /^(https):/;
+$port = $1 if $BSConfig::getbinariesproxyserver && $BSConfig::getbinariesproxyserver =~ /:(\d+)$/;
+$proto = $1 if $BSConfig::getbinariesproxyserver && $BSConfig::getbinariesproxyserver =~ /^(https):/;
 
 
 my $cachedir = "$BSConfig::bsdir/getbinariesproxycache";
@@ -76,7 +76,7 @@ sub set_maxopen() {
   }
   POSIX::close($_) for @fd;
   $maxopen = @fd;
-  print "could open $maxopen file descriptors\n";
+  print "file descriptor limit is $maxopen\n";
 }
 
 sub move_entry_into_cache {
@@ -439,6 +439,12 @@ sub hello {
   return "<hello name=\"Getbinaries Proxy Server\" />\n";
 }
 
+sub run {
+  my ($conf) = @_;
+  set_maxopen();
+  BSServer::server($conf);
+}
+
 my $dispatches = [
   '/' => \&hello,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module* workerid? now:num? server:' => \&getbinaries,
@@ -451,11 +457,10 @@ my $conf = {
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
   'maxchild' => 40,
+  'run' => \&run,
 };
 
 $conf->{'maxchild'} = $BSConfig::getbinariesproxyserver_maxchild if $BSConfig::getbinariesproxyserver_maxchild;
-
-set_maxopen() unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit');
 
 BSStdServer::server('bs_getbinariesproxy', \@ARGV, $conf);
 
