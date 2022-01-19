@@ -30,9 +30,6 @@ module MultibuildPackage
   def multibuild_flavors
     return [] unless multibuild?
 
-    flavors = Xmlhash.parse(source_file('_multibuild'))['flavor']
-    return [flavors] if flavors.is_a?(String)
-
-    flavors
+    Backend::Api::Sources::Package.multibuild(project.name, name)
   end
 end

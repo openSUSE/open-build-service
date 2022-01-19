@@ -51,6 +51,14 @@ module Backend
           nil
         end
 
+        # Returns the content of the _multibuild file (if present)
+        # @return [String]
+        def self.multibuild(project_name, package_name)
+          http_get(['/source/:project/:package/_multibuild', project_name, package_name])
+        rescue Backend::NotFoundError
+          nil
+        end
+
         # It triggers all the services of a package
         # @return [String]
         def self.trigger_services(project_name, package_name, user_login)

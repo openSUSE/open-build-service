@@ -3,6 +3,20 @@ require 'rails_helper'
 # Test class
 class TestMultibuildPackage
   include MultibuildPackage
+
+  class Project
+    def name
+      'bar'
+    end
+  end
+
+  def name
+    'foo'
+  end
+
+  def project
+    Project.new
+  end
 end
 
 RSpec.describe MultibuildPackage do
@@ -66,9 +80,11 @@ RSpec.describe MultibuildPackage do
       XML
     end
 
+    let(:multibuild_flavors) { Xmlhash.parse(multibuild_xml).fetch('flavor') }
+
     before do
       allow(test_class_instance).to receive(:multibuild?).and_return(true)
-      allow(test_class_instance).to receive(:source_file).and_return(multibuild_xml)
+      allow(Backend::Api::Sources::Package).to receive(:multibuild).and_return(multibuild_flavors)
     end
 
     describe '#multibuild_flavors' do

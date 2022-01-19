@@ -719,6 +719,15 @@ RSpec.describe Package, vcr: true do
     end
   end
 
+  describe '#multibuild_flavors' do
+    let(:project) { create(:project, name: 'my_project', maintainer: user) }
+    let(:package) { create(:multibuild_package, name: 'my_package', project: project) }
+
+    subject { package.multibuild_flavors }
+
+    it { expect(subject).to include('flavor_a') }
+  end
+
   describe '#ignored_requests' do
     let(:project) { create(:project, name: 'my_project') }
 
