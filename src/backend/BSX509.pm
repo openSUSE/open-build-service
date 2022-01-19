@@ -306,4 +306,27 @@ sub pubkey2keydata {
   return $res;
 }
 
+sub keydata2pubkey {
+  my ($keydata) = @_;
+  my $algo = $keydata->{'algo'} || '?';
+  my ($algoparams, $bits);
+  if ($algo eq 'rsa') {
+    $bits = BSASN1::pack_sequence(BSASN1::pack_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::pack_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
+  } elsif ($algo eq 'dsa') {
+    my @mpis = @{$keydata->{'mpis'} || []};
+    $bits = BSASN1::pack_integer_mpi((pop @mpis)->{'data'});
+    $algoparams = BSASN1::pack_sequence(map {BSASN1::pack_integer_mpi($_->{'data'})} @mpis);
+  } elsif ($algo eq 'ecdsa') {
+    $bits = $keydata->{'point'};
+    die("need a curve for ecdsa\n") unless $keydata->{'curve'};
+    $algoparams = $oid_prime256v1 if $keydata->{'curve'} eq 'prime256v1';
+    die("unsupported curve $keydata->{'curve'}\n") unless $algoparams;
+  } elsif ($algo eq 'ed25519' || $algo eq 'ed448') {
+    $bits = $keydata->{'point'};
+  } else {
+    die("unsupported pubkey algo $algo\n");
+  }
+  return BSASN1::pack_sequence(pack_sigalgo($algo, undef, $algoparams), BSASN1::pack_bytes($bits));
+}
+
 1;

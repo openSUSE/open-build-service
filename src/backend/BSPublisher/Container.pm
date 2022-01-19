@@ -254,7 +254,7 @@ sub upload_all_containers {
       for my $joinp (sort keys %todo) {
 	my @tags = @{$todo{$joinp}};
 	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags);
+	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $signargs, $pubkey);
 	add_notary_upload($notary_uploads, $registry, $repository, $digest, \@tags);
 	$containerdigests .= $digest;
 	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
@@ -347,7 +347,6 @@ sub reconstruct_container {
   containerinfos - array of containers to upload (more than one for multiarch)
   repository     - registry repository name
   tags           - array of tags to upload to
-  notary_uploads - hash to store notary information
 
  Returns:
   containerdigests + public references to uploaded containers
@@ -355,7 +354,7 @@ sub reconstruct_container {
 =cut
 
 sub upload_to_registry {
-  my ($registry, $containerinfos, $repository, $tags) = @_;
+  my ($registry, $containerinfos, $repository, $tags, $projid, $signargs, $pubkey) = @_;
 
   return unless @{$containerinfos || []} && @{$tags || []};
   
@@ -401,6 +400,22 @@ sub upload_to_registry {
   my @opts = map {('-t', $_)} @$tags;
   push @opts, '-m' if @uploadfiles > 1;		# create multi arch container
   push @opts, '-B', $blobdir if $blobdir;
+  my $cosign = $registry->{'cosign'};
+  $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
+  if (defined($pubkey) && $cosign) {
+    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+    $gun =~ s/^https?:\/\///;
+    $gun .= "/$repository";
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$signargs || []};
+    my $pubkeyfile = "$uploaddir/publisher.$$.pubkey";
+    push @tempfiles, $pubkeyfile;
+    mkdir_p($uploaddir);
+    unlink($pubkeyfile);
+    writestr($pubkeyfile, undef, $pubkey);
+    push @opts, '--cosign', '-p', $pubkeyfile, '-G', $gun, @signargs;
+  }
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
   print "Uploading to registry: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);

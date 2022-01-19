@@ -55,6 +55,13 @@ my @tags;
 my $blobdir;
 my $oci;
 
+my $cosign;
+my $gun;
+my @signcmd;
+my $pubkeyfile;
+
+my $rekorserver;
+
 my $registryserver;
 my $repository;
 my @tarfiles;
@@ -127,6 +134,11 @@ sub blob_upload {
   die("server created a different blobid: $blobid $id\n") if $blobid ne $id;
   print "done.\n";
   return $blobid;
+}
+
+sub blob_upload_content {
+  my ($blobid, $content) = @_;
+  return blob_upload($blobid, { 'data' => $content, 'size' => length($content) });
 }
 
 sub blob_download {
@@ -220,7 +232,7 @@ sub manifest_upload {
 sub manifest_append {
   my ($manifest, $tag) = @_;
   my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
-  my $str = "$maniid ".length($manifest)." $tag\n";
+  my $str = "$maniid ".length($manifest).(defined($tag) ? " $tag" : '')."\n";
   if ($digestfile ne '-') {
     BSUtil::appendstr($digestfile, $str);
   } else {
@@ -230,7 +242,11 @@ sub manifest_append {
 
 sub manifest_upload_tags {
   my ($manifest, $tags, $content_type) = @_;
-  return manifest_upload($manifest, undef, $content_type) unless @{$tags || []};
+  if (!@{$tags || []}) {
+    manifest_upload($manifest, undef, $content_type);
+    manifest_append($manifest, undef) if defined $digestfile;
+    return;
+  }
   for my $tag (BSUtil::unify(@$tags)) {
     manifest_upload($manifest, $tag, $content_type);
     manifest_append($manifest, $tag) if defined $digestfile;
@@ -351,6 +367,7 @@ sub list_tag {
 }
 
 sub tags_from_digestfile {
+  my ($add_sig_tags) = @_;
   return () unless $digestfile;
   my @ret;
   local *DIG;
@@ -358,6 +375,8 @@ sub tags_from_digestfile {
   while (<DIG>) {
     chomp;
     next if /^#/ || /^\s*$/;
+    push @ret, "$1-$2.sig" if $add_sig_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+    next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;	# ignore anonymous images
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     push @ret, $4;
   }
@@ -463,6 +482,21 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '--oci') {
     $oci = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '--cosign') {
+    $cosign = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--rekor') {
+    (undef, $rekorserver) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '-G') {
+    (undef, $gun) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '-p') {
+    (undef, $pubkeyfile) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--dest-creds') {
+    $dest_creds = BSBearer::get_credentials($ARGV[1]);
+    splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype' ||  $ARGV[0] eq '-h') {
+    my @signopts = splice(@ARGV, 0, 2);
+    push @signcmd, @signopts unless $signopts[0] eq '-h';
   } else {
     last;
   }
@@ -506,7 +540,7 @@ if ($delete_mode || $delete_except_mode) {
   die("cannot do both delete and delete-except\n") if $delete_mode && $delete_except_mode;
   my %tags;
   $tags{$_} = 1 for @tags;
-  $tags{$_} = 1 for tags_from_digestfile();
+  $tags{$_} = 1 for tags_from_digestfile($delete_except_mode ? 1 : 0);
 
   if ($delete_mode) {
     for my $tag (sort keys %tags) {
@@ -519,6 +553,19 @@ if ($delete_mode || $delete_except_mode) {
   }
   exit;
 }
+
+if ($cosign) {
+  require BSConfiguration;
+  require BSConSign;
+  require BSPGP;
+  require BSX509 if $rekorserver;
+  require BSRekor if $rekorserver;
+  die("need a pubkey for cosign signature creation\n") unless $pubkeyfile;
+  die("need a gun for cosign signature creation\n") unless $gun;
+  die("sign program is not configured!\n") unless $BSConfig::sign;
+  unshift @signcmd, $BSConfig::sign;
+}
+
 
 die("No tar file to upload?\n") if !@tarfiles;
 die("more than one tar file specified\n") if @tarfiles > 1 && !$multiarch;
@@ -546,6 +593,7 @@ if ($use_image_tags && @tarfiles > 1) {
 # use oci types if we have a helm chart
 $oci = 1 if grep {/\.helminfo$/} @tarfiles;
 
+my %digests_to_sign;
 my @multimanifests;
 my %multiplatforms;
 for my $tarfile (@tarfiles) {
@@ -644,13 +692,15 @@ for my $tarfile (@tarfiles) {
     'layers' => \@layer_data,
   };
   my $mani_json = BSContar::create_dist_manifest($mani);
+  my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
+  $digests_to_sign{$mani_id} = 1;
 
   if ($multiarch) {
-    manifest_upload($mani_json, undef, $mediaType);	# upload anonymous image
+    manifest_upload_tags($mani_json, undef, $mediaType);	# upload anonymous image
     my $multimani = {
       'mediaType' => $mediaType,
       'size' => length($mani_json),
-      'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+      'digest' => $mani_id,
       'platform' => {'architecture' => $goarch, 'os' => $goos},
     };
     $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
@@ -668,6 +718,50 @@ if ($multiarch) {
     'manifests' => \@multimanifests,
   };
   my $mani_json = BSContar::create_dist_manifest_list($mani);
+  my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
+  $digests_to_sign{$mani_id} = 1;
   manifest_upload_tags($mani_json, \@tags, $mediaType);
+}
+
+if ($cosign && %digests_to_sign) {
+  my $creator = 'OBS';
+  my $gpgpubkey = BSPGP::unarmor(readstr($pubkeyfile));
+  my $pubkeyid = BSPGP::pk2fingerprint($gpgpubkey);
+  my $cosigncookie = Digest::SHA::sha256_hex("$creator/$pubkeyid/$gun");
+  for my $digest (sort keys %digests_to_sign) {
+    my $sig_tag = "$digest.sig";
+    $sig_tag =~ s/:/-/;
+    my ($sig_mani, $sig_maniid, $sig_mani_json) = get_manifest_for_tag($sig_tag);
+    if ($sig_mani && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
+      my $annotations = $sig_mani->{'layers'}->[0]->{'annotations'} || {};
+      next if ($annotations->{'org.open-build-service.cosign.cookie'} || '') eq $cosigncookie;
+    }
+    print "creating cosign signature for $gun $digest\n";
+    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+    my $annotations = { 'org.open-build-service.cosign.cookie' => $cosigncookie };
+    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
+    my $config_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($config), $config);
+    my $payload_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($payload), $payload);
+    die unless $payload_blobid eq $payload_layer->{'digest'};
+    my $config_data = {
+      'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
+      'size' => length($config),
+      'digest' => $config_blobid,
+    };
+    my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
+    my $mani = {
+      'schemaVersion' => 2,
+      'mediaType' => $mediaType,
+      'config' => $config_data,
+      'layers' => [ $payload_layer ],
+    };
+    my $mani_json = BSContar::create_dist_manifest_list($mani);
+    manifest_upload($mani_json, $sig_tag, $mediaType);
+    if ($rekorserver) {
+      print "uploading cosign signature to $rekorserver\n";
+      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
+    }
+  }
 }
 

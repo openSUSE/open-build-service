@@ -31,6 +31,8 @@ use Digest::SHA ();
 use MIME::Base64 ();
 use IO::Compress::RawDeflate;
 
+our $mt_cosign = 'application/vnd.dev.cosign.simplesigning.v1+json';
+
 sub canonical_json {
   return JSON::XS->new->utf8->canonical->encode($_[0]);
 }
@@ -83,7 +85,7 @@ sub sig2openshift {
 }
 
 sub createcosign {
-  my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
+  my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
   my $payload = createpayload('cosign container image signature', $digest, $reference, $creator, $timestamp);
   my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
   # signfunc must return the openssl rsa signature
@@ -98,12 +100,12 @@ sub createcosign {
   };
   my $config_json = canonical_json($config);
   my $payload_layer = {
-    'annotations' => { 'dev.cosignproject.cosign/signature' => $sig },
+    'annotations' => { 'dev.cosignproject.cosign/signature' => $sig, %{$annotations || {}} },
     'digest' => $payload_digest,
-    'mediaType' => 'application/vnd.dev.cosign.simplesigning.v1+json',
+    'mediaType' => $mt_cosign,
     'size' => length($payload),
   };
-  return ($config_json, $payload_layer, $payload);
+  return ($config_json, $payload_layer, $payload, $sig);
 }
 
 1;
