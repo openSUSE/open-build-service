@@ -22,8 +22,9 @@
 
 package BSPublisher::Registry;
 
-use Digest::SHA;
+use Digest::SHA ();
 use JSON::XS ();
+use MIME::Base64 ();
 
 use BSConfiguration;
 use BSUtil;
@@ -32,7 +33,10 @@ use BSPublisher::Blobstore;
 use BSContar;
 use BSRPC;
 use BSTUF;
+use BSPGP;
+use BSX509;
 use BSConSign;
+use BSRekor;
 
 my $registrydir = "$BSConfig::bsdir/registry";
 my $uploaddir = "$BSConfig::bsdir/upload";
@@ -215,7 +219,7 @@ sub gen_timestampkey {
   $pubkey = BSPGP::unarmor($pubkey);
   $pubkey = BSPGP::pk2keydata($pubkey);
   die unless $pubkey;
-  $pubkey = BSTUF::keydata2asn1($pubkey);
+  $pubkey = BSX509::keydata2pubkey($pubkey);
   $pubkey = MIME::Base64::encode_base64($pubkey, '');
   return ($privkey, $pubkey);
 }
@@ -240,7 +244,7 @@ sub update_tuf {
   die("need an rsa pubkey for container signing\n") unless ($pubkey_data->{'algo'} || '') eq 'rsa';
   my $pubkey_times = BSPGP::pk2times($gpgpubkey) || {};
   # generate pub key and cert from pgp key data
-  my $pub_bin = BSTUF::keydata2asn1($pubkey_data);
+  my $pub_bin = BSX509::keydata2pubkey($pubkey_data);
 
   my $root_expire = $pubkey_times->{'key_expire'} + $root_extra_expire;
   my $tbscert = BSTUF::mktbscert($gun, $pubkey_times->{'selfsig_create'}, $root_expire, $pub_bin);
@@ -432,7 +436,7 @@ sub update_sigs {
 }
 
 sub update_cosign {
-  my ($prp, $repo, $gun, $digests_to_cosign, $pubkey, $signargs, $knownmanifests, $knownblobs) = @_;
+  my ($prp, $repo, $gun, $digests_to_cosign, $pubkey, $signargs, $rekorserver, $knownmanifests, $knownblobs) = @_;
 
   my $creator = 'OBS';
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -458,7 +462,7 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($config, $payload_layer, $payload) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
+    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
     my $config_blobid = push_blob_content($repodir, $config);
     $knownblobs->{$config_blobid} = 1;
     my $payload_blobid = push_blob_content($repodir, $payload);
@@ -480,6 +484,11 @@ sub update_cosign {
     my $mani_id = push_manifest($repodir, $mani_json);
     $knownmanifests->{$mani_id} = 1;
     $sigs->{'digests'}->{$digest} = $mani_id;
+    if ($rekorserver) {
+      print "uploading cosign signature to $rekorserver\n";
+      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
+    }   
   }
   if (BSUtil::identical($oldsigs, $sigs)) {
     print "local cosign signatures: no change.\n";
@@ -493,7 +502,7 @@ sub update_cosign {
 }
 
 sub push_containers {
-  my ($prp, $repo, $gun, $multiarch, $tags, $pubkey, $signargs) = @_;
+  my ($prp, $repo, $gun, $multiarch, $tags, $pubkey, $signargs, $rekorserver) = @_;
 
   my $containerdigests = '';
 
@@ -698,7 +707,7 @@ sub push_containers {
 
   # write signatures file (need to do this early as it adds manifests/blobs)
   if ($gun && %digests_to_cosign) {
-    update_cosign($prp, $repo, $gun, \%digests_to_cosign, $pubkey, $signargs, \%knownmanifests, \%knownblobs);
+    update_cosign($prp, $repo, $gun, \%digests_to_cosign, $pubkey, $signargs, $rekorserver, \%knownmanifests, \%knownblobs);
   } elsif (-e "$repodir/:cosign") {
     unlink("$repodir/:cosign");
   }
