@@ -39,6 +39,7 @@ use BSUtil;
 use BSPGP;
 use BSBearer;
 use BSTUF;
+use BSX509;
 
 use strict;
 
@@ -266,7 +267,7 @@ my $pubkey_data = BSPGP::pk2keydata($gpgpubkey) || {};
 die("need an rsa pubkey for container signing\n") unless ($pubkey_data->{'algo'} || '') eq 'rsa';
 my $pubkey_times = BSPGP::pk2times($gpgpubkey) || {};
 # generate pub key and cert from pgp key data
-my $pub_bin = BSTUF::keydata2asn1($pubkey_data);
+my $pub_bin = BSX509::keydata2pubkey($pubkey_data);
 
 # create new to-be-signed cert
 my $root_expire = $pubkey_times->{'key_expire'} + $root_extra_expire;
