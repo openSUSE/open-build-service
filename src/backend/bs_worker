@@ -3478,7 +3478,7 @@ sub dobuild {
   push @args, '--clean';
   push @args, '--changelog';
   push @args, '--oldpackages', $oldpkgdir if $oldpkgdir && -d $oldpkgdir;
-  push @args, '--norootforbuild' unless $buildinfo->{'rootforbuild'} || ($BSConfig::norootexceptions && grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions);
+  push @args, '--norootforbuild' unless !$BSConfig::norootexceptions || $bconf->{'buildflags:allowrootforbuild'} || $buildinfo->{'rootforbuild'} || grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions;
   push @args, '--baselibs-internal';
   push @args, '--dist', "$buildroot/.build.config";
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";

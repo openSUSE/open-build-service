@@ -24,20 +24,13 @@ package BSTUF;
 
 use JSON::XS ();
 use MIME::Base64 ();
-use Digest::SHA;
+use Digest::SHA ();
 
 use BSUtil;
 use BSASN1;
 use BSX509;
 
 use strict;
-
-sub keydata2asn1 {
-  my ($keydata) = @_;
-  die("need an rsa pubkey\n") unless ($keydata->{'algo'} || '') eq 'rsa';
-  my $pubkey = BSASN1::pack_sequence(BSASN1::pack_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::pack_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
-  return BSASN1::pack_sequence(BSASN1::pack_sequence($BSX509::oid_rsaencryption, BSASN1::pack_null()), BSASN1::pack_bytes($pubkey));
-}
 
 sub rfc3339time {
   my ($t) = @_;
@@ -58,7 +51,7 @@ sub mktbscert {
   my ($cn, $not_before, $not_after, $subjectkeyinfo) = @_;
   my $certversion = BSASN1::pack_tagged(0, BSASN1::pack_integer(2));
   my $certserial = BSX509::pack_random_serial();
-  my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
+  my $sigalgo = BSX509::pack_sigalgo('rsa', 'sha256');
   my $issuer = BSX509::pack_distinguished_name([ $BSX509::oid_common_name, $cn ]);
   my $validity = BSX509::pack_validity($not_before, $not_after);
   my $basic_constraints = BSASN1::pack_sequence();
@@ -75,7 +68,7 @@ sub mktbscert {
 sub mkcert {
   my ($tbscert, $signfunc) = @_;
   my $signature = $signfunc->($tbscert);
-  my $sigalgo = BSASN1::pack_sequence($BSX509::oid_sha256withrsaencryption, BSASN1::pack_null());
+  my $sigalgo = BSX509::pack_sigalgo('rsa', 'sha256');
   my $cert = BSASN1::pack_sequence($tbscert, $sigalgo, BSASN1::pack_bytes($signature));
   return BSASN1::der2pem($cert, 'CERTIFICATE');
 }
