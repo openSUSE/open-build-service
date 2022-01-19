@@ -359,7 +359,7 @@ function check_server_key {
   if [ ! -e $backenddir/certs/server.key ]; then
       logline "Creating $backenddir/certs/server.key"
       install -d -m 0700 $backenddir/certs
-      openssl genrsa -out $backenddir/certs/server.key 1024 2>/dev/null
+      openssl genrsa -out $backenddir/certs/server.key 2048 2>/dev/null
   else
       logline "Found $backenddir/certs/server.key"
   fi
