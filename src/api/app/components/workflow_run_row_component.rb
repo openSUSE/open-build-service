@@ -1,4 +1,18 @@
 class WorkflowRunRowComponent < ApplicationComponent
+  SOURCE_NAME_PAYLOAD_MAPPING = {
+    'pull_request' => ['pull_request', 'number'],
+    'Merge Request Hook' => ['object_attributes', 'id'],
+    'push' => ['head_commit', 'id'],
+    'Push Hook' => ['commits', 0, 'id']
+  }.freeze
+
+  SOURCE_URL_PAYLOAD_MAPPING = {
+    'pull_request' => ['pull_request', 'url'],
+    'Merge Request Hook' => ['object_attributes', 'url'],
+    'push' => ['head_commit', 'url'],
+    'Push Hook' => ['commits', 0, 'url']
+  }.freeze
+
   attr_reader :workflow_run, :status
 
   def initialize(workflow_run:)
@@ -14,27 +28,26 @@ class WorkflowRunRowComponent < ApplicationComponent
   end
 
   def hook_event
-    parsed_request_headers['HTTP_X_GITHUB_EVENT'] || parsed_request_headers['HTTP_X_GITLAB_EVENT']
+    parsed_request_headers['HTTP_X_GITHUB_EVENT'] ||
+      parsed_request_headers['HTTP_X_GITLAB_EVENT']
   end
 
   def repository_name
-    payload.dig('repository', 'full_name') || payload.dig('repository', 'name')
+    payload.dig('repository', 'full_name') || # For GitHub
+      payload.dig('repository', 'name') # For GitLab
   end
 
   def repository_url
-    payload.dig('repository', 'html_url') ||
-      payload.dig('repository', 'git_http_url') || payload.dig('repository', 'url')
+    payload.dig('repository', 'html_url') || # For GitHub
+      payload.dig('repository', 'git_http_url') || payload.dig('repository', 'url') # For GitLab
   end
 
   def event_source_name
-    case hook_event
-    when 'pull_request', 'Merge Request Hook'
-      payload.dig('pull_request', 'number') || payload.dig('object_attributes', 'id')
-    when 'push', 'Push Hook'
-      payload.dig('head_commit', 'id') || payload.dig('commits', 0, 'id')
-    else
-      payload.dig('repository', 'full_name') || payload.dig('project', 'name')
-    end
+    payload.dig(*SOURCE_NAME_PAYLOAD_MAPPING[hook_event])
+  end
+
+  def event_source_url
+    payload.dig(*SOURCE_URL_PAYLOAD_MAPPING[hook_event])
   end
 
   def formatted_event_source_name
@@ -43,17 +56,6 @@ class WorkflowRunRowComponent < ApplicationComponent
       "##{event_source_name}"
     else
       event_source_name
-    end
-  end
-
-  def event_source_url
-    case hook_event
-    when 'pull_request', 'Merge Request Hook'
-      payload.dig('pull_request', 'url') || payload.dig('object_attributes', 'url')
-    when 'push', 'Push Hook'
-      payload.dig('head_commit', 'url') || payload.dig('commits', 0, 'url')
-    else
-      payload.dig('repository', 'html_url') || payload.dig('project', 'name')
     end
   end
 
