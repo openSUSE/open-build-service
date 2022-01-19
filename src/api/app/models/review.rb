@@ -320,25 +320,27 @@ class Review < ApplicationRecord
   end
 
   def update_cache
-    # rubocop:disable Rails/SkipsModelValidations
     # Skipping Model validations in this case is fine as we only want to touch
     # the associated user models to invalidate the cache keys
-    if user_id
-      user_ids = [user_id]
-    elsif group_id
-      group.touch
-      user_ids = GroupsUser.where(group_id: group_id).pluck(:user_id)
-    elsif package_id
-      Group.joins(:relationships).where(relationships: { package_id: package_id }).update_all(updated_at: Time.now)
-      user_ids = Relationship.joins(:groups_users).where(package_id: package_id).groups.pluck('groups_users.user_id')
-      user_ids += Relationship.where(package_id: package_id).users.pluck(:user_id)
-    elsif project_id
-      Group.joins(:relationships).where(relationships: { project_id: project_id }).update_all(updated_at: Time.now)
-      user_ids = Relationship.joins(:groups_users).where(project_id: project_id).groups.pluck('groups_users.user_id')
-      user_ids += Relationship.where(project_id: project_id).users.pluck(:user_id)
+    user_ids = []
+    group_ids = []
+    user_ids << user_id if user_id
+    if group_id
+      group_ids << group_id
+      user_ids << GroupsUser.where(group_id: group_id).pluck(:user_id)
     end
-    User.where(id: user_ids).update_all(updated_at: Time.now)
-    # rubocop:enable Rails/SkipsModelValidations
+    if package_id
+      group_ids << Relationship.joins(:groups_users).where(package_id: package_id).groups.pluck('groups_users.group_id')
+      user_ids << Relationship.joins(:groups_users).where(package_id: package_id).groups.pluck('groups_users.user_id')
+      user_ids << Relationship.where(package_id: package_id).users.pluck(:user_id)
+    end
+    if project_id
+      group_ids << Relationship.joins(:groups_users).where(project_id: project_id).groups.pluck('groups_users.group_id')
+      user_ids << Relationship.joins(:groups_users).where(project_id: project_id).groups.pluck('groups_users.user_id')
+      user_ids << Relationship.where(project_id: project_id).users.pluck(:user_id)
+    end
+    User.where(id: user_ids).find_each(&:remove_cache)
+    Group.where(id: group_ids).find_each(&:remove_cache)
   end
 end
 

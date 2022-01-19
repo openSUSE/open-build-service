@@ -1210,13 +1210,16 @@ class BsRequest < ApplicationRecord
     review_comment
   end
 
+  # drop all user caches, mainly for involed requests operations
   def update_cache
     target_package_ids = bs_request_actions.with_target_package.pluck(:target_package_id)
     target_project_ids = bs_request_actions.with_target_project.pluck(:target_project_id)
 
-    user_ids = Relationship.where(package_id: target_package_ids).or(
+    group_users = Relationship.where(package_id: target_package_ids).or(
       Relationship.where(project_id: target_project_ids)
-    ).groups.joins(:groups_users).pluck('groups_users.user_id')
+    ).groups.joins(:groups_users)
+
+    user_ids = group_users.pluck('groups_users.user_id')
 
     user_ids += Relationship.where(package_id: target_package_ids).or(
       Relationship.where(project_id: target_project_ids)
@@ -1224,14 +1227,10 @@ class BsRequest < ApplicationRecord
 
     user_ids << User.find_by_login!(creator).id
 
-    # rubocop:disable Rails/SkipsModelValidations
     # Skipping Model validations in this case is fine as we only want to touch
     # the associated user models to invalidate the cache keys
-    Group.joins(:relationships).where(relationships: { package_id: target_package_ids }).or(
-      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })
-    ).update_all(updated_at: Time.now)
-    User.where(id: user_ids).update_all(updated_at: Time.now)
-    # rubocop:enable Rails/SkipsModelValidations
+    User.where(id: user_ids).find_each(&:remove_cache)
+    Group.where(id: group_users.pluck('groups_users.group_id')).find_each(&:remove_cache)
   end
 end
 

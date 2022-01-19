@@ -183,8 +183,12 @@ class Group < ApplicationRecord
     BsRequest::FindFor::Group.new(group: title, relation: BsRequest.all).all_count
   end
 
+  def remove_cache
+    Rails.cache.delete(['requests_for', self])
+  end
+
   def tasks
-    Rails.cache.fetch("requests_for_#{cache_key_with_version}") do
+    Rails.cache.fetch(['requests_for', self]) do
       incoming_requests.count + involved_reviews.count
     end
   end
