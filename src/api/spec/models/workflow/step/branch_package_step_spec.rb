@@ -85,12 +85,9 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
     it 'only reports for repositories and architectures matching the filters' do
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'i586' },
-                                                      scm_webhook.payload.merge({ short_package_name: final_short_package_name }),
-                                                      token.scm_token).and_call_original
+                                                      scm_webhook.payload, token.scm_token).and_call_original
       expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'x86_64' },
-                                                      scm_webhook.payload.merge({ short_package_name: final_short_package_name }),
-                                                      token.scm_token).and_call_original
-
+                                                      scm_webhook.payload, token.scm_token).and_call_original
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'ppc' },
                                                           scm_webhook.payload, token.scm_token)
       expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'aarch64' },
@@ -175,7 +172,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:target_project_final_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
     let(:final_package_name) { package.name }
-    let(:final_short_package_name) { package.name }
 
     before do
       project
@@ -223,6 +219,57 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it_behaves_like 'fails with insufficient write permission on target project'
       end
 
+      context 'for a multibuild package' do
+        let(:action) { 'opened' }
+        let(:package) { create(:multibuild_package, name: 'multibuild_package', project: project) }
+        let(:octokit_client) { instance_double(Octokit::Client) }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name
+          }
+        end
+        let(:workflow_filters) do
+          { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
+        end
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+        end
+
+        it { expect { subject.call }.to(change(Package, :count).by(1)) }
+        it { expect(subject.call.project.name).to eq(target_project_final_name) }
+        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+        it { expect(subject.call.source_file('_branch_request')).to include('123') }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+
+        # rubocop:disable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
+        # RSpec/MultipleExpectations, RSpec/ExampleLength - We want to test those expectations together since they depend on each other to be true
+        # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
+        it 'only reports for repositories and architectures matching the filters' do
+          [final_package_name, "#{final_package_name}:flavor_a", "#{final_package_name}:flavor_b"].each do |package_or_flavor_name|
+            expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'i586' },
+                                                            scm_webhook.payload, token.scm_token).and_call_original
+            expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'x86_64' },
+                                                            scm_webhook.payload, token.scm_token).and_call_original
+            expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'ppc' },
+                                                                scm_webhook.payload, token.scm_token)
+            expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'aarch64' },
+                                                                scm_webhook.payload, token.scm_token)
+            expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
+                                                                scm_webhook.payload, token.scm_token)
+          end
+          subject.call({ workflow_filters: workflow_filters })
+        end
+        # rubocop:enable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
+      end
+
       context 'for an updated PR event' do
         context 'when the branched package already existed' do
           it_behaves_like 'successful update event when the branch_package already exists' do
@@ -233,7 +280,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
             end
             let(:update_payload) do
               { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
-                'scm' => 'github', 'source_repository_full_name' => 'reponame', 'short_package_name' => package.name,
+                'scm' => 'github', 'source_repository_full_name' => 'reponame',
                 'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:existing_branch_request_file) do
@@ -272,8 +319,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
         let(:octokit_client) { instance_double(Octokit::Client) }
         let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-#{long_commit_sha}" }
-        let(:final_short_package_name) { "#{package.name}-#{short_commit_sha}" }
+        let(:final_package_name) { "#{package.name}-#{short_commit_sha}" }
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
@@ -394,8 +440,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
             let(:update_payload) do
               { 'action' => 'update', 'commit_sha' => long_commit_sha, 'event' => 'Merge Request Hook',
                 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'short_package_name' => package.name, 'path_with_namespace' => 'openSUSE/open-build-service',
-                'workflow_filters' => {} }
+                'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:existing_branch_request_file) do
               { object_kind: 'update',
@@ -426,8 +471,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
         let(:gitlab_client) { instance_double(Gitlab::Client) }
         let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-#{long_commit_sha}" }
-        let(:final_short_package_name) { "#{package.name}-#{short_commit_sha}" }
+        let(:final_package_name) { "#{package.name}-#{short_commit_sha}" }
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
