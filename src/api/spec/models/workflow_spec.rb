@@ -2,10 +2,11 @@ require 'rails_helper'
 
 RSpec.describe Workflow, type: :model do
   let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
-  let!(:token) { create(:workflow_token, user: user) }
+  let(:token) { create(:workflow_token, user: user) }
+  let!(:workflow_run) { create(:workflow_run, token: token) }
 
   subject do
-    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: extractor_payload), token: token)
+    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: extractor_payload), token: token, workflow_run_id: workflow_run.id)
   end
 
   describe '#call' do

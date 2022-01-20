@@ -10,7 +10,7 @@ class Workflow
 
   SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
 
-  attr_accessor :workflow_instructions, :scm_webhook, :token
+  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run_id
 
   def initialize(attributes = {})
     super
