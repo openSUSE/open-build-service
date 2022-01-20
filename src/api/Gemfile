@@ -85,6 +85,9 @@ gem 'deep_cloneable', '~> 2.4.0'
 # Server-side datatables
 gem 'ajax-datatables-rails'
 
+# SSO
+gem 'omniauth'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
