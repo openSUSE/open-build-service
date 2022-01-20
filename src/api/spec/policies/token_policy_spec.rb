@@ -13,8 +13,15 @@ RSpec.describe TokenPolicy do
   permissions :webui_trigger?, :show? do
     it { is_expected.not_to permit(other_user, user_token) }
     it { is_expected.not_to permit(token_user, rss_token) }
-    it { is_expected.not_to permit(token_user, workflow_token) }
 
     it { is_expected.to permit(token_user, user_token) }
+  end
+
+  permissions :show? do
+    it { is_expected.to permit(token_user, workflow_token) }
+  end
+
+  permissions :webui_trigger? do
+    it { is_expected.not_to permit(token_user, workflow_token) }
   end
 end
