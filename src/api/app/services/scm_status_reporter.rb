@@ -43,7 +43,7 @@ class SCMStatusReporter < SCMExceptionHandler
   end
 
   def status_options
-    { context: "OBS: #{@event_subscription_payload[:short_package_name]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
+    { context: "OBS: #{@event_payload[:package]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
       target_url: Rails.application.routes.url_helpers.package_show_url(@event_payload[:project], @event_payload[:package], host: Configuration.obs_url) }
   end
 

@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Sep 2021 10:06:08 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_226
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Far-Distant Oxus</title>
+          <title>The Way of All Flesh</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -75,19 +75,19 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Far-Distant Oxus</title>
+          <title>The Way of All Flesh</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Sep 2021 10:06:08 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_226
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Far-Distant Oxus</title>
+          <title>The Way of All Flesh</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
           <repository name="repository_1" rebuild="direct">
@@ -118,14 +118,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Far-Distant Oxus</title>
+          <title>The Way of All Flesh</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
           <repository name="repository_1" rebuild="direct">
             <arch>x86_64</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Sep 2021 10:06:09 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Oggy/_meta?user=Oggy
@@ -165,16 +165,16 @@ http_interactions:
           <description></description>
           <person userid="Oggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Sep 2021 10:06:09 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/hello_world/_meta?user=user_2
+    uri: http://backend:5352/source/openSUSE:Factory/hello_world/_meta?user=user_227
     body:
       encoding: UTF-8
       string: |
         <package name="hello_world" project="openSUSE:Factory">
-          <title>The Torment of Others</title>
-          <description>Soluta eveniet deleniti ut.</description>
+          <title>Vanity Fair</title>
+          <description>Ipsa facere tempora aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -195,13 +195,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="hello_world" project="openSUSE:Factory">
-          <title>The Torment of Others</title>
-          <description>Soluta eveniet deleniti ut.</description>
+          <title>Vanity Fair</title>
+          <description>Ipsa facere tempora aut.</description>
         </package>
-  recorded_at: Thu, 23 Sep 2021 10:06:09 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:19 GMT
 recorded_with: VCR 6.0.0

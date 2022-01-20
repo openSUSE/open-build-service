@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 21 Sep 2021 11:53:42 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_221
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>In Dubious Battle</title>
+          <title>Beyond the Mexique Bay</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,24 +70,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>In Dubious Battle</title>
+          <title>Beyond the Mexique Bay</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 21 Sep 2021 11:53:42 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_221
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>In Dubious Battle</title>
+          <title>Beyond the Mexique Bay</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
           <repository name="repository_1" rebuild="direct">
@@ -113,28 +113,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '246'
+      - '251'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>In Dubious Battle</title>
+          <title>Beyond the Mexique Bay</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
           <repository name="repository_1" rebuild="direct">
             <arch>x86_64</arch>
           </repository>
         </project>
-  recorded_at: Tue, 21 Sep 2021 11:53:42 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/hello_world/_meta?user=user_2
+    uri: http://backend:5352/source/openSUSE:Factory/hello_world/_meta?user=user_222
     body:
       encoding: UTF-8
       string: |
         <package name="hello_world" project="openSUSE:Factory">
-          <title>Quo Vadis</title>
-          <description>Vel dolorem voluptates facere.</description>
+          <title>An Acceptable Time</title>
+          <description>Sequi et voluptates qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -155,15 +155,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="hello_world" project="openSUSE:Factory">
-          <title>Quo Vadis</title>
-          <description>Vel dolorem voluptates facere.</description>
+          <title>An Acceptable Time</title>
+          <description>Sequi et voluptates qui.</description>
         </package>
-  recorded_at: Tue, 21 Sep 2021 11:53:42 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:18 GMT
 - request:
     method: post
     uri: http://backend:5352/build/openSUSE:Factory?cmd=rebuild&package=hello_world
@@ -197,5 +197,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 21 Sep 2021 11:53:42 GMT
+  recorded_at: Thu, 20 Jan 2022 10:32:18 GMT
 recorded_with: VCR 6.0.0

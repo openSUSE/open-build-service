@@ -272,7 +272,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
                 'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
-              { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'short_package_name' => 'bar_package',
+              { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github',
                 'source_repository_full_name' => 'reponame', 'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }
@@ -439,7 +439,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
                 'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:update_payload) do
-              { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab', 'short_package_name' => 'bar_package',
+              { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab',
                 'source_repository_full_name' => 'reponame', 'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
             end
             let(:commit_sha) { '456' }

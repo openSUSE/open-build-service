@@ -31,7 +31,10 @@ class Workflow::Step
   end
 
   def target_package
-    Package.find_by_project_and_name(target_project_name, target_package_name)
+    Package.get_by_project_and_name(target_project_name, target_package_name, follow_multibuild: true)
+  rescue Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError
+    # We rely on Package.get_by_project_and_name since it's the only way to work with multibuild packages.
+    # It's possible for a package to not exist, so we simply rescue and do nothing. The package will be created later in the step.
   end
 
   def create_or_update_subscriptions(package, workflow_filters)
@@ -43,7 +46,7 @@ class Workflow::Step
                                                           enabled: true,
                                                           token: @token,
                                                           package: package)
-      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters, short_package_name: target_package_name(short_commit_sha: true) }))
+      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
     end
   end
 
@@ -68,6 +71,10 @@ class Workflow::Step
     step_instructions[:source_project]
   end
 
+  def target_package_names
+    [target_package_name(short_commit_sha: true)] + multibuild_flavors
+  end
+
   def target_package_name(short_commit_sha: false)
     package_name = step_instructions[:target_package] || source_package_name
 
@@ -87,6 +94,10 @@ class Workflow::Step
   end
 
   private
+
+  def multibuild_flavors
+    target_package.multibuild_flavors.collect { |flavor| "#{target_package_name}:#{flavor}" }
+  end
 
   def target_project_base_name
     raise AbstractMethodCalled
@@ -156,9 +167,10 @@ class Workflow::Step
     workflow_repositories(target_project_name, workflow_filters).each do |repository|
       # TODO: Fix n+1 queries
       workflow_architectures(repository, workflow_filters).each do |architecture|
-        # We cannot report multibuild flavors here... so they will be missing from the initial report
-        SCMStatusReporter.new({ project: target_project_name, package: target_package_name, repository: repository.name, arch: architecture.name },
-                              scm_webhook.payload.merge({ short_package_name: target_package_name(short_commit_sha: true) }), @token.scm_token).call
+        target_package_names.each do |target_package_name_or_flavor|
+          SCMStatusReporter.new({ project: target_project_name, package: target_package_name_or_flavor, repository: repository.name, arch: architecture.name },
+                                scm_webhook.payload, @token.scm_token).call
+        end
       end
     end
   end
