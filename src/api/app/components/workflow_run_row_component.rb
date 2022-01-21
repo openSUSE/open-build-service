@@ -1,4 +1,18 @@
 class WorkflowRunRowComponent < ApplicationComponent
+  SOURCE_NAME_PAYLOAD_MAPPING = {
+    'pull_request' => ['pull_request', 'number'],
+    'Merge Request Hook' => ['object_attributes', 'id'],
+    'push' => ['head_commit', 'id'],
+    'Push Hook' => ['commits', 0, 'id']
+  }.freeze
+
+  SOURCE_URL_PAYLOAD_MAPPING = {
+    'pull_request' => ['pull_request', 'url'],
+    'Merge Request Hook' => ['object_attributes', 'url'],
+    'push' => ['head_commit', 'url'],
+    'Push Hook' => ['commits', 0, 'url']
+  }.freeze
+
   attr_reader :workflow_run, :status
 
   def initialize(workflow_run:)
@@ -9,50 +23,39 @@ class WorkflowRunRowComponent < ApplicationComponent
   end
 
   def hook_action
-    return payload['action'] if
-      hook_event == 'pull_request' && ScmWebhookEventValidator::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
+    return payload['action'] if pull_request_with_allowed_action
+    return payload.dig('object_attributes', 'action') if merge_request_with_allowed_action
   end
 
   def hook_event
-    parsed_request_headers['HTTP_X_GITHUB_EVENT']
+    parsed_request_headers['HTTP_X_GITHUB_EVENT'] ||
+      parsed_request_headers['HTTP_X_GITLAB_EVENT']
   end
 
   def repository_name
-    payload.dig('repository', 'full_name')
+    payload.dig('repository', 'full_name') || # For GitHub
+      payload.dig('repository', 'name') # For GitLab
   end
 
   def repository_url
-    payload.dig('repository', 'html_url')
+    payload.dig('repository', 'html_url') || # For GitHub
+      payload.dig('repository', 'git_http_url') || payload.dig('repository', 'url') # For GitLab
   end
 
-  def hook_source_name
-    case hook_event
-    when 'pull_request'
-      payload.dig('pull_request', 'number')
-    when 'push'
-      payload.dig('head_commit', 'id')
-    else
-      payload.dig('repository', 'full_name')
-    end
+  def event_source_name
+    payload.dig(*SOURCE_NAME_PAYLOAD_MAPPING[hook_event])
   end
 
-  def formatted_hook_source_name
-    case hook_event
-    when 'pull_request'
-      "##{hook_source_name}"
-    else
-      hook_source_name
-    end
+  def event_source_url
+    payload.dig(*SOURCE_URL_PAYLOAD_MAPPING[hook_event])
   end
 
-  def hook_source_url
+  def formatted_event_source_name
     case hook_event
-    when 'pull_request'
-      payload.dig('pull_request', 'url')
-    when 'push'
-      payload.dig('head_commit', 'url')
+    when 'pull_request', 'Merge Request Hook'
+      "##{event_source_name}"
     else
-      payload.dig('repository', 'html_url')
+      event_source_name
     end
   end
 
@@ -91,6 +94,16 @@ class WorkflowRunRowComponent < ApplicationComponent
   def payload
     @payload ||= JSON.parse(workflow_run.request_payload)
   rescue JSON::ParserError
-    {}
+    { payload: 'unparseable' }
+  end
+
+  def pull_request_with_allowed_action
+    hook_event == 'pull_request' &&
+      ScmWebhookEventValidator::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
+  end
+
+  def merge_request_with_allowed_action
+    hook_event == 'Merge Request Hook' &&
+      ScmWebhookEventValidator::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end

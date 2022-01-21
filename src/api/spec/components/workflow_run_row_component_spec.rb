@@ -7,6 +7,13 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       HTTP_X_GITHUB_EVENT: pull_request
     END_OF_HEADERS
   end
+  let(:request_payload) do
+    <<~END_OF_REQUEST
+      {
+      }
+    END_OF_REQUEST
+  end
+
   let(:workflow_run) do
     create(:workflow_run,
            token: workflow_token,
@@ -18,78 +25,81 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
     render_inline(described_class.new(workflow_run: workflow_run))
   end
 
-  context 'every single workflow run' do
-    let(:request_payload) do
-      <<~END_OF_REQUEST
-        {
-          "pull_request": {
-            "url": "https://example.com/pr/1",
-            "number": "1"
-          },
-          "repository": {
-            "full_name": "Example Repository",
-            "html_url": "https://example.com"
+  context 'when the workflow is triggered via GitHub' do
+    context 'when there is no repository present' do
+      let(:request_headers) do
+        <<~END_OF_HEADERS
+          HTTP_X_GITHUB_EVENT: pull_request
+        END_OF_HEADERS
+      end
+      let(:request_payload) do
+        <<~END_OF_REQUEST
+          {
           }
-        }
-      END_OF_REQUEST
+        END_OF_REQUEST
+      end
+
+      it { expect(rendered_component).to have_text('Unknown source') }
+      it { expect(rendered_component).not_to have_link }
     end
 
-    it 'shows the date the workflow run was created' do
-      expect(rendered_component).to have_text(workflow_run.created_at)
-    end
-  end
-
-  context 'when there is no repository present' do
-    let(:request_payload) do
-      <<~END_OF_REQUEST
-        {
-          "pull_request": {
-            "url": "https://example.com/pr/1"
+    context 'and comes from a pull request event' do
+      let(:request_payload) do
+        <<~END_OF_REQUEST
+          {
+            "action": "opened",
+            "pull_request": {
+              "url": "https://api.github.com/repos/zeromq/libzmq/pulls/4330",
+              "number": 4330
+            },
+            "repository": {
+              "full_name": "zeromq/libzmq",
+              "html_url": "https://github.com/zeromq/libzmq"
+            }
           }
-        }
-      END_OF_REQUEST
-    end
+        END_OF_REQUEST
+      end
 
-    it { expect(rendered_component).to have_text('Unknown source') }
-    it { expect(rendered_component).not_to have_link }
-  end
+      it { expect(rendered_component).to have_text 'Pull request event' }
 
-  context 'when the workflow comes from a pull request event' do
-    let(:request_payload) do
-      <<~END_OF_REQUEST
-        {
-          "pull_request": {
-            "url": "https://example.com/pr/1",
-            "number": "1"
-          },
-          "repository": {
-            "full_name": "Example Repository",
-            "html_url": "https://example.com"
-          }
-        }
-      END_OF_REQUEST
-    end
+      it 'shows a link to the repository' do
+        expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
+      end
 
-    it { expect(rendered_component).to have_text 'Pull request event' }
+      it 'shows a link to the pull request' do
+        expect(rendered_component).to have_link('#4330', href: 'https://api.github.com/repos/zeromq/libzmq/pulls/4330')
+      end
 
-    it 'shows a link to the repository' do
-      expect(rendered_component).to have_link('Example Repository', href: 'https://example.com')
-    end
+      ['closed', 'opened', 'reopened', 'synchronize'].each do |action|
+        context "and the action is '#{action}'" do
+          let(:request_payload) do
+            <<~END_OF_REQUEST
+              {
+                "action": "#{action}",
+                "pull_request": {
+                  "url": "https://example.com/pr/1",
+                  "number": 1
+                },
+                "repository": {
+                  "full_name": "Example Repository",
+                  "html_url": "https://example.com"
+                }
+              }
+            END_OF_REQUEST
+          end
 
-    it 'shows a link to the pull request' do
-      expect(rendered_component).to have_link('#1', href: 'https://example.com/pr/1')
-    end
+          it { expect(rendered_component).to have_text action.humanize }
+        end
+      end
 
-    # TODO: What happens with stuff from GitLab?
-    ['closed', 'opened', 'reopened', 'synchronize'].each do |action|
-      context "and the action is '#{action}'" do
+      context 'and the action is unsupported' do
         let(:request_payload) do
           <<~END_OF_REQUEST
             {
-              "action": "#{action}",
+              "action": "edited",
               "pull_request": {
                 "url": "https://example.com/pr/1",
-                "number": "1"
+                "number": 1
               },
               "repository": {
                 "full_name": "Example Repository",
@@ -99,18 +109,24 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
           END_OF_REQUEST
         end
 
-        it { expect(rendered_component).to have_text action.humanize }
+        it 'does not show the action anywhere' do
+          expect(rendered_component).not_to have_text('Unsupported')
+        end
       end
     end
 
-    context 'and the action is unsupported' do
+    context 'when the workflow comes from a push event' do
+      let(:request_headers) do
+        <<~END_OF_HEADERS
+          HTTP_X_GITHUB_EVENT: push
+        END_OF_HEADERS
+      end
       let(:request_payload) do
         <<~END_OF_REQUEST
           {
-            "action": "edited",
-            "pull_request": {
-              "url": "https://example.com/pr/1",
-              "number": "1"
+            "head_commit": {
+              "id": "1234",
+              "url": "https://example.com/commit/1234"
             },
             "repository": {
               "full_name": "Example Repository",
@@ -120,86 +136,208 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         END_OF_REQUEST
       end
 
-      it 'does not show the action anywhere' do
-        expect(rendered_component).not_to have_text('Unsupported')
+      it { expect(rendered_component).to have_text 'Push event' }
+
+      it 'shows a link to the repository' do
+        expect(rendered_component).to have_link('Example Repository', href: 'https://example.com')
+      end
+
+      it 'shows a link to the pushed commit' do
+        expect(rendered_component).to have_link('1234', href: 'https://example.com/commit/1234')
       end
     end
   end
 
-  context 'when the workflow comes from a push event' do
+  context 'when the workflow is triggered via GitLab' do
     let(:request_headers) do
       <<~END_OF_HEADERS
-        HTTP_X_GITHUB_EVENT: push
+        HTTP_X_GITLAB_EVENT: Merge Request Hook
       END_OF_HEADERS
     end
     let(:request_payload) do
-      <<~END_OF_REQUEST
+      <<~END_OF_PAYLOAD
         {
-          "head_commit": {
-            "id": "1234",
-            "url": "https://example.com/commit/1234"
+          "object_kind": "merge_request",
+          "project": {
+            "name":"Gitlab Test"
           },
           "repository": {
-            "full_name": "Example Repository",
-            "html_url": "https://example.com"
+            "name": "Gitlab Test",
+            "url": "http://example.com/gitlabhq/gitlab-test.git"
+          },
+          "object_attributes": {
+            "id": 99,
+            "url": "http://example.com/diaspora/merge_requests/1",
+            "action": "open"
           }
         }
-      END_OF_REQUEST
+      END_OF_PAYLOAD
     end
 
-    it { expect(rendered_component).to have_text 'Push event' }
+    context 'when there is no repository present' do
+      let(:request_payload) do
+        <<~END_OF_PAYLOAD
+          {}
+        END_OF_PAYLOAD
+      end
 
-    it 'shows a link to the repository' do
-      expect(rendered_component).to have_link('Example Repository', href: 'https://example.com')
+      it { expect(rendered_component).to have_text('Unknown source') }
+      it { expect(rendered_component).not_to have_link('Gitlab Test', href: 'http://example.com/gitlabhq/gitlab-test.git') }
     end
 
-    it 'shows a link to the pushed commit' do
-      expect(rendered_component).to have_link('1234', href: 'https://example.com/commit/1234')
+    context 'and comes from a merge request event' do
+      let(:request_headers) do
+        <<~END_OF_HEADERS
+          HTTP_X_GITLAB_EVENT: Merge Request Hook
+        END_OF_HEADERS
+      end
+
+      it { expect(rendered_component).to have_text('Merge request hook event') }
+
+      it 'shows a link to the repository' do
+        expect(rendered_component).to have_link('Gitlab Test', href: 'http://example.com/gitlabhq/gitlab-test.git')
+      end
+
+      it 'shows a link to the pull request' do
+        expect(rendered_component).to have_link('#99', href: 'http://example.com/diaspora/merge_requests/1')
+      end
+
+      ['close', 'merge', 'open', 'reopen', 'update'].each do |action|
+        context "and the action is '#{action}'" do
+          let(:request_payload) do
+            <<~END_OF_REQUEST
+              {
+                "object_attributes":{
+                  "action": "#{action}"
+                }
+              }
+            END_OF_REQUEST
+          end
+
+          it { expect(rendered_component).to have_text action.humanize }
+        end
+      end
+      context 'and the action is unsupported' do
+        let(:request_payload) do
+          <<~END_OF_REQUEST
+            {
+              "object_attributes": {
+                "action": "unapproved"
+              }
+            }
+          END_OF_REQUEST
+        end
+
+        it 'does not show the action anywhere' do
+          expect(rendered_component).not_to have_text('unapproved')
+        end
+      end
+    end
+
+    context 'and comes from a push event' do
+      let(:request_headers) do
+        <<~END_OF_HEADERS
+          HTTP_X_GITLAB_EVENT: Push Hook
+        END_OF_HEADERS
+      end
+      let(:request_payload) do
+        <<~END_OF_PAYLOAD
+          {
+            "event_name":"push",
+            "project":{
+              "id":27158549,
+              "name":"hello_world",
+              "url":"git@gitlab.com:vpereira/hello_world.git"
+            },
+            "commits":[
+              {
+                "id":"3075e06879c6c4bd2ab207b30c5a09d75f825d78",
+                "title":"Update workflows.yml",
+                "url":"https://gitlab.com/vpereira/hello_world/-/commit/3075e06879c6c4bd2ab207b30c5a09d75f825d78"
+              },
+              {
+                "id":"012c5aa4d0634b384a316046e3122be8dbe44525",
+                "title":"Update workflows.yml",
+                "url":"https://gitlab.com/vpereira/hello_world/-/commit/012c5aa4d0634b384a316046e3122be8dbe44525"
+              },{
+                "id":"cff1dafb4e61f958db8ed8697a8e720d1fe3d3e7",
+                "title":"Update obs project",
+                "url":"https://gitlab.com/vpereira/hello_world/-/commit/cff1dafb4e61f958db8ed8697a8e720d1fe3d3e7"
+              }
+            ],
+            "repository":{
+              "name":"hello_world",
+              "url":"git@gitlab.com:vpereira/hello_world.git",
+              "git_http_url":"https://gitlab.com/vpereira/hello_world.git"
+            }
+          }
+        END_OF_PAYLOAD
+      end
+
+      it 'shows a link to the repository' do
+        expect(rendered_component).to have_link('hello_world', href: 'https://gitlab.com/vpereira/hello_world.git')
+      end
+
+      it 'is expected to have text "Push Event"' do
+        expect(rendered_component).to have_text('Push hook event')
+      end
+
+      it 'shows a link to the pushed commit' do
+        expect(rendered_component).to have_link('3075e06879c6c4bd2ab207b30c5a09d75f825d78', href: 'https://gitlab.com/vpereira/hello_world/-/commit/3075e06879c6c4bd2ab207b30c5a09d75f825d78')
+      end
     end
   end
 
-  context 'when the workflow is still running' do
-    let(:workflow_run) do
-      create(:workflow_run,
-             status: 'running',
-             token: workflow_token,
-             request_headers: request_headers,
-             request_payload: request_payload)
+  context 'no matter which vendor the workflow comes from' do
+    context 'for every single workflow run' do
+      it 'shows the date the workflow run was created' do
+        expect(rendered_component).to have_text(workflow_run.created_at)
+      end
     end
-    let(:request_payload) { {} }
 
-    it 'shows a green check mark' do
-      expect(rendered_component).to have_selector('i', class: 'fas fa-running')
+    context 'when the workflow is still running' do
+      let(:workflow_run) do
+        create(:workflow_run,
+               status: 'running',
+               token: workflow_token,
+               request_headers: request_headers,
+               request_payload: request_payload)
+      end
+      let(:request_payload) { {} }
+
+      it 'shows a green check mark' do
+        expect(rendered_component).to have_selector('i', class: 'fas fa-running')
+      end
     end
-  end
 
-  context 'when the workflow runs successfully' do
-    let(:workflow_run) do
-      create(:workflow_run,
-             status: 'success',
-             token: workflow_token,
-             request_headers: request_headers,
-             request_payload: request_payload)
+    context 'when the workflow runs successfully' do
+      let(:workflow_run) do
+        create(:workflow_run,
+               status: 'success',
+               token: workflow_token,
+               request_headers: request_headers,
+               request_payload: request_payload)
+      end
+      let(:request_payload) { {} }
+
+      it 'shows a green check mark' do
+        expect(rendered_component).to have_selector('i', class: 'fas fa-check text-primary')
+      end
     end
-    let(:request_payload) { {} }
 
-    it 'shows a green check mark' do
-      expect(rendered_component).to have_selector('i', class: 'fas fa-check text-primary')
-    end
-  end
+    context 'when the workflow fails' do
+      let(:workflow_run) do
+        create(:workflow_run,
+               status: 'fail',
+               token: workflow_token,
+               request_headers: request_headers,
+               request_payload: request_payload)
+      end
+      let(:request_payload) { {} }
 
-  context 'when the workflow fails' do
-    let(:workflow_run) do
-      create(:workflow_run,
-             status: 'fail',
-             token: workflow_token,
-             request_headers: request_headers,
-             request_payload: request_payload)
-    end
-    let(:request_payload) { {} }
-
-    it 'shows an exclamation mark' do
-      expect(rendered_component).to have_selector('i', class: 'fas fa-exclamation-triangle text-danger')
+      it 'shows an exclamation mark' do
+        expect(rendered_component).to have_selector('i', class: 'fas fa-exclamation-triangle text-danger')
+      end
     end
   end
 end
