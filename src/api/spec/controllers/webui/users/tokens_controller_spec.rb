@@ -58,6 +58,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
       let(:form_parameters) { { token: { type: 'runservice', name: 'My first token' } } }
 
       include_examples 'check for flashing a success'
+      it { is_expected.to redirect_to(token_path(Token.last)) }
     end
 
     context 'type is release, with project parameter, without package parameter' do
@@ -74,6 +75,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
       include_examples 'check for flashing a success'
 
       it { expect { subject }.to change(Token, :count).from(0).to(1) }
+      it { is_expected.to redirect_to(token_path(Token.last)) }
     end
 
     context 'type is workflow' do
@@ -83,6 +85,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
         include_examples 'check for flashing a success'
 
         it { expect { subject }.to change(Token, :count).from(0).to(1) }
+        it { is_expected.to redirect_to(token_path(Token.last)) }
       end
 
       context 'without SCM' do
