@@ -5,8 +5,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
   let(:token) { create(:workflow_token, user: user) }
 
   describe '#call' do
-    let(:project) { create(:project, name: 'openSUSE:Factory') }
-    let!(:repository) { create(:repository, project: project, name: 'snapshot', architectures: ['i586', 'aarch64']) }
+    let(:path_project1) { create(:project, name: 'openSUSE:Factory') }
+    let!(:path_repository1) { create(:repository, project: path_project1, name: 'snapshot', architectures: ['i586', 'aarch64']) }
+    let(:path_project2) { create(:project, name: 'openSUSE:Leap:15.4') }
+    let!(:path_repository2) { create(:repository, project: path_project2, name: 'standard', architectures: ['x86_64']) }
     let(:target_project) { create(:project, name: 'OBS:Server:Unstable:openSUSE:repo123:PR-1', maintainer: user) }
     let(:step_instructions) do
       {
@@ -15,8 +17,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           [
             {
               name: 'openSUSE_Tumbleweed',
-              target_project: 'openSUSE:Factory',
-              target_repository: 'snapshot',
+              paths: [
+                { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
+              ],
               architectures: [
                 'x86_64',
                 'ppc'
@@ -62,7 +66,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
       before do
         target_project
-        project
         login(another_user)
       end
 
@@ -72,11 +75,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
     context 'when the target branch project is present' do
       before do
         target_project
-        project
         login(user)
       end
 
-      context 'and we have all the required properties in the configuration file' do
+      context 'and we have all the required keys in the step instructions' do
         before do
           subject.call({ workflow_filters: workflow_filters })
         end
@@ -86,23 +88,25 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         let(:configured_architectures) { configured_repositories.first.architectures }
 
         it 'configures the repository with the right attributes' do
-          expect(configured_repositories.count).to eq(1)
-          expect(configured_repositories.first).to have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id)
+          expect(configured_repositories).to match_array([
+                                                           have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id)
+                                                         ])
         end
 
-        it 'configures the path element with the right attributes' do
-          expect(configured_path_elements.count).to eq(1)
-          expect(configured_path_elements.first).to have_attributes(parent_id: configured_repositories.first.id,
-                                                                    repository_id: repository.id,
-                                                                    position: 1, kind: 'standard')
+        it 'configures the path elements with the right attributes' do
+          expect(configured_path_elements).to match_array([
+                                                            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1,
+                                                                            kind: 'standard'),
+                                                            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard')
+                                                          ])
         end
 
-        it 'overwriting previously configured architectures with those in the step instructions' do
+        it 'overwrites previously configured architectures with those in the step instructions' do
           expect(configured_architectures.map(&:name)).to eq(['x86_64', 'ppc'])
         end
       end
 
-      context 'and there is no source project in the configuration file' do
+      context 'and the project is missing in the step instructions' do
         let(:step_instructions) do
           {
             fake_project: 'OBS:Server:Unstable',
@@ -110,8 +114,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed',
-                  target_project: 'openSUSE:Factory',
-                  target_repository: 'snapshot',
+                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
                   architectures: [
                     'x86_64',
                     'ppc'
@@ -131,13 +134,13 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           expect { subject.call({}) }.not_to change(Architecture, :count)
         end
 
-        it 'a validation fails complaining about a missing project' do
+        it "a validation fails complaining about the missing 'project' key" do
           subject.call
-          expect(subject.errors.full_messages).to include("The 'project' key is missing")
+          expect(subject.errors.full_messages.to_sentence).to eq("The 'project' key is missing")
         end
       end
 
-      context 'and there is no target project defined in the repository definition' do
+      context 'and repository paths are missing in the step instructions' do
         let(:step_instructions) do
           {
             project: 'OBS:Server:Unstable',
@@ -145,7 +148,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed',
-                  target_repository: 'snapshot',
                   architectures: [
                     'x86_64',
                     'ppc'
@@ -155,14 +157,21 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           }
         end
 
-        it 'is not valid due to a missing target project' do
+        # rubocop:disable RSpec/ExampleLength
+        # This will be fixed once we remove the temporary error message helping users migrate their configure_repositories steps
+        it 'is not valid' do
           expect(subject).not_to be_valid
-          expect(subject.errors.full_messages.to_sentence).to eq('configure_repositories step: All repositories must have the ' \
-                                                                 "'architectures', 'name', 'target_project', and 'target_repository' keys")
+          expect(subject.errors.full_messages).to eq(["configure_repositories step: Repository paths are now set under the 'paths' key. Refer to " \
+                                                      'https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration.html' \
+                                                      '#sec.obs.obs_scm_ci_workflow_integration.obs_workflows.steps.configure_repositories_architectures_for_a_project ' \
+                                                      'for an example',
+                                                      "configure_repositories step: All repositories must have the 'architectures', 'name', and 'paths' keys",
+                                                      "configure_repositories step: All repository paths must have the 'target_project' and 'target_repository' keys"])
         end
+        # rubocop:enable RSpec/ExampleLength
       end
 
-      context 'and there is no target repository in the repository definition' do
+      context 'and at least one repository path is missing a target project in the step instructions' do
         let(:step_instructions) do
           {
             project: 'OBS:Server:Unstable',
@@ -170,7 +179,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed',
-                  target_project: 'openSUSE:Factory',
+                  paths: [
+                    { target_repository: 'snapshot' },
+                    { target_project: 'openSUSE:Factory', target_repository: 'snapshot' }
+                  ],
                   architectures: [
                     'x86_64',
                     'ppc'
@@ -180,14 +192,14 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           }
         end
 
-        it 'is not valid due to a missing target repository' do
+        it 'is not valid' do
           expect(subject).not_to be_valid
-          expect(subject.errors.full_messages.to_sentence).to eq('configure_repositories step: All repositories must have the ' \
-                                                                 "'architectures', 'name', 'target_project', and 'target_repository' keys")
+          expect(subject.errors.full_messages.to_sentence).to eq('configure_repositories step: All repository paths must have the ' \
+                                                                 "'target_project' and 'target_repository' keys")
         end
       end
 
-      context 'and the target repository already exist in the database' do
+      context 'and at least one repository path is missing a target repository in the step instructions' do
         let(:step_instructions) do
           {
             project: 'OBS:Server:Unstable',
@@ -195,8 +207,35 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed',
-                  target_project: 'openSUSE:Factory',
-                  target_repository: 'snapshot',
+                  paths: [
+                    { target_project: 'openSUSE:Factory' },
+                    { target_project: 'openSUSE:Factory', target_repository: 'snapshot' }
+                  ],
+                  architectures: [
+                    'x86_64',
+                    'ppc'
+                  ]
+                }
+              ]
+          }
+        end
+
+        it 'is not valid' do
+          expect(subject).not_to be_valid
+          expect(subject.errors.full_messages.to_sentence).to eq('configure_repositories step: All repository paths must have the ' \
+                                                                 "'target_project' and 'target_repository' keys")
+        end
+      end
+
+      context 'and the target repository of the repository path already exists in the database' do
+        let(:step_instructions) do
+          {
+            project: 'OBS:Server:Unstable',
+            repositories:
+              [
+                {
+                  name: 'openSUSE_Tumbleweed',
+                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
                   architectures: [
                     'x86_64',
                     'ppc'
@@ -210,12 +249,12 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           create(:repository, name: 'openSUSE_Tumbleweed', project: target_project)
         end
 
-        it 'does not create the repository again' do
+        it 'does not recreate the repository' do
           expect { subject.call }.not_to change(Repository, :count)
         end
       end
 
-      context 'and there are no architectures in the repository definition' do
+      context 'and the repository is missing architectures in the step instructions' do
         let(:step_instructions) do
           {
             project: 'OBS:Server:Unstable',
@@ -223,21 +262,20 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed',
-                  target_project: 'openSUSE:Factory',
-                  target_repository: 'snapshot'
+                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }]
                 }
               ]
           }
         end
 
-        it 'is not valid due to the missing architectures' do
+        it 'is not valid' do
           expect(subject).not_to be_valid
           expect(subject.errors.full_messages.to_sentence).to eq('configure_repositories step: All repositories must have the ' \
-                                                                 "'architectures', 'name', 'target_project', and 'target_repository' keys")
+                                                                 "'architectures', 'name', and 'paths' keys")
         end
       end
 
-      context "and the architectures in the repository definition don't exist" do
+      context "and the repository's architectures don't exist" do
         let(:step_instructions) do
           {
             project: 'OBS:Server:Unstable',
@@ -245,8 +283,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed-snapshot',
-                  target_project: 'openSUSE:Factory',
-                  target_repository: 'snapshot',
+                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
                   architectures: [
                     'foo',
                     'x86_64'
@@ -254,8 +291,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                 },
                 {
                   name: 'openSUSE_Tumbleweed-standard',
-                  target_project: 'openSUSE:Factory',
-                  target_repository: 'standard',
+                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'standard' }],
                   architectures: [
                     'bar',
                     'i586'
@@ -266,14 +302,14 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           }
         end
 
-        it 'is not valid due to an inexistent architecture' do
+        it 'is not valid' do
           expect(subject).not_to be_valid
           expect(subject.errors.full_messages.to_sentence).to eq("configure_repositories step: Architectures 'foo' and 'bar' do not exist")
         end
       end
     end
 
-    context 'when there is no target project in the database' do
+    context 'when the target project does not exist' do
       let(:step_instructions) do
         {
           project: 'OBS:Server:Unstable',
@@ -281,8 +317,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
             [
               {
                 name: 'openSUSE_Tumbleweed',
-                target_project: 'openSUSE:Factory',
-                target_repository: 'snapshot',
+                paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
                 architectures: [
                   'x86_64',
                   'ppc'
@@ -293,11 +328,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
 
       before do
-        project
         login(user)
       end
 
-      it 'raises an error due to an inexistent target project' do
+      it 'raises an error' do
         expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError, "Project not found: #{subject.target_project_name}")
       end
     end
@@ -311,8 +345,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           [
             {
               name: 'openSUSE_Tumbleweed',
-              target_project: 'openSUSE:Factory',
-              target_repository: 'snapshot',
+              paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
               architectures: [
                 'x86_64',
                 'ppc'
@@ -332,11 +365,11 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
     context 'when the source project is invalid' do
       let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
 
-      it 'gives an error for invalid name' do
+      it 'adds a validation error' do
         subject.valid?
 
         expect { subject.call }.to change(Package, :count).by(0)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid project 'Invalid/format'")
+        expect(subject.errors.full_messages.to_sentence).to eq("Invalid project 'Invalid/format'")
       end
     end
   end
