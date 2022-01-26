@@ -87,6 +87,7 @@ gem 'ajax-datatables-rails'
 
 # SSO
 gem 'omniauth'
+gem 'omniauth-gitlab'
 
 group :development, :production do
   # to have the delayed job daemon
