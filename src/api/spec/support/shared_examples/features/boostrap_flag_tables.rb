@@ -36,7 +36,7 @@ RSpec.shared_examples 'bootstrap a flag table' do
 
   let(:query_attributes) { { repo: nil, architecture_id: nil, flag: flag_type } }
 
-  scenario 'has correct table headers (arch labels)' do
+  it 'has correct table headers (arch labels)' do
     expect(subject.find('tr:first-child th:nth-child(1)').text).to eq('Repository')
     expect(subject.find('tr:first-child th:nth-child(2)').text).to eq('All')
     architectures.each do |arch|
@@ -45,13 +45,13 @@ RSpec.shared_examples 'bootstrap a flag table' do
     end
   end
 
-  scenario 'has correct column descriptions (repository labels)' do
+  it 'has correct column descriptions (repository labels)' do
     expect(subject.find('thead th:first-child').text).to eq('Repository')
     expect(subject.find('tr:nth-child(1) td:first-child').text).to eq('All')
     expect(subject.find('tr:nth-child(2) td:first-child').text).to eq(repository.name)
   end
 
-  scenario 'toggle flags per repository' do
+  it 'toggle flags per repository' do
     query_attributes[:repo] = repository.name
 
     disable_flag_field_for(repository: repository.name, architecture: 'All')
@@ -61,7 +61,7 @@ RSpec.shared_examples 'bootstrap a flag table' do
     expect(project.flags.where(query_attributes.merge(status: :enable))).to exist
   end
 
-  scenario 'toggle flags per arch' do
+  it 'toggle flags per arch' do
     query_attributes[:architecture_id] = Architecture.find_by_name('i586')
 
     disable_flag_field_for(repository: 'All', architecture: 'i586')
@@ -71,7 +71,7 @@ RSpec.shared_examples 'bootstrap a flag table' do
     expect(project.flags.where(query_attributes.merge(status: :enable))).to exist
   end
 
-  scenario 'toggle all flags at once' do
+  it 'toggle all flags at once' do
     query_attributes[:flag] = flag_type
 
     disable_flag_field_for(repository: 'All', architecture: 'All')
@@ -81,7 +81,7 @@ RSpec.shared_examples 'bootstrap a flag table' do
     expect(project.flags.where(query_attributes).pluck(:status)).to contain_exactly('enable')
   end
 
-  scenario 'toggle a single flag' do
+  it 'toggle a single flag' do
     query_attributes.merge!(repo: repository.name, architecture_id: Architecture.find_by_name('x86_64'))
 
     disable_flag_field_for(repository: repository.name, architecture: 'x86_64')
