@@ -9,16 +9,9 @@
       .text-center
         %span.ml-3= page_entries_info(@workflow_runs)
       .accordion.pt-3#workflow-runs-accordion
-        .card
         - @workflow_runs.each do |workflow_run|
           .card-header{ id: "workflow-run-heading#{workflow_run.id}" }
             .mb-0
-              %button.btn.btn-block{ type: 'button', data: { toggle: 'collapse', target: "#workflow-run#{workflow_run.id}" },
-                                      aria: { expanded: 'false', controls: "workflow-run#{workflow_run.id}" } }
-                .row
-                  = render(WorkflowRunRowComponent.new(workflow_run: workflow_run))
-          .collapse{ id: "workflow-run#{workflow_run.id}", aria: { labelledby: "#workflow-run-heading#{workflow_run.id}" },
-                      data: { parent: '#workflow-runs-accordion' } }
-            .card-body
-              = render(WorkflowRunDetailComponent.new(workflow_run: workflow_run))
+              .row
+                = render(WorkflowRunRowComponent.new(workflow_run: workflow_run))
         = paginate @workflow_runs, views_prefix: 'webui'

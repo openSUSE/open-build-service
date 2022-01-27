@@ -18,4 +18,8 @@ class WorkflowRunPolicy < ApplicationPolicy
 
     attr_reader :user, :scope, :opts
   end
+
+  def show?
+    record.token.user == user
+  end
 end

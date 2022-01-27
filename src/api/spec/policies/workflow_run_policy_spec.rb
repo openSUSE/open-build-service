@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe WorkflowRunPolicy do
+  let(:token_user) { create(:confirmed_user, login: 'foo') }
+  let(:workflow_token) { create(:workflow_token, user: token_user) }
+  let!(:workflow_run) { create(:workflow_run, token: workflow_token) }
+
   describe '#resolve' do
     subject { WorkflowRunPolicy::Scope }
-
-    let(:token_user) { create(:confirmed_user, login: 'foo') }
-    let(:workflow_token) { create(:workflow_token, user: token_user) }
-    let!(:workflow_run) { create(:workflow_run, token: workflow_token) }
 
     before do
       User.session = token_user
@@ -35,5 +35,16 @@ RSpec.describe WorkflowRunPolicy do
         expect { subject.new(User.session, WorkflowRun, { token_id: workflow_token.id }).resolve }.to raise_error(Pundit::NotAuthorizedError)
       end
     end
+  end
+
+  permissions :show? do
+    subject { WorkflowRunPolicy }
+
+    let(:anonymous_user) { create(:user_nobody) }
+    let(:user_without_permission) { create(:confirmed_user) }
+
+    it { is_expected.to permit(token_user, workflow_run) }
+    it { is_expected.not_to permit(anonymous_user, workflow_run) }
+    it { is_expected.not_to permit(user_without_permission, workflow_run) }
   end
 end

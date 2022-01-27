@@ -26,7 +26,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
   end
 
   context 'when the workflow is triggered via GitHub' do
-    context 'when there is no repository present' do
+    context 'and there is no repository present' do
       let(:request_headers) do
         <<~END_OF_HEADERS
           HTTP_X_GITHUB_EVENT: pull_request
@@ -35,12 +35,15 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       let(:request_payload) do
         <<~END_OF_REQUEST
           {
+            "pull_request": {
+              "html_url": "https://github.com/zeromq/libzmq/pull/4330",
+              "number": 4330
+            }
           }
         END_OF_REQUEST
       end
 
-      it { expect(rendered_component).to have_text('Unknown source') }
-      it { expect(rendered_component).not_to have_link }
+      it { expect(rendered_component).not_to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq') }
     end
 
     context 'and comes from a pull request event' do
@@ -49,7 +52,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
           {
             "action": "opened",
             "pull_request": {
-              "url": "https://api.github.com/repos/zeromq/libzmq/pulls/4330",
+              "html_url": "https://github.com/zeromq/libzmq/pull/4330",
               "number": 4330
             },
             "repository": {
@@ -67,7 +70,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it 'shows a link to the pull request' do
-        expect(rendered_component).to have_link('#4330', href: 'https://api.github.com/repos/zeromq/libzmq/pulls/4330')
+        expect(rendered_component).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
       end
 
       ['closed', 'opened', 'reopened', 'synchronize'].each do |action|
@@ -77,8 +80,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
               {
                 "action": "#{action}",
                 "pull_request": {
-                  "url": "https://example.com/pr/1",
-                  "number": 1
+                  "html_url": "https://github.com/zeromq/libzmq/pull/4330",
+                  "number": 4330
                 },
                 "repository": {
                   "full_name": "Example Repository",
@@ -98,8 +101,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
             {
               "action": "edited",
               "pull_request": {
-                "url": "https://example.com/pr/1",
-                "number": 1
+                "html_url": "https://github.com/zeromq/libzmq/pull/4330",
+                "number": 4330
               },
               "repository": {
                 "full_name": "Example Repository",

@@ -2,5 +2,11 @@
   = link_to('Your Profile', user_path(User.session!))
 %li.breadcrumb-item
   = link_to 'Tokens', tokens_path
-%li.breadcrumb-item.active
-  Workflow Runs
+- if params[:id]
+  %li.breadcrumb-item
+    = link_to('Workflow Runs', token_workflow_runs_path(@token.id), title: 'Workflow Runs')
+  %li.breadcrumb-item.active
+    = params[:id]
+- else
+  %li.breadcrumb-item.active
+    Workflow Runs
