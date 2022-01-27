@@ -28,7 +28,7 @@ RSpec.shared_examples 'user tab' do
       click_link('Users')
     end
 
-    scenario 'Viewing user roles' do
+    it 'Viewing user roles' do
       skip_on_mobile
 
       expect(page).to have_text('User Roles')
@@ -40,7 +40,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_selector("a.remove-user[data-object='user_tab_user']")
     end
 
-    scenario 'Add non existent user' do
+    it 'Add non existent user' do
       add_user_link = page.find('a', text: 'Add User')
       page.scroll_to(add_user_link)
       add_user_link.click
@@ -54,7 +54,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text("Couldn't find User with login = Jimmy")
     end
 
-    scenario 'Add an existing user' do
+    it 'Add an existing user' do
       add_user_link = page.find('a', text: 'Add User')
       page.scroll_to(add_user_link)
       add_user_link.click
@@ -91,7 +91,7 @@ RSpec.shared_examples 'user tab' do
       end
     end
 
-    scenario 'Remove user from package / project' do
+    it 'Remove user from package / project' do
       skip_on_mobile
 
       find('td', text: "#{reader.realname} (reader_user)").ancestor('tr').find('.remove-user').click
@@ -102,7 +102,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
     end
 
-    scenario 'Add role to user' do
+    it 'Add role to user' do
       skip_on_mobile
 
       toggle_checkbox('user_reviewer_user_tab_user')
@@ -112,7 +112,7 @@ RSpec.shared_examples 'user tab' do
       expect(find_field('user_reviewer_user_tab_user', visible: false)).to be_checked
     end
 
-    scenario 'Remove role from user' do
+    it 'Remove role from user' do
       skip_on_mobile
 
       toggle_checkbox('user_bugowner_user_tab_user')
@@ -141,7 +141,7 @@ RSpec.shared_examples 'user tab' do
       click_link('Users')
     end
 
-    scenario 'Viewing group roles' do
+    it 'Viewing group roles' do
       skip_on_mobile
 
       expect(page).to have_text('Group Roles')
@@ -153,7 +153,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_selector("a.remove-group[data-object='existing_group']")
     end
 
-    scenario 'Add non existent group' do
+    it 'Add non existent group' do
       add_group_link = page.find('a', text: 'Add Group')
       page.scroll_to(add_group_link)
       add_group_link.click
@@ -167,7 +167,7 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text("Couldn't find Group 'unknown group'")
     end
 
-    scenario 'Add an existing group' do
+    it 'Add an existing group' do
       add_group_link = page.find('a', text: 'Add Group')
       page.scroll_to(add_group_link)
       add_group_link.click
@@ -203,7 +203,7 @@ RSpec.shared_examples 'user tab' do
       end
     end
 
-    scenario 'Add role to group' do
+    it 'Add role to group' do
       skip_on_mobile
 
       toggle_checkbox('group_reviewer_existing_group')
@@ -213,7 +213,7 @@ RSpec.shared_examples 'user tab' do
       expect(find('#group_reviewer_existing_group', visible: false)).to be_checked
     end
 
-    scenario 'Remove role from group' do
+    it 'Remove role from group' do
       skip_on_mobile
 
       toggle_checkbox('group_bugowner_existing_group')

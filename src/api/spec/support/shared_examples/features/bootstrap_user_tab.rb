@@ -28,7 +28,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       click_link('Users')
     end
 
-    scenario 'Viewing user roles' do
+    it 'Viewing user roles' do
       expect(page).to have_text('User Roles')
       expect(find_field('user_maintainer_user_tab_user', visible: false)).to be_checked
       expect(find_field('user_bugowner_user_tab_user', visible: false)).to be_checked
@@ -38,7 +38,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(page).to have_selector("a.remove-user[data-object='user_tab_user']")
     end
 
-    scenario 'Add non existent user' do
+    it 'Add non existent user' do
       click_link('Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
@@ -50,7 +50,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(page).to have_text("Couldn't find User with login = Jimmy")
     end
 
-    scenario 'Add an existing user' do
+    it 'Add an existing user' do
       click_link('Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
@@ -83,7 +83,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       end
     end
 
-    scenario 'Remove user from package / project' do
+    it 'Remove user from package / project' do
       find('td', text: "#{reader.realname} (reader_user)").ancestor('tr').find('.remove-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
       click_button('Delete')
@@ -92,7 +92,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
     end
 
-    scenario 'Add role to user' do
+    it 'Add role to user' do
       toggle_checkbox('user_reviewer_user_tab_user')
 
       visit project_path # project_users_path
@@ -100,7 +100,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(find_field('user_reviewer_user_tab_user', visible: false)).to be_checked
     end
 
-    scenario 'Remove role from user' do
+    it 'Remove role from user' do
       toggle_checkbox('user_bugowner_user_tab_user')
 
       visit project_path
@@ -127,7 +127,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       click_link('Users')
     end
 
-    scenario 'Viewing group roles' do
+    it 'Viewing group roles' do
       expect(page).to have_text('Group Roles')
       expect(find_field('group_maintainer_existing_group', visible: false)).to be_checked
       expect(find_field('group_bugowner_existing_group', visible: false)).to be_checked
@@ -137,7 +137,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(page).to have_selector("a.remove-group[data-object='existing_group']")
     end
 
-    scenario 'Add non existent group' do
+    it 'Add non existent group' do
       click_link('Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
@@ -149,7 +149,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(page).to have_text("Couldn't find Group 'unknown group'")
     end
 
-    scenario 'Add an existing group' do
+    it 'Add an existing group' do
       click_link('Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
@@ -181,7 +181,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       end
     end
 
-    scenario 'Add role to group' do
+    it 'Add role to group' do
       toggle_checkbox('group_reviewer_existing_group')
 
       visit project_path
@@ -189,7 +189,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(find('#group_reviewer_existing_group', visible: false)).to be_checked
     end
 
-    scenario 'Remove role from group' do
+    it 'Remove role from group' do
       toggle_checkbox('group_bugowner_existing_group')
 
       visit project_path
