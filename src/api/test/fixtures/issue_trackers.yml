@@ -5,7 +5,7 @@ bco:
   description: Clutter Project Bugzilla
   url: http://bugzilla.clutter-project.org/
   show_url: http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@
-  regex: bco#(\d+)
+  regex: \bbco#(\d+)\b
   label: 'bco#@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -16,7 +16,7 @@ bgo:
   description: Gnome Bugzilla
   url: https://bugzilla.gnome.org/
   show_url: https://bugzilla.gnome.org/show_bug.cgi?id=@@@
-  regex: bgo#(\d+)
+  regex: \bbgo#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -27,7 +27,7 @@ bio:
   description: Icculus.org Bugzilla
   url: https://bugzilla.icculus.org/
   show_url: https://bugzilla.icculus.org/show_bug.cgi?id=@@@
-  regex: bio#(\d+)
+  regex: \bbio#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -38,7 +38,7 @@ bko:
   description: Kernel.org Bugzilla
   url: https://bugzilla.kernel.org/
   show_url: https://bugzilla.kernel.org/show_bug.cgi?id=@@@
-  regex: (?:Kernel|K|bko)#(\d+)
+  regex: \b(?:Kernel|K|bko)#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -49,7 +49,7 @@ boost:
   description: Boost Trac
   url: https://svn.boost.org/trac/boost/
   show_url: https://svn.boost.org/trac/boost/ticket/@@@
-  regex: boost#(\d+)
+  regex: \bboost#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -60,7 +60,7 @@ cve_numbers:
   description: CVE numbers
   url: http://cve.mitre.org
   show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-@@@
-  regex: (?:cve|CVE)-(\d\d\d\d-\d+)
+  regex: \b(?:cve|CVE)-(\d\d\d\d-\d+)\b
   label: 'CVE-@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -71,7 +71,7 @@ deb:
   description: Debian Bugzilla
   url: http://bugs.debian.org/
   show_url: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@
-  regex: deb#(\d+)
+  regex: \bdeb#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -82,7 +82,7 @@ beo:
   description: Eclipse Bugzilla
   url: https://bugs.eclipse.org/bugs/
   show_url: https://bugs.eclipse.org/bugs/show_bug.cgi?id=@@@
-  regex: beo#(\d+)
+  regex: \bbeo#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -93,7 +93,7 @@ fdo:
   description: Freedesktop.org Bugzilla
   url: https://bugs.freedesktop.org/
   show_url: https://bugs.freedesktop.org/show_bug.cgi?id=@@@
-  regex: fdo#(\d+)
+  regex: \bfdo#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -104,7 +104,7 @@ gcc:
   description: GCC Bugzilla
   url: http://gcc.gnu.org/bugzilla/
   show_url: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@
-  regex: GCC#(\d+)
+  regex: \bGCC#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -115,7 +115,7 @@ issue_trackers_35:
   description: Launchpad.net Bugtracker
   url: https://bugs.launchpad.net/bugs/
   show_url: https://bugs.launchpad.net/bugs/@@@
-  regex: b?lp#(\d+)
+  regex: \bb?lp#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -126,7 +126,7 @@ issue_trackers_36:
   description: Meego Bugs
   url: https://bugs.meego.com/
   show_url: https://bugs.meego.com/show_bug.cgi?id=@@@
-  regex: Meego#(\d+)
+  regex: \bMeego#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -137,7 +137,7 @@ issue_trackers_37:
   description: Mozilla Bugzilla
   url: https://bugzilla.mozilla.org/
   show_url: https://bugzilla.mozilla.org/show_bug.cgi?id=@@@
-  regex: bmo#(\d+)
+  regex: \bbmo#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -148,7 +148,7 @@ issue_trackers_38:
   description: OpenLDAP Issue Tracker
   url: http://www.openldap.org/its/
   show_url: http://www.openldap.org/its/index.cgi/Contrib?id=@@@
-  regex: ITS#(\d+)
+  regex: \bITS#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -159,8 +159,8 @@ issue_trackers_39:
   description: OpenOffice.org Bugzilla
   url: http://openoffice.org/bugzilla/
   show_url: http://openoffice.org/bugzilla/show_bug.cgi?id=@@@
-  regex: i#(\d+)
-  label: '@@@'
+  regex: \bi#(\d+)\b
+  label: 'i#@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
 issue_trackers_40:
@@ -170,7 +170,7 @@ issue_trackers_40:
   description: openSUSE Feature Database
   url: https://features.opensuse.org/
   show_url: https://features.opensuse.org/@@@
-  regex: (?:fate|FATE|Fate)\s*#\s*(\d+)
+  regex: \b(?:fate|FATE|Fate)\s*#\s*(\d+)\b
   label: 'fate#@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -181,7 +181,7 @@ issue_trackers_41:
   description: RedHat Bugzilla
   url: https://bugzilla.redhat.com/
   show_url: https://bugzilla.redhat.com/show_bug.cgi?id=@@@
-  regex: rh#(\d+)
+  regex: \brh#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -192,7 +192,7 @@ issue_trackers_42:
   description: Samba Bugzilla
   url: https://bugzilla.samba.org/
   show_url: https://bugzilla.samba.org/show_bug.cgi?id=@@@
-  regex: bso#(\d+)
+  regex: \bbso#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -203,7 +203,7 @@ issue_trackers_43:
   description: SourceForge.net Tracker
   url: http://sf.net/support/
   show_url: http://sf.net/support/tracker.php?aid=@@@
-  regex: sf#(\d+)
+  regex: \bsf#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -214,7 +214,7 @@ issue_trackers_44:
   description: Xamarin Bugzilla
   url: http://bugzilla.xamarin.com/index.cgi
   show_url: http://bugzilla.xamarin.com/show_bug.cgi?id=@@@
-  regex: Xamarin#(\d+)
+  regex: \bXamarin#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -225,7 +225,7 @@ issue_trackers_45:
   description: XFCE Bugzilla
   url: https://bugzilla.xfce.org/
   show_url: https://bugzilla.xfce.org/show_bug.cgi?id=@@@
-  regex: bxo#(\d+)
+  regex: \bbxo#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -236,7 +236,7 @@ kde:
   description: KDE Bugzilla
   url: https://bugs.kde.org/
   show_url: https://bugs.kde.org/show_bug.cgi?id=@@@
-  regex: kde#(\d+)
+  regex: \bkde#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -247,7 +247,7 @@ novell_bugzilla:
   description: Novell Bugzilla
   url: http://bugzilla.novell.com
   show_url: https://bugzilla.novell.com/show_bug.cgi?id=@@@
-  regex: bnc#(\d+)
+  regex: \bbnc#(\d+)\b
   label: bnc#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -258,7 +258,7 @@ perl_rt:
   description: CPAN Bugs
   url: https://rt.cpan.org/
   show_url: http://rt.cpan.org/Public/Bug/Display.html?id=@@@
-  regex: RT#(\d+)
+  regex: \bRT#(\d+)\b
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -268,7 +268,7 @@ obs_github:
   description: OBS issues on github
   url: https://api.github.com/repos/openSUSE/open-build-service/issues
   show_url: https://github.com/openSUSE/open-build-service/issues/@@@
-  regex: obs#(\d+)
+  regex: \bbs#(\d+)\b
   label: obs#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
@@ -278,7 +278,7 @@ generic_github:
   description: Generic Github Tracker
   url: https://www.github.com
   show_url: https://github.com/@@@
-  regex: (?:gh|github)#(\w+\/\w+#\d+)
+  regex: \b(?:gh|github)#(\w+\/\w+#\d+)\b
   label: gh#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
