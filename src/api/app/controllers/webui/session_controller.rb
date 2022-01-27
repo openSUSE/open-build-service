@@ -138,7 +138,9 @@ class Webui::SessionController < Webui::WebuiController
   private
 
   def redirect_on_login
-    if referer_was_login?
+    if !referer_was_ours?
+      redirect_to root_path
+    elsif referer_was_login?
       redirect_to user_show_path(User.session!)
     else
       redirect_back(fallback_location: root_path)
@@ -149,11 +151,24 @@ class Webui::SessionController < Webui::WebuiController
     if CONFIG['proxy_auth_mode'] == :on
       redirect_to CONFIG['proxy_auth_logout_page']
     else
-      redirect_back(fallback_location: root_path)
+      redirect_to root_path
     end
   end
 
+  def referer_was_ours?
+    return false unless request.referer
+
+    parsed = URI.parse(request.referer)
+    parsed.host == request.host and parsed.port == request.port
+  end
+
   def referer_was_login?
-    request.referer && request.referer.end_with?(session_new_path)
+    return false unless request.referer
+
+    parsed = URI.parse(request.referer)
+    return false unless parsed.host == request.host
+    return false unless parsed.port == request.port
+
+    parsed.path == session_new_path or parsed.path.starts_with?(sso_path)
   end
 end
