@@ -3,6 +3,8 @@ class WorkflowRun < ApplicationRecord
   validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
+  has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
+
   paginates_per 20
 
   enum status: {
