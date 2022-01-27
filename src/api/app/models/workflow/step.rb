@@ -50,6 +50,24 @@ class Workflow::Step
     end
   end
 
+  def target_package_name(short_commit_sha: false)
+    package_name = step_instructions[:target_package] || source_package_name
+
+    case
+    when scm_webhook.pull_request_event?
+      package_name
+    when scm_webhook.push_event?
+      commit_sha = scm_webhook.payload[:commit_sha]
+      if short_commit_sha
+        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
+      else
+        "#{package_name}-#{commit_sha}"
+      end
+    when scm_webhook.tag_push_event?
+      "#{package_name}-#{scm_webhook.payload[:tag_name]}"
+    end
+  end
+
   protected
 
   def validate_step_instructions
@@ -73,24 +91,6 @@ class Workflow::Step
 
   def target_package_names
     [target_package_name(short_commit_sha: true)] + multibuild_flavors
-  end
-
-  def target_package_name(short_commit_sha: false)
-    package_name = step_instructions[:target_package] || source_package_name
-
-    case
-    when scm_webhook.pull_request_event?
-      package_name
-    when scm_webhook.push_event?
-      commit_sha = scm_webhook.payload[:commit_sha]
-      if short_commit_sha
-        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
-      else
-        "#{package_name}-#{commit_sha}"
-      end
-    when scm_webhook.tag_push_event?
-      "#{package_name}-#{scm_webhook.payload[:tag_name]}"
-    end
   end
 
   private
