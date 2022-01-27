@@ -508,6 +508,9 @@ sub dod_registry {
   my $url = $doddata->{'url'};
   $url =~ s/\/+$//;
   my $cache = {};
+  my $urldomain = $url;
+  $urldomain =~ s/^[^\/]+\/\///;
+  $urldomain =~ s/\/.*//;
 
   $cookie ||= '0';
   my $repodir = $file;
@@ -526,6 +529,7 @@ sub dod_registry {
     next unless $resource =~ /^container:(.*):([^\/:]+)$/s;
     my ($repo, $tag) = ($1, $2);
     $repo = "library/$repo" if $url =~ /docker\.io$/ && $repo !~ /\//;
+    $repo = $2 if $repo =~ /^([^\/]+)\/(.+)$/s && $1 eq $urldomain;
     my $oldentry;
     $oldentry = $oldcache->{$resource} if $olddodresources{$resource};
     my ($olddigest, $oldfatdigest);
