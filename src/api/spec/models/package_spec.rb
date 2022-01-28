@@ -145,6 +145,12 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#file_exists?' do
+    context '_multibuild file should exist' do
+      let!(:multibuild_package) { create(:multibuild_package, name: 'test', project: home_project) }
+
+      it { expect(multibuild_package.file_exists?('_multibuild')).to eq(true) }
+    end
+
     context 'with more than one file' do
       it 'returns true if the file exist' do
         expect(package_with_file.file_exists?('somefile.txt')).to eq(true)
