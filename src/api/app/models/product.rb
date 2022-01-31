@@ -140,12 +140,16 @@ class Product < ApplicationRecord
         update[key] = pu
       end
       u.elements('repository') do |repo|
-        update_repo = Repository.find_by_project_and_name(repo.get('project'), repo.get('name'))
+        project = repo.get('project')
+        name = repo.get('name')
+        next if project.blank? || name.blank? # might be already defined via external url
+
+        update_repo = Repository.find_by_project_and_name(project, name)
         next unless update_repo # it might be a remote repo, which will not become indexed
 
-        arch = repo.get('arch')
         key = update_repo.id.to_s
         p = { product: self, repository: update_repo }
+        arch = repo.get('arch')
         if arch.present?
           key += "/#{arch}"
           arch_filter = Architecture.find_by_name(arch)
