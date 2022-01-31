@@ -226,7 +226,7 @@ class User < ApplicationRecord
 
   def self.find_with_omniauth(auth)
     if auth
-      email = auth['info']['email']
+      email = auth['email']
       user = find_by_email(email)
       if user
         user.mark_login!
@@ -238,14 +238,14 @@ class User < ApplicationRecord
 
   def self.create_with_omniauth(auth, login)
     provider = CONFIG['sso_auth'][auth['provider']]['description']
-    email = auth['info']['email']
+    email = auth['email']
     logger.debug("Creating OmniAuth user for #{provider}")
     logger.debug("Email: #{email}")
-    logger.debug("Name : #{auth['info']['name']}")
+    logger.debug("Name : #{auth['name']}")
 
     user = create_external_user(login: login,
                                 email: email,
-                                realname: auth['info']['name'],
+                                realname: auth['name'],
                                 deprecated_password_hash_type: 'invalid',
                                 adminnote: "User created via #{provider}")
     user.mark_login!

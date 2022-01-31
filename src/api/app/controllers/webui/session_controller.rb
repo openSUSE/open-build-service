@@ -46,10 +46,12 @@ class Webui::SessionController < Webui::WebuiController
 
   def sso_callback
     @auth_hash = request.env['omniauth.auth']
-    user = User.find_with_omniauth(@auth_hash)
+    # Rails.logger.info "auth hash: #{@auth_hash}"
+    user = User.find_with_omniauth(@auth_hash['info'])
 
     unless user
-      session[:auth] = @auth_hash
+      session[:auth] = @auth_hash['info']
+      session[:auth]['provider'] = @auth_hash['provider']
       redirect_to(sso_confirm_path)
       return
     end
@@ -69,19 +71,19 @@ class Webui::SessionController < Webui::WebuiController
 
   def sso_confirm
     switch_to_webui2
-    auth_hash = session[:auth]
+    auth_info = session[:auth]
 
-    if !auth_hash
+    if !auth_info
       redirect_to sso_path
       return
     end
 
     # Try to derive a username from the information available,
     # falling back to full name if nothing else works
-    @derived_username = auth_hash['info']['username'] ||
-                        auth_hash['info']['nickname'] ||
-                        auth_hash['info']['email'] ||
-                        auth_hash['info']['name']
+    @derived_username = auth_info['username'] ||
+                        auth_info['nickname'] ||
+                        auth_info['email'] ||
+                        auth_info['name']
 
     # Some providers set username or nickname to an email address
     # Derive the username from the local part of the email address,
@@ -93,9 +95,9 @@ class Webui::SessionController < Webui::WebuiController
 
   def do_sso_confirm
     required_parameters :login
-    auth_hash = session[:auth]
+    auth_info = session[:auth]
 
-    if !auth_hash
+    if !auth_info
       redirect_to sso_path
       return
     end
@@ -108,7 +110,7 @@ class Webui::SessionController < Webui::WebuiController
     end
 
     begin
-      user = User.create_with_omniauth(auth_hash, params[:login])
+      user = User.create_with_omniauth(auth_info, params[:login])
     rescue ActiveRecord::ActiveRecordError
       flash[:error] = "Invalid username, please try a different one"
       redirect_to sso_confirm_path
