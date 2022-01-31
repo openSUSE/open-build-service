@@ -308,6 +308,9 @@ GEM
       hashie (>= 3.4.6)
       rack (>= 1.6.2, < 3)
       rack-protection
+    omniauth-github (2.0.0)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.7.1)
     omniauth-gitlab (3.0.0)
       omniauth (~> 2.0)
       omniauth-oauth2 (~> 1.7.1)
@@ -630,6 +633,7 @@ DEPENDENCIES
   mysql2
   nokogiri
   omniauth
+  omniauth-github
   omniauth-gitlab
   omniauth-rails_csrf_protection
   omniauth_openid_connect!

@@ -88,6 +88,7 @@ gem 'ajax-datatables-rails'
 # SSO
 gem 'omniauth'
 gem 'omniauth-gitlab'
+gem 'omniauth-github'
 gem 'omniauth_openid_connect', git: 'https://github.com/m0n9oose/omniauth_openid_connect', ref: '88ae46e968dec5e66d4f92773b52babbe72d41fe'
 gem 'omniauth-rails_csrf_protection'
 
