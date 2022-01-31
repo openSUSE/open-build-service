@@ -208,7 +208,15 @@ while (1) {
 	next if $norphanchecks{$job}++ < 30;	# check every 30 minutes
 	$norphanchecks{$job} = 1;
 	my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-	if ($js && $js->{'code'} ne 'building') {
+	if (!$js) {
+	  my @s = stat("$jobsdir/$arch/$job:status");
+	  if (@s && $s[9] + 3600 < $now) {
+	    BSUtil::printlog("removing bad $arch/$job:status file");
+	    unlink("$jobsdir/$arch/$job:status");
+	  }
+	  next;
+	}
+	if ($js->{'code'} ne 'building') {
 	  my @s = stat("$jobsdir/$arch/$job:status");
 	  next if !@s || $s[9] + 86400 > $now;
 	  if (($js->{'code'} || '') eq 'finished' && !$js->{'endtime'}) {
@@ -226,7 +234,7 @@ while (1) {
 	  unlink("$jobsdir/$arch/$job:status");
 	  next;
 	}
-        next unless $js && $js->{'code'} eq 'building';
+        next unless $js->{'code'} eq 'building';
 	#print "orphan check for $arch/$job...\n";
 	my $param = {
 	  'uri' => "$js->{'uri'}/worker",
