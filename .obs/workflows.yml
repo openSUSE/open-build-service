@@ -8,8 +8,9 @@ workflow:
         project: home:bs-team
         repositories:
           - name: 15.3
-            target_project: OBS:Server:Unstable
-            target_repository: 15.3
+            paths:
+              - target_project: OBS:Server:Unstable
+                target_repository: 15.3
             architectures:
               - x86_64
   filters:
