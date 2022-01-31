@@ -6,7 +6,7 @@ RSpec.describe IssueTracker::IssueSummary do
 
   describe '#belongs_bug_to_tracker?' do
     context 'CVE ids' do
-      let(:issue_tracker) { create(:issue_tracker, regex: '(?:cve|CVE)-(\\d\\d\\d\\d-\\d+)') }
+      let(:issue_tracker) { create(:issue_tracker, regex: '\b(?:cve|CVE)-(\\d\\d\\d\\d-\\d+)\b') }
 
       context 'with a valid issue id' do
         let(:issue_id) { 'CVE-3133-7' }

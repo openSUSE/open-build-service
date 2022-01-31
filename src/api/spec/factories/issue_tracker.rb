@@ -5,7 +5,7 @@ FactoryBot.define do
     kind { 'github' }
     url { Faker::Internet.url(host: 'example.com') }
     show_url { Faker::Internet.url(host: 'example.com') }
-    regex { 'example#(\d+)' }
+    regex { '\bexample#(\d+)\b' }
     label { 'example#@@@' }
     issues_updated { Time.now }
   end
