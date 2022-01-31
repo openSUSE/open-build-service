@@ -88,4 +88,23 @@ RSpec.describe IssueTracker do
       it { is_expected.to be_falsey }
     end
   end
+
+  describe '#validations' do
+    context 'regex' do
+      let(:issue_tracker) do
+        IssueTracker.new(name: 'foo', kind: 'bugzilla', description: 'Foo Project Bugzilla',
+                         url: 'http://foo.org/', show_url: 'http://foo.org/show_bug.cgi?id',
+                         regex: 'foo#(\\d+)', label: 'foo\#@@@')
+      end
+
+      it 'is not valid without a word boundary' do
+        expect(issue_tracker).not_to(be_valid)
+      end
+
+      it 'is valid with a word boundary' do
+        issue_tracker.regex = '\bfoo#(\\d+)\b'
+        expect(issue_tracker).to be_valid
+      end
+    end
+  end
 end

@@ -12,6 +12,7 @@ class IssueTracker < ApplicationRecord
   validates :kind, inclusion: { in: ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge', 'github', 'jira'] }
   validates :description, presence: true
   validates :show_url, presence: true
+  validates :regex, format: { with: /\A\\b.*\\b\z/, message: 'issue tracker regex must start and end with a word boundary' }
 
   after_save :delayed_write_to_backend
   after_save :update_package_meta
