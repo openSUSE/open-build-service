@@ -1,0 +1,117 @@
+class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
+  # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_branch_package_step
+  def with_branch_package_step
+    step = Workflow::Step::BranchPackageStep.new({
+                                                   step_instructions: {
+                                                     source_project: 'OBS:Server:Unstable',
+                                                     source_package: 'obs-server',
+                                                     target_project: 'OBS:Server:Unstable:CI'
+                                                   },
+                                                   scm_webhook: scm_webhook,
+                                                   token: token
+                                                 })
+
+    artifacts = {
+      source_project: step.step_instructions[:source_project],
+      source_package: step.step_instructions[:source_package],
+      target_project: step.target_project_name,
+      target_package: step.target_package_name
+    }.to_json
+
+    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
+    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+  end
+
+  # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_link_package_step
+  def with_link_package_step
+    step = Workflow::Step::LinkPackageStep.new({
+                                                 step_instructions: {
+                                                   source_project: 'OBS:Server:Unstable',
+                                                   source_package: 'obs-server',
+                                                   target_project: 'OBS:Server:Unstable:CI'
+                                                 },
+                                                 scm_webhook: scm_webhook,
+                                                 token: token
+                                               })
+
+    artifacts = {
+      source_project: step.step_instructions[:source_project],
+      source_package: step.step_instructions[:source_package],
+      target_project: step.target_project_name,
+      target_package: step.target_package_name
+    }.to_json
+
+    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
+    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+  end
+
+  # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_rebuild_package_step
+  def with_rebuild_package_step
+    step = Workflow::Step::RebuildPackage.new({
+                                                step_instructions: {
+                                                  project: 'OBS:Server:Unstable',
+                                                  package: 'obs-server'
+                                                },
+                                                scm_webhook: scm_webhook,
+                                                token: token
+                                              })
+
+    artifacts = step.step_instructions.to_json
+
+    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
+    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+  end
+
+  # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_configure_repositories_step
+  def with_configure_repositories_step
+    step = Workflow::Step::ConfigureRepositories.new({
+                                                       step_instructions: {
+                                                         project: 'OBS:Server:Unstable',
+                                                         repositories: [
+                                                           {
+                                                             name: 'openSUSE_Tumbleweed',
+                                                             paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                                                                     { target_project: 'devel:tools', target_repository: 'openSUSE_Factory_ARM' }],
+                                                             architectures: ['x86_64', 'ppc']
+                                                           },
+                                                           {
+                                                             name: 'openSUSE_Leap_15.3',
+                                                             paths: [{ target_project: 'openSUSE:Leap:15.3', target_repository: 'standard' }],
+                                                             architectures: ['x86_64']
+                                                           }
+                                                         ]
+                                                       },
+                                                       scm_webhook: scm_webhook,
+                                                       token: token
+                                                     })
+
+    artifacts = step.step_instructions.to_json
+
+    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
+    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+  end
+
+  private
+
+  def extractor_payload
+    {
+      scm: 'github',
+      action: 'reopened',
+      event: 'pull_request',
+      pr_number: 4,
+      target_repository_full_name: 'openSUSE/open-build-service'
+    }
+  end
+
+  def scm_webhook
+    ScmWebhook.new(payload: extractor_payload)
+  end
+
+  def token
+    Token.first
+  end
+
+  def workflow_run
+    WorkflowRun.first
+  end
+end
