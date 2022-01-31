@@ -19,7 +19,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     <issue-tracker>
       <name>test</name>
       <description>My test issue tracker</description>
-      <regex>test#\d+test</regex>
+      <regex>\btest#\d+test\b</regex>
       <label>test#\@\@\@+test</label>
       <kind>bugzilla</kind>
       <enable-fetch>false</enable-fetch>
@@ -43,7 +43,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'name', content: 'test'
     assert_xml_tag tag: 'description', content: 'My test issue tracker'
-    assert_xml_tag tag: 'regex', content: "test#\d+test"
+    assert_xml_tag tag: 'regex', content: '\btest#\d+test\b'
     assert_xml_tag tag: 'label', content: 'test#@@@+test'
     assert_xml_tag tag: 'enable-fetch', content: 'false'
     assert_xml_tag tag: 'kind', content: 'bugzilla'
@@ -58,7 +58,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     <issue-tracker>
       <name>test</name>
       <description>My even better test issue tracker</description>
-      <regex>tester#\d+</regex>
+      <regex>\\btester#\d+\\b</regex>
       <label>tester#\@\@\@+</label>
       <enable-fetch>true</enable-fetch>
       <kind>cve</kind>
@@ -76,7 +76,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'name', content: 'test'
     assert_xml_tag tag: 'description', content: 'My even better test issue tracker'
-    assert_xml_tag tag: 'regex', content: "tester#\d+"
+    assert_xml_tag tag: 'regex', content: '\btester#\d+\b'
     assert_xml_tag tag: 'label', content: 'tester#@@@+'
     assert_xml_tag tag: 'enable-fetch', content: 'true'
     assert_xml_tag tag: 'kind', content: 'cve'
