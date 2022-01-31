@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fear and Trembling</title>
-          <description>Beatae quo aut delectus.</description>
+          <title>A Time of Gifts</title>
+          <description>Optio ut ipsum nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,61 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fear and Trembling</title>
-          <description>Beatae quo aut delectus.</description>
+          <title>A Time of Gifts</title>
+          <description>Optio ut ipsum nisi.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>Fear and Trembling</title>
-          <description>Beatae quo aut delectus.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '156'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>Fear and Trembling</title>
-          <description>Beatae quo aut delectus.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Tempore vel temporibus. Itaque et aut. Modi dolorum omnis.
+      string: Animi eos dolorum. Laudantium quam quas. Consequuntur vitae enim.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,26 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="405" vrev="405">
-          <srcmd5>d2155e64fe9010642d8dea5b2a39f045</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>8e889582031b31e4008565d1289e4ade</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1643635969</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Consectetur voluptatem et. Non et quis. Quis error molestiae.
+      string: Facilis laborum quos. Eius veritatis qui. Voluptatem iusto officia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,26 +141,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="406" vrev="406">
-          <srcmd5>26025fa8c36e956f90c4ee50314c9825</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>5694b5cfd3cc9027f7af28bc61285d64</srcmd5>
           <version>unknown</version>
-          <time>1536230739</time>
+          <time>1643635969</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_icon
     body:
       encoding: UTF-8
-      string: Iusto ut aperiam. Doloremque inventore optio. Porro quo eum.
+      string: Sequi est earum. Sunt totam quidem. Sunt velit libero.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -222,20 +179,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="407" vrev="407">
-          <srcmd5>ce5bc619ba766c05d0cf2236881b3fdd</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>6797b9d77d5c5c9db667d8c8dcc20424</srcmd5>
           <version>unknown</version>
-          <time>1536230739</time>
+          <time>1643635969</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -261,20 +217,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '402'
+      - '395'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="407" vrev="407" srcmd5="ce5bc619ba766c05d0cf2236881b3fdd">
-          <entry name="_config" md5="0ea98eba48eb426fa534e1fae2bebbf8" size="58" mtime="1536230738" />
-          <entry name="_icon" md5="63145ba980e361af320c5314bbe06c54" size="60" mtime="1536230739" />
-          <entry name="somefile.txt" md5="5db57f2973f99920861e6d6726945ee1" size="61" mtime="1536230739" />
+        <directory name="package_with_files" rev="7" vrev="7" srcmd5="6797b9d77d5c5c9db667d8c8dcc20424">
+          <entry name="_config" md5="6f181bb0c12e284afc8416551337c807" size="65" mtime="1643635969"/>
+          <entry name="_icon" md5="afce14d0bf5298f2e3b018600f4759e5" size="54" mtime="1643635969"/>
+          <entry name="somefile.txt" md5="72b4385cc0897b5ec82766a20d2b51fa" size="67" mtime="1643635969"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_files
+    uri: http://backend:5352/source/home:tom/package_with_files?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -297,15 +252,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '402'
+      - '395'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="407" vrev="407" srcmd5="ce5bc619ba766c05d0cf2236881b3fdd">
-          <entry name="_config" md5="0ea98eba48eb426fa534e1fae2bebbf8" size="58" mtime="1536230738" />
-          <entry name="_icon" md5="63145ba980e361af320c5314bbe06c54" size="60" mtime="1536230739" />
-          <entry name="somefile.txt" md5="5db57f2973f99920861e6d6726945ee1" size="61" mtime="1536230739" />
+        <directory name="package_with_files" rev="7" vrev="7" srcmd5="6797b9d77d5c5c9db667d8c8dcc20424">
+          <entry name="_config" md5="6f181bb0c12e284afc8416551337c807" size="65" mtime="1643635969"/>
+          <entry name="_icon" md5="afce14d0bf5298f2e3b018600f4759e5" size="54" mtime="1643635969"/>
+          <entry name="somefile.txt" md5="72b4385cc0897b5ec82766a20d2b51fa" size="67" mtime="1643635969"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
+recorded_with: VCR 6.0.0

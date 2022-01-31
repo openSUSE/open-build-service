@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_312
+    uri: http://backend:5352/source/foo_project/_meta?user=user_33
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Gone with the Wind</title>
+          <title>Behold the Man</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Gone with the Wind</title>
+          <title>Behold the Man</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/multibuild_package/_meta?user=user_313
+    uri: http://backend:5352/source/foo_project/multibuild_package/_meta?user=user_34
     body:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="foo_project">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="foo_project">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/multibuild_package/_config
     body:
       encoding: UTF-8
-      string: Dicta repellendus necessitatibus. Non asperiores ut. Occaecati sint
-        voluptatem.
+      string: Sint dolorum cumque. Voluptates corporis et. Debitis voluptas pariatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,15 +147,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="45" vrev="45">
-          <srcmd5>b42439bb9ec75cc8d4ad2becf695b1b4</srcmd5>
+        <revision rev="31" vrev="31">
+          <srcmd5>d488de9b76b5e89371f106776f9d7f94</srcmd5>
           <version>unknown</version>
-          <time>1642674777</time>
+          <time>1643641531</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/multibuild_package/_multibuild
@@ -186,15 +185,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="46" vrev="46">
-          <srcmd5>b42439bb9ec75cc8d4ad2becf695b1b4</srcmd5>
+        <revision rev="32" vrev="32">
+          <srcmd5>d488de9b76b5e89371f106776f9d7f94</srcmd5>
           <version>unknown</version>
-          <time>1642674777</time>
+          <time>1643641531</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22multibuild_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -228,7 +227,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -268,7 +267,7 @@ http_interactions:
           <description>This project was created for package multibuild_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_meta?user=Iggy
@@ -276,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -298,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=branch&noservice=1&opackage=multibuild_package&oproject=foo_project&user=Iggy
@@ -338,15 +337,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="59" vrev="59">
-          <srcmd5>ec3ce05ece14d9113bb4fca4e50b992c</srcmd5>
+        <revision rev="31" vrev="31">
+          <srcmd5>3c75f893f1a60efbc89e6232fd413070</srcmd5>
           <version>unknown</version>
-          <time>1642674777</time>
+          <time>1643641531</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_meta?user=Iggy
@@ -354,8 +353,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -376,15 +375,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
@@ -414,13 +413,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="59" vrev="59" srcmd5="ec3ce05ece14d9113bb4fca4e50b992c">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="3fa02541ceda97cf1771fcbd352c0aa7" lsrcmd5="ec3ce05ece14d9113bb4fca4e50b992c"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="31" vrev="31" srcmd5="3c75f893f1a60efbc89e6232fd413070">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" xsrcmd5="1806b9979fd255e8eda14b01b9d7d156" lsrcmd5="3c75f893f1a60efbc89e6232fd413070"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_link" md5="c0076f33636beae06f265ce9560cb59c" size="119" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?view=info
@@ -446,15 +445,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '345'
+      - '344'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="multibuild_package" rev="59" vrev="105" srcmd5="3fa02541ceda97cf1771fcbd352c0aa7" lsrcmd5="ec3ce05ece14d9113bb4fca4e50b992c" verifymd5="b42439bb9ec75cc8d4ad2becf695b1b4">
+        <sourceinfo package="multibuild_package" rev="31" vrev="63" srcmd5="1806b9979fd255e8eda14b01b9d7d156" lsrcmd5="3c75f893f1a60efbc89e6232fd413070" verifymd5="d488de9b76b5e89371f106776f9d7f94">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="multibuild_package"/>
         </sourceinfo>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
@@ -484,13 +483,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="59" vrev="59" srcmd5="ec3ce05ece14d9113bb4fca4e50b992c">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="3fa02541ceda97cf1771fcbd352c0aa7" lsrcmd5="ec3ce05ece14d9113bb4fca4e50b992c"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="31" vrev="31" srcmd5="3c75f893f1a60efbc89e6232fd413070">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" xsrcmd5="1806b9979fd255e8eda14b01b9d7d156" lsrcmd5="3c75f893f1a60efbc89e6232fd413070"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_link" md5="c0076f33636beae06f265ce9560cb59c" size="119" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -522,14 +521,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="a0b48d5703eeeff10a1b3b9a23fdee11">
+        <sourcediff key="6246ed51151917aa51b06e2a28edf539">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="59" srcmd5="ec3ce05ece14d9113bb4fca4e50b992c"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="31" srcmd5="3c75f893f1a60efbc89e6232fd413070"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -561,12 +560,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="f87419ac44350f6e5618cf6cbbcd984b">
-          <old project="foo_project" package="multibuild_package" rev="b42439bb9ec75cc8d4ad2becf695b1b4" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="3fa02541ceda97cf1771fcbd352c0aa7" srcmd5="3fa02541ceda97cf1771fcbd352c0aa7"/>
+        <sourcediff key="cd56a53f4eaa9aacebe5326e366b5401">
+          <old project="foo_project" package="multibuild_package" rev="d488de9b76b5e89371f106776f9d7f94" srcmd5="d488de9b76b5e89371f106776f9d7f94"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="1806b9979fd255e8eda14b01b9d7d156" srcmd5="1806b9979fd255e8eda14b01b9d7d156"/>
           <files/>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:32:57 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -634,7 +633,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_branch_request?user=Iggy
@@ -664,15 +663,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="60" vrev="60">
-          <srcmd5>1e7a5be335297d62df065a1cd58138a7</srcmd5>
+        <revision rev="32" vrev="32">
+          <srcmd5>83aa151115c8b141abc0a835b3636d47</srcmd5>
           <version>unknown</version>
-          <time>1642674778</time>
+          <time>1643641532</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_meta?user=Iggy
@@ -680,8 +679,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -702,15 +701,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Mother Night</title>
-          <description>Aperiam a asperiores hic.</description>
+          <title>Dulce et Decorum Est</title>
+          <description>Facere doloremque libero nemo.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
@@ -736,19 +735,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '812'
+      - '735'
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="60" vrev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="889e249a28690e0cbd3ab7858a880633" lsrcmd5="1e7a5be335297d62df065a1cd58138a7"/>
-          <serviceinfo code="succeeded" xsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1642597665"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="32" vrev="32" srcmd5="83aa151115c8b141abc0a835b3636d47">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" xsrcmd5="ccb66bebaf3be6fb31633f14c64c7f4e" lsrcmd5="83aa151115c8b141abc0a835b3636d47"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1643632572"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_link" md5="c0076f33636beae06f265ce9560cb59c" size="119" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?view=info
@@ -774,15 +772,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '345'
+      - '344'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="multibuild_package" rev="60" vrev="106" srcmd5="191dec52eab67f70c0e7febc5bd4e600" lsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9" verifymd5="0655540c6fdc4c870381b45a9c11ce53">
+        <sourceinfo package="multibuild_package" rev="32" vrev="64" srcmd5="ccb66bebaf3be6fb31633f14c64c7f4e" lsrcmd5="83aa151115c8b141abc0a835b3636d47" verifymd5="9ea68b3ca22bf21484264758bf8dbe14">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="multibuild_package"/>
         </sourceinfo>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
@@ -808,19 +806,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '812'
+      - '735'
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="60" vrev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="889e249a28690e0cbd3ab7858a880633" lsrcmd5="1e7a5be335297d62df065a1cd58138a7"/>
-          <serviceinfo code="succeeded" xsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1642597665"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="32" vrev="32" srcmd5="83aa151115c8b141abc0a835b3636d47">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" xsrcmd5="ccb66bebaf3be6fb31633f14c64c7f4e" lsrcmd5="83aa151115c8b141abc0a835b3636d47"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1643632572"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_link" md5="c0076f33636beae06f265ce9560cb59c" size="119" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -852,14 +849,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="adff68491859446d4b078d392136d28f">
+        <sourcediff key="64057805ec46a741cb83549f4dec4055">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="32" srcmd5="83aa151115c8b141abc0a835b3636d47"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -891,14 +888,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="68b737491e32e5b7b077d9a7f5d74e8e">
-          <old project="foo_project" package="multibuild_package" rev="b42439bb9ec75cc8d4ad2becf695b1b4" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="191dec52eab67f70c0e7febc5bd4e600" srcmd5="191dec52eab67f70c0e7febc5bd4e600"/>
+        <sourcediff key="133f657ed666f9ea489c64080589004c">
+          <old project="foo_project" package="multibuild_package" rev="d488de9b76b5e89371f106776f9d7f94" srcmd5="d488de9b76b5e89371f106776f9d7f94"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="ccb66bebaf3be6fb31633f14c64c7f4e" srcmd5="ccb66bebaf3be6fb31633f14c64c7f4e"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
@@ -924,22 +921,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '812'
+      - '735'
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="60" vrev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="889e249a28690e0cbd3ab7858a880633" lsrcmd5="1e7a5be335297d62df065a1cd58138a7"/>
-          <serviceinfo code="succeeded" xsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1642597665"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="32" vrev="32" srcmd5="83aa151115c8b141abc0a835b3636d47">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" xsrcmd5="ccb66bebaf3be6fb31633f14c64c7f4e" lsrcmd5="83aa151115c8b141abc0a835b3636d47"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1643632572"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_link" md5="c0076f33636beae06f265ce9560cb59c" size="119" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -962,19 +958,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '812'
+      - '629'
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="60" vrev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="889e249a28690e0cbd3ab7858a880633" lsrcmd5="1e7a5be335297d62df065a1cd58138a7"/>
-          <serviceinfo code="succeeded" xsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1642597665"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="ccb66bebaf3be6fb31633f14c64c7f4e" vrev="64" srcmd5="ccb66bebaf3be6fb31633f14c64c7f4e">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" lsrcmd5="83aa151115c8b141abc0a835b3636d47"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1643632572"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_multibuild
@@ -1004,7 +998,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "<multibuild><flavor>flavor_a</flavor><flavor>flavor_b</flavor></multibuild>"
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
@@ -1030,22 +1024,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '812'
+      - '735'
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="60" vrev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="889e249a28690e0cbd3ab7858a880633" lsrcmd5="1e7a5be335297d62df065a1cd58138a7"/>
-          <serviceinfo code="succeeded" xsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1642597665"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="32" vrev="32" srcmd5="83aa151115c8b141abc0a835b3636d47">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" xsrcmd5="ccb66bebaf3be6fb31633f14c64c7f4e" lsrcmd5="83aa151115c8b141abc0a835b3636d47"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1643632572"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_link" md5="c0076f33636beae06f265ce9560cb59c" size="119" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1068,19 +1061,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '812'
+      - '629'
     body:
       encoding: UTF-8
       string: |
-        <directory name="multibuild_package" rev="60" vrev="60" srcmd5="1e7a5be335297d62df065a1cd58138a7">
-          <linkinfo project="foo_project" package="multibuild_package" srcmd5="b42439bb9ec75cc8d4ad2becf695b1b4" baserev="b42439bb9ec75cc8d4ad2becf695b1b4" xsrcmd5="889e249a28690e0cbd3ab7858a880633" lsrcmd5="1e7a5be335297d62df065a1cd58138a7"/>
-          <serviceinfo code="succeeded" xsrcmd5="e1deaa6e3e826cbfba5d2da35812e7e9"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1642597665"/>
-          <entry name="_config" md5="6afcd8dc75ec01fc11572b2b067ec169" size="79" mtime="1642674777"/>
-          <entry name="_link" md5="d0a0b01605ce6004e57719f1fa1e08d5" size="119" mtime="1642674777"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1642597665"/>
+        <directory name="multibuild_package" rev="ccb66bebaf3be6fb31633f14c64c7f4e" vrev="64" srcmd5="ccb66bebaf3be6fb31633f14c64c7f4e">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="d488de9b76b5e89371f106776f9d7f94" baserev="d488de9b76b5e89371f106776f9d7f94" lsrcmd5="83aa151115c8b141abc0a835b3636d47"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1643632572"/>
+          <entry name="_config" md5="13e39062831c9f61ab72cdcd93855dfb" size="71" mtime="1643641531"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643632570"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_multibuild
@@ -1110,5 +1101,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "<multibuild><flavor>flavor_a</flavor><flavor>flavor_b</flavor></multibuild>"
-  recorded_at: Thu, 20 Jan 2022 10:32:58 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:32 GMT
 recorded_with: VCR 6.0.0

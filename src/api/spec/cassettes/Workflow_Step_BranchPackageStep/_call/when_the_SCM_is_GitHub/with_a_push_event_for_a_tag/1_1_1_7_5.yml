@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_372
+    uri: http://backend:5352/source/foo_project/_meta?user=user_61
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Tirra Lirra by the River</title>
+          <title>Beneath the Bleeding</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Tirra Lirra by the River</title>
+          <title>Beneath the Bleeding</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_373
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_62
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Dolorum expedita et. Et inventore natus. Voluptatem magni quo.
+      string: Rerum ipsum occaecati. Qui at natus. Quis optio nisi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1751" vrev="1751">
-          <srcmd5>00fb588cbf56ea07c480a8dd7d298b4d</srcmd5>
+        <revision rev="69" vrev="69">
+          <srcmd5>cb8ec39e84f02b638e4cf6350cb168e4</srcmd5>
           <version>unknown</version>
-          <time>1642674809</time>
+          <time>1643641548</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Et exercitationem perferendis. Ea tempore sit. Consequatur nulla totam.
+      string: Non eos velit. Molestiae tenetur consequatur. Voluptatem aut quisquam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1752" vrev="1752">
-          <srcmd5>5232a224e5b25f56afa88fca0d2e25c1</srcmd5>
+        <revision rev="70" vrev="70">
+          <srcmd5>5916ec5ffc82915fa10c0bcf252c6886</srcmd5>
           <version>unknown</version>
-          <time>1642674809</time>
+          <time>1643641548</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -227,7 +227,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -235,8 +235,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -257,15 +257,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
@@ -293,19 +293,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '204'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="177" vrev="177">
-          <srcmd5>89be12dfd1a7501c0e3f26801ffbd7eb</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>45c9a196e190f893a7219736efe138c6</srcmd5>
           <version>unknown</version>
-          <time>1642674809</time>
+          <time>1643641549</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -313,8 +313,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -335,15 +335,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -369,18 +369,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '737'
+      - '733'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="177" vrev="177" srcmd5="89be12dfd1a7501c0e3f26801ffbd7eb">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="5232a224e5b25f56afa88fca0d2e25c1" baserev="5232a224e5b25f56afa88fca0d2e25c1" xsrcmd5="326ee13783cd43b20030429d4ed1baf0" lsrcmd5="89be12dfd1a7501c0e3f26801ffbd7eb"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1642591329"/>
-          <entry name="_config" md5="28d49d13ba5f8a729278554e7ee47424" size="62" mtime="1642674809"/>
-          <entry name="_link" md5="62f47fbdaebb7c2ee1f9a0b69aa8e80e" size="141" mtime="1642674809"/>
-          <entry name="somefile.txt" md5="db592fc54e8a5e8ea3b28472d5101d18" size="71" mtime="1642674809"/>
+        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="45c9a196e190f893a7219736efe138c6">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="5916ec5ffc82915fa10c0bcf252c6886" baserev="5916ec5ffc82915fa10c0bcf252c6886" xsrcmd5="7b22b2f1fbe06f2b5c44023073e29cf1" lsrcmd5="45c9a196e190f893a7219736efe138c6"/>
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1643641537"/>
+          <entry name="_config" md5="69fab1f2eb7ff5c19dbf2427a46efad0" size="53" mtime="1643641548"/>
+          <entry name="_link" md5="320ca80b6a4c043277dcd6b2153afd07" size="141" mtime="1643641549"/>
+          <entry name="somefile.txt" md5="e24481dab8b06994fc8e6e23411746ba" size="70" mtime="1643641548"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:33:29 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
@@ -406,15 +406,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '345'
+      - '341'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="177" vrev="1929" srcmd5="326ee13783cd43b20030429d4ed1baf0" lsrcmd5="89be12dfd1a7501c0e3f26801ffbd7eb" verifymd5="5232a224e5b25f56afa88fca0d2e25c1">
+        <sourceinfo package="bar_package-release_abc" rev="7" vrev="77" srcmd5="7b22b2f1fbe06f2b5c44023073e29cf1" lsrcmd5="45c9a196e190f893a7219736efe138c6" verifymd5="5916ec5ffc82915fa10c0bcf252c6886">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -440,18 +440,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '737'
+      - '733'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="177" vrev="177" srcmd5="89be12dfd1a7501c0e3f26801ffbd7eb">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="5232a224e5b25f56afa88fca0d2e25c1" baserev="5232a224e5b25f56afa88fca0d2e25c1" xsrcmd5="326ee13783cd43b20030429d4ed1baf0" lsrcmd5="89be12dfd1a7501c0e3f26801ffbd7eb"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1642591329"/>
-          <entry name="_config" md5="28d49d13ba5f8a729278554e7ee47424" size="62" mtime="1642674809"/>
-          <entry name="_link" md5="62f47fbdaebb7c2ee1f9a0b69aa8e80e" size="141" mtime="1642674809"/>
-          <entry name="somefile.txt" md5="db592fc54e8a5e8ea3b28472d5101d18" size="71" mtime="1642674809"/>
+        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="45c9a196e190f893a7219736efe138c6">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="5916ec5ffc82915fa10c0bcf252c6886" baserev="5916ec5ffc82915fa10c0bcf252c6886" xsrcmd5="7b22b2f1fbe06f2b5c44023073e29cf1" lsrcmd5="45c9a196e190f893a7219736efe138c6"/>
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1643641537"/>
+          <entry name="_config" md5="69fab1f2eb7ff5c19dbf2427a46efad0" size="53" mtime="1643641548"/>
+          <entry name="_link" md5="320ca80b6a4c043277dcd6b2153afd07" size="141" mtime="1643641549"/>
+          <entry name="somefile.txt" md5="e24481dab8b06994fc8e6e23411746ba" size="70" mtime="1643641548"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -479,18 +479,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '328'
+      - '326'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="ba8b3aba55c32d608e59cfc9ef5367e4">
+        <sourcediff key="41f65bd2d4d8b9844713d8a93ece3526">
           <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="177" srcmd5="89be12dfd1a7501c0e3f26801ffbd7eb"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="7" srcmd5="45c9a196e190f893a7219736efe138c6"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -522,14 +522,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8525a202f2ad693ed259f1dcacc45b72">
-          <old project="foo_project" package="bar_package" rev="5232a224e5b25f56afa88fca0d2e25c1" srcmd5="5232a224e5b25f56afa88fca0d2e25c1"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="326ee13783cd43b20030429d4ed1baf0" srcmd5="326ee13783cd43b20030429d4ed1baf0"/>
+        <sourcediff key="5da56e1bf55d343c3f17e5226fadc815">
+          <old project="foo_project" package="bar_package" rev="5916ec5ffc82915fa10c0bcf252c6886" srcmd5="5916ec5ffc82915fa10c0bcf252c6886"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="7b22b2f1fbe06f2b5c44023073e29cf1" srcmd5="7b22b2f1fbe06f2b5c44023073e29cf1"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
@@ -587,7 +587,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_branch_request?user=Iggy
@@ -613,19 +613,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '204'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="178" vrev="178">
-          <srcmd5>ae76013c9f7e3d41c353647f9b80e077</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>b19422281cbe0f87b78bf8169f3eed4e</srcmd5>
           <version>unknown</version>
-          <time>1642674810</time>
+          <time>1643641549</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -633,8 +633,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -655,15 +655,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>The Soldier's Art</title>
-          <description>Eaque consequatur aspernatur ut.</description>
+          <title>The Painted Veil</title>
+          <description>Aut qui quis quis.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -689,19 +689,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '814'
+      - '733'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="178" vrev="178" srcmd5="ae76013c9f7e3d41c353647f9b80e077">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="5232a224e5b25f56afa88fca0d2e25c1" baserev="5232a224e5b25f56afa88fca0d2e25c1" xsrcmd5="94fb06e2f49d4c9653f8c59541d54224" lsrcmd5="ae76013c9f7e3d41c353647f9b80e077"/>
-          <serviceinfo code="succeeded" xsrcmd5="167053f58e8244340327541d85ca354b"/>
-          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1637576859"/>
-          <entry name="_config" md5="28d49d13ba5f8a729278554e7ee47424" size="62" mtime="1642674809"/>
-          <entry name="_link" md5="62f47fbdaebb7c2ee1f9a0b69aa8e80e" size="141" mtime="1642674809"/>
-          <entry name="somefile.txt" md5="db592fc54e8a5e8ea3b28472d5101d18" size="71" mtime="1642674809"/>
+        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="b19422281cbe0f87b78bf8169f3eed4e">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="5916ec5ffc82915fa10c0bcf252c6886" baserev="5916ec5ffc82915fa10c0bcf252c6886" xsrcmd5="f26d812e4e74fb3dc96809db16d4a308" lsrcmd5="b19422281cbe0f87b78bf8169f3eed4e"/>
+          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1643641545"/>
+          <entry name="_config" md5="69fab1f2eb7ff5c19dbf2427a46efad0" size="53" mtime="1643641548"/>
+          <entry name="_link" md5="320ca80b6a4c043277dcd6b2153afd07" size="141" mtime="1643641549"/>
+          <entry name="somefile.txt" md5="e24481dab8b06994fc8e6e23411746ba" size="70" mtime="1643641548"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
@@ -727,15 +726,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '345'
+      - '341'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="178" vrev="1930" srcmd5="5c03593dab4214dd177ce7204486343f" lsrcmd5="167053f58e8244340327541d85ca354b" verifymd5="51c7deb82dbd36266698c35a03ddb6ea">
+        <sourceinfo package="bar_package-release_abc" rev="8" vrev="78" srcmd5="f26d812e4e74fb3dc96809db16d4a308" lsrcmd5="b19422281cbe0f87b78bf8169f3eed4e" verifymd5="07d145d0891e9d7dbdb43ac31a89282f">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -761,19 +760,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '814'
+      - '733'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="178" vrev="178" srcmd5="ae76013c9f7e3d41c353647f9b80e077">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="5232a224e5b25f56afa88fca0d2e25c1" baserev="5232a224e5b25f56afa88fca0d2e25c1" xsrcmd5="94fb06e2f49d4c9653f8c59541d54224" lsrcmd5="ae76013c9f7e3d41c353647f9b80e077"/>
-          <serviceinfo code="succeeded" xsrcmd5="167053f58e8244340327541d85ca354b"/>
-          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1637576859"/>
-          <entry name="_config" md5="28d49d13ba5f8a729278554e7ee47424" size="62" mtime="1642674809"/>
-          <entry name="_link" md5="62f47fbdaebb7c2ee1f9a0b69aa8e80e" size="141" mtime="1642674809"/>
-          <entry name="somefile.txt" md5="db592fc54e8a5e8ea3b28472d5101d18" size="71" mtime="1642674809"/>
+        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="b19422281cbe0f87b78bf8169f3eed4e">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="5916ec5ffc82915fa10c0bcf252c6886" baserev="5916ec5ffc82915fa10c0bcf252c6886" xsrcmd5="f26d812e4e74fb3dc96809db16d4a308" lsrcmd5="b19422281cbe0f87b78bf8169f3eed4e"/>
+          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1643641545"/>
+          <entry name="_config" md5="69fab1f2eb7ff5c19dbf2427a46efad0" size="53" mtime="1643641548"/>
+          <entry name="_link" md5="320ca80b6a4c043277dcd6b2153afd07" size="141" mtime="1643641549"/>
+          <entry name="somefile.txt" md5="e24481dab8b06994fc8e6e23411746ba" size="70" mtime="1643641548"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -801,18 +799,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '328'
+      - '326'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="f868d1510a0db7ff82e4cef4ffc677c3">
+        <sourcediff key="1dab37d06e2e268d6abb287380a19c2c">
           <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="178" srcmd5="ae76013c9f7e3d41c353647f9b80e077"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="8" srcmd5="b19422281cbe0f87b78bf8169f3eed4e"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -844,12 +842,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="44e001564204633cb2c573fca8a2699d">
-          <old project="foo_project" package="bar_package" rev="5232a224e5b25f56afa88fca0d2e25c1" srcmd5="5232a224e5b25f56afa88fca0d2e25c1"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="5c03593dab4214dd177ce7204486343f" srcmd5="5c03593dab4214dd177ce7204486343f"/>
+        <sourcediff key="835a48c68f9cecb450d8213ffafd3e8f">
+          <old project="foo_project" package="bar_package" rev="5916ec5ffc82915fa10c0bcf252c6886" srcmd5="5916ec5ffc82915fa10c0bcf252c6886"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="f26d812e4e74fb3dc96809db16d4a308" srcmd5="f26d812e4e74fb3dc96809db16d4a308"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:33:30 GMT
+  recorded_at: Mon, 31 Jan 2022 15:05:49 GMT
 recorded_with: VCR 6.0.0

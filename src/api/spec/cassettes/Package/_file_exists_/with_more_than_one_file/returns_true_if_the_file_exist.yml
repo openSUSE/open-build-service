@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:30:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>The Skull Beneath the Skin</title>
-          <description>Sed eos exercitationem placeat.</description>
+          <title>No Highway</title>
+          <description>Quae quaerat inventore suscipit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,61 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>The Skull Beneath the Skin</title>
-          <description>Sed eos exercitationem placeat.</description>
+          <title>No Highway</title>
+          <description>Quae quaerat inventore suscipit.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>The Skull Beneath the Skin</title>
-          <description>Sed eos exercitationem placeat.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '171'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>The Skull Beneath the Skin</title>
-          <description>Sed eos exercitationem placeat.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:30:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Ut qui quo. Id eaque consequatur. Dignissimos repellendus voluptatem.
+      string: Adipisci dolores id. Autem neque et. Voluptatem sit vero.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,26 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="410" vrev="410">
-          <srcmd5>bf10ee2b78231cd4e422b59c029ca7b9</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>e555c4f006c64d55db53ddfd70252fda</srcmd5>
           <version>unknown</version>
-          <time>1536230739</time>
+          <time>1643635853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:30:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Aperiam odit autem. Aperiam vitae soluta. Tempore culpa accusantium.
+      string: Delectus in voluptatem. Commodi quaerat ut. Alias explicabo rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,20 +141,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="411" vrev="411">
-          <srcmd5>5dcb82a2e4ce4ebc27533914a8fdc601</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>da9ddad6a1af9c3f26808e9b0839a0cf</srcmd5>
           <version>unknown</version>
-          <time>1536230739</time>
+          <time>1643635853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:30:53 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -222,20 +179,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '402'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="411" vrev="411" srcmd5="5dcb82a2e4ce4ebc27533914a8fdc601">
-          <entry name="_config" md5="2d2262ee959301d9d874ef159d3510fc" size="69" mtime="1536230739" />
-          <entry name="_icon" md5="63145ba980e361af320c5314bbe06c54" size="60" mtime="1536230739" />
-          <entry name="somefile.txt" md5="4dfa422adc4484aa5b32a7a3848c6ef6" size="68" mtime="1536230739" />
+        <directory name="package_with_files" rev="4" vrev="4" srcmd5="da9ddad6a1af9c3f26808e9b0839a0cf">
+          <entry name="_config" md5="1cba0683a396e3a297eda3fad8177265" size="57" mtime="1643635853"/>
+          <entry name="somefile.txt" md5="6ac62664efd6370cad9880b2b1973c1e" size="66" mtime="1643635853"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
+  recorded_at: Mon, 31 Jan 2022 13:30:53 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_files
+    uri: http://backend:5352/source/home:tom/package_with_files?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -258,15 +213,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '402'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="411" vrev="411" srcmd5="5dcb82a2e4ce4ebc27533914a8fdc601">
-          <entry name="_config" md5="2d2262ee959301d9d874ef159d3510fc" size="69" mtime="1536230739" />
-          <entry name="_icon" md5="63145ba980e361af320c5314bbe06c54" size="60" mtime="1536230739" />
-          <entry name="somefile.txt" md5="4dfa422adc4484aa5b32a7a3848c6ef6" size="68" mtime="1536230739" />
+        <directory name="package_with_files" rev="4" vrev="4" srcmd5="da9ddad6a1af9c3f26808e9b0839a0cf">
+          <entry name="_config" md5="1cba0683a396e3a297eda3fad8177265" size="57" mtime="1643635853"/>
+          <entry name="somefile.txt" md5="6ac62664efd6370cad9880b2b1973c1e" size="66" mtime="1643635853"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:39 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 31 Jan 2022 13:30:53 GMT
+recorded_with: VCR 6.0.0
