@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_280
+    uri: http://backend:5352/source/foo_project/_meta?user=user_27
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Things Fall Apart</title>
+          <title>Everything is Illuminated</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Things Fall Apart</title>
+          <title>Everything is Illuminated</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_281
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_28
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Antic Hay</title>
-          <description>Assumenda inventore hic voluptatem.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Et provident excepturi ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Antic Hay</title>
-          <description>Assumenda inventore hic voluptatem.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Et provident excepturi ea.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Suscipit debitis labore. Quas voluptas ad. Deserunt distinctio soluta.
+      string: Natus odio repellat. Dolores veritatis est. Aut natus iure.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1665" vrev="1665">
-          <srcmd5>ee0f963339e1084d60f1f5865719760d</srcmd5>
+        <revision rev="130" vrev="130">
+          <srcmd5>596b2d99573b03cb804b44de0e1c3565</srcmd5>
           <version>unknown</version>
-          <time>1642674763</time>
+          <time>1643641672</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Libero et aliquam. Cum voluptatem deserunt. Esse facere eligendi.
+      string: Possimus at quia. Sit doloribus ipsa. Soluta iure quos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1666" vrev="1666">
-          <srcmd5>ac619e6ccdff230ffa3663773c9ff3b2</srcmd5>
+        <revision rev="131" vrev="131">
+          <srcmd5>e9848489ddf0f5ed9a39c3668e4858ce</srcmd5>
           <version>unknown</version>
-          <time>1642674763</time>
+          <time>1643641672</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -201,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Pale Kings and Princes</title>
+          <title>Such, Such Were the Joys</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -224,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <project name="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Pale Kings and Princes</title>
+          <title>Such, Such Were the Joys</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -241,8 +241,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Moving Finger</title>
-          <description>A hic consequuntur numquam.</description>
+          <title>I Sing the Body Electric</title>
+          <description>Aliquam consequatur minus sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -263,21 +263,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '195'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Moving Finger</title>
-          <description>A hic consequuntur numquam.</description>
+          <title>I Sing the Body Electric</title>
+          <description>Aliquam consequatur minus sit.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_config
     body:
       encoding: UTF-8
-      string: Perferendis qui iusto. Aut quas tenetur. Aut magni est.
+      string: Et voluptatem adipisci. Vel et cupiditate. Maiores culpa repellendus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -297,25 +297,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="558" vrev="558">
-          <srcmd5>522786caeaa2f0383b944a00b12cd3f1</srcmd5>
+        <revision rev="46" vrev="46">
+          <srcmd5>3547be0a00be17b1a900a27ec2dc0786</srcmd5>
           <version>unknown</version>
-          <time>1642674763</time>
+          <time>1643641672</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptate eos temporibus. Cum recusandae id. Eos omnis sed.
+      string: Non praesentium qui. Ut tenetur rerum. Illo recusandae aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -335,19 +335,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="559" vrev="559">
-          <srcmd5>0d51111d9dd48bae453401f294629b81</srcmd5>
+        <revision rev="47" vrev="47">
+          <srcmd5>94a9d209c14c57724f71b84ac74fc06e</srcmd5>
           <version>unknown</version>
-          <time>1642674763</time>
+          <time>1643641672</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_branch_request?user=Iggy
@@ -373,28 +373,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '210'
+      - '208'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1667" vrev="1667">
-          <srcmd5>ac619e6ccdff230ffa3663773c9ff3b2</srcmd5>
+        <revision rev="132" vrev="132">
+          <srcmd5>e9848489ddf0f5ed9a39c3668e4858ce</srcmd5>
           <version>unknown</version>
-          <time>1642674763</time>
+          <time>1643641672</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_281
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_28
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Antic Hay</title>
-          <description>Assumenda inventore hic voluptatem.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Et provident excepturi ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -415,15 +415,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Antic Hay</title>
-          <description>Assumenda inventore hic voluptatem.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Et provident excepturi ea.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -449,16 +449,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '405'
+      - '403'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="1667" vrev="1667" srcmd5="ac619e6ccdff230ffa3663773c9ff3b2">
-          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1642597680"/>
-          <entry name="_config" md5="8cb51d0b3b6b52449f051ddef2e77e79" size="70" mtime="1642674763"/>
-          <entry name="somefile.txt" md5="1ea96b897a7999e8b1d6ba23c1aefb30" size="65" mtime="1642674763"/>
+        <directory name="bar_package" rev="132" vrev="132" srcmd5="e9848489ddf0f5ed9a39c3668e4858ce">
+          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1643641671"/>
+          <entry name="_config" md5="e23600da0c2a20035fe68ecfb657d51d" size="59" mtime="1643641672"/>
+          <entry name="somefile.txt" md5="b42556374d7c79418ca9d285bc854240" size="55" mtime="1643641672"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package?view=info
@@ -484,14 +484,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '235'
+      - '233'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="1667" vrev="1667" srcmd5="ac619e6ccdff230ffa3663773c9ff3b2" verifymd5="ac619e6ccdff230ffa3663773c9ff3b2">
+        <sourceinfo package="bar_package" rev="132" vrev="132" srcmd5="e9848489ddf0f5ed9a39c3668e4858ce" verifymd5="e9848489ddf0f5ed9a39c3668e4858ce">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -517,16 +517,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '405'
+      - '403'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="1667" vrev="1667" srcmd5="ac619e6ccdff230ffa3663773c9ff3b2">
-          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1642597680"/>
-          <entry name="_config" md5="8cb51d0b3b6b52449f051ddef2e77e79" size="70" mtime="1642674763"/>
-          <entry name="somefile.txt" md5="1ea96b897a7999e8b1d6ba23c1aefb30" size="65" mtime="1642674763"/>
+        <directory name="bar_package" rev="132" vrev="132" srcmd5="e9848489ddf0f5ed9a39c3668e4858ce">
+          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1643641671"/>
+          <entry name="_config" md5="e23600da0c2a20035fe68ecfb657d51d" size="59" mtime="1643641672"/>
+          <entry name="somefile.txt" md5="b42556374d7c79418ca9d285bc854240" size="55" mtime="1643641672"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -554,18 +554,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '309'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="67f4c9cf0c4ae0faf0bc51dc848e0aad">
+        <sourcediff key="dc5d1f0b34ff147ff15291c765edc3ac">
           <old project="foo_project" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="foo_project" package="bar_package" rev="1667" srcmd5="ac619e6ccdff230ffa3663773c9ff3b2"/>
+          <new project="foo_project" package="bar_package" rev="132" srcmd5="e9848489ddf0f5ed9a39c3668e4858ce"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_branch_request?user=Iggy
@@ -591,19 +591,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '206'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="560" vrev="560">
-          <srcmd5>d30ef6841b6a96e4c838ea6d6de42232</srcmd5>
+        <revision rev="48" vrev="48">
+          <srcmd5>94a9d209c14c57724f71b84ac74fc06e</srcmd5>
           <version>unknown</version>
-          <time>1642674763</time>
+          <time>1643641672</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -611,8 +611,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Moving Finger</title>
-          <description>A hic consequuntur numquam.</description>
+          <title>I Sing the Body Electric</title>
+          <description>Aliquam consequatur minus sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -633,15 +633,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '195'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Moving Finger</title>
-          <description>A hic consequuntur numquam.</description>
+          <title>I Sing the Body Electric</title>
+          <description>Aliquam consequatur minus sit.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -667,21 +667,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '832'
+      - '671'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="560" vrev="560" srcmd5="d30ef6841b6a96e4c838ea6d6de42232">
-          <linkinfo project="foo_project" package="bar_package" baserev="e96f2416509066dbe7aa04a8f862e091" xsrcmd5="04f17f03a0b1caf019133df5ec5c4036" error="conflict in file _config"/>
-          <serviceinfo code="failed" xsrcmd5="71392b198bdfd5020b889a3db63ea85f">
-            <error>service error: bad link: conflict in file _config</error>
-          </serviceinfo>
-          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1642597680"/>
-          <entry name="_config" md5="04bcc82d761b3553588f5066249ef559" size="55" mtime="1642674763"/>
-          <entry name="_link" md5="028bf1aa0518e0efb16a9d5e082f6feb" size="119" mtime="1642674758"/>
-          <entry name="somefile.txt" md5="2a676da6048d828c154be4f219bf0d29" size="59" mtime="1642674763"/>
+        <directory name="bar_package" rev="48" vrev="48" srcmd5="94a9d209c14c57724f71b84ac74fc06e">
+          <linkinfo project="foo_project" package="bar_package" baserev="11ed5f7df3c46b42eaa6bd5e17fc4232" xsrcmd5="a9965bde3e9ac4f9f1c41d6585cac23b" error="conflict in file _config"/>
+          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1643641669"/>
+          <entry name="_config" md5="d26d256a19e9ed18f0f5550a4ccbc80a" size="69" mtime="1643641672"/>
+          <entry name="_link" md5="0ed866dcf37c02d96fa6359bfc74102c" size="119" mtime="1643641670"/>
+          <entry name="somefile.txt" md5="ac0517a94637af3632f44d48af5025dc" size="59" mtime="1643641672"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?view=info
@@ -707,14 +704,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '254'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="560" vrev="560" srcmd5="d30ef6841b6a96e4c838ea6d6de42232">
-          <error>service error: bad link: conflict in file _config</error>
+        <sourceinfo package="bar_package" rev="48" vrev="180" srcmd5="94a9d209c14c57724f71b84ac74fc06e" verifymd5="94a9d209c14c57724f71b84ac74fc06e">
+          <error>conflict in file _config</error>
+          <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:53 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -740,21 +738,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '832'
+      - '671'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="560" vrev="560" srcmd5="d30ef6841b6a96e4c838ea6d6de42232">
-          <linkinfo project="foo_project" package="bar_package" baserev="e96f2416509066dbe7aa04a8f862e091" xsrcmd5="04f17f03a0b1caf019133df5ec5c4036" error="conflict in file _config"/>
-          <serviceinfo code="failed" xsrcmd5="71392b198bdfd5020b889a3db63ea85f">
-            <error>service error: bad link: conflict in file _config</error>
-          </serviceinfo>
-          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1642597680"/>
-          <entry name="_config" md5="04bcc82d761b3553588f5066249ef559" size="55" mtime="1642674763"/>
-          <entry name="_link" md5="028bf1aa0518e0efb16a9d5e082f6feb" size="119" mtime="1642674758"/>
-          <entry name="somefile.txt" md5="2a676da6048d828c154be4f219bf0d29" size="59" mtime="1642674763"/>
+        <directory name="bar_package" rev="48" vrev="48" srcmd5="94a9d209c14c57724f71b84ac74fc06e">
+          <linkinfo project="foo_project" package="bar_package" baserev="11ed5f7df3c46b42eaa6bd5e17fc4232" xsrcmd5="a9965bde3e9ac4f9f1c41d6585cac23b" error="conflict in file _config"/>
+          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1643641669"/>
+          <entry name="_config" md5="d26d256a19e9ed18f0f5550a4ccbc80a" size="69" mtime="1643641672"/>
+          <entry name="_link" md5="0ed866dcf37c02d96fa6359bfc74102c" size="119" mtime="1643641670"/>
+          <entry name="somefile.txt" md5="ac0517a94637af3632f44d48af5025dc" size="59" mtime="1643641672"/>
         </directory>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:53 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -782,18 +777,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '370'
+      - '369'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="f4e9ef8d3017a87f7ebc3f9384893734">
+        <sourcediff key="4680fd2e92c1f9a34be0c59cab6adb5c">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="560" srcmd5="d30ef6841b6a96e4c838ea6d6de42232"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="48" srcmd5="94a9d209c14c57724f71b84ac74fc06e"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:53 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -811,8 +806,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 400
-      message: service error  bad link  conflict in file _config
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -821,14 +816,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '101'
+      - '399'
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>service error: bad link: conflict in file _config</summary>
-        </status>
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+        <sourcediff key="b8e1c61ed94bf6847dca4c7391aedfea">
+          <old project="foo_project" package="bar_package" rev="11ed5f7df3c46b42eaa6bd5e17fc4232" srcmd5="11ed5f7df3c46b42eaa6bd5e17fc4232"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="9b3b16dcd7c7582848c25a8926c163c8" srcmd5="9b3b16dcd7c7582848c25a8926c163c8"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 31 Jan 2022 15:07:53 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_branch_request
@@ -858,5 +857,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"object_kind":null,"project":{"http_url":null},"object_attributes":{"source":{"default_branch":"123456789"}}}'
-  recorded_at: Thu, 20 Jan 2022 10:32:43 GMT
+  recorded_at: Mon, 31 Jan 2022 15:07:53 GMT
 recorded_with: VCR 6.0.0
