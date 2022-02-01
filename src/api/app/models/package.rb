@@ -1330,8 +1330,8 @@ class Package < ApplicationRecord
     true
   end
 
-  def file_exists?(filename)
-    dir_hash.key?('entry') && [dir_hash(expand: 1)['entry']].flatten.any? { |item| item['name'] == filename }
+  def file_exists?(filename, expand: 0)
+    dir_hash.key?('entry') && [dir_hash(expand: expand)['entry']].flatten.any? { |item| item['name'] == filename }
   end
 
   def has_icon?
