@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/_meta?user=user_1
+    uri: http://backend:5352/source/my_project/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>The Painted Veil</title>
+          <title>The Glory and the Dream</title>
           <description/>
         </project>
     headers:
@@ -69,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '103'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>The Painted Veil</title>
+          <title>The Glory and the Dream</title>
           <description></description>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/first_package/_meta?user=user_2
+    uri: http://backend:5352/source/my_project/first_package/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <package name="first_package" project="my_project">
           <title>a</title>
-          <description>Tempore assumenda impedit alias.</description>
+          <description>Corporis cumque necessitatibus voluptatem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,21 +107,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="first_package" project="my_project">
           <title>a</title>
-          <description>Tempore assumenda impedit alias.</description>
+          <description>Corporis cumque necessitatibus voluptatem.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/first_package/_config
     body:
       encoding: UTF-8
-      string: Et non fugit. Dolorem in voluptatum. Ut et provident.
+      string: Est molestiae voluptatem. Deleniti eos labore. Ut aperiam deleniti.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,21 +145,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>31a04da9ccf69f2cb98c9316206af50c</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>89763736fdcdd457814b3f7570a9d02c</srcmd5>
           <version>unknown</version>
-          <time>1643644487</time>
+          <time>1643727160</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/first_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Facere nostrum et. Ut assumenda ea. Voluptas sit ab.
+      string: Tempora ut iure. Quidem dolores dolorem. Quo sapiente qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,24 +183,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>847c5ab9cc25895ea20bb935d0e2814d</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>a2925d3e9de0ecf32a047850b66246c5</srcmd5>
           <version>unknown</version>
-          <time>1643644487</time>
+          <time>1643727160</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/second_package/_meta?user=user_3
+    uri: http://backend:5352/source/my_project/second_package/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
         <package name="second_package" project="my_project">
           <title>c</title>
-          <description>Tempora officiis odio vel.</description>
+          <description>Labore ratione quia vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -221,21 +221,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '139'
+      - '137'
     body:
       encoding: UTF-8
       string: |
         <package name="second_package" project="my_project">
           <title>c</title>
-          <description>Tempora officiis odio vel.</description>
+          <description>Labore ratione quia vel.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/second_package/_config
     body:
       encoding: UTF-8
-      string: Cum ut aspernatur. Ducimus officia et. Similique consectetur quisquam.
+      string: Fugit dolor quo. Distinctio consequatur dolorum. Ea quos quis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -259,21 +259,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>15d84e800700397ae8b0c068f691e96d</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>5784542c08c57e741a7f2a1f32356e3c</srcmd5>
           <version>unknown</version>
-          <time>1643644487</time>
+          <time>1643727161</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/second_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Vero laudantium voluptas. Rerum suscipit sit. Placeat blanditiis voluptatum.
+      string: Et natus eaque. Est animi totam. Odit temporibus quos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -297,24 +297,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>e4153cba8e7038e487d9caf3fc3d6f6a</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>2d365fd1d9c63ebdb14dc96a4743e2c7</srcmd5>
           <version>unknown</version>
-          <time>1643644487</time>
+          <time>1643727161</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/third_package/_meta?user=user_4
+    uri: http://backend:5352/source/my_project/third_package/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <package name="third_package" project="my_project">
           <title>b</title>
-          <description>Excepturi voluptas officiis et.</description>
+          <description>Beatae omnis ullam reiciendis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -335,21 +335,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <package name="third_package" project="my_project">
           <title>b</title>
-          <description>Excepturi voluptas officiis et.</description>
+          <description>Beatae omnis ullam reiciendis.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/third_package/_config
     body:
       encoding: UTF-8
-      string: Non debitis voluptatem. Illo rerum qui. Enim mollitia voluptatem.
+      string: Voluptas neque autem. Cupiditate dignissimos sit. Autem sunt libero.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -373,21 +373,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>55737e988ea30ff4da120f113696309a</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>d1d95ee333d1a60e4f854fcb0f31cfc2</srcmd5>
           <version>unknown</version>
-          <time>1643644487</time>
+          <time>1643727162</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/third_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Enim quo cum. Nam ullam voluptatem. Qui facilis et.
+      string: Iure odio tempore. Quos veritatis neque. Libero dolores dolorem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -411,24 +411,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>3e29a3e81b7e182c27984512804c37bb</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>1ff26bdb3cc047ba8a22cb63ab7a27d4</srcmd5>
           <version>unknown</version>
-          <time>1643644487</time>
+          <time>1643727162</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:47 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_5
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -449,15 +449,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:48 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -491,24 +491,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="4" vrev="4">
           <srcmd5>801c545be09c1c468ff2d99b40415aac</srcmd5>
           <version>0.0.1</version>
-          <time>1643644488</time>
+          <time>1643727162</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:48 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_5
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -529,15 +529,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:48 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:42 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image
@@ -567,10 +567,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:48 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/_project/_attribute?meta=1&user=tom
@@ -599,18 +599,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '166'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3">
-          <srcmd5>a9a43dba44add59e9010adb585c0ae64</srcmd5>
-          <time>1643644488</time>
+        <revision rev="12">
+          <srcmd5>fcec2e61834d1b5b31aecf86078fedcb</srcmd5>
+          <time>1643727163</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:48 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -619,7 +619,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -642,20 +642,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="2" vrev="2" srcmd5="847c5ab9cc25895ea20bb935d0e2814d">
-          <entry name="_config" md5="ea99062e3a7a62d3d16f3a4e4e878d57" size="53" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="e32547862619a3222ca4390ea5549935" size="52" mtime="1643644487"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="a2925d3e9de0ecf32a047850b66246c5">
+          <entry name="_config" md5="a4000e2689fb03037f94848ba82695f1" size="67" mtime="1643727160"/>
+          <entry name="somefile.txt" md5="3ad0d79df53e78b331189e4d857433db" size="58" mtime="1643727160"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/first_package?expand=1
+    uri: http://backend:5352/source/my_project/first_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -678,11 +678,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="2" vrev="2" srcmd5="847c5ab9cc25895ea20bb935d0e2814d">
-          <entry name="_config" md5="ea99062e3a7a62d3d16f3a4e4e878d57" size="53" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="e32547862619a3222ca4390ea5549935" size="52" mtime="1643644487"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="a2925d3e9de0ecf32a047850b66246c5">
+          <entry name="_config" md5="a4000e2689fb03037f94848ba82695f1" size="67" mtime="1643727160"/>
+          <entry name="somefile.txt" md5="3ad0d79df53e78b331189e4d857433db" size="58" mtime="1643727160"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -691,7 +691,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -714,20 +714,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="2" vrev="2" srcmd5="e4153cba8e7038e487d9caf3fc3d6f6a">
-          <entry name="_config" md5="1acd09cec24d6e16f520d3777fa75cd4" size="70" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="41c537ed86f8cf5ba5fa45c1446e2dc5" size="76" mtime="1643644487"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="2d365fd1d9c63ebdb14dc96a4743e2c7">
+          <entry name="_config" md5="60114eddf7932a2850786060acb2ee89" size="62" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="9f290108d689cc138a8ea44882219b21" size="54" mtime="1643727161"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/second_package?expand=1
+    uri: http://backend:5352/source/my_project/second_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -750,11 +750,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="2" vrev="2" srcmd5="e4153cba8e7038e487d9caf3fc3d6f6a">
-          <entry name="_config" md5="1acd09cec24d6e16f520d3777fa75cd4" size="70" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="41c537ed86f8cf5ba5fa45c1446e2dc5" size="76" mtime="1643644487"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="2d365fd1d9c63ebdb14dc96a4743e2c7">
+          <entry name="_config" md5="60114eddf7932a2850786060acb2ee89" size="62" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="9f290108d689cc138a8ea44882219b21" size="54" mtime="1643727161"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/third_package
@@ -763,7 +763,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -786,20 +786,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="2" vrev="2" srcmd5="3e29a3e81b7e182c27984512804c37bb">
-          <entry name="_config" md5="ad6436bf7b342a0337f5be8b73a3382d" size="65" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="01f5683d372040d19bec3e6a47885171" size="51" mtime="1643644487"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="1ff26bdb3cc047ba8a22cb63ab7a27d4">
+          <entry name="_config" md5="b0daa9112283fdbe24d0d98a87fe7d6c" size="68" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="21a0db9e281c9802b73430b37d77c1c8" size="64" mtime="1643727162"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/third_package?expand=1
+    uri: http://backend:5352/source/my_project/third_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -822,11 +822,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="2" vrev="2" srcmd5="3e29a3e81b7e182c27984512804c37bb">
-          <entry name="_config" md5="ad6436bf7b342a0337f5be8b73a3382d" size="65" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="01f5683d372040d19bec3e6a47885171" size="51" mtime="1643644487"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="1ff26bdb3cc047ba8a22cb63ab7a27d4">
+          <entry name="_config" md5="b0daa9112283fdbe24d0d98a87fe7d6c" size="68" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="21a0db9e281c9802b73430b37d77c1c8" size="64" mtime="1643727162"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image
@@ -835,7 +835,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -858,19 +858,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=1
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 2cf9ceeb-1eff-4de2-bbc9-a91f0ffa6934
+      - a2970fc6-e4d9-40cb-8cca-6b7b798ddceb
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -893,10 +893,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:52 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:43 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
@@ -905,7 +905,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 93c8e4e0-f50f-4c9f-9d37-cf0dbde19ab0
+      - 6d2b5910-5251-4ed9-9a39-e67641fcdd05
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -930,7 +930,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Mon, 31 Jan 2022 15:54:53 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/_keyinfo?donotcreatecert=1&withsslcert=1
@@ -939,7 +939,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 93c8e4e0-f50f-4c9f-9d37-cf0dbde19ab0
+      - 6d2b5910-5251-4ed9-9a39-e67641fcdd05
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -962,7 +962,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "<keyinfo/>\n"
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?view=summary
@@ -971,7 +971,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fa469ba5-cc10-4b25-ad59-9ee146f8c913
+      - 2746a820-060e-4d4d-95b5-75f0123b09a1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -996,7 +996,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -1005,7 +1005,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1028,20 +1028,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="2" vrev="2" srcmd5="847c5ab9cc25895ea20bb935d0e2814d">
-          <entry name="_config" md5="ea99062e3a7a62d3d16f3a4e4e878d57" size="53" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="e32547862619a3222ca4390ea5549935" size="52" mtime="1643644487"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="a2925d3e9de0ecf32a047850b66246c5">
+          <entry name="_config" md5="a4000e2689fb03037f94848ba82695f1" size="67" mtime="1643727160"/>
+          <entry name="somefile.txt" md5="3ad0d79df53e78b331189e4d857433db" size="58" mtime="1643727160"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/first_package?expand=1
+    uri: http://backend:5352/source/my_project/first_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1064,11 +1064,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="2" vrev="2" srcmd5="847c5ab9cc25895ea20bb935d0e2814d">
-          <entry name="_config" md5="ea99062e3a7a62d3d16f3a4e4e878d57" size="53" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="e32547862619a3222ca4390ea5549935" size="52" mtime="1643644487"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="a2925d3e9de0ecf32a047850b66246c5">
+          <entry name="_config" md5="a4000e2689fb03037f94848ba82695f1" size="67" mtime="1643727160"/>
+          <entry name="somefile.txt" md5="3ad0d79df53e78b331189e4d857433db" size="58" mtime="1643727160"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -1077,7 +1077,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1100,20 +1100,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="2" vrev="2" srcmd5="e4153cba8e7038e487d9caf3fc3d6f6a">
-          <entry name="_config" md5="1acd09cec24d6e16f520d3777fa75cd4" size="70" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="41c537ed86f8cf5ba5fa45c1446e2dc5" size="76" mtime="1643644487"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="2d365fd1d9c63ebdb14dc96a4743e2c7">
+          <entry name="_config" md5="60114eddf7932a2850786060acb2ee89" size="62" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="9f290108d689cc138a8ea44882219b21" size="54" mtime="1643727161"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/second_package?expand=1
+    uri: http://backend:5352/source/my_project/second_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1136,11 +1136,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="2" vrev="2" srcmd5="e4153cba8e7038e487d9caf3fc3d6f6a">
-          <entry name="_config" md5="1acd09cec24d6e16f520d3777fa75cd4" size="70" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="41c537ed86f8cf5ba5fa45c1446e2dc5" size="76" mtime="1643644487"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="2d365fd1d9c63ebdb14dc96a4743e2c7">
+          <entry name="_config" md5="60114eddf7932a2850786060acb2ee89" size="62" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="9f290108d689cc138a8ea44882219b21" size="54" mtime="1643727161"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/third_package
@@ -1149,7 +1149,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1172,20 +1172,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="2" vrev="2" srcmd5="3e29a3e81b7e182c27984512804c37bb">
-          <entry name="_config" md5="ad6436bf7b342a0337f5be8b73a3382d" size="65" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="01f5683d372040d19bec3e6a47885171" size="51" mtime="1643644487"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="1ff26bdb3cc047ba8a22cb63ab7a27d4">
+          <entry name="_config" md5="b0daa9112283fdbe24d0d98a87fe7d6c" size="68" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="21a0db9e281c9802b73430b37d77c1c8" size="64" mtime="1643727162"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/third_package?expand=1
+    uri: http://backend:5352/source/my_project/third_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1208,11 +1208,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="2" vrev="2" srcmd5="3e29a3e81b7e182c27984512804c37bb">
-          <entry name="_config" md5="ad6436bf7b342a0337f5be8b73a3382d" size="65" mtime="1643644487"/>
-          <entry name="somefile.txt" md5="01f5683d372040d19bec3e6a47885171" size="51" mtime="1643644487"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="1ff26bdb3cc047ba8a22cb63ab7a27d4">
+          <entry name="_config" md5="b0daa9112283fdbe24d0d98a87fe7d6c" size="68" mtime="1643727161"/>
+          <entry name="somefile.txt" md5="21a0db9e281c9802b73430b37d77c1c8" size="64" mtime="1643727162"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image
@@ -1221,7 +1221,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1244,10 +1244,45 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - cc25ca77-f400-48db-b167-f8b38ae2abd4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '231'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
+        </directory>
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=1
@@ -1256,7 +1291,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4156e3e4-fdb9-4bc9-8564-ee9a61f2af27
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1279,19 +1314,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:54 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=1
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image?rev=4
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1314,45 +1349,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image?rev=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '231'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="801c545be09c1c468ff2d99b40415aac">
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
-        </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22package_with_kiwi_image%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
@@ -1386,7 +1386,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
@@ -1400,7 +1400,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1428,7 +1428,7 @@ http_interactions:
           <description>This project was created for package package_with_kiwi_image via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/_project/_attribute?meta=1&user=tom
@@ -1437,12 +1437,12 @@ http_interactions:
       string: |
         <attributes>
           <attribute name="AutoCleanup" namespace="OBS">
-            <value>2022-02-14 15:54:55 +0000</value>
+            <value>2022-02-15 14:52:45 +0000</value>
           </attribute>
         </attributes>
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1461,18 +1461,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '166'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2">
-          <srcmd5>45fd6303c3bdb771a55c2d27c3daa3a1</srcmd5>
-          <time>1643644495</time>
+        <revision rev="11">
+          <srcmd5>188b016ca9969bf43c7fc16a245d0609</srcmd5>
+          <time>1643727165</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image/_meta?user=tom
@@ -1480,8 +1480,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1502,15 +1502,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image?cmd=branch&noservice=1&opackage=package_with_kiwi_image&oproject=my_project&orev=801c545be09c1c468ff2d99b40415aac&user=tom
@@ -1542,15 +1542,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="2" vrev="2">
           <srcmd5>00d929e44f732106a7aa255543b32f11</srcmd5>
           <version>unknown</version>
-          <time>1643644495</time>
+          <time>1643727165</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image/_meta?user=tom
@@ -1558,8 +1558,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1580,15 +1580,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image
@@ -1618,12 +1618,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="00d929e44f732106a7aa255543b32f11">
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="00d929e44f732106a7aa255543b32f11">
           <linkinfo project="my_project" package="package_with_kiwi_image" rev="801c545be09c1c468ff2d99b40415aac" srcmd5="801c545be09c1c468ff2d99b40415aac" baserev="801c545be09c1c468ff2d99b40415aac" xsrcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11"/>
-          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643644495"/>
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643726954"/>
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image?view=info
@@ -1632,7 +1632,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1655,11 +1655,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_kiwi_image" rev="1" vrev="1" srcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11" verifymd5="801c545be09c1c468ff2d99b40415aac">
+        <sourceinfo package="package_with_kiwi_image" rev="2" vrev="2" srcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11" verifymd5="801c545be09c1c468ff2d99b40415aac">
           <filename>package_with_kiwi_image.kiwi</filename>
           <linked project="my_project" package="package_with_kiwi_image"/>
         </sourceinfo>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image
@@ -1668,7 +1668,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1691,12 +1691,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="00d929e44f732106a7aa255543b32f11">
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="00d929e44f732106a7aa255543b32f11">
           <linkinfo project="my_project" package="package_with_kiwi_image" rev="801c545be09c1c468ff2d99b40415aac" srcmd5="801c545be09c1c468ff2d99b40415aac" baserev="801c545be09c1c468ff2d99b40415aac" xsrcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11"/>
-          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643644495"/>
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643726954"/>
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1728,14 +1728,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="424650443e533aa14a1a661e86bef7cc">
+        <sourcediff key="affe0613e7178bea8d035bba86acc7a4">
           <old project="home:tom:branches:my_project" package="package_with_kiwi_image" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:my_project" package="package_with_kiwi_image" rev="1" srcmd5="00d929e44f732106a7aa255543b32f11"/>
+          <new project="home:tom:branches:my_project" package="package_with_kiwi_image" rev="2" srcmd5="00d929e44f732106a7aa255543b32f11"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -1772,7 +1772,7 @@ http_interactions:
           <new project="home:tom:branches:my_project" package="package_with_kiwi_image" rev="067709a3aecd96cf74107fa909e67564" srcmd5="067709a3aecd96cf74107fa909e67564"/>
           <files/>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
@@ -1789,7 +1789,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1820,7 +1820,7 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image
@@ -1829,7 +1829,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f7140070-887c-4a68-a6af-6488a36d4962
+      - 29833207-8d04-4028-bc81-7c3ad1bbe88e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1852,12 +1852,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="00d929e44f732106a7aa255543b32f11">
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="00d929e44f732106a7aa255543b32f11">
           <linkinfo project="my_project" package="package_with_kiwi_image" rev="801c545be09c1c468ff2d99b40415aac" srcmd5="801c545be09c1c468ff2d99b40415aac" baserev="801c545be09c1c468ff2d99b40415aac" xsrcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11"/>
-          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643644495"/>
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643726954"/>
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image
@@ -1866,7 +1866,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 880ec4a6-af7a-421f-b6d4-0c2f54e3770d
+      - 6a34bcf8-6d96-430d-903c-5fff425bd1d0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1889,12 +1889,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="00d929e44f732106a7aa255543b32f11">
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="00d929e44f732106a7aa255543b32f11">
           <linkinfo project="my_project" package="package_with_kiwi_image" rev="801c545be09c1c468ff2d99b40415aac" srcmd5="801c545be09c1c468ff2d99b40415aac" baserev="801c545be09c1c468ff2d99b40415aac" xsrcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11"/>
-          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643644495"/>
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643726954"/>
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -1928,7 +1928,7 @@ http_interactions:
         \   <preferences>\n      <version>0.0.1</version>\n      <type image=\"oem\"
         primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n    </preferences>\n  </image>\n
         \ "
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image
@@ -1937,7 +1937,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 880ec4a6-af7a-421f-b6d4-0c2f54e3770d
+      - 6a34bcf8-6d96-430d-903c-5fff425bd1d0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1960,12 +1960,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="00d929e44f732106a7aa255543b32f11">
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="00d929e44f732106a7aa255543b32f11">
           <linkinfo project="my_project" package="package_with_kiwi_image" rev="801c545be09c1c468ff2d99b40415aac" srcmd5="801c545be09c1c468ff2d99b40415aac" baserev="801c545be09c1c468ff2d99b40415aac" xsrcmd5="067709a3aecd96cf74107fa909e67564" lsrcmd5="00d929e44f732106a7aa255543b32f11"/>
-          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643644495"/>
-          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643644488"/>
+          <entry name="_link" md5="4e48143c1ab3ebf7faf55f7286d870d4" size="157" mtime="1643726954"/>
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1643726947"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image/_meta?user=tom
@@ -1973,8 +1973,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1995,15 +1995,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:my_project/package_with_kiwi_image/_meta?user=tom
@@ -2011,8 +2011,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -2033,13 +2033,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom:branches:my_project">
-          <title>The Sun Also Rises</title>
-          <description>Non earum soluta et.</description>
+          <title>In Dubious Battle</title>
+          <description>Delectus libero est sint.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:54:55 GMT
+  recorded_at: Tue, 01 Feb 2022 14:52:47 GMT
 recorded_with: VCR 6.0.0

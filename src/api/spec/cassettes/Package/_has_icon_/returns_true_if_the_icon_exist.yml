@@ -1,198 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '128'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer"/>
-        </project>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>A Time of Gifts</title>
-          <description>Optio ut ipsum nisi.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '149'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>A Time of Gifts</title>
-          <description>Optio ut ipsum nisi.</description>
-        </package>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_config
-    body:
-      encoding: UTF-8
-      string: Animi eos dolorum. Laudantium quam quas. Consequuntur vitae enim.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>8e889582031b31e4008565d1289e4ade</srcmd5>
-          <version>unknown</version>
-          <time>1643635969</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
-    body:
-      encoding: UTF-8
-      string: Facilis laborum quos. Eius veritatis qui. Voluptatem iusto officia.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>5694b5cfd3cc9027f7af28bc61285d64</srcmd5>
-          <version>unknown</version>
-          <time>1643635969</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_icon
-    body:
-      encoding: UTF-8
-      string: Sequi est earum. Sunt totam quidem. Sunt velit libero.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>6797b9d77d5c5c9db667d8c8dcc20424</srcmd5>
-          <version>unknown</version>
-          <time>1643635969</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
-- request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
     body:
@@ -217,19 +25,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '395'
+      - '397'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="7" vrev="7" srcmd5="6797b9d77d5c5c9db667d8c8dcc20424">
-          <entry name="_config" md5="6f181bb0c12e284afc8416551337c807" size="65" mtime="1643635969"/>
-          <entry name="_icon" md5="afce14d0bf5298f2e3b018600f4759e5" size="54" mtime="1643635969"/>
-          <entry name="somefile.txt" md5="72b4385cc0897b5ec82766a20d2b51fa" size="67" mtime="1643635969"/>
+        <directory name="package_with_files" rev="34" vrev="34" srcmd5="5533c6e87a7ed3278edbb2fda81355cf">
+          <entry name="_config" md5="b6fab2c2b7ef43fed208d5ca398d9f5f" size="68" mtime="1643724250"/>
+          <entry name="_icon" md5="95ec7ff9a4af00190b5bbdeb9d2215cb" size="70" mtime="1643724251"/>
+          <entry name="somefile.txt" md5="d04d1e7583a8e01c5c1dda514ca86c8f" size="61" mtime="1643724251"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
+  recorded_at: Tue, 01 Feb 2022 14:15:28 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_files?expand=1
+    uri: http://backend:5352/source/home:tom/package_with_files?expand=0
     body:
       encoding: US-ASCII
       string: ''
@@ -252,14 +60,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '395'
+      - '397'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="7" vrev="7" srcmd5="6797b9d77d5c5c9db667d8c8dcc20424">
-          <entry name="_config" md5="6f181bb0c12e284afc8416551337c807" size="65" mtime="1643635969"/>
-          <entry name="_icon" md5="afce14d0bf5298f2e3b018600f4759e5" size="54" mtime="1643635969"/>
-          <entry name="somefile.txt" md5="72b4385cc0897b5ec82766a20d2b51fa" size="67" mtime="1643635969"/>
+        <directory name="package_with_files" rev="34" vrev="34" srcmd5="5533c6e87a7ed3278edbb2fda81355cf">
+          <entry name="_config" md5="b6fab2c2b7ef43fed208d5ca398d9f5f" size="68" mtime="1643724250"/>
+          <entry name="_icon" md5="95ec7ff9a4af00190b5bbdeb9d2215cb" size="70" mtime="1643724251"/>
+          <entry name="somefile.txt" md5="d04d1e7583a8e01c5c1dda514ca86c8f" size="61" mtime="1643724251"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 13:32:49 GMT
+  recorded_at: Tue, 01 Feb 2022 14:15:28 GMT
 recorded_with: VCR 6.0.0

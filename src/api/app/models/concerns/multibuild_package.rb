@@ -15,7 +15,7 @@ module MultibuildPackage
   end
 
   def multibuild?
-    file_exists?('_multibuild')
+    file_exists?('_multibuild', expand: 1)
   end
 
   def multibuild_flavor?(name)
