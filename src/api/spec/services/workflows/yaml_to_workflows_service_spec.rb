@@ -31,10 +31,11 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
   end
   let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
   let(:token) { create(:workflow_token) }
+  let(:workflow_run) { create(:workflow_run, token: token) }
 
   describe '#call' do
     subject do
-      Workflows::YAMLToWorkflowsService.new(yaml_file: workflows_yml_file, scm_webhook: ScmWebhook.new(payload: payload), token: token).call
+      Workflows::YAMLToWorkflowsService.new(yaml_file: workflows_yml_file, scm_webhook: ScmWebhook.new(payload: payload), token: token, workflow_run_id: workflow_run.id).call
     end
 
     context 'it supports many workflows' do
