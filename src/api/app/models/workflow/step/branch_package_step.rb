@@ -21,10 +21,7 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     add_branch_request_file(package: target_package)
 
     # SCMs don't support statuses for tags, so we don't need to report back in this case
-    unless scm_webhook.tag_push_event?
-      create_or_update_subscriptions(target_package, workflow_filters)
-      report_to_scm(workflow_filters)
-    end
+    create_or_update_subscriptions(target_package, workflow_filters) unless scm_webhook.tag_push_event?
 
     target_package
   end
