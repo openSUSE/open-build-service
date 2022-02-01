@@ -2108,6 +2108,13 @@ sub putproject {
     }
   }
 
+  if ($proj->{'scmsync'} && $proj->{'scmsync'} ne (($oldproj || {})->{'scmsync'} || '')) {
+    # scmsync changed, trigger a service run
+    print "scmsync changed: trigger $projid\n";
+    eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, '_project', $proj ->{'scmsync'}) };
+    warn($@) if $@;
+  }
+
   $proj = BSRevision::readproj_local($projid);
   return ($proj, $BSXML::proj);
 }
@@ -2253,6 +2260,12 @@ sub putpackage {
   my %except = map {$_ => 1} qw{title description devel person group url};
   if (!BSUtil::identical($oldpack, $pack, \%except)) {
     notify_repservers('package', $projid, $packid);
+  }
+  if ($pack->{'scmsync'} && $pack->{'scmsync'} ne (($oldpack || {})->{'scmsync'} || '')) {
+    # scmsync changed, trigger a service run
+    print "scmsync changed: trigger $projid/$packid\n";
+    eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}) };
+    warn($@) if $@;
   }
   $pack = BSRevision::readpack_local($projid, $packid);
   return ($pack, $BSXML::pack);
