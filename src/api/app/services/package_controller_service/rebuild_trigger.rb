@@ -16,7 +16,7 @@ module PackageControllerService
     # project, not the one we're triggering the build from.
     # Here we detect that, and if so, we authorize against the linked project.
     def policy_object
-      return @project if @project != @package_object.project
+      return @project if @package_object.is_a?(String) || @project != @package_object.project
 
       @package_object
     end
