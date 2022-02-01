@@ -330,7 +330,7 @@ class XpathEngine
                 'LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id'] << @joins
       order = ['req_order_attrib_value.value DESC', :priority, :created_at]
     when 'users'
-      relation = User.all
+      relation = User.not_deleted
     when 'issues'
       relation = Issue.all
     when 'channels'

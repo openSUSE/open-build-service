@@ -16,7 +16,7 @@ class PersonController < ApplicationController
     @list = if params[:prefix]
               User.where('login LIKE ?', params[:prefix] + '%')
             else
-              User.all
+              User.not_deleted
             end
   end
 
