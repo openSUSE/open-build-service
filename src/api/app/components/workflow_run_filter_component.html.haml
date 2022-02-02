@@ -1,0 +1,21 @@
+.row.list-group-flush
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'All', amount: @count['all'],
+                                              filter_item: {}, selected_filter: @selected_filter)
+.row.list-group-flush.mt-5
+  %h5.ml-3 Status
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'],
+                                              filter_item: { status: 'success' }, selected_filter: @selected_filter)
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'],
+                                              filter_item: { status: 'running' }, selected_filter: @selected_filter)
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Failed', amount: @count['fail'],
+                                              filter_item: { status: 'fail' }, selected_filter: @selected_filter)
+.row.list-group-flush.mt-5
+  %h5.ml-3 Event type
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Pull Requests', amount: @count['pull_request'],
+                                              filter_item: { event_type: 'pull_request' }, selected_filter: @selected_filter)
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push', amount: @count['push'],
+                                              filter_item: { event_type: 'push' }, selected_filter: @selected_filter)
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Merge Request Hook', amount: @count['Merge Request Hook'],
+                                              filter_item: { event_type: 'Merge Request Hook' }, selected_filter: @selected_filter)
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push Hook', amount: @count['Push Hook'],
+                                              filter_item: { event_type: 'Push Hook' }, selected_filter: @selected_filter)
