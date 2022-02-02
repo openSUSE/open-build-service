@@ -15,7 +15,7 @@ class Token::Workflow < Token
 
     options[:workflow_run].update(response_url: @scm_webhook.payload[:api_endpoint])
     yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
-    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self).call
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run_id: options[:workflow_run].id).call
 
     @workflows.each(&:call) if validation_errors.none?
 

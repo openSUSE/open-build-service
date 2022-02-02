@@ -54,7 +54,7 @@ RSpec.describe Token::Workflow do
       let(:scm_webhook) { ScmWebhook.new(payload: github_extractor_payload) }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
       let(:yaml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
-      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token) }
+      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token, workflow_run_id: workflow_run.id) }
       let(:workflow) do
         Workflow.new(scm_webhook: scm_webhook, token: workflow_token,
                      workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
@@ -69,7 +69,8 @@ RSpec.describe Token::Workflow do
         allow(scm_extractor).to receive(:call).and_return(scm_webhook)
         allow(Workflows::YAMLDownloader).to receive(:new).with(scm_webhook.payload, token: workflow_token).and_return(yaml_downloader)
         allow(yaml_downloader).to receive(:call).and_return(yaml_file)
-        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token).and_return(yaml_to_workflows_service)
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token,
+                                                                       workflow_run_id: workflow_run.id).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
@@ -114,7 +115,7 @@ RSpec.describe Token::Workflow do
       let(:scm_webhook) { ScmWebhook.new(payload: github_extractor_payload) }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
       let(:yaml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
-      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token) }
+      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token, workflow_run_id: workflow_run.id) }
       let(:workflows) { [Workflow.new(scm_webhook: scm_webhook, token: workflow_token, workflow_instructions: {})] }
 
       before do
@@ -122,7 +123,8 @@ RSpec.describe Token::Workflow do
         allow(scm_extractor).to receive(:call).and_return(scm_webhook)
         allow(Workflows::YAMLDownloader).to receive(:new).with(scm_webhook.payload, token: workflow_token).and_return(yaml_downloader)
         allow(yaml_downloader).to receive(:call).and_return(yaml_file)
-        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token).and_return(yaml_to_workflows_service)
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token,
+                                                                       workflow_run_id: workflow_run.id).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 

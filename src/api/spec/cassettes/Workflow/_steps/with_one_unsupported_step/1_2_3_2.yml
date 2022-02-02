@@ -1,0 +1,793 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:cameron/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:cameron">
+          <title/>
+          <description/>
+          <person userid="cameron" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:cameron">
+          <title></title>
+          <description></description>
+          <person userid="cameron" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project">
+          <title>Taming a Sea Horse</title>
+          <description/>
+          <person userid="cameron" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project">
+          <title>Taming a Sea Horse</title>
+          <description></description>
+          <person userid="cameron" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project/test-package/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test-package%22%20and%20linkinfo/@project=%22test-project%22%20and%20@project=%22test-project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:iggy:test-project:PR-1">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="cameron" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '276'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:iggy:test-project:PR-1">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="cameron" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:iggy:test-project:PR-1">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:iggy:test-project:PR-1">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=cameron
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
+          <version>unknown</version>
+          <time>1643653414</time>
+          <user>cameron</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:iggy:test-project:PR-1">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:iggy:test-project:PR-1">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '430'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="11" vrev="11" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1643650952"/>
+        </directory>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '333'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test-package" rev="11" vrev="11" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="test-project" package="test-package"/>
+        </sourceinfo>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '430'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="11" vrev="11" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1643650952"/>
+        </directory>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '357'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1b2235e6b3831eb0acf43abf9faba6d8">
+          <old project="test-project:iggy:test-project:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="11" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '372'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="85da91d1d2f470e82628bc15a0f30cf0">
+          <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:iggy:test-project:PR-1">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="cameron" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '316'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:iggy:test-project:PR-1">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <person userid="cameron" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+  recorded_at: Mon, 31 Jan 2022 18:23:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_branch_request?user=cameron
+    body:
+      encoding: UTF-8
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>ecaed09bd00635972ad5b7008a349eef</srcmd5>
+          <version>unknown</version>
+          <time>1643653415</time>
+          <user>cameron</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:iggy:test-project:PR-1">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:iggy:test-project:PR-1">
+          <title>The Cricket on the Hearth</title>
+          <description>Consectetur ut voluptas at.</description>
+        </package>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '532'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="12" vrev="12" srcmd5="ecaed09bd00635972ad5b7008a349eef">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef"/>
+          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1643650998"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1643650952"/>
+        </directory>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '333'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test-package" rev="12" vrev="12" srcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef" verifymd5="f069616f8884480463bb7cde6d9c83cc">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="test-project" package="test-package"/>
+        </sourceinfo>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '532'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="12" vrev="12" srcmd5="ecaed09bd00635972ad5b7008a349eef">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef"/>
+          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1643650998"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1643650952"/>
+        </directory>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '357'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="47bbedb1aba42ae5d42034c20fbfba6c">
+          <old project="test-project:iggy:test-project:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="12" srcmd5="ecaed09bd00635972ad5b7008a349eef"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '395'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="343af923fc271646ff558432f11d0cf7">
+          <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="3f2794130d6c60ddbfc7b7caa9ff69c6" srcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 31 Jan 2022 18:23:35 GMT
+recorded_with: VCR 6.0.0
