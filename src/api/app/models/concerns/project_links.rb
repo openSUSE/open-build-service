@@ -19,9 +19,10 @@ module ProjectLinks
         # ignore this for remote targets
         if target_project.instance_of?(Project) &&
            target_project.disabled_for?('access', nil, nil) &&
-           !FlagHelper.xml_disabled_for?(request_data, 'access')
+           !FlagHelper.xml_disabled_for?(request_data, 'access') &&
+           !target_project.builddep_allowed?(project_name)
           return {
-            error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
+            error: "Project #{project_name} depends on restricted project #{target_project_name}"
           }
         end
         logger.debug "Project #{project_name} link checked against #{target_project_name} projects permission"
@@ -40,7 +41,7 @@ module ProjectLinks
       LinkedProject.where(linked_db_project: self).find_each do |lp|
         id = lp.db_project_id
         lp.destroy
-        Rails.cache.delete("xml_project_#{id}")
+        Rails.cache.delete("xml_project_#{User.possibly_nobody.login}_#{id}")
       end
     end
   end

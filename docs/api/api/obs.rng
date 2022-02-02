@@ -154,6 +154,14 @@
     </element>
   </define>
 
+  <define ns="" name="allowbuilddep-element">
+    <element name="allowbuilddep">
+      <attribute name="name">
+        <data type="string" />
+      </attribute>
+    </element>
+  </define>
+
   <define ns="" name="group-element">
     <element name="group">
       <attribute name="groupid">

@@ -662,7 +662,7 @@ class ProjectTest < ActiveSupport::TestCase
     flag = project.add_flag('access', 'disable')
     flag.save
 
-    expected = { error: 'Project links work only when both projects have same read access protection level: the_project -> home:Iggy' }
+    expected = { error: 'Project the_project depends on restricted project home:Iggy' }
     actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
     assert_equal expected, actual
   end
@@ -696,9 +696,29 @@ class ProjectTest < ActiveSupport::TestCase
       </project>
     XML
 
-    expected = { error: 'The current backend implementation is not using binaries from read access protected projects home:Iggy' }
+    expected = { error: 'Trying to use binaries from read access protected project home:Iggy' }
     actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
     assert_equal expected, actual
+  end
+
+  test 'returns no error if repository access is disabled but project is allowed to build-depend' do
+    User.session = users(:Iggy)
+    project = projects(:home_Iggy)
+    project.allowbuilddeps.create(name: 'allowed_project')
+    flag = project.add_flag('access', 'disable')
+    flag.save
+    project.save
+
+    xml = <<-XML.strip_heredoc
+      <project name='allowed_project'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><path project='home:Iggy'></path></repository>
+      </project>
+    XML
+
+    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'allowed_project')
+    assert_equal({}, actual)
   end
 
   test 'returns no error if target project equals project' do

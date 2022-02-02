@@ -47,6 +47,7 @@ class Project
       end
 
       update_repositories(xmlhash, force)
+      update_allowbuilddep_from_xml(xmlhash)
     end
 
     private
@@ -129,6 +130,13 @@ class Project
       end
 
       project.maintained_projects.delete(olds.values)
+    end
+
+    def update_allowbuilddep_from_xml(xmlhash)
+      project.allowbuilddeps.destroy_all
+      xmlhash.elements('allowbuilddep') do |abd|
+        project.allowbuilddeps.create(name: abd['name'])
+      end
     end
 
     def update_repositories(xmlhash, force)

@@ -110,6 +110,10 @@
         </optional>
 
         <zeroOrMore>
+          <ref name="allowbuilddep-element"/>
+        </zeroOrMore>
+
+        <zeroOrMore>
           <ref name="person-element"/>
         </zeroOrMore>
         <zeroOrMore>

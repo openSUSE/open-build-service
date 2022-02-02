@@ -48,6 +48,8 @@ class Project < ApplicationRecord
   has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy
 
+  has_many :allowbuilddeps, dependent: :destroy, foreign_key: :db_project_id
+
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :release_targets, through: :repositories
   has_many :target_repositories, through: :release_targets
@@ -345,8 +347,10 @@ class Project < ApplicationRecord
             begin
               target_project = Project.get_by_name(target_project_name)
               # user can access tprj, but backend would refuse to take binaries from there
-              if target_project.instance_of?(Project) && target_project.disabled_for?('access', nil, nil)
-                return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
+              if target_project.instance_of?(Project) &&
+                 target_project.disabled_for?('access', nil, nil) &&
+                 !target_project.builddep_allowed?(project_name)
+                return { error: "Trying to use binaries from read access protected project #{target_project_name}" }
               end
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
@@ -665,6 +669,12 @@ class Project < ApplicationRecord
     errors.none?
   end
 
+  def builddep_allowed?(project_name)
+    allowbuilddeps.any? do |abd|
+      abd.name == project_name
+    end
+  end
+
   def update_from_xml!(xmlhash, force = nil)
     Project::UpdateFromXmlCommand.new(self).run(xmlhash, force)
   end
@@ -751,7 +761,7 @@ class Project < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch("xml_project_#{id}") do
+    Rails.cache.fetch("xml_project_#{User.possibly_nobody.login}_#{id}") do
       # CanRenderModel
       render_xml
     end
@@ -1449,7 +1459,7 @@ class Project < ApplicationRecord
   end
 
   def reset_cache
-    Rails.cache.delete("xml_project_#{id}") if id
+    Rails.cache.delete("xml_project_#{User.possibly_nobody.login}_#{id}") if id
   end
 
   def delete_on_backend

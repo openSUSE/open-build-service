@@ -1250,7 +1250,7 @@ sub getprojpack {
     }
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
-    for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access lock}) {
+    for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access lock allowbuilddep}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
     if ($proj->{'access'}) {

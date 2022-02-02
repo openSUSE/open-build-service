@@ -20,6 +20,11 @@ xml.project(project_attributes) do
 
   my_model.render_relationships(xml)
 
+  adbs = my_model.allowbuilddeps.sort { |a, b| b.name <=> a.name }
+  adbs.each do |adb|
+    xml.allowbuilddep(name: adb.name)
+  end
+
   repos = my_model.repositories.preload(:download_repositories, :release_targets, path_elements: :link).not_remote.order(name: :desc)
   FlagHelper.render(my_model, xml)
 
@@ -52,8 +57,10 @@ xml.project(project_attributes) do
       repo.path_elements.includes(:link).order(kind: :desc).each do |pe|
         project_name = if pe.link.remote_project_name.present?
                          pe.link.project.name + ':' + pe.link.remote_project_name
-                       else
+                       elsif pe.link.project
                          pe.link.project.name
+                       else
+                         'HIDDEN'
                        end
         if pe.kind == 'hostsystem'
           xml_repository.hostsystem(project: project_name, repository: pe.link.name)
