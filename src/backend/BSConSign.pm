@@ -89,7 +89,7 @@ sub createcosign {
   my $payload = createpayload('cosign container image signature', $digest, $reference, $creator, $timestamp);
   my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
   # signfunc must return the openssl rsa signature
-  my $sig = MIME::Base64::encode_base64($signfunc->($payload), '');
+  my $sig = $signfunc->($payload);
   my $config = {
     'architecture' => '',
     'config' => {},
@@ -100,7 +100,7 @@ sub createcosign {
   };
   my $config_json = canonical_json($config);
   my $payload_layer = {
-    'annotations' => { 'dev.cosignproject.cosign/signature' => $sig, %{$annotations || {}} },
+    'annotations' => { 'dev.cosignproject.cosign/signature' => MIME::Base64::encode_base64($sig, ''), %{$annotations || {}} },
     'digest' => $payload_digest,
     'mediaType' => $mt_cosign,
     'size' => length($payload),

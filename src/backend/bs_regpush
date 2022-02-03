@@ -760,6 +760,7 @@ if ($cosign && %digests_to_sign) {
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
       BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
     }
   }
