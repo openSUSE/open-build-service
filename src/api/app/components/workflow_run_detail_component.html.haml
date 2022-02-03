@@ -7,6 +7,10 @@
     %a.nav-link{ id: "response-tab#{id}", data: { toggle: 'tab' }, href: "#response-tab-content#{id}",
                   role: 'tab', aria: { controls: "response-tab-content#{id}", selected: 'false' } }
       Response
+  %li.nav-item{ role: 'presentation' }
+    %a.nav-link{ id: "artifacts#{id}", data: { toggle: 'tab' }, href: "#artifacts-tab-content#{id}",
+                 role: 'tab', aria: { controls: "artifacts-tab-content#{id}", selected: 'false' } }
+      Artifacts
 .tab-content.p-3#workflow-run-tabs-content
   .tab-pane.fade.show.active{ id: "request-tab-content#{id}", role: 'tabpanel',
                               aria: { labelledby: "request-tab#{id}" } }
@@ -24,3 +28,8 @@
     %h5 Response Body
     %pre.border.p-2#response-body
       = response_body
+  .tab-pane.fade{ id: "artifacts-tab-content#{id}", role: 'tabpanel',
+                  aria: { labelledby: "artifacts#{id}" } }
+    %h5 Artifacts
+    %ul
+      = render(WorkflowArtifactsPerStepComponent.with_collection(artifacts))
