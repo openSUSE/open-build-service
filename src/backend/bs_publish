@@ -55,6 +55,7 @@ use BSStdRunner;
 use BSUrlmapper;
 use BSPGP;
 use BSHTTP;
+use BSRekor;
 use BSRepServer::Containerinfo;
 use BSPublisher::Container;
 use BSPublisher::Helm;
@@ -375,6 +376,16 @@ sub getsigndata {
 
 ##########################################################################
 
+sub pickup_detached_signature {
+  my ($data, $file) = @_;
+  return unless $data->{'sigs'} && $data->{'pubkey'};
+  my $d = readstr($file);
+  my $sig = readstr("$file.asc");
+  push @{$data->{'sigs'}}, { 'data' => $d, 'signature' => $sig, 'pubkey' => $data->{'pubkey'}, 'format' => 'pgp' };
+}
+
+##########################################################################
+
 sub addsizechecksum {
   my ($filename, $d, $sum) = @_;
 
@@ -538,6 +549,7 @@ sub createrepo_zyppservice {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
+    pickup_detached_signature($data, "$extrep/repo/repoindex.xml");
   }
 
 # Needs further discussion with zypp people
@@ -762,6 +774,7 @@ sub createrepo_rpmmd {
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
+    pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
   }
   if ($downloadurl) {
     local *FILE;
@@ -1025,6 +1038,7 @@ EOL
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
+    pickup_detached_signature($data, "$extrep/Release");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
     BSUtil::cp("$extrep/Release", "$extrep/InRelease.tmp");
     qsystem($BSConfig::sign, @signargs, '-c', "$extrep/InRelease.tmp") && die("    sign failed: $?\n");
@@ -1157,6 +1171,7 @@ sub createrepo_staticlinks {
           push @signargs, '--project', $projid if $BSConfig::sign_project;
           push @signargs, @{$data->{'signargs'} || []};
           qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$link.sha256") && die("    sign failed: $?\n");
+          pickup_detached_signature($data, "$extrep/$arch/$link.sha256");
         }
       }
     }
@@ -1312,6 +1327,7 @@ sub createpatterns_rpmmd {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
   }
 }
 
@@ -1378,6 +1394,7 @@ sub createpatterns_comps {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
   }
 }
 
@@ -1505,7 +1522,7 @@ sub deletepatterns_ymp {
 ##########################################################################
 
 sub sync_to_stage {
-  my ($prp, $extrep, $dbgsplit, $stageservers, $triggerstring, $isdelete) = @_;
+  my ($prp, $extrep, $dbgsplit, $stageservers, $triggerstring, $isdelete, $sigs) = @_;
 
   my @stageservers = @{$stageservers || []};
   if (!$stageservers && $BSConfig::stageserver) {
@@ -1561,6 +1578,15 @@ sub sync_to_stage {
         qsystem($1, $prp) && die("    sync script failed at ".localtime(time).": $?\n");
       } else {
         qsystem($1, $prp, $extdirx) && die("    sync script failed at ".localtime(time).": $?\n");
+      }
+    }
+    if (@{$sigs || []} && $stageserver =~ /^rekor:\/\//) {
+      $stageserver =~ s/^rekor:/rekor+https:/;
+      $stageserver =~ s/^rekor\+//;
+      my $nsigs = @{$sigs || []};
+      print "    uploading $nsigs signatures to $stageserver\n";
+      for my $sig (@$sigs) {
+	BSRekor::upload_rekord($stageserver, $sig->{'data'}, $sig->{'pubkey'}, $sig->{'signature'}, $sig->{'format'});
       }
     }
   }
@@ -2929,6 +2955,7 @@ sub publish {
     'config' => $config,
     'patterninfo' => {},
     'modulemds' => $modulemds,
+    'sigs' => [],
   };
 
   if ($repotype{'rpm-md'}) {
@@ -3015,7 +3042,7 @@ publishprog_done:
   }
 
   # push the repo to the stage servers
-  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers, $triggerstring);
+  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers, $triggerstring, 0, $data->{'sigs'});
 
   # support for regex usage in $BSConfig::unpublishedhook
   my $unpublish_prp = $prp;
