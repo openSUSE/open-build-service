@@ -51,7 +51,7 @@ my $timestamp_expire = 14 * 24 * 3600;		# 14 days
 # <repo>/manifests/<imageid>		contains manifest data
 # <repo>/blobs/<blobid>			contains hardlinked blobs
 # <repo>/tags/<tag>			hardlinked manifest data
-# 
+#
 
 use strict;
 
@@ -284,7 +284,7 @@ sub update_tuf {
   my $timestamp_key_id = BSTUF::key2keyid($timestamp_key);
 
   #
-  # setup root 
+  # setup root
   #
   my $keys = {};
   $keys->{$root_key_id} = $root_key;
@@ -474,7 +474,7 @@ sub update_cosign {
       'digest' => $config_blobid,
     };
     my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-    my $mani = { 
+    my $mani = {
       'schemaVersion' => 2,
       'mediaType' => $mediaType,
       'config' => $config_data,
@@ -487,8 +487,9 @@ sub update_cosign {
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
       BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
-    }   
+    }
   }
   if (BSUtil::identical($oldsigs, $sigs)) {
     print "local cosign signatures: no change.\n";
@@ -570,7 +571,7 @@ sub push_containers {
 	($tar, $mtime) = construct_container_tar($containerinfo);
       }
       my %tar = map {$_->{'name'} => $_} @$tar;
-      
+
       my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
       my ($config_ent, $config) = BSContar::get_config(\%tar, $manifest);
 
@@ -629,7 +630,7 @@ sub push_containers {
 
       # put manifest into repo
       my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-      my $mani = { 
+      my $mani = {
 	'schemaVersion' => 2,
 	'mediaType' => $mediaType,
 	'config' => $config_data,
