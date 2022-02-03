@@ -2,10 +2,8 @@ class Workflow
   include ActiveModel::Model
 
   SUPPORTED_STEPS = {
-    branch_package: Workflow::Step::BranchPackageStep,
-    link_package: Workflow::Step::LinkPackageStep,
-    configure_repositories: Workflow::Step::ConfigureRepositories,
-    rebuild_package: Workflow::Step::RebuildPackage,
+    branch_package: Workflow::Step::BranchPackageStep, link_package: Workflow::Step::LinkPackageStep,
+    configure_repositories: Workflow::Step::ConfigureRepositories, rebuild_package: Workflow::Step::RebuildPackage,
     set_flags: Workflow::Step::SetFlags
   }.freeze
 
