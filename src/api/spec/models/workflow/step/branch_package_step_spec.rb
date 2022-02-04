@@ -79,24 +79,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-
-    # rubocop:disable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
-    # RSpec/MultipleExpectations, RSpec/ExampleLength - We want to test those expectations together since they depend on each other to be true
-    # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
-    it 'only reports for repositories and architectures matching the filters' do
-      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'i586' },
-                                                      scm_webhook.payload, token.scm_token).and_call_original
-      expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'x86_64' },
-                                                      scm_webhook.payload, token.scm_token).and_call_original
-      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'ppc' },
-                                                          scm_webhook.payload, token.scm_token)
-      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'Unicorn_123', arch: 'aarch64' },
-                                                          scm_webhook.payload, token.scm_token)
-      expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: final_package_name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
-                                                          scm_webhook.payload, token.scm_token)
-      subject.call({ workflow_filters: workflow_filters })
-    end
-    # rubocop:enable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
   end
 
   RSpec.shared_context 'successful update event when the branch_package already exists' do
@@ -248,26 +230,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it { expect(subject.call.source_file('_branch_request')).to include('123') }
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-
-        # rubocop:disable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
-        # RSpec/MultipleExpectations, RSpec/ExampleLength - We want to test those expectations together since they depend on each other to be true
-        # RSpec/MesssageSpies - The method `and_call_original` isn't available on `have_received`, so we need to use `receive`
-        it 'only reports for repositories and architectures matching the filters' do
-          [final_package_name, "#{final_package_name}:flavor_a", "#{final_package_name}:flavor_b"].each do |package_or_flavor_name|
-            expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'i586' },
-                                                            scm_webhook.payload, token.scm_token).and_call_original
-            expect(SCMStatusReporter).to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'x86_64' },
-                                                            scm_webhook.payload, token.scm_token).and_call_original
-            expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'ppc' },
-                                                                scm_webhook.payload, token.scm_token)
-            expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'Unicorn_123', arch: 'aarch64' },
-                                                                scm_webhook.payload, token.scm_token)
-            expect(SCMStatusReporter).not_to receive(:new).with({ project: target_project_final_name, package: package_or_flavor_name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64' },
-                                                                scm_webhook.payload, token.scm_token)
-          end
-          subject.call({ workflow_filters: workflow_filters })
-        end
-        # rubocop:enable RSpec/MultipleExpectations, RSpec/ExampleLength, RSpec/MessageSpies
       end
 
       context 'for an updated PR event' do

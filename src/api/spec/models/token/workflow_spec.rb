@@ -72,6 +72,7 @@ RSpec.describe Token::Workflow do
         allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token,
                                                                        workflow_run_id: workflow_run.id).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
+        allow(ScmInitialStatusReporter).to receive(:new).and_return(proc { true })
       end
 
       subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
@@ -81,6 +82,11 @@ RSpec.describe Token::Workflow do
       end
 
       it { expect { subject }.to change(workflow_token, :triggered_at) & change(workflow_run, :response_url).to('https://api.github.com') }
+
+      it do
+        subject
+        expect(ScmInitialStatusReporter).to have_received(:new).twice
+      end
     end
 
     context 'with validation errors' do

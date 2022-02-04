@@ -17,7 +17,12 @@ class Token::Workflow < Token
     yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
     @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run_id: options[:workflow_run].id).call
 
-    @workflows.each(&:call) if validation_errors.none?
+    return validation_errors unless validation_errors.none?
+
+    # This is just an initial generic report to give a feedback asap. Initial status pending
+    ScmInitialStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token).call
+    @workflows.each(&:call)
+    ScmInitialStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, 'success').call
 
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
