@@ -6,6 +6,13 @@ module OwnerSearch
       setup 'attribute_not_set', 400
     end
 
+    def devel_disabled?(project = nil)
+      return ['0', 'false'].include?(params[:devel]) if params[:devel]
+
+      attrib = project_attrib(project)
+      attrib && attrib.values.exists?(value: 'DisableDevel')
+    end
+
     protected
 
     def initialize(params = {})
@@ -43,13 +50,6 @@ module OwnerSearch
       else
         ['maintainer', 'bugowner']
       end
-    end
-
-    def devel_disabled?(project = nil)
-      return ['0', 'false'].include?(params[:devel]) if params[:devel]
-
-      attrib = project_attrib(project)
-      attrib && attrib.values.exists?(value: 'DisableDevel')
     end
 
     def filter_roles(relation, rolefilter)
