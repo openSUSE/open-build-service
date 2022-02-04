@@ -274,7 +274,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       let(:step_instructions) do
         {
-          project: 'home:Iggy',
+          project: 'home:Iggy:sandbox',
           repositories:
             [
               {
@@ -316,7 +316,12 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                        })
       end
 
-      let(:artifacts) { step_instructions }
+      let(:artifacts) do
+        {
+          project: 'home:Iggy:sandbox:iggy:hello_world:PR-1',
+          repositories: step_instructions[:repositories]
+        }
+      end
 
       it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(1) }
 

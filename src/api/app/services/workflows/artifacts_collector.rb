@@ -14,10 +14,14 @@ module Workflows
                       target_project: @step.target_project_name,
                       target_package: @step.target_package_name
                     }
-                  when 'Workflow::Step::RebuildPackage', 'Workflow::Step::ConfigureRepositories'
+                  when 'Workflow::Step::RebuildPackage'
                     @step.step_instructions
+                  when 'Workflow::Step::ConfigureRepositories'
+                    {
+                      project: @step.target_project_name,
+                      repositories: @step.step_instructions[:repositories]
+                    }
                   end
-
       WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json)
     end
   end

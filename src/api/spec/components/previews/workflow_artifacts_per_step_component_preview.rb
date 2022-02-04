@@ -85,7 +85,10 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
                                                        token: token
                                                      })
 
-    artifacts = step.step_instructions.to_json
+    artifacts = {
+      project: step.target_project_name,
+      repositories: step.step_instructions[:repositories]
+    }.to_json
 
     artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
     render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
