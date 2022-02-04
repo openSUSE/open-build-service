@@ -16,6 +16,20 @@ class WorkflowRun < ApplicationRecord
   def update_to_fail(message)
     update(response_body: message, status: 'fail')
   end
+
+  def hook_event
+    parsed_request_headers['HTTP_X_GITHUB_EVENT'] ||
+      parsed_request_headers['HTTP_X_GITLAB_EVENT']
+  end
+
+  private
+
+  def parsed_request_headers
+    request_headers.split("\n").each_with_object({}) do |h, headers|
+      k, v = h.split(':')
+      headers[k] = v.strip
+    end
+  end
 end
 
 # == Schema Information

@@ -342,5 +342,25 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         expect(rendered_component).to have_selector('i', class: 'fas fa-exclamation-triangle text-danger')
       end
     end
+
+    context 'when the event is something unknown' do
+      let(:workflow_run) do
+        create(:workflow_run,
+               status: 'fail',
+               token: workflow_token,
+               request_headers: request_headers,
+               request_payload: request_payload)
+      end
+      let(:request_payload) { {} }
+      let(:request_headers) do
+        <<~END_OF_HEADERS
+          HTTP_X_GITHUB_EVENT: fake
+        END_OF_HEADERS
+      end
+
+      it 'does not blow up' do
+        expect(rendered_component).to have_text('Fake event')
+      end
+    end
   end
 end

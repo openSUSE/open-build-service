@@ -1,3 +1,5 @@
+$workflow-runs-filter-box-height: 3.5rem;
+
 #request-payload {
   max-height: 20rem;
 }
@@ -5,5 +7,41 @@
 @include media-breakpoint-up(md) {
   #request-payload {
     max-height: 30rem;
+  }
+}
+
+#workflow-runs-filter-desktop {
+  strong { cursor: pointer; }
+  .collapse {
+    &.show { border-top: 1px solid $gray-300;}
+  }
+}
+
+@include media-breakpoint-up(md) {
+  #workflow-runs-filter-desktop {
+    .collapse { display: block !important; }
+  }
+}
+
+@include media-breakpoint-between(xs, sm) {
+  #workflow-runs-filter-desktop {
+    &.show { border-top: 1px solid $gray-300; }
+    &.sticky-top { top: $top-navigation-height; }
+    height: $workflow-runs-filter-box-height;
+    // To not overlap with the notification action bar
+    z-index: calc(#{$zindex-sticky} + 1);
+
+    #filters {
+      max-height: 100vw; overflow: auto;
+      -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    }
+  }
+
+  @media (orientation: landscape) {
+    #workflow-runs-filter-desktop {
+      #filters { max-height: 20vw; }
+    }
   }
 }

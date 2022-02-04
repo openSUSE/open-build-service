@@ -1,17 +1,27 @@
 - @pagetitle = 'Workflow Runs'
 
-.card
-  .card-body
-    %h3= @pagetitle
-    - if @workflow_runs.blank?
-      %p There are no workflow runs for this token yet
-    - else
-      .text-center
-        %span.ml-3= page_entries_info(@workflow_runs)
-      .accordion.pt-3#workflow-runs-accordion
-        - @workflow_runs.each do |workflow_run|
-          .card-header{ id: "workflow-run-heading#{workflow_run.id}" }
-            .mb-0
-              .row
-                = render(WorkflowRunRowComponent.new(workflow_run: workflow_run))
-        = paginate @workflow_runs, views_prefix: 'webui'
+.row
+  .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#workflow-runs-filter-desktop
+    .card.mb-3
+      %strong.d-block.d-md-none.p-3{ data: { toggle: 'collapse', target: '#filters' },
+                                  aria: { expanded: true, controls: 'filters' } }
+        Filtered by: #{params[:status]&.humanize}
+        %i.float-right.mt-1.fa.fa-chevron-down#workflow-runs-dropdown-trigger
+      .card-body.collapse#filters
+        = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter)
+  .col-md-8.col-lg-9.px-0.px-md-3#workflow-run-list
+    .card
+      - if @workflow_runs.blank?
+        .card-body
+          %p There are no workflow runs for this token yet
+      - else
+        .card-body
+          .text-center
+            %span.ml-3= page_entries_info(@workflow_runs)
+          .accordion.pt-3#workflow-runs-accordion
+            - @workflow_runs.each do |workflow_run|
+              .card-header{ id: "workflow-run-heading#{workflow_run.id}" }
+                .mb-0
+                  .row
+                    = render(WorkflowRunRowComponent.new(workflow_run: workflow_run))
+            = paginate @workflow_runs, views_prefix: 'webui'

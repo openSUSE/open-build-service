@@ -1,0 +1,4 @@
+= link_to(token_workflow_runs_path(@token, @filter_item), class: "list-group-item list-group-item-action #{css_for_link}") do
+  = @text
+  - if @amount.positive?
+    %span.badge.align-text-top.ml-2{ class: css_for_badge_color }>= @amount
