@@ -6909,7 +6909,7 @@ sub checkconstraints {
     $param->{'chunked'} = 1;
   } else {
       my $rev = getrev($cgi->{'project'}, $cgi->{'package'}, $cgi->{'rev'});
-      my $files = BSRevision::lsrev($rev);
+      my $files = lsrev_expanded($rev);
       if ($files->{'_constraints'}) {
         $param->{'data'} = BSRevision::revreadstr($rev, '_constraints', $files->{'_constraints'});
       }
