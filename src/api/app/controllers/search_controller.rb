@@ -82,10 +82,17 @@ class SearchController < ApplicationController
         return projects unless params[:package]
 
         pkgs = []
+        search = OwnerSearch::Container.new(params)
         projects.each do |prj|
-          pkgs << prj.find_package(params[:package])
+          pkg = prj.find_package(params[:package])
+          next unless pkg
+
+          pkgs << if search.devel_disabled?(prj)
+                    pkg
+                  else
+                    pkg.resolve_devel_package
+                  end
         end
-        pkgs.delete(nil)
         return pkgs
       end
 
