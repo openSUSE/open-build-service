@@ -3630,6 +3630,7 @@ sub updatestatsfromfile {
 	'TIME_rpmlint' => 'rpmlint',
 	'TIME_buildcmp' => 'buildcmp',
 	'TIME_deltarpms' => 'deltarpms',
+	'TIME_cpusteal' => 'cpusteal',
       );
       while (<FILE>) {
         chomp;
