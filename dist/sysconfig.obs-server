@@ -288,6 +288,16 @@ OBS_VM_DISK_AUTOSETUP_FILESYSTEM="ext3"
 OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS=""
 
 ## Path:        Applications/OBS
+## Description: Enable copyin functionality during VM setup
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+# This enables mkfs copyin functionality support for some filesystems
+#
+OBS_WORKER_USE_MKFS_COPYIN=""
+
+## Path:        Applications/OBS
 ## Description: Enable build in memory
 ## Type:        ("yes" | "")
 ## Default:     ""
