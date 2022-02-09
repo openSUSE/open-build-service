@@ -1,14 +1,14 @@
 class Webui::WorkflowRunsController < Webui::WebuiController
   def index
     relation = WorkflowRunPolicy::Scope.new(User.session, WorkflowRun, { token_id: params[:token_id] })
-    workflow_runs_finder = WorkflowRunsFinder.new(relation.resolve)
+    @workflow_runs_finder = WorkflowRunsFinder.new(relation.resolve)
 
     @workflow_runs = if params[:status]
-                       workflow_runs_finder.with_status(params[:status])
+                       @workflow_runs_finder.with_status(params[:status])
                      elsif params[:event_type]
-                       workflow_runs_finder.with_event_type(params[:event_type])
+                       @workflow_runs_finder.with_event_type(params[:event_type])
                      else
-                       workflow_runs_finder.all
+                       @workflow_runs_finder.all
                      end
 
     @workflow_runs = @workflow_runs.page(params[:page])

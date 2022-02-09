@@ -1,5 +1,5 @@
 class WorkflowRunFilterComponent < ApplicationComponent
-  def initialize(token:, selected_filter:, finder: WorkflowRunsFinder.new)
+  def initialize(token:, selected_filter:, finder:)
     super
 
     @count = workflow_runs_count(finder)
