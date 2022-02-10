@@ -111,7 +111,7 @@ class PublicController < ApplicationController
 
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}/#{CGI.escape(file)}"
 
-    path += build_query_from_hash(params, [:rev, :limit])
+    path += build_query_from_hash(params, [:rev, :limit, :expand])
     volley_backend_path(path) unless forward_from_backend(path)
   end
 
