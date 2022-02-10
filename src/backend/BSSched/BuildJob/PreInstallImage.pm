@@ -143,13 +143,15 @@ sub update_preinstallimage {
     $imagedata = $newimagedata;
   }
   my @all;
-  @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.info)$/} grep {!/^\./} sort(ls($jobdir)) if $jobdir;
+  @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.tar\.zst|\.info)$/} grep {!/^\./} sort(ls($jobdir)) if $jobdir;
   my %all = map {$_ => 1} @all;
   my @imgs = grep {s/\.info$//} @all;
   for my $img (@imgs) {
     my $tar;
     next if (-s "$jobdir/$img.info") > 100000;
-    if (-f "$jobdir/$img.tar.xz") {
+    if (-f "$jobdir/$img.tar.zst") {
+      $tar = "$img.tar.zst";
+    } elsif (-f "$jobdir/$img.tar.xz") {
       $tar = "$img.tar.xz";
     } elsif (-f "$jobdir/$img.tar.gz") {
       $tar = "$img.tar.gz";
