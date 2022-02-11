@@ -24,7 +24,7 @@ get:
       name: notifications_type
       schema:
         type: string
-        enum: ['requests', 'incoming_requests', 'outgoing_requests']
+        enum: ['requests', 'incoming_requests', 'outgoing_requests', 'read']
   responses:
     '200':
       description: |
