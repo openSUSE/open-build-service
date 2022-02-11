@@ -63,6 +63,18 @@ RSpec.describe Person::NotificationsController do
       it { expect(response).to have_http_status(:success) }
       it { expect(response.body).to include('<notifications count="2">') }
 
+      context 'filter by notifications_type' do
+        let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user, delivered: true) }
+
+        before do
+          login user
+          get :index, params: { format: :xml, notifications_type: 'read' }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+        it { expect(response.body).to include('<notifications count="2">') }
+      end
+
       context 'filter by project finds results' do
         before do
           login user
