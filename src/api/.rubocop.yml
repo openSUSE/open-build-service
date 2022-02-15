@@ -2,6 +2,7 @@ require:
   - rubocop-rails
   - rubocop-rspec
   - rubocop-performance
+  - ./app/lib/rubocop/cop/view_component/avoid_global_state.rb
 
 inherit_from: .rubocop_todo.yml
 
