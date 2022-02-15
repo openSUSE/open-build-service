@@ -49,7 +49,7 @@ RSpec.describe 'User notifications', type: :feature, js: true do
 
       context 'when marking a comment notification as read' do
         before do
-          click_link("update-notification-#{notification_for_projects_comment.id}")
+          click_link("update_notification_#{notification_for_projects_comment.id}")
         end
 
         it_behaves_like 'keeps the Comments filter'
