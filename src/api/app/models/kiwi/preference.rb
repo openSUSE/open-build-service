@@ -24,7 +24,7 @@ class Kiwi::Preference < ApplicationRecord
   }, _prefix: :image_type
 
   validates :type_image, inclusion: { in: type_images.keys }, allow_nil: true
-  validates :version, format: { with: /\A\d+\.\d+\.\d+\z/ }
+  validates :version, format: { with: /\A[\d.]+\z/ }
 
   def containerconfig_xml
     builder = Nokogiri::XML::Builder.new do |xml|
