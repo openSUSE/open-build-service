@@ -1746,13 +1746,13 @@ sub mapsleimage {
     $rbin =~ s/\.txt$//;
     # if we did not find it yet, try removing the build number
     # as the ftp trees are stored without
-    $rbin =~ s/-Build\d+(\.\d+)?(\.\d+)?// unless -f "$rdir/$rbin.milestone";
+    $rbin =~ s/-Build\d+(\.\d+)?(\.\d+)?(\.\d+)?// unless -f "$rdir/$rbin.milestone";
     my $milestone = readstr("$rdir/$rbin.milestone", 1);
     chomp($milestone) if defined $milestone;
     $milestone ||= 'GM';
     $milestone = Build::Rpm::expandmacros($data->{'config'}, $milestone) if $milestone =~ /%/;
     $milestone =~ s/[\/\n]/_/sg;
-    $p =~ s/-Build\d+(\.\d+)?(\.\d+)?/-$milestone/;
+    $p =~ s/-Build\d+(\.\d+)?(\.\d+)?\.\d+)?/-$milestone/;
   }
   $p =~ s/-Media/-DVD/ if $data->{'media'} eq 'dvd';
   $data->{'mapped'}->{$origp} = $p if $p ne $origp;
