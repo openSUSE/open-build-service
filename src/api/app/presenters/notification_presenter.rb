@@ -1,9 +1,4 @@
-require 'redcarpet/render_strip'
-
 class NotificationPresenter < SimpleDelegator
-  TRUNCATION_LENGTH = 100
-  TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
-
   def initialize(model)
     @model = model
     super(@model)
@@ -37,24 +32,6 @@ class NotificationPresenter < SimpleDelegator
     end
   end
 
-  def truncate_to_first_new_line(text)
-    first_new_line_index = text.index("\n")
-    truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
-    text.truncate(truncation_index)
-  end
-
-  def excerpt
-    text =  case @model.notifiable_type
-            when 'BsRequest'
-              @model.notifiable.description
-            when 'Comment'
-              render_without_markdown(@model.notifiable.body)
-            else
-              ''
-            end
-    truncate_to_first_new_line(text.to_s)
-  end
-
   def commenters
     commentable = @model.notifiable.commentable
     commentable.comments.where('updated_at >= ?', @model.unread_date).map(&:user).uniq
@@ -69,12 +46,6 @@ class NotificationPresenter < SimpleDelegator
   end
 
   private
-
-  def render_without_markdown(content)
-    # Initializes a Markdown parser, if needed
-    @remove_markdown_parser ||= Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
-    ActionController::Base.helpers.sanitize(@remove_markdown_parser.render(content.to_s))
-  end
 
   # Returns strings like "Add Role", "Submit", etc.
   def type_of_action(bs_request)
