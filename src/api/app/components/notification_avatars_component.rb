@@ -13,7 +13,8 @@ class NotificationAvatarsComponent < ApplicationComponent
     @avatar_objects ||= if @notification.notifiable_type == 'Comment'
                           commenters
                         else
-                          @notification.notifiable.reviews.in_state_new.map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)
+                          reviews = @notification.notifiable.reviews
+                          reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)
                         end
   end
 
@@ -26,8 +27,8 @@ class NotificationAvatarsComponent < ApplicationComponent
   end
 
   def commenters
-    commentable = @notification.notifiable.commentable
-    commentable.comments.where('updated_at >= ?', @notification.unread_date).map(&:user).uniq
+    comments = @notification.notifiable.commentable.comments
+    comments.select { |comment| comment.updated_at >= @notification.unread_date }.map(&:user).uniq
   end
 
   def package_title(package)
