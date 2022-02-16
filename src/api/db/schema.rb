@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_26_155601) do
+ActiveRecord::Schema.define(version: 2022_02_10_154407) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -1049,6 +1049,17 @@ ActiveRecord::Schema.define(version: 2022_01_26_155601) do
     t.index ["in_beta"], name: "index_users_on_in_beta"
     t.index ["in_rollout"], name: "index_users_on_in_rollout"
     t.index ["login"], name: "users_login_index", unique: true, length: 255
+  end
+
+  create_table "watched_items", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "watchable_id", null: false
+    t.string "watchable_type", null: false
+    t.integer "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_watched_items_on_user_id"
+    t.index ["watchable_type", "watchable_id", "user_id"], name: "index_watched_items_on_type_id_and_user_id", unique: true
+    t.index ["watchable_type", "watchable_id"], name: "index_watched_items_on_watchable"
   end
 
   create_table "watched_projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|

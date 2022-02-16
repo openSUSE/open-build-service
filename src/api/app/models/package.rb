@@ -71,6 +71,8 @@ class Package < ApplicationRecord
 
   after_rollback :reset_cache
 
+  has_many :watched_items, as: :watchable, dependent: :destroy
+
   # The default scope is necessary to exclude the forbidden projects.
   # It's necessary to write it as a nested Active Record query for performance reasons
   # which will produce a query like:
