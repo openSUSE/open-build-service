@@ -340,6 +340,10 @@ OBSApi::Application.routes.draw do
         resources :workflow_runs, only: [:index, :show], controller: 'webui/workflow_runs'
       end
       resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
+
+      put 'watched_items/package/:project/:package/toggle' => :toggle, controller: 'webui/watched_items', as: :toggle_package_watchable
+      put 'watched_items/project/:project/toggle' => :toggle, controller: 'webui/watched_items', as: :toggle_project_watchable
+      put 'watched_items/request/:number/toggle' => :toggle, controller: 'webui/watched_items', as: :toggle_request_watchable
     end
 
     get 'home', to: 'webui/webui#home', as: :home
