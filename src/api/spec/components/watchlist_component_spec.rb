@@ -1,0 +1,105 @@
+require 'rails_helper'
+
+RSpec.describe WatchlistComponent, type: :component do
+  let(:user) { create(:confirmed_user) }
+
+  context 'when there is no watchable item in the current page' do
+    before do
+      render_inline(described_class.new(user: user))
+    end
+
+    ['package', 'project', 'request'].each do |item_name|
+      it { expect(rendered_component).not_to have_text("Watch this #{item_name}") }
+      it { expect(rendered_component).not_to have_text("Remove this #{item_name} from Watchlist") }
+      it { expect(rendered_component).to have_text("There are no #{item_name}s in the watchlist yet.") }
+    end
+  end
+
+  context 'when loging in as a different user than the one who added stuff to watchlist' do
+    let(:another_user) { create(:confirmed_user) }
+    let(:package) { create(:package) }
+
+    before do
+      create(:watched_item, :for_packages, watchable: package, user: another_user)
+      render_inline(described_class.new(user: user, package_name: package.name, project_name: package.project.name))
+    end
+
+    it 'does not show anything' do
+      expect(rendered_component).to have_text('Watch this package')
+      expect(rendered_component).to have_text('There are no packages in the watchlist yet.')
+    end
+  end
+
+  context 'when dealing with packages' do
+    let(:package) { create(:package) }
+
+    context 'and the package is not yet watched' do
+      before do
+        render_inline(described_class.new(user: user, package_name: package.name, project_name: package.project.name))
+      end
+
+      it { expect(rendered_component).to have_text('There are no packages in the watchlist yet.') }
+      it { expect(rendered_component).not_to have_link(package.name) }
+      it { expect(rendered_component).to have_text('Watch this package') }
+    end
+
+    context 'and the package is already watched' do
+      before do
+        create(:watched_item, :for_packages, watchable: package, user: user)
+        render_inline(described_class.new(user: user, package_name: package.name, project_name: package.project.name))
+      end
+
+      it { expect(rendered_component).not_to have_text('There are no packages in the watchlist yet.') }
+      it { expect(rendered_component).to have_link(package.name) }
+      it { expect(rendered_component).to have_text('Remove this package from Watchlist') }
+    end
+  end
+
+  context 'when dealing with projects' do
+    let(:project) { create(:project) }
+
+    context 'and the project is not yet watched' do
+      before do
+        render_inline(described_class.new(user: user, project_name: project.name))
+      end
+
+      it { expect(rendered_component).to have_text('There are no projects in the watchlist yet.') }
+      it { expect(rendered_component).not_to have_link(project.name) }
+      it { expect(rendered_component).to have_text('Watch this project') }
+    end
+
+    context 'and the project is already watched' do
+      before do
+        create(:watched_item, :for_packages, watchable: project, user: user)
+        render_inline(described_class.new(user: user, project_name: project.name))
+      end
+
+      it { expect(rendered_component).not_to have_text('There are no projects in the watchlist yet.') }
+      it { expect(rendered_component).to have_link(project.name) }
+      it { expect(rendered_component).to have_text('Remove this project from Watchlist') }
+    end
+  end
+
+  context 'when dealing with requests' do
+    let(:bs_request) { create(:bs_request_with_submit_action) }
+
+    context 'and the request is not yet watched' do
+      before { render_inline(described_class.new(user: user, bs_request_number: bs_request.number)) }
+
+      it { expect(rendered_component).to have_text('There are no requests in the watchlist yet.') }
+      it { expect(rendered_component).not_to have_link("Request ##{bs_request.number}") }
+      it { expect(rendered_component).to have_text('Watch this request') }
+    end
+
+    context 'and the request is already watched' do
+      before do
+        create(:watched_item, :for_bs_requests, watchable: bs_request, user: user)
+        render_inline(described_class.new(user: user, bs_request_number: bs_request.number))
+      end
+
+      it { expect(rendered_component).not_to have_text('There are no requests in the watchlist yet.') }
+      it { expect(rendered_component).to have_link("Request ##{bs_request.number}") }
+      it { expect(rendered_component).to have_text('Remove this request from Watchlist') }
+    end
+  end
+end

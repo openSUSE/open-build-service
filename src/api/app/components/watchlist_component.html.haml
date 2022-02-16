@@ -1,0 +1,37 @@
+.navbar-collapse.watchlist-collapse.navbar-dark
+  .navbar-nav.mb-4
+    .nav.justify-content-end.py-2
+      %button.navbar-toggler{ type: 'button', data: { toggle: 'watchlist' }, aria: { expanded: 'false', label: 'Toggle navigation' } }
+        %i.fas.fa-times
+
+    - if @object_to_be_watched
+      .nav-item.pb-2.mb-4.border-bottom.border-gray-500
+        = link_to(toggle_watchable_path, method: :put, class: 'nav-link') do
+          - if object_to_be_watched_in_watchlist?
+            %p.mb-0.text-light
+              %i.fas.fa-times-circle
+              %span= remove_from_watchlist_text
+          - else
+            %p.mb-0.text-light
+              %i.fas.fa-plus-circle
+              %span= add_to_watchlist_text
+
+    -# TODO: This structure is repeated 3 times. Move to a view component
+    %h5.pt-2.text-light Projects you are watching
+    - if projects.any?
+      .list-group.list-group-flush.mb-2
+        = render ProjectIconAndLinkComponent.with_collection(projects)
+    - else
+      %p.text-muted There are no projects in the list yet.
+    %h5.pt-2.text-light Packages you are watching
+    - if packages.any?
+      .list-group.list-group-flush.mb-2
+        = render PackageIconAndLinkComponent.with_collection(packages)
+    - else
+      %p.text-muted There are no packages in the list yet.
+    %h5.pt-2.text-light Requests you are watching
+    - if bs_requests.any?
+      .list-group.list-group-flush
+        = render BsRequestIconAndLinkComponent.with_collection(bs_requests)
+    - else
+      %p.text-muted There are no requests in the list yet.

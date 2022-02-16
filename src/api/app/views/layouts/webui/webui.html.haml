@@ -76,4 +76,10 @@
 
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
-        = render partial: 'layouts/webui/watchlist'
+        - if feature_enabled?(:new_watchlist)
+          = render WatchlistComponent.new(user: User.session!,
+          project_name: params[:project],
+          package_name: params[:package],
+          bs_request_number: params[:number])
+        - else
+          = render partial: 'layouts/webui/watchlist'
