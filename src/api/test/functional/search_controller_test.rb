@@ -19,9 +19,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/package/id', params: { match: '[contains(@name,"Test")]' }
     assert_response :success
     assert_xml_tag child: { tag: 'package', attributes: { name: 'TestPack', project: 'home:Iggy' } }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'TestPackSCM', project: 'home:Iggy' } }
     assert_xml_tag child: { tag: 'package', attributes: { name: 'ToBeDeletedTestPack', project: 'home:Iggy' } }
     assert_xml_tag child: { tag: 'package', attributes: { name: 'test', project: 'CopyTest' } }
-    assert_xml_tag tag: 'collection', children: { count: 3 }
+    assert_xml_tag tag: 'collection', children: { count: 4 }
   end
 
   def test_xpath_2
@@ -105,6 +106,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/package', params: { match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))" }
     assert_response :success
     get "/search/request?match=(action/@type='set_bugowner'+and+state/@name='accepted')"
+    assert_response :success
+
+    get "/search/request?noorder=1&match=(action/@type='set_bugowner'+and+state/@name='accepted')"
     assert_response :success
 
     # small typo, no equal ...
