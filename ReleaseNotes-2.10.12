@@ -1,0 +1,18 @@
+#
+# Open Build Service 2.10.12 (TO BE RELEASED)
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+Bugfixes
+========
+
+* Frontend:
+  - CVE-2022-23633: Possible exposure of information vulnerability in Action Pack
+  - Allow kiwi versions not strictly x.y.z scheme
