@@ -30,12 +30,13 @@ module Person
     end
 
     def fetch_notifications
-      notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification))
+      notifications = policy_scope(Notification)
+      notifications_finder = NotificationsFinder.new(notifications)
 
       filtered_notifications = if params[:project]
-                                 notifications_for_subscribed_user.for_project_name(params[:project])
+                                 notifications_finder.for_project_name(params[:project])
                                else
-                                 notifications_for_subscribed_user.for_subscribed_user
+                                 notifications
                                end
       # We are limiting it just for BsRequests
       NotificationsFinder.new(filtered_notifications).for_notifiable_type(@filter_type)

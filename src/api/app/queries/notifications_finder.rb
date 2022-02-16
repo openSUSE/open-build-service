@@ -19,18 +19,12 @@ class NotificationsFinder
     @relation.where(notifiable_id: nil, notifiable_type: nil)
   end
 
-  def for_subscribed_user(user = User.session)
-    # TODO: There are no notifications anymore with subscriber_type 'Group' since we create a notification for every group member instead
-    @relation.where("(subscriber_type = 'User' AND subscriber_id = ?) OR (subscriber_type = 'Group' AND subscriber_id IN (?))",
-                    user, user.groups.select(:id))
+  def for_incoming_requests
+    @relation.where(notifiable: User.session.incoming_requests(all_states: true), delivered: false)
   end
 
-  def for_incoming_requests(user = User.session)
-    for_subscribed_user(user).where(notifiable: user.incoming_requests(all_states: true), delivered: false)
-  end
-
-  def for_outgoing_requests(user = User.session)
-    for_subscribed_user(user).where(notifiable: user.outgoing_requests(all_states: true), delivered: false)
+  def for_outgoing_requests
+    @relation.where(notifiable: User.session.outgoing_requests(all_states: true), delivered: false)
   end
 
   def for_notifiable_type(type = 'unread')
@@ -63,7 +57,7 @@ class NotificationsFinder
   def for_subscribed_user_by_id(notification_id)
     return unless User.session && notification_id
 
-    self.class.new.for_subscribed_user.find_by(id: notification_id)
+    NotificationPolicy::Scope.new(User.session, Notification).resolve.find_by(id: notification_id)
   end
 
   def stale
