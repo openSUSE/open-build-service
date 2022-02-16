@@ -16,22 +16,6 @@
               %i.fas.fa-plus-circle
               %span= add_to_watchlist_text
 
-    -# TODO: This structure is repeated 3 times. Move to a view component
-    %h5.pt-2.text-light Projects you are watching
-    - if projects.any?
-      .list-group.list-group-flush.mb-2
-        = render ProjectIconAndLinkComponent.with_collection(projects)
-    - else
-      %p.text-muted There are no projects in the list yet.
-    %h5.pt-2.text-light Packages you are watching
-    - if packages.any?
-      .list-group.list-group-flush.mb-2
-        = render PackageIconAndLinkComponent.with_collection(packages)
-    - else
-      %p.text-muted There are no packages in the list yet.
-    %h5.pt-2.text-light Requests you are watching
-    - if bs_requests.any?
-      .list-group.list-group-flush
-        = render BsRequestIconAndLinkComponent.with_collection(bs_requests)
-    - else
-      %p.text-muted There are no requests in the list yet.
+    = render WatchedItemsListComponent.new(items: projects, class_name: 'Project')
+    = render WatchedItemsListComponent.new(items: packages, class_name: 'Package')
+    = render WatchedItemsListComponent.new(items: bs_requests, class_name: 'BsRequest')
