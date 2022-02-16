@@ -1,4 +1,5 @@
 require 'rails_helper'
+require './lib/rubocop/cop/view_component/avoid_global_state'
 
 RSpec.describe RuboCop::Cop::ViewComponent::AvoidGlobalState, :config do
   context 'when a view component uses params' do
