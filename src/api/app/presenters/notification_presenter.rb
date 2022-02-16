@@ -68,22 +68,6 @@ class NotificationPresenter < SimpleDelegator
     end
   end
 
-  def source
-    bs_request = @model.notifiable_type == 'BsRequest' ? @model.notifiable : @model.notifiable.commentable
-    bs_request_action = bs_request.bs_request_actions.first
-    return nil if bs_request.bs_request_actions.size > 1
-
-    [bs_request_action.source_project, bs_request_action.source_package].compact.join(' / ')
-  end
-
-  def target
-    bs_request = @model.notifiable_type == 'BsRequest' ? @model.notifiable : @model.notifiable.commentable
-    bs_request_action = bs_request.bs_request_actions.first
-    return "#{bs_request_action.target_project}" if bs_request.bs_request_actions.size > 1
-
-    [bs_request_action.target_project, bs_request_action.target_package].compact.join(' / ')
-  end
-
   private
 
   def render_without_markdown(content)
