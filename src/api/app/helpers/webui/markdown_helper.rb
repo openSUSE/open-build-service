@@ -1,4 +1,5 @@
 require 'obsapi/markdown_renderer'
+require 'redcarpet/render_strip'
 
 module Webui::MarkdownHelper
   def render_as_markdown(content)
@@ -8,5 +9,10 @@ module Webui::MarkdownHelper
                                            no_intra_emphasis: true,
                                            fenced_code_blocks: true, disable_indented_code_blocks: true)
     ActionController::Base.helpers.sanitize(@md_parser.render(content.dup.to_s))
+  end
+
+  def render_without_markdown(content)
+    @remove_markdown_parser ||= Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
+    ActionController::Base.helpers.sanitize(@remove_markdown_parser.render(content.to_s))
   end
 end
