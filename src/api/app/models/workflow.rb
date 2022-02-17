@@ -1,5 +1,6 @@
 class Workflow
   include ActiveModel::Model
+  include WorkflowInstrumentation # for run_callbacks
 
   SUPPORTED_STEPS = {
     branch_package: Workflow::Step::BranchPackageStep, link_package: Workflow::Step::LinkPackageStep,
@@ -12,25 +13,29 @@ class Workflow
   attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run_id
 
   def initialize(attributes = {})
-    super
-    @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
+    run_callbacks(:initialize) do
+      super
+      @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
+    end
   end
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
 
   def call
-    return unless event_matches_event_filter?
-    return unless branch_matches_branches_filter?
+    run_callbacks(:call) do
+      return unless event_matches_event_filter?
+      return unless branch_matches_branches_filter?
 
-    case
-    when scm_webhook.closed_merged_pull_request?
-      destroy_target_projects
-    when scm_webhook.reopened_pull_request?
-      restore_target_projects
-    when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
-      steps.each do |step|
-        call_step_and_collect_artifacts(step)
+      case
+      when scm_webhook.closed_merged_pull_request?
+        destroy_target_projects
+      when scm_webhook.reopened_pull_request?
+        restore_target_projects
+      when scm_webhook.new_pull_request?, scm_webhook.updated_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
+        steps.each do |step|
+          call_step_and_collect_artifacts(step)
+        end
       end
     end
   end

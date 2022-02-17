@@ -62,6 +62,10 @@ RSpec.describe Workflow::Step do
   describe '#target_project_name' do
     let(:step) do
       Class.new(described_class) do
+        def self.name
+          'MyStepClass'
+        end
+
         def target_project_base_name
           'OBS:Server:Unstable'
         end

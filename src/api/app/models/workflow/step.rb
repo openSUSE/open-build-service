@@ -1,5 +1,6 @@
 class Workflow::Step
   include ActiveModel::Model
+  include WorkflowStepInstrumentation # for run_callbacks
 
   SHORT_COMMIT_SHA_LENGTH = 7
 
@@ -8,8 +9,10 @@ class Workflow::Step
   attr_accessor :scm_webhook, :step_instructions, :token
 
   def initialize(attributes = {})
-    super
-    @step_instructions = attributes[:step_instructions]&.deep_symbolize_keys || {}
+    run_callbacks(:initialize) do
+      super
+      @step_instructions = attributes[:step_instructions]&.deep_symbolize_keys || {}
+    end
   end
 
   def call(_options)
