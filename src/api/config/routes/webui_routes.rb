@@ -1,5 +1,6 @@
 OBSApi::Application.routes.draw do
   cons = RoutesHelper::RoutesConstraints::CONS
+  mount ActionCable.server => '/cable'
 
   constraints(RoutesHelper::WebuiMatcher) do
     root 'webui/main#index'

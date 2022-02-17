@@ -23,6 +23,7 @@
 
     = stylesheet_link_tag 'webui/application'
     = javascript_include_tag 'webui/application'
+    = action_cable_meta_tag
 
     = yield :content_for_head
     - if content_for?(:head_style)

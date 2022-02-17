@@ -9,6 +9,7 @@ require 'action_controller/railtie'
 require 'action_view/railtie'
 require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
+require 'action_cable/engine'
 
 # The bundler_ext rubygem disables enforcement of gem versions in
 # `Gemfile.lock` in favour of the basic constraints defined in the file
