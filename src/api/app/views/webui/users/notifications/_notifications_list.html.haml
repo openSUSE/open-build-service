@@ -33,16 +33,16 @@
                 .col-10
                   .row
                     .col
-                      - if notification.notifiable_type == 'BsRequest'
+                      - if n.notifiable_type == 'BsRequest'
                         = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
-                        = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
-                        %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
-                        %span.badge.ml-1{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
-                          = notification.notifiable.state
+                        = render NotificationNotifiableLinkComponent.new(n)
+                        %small.text-nowrap #{time_ago_in_words(n.created_at)} ago
+                        %span.badge.ml-1{ class: "badge badge-#{request_badge_color(n.notifiable.state)}" }
+                          = n.notifiable.state
                       - else
                         %i.fas.fa-comments{ title: 'Comment notification' }
-                        = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
-                        %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
+                        = render NotificationNotifiableLinkComponent.new(n)
+                        %small.text-nowrap #{time_ago_in_words(n.created_at)} ago
                     .col-auto.actions.ml-auto.align-self-end.align-self-md-start
                       = render NotificationMarkButtonComponent.new(n, selected_filter, params[:page], params[:show_more])
                   .row.mt-1.pl-sm-4
