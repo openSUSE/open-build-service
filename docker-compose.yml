@@ -10,6 +10,16 @@ services:
     ports:
       - "11211:11211"
     command: /usr/sbin/memcached -u memcached
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass opensuse
+    ports:
+      - "6379:6379"
+    volumes:
+      - $PWD/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=master
   backend:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:
@@ -44,3 +54,4 @@ services:
       - cache
       - backend
       - worker
+      - redis

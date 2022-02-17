@@ -355,6 +355,7 @@ GEM
     rbtree3 (0.7.0)
     rdoc (6.3.3)
     redcarpet (3.5.1)
+    redis (4.6.0)
     regexp_parser (2.6.0)
     request_store (1.5.1)
       rack (>= 1.4)
@@ -580,6 +581,7 @@ DEPENDENCIES
   rantly
   rdoc
   redcarpet
+  redis
   rexml
   rspec
   rspec-rails
