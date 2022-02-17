@@ -11,7 +11,7 @@ class NotificationExcerptComponent < ApplicationComponent
   def call
     text = case @notification.notifiable_type
            when 'BsRequest'
-             @notification.notifiable.description
+             @notification.notifiable.description.to_s # description can be nil
            when 'Comment'
              helpers.render_without_markdown(@notification.notifiable.body)
            else

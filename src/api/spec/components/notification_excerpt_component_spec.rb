@@ -2,21 +2,31 @@ require 'rails_helper'
 
 RSpec.describe NotificationExcerptComponent, type: :component do
   let(:user) { create(:user) }
-  let(:notification_for_projects_comment) { create(:web_notification, :comment_for_project, notifiable: comment, subscriber: user) }
 
-  context 'with short excerpt' do
-    let(:comment) { create(:comment_project, body: Faker::Lorem.characters(number: 20)) }
+  context 'notification for a BsRequest without a description' do
+    let(:bs_request) { create(:bs_request_with_submit_action, description: nil) }
+    let(:notification) { create(:web_notification, :request_created, notifiable: bs_request, subscriber: user) }
 
     it do
-      expect(render_inline(described_class.new(notification_for_projects_comment))).not_to have_text('...')
+      expect(render_inline(described_class.new(notification))).to have_selector('p', text: '')
     end
   end
 
-  context 'with long excerpt' do
-    let(:comment) { create(:comment_project, body: Faker::Lorem.characters(number: 120)) }
+  context 'notification for a short comment' do
+    let(:comment) { create(:comment_project, body: 'Nice project!') }
+    let(:notification) { create(:web_notification, :comment_for_project, notifiable: comment, subscriber: user) }
 
     it do
-      expect(render_inline(described_class.new(notification_for_projects_comment))).to have_text('...')
+      expect(render_inline(described_class.new(notification))).to have_selector('p', text: 'Nice project!')
+    end
+  end
+
+  context 'notification for a long comment' do
+    let(:comment) { create(:comment_project, body: Faker::Lorem.characters(number: 120)) }
+    let(:notification) { create(:web_notification, :comment_for_project, notifiable: comment, subscriber: user) }
+
+    it do
+      expect(render_inline(described_class.new(notification))).to have_text('...')
     end
   end
 end
