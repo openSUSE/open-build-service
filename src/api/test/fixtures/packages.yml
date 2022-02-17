@@ -267,6 +267,17 @@ SourceprotectedProject_target:
   activity_index: 10.0
   delta: 1
   project: SourceprotectedProject
+home_Iggy_TestPackSCM:
+  name: TestPackSCM
+  title: My SCM Test package
+  description: ''
+  scmsync: 'https://somewhere'
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: home_Iggy
 home_Iggy_TestPack:
   name: TestPack
   title: My Test package
