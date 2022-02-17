@@ -1,0 +1,14 @@
+%ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
+  - if number_of_hidden_users.positive?
+    %li.list-inline-item
+      %span.rounded-circle.bg-light.border.border-gray-400.avatars-counter{ title: "#{number_of_hidden_users} more users involved" }
+        +#{number_of_hidden_users}
+  - avatars_to_display.each do |avatar_object|
+    %li.list-inline-item
+      - case avatar_object.class.name
+      - when 'User', 'Group'
+        = helpers.image_tag_for(avatar_object, size: 23, custom_class: 'rounded-circle bg-light border border-gray-400')
+      - when 'Package'
+        %span.fa.fa-archive.text-warning.rounded-circle.bg-light.border.border-gray-400.simulated-avatar{ title: package_title(avatar_object) }
+      - when 'Project'
+        %span.fa.fa-cubes.text-secondary.rounded-circle.bg-light.border.border-gray-400.simulated-avatar{ title: project_title(avatar_object) }
