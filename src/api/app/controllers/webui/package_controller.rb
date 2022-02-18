@@ -105,7 +105,7 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
-    @current_notification = NotificationsFinder.new.for_subscribed_user_by_id(params[:notification_id])
+    @current_notification = NotificationsFinder.new.for_subscribed_user_by_id(params[:notification_id]) if User.session && params[:notification_id]
 
     @services = @files.any? { |file| file[:name] == '_service' }
 

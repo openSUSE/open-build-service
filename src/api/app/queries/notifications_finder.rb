@@ -55,8 +55,6 @@ class NotificationsFinder
   end
 
   def for_subscribed_user_by_id(notification_id)
-    return unless User.session && notification_id
-
     NotificationPolicy::Scope.new(User.session, Notification).resolve.find_by(id: notification_id)
   end
 
