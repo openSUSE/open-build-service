@@ -11,26 +11,15 @@ class WatchlistComponent < ApplicationComponent
     'BsRequest' => 'Watch this request'
   }.freeze
 
-  def initialize(user:, project_name: nil, package_name: nil, bs_request_number: nil)
+  def initialize(user:, project: nil, package: nil, bs_request: nil)
     super
 
     @user = user
-    @object_to_be_watched = object_to_be_watched(project_name, package_name, bs_request_number)
+    # NOTE: the order of the array is important, when project and packge are both present we ensure it takes package.
+    @object_to_be_watched = [bs_request, package, project].compact.first
   end
 
   private
-
-  # Returns the object that can be added or removed from the watchlist.
-  # Returns nil if the current page is not related to any watchable object.
-  def object_to_be_watched(project_name, package_name, bs_request_number)
-    if package_name
-      Package.find_by_project_and_name(project_name, package_name)
-    elsif project_name
-      Project.find_by(name: project_name)
-    elsif bs_request_number
-      BsRequest.find_by(number: bs_request_number)
-    end
-  end
 
   def object_to_be_watched_in_watchlist?
     !!@user.watched_items.includes(:watchable).find_by(watchable: @object_to_be_watched)

@@ -21,7 +21,7 @@ RSpec.describe WatchlistComponent, type: :component do
 
     before do
       create(:watched_item, :for_packages, watchable: package, user: another_user)
-      render_inline(described_class.new(user: user, package_name: package.name, project_name: package.project.name))
+      render_inline(described_class.new(user: user, package: package, project: package.project))
     end
 
     it 'does not show anything' do
@@ -35,7 +35,7 @@ RSpec.describe WatchlistComponent, type: :component do
 
     context 'and the package is not yet watched' do
       before do
-        render_inline(described_class.new(user: user, package_name: package.name, project_name: package.project.name))
+        render_inline(described_class.new(user: user, package: package, project: package.project))
       end
 
       it { expect(rendered_component).to have_text('There are no packages in the watchlist yet.') }
@@ -46,7 +46,7 @@ RSpec.describe WatchlistComponent, type: :component do
     context 'and the package is already watched' do
       before do
         create(:watched_item, :for_packages, watchable: package, user: user)
-        render_inline(described_class.new(user: user, package_name: package.name, project_name: package.project.name))
+        render_inline(described_class.new(user: user, package: package, project: package.project))
       end
 
       it { expect(rendered_component).not_to have_text('There are no packages in the watchlist yet.') }
@@ -60,7 +60,7 @@ RSpec.describe WatchlistComponent, type: :component do
 
     context 'and the project is not yet watched' do
       before do
-        render_inline(described_class.new(user: user, project_name: project.name))
+        render_inline(described_class.new(user: user, project: project))
       end
 
       it { expect(rendered_component).to have_text('There are no projects in the watchlist yet.') }
@@ -71,7 +71,7 @@ RSpec.describe WatchlistComponent, type: :component do
     context 'and the project is already watched' do
       before do
         create(:watched_item, :for_packages, watchable: project, user: user)
-        render_inline(described_class.new(user: user, project_name: project.name))
+        render_inline(described_class.new(user: user, project: project))
       end
 
       it { expect(rendered_component).not_to have_text('There are no projects in the watchlist yet.') }
@@ -84,7 +84,7 @@ RSpec.describe WatchlistComponent, type: :component do
     let(:bs_request) { create(:bs_request_with_submit_action) }
 
     context 'and the request is not yet watched' do
-      before { render_inline(described_class.new(user: user, bs_request_number: bs_request.number)) }
+      before { render_inline(described_class.new(user: user, bs_request: bs_request)) }
 
       it { expect(rendered_component).to have_text('There are no requests in the watchlist yet.') }
       it { expect(rendered_component).not_to have_link("Request ##{bs_request.number}") }
@@ -94,7 +94,7 @@ RSpec.describe WatchlistComponent, type: :component do
     context 'and the request is already watched' do
       before do
         create(:watched_item, :for_bs_requests, watchable: bs_request, user: user)
-        render_inline(described_class.new(user: user, bs_request_number: bs_request.number))
+        render_inline(described_class.new(user: user, bs_request: bs_request))
       end
 
       it { expect(rendered_component).not_to have_text('There are no requests in the watchlist yet.') }
