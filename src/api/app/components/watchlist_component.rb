@@ -47,11 +47,11 @@ class WatchlistComponent < ApplicationComponent
   def toggle_watchable_path
     case @object_to_be_watched
     when Package
-      toggle_package_watchable_path(project: @object_to_be_watched.project.name, package: @object_to_be_watched.name)
+      toggle_package_watched_items_path(project: @object_to_be_watched.project.name, package: @object_to_be_watched.name)
     when Project
-      toggle_project_watchable_path(project: @object_to_be_watched.name)
+      toggle_project_watched_items_path(project: @object_to_be_watched.name)
     when BsRequest
-      toggle_request_watchable_path(number: @object_to_be_watched.number)
+      toggle_request_watched_items_path(number: @object_to_be_watched.number)
     end
   end
 

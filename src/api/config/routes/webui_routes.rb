@@ -341,9 +341,11 @@ OBSApi::Application.routes.draw do
       end
       resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
 
-      put 'watched_items/package/:project/:package/toggle' => :toggle, controller: 'webui/watched_items', as: :toggle_package_watchable
-      put 'watched_items/project/:project/toggle' => :toggle, controller: 'webui/watched_items', as: :toggle_project_watchable
-      put 'watched_items/request/:number/toggle' => :toggle, controller: 'webui/watched_items', as: :toggle_request_watchable
+      resource :watched_items, controller: 'webui/watched_items', only: [:toggle], constraints: cons do
+        put '/package/:project/:package/toggle' => :toggle, as: :toggle_package
+        put '/project/:project/toggle' => :toggle, as: :toggle_project
+        put '/request/:number/toggle' => :toggle, as: :toggle_request
+      end
     end
 
     get 'home', to: 'webui/webui#home', as: :home
