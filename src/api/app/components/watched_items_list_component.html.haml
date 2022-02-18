@@ -1,19 +1,18 @@
 %h5.mt-2.text-light= list_title
 - if @items.any?
-  .list-group.list-group-flush
-    - @items.each do |item|
-      - case @class_name
-        - when 'Package'
-          = link_to(package_show_path(item.project, item), class: 'text-word-break-all') do
-            %i.fas.fa-archive.mr-1
-            #{item.project}/#{item}
-        - when 'Project'
-          = link_to(project_show_path(item), class: 'text-word-break-all') do
-            %i.fas.fa-cubes.mr-1
-            #{item}
-        - when 'BsRequest'
-          = link_to(request_show_path(number: item.number), class: 'text-word-break-all') do
-            = image_tag('icons/request-icon.svg', height: 18, class: 'mr-1 color-inverted')
-            Request ##{item.number}
+  - @items.each do |item|
+    - case @class_name
+      - when 'Package'
+        = link_to(package_show_path(item.project, item), class: 'text-word-break-all') do
+          %i.fas.fa-archive.mr-1
+          #{item.project}/#{item}
+      - when 'Project'
+        = link_to(project_show_path(item), class: 'text-word-break-all') do
+          %i.fas.fa-cubes.mr-1
+          #{item}
+      - when 'BsRequest'
+        = link_to(request_show_path(number: item.number), class: 'text-word-break-all') do
+          = image_tag('icons/request-icon.svg', height: 18, class: 'mr-1 color-inverted')
+          Request ##{item.number}
 - else
   %p.text-muted= empty_list_text
