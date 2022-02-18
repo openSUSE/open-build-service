@@ -40,7 +40,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
   end
 
   def target
-    return bs_request_action.target_project.name if number_of_bs_request_actions > 1
+    return bs_request_action.target_project if number_of_bs_request_actions > 1
 
     [bs_request_action.target_project, bs_request_action.target_package].compact.join(' / ')
   end
