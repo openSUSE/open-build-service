@@ -149,9 +149,9 @@ sub runservice {
 sub getevent {
   my ($req, $notdue, $nofork) = BSStdRunner::getevent(@_);
   if ($req && $req->{'ev'} && $req->{'conf'}->{'limitinprogress'}) {
-    my ($projid, $packid) = ($req->{'ev'}->{'project'}, $req->{'ev'}->{'package'});
-    if ($projid && $packid) {
-      my @inprogress = grep {/^servicedispatch:\Q$projid\E::\Q$packid\E::.*::inprogress$/} ls($req->{'conf'}->{'eventdir'});
+    my $projid = $req->{'ev'}->{'project'};
+    if ($projid) {
+      my @inprogress = grep {/^servicedispatch:\Q$projid\E::.*::inprogress$/} ls($req->{'conf'}->{'eventdir'});
       if (@inprogress >= $req->{'conf'}->{'limitinprogress'}) {
         return (undef, 1);
       }
