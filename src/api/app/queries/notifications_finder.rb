@@ -54,10 +54,6 @@ class NotificationsFinder
     unread.joins(:groups).where(groups: { title: group_title })
   end
 
-  def for_subscribed_user_by_id(notification_id)
-    NotificationPolicy::Scope.new(User.session, Notification).resolve.find_by(id: notification_id)
-  end
-
   def stale
     @relation.where('created_at < ?', notifications_lifetime.days.ago)
   end
