@@ -16,6 +16,23 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
   end
 
+  context 'when the notification is for a Event::RequestStatechange event with a request having multiple actions' do
+    let(:target_project) { create(:project, name: 'project_12345') }
+    let(:target_package) { create(:package, project: target_project, name: 'package_12345') }
+    let(:bs_request) { create(:set_bugowner_request, target_project: target_project, target_package: target_package) }
+    let(:notification) { create(:notification, :request_state_change, notifiable: bs_request) }
+
+    before do
+      bs_request.bs_request_actions << create(:bs_request_action_add_maintainer_role)
+
+      render_inline(described_class.new(notification))
+    end
+
+    it 'renders a div containing only the target project' do
+      expect(rendered_component).to have_selector('div.smart-overflow', text: 'project_12345', exact: true)
+    end
+  end
+
   context 'when the notification is for a Event::RequestCreate event with a request having a source and target' do
     let(:source_project) { create(:project, name: 'source_project_123') }
     let(:source_package) { create(:package, project: source_project, name: 'source_package_123') }
