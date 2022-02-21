@@ -118,7 +118,7 @@ RSpec.describe Webui::UsersController do
       before do
         already_registered_user = create(:confirmed_user, login: 'previous_user')
         post :create, params: { login: already_registered_user.login,
-                                email: already_registered_user.email, password: 'buildservice' }
+                                email: already_registered_user.email, password: 'opensuse' }
       end
 
       it { expect(flash[:error]).not_to be(nil) }
@@ -129,7 +129,7 @@ RSpec.describe Webui::UsersController do
       before do
         allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
         post :create, params: { login: new_user.login, email: new_user.email,
-                                password: 'buildservice' }
+                                password: 'opensuse' }
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
@@ -140,7 +140,7 @@ RSpec.describe Webui::UsersController do
       before do
         allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(false)
         post :create, params: { login: new_user.login,
-                                email: new_user.email, password: 'buildservice' }
+                                email: new_user.email, password: 'opensuse' }
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
@@ -439,7 +439,7 @@ RSpec.describe Webui::UsersController do
       before do
         login non_admin_user
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
-        post :change_password, params: { login: non_admin_user, password: 'buildservice',
+        post :change_password, params: { login: non_admin_user, password: 'opensuse',
                                          new_password: 'opensuse', repeat_password: 'opensuse' }
       end
 
@@ -452,7 +452,7 @@ RSpec.describe Webui::UsersController do
     context 'unauthenticated' do
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
-        post :change_password, params: { login: non_admin_user, password: 'buildservice',
+        post :change_password, params: { login: non_admin_user, password: 'opensuse',
                                          new_password: 'opensuse', repeat_password: 'opensuse' }
       end
 

@@ -276,7 +276,7 @@ module ActionDispatch
 
     # will provide a user without special permissions
     def prepare_request_valid_user
-      prepare_request_with_user('tom', 'buildservice')
+      prepare_request_with_user('tom', 'opensuse')
     end
 
     def prepare_request_invalid_user
@@ -320,27 +320,27 @@ module ActionDispatch
     end
 
     def login_Iggy
-      prepare_request_with_user('Iggy', 'buildservice')
+      prepare_request_with_user('Iggy', 'opensuse')
     end
 
     def login_adrian
-      prepare_request_with_user('adrian', 'buildservice')
+      prepare_request_with_user('adrian', 'opensuse')
     end
 
     def login_adrian_downloader
-      prepare_request_with_user('adrian_downloader', 'buildservice')
+      prepare_request_with_user('adrian_downloader', 'opensuse')
     end
 
     def login_fred
-      prepare_request_with_user('fred', 'buildservice')
+      prepare_request_with_user('fred', 'opensuse')
     end
 
     def login_tom
-      prepare_request_with_user('tom', 'buildservice')
+      prepare_request_with_user('tom', 'opensuse')
     end
 
     def login_dmayr
-      prepare_request_with_user('dmayr', 'buildservice')
+      prepare_request_with_user('dmayr', 'opensuse')
     end
   end
 end

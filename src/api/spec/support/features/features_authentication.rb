@@ -1,5 +1,5 @@
 module FeaturesAuthentication
-  def login(user, password = 'buildservice')
+  def login(user, password = 'opensuse')
     visit new_session_path
     expect(page).to have_text 'Please Log In'
     within('#loginform') do

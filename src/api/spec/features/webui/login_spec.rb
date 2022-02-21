@@ -22,7 +22,7 @@ RSpec.describe 'Login', type: :feature, js: true do
 
     within('#loginform') do
       fill_in 'username', with: user.login
-      fill_in 'password', with: 'buildservice'
+      fill_in 'password', with: 'opensuse'
       click_button('Log In')
     end
 
@@ -37,7 +37,7 @@ RSpec.describe 'Login', type: :feature, js: true do
 
     within('#log-in-modal') do
       fill_in 'username', with: user.login
-      fill_in 'password', with: 'buildservice'
+      fill_in 'password', with: 'opensuse'
       click_button('Log In')
     end
 

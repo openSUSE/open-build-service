@@ -30,7 +30,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/BaseDistro3/pack2/file', params: 'NOOP'
     assert_response :success
     # setup maintained attributes
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     # single packages
     post '/source/BaseDistro2.0/pack2/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
@@ -125,7 +125,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'collection' }, tag: 'request', attributes: { id: id1 }
 
     # accept request
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/request/#{id1}?cmd=changestate&newstate=accepted"
     assert_response :success
 
@@ -240,7 +240,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'file', attributes: { state: 'added' } }, tag: 'new', attributes: { name: 'new_file' }
 
     # set incident to merge into existing one
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response :success
 
@@ -251,13 +251,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal incident_project, maintenance_not_new_project
 
     # try to do it again
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'target_not_maintenance' }
 
     # accept request
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
     assert_response :success
 
@@ -345,7 +345,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     login_adrian
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response 403
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.Channel/_meta"
@@ -372,7 +372,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # accept another request to check that addchannel is working automatically
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
     assert_response :success
     get "/request/#{id3}"
@@ -428,7 +428,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     login_adrian
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response 403
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     post "/source/#{incident_project}?cmd=addchannels&mode=skip_disabled"
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
@@ -485,7 +485,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
               File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}")
       assert_response :success
     end
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     old_meta = @response.body
     assert_response :success
@@ -520,7 +520,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     delete '/source/BaseDistro2.0/_product'
     assert_response :success
-    prepare_request_with_user('maintenance_coord', 'buildservice')
+    prepare_request_with_user('maintenance_coord', 'opensuse')
 
     # no updateinfo create, so add an issue to the patchinfo
     get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"

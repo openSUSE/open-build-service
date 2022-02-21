@@ -428,7 +428,7 @@ RSpec.describe User do
 
     context 'with valid credentials' do
       it 'returns a user object for valid credentials' do
-        expect(user.authenticate('buildservice')).to eq(user)
+        expect(user.authenticate('opensuse')).to eq(user)
       end
     end
   end
@@ -439,11 +439,11 @@ RSpec.describe User do
 
       context 'conversation of deprecated password' do
         before do
-          user.authenticate('buildservice')
+          user.authenticate('opensuse')
         end
 
         it 'converts the password to bcrypt' do
-          expect(BCrypt::Password.new(user.password_digest)).to be_is_password('buildservice')
+          expect(BCrypt::Password.new(user.password_digest)).to be_is_password('opensuse')
         end
 
         it 'resets the hash of the deprecated password' do
@@ -486,7 +486,7 @@ RSpec.describe User do
     let(:user) { create(:user, login: 'login_test', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday) }
 
     context 'when user exists' do
-      subject { User.find_with_credentials(user.login, 'buildservice') }
+      subject { User.find_with_credentials(user.login, 'opensuse') }
 
       it { is_expected.to eq(user) }
       it { expect(subject.login_failure_count).to eq(0) }
@@ -494,7 +494,7 @@ RSpec.describe User do
     end
 
     context 'when user does not exist' do
-      it { expect(User.find_with_credentials('unknown', 'buildservice')).to be(nil) }
+      it { expect(User.find_with_credentials('unknown', 'opensuse')).to be(nil) }
     end
 
     context 'when user exist but password was incorrect' do

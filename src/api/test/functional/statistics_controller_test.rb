@@ -170,7 +170,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'project', attributes: { name: 'HiddenProject' }
 
     # redo as user, seeing the hidden project
-    prepare_request_with_user('hidden_homer', 'buildservice')
+    prepare_request_with_user('hidden_homer', 'opensuse')
     # get most active packages
     get url_for(controller: :statistics, action: :most_active_packages, limit: 0)
     assert_response :success

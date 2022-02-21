@@ -3,7 +3,7 @@ FactoryBot.define do
     email { Faker::Internet.email }
     realname { Faker::Name.first_name }
     sequence(:login) { |n| "user_#{n}" }
-    password { 'buildservice' }
+    password { 'opensuse' }
 
     transient do
       create_home_project { false }
@@ -68,7 +68,7 @@ FactoryBot.define do
     factory :user_deprecated_password do
       after(:create) do |user|
         user.password_digest = nil
-        user.deprecated_password = 'b6ead59da72f491dd29f84a6579d6dc4' # password: buildservice
+        user.deprecated_password = 'a58e151d3267964feba9066c84afe941' # password: opensuse
         user.deprecated_password_hash_type = 'md5'
         user.deprecated_password_salt = 'm/YVlu5w0M'
 
@@ -93,7 +93,7 @@ FactoryBot.define do
     # This is needed because the salt is random
     # in User.after_validation
     after(:create) do |user|
-      user.password = 'buildservice'
+      user.password = 'opensuse'
       user.save!
     end
   end

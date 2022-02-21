@@ -10,7 +10,7 @@ RSpec.describe Webui::SessionController do
     end
 
     it 'logs in users with correct credentials' do
-      post :create, params: { username: user.login, password: 'buildservice' }
+      post :create, params: { username: user.login, password: 'opensuse' }
       expect(response).to redirect_to search_url
     end
 
@@ -22,13 +22,13 @@ RSpec.describe Webui::SessionController do
 
     it 'tells users about wrong state' do
       user.update(state: :locked)
-      post :create, params: { username: user.login, password: 'buildservice' }
+      post :create, params: { username: user.login, password: 'opensuse' }
       expect(response).to redirect_to root_path
       expect(flash[:error]).to eq('Your account is disabled. Please contact the administrator for details.')
     end
 
     it 'assigns the current user' do
-      post :create, params: { username: user.login, password: 'buildservice' }
+      post :create, params: { username: user.login, password: 'opensuse' }
       expect(User.session!).to eq(user)
       expect(session[:login]).to eq(user.login)
     end
@@ -37,7 +37,7 @@ RSpec.describe Webui::SessionController do
   describe 'POST #create' do
     context 'without referrer' do
       before do
-        post :create, params: { username: user.login, password: 'buildservice' }
+        post :create, params: { username: user.login, password: 'opensuse' }
       end
 
       it 'redirects to root path' do

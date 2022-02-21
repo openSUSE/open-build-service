@@ -100,7 +100,7 @@ You can use an inherited factory to add or override attributes.
     email { Faker::Internet.email }
     realname { Faker::Name.name }
     sequence(:login) { |n| "user_#{n}" }
-    password 'buildservice'
+    password 'opensuse'
 
     factory :confirmed_user do
       state 2
