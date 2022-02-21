@@ -58,7 +58,6 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
   scope :declined, -> { where(state: :declined) }
-  scope :in_state_new, -> { where(state: :new) }
 
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
@@ -99,6 +98,10 @@ class Review < ApplicationRecord
 
   def accepted?
     state == :accepted
+  end
+
+  def new?
+    state == :new
   end
 
   def accepted_at

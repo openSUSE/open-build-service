@@ -70,13 +70,15 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def fetch_notifications
-    notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification).includes(:notifiable))
+    notifications = policy_scope(Notification).includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
+    notifications_finder = NotificationsFinder.new(notifications)
+
     if params[:project]
-      notifications_for_subscribed_user.for_project_name(params[:project])
+      notifications_finder.for_project_name(params[:project])
     elsif params[:group]
-      notifications_for_subscribed_user.for_group_title(params[:group])
+      notifications_finder.for_group_title(params[:group])
     else
-      notifications_for_subscribed_user.for_notifiable_type(params[:type])
+      notifications_finder.for_notifiable_type(params[:type])
     end
   end
 
