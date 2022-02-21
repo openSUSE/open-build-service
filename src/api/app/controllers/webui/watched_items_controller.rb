@@ -1,4 +1,5 @@
 class Webui::WatchedItemsController < Webui::WebuiController
+  before_action :require_login
   before_action :check_user_belongs_feature_flag
   before_action :set_item
 
