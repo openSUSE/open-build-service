@@ -16,16 +16,8 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
           put :toggle, params: { package: package, project: package.project }
         end
 
-        it 'redirects back' do
-          expect(response).to redirect_to(root_path)
-        end
-
         it 'adds the watched item to the watchlist' do
           expect(user.watched_items.map(&:watchable)).to include(package)
-        end
-
-        it 'shows the flash with the success message' do
-          expect(flash[:success]).to match('Added package to the watchlist')
         end
       end
 
@@ -40,16 +32,8 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
           put :toggle, params: { package: package, project: package.project }
         end
 
-        it 'redirects back' do
-          expect(response).to redirect_to(root_path)
-        end
-
         it 'removes the watched item from the watchlist' do
           expect(user.reload.watched_items.map(&:watchable)).to be_empty
-        end
-
-        it 'shows the flash with the success message' do
-          expect(flash[:success]).to match('Removed package from the watchlist')
         end
       end
     end
@@ -67,23 +51,7 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
 
         subject { put :toggle, params: { package: package, project: package.project } }
 
-        it 'redirects back' do
-          expect { subject }.to raise_error(NotFoundError)
-        end
-      end
-
-      context 'when the watched item is already watched' do
-        let(:user) { create(:confirmed_user) }
-        let(:package) { create(:package) }
-
-        before do
-          login user
-          user.watched_items.create(watchable: package)
-        end
-
-        subject { put :toggle, params: { package: package, project: package.project } }
-
-        it 'redirects back' do
+        it 'raises an exception' do
           expect { subject }.to raise_error(NotFoundError)
         end
       end
