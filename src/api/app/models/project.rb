@@ -55,6 +55,8 @@ class Project < ApplicationRecord
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order('position') }, through: :repositories
 
+  has_many :watched_items, as: :watchable, dependent: :destroy
+  # FIXME: We will remove the following association when new_watchlist goes out of beta
   has_many :watched_projects, dependent: :destroy, inverse_of: :project
 
   has_many :flags, dependent: :delete_all, inverse_of: :project

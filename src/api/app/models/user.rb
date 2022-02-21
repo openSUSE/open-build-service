@@ -14,6 +14,8 @@ class User < ApplicationRecord
   # password yet. this is for backwards compatibility
   has_secure_password validations: false
 
+  has_many :watched_items, dependent: :destroy
+  # FIXME: We will remove the following association when new_watchlist goes out of beta
   has_many :watched_projects, dependent: :destroy, inverse_of: :user
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user

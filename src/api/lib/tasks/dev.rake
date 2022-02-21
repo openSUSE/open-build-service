@@ -3,7 +3,7 @@
 require 'fileutils'
 require 'yaml'
 
-ENABLED_FEATURE_FLAGS = [:notifications_redesign, :trigger_workflow].freeze
+ENABLED_FEATURE_FLAGS = [:notifications_redesign, :trigger_workflow, :new_watchlist].freeze
 
 namespace :dev do
   task :prepare do
