@@ -4,7 +4,7 @@
       %button.navbar-toggler{ type: 'button', data: { toggle: 'watchlist' }, aria: { expanded: 'false', label: 'Toggle navigation' } }
         %i.fas.fa-times
 
-    - if @object_to_be_watched
+    - if @object_to_be_watched && @object_to_be_watched.persisted?
       .nav-item.pb-2.mb-4.border-bottom.border-gray-500
         = link_to(toggle_watchable_path, method: :put, class: 'nav-link') do
           - if object_to_be_watched_in_watchlist?

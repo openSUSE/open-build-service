@@ -80,6 +80,17 @@ RSpec.describe WatchlistComponent, type: :component do
     end
   end
 
+  context 'when dealing with new records' do
+    let(:project) { Project.new }
+
+    before do
+      render_inline(described_class.new(user: user, project: project))
+    end
+
+    it { expect(rendered_component).to have_text('There are no projects in the watchlist yet.') }
+    it { expect(rendered_component).not_to have_text('Watch this project') }
+  end
+
   context 'when dealing with requests' do
     let(:bs_request) { create(:bs_request_with_submit_action) }
 
