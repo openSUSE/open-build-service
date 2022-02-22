@@ -49,7 +49,7 @@ class WatchlistComponent < ApplicationComponent
   end
 
   def packages
-    @packages ||= Package.joins(:watched_items).where(watched_items: { user: @user })
+    @packages ||= Package.includes(:project).joins(:watched_items).where(watched_items: { user: @user })
   end
 
   def bs_requests
