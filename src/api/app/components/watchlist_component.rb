@@ -22,7 +22,7 @@ class WatchlistComponent < ApplicationComponent
   private
 
   def object_to_be_watched_in_watchlist?
-    !!@user.watched_items.includes(:watchable).find_by(watchable: @object_to_be_watched)
+    @user.watched_items.exists?(watchable: @object_to_be_watched)
   end
 
   def add_to_watchlist_text
@@ -49,7 +49,7 @@ class WatchlistComponent < ApplicationComponent
   end
 
   def packages
-    @packages ||= Package.joins(:watched_items).where(watched_items: { user: @user })
+    @packages ||= Package.includes(:project).joins(:watched_items).where(watched_items: { user: @user })
   end
 
   def bs_requests
