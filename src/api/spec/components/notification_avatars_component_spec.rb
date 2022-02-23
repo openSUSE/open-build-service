@@ -8,7 +8,8 @@ RSpec.describe NotificationAvatarsComponent, type: :component do
 
     before do
       # Easier to spec without having to create lots of data
-      stub_const('NotificationAvatarsComponent::MAXIMUM_DISPLAYED_AVATARS', 1)
+      # Interpolating described_class to prevent a flaky spec (https://github.com/rspec/rspec-mocks/pull/201#issuecomment-188533226)
+      stub_const("#{described_class}::MAXIMUM_DISPLAYED_AVATARS", 1)
 
       # Comment which was already read (it's older than the notification), so it's not taken into account in the notification
       create(:comment, commentable: project, updated_at: DateTime.yesterday)
