@@ -163,6 +163,8 @@ group :test do
   gem 'rspec_junit_formatter'
   # to test rabbitmq support
   gem 'bunny-mock'
+  # RSpec matchers to check how many database queries were made by ActiveRecord
+  gem 'db-query-matchers'
 end
 
 group :development, :test do
