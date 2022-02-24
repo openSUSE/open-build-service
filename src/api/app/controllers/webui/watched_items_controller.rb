@@ -9,7 +9,7 @@ class Webui::WatchedItemsController < Webui::WebuiController
     BsRequest => 'request'
   }.freeze
 
-  def toggle
+  def toggle_watched_item
     watched_item = User.session!.watched_items.find_by(watchable: @item)
 
     if watched_item
@@ -26,10 +26,10 @@ class Webui::WatchedItemsController < Webui::WebuiController
   private
 
   def set_item
-    @item = if params[:package]
-              Package.find_by_project_and_name(params[:project], params[:package])
-            elsif params[:project]
-              Project.find_by(name: params[:project])
+    @item = if params[:project_name] && params[:package_name]
+              Package.find_by_project_and_name(params[:project_name], params[:package_name])
+            elsif params[:project_name]
+              Project.find_by(name: params[:project_name])
             elsif params[:number]
               BsRequest.find_by(number: params[:number])
             end
