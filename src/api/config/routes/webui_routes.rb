@@ -272,6 +272,7 @@ OBSApi::Application.routes.draw do
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: [:new, :create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: [:new, :create], constraints: cons
         resource :files, controller: 'webui/packages/files', only: [:new, :create], constraints: cons
+        put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
@@ -281,6 +282,7 @@ OBSApi::Application.routes.draw do
           post :toggle
         end
       end
+      put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
     end
 
     controller 'webui/request' do
@@ -293,6 +295,12 @@ OBSApi::Application.routes.draw do
       get 'request/list_small' => :list_small, as: 'request_list_small'
       post 'request/set_bugowner_request' => :set_bugowner_request
       get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
+    end
+
+    resources :requests, only: [], param: :number, controller: 'webui/bs_requests' do
+      member do
+        put :toggle_watched_item, controller: 'webui/watched_items'
+      end
     end
 
     controller 'webui/search' do
@@ -340,12 +348,6 @@ OBSApi::Application.routes.draw do
         resources :workflow_runs, only: [:index, :show], controller: 'webui/workflow_runs'
       end
       resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
-
-      resource :watched_items, controller: 'webui/watched_items', only: [:toggle], constraints: cons do
-        put '/package/:project/:package/toggle' => :toggle, as: :toggle_package
-        put '/project/:project/toggle' => :toggle, as: :toggle_project
-        put '/request/:number/toggle' => :toggle, as: :toggle_request
-      end
     end
 
     get 'home', to: 'webui/webui#home', as: :home
