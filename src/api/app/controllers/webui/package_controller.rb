@@ -693,14 +693,13 @@ class Webui::PackageController < Webui::WebuiController
   # Thus before giving access to the build log, we need to ensure user has source access
   # rights.
   #
-  # This before_filter checks source permissions for packages that belong to remote projects,
+  # This before_filter checks source permissions for packages that belong
   # to local projects and local projects that link to other project's packages.
   #
   # If the check succeeds it sets @project and @package variables.
   def check_build_log_access
-    if ::Project.exists_by_name(params[:project])
-      @project = ::Project.get_by_name(params[:project])
-    else
+    @project = Project.find_by(name: params[:project])
+    unless @project
       redirect_to root_path, error: "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
       return false
     end
@@ -716,17 +715,16 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
 
-    # package is nil for remote projects
-    if @package && !@package.check_source_access?
+    # NOTE: @package is a String for multibuild packages
+    @package = Package.find_by_project_and_name(@project.name, Package.striping_multibuild_suffix(@package.name)) if @package.is_a?(String)
+
+    unless @package.check_source_access?
       redirect_to package_show_path(project: @project.name, package: @package.name),
                   error: 'Could not access build log'
       return false
     end
 
     @can_modify = User.possibly_nobody.can_modify?(@project) || User.possibly_nobody.can_modify?(@package)
-
-    # for remote and multibuild / local link packages
-    @package = params[:package] if @package.try(:name) != params[:package]
 
     true
   end
