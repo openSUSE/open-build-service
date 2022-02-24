@@ -13,7 +13,7 @@ module Event
     end
 
     def expanded_payload
-      payload.merge('faillog' => faillog)
+      payload.merge('faillog' => reencode_faillog(faillog))
     end
 
     def custom_headers
@@ -42,6 +42,12 @@ module Event
       log.join
     rescue Backend::Error
       nil
+    end
+
+    # Reencode the fail log replacing invalid UTF-8 characters with the default unicode replacement character: '\ufffd'
+    # source: https://stackoverflow.com/a/24493972
+    def reencode_faillog(faillog)
+      faillog.encode!('UTF-8', 'UTF-8', invalid: :replace)
     end
   end
 end

@@ -127,5 +127,37 @@ RSpec.describe EventMailer, vcr: true do
         expect(ActionMailer::Base.deliveries).to be_empty
       end
     end
+
+    context 'when trying to compose an email containing invalid byte sequences' do
+      let(:faillog) { "invalid byte sequence ->\xD3'" }
+      let(:expanded_payload) do
+        {
+          'project' => 'project_2',
+          'package' => 'package_2',
+          'repository' => 'repository_2',
+          'arch' => 'i586',
+          'sender' => from.login
+        }
+      end
+      let(:from) { create(:confirmed_user) }
+      let(:recipient) { create(:confirmed_user) }
+      let(:event_stub) { Event::BuildFail.new(expanded_payload) }
+      let(:mail) { EventMailer.event([recipient], event_stub) }
+
+      before do
+        allow(event_stub).to receive(:faillog).and_return(faillog)
+        allow(event_stub).to receive(:payload).and_return(expanded_payload)
+      end
+
+      it 'renders the headers' do
+        expect(mail.subject).to have_text('Build failure of project_2/package_2 in repository_2/i586')
+        expect(mail.to).to eq([recipient.email])
+        expect(mail.from).to eq([from.email])
+      end
+
+      it 'renders the body' do
+        expect(mail.body.encoded).to have_text('Last lines of build log:')
+      end
+    end
   end
 end
