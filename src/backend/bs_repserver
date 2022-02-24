@@ -903,7 +903,7 @@ sub getbinarylist_repository {
         $r->{'size'} = '';
 	if ($dodurl && $cgi->{'binary'}) {
 	  # this is used in the interconnect, so we need to fetch the dod binary
-	  $path = BSRepServer::DoD::fetchdodbinary("$reporoot/$prp/arch", $pool, $repo, $p, \@handoff);
+	  $path = BSRepServer::DoD::fetchdodbinary("$reporoot/$prp/$arch", $pool, $repo, $p, \@handoff);
 	  return unless defined $path;
           my @s = stat($path);
           ($r->{'mtime'}, $r->{'size'}) = ($s[9], $s[7]) if @s;
