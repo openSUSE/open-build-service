@@ -3,7 +3,7 @@ module Event
     self.message_bus_routing_key = 'request.state_change'
     self.description = 'Request state was changed'
     payload_keys :oldstate, :duration
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher
 
     def subject
       "Request #{payload['number']} changed from #{payload['oldstate']} to #{payload['state']} (#{actions_summary})"

@@ -2,7 +2,7 @@ module Event
   class RequestCreate < Request
     self.message_bus_routing_key = 'request.create'
     self.description = 'Request created'
-    receiver_roles :source_maintainer, :target_maintainer, :source_watcher, :target_watcher
+    receiver_roles :source_maintainer, :target_maintainer, :source_project_watcher, :target_project_watcher
 
     def custom_headers
       base = super

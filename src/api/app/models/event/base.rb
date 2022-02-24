@@ -247,7 +247,7 @@ module Event
       ret
     end
 
-    def watchers
+    def project_watchers
       project = ::Project.find_by_name(payload['project'])
       return [] if project.blank?
 

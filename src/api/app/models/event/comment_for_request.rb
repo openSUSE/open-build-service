@@ -4,7 +4,7 @@ module Event
     self.message_bus_routing_key = 'request.comment'
     self.description = 'New comment for request created'
     payload_keys :request_number
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher
 
     def subject
       req = BsRequest.find_by_number(payload['number'])
