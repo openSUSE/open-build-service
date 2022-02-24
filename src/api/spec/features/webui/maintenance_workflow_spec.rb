@@ -15,6 +15,7 @@ RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
            create_patchinfo: true,
            maintainer: maintenance_coord_user)
   end
+  let(:bs_request) { BsRequest.last }
 
   before do
     User.session = admin_user
@@ -65,12 +66,12 @@ RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     #########################################################
     login(maintenance_coord_user)
 
-    visit request_show_path(BsRequest.last)
+    visit request_show_path(bs_request)
 
     fill_in('reason', with: 'really? ok')
 
     click_button('Accept request')
-    expect(page).to have_css('#flash', text: "Request #{BsRequest.last.number} accepted")
+    expect(page).to have_css('#overview h3', text: "Request #{bs_request.number} accepted")
 
     # Step 4: The maintenance coordinator edits the patchinfo file
     ##############################################################
