@@ -428,8 +428,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     @offset = 0
-    @status = get_status(@project, @package, @repo, @arch)
-    @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
+    @status = get_status(@project, @package_name, @repo, @arch)
+    @what_depends_on = Package.what_depends_on(@project, @package_name, @repo, @arch)
     @finished = Buildresult.final_status?(status)
 
     set_job_status
@@ -453,9 +453,9 @@ class Webui::PackageController < Webui::WebuiController
       @maxsize = 1024 * 64
       @first_request = params[:initial] == '1'
       @offset = params[:offset].to_i
-      @status = get_status(@project, @package, @repo, @arch)
+      @status = get_status(@project, @package_name, @repo, @arch)
       @finished = Buildresult.final_status?(@status)
-      @size = get_size_of_log(@project, @package, @repo, @arch)
+      @size = get_size_of_log(@project, @package_name, @repo, @arch)
 
       chunk_start = @offset
       chunk_end = @offset + @maxsize
@@ -466,10 +466,10 @@ class Webui::PackageController < Webui::WebuiController
         chunk_end = @size
       end
 
-      @log_chunk = get_log_chunk(@project, @package, @repo, @arch, chunk_start, chunk_end)
+      @log_chunk = get_log_chunk(@project, @package_name, @repo, @arch, chunk_start, chunk_end)
       # retry the last chunk again, because build compare overwrites last log lines
       if @log_chunk.length.zero? && !@first_request && !@finished
-        @log_chunk = get_log_chunk(@project, @package, @repo, @arch, chunk_start, chunk_end)
+        @log_chunk = get_log_chunk(@project, @package_name, @repo, @arch, chunk_start, chunk_end)
         @finished = true
       end
 
@@ -704,10 +704,11 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
 
+    @package_name = params[:package]
     begin
-      @package = Package.get_by_project_and_name(@project, params[:package], use_source: false,
-                                                                             follow_multibuild: true,
-                                                                             follow_project_links: true)
+      @package = Package.get_by_project_and_name(@project, @package_name, use_source: false,
+                                                                          follow_multibuild: true,
+                                                                          follow_project_links: true)
     rescue Package::UnknownObjectError
       redirect_to project_show_path(@project.to_param),
                   error: "Couldn't find package '#{params[:package]}' in " \
@@ -716,10 +717,10 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     # NOTE: @package is a String for multibuild packages
-    @package = Package.find_by_project_and_name(@project.name, Package.striping_multibuild_suffix(@package.name)) if @package.is_a?(String)
+    @package = Package.find_by_project_and_name(@project.name, Package.striping_multibuild_suffix(@package_name)) if @package.is_a?(String)
 
     unless @package.check_source_access?
-      redirect_to package_show_path(project: @project.name, package: @package.name),
+      redirect_to package_show_path(project: @project.name, package: @package_name),
                   error: 'Could not access build log'
       return false
     end
@@ -885,7 +886,7 @@ class Webui::PackageController < Webui::WebuiController
     @percent = nil
 
     begin
-      jobstatus = get_job_status(@project, @package, @repo, @arch)
+      jobstatus = get_job_status(@project, @package_name, @repo, @arch)
       if jobstatus.present?
         js = Xmlhash.parse(jobstatus)
         @workerid = js.get('workerid')
