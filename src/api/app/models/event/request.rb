@@ -77,15 +77,48 @@ module Event
       action_maintainers('sourceproject', 'sourcepackage')
     end
 
-    def target_watchers
-      find_watchers('targetproject')
+    def source_watchers
+      source_or_target_project_watchers(project_type: 'sourceproject')
     end
 
-    def source_watchers
-      find_watchers('sourceproject')
+    def target_watchers
+      source_or_target_project_watchers(project_type: 'targetproject')
+    end
+
+    def source_package_watchers
+      source_or_target_package_watchers(project_type: 'sourceproject', package_type: 'sourcepackage')
+    end
+
+    def target_package_watchers
+      source_or_target_package_watchers(project_type: 'targetproject', package_type: 'targetpackage')
     end
 
     private
+
+    def source_or_target_project_watchers(project_type:)
+      # TODO: remove old `find_watchers` implementation after rolling out `new_watchlist` from beta program
+      watchers = find_watchers(project_type) +
+                 payload['actions'].map { |action| action[project_type] }
+                                   .map { |project_name| Project.find_by_name(project_name) }
+                                   .compact.map(&:watched_items)
+                                   .flatten.map(&:user)
+      watchers.uniq
+    end
+
+    def source_or_target_package_watchers(project_type:, package_type:)
+      payload['actions'].map { |action| [action[project_type], action[package_type]] }
+                        .map do |project_name, package_name|
+        next if project_name.blank? || package_name.blank?
+
+        Package.get_by_project_and_name(project_name,
+                                        package_name,
+                                        { follow_multibuild: true, follow_project_links: false, use_source: false })
+      rescue Package::Errors::UnknownObjectError, Project::Errors::UnknownObjectError
+        nil
+      end
+                        .compact.map(&:watched_items)
+                        .flatten.map(&:user)
+    end
 
     def action_maintainers(prjname, pkgname)
       payload['actions'].map do |action|
