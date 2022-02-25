@@ -11,15 +11,36 @@ class WatchlistComponent < ApplicationComponent
     'BsRequest' => 'Watch this request'
   }.freeze
 
-  def initialize(user:, project: nil, package: nil, bs_request: nil)
+  def initialize(user:, bs_request: nil, package: nil, project: nil)
     super
 
     @user = user
-    # NOTE: the order of the array is important, when project and package are both present we ensure it takes package.
-    @object_to_be_watched = [bs_request, package, project].compact.first
+    @object_to_be_watched = object_to_be_watched(bs_request, package, project)
   end
 
   private
+
+  def object_to_be_watched(bs_request, package, project)
+    return bs_request if bs_request
+
+    # this is a remote project, don't offer watching.
+    return unless project.is_a?(Project)
+
+    # there is no package, offer watching the project
+    return project unless package
+
+    # maybe package is a multibuild flavor? Try do look up the object of the flavor.
+    # rubocop:disable Style/IfUnlessModifier
+    if package.is_a?(String)
+      package = Package.get_by_project_and_name(project, package, { follow_multibuild: true })
+    end
+    # rubocop:enable Style/IfUnlessModifier
+
+    # the package is coming via a project link, don't offer watching it.
+    return if package.project != project
+
+    package
+  end
 
   def object_to_be_watched_in_watchlist?
     @user.watched_items.exists?(watchable: @object_to_be_watched)
