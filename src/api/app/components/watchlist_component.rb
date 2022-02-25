@@ -15,7 +15,7 @@ class WatchlistComponent < ApplicationComponent
     super
 
     @user = user
-    # NOTE: the order of the array is important, when project and packge are both present we ensure it takes package.
+    # NOTE: the order of the array is important, when project and package are both present we ensure it takes package.
     @object_to_be_watched = [bs_request, package, project].compact.first
   end
 

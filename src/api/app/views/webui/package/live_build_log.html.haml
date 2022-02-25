@@ -1,9 +1,8 @@
-- @pagetitle = "Build Log for Package #{@package} (Project #{@project})"
+- @pagetitle = "Build Log for Package #{@package_name} (Project #{@project})"
 - @metarobots = 'noindex,nofollow'
 
 .card.mb-3
-  - if @package.is_a?(Package)
-    = render partial: 'tabs', locals: { project: @project, package: @package }
+  = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
     %h3= @pagetitle
     %p
@@ -22,7 +21,7 @@
         %strong Packages:
         = @what_depends_on.join(', ')
     = render partial: 'live_build_log_controls'
-    #log-space-wrapper{ data: { url: package_update_build_log_path(package: @package, project: @project,
+    #log-space-wrapper{ data: { url: package_update_build_log_path(package: @package_name, project: @project,
                                                                    status: @status, arch: @arch, repository: @repo) } }
       .d-block.text-center.shadow-sm.position-sticky.w-100#log-info
         .running.stop_refresh.py-2.alert-info

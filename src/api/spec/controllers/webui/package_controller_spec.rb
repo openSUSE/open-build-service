@@ -784,6 +784,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         it { expect(assigns(:status)).to eq('succeeded') }
         it { expect(assigns(:workerid)).to eq('42') }
         it { expect(assigns(:buildtime)).to eq(1.hour.to_i) }
+        it { expect(assigns(:package)).to eq(source_package) }
+        it { expect(assigns(:package_name)).to eq("#{source_package}:multibuild-package") }
       end
     end
 
@@ -828,7 +830,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         end
 
         it { expect(assigns(:log_chunk)).not_to be_nil }
-        it { expect(assigns(:package)).to eq("#{source_package}:multibuild-package") }
+        it { expect(assigns(:package)).to eq(source_package) }
+        it { expect(assigns(:package_name)).to eq("#{source_package}:multibuild-package") }
         it { expect(assigns(:project)).to eq(source_project) }
         it { expect(assigns(:offset)).to eq(0) }
       end
