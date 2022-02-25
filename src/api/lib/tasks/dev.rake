@@ -304,7 +304,9 @@ namespace :dev do
       admin = User.get_default_admin
       User.session = admin
 
-      interconnect = create(:project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+      interconnect = create(:remote_project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+      # The interconnect doesn't work unless we set the distributions
+      FetchRemoteDistributionsJob.perform_now
       tw_repository = create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
 
       # the home:admin is not created because the Admin user is created in seeds.rb
@@ -332,7 +334,7 @@ namespace :dev do
 
       leap = create(:project, name: 'openSUSE:Leap:15.0')
       leap_apache = create(:package_with_file, name: 'apache2', project: leap)
-      leap_repository = create(:repository, project: leap, name: 'openSUSE_Tumbleweed')
+      leap_repository = create(:repository, project: leap, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
       create(:path_element, link: tw_repository, repository: leap_repository)
 
       # we need to set the user again because some factories set the user back to nil :(
@@ -422,6 +424,12 @@ namespace :dev do
 
       Configuration.download_url = 'https://download.opensuse.org'
       Configuration.save
+
+      # Other special projects and packages
+      create(:project, name: 'linked_project', link_to: home_admin)
+      create(:multibuild_package, project: home_admin, name: 'multibuild_package')
+      create(:package_with_link, project: home_admin, name: 'linked_package')
+      create(:package_with_remote_link, project: home_admin, name: 'remotely_linked_package', remote_project_name: 'openSUSE.org:openSUSE:Factory', remote_package_name: 'aaa_base')
 
       # Trigger package builds for home:admin
       home_admin.store
