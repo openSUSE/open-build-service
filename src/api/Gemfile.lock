@@ -215,7 +215,7 @@ GEM
       haml (>= 4.0.6, < 6.0)
       html2haml (>= 1.0.1)
       railties (>= 5.1)
-    haml_lint (0.37.1)
+    haml_lint (0.40.0)
       haml (>= 4.0, < 5.3)
       parallel (~> 1.10)
       rainbow
