@@ -173,6 +173,19 @@ module Old
         return ''
       end
 
+      if project.scmsync.present?
+        if project.packages.count > 0
+          if fix
+            project.packages.each do |pkg|
+              pkg.commit_opts = { no_backend_write: 1 }
+              pkg.destroy
+            end
+          end
+          return "SCM SYNC project #{project.name} contains packages in api!"
+        end
+        return ''
+      end
+
       # valid package names?
       package_list_api = project.packages.pluck(:name)
       package_list_api.each do |name|
