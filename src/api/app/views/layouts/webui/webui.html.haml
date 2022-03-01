@@ -78,8 +78,9 @@
       - if User.session
         - if feature_enabled?(:new_watchlist)
           = render WatchlistComponent.new(user: User.session!,
-          project: @project,
-          package: @package,
-          bs_request: @bs_request)
+                                          bs_request: @bs_request,
+                                          package: @package,
+                                          project: @project)
+
         - else
           = render partial: 'layouts/webui/watchlist'
