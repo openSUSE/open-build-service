@@ -320,9 +320,9 @@ sub container_from_helm {
   $chartbasename =~ s/^.*\///;
   my $chart_ent = { 'name' => $chartbasename, 'offset' => 0, 'size' => $s[7], 'mtime' => $mtime, 'file' => $fd };
   if ($chartbasename =~ /($?:\.tar\.gz|\.tgz)$/) {
-    $chart_ent->{'mimetype'} = 'application/tar+gzip';
+    $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar+gzip';
   } else {
-    $chart_ent->{'mimetype'} = 'application/tar';
+    $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar';
   }
   # create ent for the config
   my $config_ent = { 'name' => 'config.json', 'size' => length($config_json), 'data' => $config_json, 'mtime' => $mtime };
