@@ -31,27 +31,52 @@ RSpec.describe WatchlistComponent, type: :component do
   end
 
   context 'when dealing with packages' do
-    let(:package) { create(:package) }
+    context 'when passing a package object in the package parameter' do
+      let(:package) { create(:package) }
 
-    context 'and the package is not yet watched' do
-      before do
-        render_inline(described_class.new(user: user, package: package, project: package.project))
+      context 'and the package is not yet watched' do
+        before do
+          render_inline(described_class.new(user: user, package: package, project: package.project))
+        end
+
+        it { expect(rendered_component).to have_text('There are no packages in the watchlist yet.') }
+        it { expect(rendered_component).not_to have_link(package.name) }
+        it { expect(rendered_component).to have_text('Watch this package') }
       end
 
-      it { expect(rendered_component).to have_text('There are no packages in the watchlist yet.') }
-      it { expect(rendered_component).not_to have_link(package.name) }
-      it { expect(rendered_component).to have_text('Watch this package') }
+      context 'and the package is already watched' do
+        before do
+          create(:watched_item, :for_packages, watchable: package, user: user)
+          render_inline(described_class.new(user: user, package: package, project: package.project))
+        end
+
+        it { expect(rendered_component).not_to have_text('There are no packages in the watchlist yet.') }
+        it { expect(rendered_component).to have_link(package.name) }
+        it { expect(rendered_component).to have_text('Remove this package from Watchlist') }
+      end
     end
 
-    context 'and the package is already watched' do
-      before do
-        create(:watched_item, :for_packages, watchable: package, user: user)
-        render_inline(described_class.new(user: user, package: package, project: package.project))
+    context 'when passing a string in the package parameter' do
+      let(:multibuild_package) { "#{base_package}:flavor1" }
+
+      context 'and the base package exists' do
+        let(:base_package) { create(:package) }
+
+        before do
+          render_inline(described_class.new(user: user, package: multibuild_package, project: base_package.project))
+        end
+
+        it { expect(rendered_component).to have_text('There are no projects in the watchlist yet.') }
+        it { expect(rendered_component).not_to have_link(base_package.name) }
+        it { expect(rendered_component).to have_text('Watch this package') }
       end
 
-      it { expect(rendered_component).not_to have_text('There are no packages in the watchlist yet.') }
-      it { expect(rendered_component).to have_link(package.name) }
-      it { expect(rendered_component).to have_text('Remove this package from Watchlist') }
+      context "and the base package doesn't exist" do
+        let(:base_package) { 'i_do_not_exist' }
+        let(:project) { create(:project) }
+
+        it { expect { described_class.new(user: user, package: multibuild_package, project: project) }.to raise_error(Package::Errors::UnknownObjectError) }
+      end
     end
   end
 
