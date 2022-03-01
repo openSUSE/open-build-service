@@ -7,6 +7,7 @@ module WorkflowInstrumentation
 
     after_initialize :track_instantiation
     after_call :track_execution
+    after_call :track_workflow_filters
   end
 
   private
@@ -17,5 +18,11 @@ module WorkflowInstrumentation
 
   def track_execution
     RabbitmqBus.send_to_bus('metrics', 'workflow,action=execution count=1')
+  end
+
+  def track_workflow_filters
+    filters.each do |filter_key, _filter_value|
+      RabbitmqBus.send_to_bus('metrics', "workflow,action=filter,filter=#{filter_key} count=1")
+    end
   end
 end
