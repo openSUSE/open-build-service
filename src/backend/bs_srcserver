@@ -3681,6 +3681,62 @@ sub update_link_in_service {
   return $servicemark;
 }
 
+
+sub sourcecopy_update_baserev {
+  my ($cgi, $projid, $packid, $oprojid, $opackid, $oldbaserev, $newbaserev, $vrevbump) = @_;
+  my $latestorev = getrev($oprojid, $opackid);
+  my $latestlinkinfo = {};
+  my $latestfiles = BSRevision::lsrev($latestorev, $latestlinkinfo);
+  return unless $latestfiles->{'_link'};
+  my $latestl = BSRevision::revreadxml($latestorev, '_link', $latestfiles->{'_link'}, $BSXML::link, 1);
+  my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
+  return unless $latestisbranch && $latestl->{'baserev'} eq $oldbaserev;
+  $latestl->{'baserev'} = $newbaserev;
+  $latestl->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
+  if ($latestl->{'missingok'} &&
+    (defined($latestl->{'project'}) ? $latestl->{'project'} : $oprojid) eq $projid &&
+    (defined($latestl->{'package'}) ? $latestl->{'package'} : $opackid) eq $packid) {
+    eval {
+      BSSrcServer::Access::checksourceaccess($projid, $packid);
+      delete $latestl->{'missingok'};
+    };
+  }
+  mkdir_p($uploaddir);
+  writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
+  $latestfiles->{'_link'} = BSSrcrep::addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
+  if ($vrevbump) {
+    $cgi->{'vrev'} = $latestorev->{'vrev'};
+    $cgi->{'vrev'} =~ s/(\d+)$/$1 + $vrevbump/e;
+  }
+  my $servicemark = update_link_in_service($latestorev, $latestfiles, $latestlinkinfo->{'xservicemd5'}, 1);
+  addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'baserev update by copy to link target', 'servicemark' => $servicemark }, $oprojid, $opackid, $latestfiles);
+}
+
+sub sourcecopy_update_link {
+  my ($cgi, $projid, $packid, $oprojid, $opackid, $oldsrcmd5, $vrevbump) = @_;
+  my $latestorev = getrev($oprojid, $opackid);
+  return if $latestorev->{'srcmd5'} ne $oldsrcmd5;
+  # simplify link
+  my $latestlinkinfo = {};
+  my $latestfiles = BSRevision::lsrev($latestorev, $latestlinkinfo);
+  return unless $latestfiles->{'_link'};
+  my $latestl = BSRevision::revreadxml($latestorev, '_link', $latestfiles->{'_link'}, $BSXML::link, 1);
+  my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
+  return if $latestisbranch;
+  delete $latestl->{'patches'};
+  delete $latestl->{'baserev'};
+  mkdir_p($uploaddir);
+  writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
+  my $ofiles = {};
+  $ofiles->{'_link'} = BSSrcrep::addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
+  if ($vrevbump) {
+    $cgi->{'vrev'} = $latestorev->{'vrev'};
+    $cgi->{'vrev'} =~ s/(\d+)$/$1 + $vrevbump/e;
+  }
+  my $servicemark = update_link_in_service($latestorev, $ofiles, $latestlinkinfo->{'xservicemd5'}, 0);
+  addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'auto commit by copy to link target', 'servicemark' => $servicemark }, $oprojid, $opackid, $ofiles);
+}
+
 sub sourcecopy {
   my ($cgi, $projid, $packid) = @_;
   die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload' && $cgi->{'rev'} ne 'repository';
@@ -3763,6 +3819,28 @@ sub sourcecopy {
     }
   }
 
+  if (!$files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'} && $linkinfo->{'lsrcmd5'} && !$cgi->{'freezelink'}) {
+    eval {
+      my $uxrev = getrev($oprojid, $opackid, $linkinfo->{'lsrcmd5'});
+      my $uxfiles = BSRevision::lsrev($uxrev);
+      my $olink = BSRevision::revreadxml($uxrev, '_link', $uxfiles->{'_link'}, $BSXML::link, 1);
+      if ($olink) {
+	my $lprojid = $oprojid;
+	my $lpackid = $opackid;
+	my $lrev = $olink->{'rev'};
+	$lprojid = $olink->{'project'} if exists $olink->{'project'};
+	$lpackid = $olink->{'package'} if exists $olink->{'package'};
+	if ($lprojid eq $projid && $lpackid eq $packid) {
+	  $lrev = getrev($lprojid, $lpackid, $lrev);
+	  $autosimplifylink_lrev = { %$lrev };
+	  $autosimplifylink = $olink;
+	  $orev_srcmd5 = $uxrev->{'srcmd5'};
+	}
+      }
+    };
+    warn("sourcecopy unexpand: $@") if $@;
+  }
+
   die("400 freezelink: origin provides no link\n") if $cgi->{'freezelink'} && !$freezelinkfiles;
 
   my $oldvrev = $orev->{'vrev'};
@@ -3838,67 +3916,17 @@ sub sourcecopy {
       # FIXME: this is a gross hack...
       # we should not need to update the baserev, instead we should change
       # the way branches get applied
-
       my $ofiles = BSRevision::lsrev($orev);
       delete $ofiles->{'_link'};
       BSSrcrep::copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
-      my $newbase = BSSrcrep::addmeta($projid, $packid, $ofiles);
-      if ($autosimplifylink->{'baserev'} ne $newbase) {
-	eval {
-          my $latestorev = getrev($oprojid, $opackid);
-	  my $latestlinkinfo = {};
-          my $latestfiles = BSRevision::lsrev($latestorev, $latestlinkinfo);
-          if ($latestfiles->{'_link'}) {
-	    my $latestl = BSRevision::revreadxml($latestorev, '_link', $latestfiles->{'_link'}, $BSXML::link, 1);
-	    my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
-	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
-	      $latestl->{'baserev'} = $newbase;
-	      $latestl->{'patches'}->{''} = [ { 'branch' => undef} ]; # work around xml problem
-	      if ($latestl->{'missingok'} &&
-		(defined($latestl->{'project'}) ? $latestl->{'project'} : $oprojid) eq $projid &&
-		(defined($latestl->{'package'}) ? $latestl->{'package'} : $opackid) eq $packid) {
-		eval {
-	          BSSrcServer::Access::checksourceaccess($projid, $packid);
-		  delete $latestl->{'missingok'};
-		};
-	      }
-	      mkdir_p($uploaddir);
-	      writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
-              $latestfiles->{'_link'} = BSSrcrep::addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
-	      if ($vrevbump) {
-		$cgi->{'vrev'} = $latestorev->{'vrev'};
-		$cgi->{'vrev'} =~ s/(\d+)$/$1 + $vrevbump/e;
-	      }
-              my $servicemark = update_link_in_service($latestorev, $latestfiles, $latestlinkinfo->{'xservicemd5'}, 1);
-              addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'baserev update by copy to link target', 'servicemark' => $servicemark }, $oprojid, $opackid, $latestfiles);
-	    }
-	  }
-	};
-        warn($@) if $@;
+      my $newbaserev = BSSrcrep::addmeta($projid, $packid, $ofiles);
+      if ($autosimplifylink->{'baserev'} ne $newbaserev) {
+	eval { sourcecopy_update_baserev($cgi, $projid, $packid, $oprojid, $opackid, $autosimplifylink->{'baserev'}, $newbaserev, $vrevbump) };
+        warn("sourcecopy update baserev: $@") if $@;
       }
     } else {
-      eval {
-        my $latestorev = getrev($oprojid, $opackid);
-        if ($latestorev->{'srcmd5'} eq $orev->{'srcmd5'}) {
-          # simplify link
-	  my $latestlinkinfo = {};
-          my $latestfiles = BSRevision::lsrev($latestorev, $latestlinkinfo);
-          my $nl = { %$autosimplifylink };
-          delete $nl->{'patches'};
-          delete $nl->{'baserev'};
-	  mkdir_p($uploaddir);
-          writexml("$uploaddir/$$", undef, $nl, $BSXML::link);
-          my $ofiles = {};
-          $ofiles->{'_link'} = BSSrcrep::addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
-	  if ($vrevbump) {
-	    $cgi->{'vrev'} = $latestorev->{'vrev'};
-	    $cgi->{'vrev'} =~ s/(\d+)$/$1 + $vrevbump/e;
-	  }
-          my $servicemark = update_link_in_service($latestorev, $ofiles, $latestlinkinfo->{'xservicemd5'}, 0);
-          addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'auto commit by copy to link target', 'servicemark' => $servicemark }, $oprojid, $opackid, $ofiles);
-        }
-      };
-      warn($@) if $@;
+      eval { sourcecopy_update_link($cgi, $projid, $packid, $oprojid, $opackid, $orev->{'srcmd5'}, $vrevbump) };
+      warn("sourcecopy update link: $@") if $@;
     }
     delete $cgi->{'vrev'} if $vrevbump;
   }
