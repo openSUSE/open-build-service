@@ -7,7 +7,7 @@ RSpec.describe RoutesHelper::RoleMatcher do
     context 'when the request is from a bot' do
       let(:request) { instance_double(ActionDispatch::Request, bot?: true) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when the request is from a user with a disabled account' do
@@ -18,7 +18,7 @@ RSpec.describe RoutesHelper::RoleMatcher do
         allow(WebuiControllerService::UserChecker).to receive(:new).and_return(user_checker)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when the request is from an anonymous user' do
@@ -31,7 +31,7 @@ RSpec.describe RoutesHelper::RoleMatcher do
         allow(session).to receive(:[]).with(:login).and_return(nil)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when the request is from a user without any role' do
@@ -45,7 +45,7 @@ RSpec.describe RoutesHelper::RoleMatcher do
         allow(session).to receive(:[]).with(:login).and_return(user.login)
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to be(false) }
     end
 
     context 'when the request is from a staff user' do
@@ -59,7 +59,7 @@ RSpec.describe RoutesHelper::RoleMatcher do
         allow(session).to receive(:[]).with(:login).and_return(user.login)
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
 
     context 'when the request is from an admin user' do
@@ -73,7 +73,7 @@ RSpec.describe RoutesHelper::RoleMatcher do
         allow(session).to receive(:[]).with(:login).and_return(user.login)
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be(true) }
     end
   end
 end

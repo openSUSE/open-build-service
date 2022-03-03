@@ -12,7 +12,7 @@ RSpec.describe Webui::UserHelper do
     let(:requester) { create(:user, login: 'Ana') }
 
     it 'do not show the requester if they are the same as the creator' do
-      expect(requester_str(creator.login, creator.login, nil)).to be(nil)
+      expect(requester_str(creator.login, creator.login, nil)).to be_nil
     end
 
     it 'show the requester if they are different from the creator' do

@@ -84,7 +84,7 @@ RSpec.describe UserLdapStrategy do
 
   describe '.initialize_ldap_con' do
     context 'when no ldap_servers are configured' do
-      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be(nil) }
+      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be_nil }
     end
 
     context 'when ldap servers are configured' do

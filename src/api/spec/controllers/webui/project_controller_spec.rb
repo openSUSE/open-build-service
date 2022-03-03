@@ -59,8 +59,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(response).to redirect_to(project_show_path(project)) }
       it { expect(flash[:error]).to eq('Failed to update project') }
-      it { expect(project.title).to be(nil) }
-      it { expect(project.description).to be(nil) }
+      it { expect(project.title).to be_nil }
+      it { expect(project.description).to be_nil }
     end
   end
 
@@ -141,7 +141,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to eq(nil) }
+      it { expect(@json_response).to be_nil }
     end
 
     context 'without search term' do
@@ -211,7 +211,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it 'does not show a restoration hint' do
-        expect(assigns(:show_restore_message)).to eq(false)
+        expect(assigns(:show_restore_message)).to be(false)
       end
     end
 
@@ -222,7 +222,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it 'shows a hint for restoring the deleted project' do
-        expect(assigns(:show_restore_message)).to eq(true)
+        expect(assigns(:show_restore_message)).to be(true)
       end
     end
   end
@@ -239,7 +239,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       post :restore, params: { project: 'not-allowed-to-create' }
 
-      expect(Project.find_by_name('not-allowed-to-create')).to eq(nil)
+      expect(Project.find_by_name('not-allowed-to-create')).to be_nil
       expect(flash[:error]).to match(/not authorized to create/)
     end
 

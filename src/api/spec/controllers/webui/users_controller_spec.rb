@@ -121,7 +121,7 @@ RSpec.describe Webui::UsersController do
                                 email: already_registered_user.email, password: 'buildservice' }
       end
 
-      it { expect(flash[:error]).not_to be(nil) }
+      it { expect(flash[:error]).not_to be_nil }
       it { expect(response).to redirect_to root_path }
     end
 

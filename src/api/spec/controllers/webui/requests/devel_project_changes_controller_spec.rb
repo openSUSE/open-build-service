@@ -49,8 +49,8 @@ RSpec.describe Webui::Requests::DevelProjectChangesController, type: :controller
       end
 
       it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
-      it { expect(flash[:success]).to be(nil) }
-      it { expect(bs_request).not_to be(nil) }
+      it { expect(flash[:success]).to be_nil }
+      it { expect(bs_request).not_to be_nil }
       it { expect(bs_request.description).to eq('change it!') }
 
       it 'creates a request action with correct data' do
@@ -77,7 +77,7 @@ RSpec.describe Webui::Requests::DevelProjectChangesController, type: :controller
 
       it { expect(flash[:error]).to eq("Package not found: #{new_devel_project}/non-existant") }
       it { expect(response).to redirect_to(package_show_path(project: project, package: package)) }
-      it { expect(bs_request).to be(nil) }
+      it { expect(bs_request).to be_nil }
     end
   end
 end
