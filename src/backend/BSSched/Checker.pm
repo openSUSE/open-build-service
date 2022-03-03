@@ -1547,6 +1547,19 @@ sub read_gbininfo {
   return $gbininfo;
 }
 
+sub rebuild_gbininfo {
+  my ($ctx, $prp) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $dir = "$reporoot/$prp/$myarch";
+  my $gbininfo = $ctx->read_gbininfo($prp);
+  unlink("$dir/$_/.bininfo") for sort keys %{$gbininfo || {}};
+  my $gbininfo_cache = $ctx->{'gbininfo_cache'};
+  delete $gbininfo_cache->{"$prp/$myarch"} if $gbininfo_cache;
+  BSSched::BuildResult::rebuild_gbininfo($dir);
+}
+
 sub writejob {
   return BSSched::BuildJob::writejob(@_);
 }
