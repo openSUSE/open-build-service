@@ -397,14 +397,11 @@ sub undelete_rev {
   my $rev = $rev[-1];
   my $user = defined($cgi->{'user'}) ? str2utf8xml($cgi->{'user'}) : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? str2utf8xml($cgi->{'comment'}) : '';
-  my $nrev = { 'srcmd5' => $rev->{'srcmd5'}, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $cgi->{'requestid'} };
+  my $nrev = { 'rev' => $rev->{'rev'} + 1, 'srcmd5' => $rev->{'srcmd5'}, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $cgi->{'requestid'} };
   $nrev->{'vrev'} = $rev->{'vrev'} if defined $rev->{'vrev'};
   $nrev->{'version'} = $rev->{'version'} if defined $rev->{'version'};
-  if (defined($rev->{'version'}) && defined($rev->{'vrev'}) && $rev->{'vrev'} ne '') {
-    # bump vrev
-    $rev->{'vrev'} = $1 . ($2 + 1) if $rev->{'vrev'} =~ /^(.*?)(\d+)$/;
-  }
-  $nrev->{'rev'} = $rev->{'rev'} + 1;
+  # bump vrev
+  $nrev->{'vrev'} = $1 . ($2 + 1) if defined($nrev->{'version'}) && defined($nrev->{'vrev'}) && $nrev->{'vrev'} =~ /^(.*?)(\d+)$/;
   if ($cgi->{'time'}) {
     if ($cgi->{'time'} == 1) {
       $nrev->{'time'} = $rev->{'time'} if $rev->{'time'};
