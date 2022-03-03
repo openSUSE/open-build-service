@@ -129,7 +129,6 @@ RSpec.describe EventMailer, vcr: true do
     end
 
     context 'when trying to compose an email containing invalid byte sequences' do
-      let(:faillog) { "invalid byte sequence ->\xD3'" }
       let(:expanded_payload) do
         {
           'project' => 'project_2',
@@ -143,6 +142,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:recipient) { create(:confirmed_user) }
       let(:event_stub) { Event::BuildFail.new(expanded_payload) }
       let(:mail) { EventMailer.event([recipient], event_stub) }
+      let(:faillog) { "invalid byte sequence ->\xD3'" }
 
       before do
         allow(event_stub).to receive(:faillog).and_return(faillog)
@@ -155,8 +155,18 @@ RSpec.describe EventMailer, vcr: true do
         expect(mail.from).to eq([from.email])
       end
 
-      it 'renders the body' do
-        expect(mail.body.encoded).to have_text('Last lines of build log:')
+      context 'and there is a payload' do
+        it 'renders the body' do
+          expect(mail.body.encoded).to have_text('Last lines of build log:')
+        end
+      end
+
+      context 'but there is no payload' do
+        let(:faillog) { nil }
+
+        it 'renders the body, but does not have a build log' do
+          expect(mail.body.encoded).not_to have_text('Last lines of build log:')
+        end
       end
     end
   end
