@@ -60,6 +60,8 @@ class Relationship < ApplicationRecord
     bugowners.joins(:user).merge(User.with_email)
   }
 
+  after_create :create_event_after_create
+
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
   after_create :discard_cache
@@ -125,6 +127,12 @@ class Relationship < ApplicationRecord
     with_groups_and_roles_query.pluck('groups.title', 'roles.title')
   end
 
+  def create_event_before_delete
+    return unless User.session
+
+    Event::RelationshipDelete.create(event_parameters)
+  end
+
   private
 
   class << self
@@ -157,6 +165,27 @@ class Relationship < ApplicationRecord
   # We could also check other banned users, not only nobody.
   def allowed_user
     raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
+  end
+
+  def create_event_after_create
+    return unless User.session
+
+    Event::RelationshipCreate.create(event_parameters)
+  end
+
+  def event_parameters
+    parameters = { who: User.session.login,
+                   user: user&.login,
+                   group: group&.title,
+                   role: role.title }
+    if package
+      parameters[:project] = package.project.name
+      parameters[:package] = package.name
+    else
+      parameters[:project] = project.name
+    end
+
+    parameters
   end
 end
 

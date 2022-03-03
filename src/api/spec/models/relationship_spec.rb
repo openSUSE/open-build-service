@@ -57,6 +57,7 @@ RSpec.describe Relationship do
       end
 
       it { expect { project.store }.to change(Relationship, :count).by(1) }
+      it { expect { project.store }.to change(Event::RelationshipCreate, :count).by(1) }
     end
   end
 
@@ -96,6 +97,7 @@ RSpec.describe Relationship do
       end
 
       it { expect { project.store }.to change(Relationship, :count).by(1) }
+      it { expect { project.store }.to change(Event::RelationshipCreate, :count).by(1) }
     end
   end
 
