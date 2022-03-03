@@ -110,39 +110,39 @@ RSpec.describe Review do
 
       it 'does not set user association when by_user object does not exist' do
         review = Review.new(by_user: 'not-existent')
-        expect(review.user).to eq(nil)
-        expect(review.valid?).to eq(false)
+        expect(review.user).to be_nil
+        expect(review.valid?).to be(false)
       end
 
       it 'does not set user association when by_user object is _nobody_' do
         review = Review.new(by_user: nobody)
-        expect(review.user).to eq(nil)
-        expect(review.valid?).to eq(false)
+        expect(review.user).to be_nil
+        expect(review.valid?).to be(false)
         expect(review.errors.messages[:base])
           .to eq(["Couldn't find user #{nobody.login}"])
       end
 
       it 'does not set group association when by_group object does not exist' do
         review = Review.new(by_group: 'not-existent')
-        expect(review.group).to eq(nil)
-        expect(review.valid?).to eq(false)
+        expect(review.group).to be_nil
+        expect(review.valid?).to be(false)
       end
 
       it 'does not set project association when by_project object does not exist' do
         review = Review.new(by_project: 'not-existent')
-        expect(review.project).to eq(nil)
-        expect(review.valid?).to eq(false)
+        expect(review.project).to be_nil
+        expect(review.valid?).to be(false)
       end
 
       it 'does not set project and package associations when by_project and by_package object does not exist' do
         review = Review.new(by_project: 'not-existent', by_package: 'not-existent')
-        expect(review.package).to eq(nil)
-        expect(review.valid?).to eq(false)
+        expect(review.package).to be_nil
+        expect(review.valid?).to be(false)
       end
 
       it 'does not set package association when by_project parameter is missing' do
         review = Review.new(by_package: package.name)
-        expect(review.package).to eq(nil)
+        expect(review.package).to be_nil
         expect(review).not_to be_valid
         expect(review.errors.messages[:package]).to include('can\'t be blank')
       end
@@ -204,7 +204,7 @@ RSpec.describe Review do
 
       subject { review.accepted_at }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
 
     context 'with no reviewed assigned to and state = accepted' do
@@ -218,7 +218,7 @@ RSpec.describe Review do
 
       subject { review.accepted_at }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
   end
 
@@ -277,7 +277,7 @@ RSpec.describe Review do
 
       subject { review.declined_at }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
 
     context 'with no reviewed assigned to and state = declined' do
@@ -291,7 +291,7 @@ RSpec.describe Review do
 
       subject { review.declined_at }
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
   end
 

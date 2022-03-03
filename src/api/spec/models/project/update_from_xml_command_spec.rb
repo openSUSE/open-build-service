@@ -29,9 +29,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
       end
 
       it 'updates repository attributes of existing repositories' do
-        expect(repository_1.reload.rebuild).to be(nil)
-        expect(repository_1.block).to be(nil)
-        expect(repository_1.linkedbuild).to be(nil)
+        expect(repository_1.reload.rebuild).to be_nil
+        expect(repository_1.block).to be_nil
+        expect(repository_1.linkedbuild).to be_nil
       end
 
       it 'imports repository attributes of newly created repositories' do

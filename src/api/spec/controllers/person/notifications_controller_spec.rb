@@ -130,7 +130,7 @@ RSpec.describe Person::NotificationsController do
       end
 
       it 'toggles the delivered attribute' do
-        expect(notification.reload.delivered).to eq(true)
+        expect(notification.reload.delivered).to be(true)
       end
 
       it { expect(response).to have_http_status(:success) }

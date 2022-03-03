@@ -31,7 +31,7 @@ RSpec.describe Distribution do
       let(:xmlhash) { nil }
 
       it { is_expected.to be_a(Distribution) }
-      it { expect(subject.vendor).to be(nil) }
+      it { expect(subject.vendor).to be_nil }
     end
   end
 

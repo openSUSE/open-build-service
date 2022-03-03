@@ -384,7 +384,7 @@ RSpec.describe BsRequest, vcr: true do
         ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
     end
 
     context 'when there is no sourcediff' do
@@ -395,7 +395,7 @@ RSpec.describe BsRequest, vcr: true do
         ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
     end
 
     context 'when the sourcediff is empty' do
@@ -406,7 +406,7 @@ RSpec.describe BsRequest, vcr: true do
         ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
     end
 
     context 'when the diff is at least one diff that has a shown attribute' do
@@ -414,7 +414,7 @@ RSpec.describe BsRequest, vcr: true do
         [{ type: :submit, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(true) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(true) }
     end
 
     context 'when none of the diffs has a shown attribute' do
@@ -422,7 +422,7 @@ RSpec.describe BsRequest, vcr: true do
         [{ type: :submit, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]] }] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
     end
 
     context "when there is a sourcediff attribute with no 'files'" do
@@ -430,7 +430,7 @@ RSpec.describe BsRequest, vcr: true do
         [{ type: :submit, sourcediff: [{ 'other_data' => 'foo' }] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
     end
   end
 
@@ -728,7 +728,7 @@ RSpec.describe BsRequest, vcr: true do
 
       it 'sets the value for diff_not_cached' do
         action_details = request.send(:action_details, opts, xml: request.bs_request_actions.last)
-        expect(action_details[:diff_not_cached]).to eq(false)
+        expect(action_details[:diff_not_cached]).to be(false)
       end
     end
   end

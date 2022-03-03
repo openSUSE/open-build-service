@@ -148,16 +148,16 @@ RSpec.describe Package, vcr: true do
     context '_multibuild file should exist' do
       let!(:multibuild_package) { create(:multibuild_package, name: 'test', project: home_project) }
 
-      it { expect(multibuild_package.file_exists?('_multibuild')).to eq(true) }
+      it { expect(multibuild_package.file_exists?('_multibuild')).to be(true) }
     end
 
     context 'with more than one file' do
       it 'returns true if the file exist' do
-        expect(package_with_file.file_exists?('somefile.txt')).to eq(true)
+        expect(package_with_file.file_exists?('somefile.txt')).to be(true)
       end
 
       it 'returns false if the file does not exist' do
-        expect(package_with_file.file_exists?('not_existent.txt')).to eq(false)
+        expect(package_with_file.file_exists?('not_existent.txt')).to be(false)
       end
     end
 
@@ -165,11 +165,11 @@ RSpec.describe Package, vcr: true do
       let(:package_with_one_file) { create(:package_with_service, name: 'package_with_one_file', project: home_project) }
 
       it 'returns true if the file exist' do
-        expect(package_with_one_file.file_exists?('_service')).to eq(true)
+        expect(package_with_one_file.file_exists?('_service')).to be(true)
       end
 
       it 'returns false if the file does not exist' do
-        expect(package_with_one_file.file_exists?('not_existent.txt')).to eq(false)
+        expect(package_with_one_file.file_exists?('not_existent.txt')).to be(false)
       end
     end
   end
@@ -180,11 +180,11 @@ RSpec.describe Package, vcr: true do
         Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
                                 Faker::Lorem.paragraph)
       end
-      expect(package_with_file.has_icon?).to eq(true)
+      expect(package_with_file.has_icon?).to be(true)
     end
 
     it 'returns false if the icon does not exist' do
-      expect(package.has_icon?).to eq(false)
+      expect(package.has_icon?).to be(false)
     end
   end
 

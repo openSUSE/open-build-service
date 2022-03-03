@@ -361,7 +361,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
       end
 
-      it { expect(bs_request).not_to be(nil) }
+      it { expect(bs_request).not_to be_nil }
       it { expect(bs_request.description).to eq('blah blah blash') }
       it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
     end

@@ -84,7 +84,7 @@ RSpec.describe Webui::StatusMessagesController do
         post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
       end
 
-      it { expect(flash[:error]).not_to be(nil) }
+      it { expect(flash[:error]).not_to be_nil }
     end
   end
 

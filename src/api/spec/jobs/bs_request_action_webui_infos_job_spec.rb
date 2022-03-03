@@ -55,7 +55,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
       it { expect { subject }.not_to raise_error }
-      it { expect(subject).to eq(nil) }
+      it { expect(subject).to be_nil }
     end
 
     context 'with non existing source package' do
@@ -75,7 +75,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
       it { expect { subject }.not_to raise_error }
-      it { expect(subject).to eq(nil) }
+      it { expect(subject).to be_nil }
     end
 
     context 'for a superseded request' do

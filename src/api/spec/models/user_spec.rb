@@ -134,7 +134,7 @@ RSpec.describe User do
   describe 'user creation' do
     it "sets the 'last_logged_in_at' attribute" do
       user = User.new
-      expect(user.last_logged_in_at).to be(nil)
+      expect(user.last_logged_in_at).to be_nil
       user.save
       expect(user.last_logged_in_at).to eq(Time.zone.today)
     end
@@ -422,7 +422,7 @@ RSpec.describe User do
   shared_examples 'password comparison' do
     context 'with invalid credentials' do
       it 'returns false' do
-        expect(user.authenticate('invalid_password')).to eq(false)
+        expect(user.authenticate('invalid_password')).to be(false)
       end
     end
 
@@ -447,15 +447,15 @@ RSpec.describe User do
         end
 
         it 'resets the hash of the deprecated password' do
-          expect(user.deprecated_password).to be(nil)
+          expect(user.deprecated_password).to be_nil
         end
 
         it 'resets the hash type of the deprecated password' do
-          expect(user.deprecated_password_hash_type).to be(nil)
+          expect(user.deprecated_password_hash_type).to be_nil
         end
 
         it 'resets the salt of the deprecated password' do
-          expect(user.deprecated_password_salt).to be(nil)
+          expect(user.deprecated_password_salt).to be_nil
         end
       end
 
@@ -494,13 +494,13 @@ RSpec.describe User do
     end
 
     context 'when user does not exist' do
-      it { expect(User.find_with_credentials('unknown', 'buildservice')).to be(nil) }
+      it { expect(User.find_with_credentials('unknown', 'buildservice')).to be_nil }
     end
 
     context 'when user exist but password was incorrect' do
       subject! { User.find_with_credentials(user.login, '_buildservice') }
 
-      it { is_expected.to be(nil) }
+      it { is_expected.to be_nil }
       it { expect(user.reload.login_failure_count).to eq(8) }
     end
 
