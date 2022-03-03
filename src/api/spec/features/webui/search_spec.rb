@@ -204,11 +204,11 @@ RSpec.describe 'Search', :js do
     let(:relationship_package_group) { create(:relationship_package_group, package: apache_package, group: group_maintainer) }
     let(:relationship_user_bugowner) { create(:relationship_package_user_as_bugowner, package: apache_package, user: other_confirmed_user) }
     let(:relationship_group_bugowner) { create(:relationship_package_group_as_bugowner, package: apache_package, group: group_bugowner) }
-    let(:backend_url) { "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='#{apache_package}'+and+(@project='#{apache}'))" }
+    let(:backend_url) { "#{CONFIG['source_url']}/published?name=#{apache_package}&project=#{apache}&view=collection" }
     let(:backend_response) { file_fixture('apache_search.xml') }
 
     before do
-      stub_request(:post, backend_url).and_return(body: backend_response)
+      stub_request(:get, backend_url).and_return(body: backend_response)
       owner_root_project_attrib
       group_maintainer.add_user(confirmed_user)
       group_bugowner.add_user(other_confirmed_user)

@@ -423,10 +423,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # must be after first search controller call or backend might not be started on single test case runs
     run_publisher
 
-    get "/search/owner?binary='package'"
-    assert_response :bad_request
-    assert_xml_tag tag: 'status', attributes: { code: '400', origin: 'backend' }
-
     get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
     assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_attribute_type' }
