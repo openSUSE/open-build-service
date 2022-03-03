@@ -81,8 +81,8 @@ module OwnerSearch
       # package names from all projects, except kind=maintenance_release
       ret = Package.joins(:project).where(project_id: @projects).where.not(projects: { kind: 'maintenance_release' }).pluck(:name)
       # package names from maintenance_release projects needs to be reduced to main packages
-      ret += Package.joins(:project).where(project_id: @projects, projects: {kind: 'maintenance_release'}).pluck(:name)
-	            .map{ |name| name.gsub(/.[^.]*$/, '') }
+      ret += Package.joins(:project).where(project_id: @projects, projects: { kind: 'maintenance_release' }).pluck(:name)
+                    .map { |name| name.gsub(/.[^.]*$/, '') }
       ret.sort.uniq.reject { |p| p.blank? || p =~ /\A_product:\w[-+\w.]*\z/ }
     end
   end
