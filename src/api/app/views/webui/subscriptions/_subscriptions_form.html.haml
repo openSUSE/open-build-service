@@ -7,7 +7,7 @@
       .list-group
         - subscription.roles.each do |role|
           .d-flex.flex-column.flex-sm-row.justify-content-sm-between.list-group-item.list-group-item-action
-            %span= EventSubscription::RECEIVER_ROLE_TEXTS[role.name]
+            %span= EventSubscription::RECEIVER_ROLE_TEXTS.merge(EventSubscription::BETA_RECEIVER_ROLE_TEXTS)[role.name]
             .d-flex.flex-column.flex-sm-row{ class: "#{role.name}" }
               - role.channels.each do |channel|
                 .d-flex.flex-nowrap.align-items-baseline.custom-control.custom-checkbox.my-2.my-sm-0.pr-2

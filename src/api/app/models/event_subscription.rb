@@ -12,6 +12,12 @@ class EventSubscription < ApplicationRecord
     source_watcher: 'Watching the source project',
     target_watcher: 'Watching the target project'
   }.freeze
+  BETA_RECEIVER_ROLE_TEXTS = {
+    package_watcher: 'Watching the package',
+    source_package_watcher: 'Watching the source package',
+    target_package_watcher: 'Watching the target package',
+    request_watcher: 'Watching the request'
+  }.freeze
 
   enum channel: {
     disabled: 0,
@@ -33,7 +39,8 @@ class EventSubscription < ApplicationRecord
 
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
-         :reviewer, :commenter, :creator, :watcher, :source_watcher, :target_watcher]
+         :reviewer, :commenter, :creator, :watcher, :source_watcher, :target_watcher,
+         :package_watcher, :target_package_watcher, :source_package_watcher, :request_watcher]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
@@ -48,6 +55,14 @@ class EventSubscription < ApplicationRecord
       defaults
     end
   }
+
+  def self.receiver_roles_to_display(user)
+    roles = RECEIVER_ROLE_TEXTS.keys
+    # We have to show the new_watchlist subscription options to the admin in order to allow the global
+    # configuration
+    roles += BETA_RECEIVER_ROLE_TEXTS.keys if Flipper.enabled?(:new_watchlist, user) || User.possibly_nobody.is_admin?
+    roles
+  end
 
   def subscriber
     if user_id.present?
