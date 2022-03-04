@@ -1,4 +1,4 @@
-- user_can_modify_package = User.possibly_nobody.can_modify?(package)
+- user_can_modify_package = User.possibly_nobody.can_modify?(package) && package.scmsync.blank?
 - nobody = !User.session
 
 .card-body

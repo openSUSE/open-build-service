@@ -384,7 +384,7 @@ class Webui::PackageController < Webui::WebuiController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if User.possibly_nobody.can_modify?(@package) && @rev.blank?
+    if User.possibly_nobody.can_modify?(@package) && @rev.blank? && @package.scmsync.blank?
       begin
         files = package_files(@rev, @expand)
       rescue Backend::Error
