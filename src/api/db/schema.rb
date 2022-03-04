@@ -873,6 +873,7 @@ ActiveRecord::Schema.define(version: 2022_02_10_154407) do
     t.integer "group_id"
     t.integer "project_id"
     t.integer "package_id"
+    t.datetime "changed_state_at"
     t.index ["bs_request_id"], name: "bs_request_id"
     t.index ["by_group"], name: "index_reviews_on_by_group"
     t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project"
