@@ -911,8 +911,9 @@ class Package < ApplicationRecord
           # pick only one and the highest container.
           identifier = mc_update_project.name + '/' + mc.name
           # esp. in maintenance update projects where the name suffix is the counter
-          identifier.gsub!(/\.[^\.]*$/, '') if mc_update_project.is_maintenance_release?
+          identifier.gsub!(/\.[^.]*$/, '') if mc_update_project.is_maintenance_release?
           next if container_list[identifier] && container_list[identifier].name > mc.name
+
           container_list[identifier] = mc
         end
       end
