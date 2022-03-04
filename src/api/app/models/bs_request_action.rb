@@ -430,7 +430,6 @@ class BsRequestAction < ApplicationRecord
       # FIXME: this is currently handling local project links for packages with multiple spec files.
       #        This can be removed when we handle this as shadow packages in the backend.
       tpkg = ltpkg    = pkg.name
-      rev             = source_rev
       data            = nil
       missing_ok_link = false
       suffix          = ''
@@ -552,9 +551,14 @@ class BsRequestAction < ApplicationRecord
         new_action.target_project = tprj.name
         new_action.target_package = tpkg + incident_suffix
       end
-      new_action.source_rev = rev if rev
       if is_maintenance_release? || is_release?
         if pkg.is_channel?
+
+          if new_action.source_rev.blank?
+            # set revision
+            dir = Xmlhash.parse(Backend::Api::Sources::Package.files(new_action.source_project, new_action.source_package, { expand: 1 }))
+            new_action.source_rev = dir['srcmd5']
+          end
 
           # create submit request for possible changes in the _channel file
           submit_action = create_submit_action(source_package: new_action.source_package, source_project: new_action.source_project,
