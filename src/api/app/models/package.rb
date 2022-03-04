@@ -1164,6 +1164,8 @@ class Package < ApplicationRecord
   end
 
   def delete_file(name, opt = {})
+    raise ScmsyncReadOnly if scmsync.present?
+
     delete_opt = {}
     delete_opt[:keeplink] = 1 if opt[:expand]
     delete_opt[:user] = User.session!.login
@@ -1239,6 +1241,8 @@ class Package < ApplicationRecord
   end
 
   def save_file(opt = {})
+    raise ScmsyncReadOnly if scmsync.present?
+
     content = '' # touch an empty file first
     content = opt[:file] if opt[:file]
 

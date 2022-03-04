@@ -19,6 +19,15 @@ module Webui::RescueHandler
       end
     end
 
+    rescue_from Package::Errors::ScmsyncReadOnly do |exception|
+      if request.xhr?
+        render json: { error: exception.default_message }, status: exception.status
+      else
+        flash[:error] = exception.default_message
+        redirect_back(fallback_location: root_path)
+      end
+    end
+
     # FIXME: just because there is some data missing to compute the request?
     # Please check:
     # http://guides.rubyonrails.org/active_record_validations.html
