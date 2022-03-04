@@ -208,12 +208,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    # note the &lt; inside description to test html encoding for _patchinfo file
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="RemoteInstance:kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
                                    </action>
-                                   <description>To fix my bug</description>
+                                   <description>To fix my &lt;bug</description>
                                    <state name="new" />
                                  </request>'
     assert_response :success
@@ -262,7 +263,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'packager', content: 'tom'
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: '0' })
-    assert_xml_tag tag: 'description', content: 'To fix my bug'
+    assert_xml_tag tag: 'description', content: 'To fix my <bug'
 
     # again but find update project automatically and use a linked package
     login_tom
