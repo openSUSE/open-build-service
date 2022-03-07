@@ -14,6 +14,7 @@ class ProjectPolicy < ApplicationPolicy
     return false unless local_project_and_allowed_to_create_package_in?
     # The ordering is important because of the lock status check
     return true if user.is_admin?
+
     user.can_modify?(record, true)
   end
 
