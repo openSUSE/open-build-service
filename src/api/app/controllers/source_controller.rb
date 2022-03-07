@@ -188,9 +188,7 @@ class SourceController < ApplicationController
                                                                                             @target_package_name,
                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
         # is a local project, which is not scm managed. Or using a command not supported for scm projects.
-        if @project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command)
-          validate_target_for_package_command_exists!
-        end
+        validate_target_for_package_command_exists! if @project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command)
       end
     end
 
@@ -205,7 +203,7 @@ class SourceController < ApplicationController
   READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
   # commands which are fine to operate on external scm managed projects
   SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
-                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv' ].freeze
+                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
 
   def validate_target_for_package_command_exists!
     @project = nil
