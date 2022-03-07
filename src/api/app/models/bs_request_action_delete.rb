@@ -32,8 +32,9 @@ class BsRequestActionDelete < BsRequestAction
   def sourcediff(opts = {})
     unless target_package || target_repository
       if target_project.present?
-         return '' if opts[:view] == 'xml'
-         return "- Removal of entire OBS Project #{target_project}"
+        return '' if opts[:view] == 'xml'
+
+        return "- Removal of entire OBS Project #{target_project}"
       end
       raise DiffError, 'undefined delete target'
     end
@@ -63,9 +64,13 @@ class BsRequestActionDelete < BsRequestAction
       package.destroy
       Package.source_path(target_project, target_package)
     else
-      project = Project.get_by_name(target_project)
-      project.commit_opts = { comment: bs_request.description, request: bs_request }
-      project.destroy
+      if Project.exists_by_name(target_project)
+        # otherwise handled it as no-op, no need to break complex requests if project has
+        # been removed by source cleanup already
+        project = Project.get_by_name(target_project)
+        project.commit_opts = { comment: bs_request.description, request: bs_request }
+        project.destroy
+      end
       "/source/#{target_project}"
     end
   end
