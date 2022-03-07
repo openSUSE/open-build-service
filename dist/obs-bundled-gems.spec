@@ -40,10 +40,9 @@ BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 BuildRequires:  python-devel
 %if 0%{?suse_version}
-%define __obs_ruby_version 2.5.0
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby2.5
-BuildRequires:  ruby2.5-devel
-BuildRequires:  rubygem(ruby:%{__obs_ruby_version}:bundler)
+%define __obs_ruby_version 3.1.1
+%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
+BuildRequires:  ruby3.1-devel
 BuildRequires:  openldap2-devel
 %else
 %define __obs_ruby_version 2.6.0
