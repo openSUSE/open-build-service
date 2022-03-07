@@ -60,15 +60,15 @@ Requires:       rubygem-rails\
 %global apache_requires \
 Requires:       apache2\
 Requires:       apache2-mod_xforward\
-Requires:       ruby2.5-rubygem-passenger\
+Requires:       %{rubygem passenger}\
 Requires:       rubygem-passenger-apache2\
 Requires:       ruby(abi) = %{__obs_ruby_version}\
 %{nil}
 
-%define __obs_ruby_version 2.5.0
-%define __obs_ruby_bin /usr/bin/ruby.ruby2.5
-%define __obs_bundle_bin /usr/bin/bundle.ruby2.5
-%define __obs_rake_bin /usr/bin/rake.ruby2.5
+%define __obs_ruby_version 3.1.1
+%define __obs_ruby_bin /usr/bin/ruby.ruby3.1
+%define __obs_bundle_bin /usr/bin/bundle.ruby3.1
+%define __obs_rake_bin /usr/bin/rake.ruby3.1
 %define __obs_document_root /srv/www/obs
 %define __obs_api_prefix %{__obs_document_root}/api
 %define __obs_build_package_name build
