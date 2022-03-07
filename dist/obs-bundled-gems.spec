@@ -59,7 +59,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
 
-%define rake_version 13.0.6
 %define rack_version 2.2.3
 
 %package -n obs-api-deps
@@ -76,8 +75,6 @@ Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
-Requires:       rubygem(ruby:%{__obs_ruby_version}:bundler)
-Requires:       rubygem(ruby:%{__obs_ruby_version}:rake:%{rake_version})
 Requires:       rubygem(ruby:%{__obs_ruby_version}:rack:%{rack_version})
 %else
 Requires:       rubygem-bundler
@@ -129,7 +126,6 @@ bundle --local --path %{buildroot}%_libdir/obs-api/
 popd
 
 # test that the rake and rack macros is still matching our Gemfile
-test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rake-%{rake_version}/rake.gemspec
 test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rack-%{rack_version}/rack.gemspec
 
 pushd %{_sourcedir}/open-build-service-*/dist
