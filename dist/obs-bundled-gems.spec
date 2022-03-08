@@ -25,9 +25,6 @@ Summary:        The Open Build Service -- Bundled Gems
 License:        GPL-2.0-only OR GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
-Source0:        Gemfile
-Source1:        Gemfile.lock
-Source2:        gem_build_cleanup.sh
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  cyrus-sasl-devel
@@ -116,32 +113,31 @@ echo > README <<EOF
 This package is just a meta package containing requires
 EOF
 
-cp %{S:0} %{S:1} .
-
-# copy gem files into cache
-mkdir -p vendor/cache
-cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
-
 %build
 # emtpy since bundle does not decouple compile and install
 
 %install
 # all operations here since bundle does not decouple compile and install
+pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
 bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
 bundle config build.sassc --disable-march-tune-native
 bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+bundle config force_ruby_platform true
 
 bundle --local --path %{buildroot}%_libdir/obs-api/
+popd
 
 # test that the rake and rack macros is still matching our Gemfile
 test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rake-%{rake_version}/rake.gemspec
 test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rack-%{rack_version}/rack.gemspec
 
+pushd %{_sourcedir}/open-build-service-*/dist
 # run gem clean up script
-chmod 755 %{S:2}
-%{S:2}  %{buildroot}%_libdir/obs-api/ruby/*/
+chmod 755 gem_build_cleanup.sh
+./gem_build_cleanup.sh  %{buildroot}%_libdir/obs-api/ruby/*/
+popd
 
 # Remove sources of extensions, we don't need them
 %if 0%{?suse_version}
