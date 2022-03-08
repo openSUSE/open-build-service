@@ -2,7 +2,7 @@ include ../../Makefile.include
 -include ../../Makefile.local
 
 apidocs:
-	sed -i -e 's,#!/usr/bin/ruby.ruby2.5,#!$(OBS_RUBY_BIN),' ./restility/bin/rest_doc ./restility/bin/rest_test
+	sed -i -e 's,#!/usr/bin/ruby.ruby3.1,#!$(OBS_RUBY_BIN),' ./restility/bin/rest_doc ./restility/bin/rest_test
 	cd api; make apidocs
 
 doc: apidocs
