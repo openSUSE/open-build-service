@@ -1,4 +1,4 @@
-#!/usr/bin/ruby.ruby2.5
+#!/usr/bin/ruby.ruby3.1
 
 require 'bundler'
 

@@ -33,7 +33,7 @@ install_systemd_services: system_dirs
 	$(foreach service,$(SYSTEMD_SERVICE_FILES) $(SYSTEMD_SERVICE_FILES_WITHOUT_LINK),$(shell $(INSTALL) -m 644 ./systemd/$(service).service $(DESTDIR)$(UNITDIR)$(service).service) )
 	sed -i \
 	  -e 's,@@OBS_BUNDLE_BIN@@,$(OBS_BUNDLE_BIN),' \
-	  -e 's,@@OBS_RUBY_VERSION@@,$(OBS_RUBY_VERSION),' \
+	  -e 's,@@OBS_RUBY_ABI_VERSION@@,$(OBS_RUBY_ABI_VERSION),' \
 	  -e 's,@@APACHE_USER@@,$(APACHE_USER),' \
 	  -e 's,@@APACHE_GROUP@@,$(APACHE_GROUP),' \
 	  -e 's,@@OBS_API_PREFIX@@,$(OBS_API_PREFIX),' \

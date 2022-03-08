@@ -38,7 +38,7 @@ Requires:       ruby\
 Requires:       rubygem-rails\
 %{nil}
 
-%define __obs_ruby_version 2.6.0
+%define __obs_ruby_abi_version 2.6.0
 %define __obs_ruby_bin /usr/bin/ruby
 %define __obs_bundle_bin /usr/bin/bundle
 %define __obs_rake_bin /usr/bin/rake
@@ -62,10 +62,10 @@ Requires:       apache2\
 Requires:       apache2-mod_xforward\
 Requires:       %{rubygem passenger}\
 Requires:       rubygem-passenger-apache2\
-Requires:       ruby(abi) = %{__obs_ruby_version}\
+Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %{nil}
 
-%define __obs_ruby_version 3.1.1
+%define __obs_ruby_abi_version 3.1.0
 %define __obs_ruby_bin /usr/bin/ruby.ruby3.1
 %define __obs_bundle_bin /usr/bin/bundle.ruby3.1
 %define __obs_rake_bin /usr/bin/rake.ruby3.1
@@ -459,7 +459,7 @@ APACHE_LOGDIR=%{apache_logdir}
 OBS_RUBY_BIN=%{__obs_ruby_bin}
 OBS_BUNDLE_BIN=%{__obs_bundle_bin}
 OBS_RAKE_BIN=%{__obs_rake_bin}
-OBS_RUBY_VERSION=%{__obs_ruby_version}
+OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
