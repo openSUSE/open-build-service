@@ -93,6 +93,12 @@ gem 'gitlab'
 # Build reusable, testable & encapsulated view components in Ruby on Rails
 gem 'view_component'
 
+# FIXME: Required by the mail gem
+# See https://github.com/rails/rails/pull/44083
+gem 'net-smtp', require: false
+gem 'net-pop', require: false
+gem 'net-imap', require: false
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
