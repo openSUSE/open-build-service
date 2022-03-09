@@ -99,6 +99,9 @@ gem 'net-smtp', require: false
 gem 'net-pop', require: false
 gem 'net-imap', require: false
 
+# Used in Package and XpathEngine
+gem 'rexml'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
