@@ -602,6 +602,7 @@ DEPENDENCIES
   rantly
   rdoc
   redcarpet
+  rexml
   rspec
   rspec-rails
   rspec_junit_formatter
