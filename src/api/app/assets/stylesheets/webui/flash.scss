@@ -6,12 +6,8 @@
   }
 }
 
-.alert-success {
-  @extend .alert-success;
-
-  i.fas {
-    @extend .fa-check-circle;
-  }
+.alert-success i.fas {
+  @extend .fa-check-circle;
 }
 
 .alert-error {
