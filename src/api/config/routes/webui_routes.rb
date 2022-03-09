@@ -331,6 +331,9 @@ OBSApi::Application.routes.draw do
         end
       end
 
+      resources :beta_features, only: [:index], controller: 'webui/users/beta_features', as: :my_beta_features
+      resource :beta_feature, only: [:update], controller: 'webui/users/beta_features', as: :my_beta_feature
+
       resource :notification, only: [:update], controller: 'webui/users/notifications', as: :my_notification
 
       resources :subscriptions, only: [:index], controller: 'webui/users/subscriptions', as: :my_subscriptions do

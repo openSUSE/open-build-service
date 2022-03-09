@@ -21,18 +21,3 @@
             = link_to(group.title, group_path(group))
             %span.badge.badge-primary
               #{group.tasks} #{'task'.pluralize(group.tasks)}
-
-    - if is_user
-      .mt-4
-        = form_tag(user_path, id: 'beta-form', method: :patch) do
-          .custom-control.custom-switch
-            = hidden_field_tag 'user[in_beta]', false
-            = check_box_tag('user[in_beta]', !user.in_beta, user.in_beta, class: 'custom-control-input', id: 'beta-switch')
-            = label_tag 'Public Beta Program', nil, class: 'custom-control-label', for: 'beta-switch'
-            = hidden_field_tag('user[login]', user.login)
-            %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
-                                                        content: 'Join the <strong>beta program</strong> to try the latest ' + |
-                                                                 'features we develop and give us feedback on them before they go live.' } } |
-
-:javascript
-  switchBeta();
