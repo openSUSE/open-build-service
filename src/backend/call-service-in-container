@@ -200,7 +200,7 @@ if [[ $DEBUG_CONTAINER ]];then
 fi
 
 if [ -n "$CONTAINERS_ROOT" ];then
-  CONTAINER_ROOT_OPT="--root $CONTAINERS_ROOT "
+  CONTAINER_ROOT_OPT="--root $CONTAINERS_ROOT --storage-opt overlay.mount_program=/usr/bin/fuse-overlayfs"
 fi
 
 # force cleanup of container on timeout (SIGTERM)
