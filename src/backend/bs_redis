@@ -36,7 +36,7 @@ use Time::HiRes;
 
 use BSConfiguration;
 use BSUtil;
-use BSRedis;
+use BSRedis ':tls';
 
 use strict;
 
@@ -257,9 +257,9 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 my $retry;
 
 die("No redis server configured\n") unless $BSConfig::redisserver;
-die("Redis server must be of scheme redis://<server>[:port]\n") unless $BSConfig::redisserver =~ /^redis:\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?$/;
+die("Redis server must be of scheme redis[s]://<server>[:port]\n") unless $BSConfig::redisserver =~ /^(rediss?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?$/;
 
-$red = BSRedis->new('server' => $2, 'port' => $3, 'password' => $1);
+$red = BSRedis->new('server' => $3, 'port' => $4, 'password' => $2, 'tls' => ($1 eq 'rediss' ? 1 : 0));
 
 if (-e "$myeventdir/queue.send") {
   print "resuming transmission of old data\n";
