@@ -485,8 +485,6 @@ class Webui::PackageController < Webui::WebuiController
         @finished = true
       end
     end
-
-    logger.debug 'finished ' + @finished.to_s
   end
 
   def abort_build
