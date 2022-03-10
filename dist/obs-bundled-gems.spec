@@ -164,6 +164,11 @@ find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read f
   chmod a-x $file
 done
 
+# remove exec bit from all other files still containing /usr/bin/ruby
+find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/ruby | while read file; do
+  chmod a-x $file
+done
+
 # remove the rpath entry from the shared lib in the mysql2 rubygem
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/extensions/*/*/mysql2-*/mysql2/mysql2.so || true
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/gems/mysql2-*/lib/mysql2/mysql2.so || true
