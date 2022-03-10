@@ -147,9 +147,16 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/seleniu
 # remove all gitignore files to fix rpmlint version-control-internal-file
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
-# fix interpreter in installed binaries
+# use the ruby interpreter set by this spec file in all installed binaries.
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
   sed -i -e 's,/usr/bin/env ruby.ruby3.1,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/env ruby,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/ruby,%{__obs_ruby_interpreter},' $bin
+done
+for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
+  sed -i -e 's,/usr/bin/env ruby.ruby3.1,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/env ruby,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/ruby,%{__obs_ruby_interpreter},' $bin
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
