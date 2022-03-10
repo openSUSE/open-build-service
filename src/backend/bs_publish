@@ -734,7 +734,19 @@ sub createrepo_rpmmd {
     }
     unlink("$extrep/repodata/modules.yaml");
   }
-  
+
+  # add imadata data
+  # IMA metadata could be included as a feature in createrepo_c (check
+  # issue #313), once included it will deprecate this section, but can
+  # cause a problem if the XML name is different.
+  unlink("$extrep/repodata/imadata.xml");
+  my $imadata_bin = '/usr/bin/imadata';
+  if (-e "$imadata_bin") {
+      print "    adding imadata.xml to repodata\n";
+      qsystem($imadata_bin, "$extrep") && die("    imadata failed: $?\n");
+      qsystem($modifyrepo_bin, "$extrep/repodata/imadata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/imadata.xml");
+  }
 
   # prune repocache
   if (-d "$extrep/repocache") {
