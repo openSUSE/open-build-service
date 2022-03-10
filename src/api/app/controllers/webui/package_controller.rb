@@ -470,7 +470,6 @@ class Webui::PackageController < Webui::WebuiController
       # retry the last chunk again, because build compare overwrites last log lines
       if @log_chunk.length.zero? && !@first_request && !@finished
         @log_chunk = get_log_chunk(@project, @package_name, @repo, @arch, chunk_start, chunk_end)
-        @finished = true
       end
 
       old_offset = @offset
