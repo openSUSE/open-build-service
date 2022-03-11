@@ -274,6 +274,7 @@ GEM
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     marcel (1.0.2)
+    matrix (0.4.2)
     method_source (1.0.0)
     middleware (0.1.0)
     mime-types (3.4.1)
@@ -580,6 +581,7 @@ DEPENDENCIES
   kaminari
   launchy
   lograge
+  matrix (~> 0.4)
   minitest
   minitest-ci
   minitest-fail-fast
