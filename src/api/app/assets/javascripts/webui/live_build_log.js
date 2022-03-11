@@ -21,11 +21,11 @@ $.extend(LiveLog.prototype, {
   initialize: function() {
     this.startButton.click($.proxy(this.start, this));
     this.stopButton.click($.proxy(this.stop, this));
-    if (Notification.permission === 'default') {
+    if (Notification.permission === 'default') { // jshint ignore:line
       this.notificationsButton.click($.proxy(this.askNotificationPermission, this));
     }
     else {
-      this.notificationsButton.html(this.notificationsButton.html().replace('Request Browser Notifications', 'Browser Notifications ' + Notification.permission));
+      this.notificationsButton.html(this.notificationsButton.html().replace('Request Browser Notifications', 'Browser Notifications ' + Notification.permission)); // jshint ignore:line
       this.notificationsButton.addClass('disabled');
     }
     this.start();
@@ -91,7 +91,7 @@ $.extend(LiveLog.prototype, {
     }
   },
 
-  finish: function(status) { // jshint ignore:line
+  finish: function(status) {
     this.finished = true;
     this.stop();
     var statusDetails = this.buildStatusDetails(status);
@@ -103,55 +103,55 @@ $.extend(LiveLog.prototype, {
     this.startButton.addClass('d-none');
   },
 
-  stopAjaxRequest: function() { // jshint ignore:line
+  stopAjaxRequest: function() {
     if (this.ajaxRequest !== 0)
       this.ajaxRequest.abort();
     this.ajaxRequest = 0;
   },
 
-  showAbort: function() { // jshint ignore:line
+  showAbort: function() {
     $(".link_abort_build").removeClass('d-none');
     $(".link_trigger_rebuild").addClass('d-none');
   },
 
-  hideAbort: function() { // jshint ignore:line
+  hideAbort: function() {
     $(".link_abort_build").addClass('d-none');
     $(".link_trigger_rebuild").removeClass('d-none');
   },
 
-  indicatorStatus: function(status) { // jshint ignore:line
+  indicatorStatus: function(status) {
     this.logInfo.children().hide();
     this.logInfo.children('.' + status).show();
   },
 
-  faviconStatus: function(source) { // jshint ignore:line
+  faviconStatus: function(source) {
     if (typeof source !== 'undefined')
       $("link[rel='shortcut icon']").attr("href", source);
   },
 
   browserNotification: function(status) {
-    if (this.notificationSupport() && Notification.permission === "granted") {
+    if (this.notificationSupport() && Notification.permission === "granted") { // jshint ignore:line
       var statusDetails = this.buildStatusDetails(status);
-      new Notification('OBS: ' + statusDetails.content,
+      new Notification('OBS: ' + statusDetails.content, // jshint ignore:line
         { body: 'The status of your Open Build Service build is "' + statusDetails.indicator + '".', icon: statusDetails.favicon }
       );
     }
   },
 
-  askNotificationPermission: function () { // jshint ignore:line
-    if (this.notificationSupport() && Notification.permission === 'default') {
-      Notification.requestPermission().then(function (permission) {
+  askNotificationPermission: function () {
+    if (this.notificationSupport() && Notification.permission === 'default') { // jshint ignore:line
+      Notification.requestPermission().then(function (permission) { // jshint ignore:line
         if (permission === 'granted' || permission === 'denied') {
-          liveLog.notificationsButton.html(liveLog.notificationsButton.html().replace('Request Browser Notifications', 'Browser Notifications ' + Notification.permission));
-          liveLog.notificationsButton.addClass('disabled');
+          liveLog.notificationsButton.html(liveLog.notificationsButton.html().replace('Request Browser Notifications', 'Browser Notifications ' + Notification.permission)); // jshint ignore:line
+          liveLog.notificationsButton.addClass('disabled'); // jshint ignore:line
         }
       });
     }
   },
 
-  notificationSupport: function () { // jshint ignore:line
+  notificationSupport: function () {
     if (!('Notification' in window)) {
-      console.log("This browser does not support notifications.");
+      console.log("This browser does not support notifications."); // jshint ignore:line
       return false;
     } else {
       return true;
