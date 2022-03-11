@@ -2,6 +2,7 @@ var LiveLog = function(wrapperId, startButton, stopButton, status, finished, inf
   this.wrapper = $(wrapperId);
   this.startButton = $(startButton);
   this.stopButton = $(stopButton);
+  this.notificationsButton = $('.link_notifications');
   this.status = $(status);
   this.faviconFinished = faviconFinished;
   this.faviconRunning = faviconRunning;
@@ -20,6 +21,13 @@ $.extend(LiveLog.prototype, {
   initialize: function() {
     this.startButton.click($.proxy(this.start, this));
     this.stopButton.click($.proxy(this.stop, this));
+    if (Notification.permission === 'default') {
+      this.notificationsButton.click($.proxy(this.askNotificationPermission, this));
+    }
+    else {
+      this.notificationsButton.html(this.notificationsButton.html().replace('Request Browser Notifications', 'Browser Notifications ' + Notification.permission));
+      this.notificationsButton.addClass('disabled');
+    }
     this.start();
     this.initial = false;
     return this;
@@ -119,5 +127,34 @@ $.extend(LiveLog.prototype, {
   faviconStatus: function(source) { // jshint ignore:line
     if (typeof source !== 'undefined')
       $("link[rel='shortcut icon']").attr("href", source);
+  },
+
+  browserNotification: function(status) {
+    if (this.notificationSupport() && Notification.permission === "granted") {
+      var statusDetails = this.buildStatusDetails(status);
+      new Notification('OBS: ' + statusDetails.content,
+        { body: 'The status of your Open Build Service build is "' + statusDetails.indicator + '".', icon: statusDetails.favicon }
+      );
+    }
+  },
+
+  askNotificationPermission: function () { // jshint ignore:line
+    if (this.notificationSupport() && Notification.permission === 'default') {
+      Notification.requestPermission().then(function (permission) {
+        if (permission === 'granted' || permission === 'denied') {
+          liveLog.notificationsButton.html(liveLog.notificationsButton.html().replace('Request Browser Notifications', 'Browser Notifications ' + Notification.permission));
+          liveLog.notificationsButton.addClass('disabled');
+        }
+      });
+    }
+  },
+
+  notificationSupport: function () { // jshint ignore:line
+    if (!('Notification' in window)) {
+      console.log("This browser does not support notifications.");
+      return false;
+    } else {
+      return true;
+    }
   },
 });

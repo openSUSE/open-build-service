@@ -1,4 +1,4 @@
-%p
+%p.d-flex
   = link_to('#', class: 'start_refresh d-none live-link-action btn-info') do
     %i.far.fa-play-circle
     Start refresh
@@ -30,3 +30,8 @@
               class: 'link_abort_build live-link-action btn-danger d-none') do
       %i.far.fa-times-circle
       Abort Build
+
+  = link_to('#', class: 'link_notifications live-link-action btn-secondary ml-auto text-capitalize',
+            title: 'Request permission for browser notifications') do
+    %i.far.fa-bell
+    Request Browser Notifications
