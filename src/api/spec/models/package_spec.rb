@@ -319,17 +319,17 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#source_path' do
-    it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
-    it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
+    it { expect(package_with_file.source_path).to eq('/source/home%3Atom/package_with_files') }
+    it { expect(package_with_file.source_path('icon')).to eq('/source/home%3Atom/package_with_files/icon') }
+    it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home%3Atom/package_with_files/icon?format=html') }
   end
 
   describe '#public_source_path' do
-    it { expect(package_with_file.public_source_path).to eq('/public/source/home:tom/package_with_files') }
-    it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
+    it { expect(package_with_file.public_source_path).to eq('/public/source/home%3Atom/package_with_files') }
+    it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home%3Atom/package_with_files/icon') }
 
     it 'adds the format parameter to the url that was given to the method' do
-      expect(package_with_file.public_source_path('icon', format: :html)).to eq('/public/source/home:tom/package_with_files/icon?format=html')
+      expect(package_with_file.public_source_path('icon', format: :html)).to eq('/public/source/home%3Atom/package_with_files/icon?format=html')
     end
   end
 
