@@ -13,10 +13,8 @@ module Webui::WebuiHelper
       cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
     end
 
-    CGI.escape(
-      "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
-      "&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}"
-    )
+    return "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
+      "&component=3rd%20party%20software&assigned_to=#{CGI.escape(assignee.to_s)}#{CGI.escape(cc.to_s)}&short_desc=#{CGI.escape(desc.to_s)}"
   end
 
   def fuzzy_time(time, with_fulltime = true)

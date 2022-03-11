@@ -84,7 +84,7 @@ RSpec.describe Webui::WebuiHelper do
     it 'adds an assignee and description if parameters where given' do
       expected_attributes = @expected_attributes.clone
       expected_attributes[:short_desc] = 'some_description'
-      expected_attributes[:assigned_to] = 'assignee@example.org'
+      expected_attributes[:assigned_to] = 'assignee%40example.org'
 
       expected_url = 'https://bugzilla.example.org/enter_bug.cgi?' +
                      expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
