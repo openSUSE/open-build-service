@@ -428,8 +428,8 @@ class Package < ApplicationRecord
   end
 
   def self.source_path(project, package, file = nil, opts = {})
-    path = "/source/#{URI.escape(project)}/#{URI.escape(package)}"
-    path += "/#{URI.escape(file)}" if file.present?
+    path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
+    path += "/#{CGI.escape(file)}" if file.present?
     path += '?' + opts.to_query if opts.present?
     path
   end
@@ -1324,7 +1324,7 @@ class Package < ApplicationRecord
       permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
 
       # do not use project.name because we missuse the package source container for build container operations
-      Backend::Connection.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
+      Backend::Connection.post("/build/#{CGI.escape(build_project)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
     rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false

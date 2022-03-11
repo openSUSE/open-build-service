@@ -13,7 +13,7 @@ module Webui::WebuiHelper
       cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
     end
 
-    URI.escape(
+    CGI.escape(
       "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
       "&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}"
     )

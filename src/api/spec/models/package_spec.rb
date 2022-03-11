@@ -652,7 +652,7 @@ RSpec.describe Package, vcr: true do
       before do
         if CONFIG['global_write_through']
           full_path = "/source/#{package.project.name}/#{package.name}/lorem.changes"
-          Backend::Connection.put(URI.escape(full_path), 'Lorem ipsum dolorem')
+          Backend::Connection.put(CGI.escape(full_path), 'Lorem ipsum dolorem')
         end
       end
 
