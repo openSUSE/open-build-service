@@ -1333,7 +1333,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # via POST
-    post '/search/request', params: URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
+    post '/search/request', params: Addressable::URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
     assert_response :success
     assert_xml_tag(tag: 'request', attributes: { id: id })
 
