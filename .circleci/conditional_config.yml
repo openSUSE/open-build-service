@@ -39,18 +39,18 @@ images:
 
   - &backend registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend:latest
 
-  - &frontend_backend
+  - &frontend_minitest
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-backend:latest
     <<: *common_frontend_config
     environment:
       EAGER_LOAD: 1
 
   - &frontend_base
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base-ci:latest
     <<: *common_frontend_config
 
-  - &frontend_base_ci
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base-ci:latest
+  - &frontend_features
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
 aliases:
   - &install_dependencies
     name: install dependencies
@@ -126,7 +126,7 @@ jobs:
 
   linters:
     docker:
-      - <<: *frontend_base_ci
+      - <<: *frontend_base
     steps:
       - attach_workspace:
          at: .
@@ -176,7 +176,7 @@ jobs:
 
   checkout_code:
     docker:
-      - <<: *frontend_base_ci
+      - <<: *frontend_base
     steps:
       - checkout
       - run: *install_dependencies
@@ -240,7 +240,7 @@ jobs:
   minitest:
     parallelism: 2
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_minitest
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -276,7 +276,7 @@ jobs:
 
   migrations_tests:
     docker:
-      - <<: *frontend_base_ci
+      - <<: *frontend_base
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -295,7 +295,7 @@ jobs:
             bundle exec rake data:migrate
   spider:
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_minitest
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -324,8 +324,7 @@ jobs:
 
   coverage:
     docker:
-      - <<: *frontend_base_ci
-
+      - <<: *frontend_base
     steps:
       - attach_workspace:
          at: .
@@ -346,7 +345,7 @@ jobs:
   feature:
     parallelism: 2
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_features
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -382,7 +381,7 @@ jobs:
 
   next_rails-rspec:
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_features
       - <<: *mariadb
     environment:
       BUNDLE_GEMFILE: Gemfile.next
@@ -402,7 +401,7 @@ jobs:
 
   next_rails-minitest:
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_minitest
       - <<: *mariadb
     environment:
       BUNDLE_GEMFILE: Gemfile.next
