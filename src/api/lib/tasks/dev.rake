@@ -249,6 +249,42 @@ namespace :dev do
     end
   end
 
+  # Run this task with: rails dev:workflow_runs:data"
+  namespace :workflow_runs do
+    desc 'Creates a workflow token, workflow runs, artifacts and some of their dependencies'
+    task data: :environment do
+      unless Rails.env.development?
+        puts "You are running this rake task in #{Rails.env} environment."
+        puts 'Please only run this task with RAILS_ENV=development'
+        puts 'otherwise it will destroy your database data.'
+        return
+      end
+
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      puts 'Creating workflow token and workflow runs...'
+
+      admin = User.get_default_admin
+      User.session = admin
+      project = find_or_create_project(admin.home_project_name, admin)
+
+      workflow_token = Token::Workflow.find_by(name: 'Testing token') || create(:workflow_token, user: admin, name: 'Testing token')
+
+      create(:running_workflow_run, token: workflow_token)
+      create(:failed_workflow_run, token: workflow_token)
+      succeeded_workflow_run = create(:succeeded_workflow_run, token: workflow_token)
+
+      source_project_name = project.name
+      target_project_name = "#{project.name}:CI:repo:PR-1"
+
+      create(:workflow_artifacts_per_step_branch_package, workflow_run: succeeded_workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+      create(:workflow_artifacts_per_step_link_package, workflow_run: succeeded_workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+      create(:workflow_artifacts_per_step_rebuild_package, workflow_run: succeeded_workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+      create(:workflow_artifacts_per_step_config_repositories, workflow_run: succeeded_workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+    end
+  end
+
   # This is automatically run in Review App or manually in development env.
   namespace :development_testdata do
     desc 'Creates test data to play with in dev and CI environments'
@@ -400,6 +436,9 @@ namespace :dev do
 
       # Create notifications by running the `dev:notifications:data` task two times
       Rake::Task['dev:notifications:data'].invoke(2)
+
+      # Create a workflow token, some workflow runs and their related data
+      Rake::Task['dev:workflow_runs:data'].invoke
     end
   end
 end
@@ -435,6 +474,14 @@ def create_and_assign_project(project_name, user)
   create(:project, name: project_name).tap do |project|
     create(:relationship, project: project, user: user, role: Role.hashed['maintainer'])
   end
+end
+
+def find_or_create_project(project_name, user)
+  project = Project.joins(:relationships)
+                   .where(projects: { name: project_name }, relationships: { user: user }).first
+  return project if project
+
+  create_and_assign_project(project_name, user)
 end
 
 def subscribe_to_all_notifications(user)
