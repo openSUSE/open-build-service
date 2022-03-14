@@ -97,7 +97,7 @@ module MaintenanceHelper
     link.remove_attribute('project') # its a local link, project name not needed
     link['package'] = link['package'].gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.') # adapt link target with suffix
     link_xml = link.to_xml
-    Backend::Connection.put "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}/_link?rev=repository&user=#{CGI.escape(User.session!.login)}", link_xml
+    Backend::Connection.put Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}/_link?rev=repository&user=#{User.session!.login}"), link_xml
 
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
@@ -108,7 +108,7 @@ module MaintenanceHelper
       comment: "Set local link to #{target_package_name} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.number if action
-    upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}"
+    upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
     upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     tpkg.sources_changed(dir_xml: answer)
@@ -131,7 +131,7 @@ module MaintenanceHelper
       rev: 'repository',
       comment: "Set link to #{target_package_name} via maintenance_release request"
     }
-    upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(base_package_name)}/_link"
+    upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{base_package_name}/_link")
     upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :rev])
     link = "<link package='#{target_package_name}' cicount='copy' />\n"
     md5 = Digest::MD5.hexdigest(link)
@@ -140,7 +140,7 @@ module MaintenanceHelper
     upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
     upload_params[:requestid] = request.number if request
-    upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(base_package_name)}"
+    upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{base_package_name}")
     upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     lpkg.sources_changed(dir_xml: answer)
@@ -232,7 +232,7 @@ module MaintenanceHelper
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
     cp_params[:multibuild] = '1' unless source_package_name.include?(':')
-    cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(target_package_name)}"
+    cp_path = Addressable::URI.escape("/build/#{target_repository.project.name}/#{target_repository.name}/#{arch.name}/#{target_package_name}")
 
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
                                                                      :orepository, :setupdateinfoid,
