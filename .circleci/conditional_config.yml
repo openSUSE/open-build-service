@@ -123,11 +123,13 @@ aliases:
 
   - &restore_rubocop_cache
     restore_cache:
-      key: circlev2-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
+      name: Restoring Rubocop Cache
+      key: rubocop-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
 
   - &save_rubocop_cache
     save_cache:
-      key: circlev2-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
+      name: Saving Rubocop Cache
+      key: rubocop-{{ .Branch }}-{{ checksum "./src/api/Gemfile.lock" }}
       paths:
         - src/api/tmp/rubocop_cache_root_dir
         - src/api/tmp/rubocop_cache_rails_dir
@@ -150,6 +152,12 @@ jobs:
     steps:
       - attach_workspace:
          at: .
+      - run:
+          name: Run rubocop
+          command: |
+            cd src/api;
+            bundle exec rake dev:lint:rubocop:all
+      - *save_rubocop_cache
       - when:
           condition: << pipeline.parameters.run-javascripts-linter >>
           steps:
@@ -162,13 +170,6 @@ jobs:
       - when:
           condition: << pipeline.parameters.run-dist-linter >>
           steps:
-            - *restore_rubocop_cache
-            - run:
-                name: Run rubocop on root
-                command: |
-                  cd src/api
-                  bundle exec rake dev:lint:rubocop:root
-            - *save_rubocop_cache
             - run:
                 name: Run dist linters
                 command: |
@@ -196,17 +197,10 @@ jobs:
     steps:
       - checkout
       - *restore_bundler_cache
+      - *restore_rubocop_cache
       - run: *install_dependencies
       - *save_bundler_cache
       - run: *install_circle_cli
-      - *restore_rubocop_cache
-      - run:
-          name: Run src/api rubocop
-          command: |
-            cd src/api;
-            bundle exec rake dev:lint:rubocop:rails
-      - run: rm -rf src/api/tmp/rubocop*
-      - *save_rubocop_cache
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
