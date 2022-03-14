@@ -52,10 +52,30 @@ images:
   - &frontend_features
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
 aliases:
+  - &restore_bundler_cache
+    restore_cache:
+      name: Restoring Bundle Cache
+      key: bundle-{{ checksum "src/api/Gemfile.lock" }}
+
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle install --jobs=4 --retry=3
+      cd ./src/api
+      # TODO: Keep build options in sync with obs-bundled-gems.spec
+      bundle config build.ffi --enable-system-libffi
+      bundle config build.nokogiri --use-system-libraries
+      bundle config build.sassc --disable-march-tune-native
+      bundle config build.nio4r --with-cflags='-Wno-return-type'
+      bundle config set --local path 'vendor/bundle'
+      bundle install --jobs=4 --retry=3 --local
+
+  - &save_bundler_cache
+    save_cache:
+      name: Saving Bundle Cache
+      key: bundle-{{ checksum "src/api/Gemfile.lock" }}
+      paths:
+        - "src/api/vendor/bundle"
+
   - &wait_for_database
     name: Wait for DB
     command: mysqladmin ping -h db
@@ -156,7 +176,6 @@ jobs:
       - when:
           condition: << pipeline.parameters.run-haml-linter >>
           steps:
-            - run: *install_dependencies
             - run:
                 name: Run HAML linter
                 command: |
@@ -169,7 +188,6 @@ jobs:
                 name: Run Documentation linter
                 command: |
                   cd src/api
-
                   find public/apidocs-new -name '*.yaml' | xargs -P8 -I % ruby -e "require 'yaml'; YAML.load_file '%'"
 
   checkout_code:
@@ -177,7 +195,9 @@ jobs:
       - <<: *frontend_base
     steps:
       - checkout
+      - *restore_bundler_cache
       - run: *install_dependencies
+      - *save_bundler_cache
       - run: *install_circle_cli
       - *restore_rubocop_cache
       - run:
@@ -203,7 +223,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *wait_for_database
       - run: *create_test_db
       - run: mkdir /home/frontend/rspec
@@ -243,7 +262,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
       - run: *bootstrap_old_test_suite
@@ -279,7 +297,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
       - run:
@@ -291,6 +308,7 @@ jobs:
             bundle exec rake db:migrate
             bundle exec rake db:seed
             bundle exec rake data:migrate
+
   spider:
     docker:
       - <<: *frontend_minitest
@@ -298,7 +316,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
       - run: *bootstrap_old_test_suite
@@ -326,7 +343,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run:
           name: Merge and check coverage
           command: |
@@ -348,7 +364,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *wait_for_database
       - run: *create_test_db
       - run: mkdir /home/frontend/feature
@@ -386,7 +401,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *create_test_db
       - run: *wait_for_database
@@ -406,7 +420,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
       - run: *bootstrap_old_test_suite
@@ -428,6 +441,7 @@ workflows:
       - migrations_tests:
           requires:
             - checkout_code
+
   backend_tests:
     when: << pipeline.parameters.run-backend-tests >>
     jobs:
