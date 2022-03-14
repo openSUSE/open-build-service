@@ -15,7 +15,7 @@ workflows:
       - path-filtering/filter:
           name: Define dynamic CI pipeline
           mapping: |
-            (dist|contrib)/.* run-root-rubocop true
+            dist/.* run-dist-linter true
             src/backend/.* run-backend-tests true
             src/api/app/(views|components)/.* run-haml-linter true
             src/api/db/.* run-migrations-tests true

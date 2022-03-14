@@ -17,7 +17,7 @@ parameters:
     type: boolean
     default: false
 
-  run-root-rubocop:
+  run-dist-linter:
     type: boolean
     default: false
 
@@ -121,7 +121,7 @@ jobs:
       - run: echo "run-backend-tests is << pipeline.parameters.run-backend-tests >>"
       - run: echo "run-javascripts-linter is << pipeline.parameters.run-javascripts-linter >>"
       - run: echo "run-migrations-tests is << pipeline.parameters.run-migrations-tests >>"
-      - run: echo "run-root-rubocop is << pipeline.parameters.run-root-rubocop >>"
+      - run: echo "run-dist-linter is << pipeline.parameters.run-dist-linter >>"
       - run: echo "run-haml-linter is << pipeline.parameters.run-haml-linter >>"
 
   linters:
@@ -140,7 +140,7 @@ jobs:
                 name: Run jshint
                 command: cd src/api && jshint app/assets/javascripts
       - when:
-          condition: << pipeline.parameters.run-root-rubocop >>
+          condition: << pipeline.parameters.run-dist-linter >>
           steps:
             - *restore_rubocop_cache
             - run:
@@ -152,9 +152,7 @@ jobs:
             - run:
                 name: Run dist linters
                 command: |
-                  ls -l
                   make -C dist scripts_linters
-
       - when:
           condition: << pipeline.parameters.run-haml-linter >>
           steps:
