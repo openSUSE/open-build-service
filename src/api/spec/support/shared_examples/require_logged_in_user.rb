@@ -2,7 +2,7 @@ RSpec.shared_examples 'require logged in user' do
   let(:default_opts) { {} }
   let(:opts) { {} }
 
-  subject { process(action, { method: method, **default_opts.merge(opts) }) }
+  subject { process(action, method: method, **default_opts.merge(opts)) }
 
   it 'sets flash error message' do
     subject
