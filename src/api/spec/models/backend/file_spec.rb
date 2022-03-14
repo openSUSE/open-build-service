@@ -20,7 +20,7 @@ RSpec.describe Backend::File, vcr: true do
       attr_accessor :somefile
 
       def full_path(_query)
-        URI.encode(somefile)
+        Addressable::URI.encode(somefile)
       end
     end
   end

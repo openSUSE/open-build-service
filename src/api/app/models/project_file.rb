@@ -11,6 +11,6 @@ class ProjectFile < Backend::File
 
   # calculates the real url on the backend to search the file
   def full_path(query = {})
-    URI.encode("/source/#{project_name}/_project/#{name}") + "?#{query.to_query}"
+    Addressable::URI.encode("/source/#{project_name}/_project/#{name}") + "?#{query.to_query}"
   end
 end
