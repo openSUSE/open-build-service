@@ -64,7 +64,7 @@ class GroupController < ApplicationController
 
   # POST for editing it, adding or remove users
   def command
-    group = Group.find_by_title!(URI.unescape(params[:title]))
+    group = Group.find_by_title!(CGI.unescape(params[:title]))
     authorize group, :update?
 
     user = User.find_by_login!(params[:userid]) if params[:userid]
