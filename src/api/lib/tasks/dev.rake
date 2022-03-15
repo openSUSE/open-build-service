@@ -193,7 +193,7 @@ namespace :dev do
 
       # Users
       admin = User.where(login: 'Admin').first || create(:admin_user, login: 'Admin')
-      group = create(:groups_user, user: admin, group: create(:group, title: Faker::Creature::Cat.name)).group
+      group = create(:groups_user, user: admin, group: create(:group, title: Faker::Lorem.word)).group
       subscribe_to_all_notifications(admin)
       requestor = User.where(login: 'Requestor').first || create(:confirmed_user, login: 'Requestor')
       User.session = requestor
