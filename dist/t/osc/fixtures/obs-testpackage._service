@@ -1,7 +1,7 @@
 <services>
   <service name="obs_scm">
     <param name="version">0.0.1</param>
-    <param name="url">git://github.com/openSUSE/obs-testpackage.git</param>
+    <param name="url">https://github.com/openSUSE/obs-testpackage.git</param>
     <param name="scm">git</param>
     <param name="extract">dist/obs-testpackage.spec</param>
   </service>
