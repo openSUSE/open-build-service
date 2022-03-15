@@ -54,4 +54,11 @@ RSpec.describe SourceController, vcr: true do
       it { expect(response.status).to eq(302) }
     end
   end
+
+  describe 'POST #package_command_undelete' do
+    skip('TODO')
+    # - permissions
+    # - params[:time] permission
+    # - maybe refactor to Package.restore?
+  end
 end
