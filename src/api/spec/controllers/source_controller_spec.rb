@@ -56,9 +56,68 @@ RSpec.describe SourceController, vcr: true do
   end
 
   describe 'POST #package_command_undelete' do
-    skip('TODO')
-    # - permissions
-    # - params[:time] permission
-    # - maybe refactor to Package.restore?
+    context 'when not having permissions on the deleted package' do
+      let(:package) { create(:package) }
+
+      before do
+        package.destroy
+        login user
+
+        post :package_command, params: {
+          cmd: 'undelete', project: package.project, package: package
+        }
+      end
+
+      it { expect(response.status).to eq(302) }
+      it { expect(flash[:error]).to have_text('no permission to create package') }
+    end
+
+    context 'when having permissions on the deleted package' do
+      let(:package) { create(:package, name: 'some_package', project: project) }
+
+      before do
+        package.destroy
+        login user
+
+        post :package_command, params: {
+          cmd: 'undelete', project: package.project, package: package
+        }
+      end
+
+      it { expect(response.status).to eq(200) }
+    end
+
+    context 'when not having permissions to set the time' do
+      let(:package) { create(:package, project: project) }
+
+      before do
+        package.destroy
+        login user
+
+        post :package_command, params: {
+          cmd: 'undelete', project: package.project, package: package, time: 1.month.ago
+        }
+      end
+
+      it { expect(response.status).to eq(302) }
+      it { expect(flash[:error]).to have_text('Only administrators are allowed to set the time') }
+    end
+
+    context 'when having permissions to set the time' do
+      let(:admin) { create(:admin_user, login: 'admin') }
+      let(:package) { create(:package, name: 'some_package', project: project) }
+      let(:future) { 4_803_029_439 }
+
+      before do
+        package.destroy
+        login admin
+
+        post :package_command, params: {
+          cmd: 'undelete', project: package.project, package: package, time: future
+        }
+      end
+
+      it { expect(response.status).to eq(200) }
+    end
   end
 end
