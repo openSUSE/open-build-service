@@ -467,8 +467,6 @@ class Webui::PackageController < Webui::WebuiController
       end
 
       @log_chunk = get_log_chunk(@project, @package_name, @repo, @arch, chunk_start, chunk_end)
-      # retry the last chunk again, because build compare overwrites last log lines
-      @log_chunk = get_log_chunk(@project, @package_name, @repo, @arch, chunk_start, chunk_end) if @log_chunk.length.zero? && !@first_request && !@finished
 
       old_offset = @offset
       @offset = [chunk_end, @size].min
@@ -487,8 +485,6 @@ class Webui::PackageController < Webui::WebuiController
         @finished = true
       end
     end
-
-    logger.debug 'finished ' + @finished.to_s
   end
 
   def abort_build
