@@ -226,9 +226,9 @@ class PersonController < ApplicationController
 
     login = xml.elements['/userchangepasswd/login'].text
     password = xml.elements['/userchangepasswd/password'].text
-    login = URI.unescape(login)
+    login = CGI.unescape(login)
 
-    change_password(login, URI.unescape(password))
+    change_password(login, CGI.unescape(password))
     render_ok
   end
 
