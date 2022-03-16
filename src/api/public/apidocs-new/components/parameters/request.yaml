@@ -63,7 +63,14 @@ Limit:
   name: limit
   schema:
     type: integer
-  description: Limit the results to the specified amount of requests.
+  description: Limit the results by the specified amount of requests.
+  example: 7
+Offset:
+  in: query
+  name: offset
+  schema:
+    type: integer
+  description: Offset the results by the specified amount of requests.
   example: 7
 Ids:
   in: query
