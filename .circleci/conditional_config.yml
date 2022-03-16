@@ -40,17 +40,17 @@ images:
   - &backend registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend:latest
 
   - &frontend_minitest
-    image: registry.opensuse.org/obs/server/unstable/containers/ruby31/containers/openbuildservice/frontend-minitest:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-minitest:latest
     <<: *common_frontend_config
     environment:
       EAGER_LOAD: 1
 
   - &frontend_base
-    image: registry.opensuse.org/obs/server/unstable/containers/ruby31/containers/openbuildservice/frontend-base:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
     <<: *common_frontend_config
 
   - &frontend_features
-    image: registry.opensuse.org/obs/server/unstable/containers/ruby31/containers/openbuildservice/frontend-features:latest
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
 aliases:
   - &restore_bundler_cache
     restore_cache:
