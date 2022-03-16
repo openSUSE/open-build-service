@@ -6812,16 +6812,16 @@ sub external_notification_sourcepublish {
     }
 
     if ($BSConfig::sourcepublish_blocklist) {
-      my $xml = readxml("$projectsdir/$project.xml", $BSXML::proj, 1);
-      die("400 Unable to parse $project.xml\n") unless $xml;
-      if ( {$xml->{'kind'} || ''} eq 'maintenance_release' ) {
-        if (grep {$package =~ /^$_\./} @$BSConfig::sourcepublish_blocklist) {
+      my $proj = readxml("$projectsdir/$project.xml", $BSXML::proj, 1);
+      die("400 Unable to parse $project.xml\n") unless $proj;
+      if ( ($proj->{'kind'} || '') eq 'maintenance_release' ) {
+        if (grep {$package eq $_ || $package =~ /^\Q$_\E\./} @$BSConfig::sourcepublish_blocklist) {
           BSUtil::printlog("block list hit for $package in maintenance release project");
-          return;
+          next;
         }
       } elsif (grep {$package eq $_} @$BSConfig::sourcepublish_blocklist) {
         BSUtil::printlog("block list hit for $package");
-        return;
+        next;
       }
     }
 
