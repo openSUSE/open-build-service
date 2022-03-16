@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_10_154407) do
+ActiveRecord::Schema.define(version: 2022_03_09_122242) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -361,6 +361,14 @@ ActiveRecord::Schema.define(version: 2022_02_10_154407) do
     t.string "locked_by", collation: "utf8_general_ci"
     t.string "queue", collation: "utf8_general_ci"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
+  end
+
+  create_table "disabled_beta_features", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id", "name"], name: "index_disabled_beta_features_on_user_id_and_name", unique: true
   end
 
   create_table "distribution_icons", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|

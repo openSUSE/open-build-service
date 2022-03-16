@@ -3,8 +3,6 @@
 require 'fileutils'
 require 'yaml'
 
-ENABLED_FEATURE_FLAGS = [:notifications_redesign, :trigger_workflow, :new_watchlist].freeze
-
 namespace :dev do
   task :prepare do
     puts 'Setting up the database configuration...'
@@ -54,14 +52,10 @@ namespace :dev do
       puts 'Configure default signing'
       Rake::Task['assets:clobber'].invoke
       ::Configuration.update(enforce_project_keys: true)
-      # Enable all feature flags for all beta users in the development environment to easily join the beta and test changes
-      # related to feature flags while also being able to test changes for non-beta users, so without any feature flag enabled
-      ENABLED_FEATURE_FLAGS.each do |feature_flag|
-        puts "Enabling feature flag #{feature_flag} for all beta users"
-        Flipper.disable(feature_flag) # making sure we are starting from a clean state since the database is not overwritten if already present
-        Flipper.enable(feature_flag, :beta)
-      end
     end
+
+    puts 'Enable feature toggles for their group'
+    Rake::Task['flipper:enable_features_for_group'].invoke
   end
 
   desc 'Run all linters we use'
@@ -303,10 +297,8 @@ namespace :dev do
       Rails.cache.clear
       Rake::Task['db:reset'].invoke
 
-      # Enable all the feature flags for all logged-in and not-logged-in users in development env.
-      ENABLED_FEATURE_FLAGS.each do |feature_flag|
-        Flipper[feature_flag].enable
-      end
+      puts 'Enable feature toggles for their group'
+      Rake::Task['flipper:enable_features_for_group'].invoke
 
       iggy = create(:confirmed_user, login: 'Iggy')
       admin = User.get_default_admin
