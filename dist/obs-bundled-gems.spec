@@ -147,25 +147,20 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/seleniu
 # remove all gitignore files to fix rpmlint version-control-internal-file
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
-# use the ruby interpreter set by this spec file in all installed binaries.
+# use the ruby interpreter set by this spec file in all installed ruby scripts
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e 's,/usr/bin/env ruby.ruby3.1,%{__obs_ruby_interpreter},' $bin
-  sed -i -e 's,/usr/bin/env ruby,%{__obs_ruby_interpreter},' $bin
-  sed -i -e 's,/usr/bin/ruby,%{__obs_ruby_interpreter},' $bin
+  %{__obs_ruby_interpreter} -r rubygems -p -i -e \
+  '$_.gsub!(/\A#!.*ruby.*$/, "#!#{Gem.ruby}")' \
+  $(grep '#!.*ruby' -rl .)
 done
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
-  sed -i -e 's,/usr/bin/env ruby.ruby3.1,%{__obs_ruby_interpreter},' $bin
-  sed -i -e 's,/usr/bin/env ruby,%{__obs_ruby_interpreter},' $bin
-  sed -i -e 's,/usr/bin/ruby,%{__obs_ruby_interpreter},' $bin
+  %{__obs_ruby_interpreter} -r rubygems -p -i -e \
+  '$_.gsub!(/\A#!.*ruby.*$/, "#!#{Gem.ruby}")' \
+  $(grep '#!.*ruby' -rl .)
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
-  chmod a-x $file
-done
-
-# remove exec bit from all other files still containing /usr/bin/ruby
-find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/ruby | while read file; do
   chmod a-x $file
 done
 
