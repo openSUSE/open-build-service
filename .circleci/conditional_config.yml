@@ -189,7 +189,7 @@ jobs:
                 name: Run Documentation linter
                 command: |
                   cd src/api
-                  find public/apidocs-new -name '*.yaml' | xargs -P8 -I % ruby -e "require 'yaml'; YAML.load_file '%'"
+                  bundle exec rake dev:lint:apidocs
 
   checkout_code:
     docker:
