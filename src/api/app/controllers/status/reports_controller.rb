@@ -17,7 +17,7 @@ class Status::ReportsController < ApplicationController
                        @checkable.status_reports.find_by!(uuid: params[:report_uuid])
                      else
                        # request reports don't have uuid
-                       @checkable.status_reports.first
+                       @checkable.status_reports.first!
                      end
   end
 end
