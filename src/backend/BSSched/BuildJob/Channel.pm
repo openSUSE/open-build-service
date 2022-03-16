@@ -318,6 +318,7 @@ sub build {
     if (!@s || "$s[9]/$s[7]/$s[1]" ne $bi->{'id'}) {
       BSUtil::cleandir($jobdatadir);
       rmdir($jobdatadir);
+      $ctx->rebuild_gbininfo("$projid/$arepoid");	# the bininfo is wrong. trigger a rebuild
       return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
     }
     my $tfilename = $bi->{'filename'};
