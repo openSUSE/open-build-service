@@ -23,6 +23,7 @@ get:
     - $ref: '../components/parameters/request.yaml#/WithHistory'
     - $ref: '../components/parameters/request.yaml#/WithFullHistory'
     - $ref: '../components/parameters/request.yaml#/Limit'
+    - $ref: '../components/parameters/request.yaml#/Offset'
     - $ref: '../components/parameters/request.yaml#/Ids'
   responses:
     '200':
