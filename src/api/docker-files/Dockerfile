@@ -3,7 +3,7 @@
 # contained rails app generating files in the git checkout with
 # some strange user...
 
-FROM registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base
+FROM registry.opensuse.org/obs/server/unstable/containers/ruby31/containers/openbuildservice/frontend-features:latest
 ARG CONTAINER_USERID
 
 # for lint task
@@ -27,9 +27,14 @@ RUN chown -R frontend /obs/src/api
 USER frontend
 WORKDIR /obs/src/api
 
-ENV BUNDLE_BUILD__SASSC=--disable-march-tune-native
+# Configure our bundle
+RUN bundle config build.ffi --enable-system-libffi; \
+    bundle config build.nokogiri --use-system-libraries; \
+    bundle config build.sassc --disable-march-tune-native; \
+    bundle config build.nio4r --with-cflags='-Wno-return-type'
+
 # Refresh our bundle
-RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
+RUN bundle install --jobs=3 --retry=3
 
 # Run our command
 CMD ["foreman", "start", "-f", "Procfile"]

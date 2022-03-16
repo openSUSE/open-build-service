@@ -37,7 +37,6 @@ http_interactions:
           <title>A Summer Bird-Cage</title>
           <description></description>
         </project>
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
 - request:
     method: put
@@ -73,7 +72,6 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
 - request:
     method: put
@@ -112,7 +110,6 @@ http_interactions:
           <title>Cabbages and Kings</title>
           <description>Quod aut et voluptatem cum odio qui.</description>
         </package>
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
 - request:
     method: put
@@ -151,7 +148,6 @@ http_interactions:
           <title>Cabbages and Kings</title>
           <description>Quod aut et voluptatem cum odio qui.</description>
         </package>
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:57 GMT
 - request:
     method: put
@@ -190,7 +186,6 @@ http_interactions:
           <title>Consider Phlebas</title>
           <description></description>
         </project>
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
 - request:
     method: put
@@ -224,7 +219,6 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
 - request:
     method: put
@@ -265,7 +259,6 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
 - request:
     method: put
@@ -304,7 +297,6 @@ http_interactions:
           <title>Now Sleeps the Crimson Petal</title>
           <description></description>
         </project>
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
 - request:
     method: put
@@ -338,6 +330,157 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
   recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_meta?user=user_13
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>The Grapes of Wrath</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>The Grapes of Wrath</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 15 Mar 2022 14:59:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/multibuild/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_6">
+          <title>O Jerusalem!</title>
+          <description>Et quam fuga ullam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_6">
+          <title>O Jerusalem!</title>
+          <description>Et quam fuga ullam.</description>
+        </package>
+  recorded_at: Tue, 15 Mar 2022 14:59:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>Antic Hay</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '95'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>Antic Hay</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 15 Mar 2022 14:59:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_8/_meta?user=user_16
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_8">
+          <title>To Your Scattered Bodies Go</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_8">
+          <title>To Your Scattered Bodies Go</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 15 Mar 2022 14:59:05 GMT
+recorded_with: VCR 6.0.0

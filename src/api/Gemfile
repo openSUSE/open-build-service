@@ -93,6 +93,18 @@ gem 'gitlab'
 # Build reusable, testable & encapsulated view components in Ruby on Rails
 gem 'view_component'
 
+# FIXME: Required by the mail gem
+# See https://github.com/rails/rails/pull/44083
+gem 'net-smtp', require: false
+gem 'net-pop', require: false
+gem 'net-imap', require: false
+
+# Used in Package and XpathEngine
+gem 'rexml'
+# FIXME: for prawn, matrix isn't in the default set of Ruby 3.1 anymore
+# see https://github.com/prawnpdf/prawn/commit/3658d5125c3b20eb11484c3b039ca6b89dc7d1b7
+gem 'matrix', '~> 0.4'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'

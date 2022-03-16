@@ -148,6 +148,7 @@ GEM
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.5.0)
+    digest (3.1.0)
     docile (1.4.0)
     down (5.3.0)
       addressable (~> 2.8)
@@ -237,6 +238,7 @@ GEM
       influxdb (~> 0.6, >= 0.6.4)
       railties (>= 5.0)
     innertube (1.1.0)
+    io-wait (0.2.1)
     joiner (0.6.0)
       activerecord (>= 6.1.0)
     jquery-datatables (1.10.20)
@@ -272,6 +274,7 @@ GEM
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     marcel (1.0.2)
+    matrix (0.4.2)
     method_source (1.0.0)
     middleware (0.1.0)
     mime-types (3.4.1)
@@ -293,6 +296,21 @@ GEM
     multi_xml (0.6.0)
     multipart-post (2.1.1)
     mysql2 (0.5.3)
+    net-imap (0.2.3)
+      digest
+      net-protocol
+      strscan
+    net-pop (0.1.1)
+      digest
+      net-protocol
+      timeout
+    net-protocol (0.1.2)
+      io-wait
+      timeout
+    net-smtp (0.3.1)
+      digest
+      net-protocol
+      timeout
     next_rails (1.0.4)
       colorize (>= 0.8.1)
     nio4r (2.5.8)
@@ -437,8 +455,8 @@ GEM
       rubyzip (>= 1.2.2)
     set (1.0.2)
     sexp_processor (4.16.0)
-    shoulda-matchers (4.5.1)
-      activesupport (>= 4.2.0)
+    shoulda-matchers (5.1.0)
+      activesupport (>= 5.2.0)
     simplecov (0.16.1)
       docile (~> 1.1)
       json (>= 1.8, < 3)
@@ -458,6 +476,7 @@ GEM
       sprockets (>= 3.0.0)
     strong_migrations (0.7.9)
       activerecord (>= 5)
+    strscan (3.0.1)
     sync (0.5.0)
     sysexits (1.2.0)
     temple (0.8.2)
@@ -474,9 +493,10 @@ GEM
       joiner (>= 0.3.4)
       middleware (>= 0.1.0)
       riddle (~> 2.3)
-    thor (1.1.0)
+    thor (1.2.1)
     tilt (2.0.10)
     timecop (0.9.5)
+    timeout (0.2.0)
     tins (1.31.0)
       sync
     tzinfo (2.0.4)
@@ -561,12 +581,16 @@ DEPENDENCIES
   kaminari
   launchy
   lograge
+  matrix (~> 0.4)
   minitest
   minitest-ci
   minitest-fail-fast
   minitest-reporters
   mocha
   mysql2
+  net-imap
+  net-pop
+  net-smtp
   next_rails
   nokogiri
   octokit
@@ -580,6 +604,7 @@ DEPENDENCIES
   rantly
   rdoc
   redcarpet
+  rexml
   rspec
   rspec-rails
   rspec_junit_formatter
@@ -607,4 +632,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.17.3
+   2.3.7

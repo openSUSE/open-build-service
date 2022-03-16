@@ -40,13 +40,10 @@ BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 BuildRequires:  python-devel
 %if 0%{?suse_version}
-%define __obs_ruby_version 2.5.0
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby2.5
-BuildRequires:  ruby2.5-devel
-BuildRequires:  rubygem(ruby:%{__obs_ruby_version}:bundler)
+%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
+BuildRequires:  ruby3.1-devel
 BuildRequires:  openldap2-devel
 %else
-%define __obs_ruby_version 2.6.0
 %define __obs_ruby_interpreter /usr/bin/ruby
 BuildRequires:  ruby-devel
 BuildRequires:  rubygem-bundler
@@ -59,9 +56,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %description
 This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
-
-%define rake_version 13.0.6
-%define rack_version 2.2.3
 
 %package -n obs-api-deps
 Summary:        Holding dependencies required to run the OBS frontend
@@ -77,9 +71,7 @@ Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
-Requires:       rubygem(ruby:%{__obs_ruby_version}:bundler)
-Requires:       rubygem(ruby:%{__obs_ruby_version}:rake:%{rake_version})
-Requires:       rubygem(ruby:%{__obs_ruby_version}:rack:%{rack_version})
+Requires:       rubygem(ruby:3.1.0:rack)
 %else
 Requires:       rubygem-bundler
 Requires:       rubygem-rake
@@ -125,13 +117,10 @@ bundle config build.nokogiri --use-system-libraries
 bundle config build.sassc --disable-march-tune-native
 bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
 bundle config force_ruby_platform true
+bundle config set --local path %{buildroot}%_libdir/obs-api/
 
-bundle --local --path %{buildroot}%_libdir/obs-api/
+bundle install --local
 popd
-
-# test that the rake and rack macros is still matching our Gemfile
-test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rake-%{rake_version}/rake.gemspec
-test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rack-%{rack_version}/rack.gemspec
 
 pushd %{_sourcedir}/open-build-service-*/dist
 # run gem clean up script
@@ -158,13 +147,25 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/seleniu
 # remove all gitignore files to fix rpmlint version-control-internal-file
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
-# fix interpreter in installed binaries
+# use the ruby interpreter set by this spec file in all installed binaries.
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e 's,/usr/bin/env ruby.ruby2.5,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/env ruby.ruby3.1,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/env ruby,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/ruby,%{__obs_ruby_interpreter},' $bin
+done
+for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
+  sed -i -e 's,/usr/bin/env ruby.ruby3.1,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/env ruby,%{__obs_ruby_interpreter},' $bin
+  sed -i -e 's,/usr/bin/ruby,%{__obs_ruby_interpreter},' $bin
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
+  chmod a-x $file
+done
+
+# remove exec bit from all other files still containing /usr/bin/ruby
+find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/ruby | while read file; do
   chmod a-x $file
 done
 
