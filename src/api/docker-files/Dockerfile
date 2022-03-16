@@ -3,7 +3,7 @@
 # contained rails app generating files in the git checkout with
 # some strange user...
 
-FROM registry.opensuse.org/obs/server/unstable/containers/ruby31/containers/openbuildservice/frontend-features:latest
+FROM registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
 ARG CONTAINER_USERID
 
 # for lint task
