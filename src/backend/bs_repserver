@@ -4146,12 +4146,22 @@ sub checkconstraints {
     $constraints = readxml("$uploaddir/$$", $BSXML::constraints);
     unlink("$uploaddir/$$");
   }
-  my $info;
-  $info->{'package'} = $packid;
-  $info->{'arch'} = $arch;
-  $constraints = BSDispatcher::Constraints::overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
+
+  # get the build config
   my $pconf = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   my $bconf = Build::read_config($arch, [ split("\n", $pconf)] );
+
+  # create job info data
+  my $info = {
+    'project' => $projid ,
+    'repoid' => $repoid,
+    'arch' => $arch,
+    'package' >= $packid,
+  };
+  $info->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
+
+  # merge constraints
+  $constraints = BSDispatcher::Constraints::overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
   my @list = map { [ split(' ', $_) ] } @{$bconf->{'constraint'}};
   my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@list);
   $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
@@ -4167,21 +4177,18 @@ sub checkconstraints {
     }
   }
 
-  my $dispatch_constraints_info = {
-    'project' => $projid ,
-    'repoid' => $repoid,
-    'arch' => $arch,
-    'packid' => $packid,
-  };
-
+  # check all known workers
+  my $buildarch = $info->{'hostarch'} || $arch;
   my @comp_workers;
   for my $workerstate (qw{idle building away dead down}) {
     my @workernames = sort(grep {!/^\./} BSUtil::ls("$workersdir/$workerstate"));
     for my $workername (@workernames) {
       my ($harch) = split(':', $workername, 2);
-      next unless exists($harchcando{"$harch/$arch"});
+      next unless exists($harchcando{"$harch/$buildarch"});
       my $worker = readxml("$workersdir/$workerstate/$workername", $BSXML::worker, 1);
-      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($dispatch_constraints_info, $worker, $constraints);
+      my $helper = $harchcando{"$harch/$buildarch"};
+      next if $helper && $worker->{hardware} && exists($worker->{hardware}->{nativeonly});
+      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
       next if $constraints && BSDispatcher::Constraints::oracle($worker, $constraints) <= 0;
       push @comp_workers, $workername;
     }
