@@ -9,8 +9,8 @@ Environment = "RAILS_ENV=production"
 User = @@APACHE_USER@@
 Group = @@APACHE_GROUP@@
 WorkingDirectory = @@OBS_API_PREFIX@@
-ExecStart = @@OBS_BUNDLE_BIN@@ exec rails sphinx:start
-ExecStop = @@OBS_BUNDLE_BIN@@ exec rails ts:stop
+ExecStart = @@OBS_API_PREFIX@@/bin/rails sphinx:start
+ExecStop = @@OBS_API_PREFIX@@/bin/rails ts:stop
 Type = forking
 PIDFile = @@OBS_API_PREFIX@@/log/production.sphinx.pid
 
