@@ -1,0 +1,37 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project_123/source_package_123?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'source_project_123' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'source_project_123' does not exist</summary>
+          <details>404 project 'source_project_123' does not exist</details>
+        </status>
+  recorded_at: Tue, 22 Mar 2022 11:24:23 GMT
+recorded_with: VCR 6.0.0

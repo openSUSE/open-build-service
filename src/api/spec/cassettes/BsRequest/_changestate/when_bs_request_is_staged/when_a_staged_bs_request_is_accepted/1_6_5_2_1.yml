@@ -25,15 +25,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="16" vrev="16" srcmd5="48a586f8770e715b0b29cb1803d84528">
-          <entry name="_config" md5="b30a78f507b83c0d96a4028a80e7176f" size="60" mtime="1597244450"/>
-          <entry name="somefile.txt" md5="856af786fd61ce41ce16d2b20c173ee7" size="57" mtime="1597244450"/>
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 16:02:08 GMT
+  recorded_at: Mon, 21 Mar 2022 12:07:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -59,15 +57,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="16" vrev="16" srcmd5="48a586f8770e715b0b29cb1803d84528">
-          <entry name="_config" md5="b30a78f507b83c0d96a4028a80e7176f" size="60" mtime="1597244450"/>
-          <entry name="somefile.txt" md5="856af786fd61ce41ce16d2b20c173ee7" size="57" mtime="1597244450"/>
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 16:02:08 GMT
+  recorded_at: Mon, 21 Mar 2022 12:07:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux/target_package
@@ -99,7 +95,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 16:02:08 GMT
+  recorded_at: Mon, 21 Mar 2022 12:07:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux/target_package?view=info
@@ -132,7 +128,7 @@ http_interactions:
         <sourceinfo package="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 12 Aug 2020 16:02:08 GMT
+  recorded_at: Mon, 21 Mar 2022 12:07:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux/target_package
@@ -164,7 +160,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 16:02:08 GMT
+  recorded_at: Mon, 21 Mar 2022 12:07:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tux/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -201,5 +197,5 @@ http_interactions:
           <new project="home:tux" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 12 Aug 2020 16:02:08 GMT
+  recorded_at: Mon, 21 Mar 2022 12:07:49 GMT
 recorded_with: VCR 6.0.0
