@@ -643,32 +643,6 @@ sub emulate_depsort2 {
   return BSSolv::depsort(\%pkgdeps, undef, $cycles, @packs);
 }
 
-sub split_hostdeps {
-  my ($ctx, $bconf, $info) = @_;
-  my $dep = $info->{'dep'} || [];
-  return ($dep, []) unless @$dep;
-  my %onlynative = map {$_ => 1} @{$bconf->{'onlynative'} || []};
-  my %alsonative = map {$_ => 1} @{$bconf->{'alsonative'} || []};
-  for (@{$info->{'onlynative'} || []}) {
-    if (/^!(.*)/) {
-      delete $onlynative{$1};
-    } else {
-      $onlynative{$_} = 1;
-    }   
-  }
-  for (@{$info->{'alsonative'} || []}) {
-    if (/^!(.*)/) {
-      delete $alsonative{$1};
-    } else {
-      $alsonative{$_} = 1;
-    }   
-  }
-  return ($dep, []) unless %onlynative || %alsonative;
-  my @hdep = grep {$onlynative{$_} || $alsonative{$_}} @$dep;
-  return ($dep, \@hdep) if !@hdep || !%onlynative;
-  return ([ grep {!$onlynative{$_}} @$dep ], \@hdep)
-}
-
 sub expandandsort {
   my ($ctx) = @_;
 
@@ -795,9 +769,8 @@ sub expandandsort {
     my ($eok, @edeps);
     my $handler = $handlers{$buildtype};
     if ($cross && !$handler) {
-      my @splitdeps = split_hostdeps($ctx, $bconf, $info);
-      $ctx->{'split_hostdeps'}->{$packid} = \@splitdeps;
-      ($eok, @edeps) = Build::get_sysroot($bconf, $subpacks->{$info->{'name'}}, @{$splitdeps[0]});
+      my ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $subpacks->{$info->{'name'}}, $info);
+      $ctx->{'split_hostdeps'}->{$packid} = $splitdeps;
     } else {
       $handler ||= $handlers{default};
       ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
