@@ -9,7 +9,7 @@ source 'https://rubygems.org'
 
 # Start the Rails application using src/api/Gemfile.next with `next rails s`
 if next?
-  gem 'rails', '~> 6.2'
+  gem 'rails', '~> 7.0'
 else
   gem 'rails', '~> 6.1'
 end
