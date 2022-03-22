@@ -58,4 +58,8 @@ module BsRequest::Errors
 
   class ReviewNotSpecified < APIError
   end
+
+  class CreatorCannotAcceptOwnRequests < APIError
+    setup 403, "the creator of the request cannot approve it's own requests"
+  end
 end

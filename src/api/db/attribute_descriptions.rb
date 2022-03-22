@@ -28,7 +28,8 @@ def update_all_attrib_type_descriptions
     'MakeOriginOlder' => 'Initialize packages by making the build results newer then updated ones',
     'DelegateRequestTarget' => 'Delegate the target project of requests even when target_project is specified',
     'AllowSubmitToMaintenanceRelease' => 'Allow submit requests to maintenance release projects',
-    'EnforceRevisionsInRequests' => 'Enforce revisions in request actions'
+    'EnforceRevisionsInRequests' => 'Enforce revisions in request actions',
+    'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person'
   }
   # rubocop:enable Layout/LineLength
 

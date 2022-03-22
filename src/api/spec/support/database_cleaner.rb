@@ -39,6 +39,7 @@ RSpec.configure do |config|
     create(:obs_attrib_type, name: 'VeryImportantProject')
     create(:obs_attrib_type, name: 'DelegateRequestTarget')
     create(:obs_attrib_type, name: 'EmbargoDate', value_count: 1)
+    create(:obs_attrib_type, name: 'CreatorCannotAcceptOwnRequests', value_count: 0)
     Configuration.first_or_create(name: 'private', title: 'Open Build Service').update(allow_user_to_create_home_project: false)
   end
 
