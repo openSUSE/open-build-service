@@ -60,7 +60,7 @@ class Relationship < ApplicationRecord
     bugowners.joins(:user).merge(User.with_email)
   }
 
-  after_create :create_event_after_create
+  after_create :create_relationship_create_event
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
@@ -127,7 +127,7 @@ class Relationship < ApplicationRecord
     with_groups_and_roles_query.pluck('groups.title', 'roles.title')
   end
 
-  def create_event_before_delete
+  def create_relationship_delete_event
     return unless User.session
 
     Event::RelationshipDelete.create(event_parameters)
@@ -167,7 +167,7 @@ class Relationship < ApplicationRecord
     raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
   end
 
-  def create_event_after_create
+  def create_relationship_create_event
     return unless User.session
 
     Event::RelationshipCreate.create(event_parameters)
