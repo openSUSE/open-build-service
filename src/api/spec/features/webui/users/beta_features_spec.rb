@@ -2,11 +2,18 @@ require 'browser_helper'
 
 RSpec.describe 'User beta features', type: :feature, js: true do
   let(:beta_feature) { 'something_cool' }
+  let(:rolled_out_beta_feature) { 'rolled_out' }
+  let(:enabled_beta_feature) { 'fully_enabled' }
 
   before do
-    stub_const('ENABLED_FEATURE_TOGGLES', [{ name: beta_feature, description: 'A new cool design!' },
-                                           { name: 'new_feature_123', description: 'New feature for you' }])
-    Flipper[beta_feature].enable
+    stub_const('ENABLED_FEATURE_TOGGLES', [{ name: beta_feature, description: 'A new cool design' },
+                                           { name: 'new_feature_123', description: 'New feature for you' },
+                                           { name: rolled_out_beta_feature, description: 'This is available to all' },
+                                           { name: enabled_beta_feature, description: 'Fully enabled' }])
+    Flipper.register(beta_feature) unless Flipper.group_exists?(beta_feature) # registering group for beta_feature
+    Flipper[beta_feature].enable_group(beta_feature) # enabling beta feature only for its group
+    Flipper[rolled_out_beta_feature].enable_group(:rollout)
+    Flipper[enabled_beta_feature].enable
   end
 
   describe 'when the user is not in the beta program' do
@@ -22,11 +29,11 @@ RSpec.describe 'User beta features', type: :feature, js: true do
         check('user[in_beta]')
       end
 
-      it 'displays a list of the beta features' do
-        expect(page).to have_text('Something cool')
-        expect(page).to have_text('A new cool design!')
-        expect(page).to have_text('New feature 123')
-        expect(page).to have_text('New feature for you')
+      it "displays a list of the beta features which aren't rolled out or fully enabled" do
+        expect(page.text).to match(/.*\nSomething cool\nA new cool design\n.*/)
+        expect(page.text).to match(/.*\nNew feature 123\nNew feature for you\n.*/)
+        expect(page.text).not_to match(/.*\nrolled_out\nThis is avaiable to all\n.*/)
+        expect(page.text).not_to match(/.*\nfully_enabled\nFully enabled\n.*/)
       end
 
       it 'updates the user' do
@@ -51,10 +58,10 @@ RSpec.describe 'User beta features', type: :feature, js: true do
       end
 
       it 'does not display a list of the beta features' do
-        expect(page).not_to have_text('Something cool')
-        expect(page).not_to have_text('A new cool design!')
-        expect(page).not_to have_text('New feature 123')
-        expect(page).not_to have_text('New feature for you')
+        expect(page.text).not_to match(/.*\nSomething cool\nA new cool design\n.*/)
+        expect(page.text).not_to match(/.*\nNew feature 123\nNew feature for you\n.*/)
+        expect(page.text).not_to match(/.*\nrolled_out\nThis is avaiable to all\n.*/)
+        expect(page.text).not_to match(/.*\nfully_enabled\nFully enabled\n.*/)
       end
 
       it 'updates the user as part of the beta program' do
