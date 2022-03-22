@@ -221,7 +221,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           kiwi_image.save
         end
 
-        subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+        subject { Nokogiri::XML::Document.parse(kiwi_image.to_xml) }
 
         it { expect(subject.errors).to be_empty }
         it { expect(subject.xpath('.//image').length).to be(1) }
@@ -273,7 +273,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         logout
       end
 
-      subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+      subject { Nokogiri::XML::Document.parse(kiwi_image.to_xml) }
 
       it 'returns the xml for the kiwi image correctly' do
         expect(subject.errors).to be_empty
@@ -315,7 +315,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       let(:package) { create(:package) }
       let(:kiwi_image) { Kiwi::Image.build_from_xml(kiwi_xml, 'some_md5') }
 
-      subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+      subject { Nokogiri::XML::Document.parse(kiwi_image.to_xml) }
 
       before do
         allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
@@ -335,7 +335,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       let(:package) { create(:package) }
       let(:kiwi_image) { Kiwi::Image.build_from_xml(Kiwi::Image::DEFAULT_KIWI_BODY, 'some_md5') }
 
-      subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+      subject { Nokogiri::XML::Document.parse(kiwi_image.to_xml) }
 
       before do
         allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
@@ -347,8 +347,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         kiwi_image.save
       end
 
-      it { expect(subject.children[2].children[5].name).to eq('packages') }
-      it { expect(subject.children[2].children[7].name).to eq('repository') }
+      it { expect(subject.children[0].children[5].name).to eq('packages') }
+      it { expect(subject.children[0].children[7].name).to eq('repository') }
     end
   end
 

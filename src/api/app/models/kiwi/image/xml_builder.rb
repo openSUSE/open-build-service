@@ -6,7 +6,7 @@ module Kiwi
       end
 
       def build
-        doc = Nokogiri::XML::DocumentFragment.parse(@image.kiwi_body)
+        doc = Nokogiri::XML::Document.parse(@image.kiwi_body)
         image = doc.at_css('image')
 
         return nil unless image && image.first_element_child
