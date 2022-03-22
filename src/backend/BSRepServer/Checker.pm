@@ -233,7 +233,8 @@ sub buildinfo {
   my ($eok, @edeps);
   if ($cross && !$handler) {
     $handler ||= $handlers{default};
-    my ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, $info);
+    my $splitdeps;
+    ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, $info);
     $info->{'split_hostdeps'} = $splitdeps;
   } else {
     $handler ||= $handlers{default};
