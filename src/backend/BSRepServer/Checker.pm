@@ -210,32 +210,6 @@ sub preparepool {
   }
 }
 
-sub split_hostdeps {
-  my ($ctx, $bconf, $info) = @_;
-  my $dep = $info->{'dep'} || [];
-  return ($dep, []) unless @$dep;
-  my %onlynative = map {$_ => 1} @{$bconf->{'onlynative'} || []};
-  my %alsonative = map {$_ => 1} @{$bconf->{'alsonative'} || []};
-  for (@{$info->{'onlynative'} || []}) {
-    if (/^!(.*)/) {
-      delete $onlynative{$1};
-    } else {
-      $onlynative{$_} = 1;
-    }
-  }
-  for (@{$info->{'alsonative'} || []}) {
-    if (/^!(.*)/) {
-      delete $alsonative{$1};
-    } else {
-      $alsonative{$_} = 1;
-    }
-  }
-  return ($dep, []) unless %onlynative || %alsonative;
-  my @hdep = grep {$onlynative{$_} || $alsonative{$_}} @$dep;
-  return ($dep, \@hdep) if !@hdep || !%onlynative;
-  return ([ grep {!$onlynative{$_}} @$dep ], \@hdep)
-}
-
 # see checkpks in BSSched::Checker
 sub buildinfo {
   my ($ctx, $packid, $pdata, $info) = @_;
@@ -259,9 +233,8 @@ sub buildinfo {
   my ($eok, @edeps);
   if ($cross && !$handler) {
     $handler ||= $handlers{default};
-    my @splitdeps = split_hostdeps($ctx, $bconf, $info);
-    $info->{'split_hostdeps'} = \@splitdeps;
-    ($eok, @edeps) = Build::get_sysroot($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$splitdeps[0]});
+    my ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, $info);
+    $info->{'split_hostdeps'} = $splitdeps;
   } else {
     $handler ||= $handlers{default};
     ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});

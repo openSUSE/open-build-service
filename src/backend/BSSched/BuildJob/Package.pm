@@ -130,7 +130,7 @@ sub check {
     $split_hostdeps ||= ($ctx->{'split_hostdeps'} || {})->{$packid} if $packid;
     return ('broken', 'missing split_hostdeps entry') unless $split_hostdeps;
     my $subpacks = $ctx->{'subpacks'};
-    $hdeps = [ @{$split_hostdeps->[1]} ];
+    $hdeps = [ @{$split_hostdeps->[1]}, @{$split_hostdeps->[2] || []} ];
     my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
@@ -390,6 +390,47 @@ sub build {
   my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed);
   delete $info->{'nounchanged'};
   return ($state, $job);
+}
+
+sub split_hostdeps {
+  my ($bconf, $info) = @_;
+  my $dep = $info->{'dep'} || [];
+  return ($dep, []) unless @$dep;
+  my %onlynative = map {$_ => 1} @{$bconf->{'onlynative'} || []};
+  my %alsonative = map {$_ => 1} @{$bconf->{'alsonative'} || []};
+  for (@{$info->{'onlynative'} || []}) {
+    if (/^!(.*)/) {
+      delete $onlynative{$1};
+    } else {
+      $onlynative{$_} = 1;
+    }   
+  }
+  for (@{$info->{'alsonative'} || []}) {
+    if (/^!(.*)/) {
+      delete $alsonative{$1};
+    } else {
+      $alsonative{$_} = 1;
+    }   
+  }
+  return ($dep, []) unless %onlynative || %alsonative;
+  my @hdep = grep {$onlynative{$_} || $alsonative{$_}} @$dep;
+  return ($dep, \@hdep) if !@hdep || !%onlynative;
+  return ([ grep {!$onlynative{$_}} @$dep ], \@hdep)
+}
+
+# split build dependencies and expand the sysroot
+sub expand_sysroot {
+  my ($bconf, $subpacks, $info) = @_;
+  my @splitdeps = split_hostdeps($bconf, $info);
+  my @n; 
+  my @edeps;
+  if ($bconf->{'binarytype'} eq 'deb') {
+    @edeps = Build::get_sysroot($bconf, $subpacks, '--extractnative--', \@n, @{$splitdeps[0]});
+  } else {
+    @edeps = Build::get_sysroot($bconf, $subpacks, @{$splitdeps[0]});
+  }   
+  $splitdeps[2] = \@n if @n; 
+  return \@splitdeps, @edeps;
 }
 
 1;
