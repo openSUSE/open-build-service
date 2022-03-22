@@ -769,7 +769,8 @@ sub expandandsort {
     my ($eok, @edeps);
     my $handler = $handlers{$buildtype};
     if ($cross && !$handler) {
-      my ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $subpacks->{$info->{'name'}}, $info);
+      my $splitdeps;
+      ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $subpacks->{$info->{'name'}}, $info);
       $ctx->{'split_hostdeps'}->{$packid} = $splitdeps;
     } else {
       $handler ||= $handlers{default};
