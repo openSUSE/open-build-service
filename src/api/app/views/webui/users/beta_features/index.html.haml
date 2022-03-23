@@ -31,7 +31,7 @@
         You can disable a specific beta feature if you want.
         Enabling back a beta feature is always possible if you change your mind later.
 
-      - ENABLED_FEATURE_TOGGLES.each do |feature_toggle|
+      - @beta_features.each do |feature_toggle|
         - feature_toggle_name, feature_toggle_description = feature_toggle.values_at(:name, :description).map(&:to_s)
         .mb-2
           %h3= feature_toggle_name.humanize
