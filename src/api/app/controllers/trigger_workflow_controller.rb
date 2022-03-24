@@ -1,6 +1,10 @@
 class TriggerWorkflowController < TriggerController
   # We don't need to validate that the body of the request is XML. We receive JSON
   skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
+  # GitLab/Github send data as parameters which are not strings
+  # e.g. integer PR number (GitHub) and project hash (GitLab)
+  skip_before_action :validate_params
+
   before_action :set_scm_event
   before_action :abort_trigger_if_ignored_pull_request_action
   before_action :create_workflow_run
@@ -31,7 +35,13 @@ class TriggerWorkflowController < TriggerController
   def validate_scm_event
     return if @gitlab_event.present? || @github_event.present?
 
-    @workflow_run.update_to_fail(render_error(status: 400, errorcode: 'bad_request', message: 'Could not find the required HTTP request headers X-GitHub-Event or X-Gitlab-Event'))
+    @workflow_run.update_to_fail(
+      render_error(
+        status: 400,
+        errorcode: 'bad_request',
+        message: 'Only GitHub and GitLab are supported. Could not find the required HTTP request headers X-GitHub-Event or X-Gitlab-Event.'
+      )
+    )
   end
 
   def scm
