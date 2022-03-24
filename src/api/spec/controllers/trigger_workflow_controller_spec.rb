@@ -48,6 +48,41 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
       it { expect(response.body).to include(WorkflowRun.last.response_body) }
     end
 
+    context 'token different type' do
+      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token) { create(:service_token, user: create(:confirmed_user, :in_beta)) }
+
+      let(:github_payload) do
+        {
+          action: 'opened',
+          pull_request: {
+            head: {
+              repo: { full_name: 'username/test_repo' }
+            },
+            base: {
+              ref: 'main',
+              repo: { full_name: 'rubhanazeem/hello_world' }
+            }
+          },
+          number: 4,
+          sender: { url: 'https://api.github.com' }
+        }
+      end
+
+      before do
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+
+        post :create, body: github_payload.to_json
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response.body).to include('Please use workflow tokens only') }
+    end
+
     context 'token is invalid' do
       let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
 
