@@ -31,6 +31,10 @@ module RescueHandler
       render plain: text, status: http_status
     end
 
+    rescue_from Trigger::Errors::InvalidToken do |exception|
+      render_error status: 403, errorcode: 'invalid_token', message: exception.message
+    end
+
     rescue_from Project::WritePermissionError do |exception|
       render_error status: 403, errorcode: 'modify_project_no_permission', message: exception.message
     end

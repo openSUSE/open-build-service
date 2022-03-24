@@ -48,6 +48,18 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
       it { expect(response.body).to include(WorkflowRun.last.response_body) }
     end
 
+    context 'token is invalid' do
+      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+
+      before do
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(nil)
+        post :create, params: { format: :json }
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+    end
+
     context 'scm event is invalid' do
       let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, user: build_stubbed(:confirmed_user, :in_beta)) }
