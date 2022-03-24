@@ -492,7 +492,7 @@ class Project < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == name
           begin
-            request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed")
+            request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed", override_creator: request.creator)
           rescue PostRequestNoPermission
             Airbrake.notify("#{User.session!.login} tried to revoke request #{request.number} but had no permissions")
           end
