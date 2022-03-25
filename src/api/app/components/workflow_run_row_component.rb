@@ -1,7 +1,7 @@
 class WorkflowRunRowComponent < ApplicationComponent
   SOURCE_NAME_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'number'],
-    'Merge Request Hook' => ['object_attributes', 'id'],
+    'Merge Request Hook' => ['object_attributes', 'iid'],
     'push' => ['head_commit', 'id'],
     'Push Hook' => ['commits', 0, 'id']
   }.freeze

@@ -174,7 +174,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
               "url": "http://example.com/gitlabhq/gitlab-test.git"
             },
             "object_attributes":{
-              "id": 99,
+              "iid": 1,
               "url": "http://example.com/diaspora/merge_requests/1"
             }
           }
@@ -209,7 +209,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
           <<~END_OF_REQUEST
             {
               "object_attributes":{
-                "id": 99,
+                "iid": 1,
                 "url": "http://example.com/diaspora/merge_requests/1",
                 "action": "unapproved"
               },
@@ -227,7 +227,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
       end
 
       it 'shows a link to the MR' do
-        expect(rendered_component).to have_link('#99', href: 'http://example.com/diaspora/merge_requests/1')
+        expect(rendered_component).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
       end
     end
 
