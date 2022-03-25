@@ -13,7 +13,7 @@ module OBSApi
       # request#12345 links
       fulldoc.gsub!(/(sr|req|request)#(\d+)/i) { |s| "[#{s}](#{request_show_url(number: Regexp.last_match(2))})" }
       # @user links
-      fulldoc.gsub!(/([^\w]|^)@(\b[-\w]+\b)(?:\b|$)/) \
+      fulldoc.gsub!(/([^\w]|^)@(\b[-.\w]+\b)(?:\b|$)/) \
                    { "#{Regexp.last_match(1)}[@#{Regexp.last_match(2)}](#{user_url(Regexp.last_match(2))})" }
       # bnc#12345 links
       IssueTracker.all.each do |t|
