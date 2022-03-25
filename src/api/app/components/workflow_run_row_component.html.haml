@@ -1,7 +1,7 @@
 .col-1.text-left
   %i{ title: status_title, class: status_icon }
 .col.text-left
-  = link_to "#{hook_event.humanize} event", token_workflow_run_path(@workflow_run.token, @workflow_run)
+  = link_to "#{hook_event.humanize} event", token_workflow_run_path(workflow_run.token, workflow_run)
   - if hook_action
     %span.badge.badge-primary= hook_action.humanize
 .col.text-left

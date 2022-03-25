@@ -1,4 +1,18 @@
 class WorkflowRun < ApplicationRecord
+  SOURCE_NAME_PAYLOAD_MAPPING = {
+    'pull_request' => ['pull_request', 'number'],
+    'Merge Request Hook' => ['object_attributes', 'iid'],
+    'push' => ['head_commit', 'id'],
+    'Push Hook' => ['commits', 0, 'id']
+  }.freeze
+
+  SOURCE_URL_PAYLOAD_MAPPING = {
+    'pull_request' => ['pull_request', 'html_url'],
+    'Merge Request Hook' => ['object_attributes', 'url'],
+    'push' => ['head_commit', 'url'],
+    'Push Hook' => ['commits', 0, 'url']
+  }.freeze
+
   validates :response_url, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 
@@ -17,9 +31,40 @@ class WorkflowRun < ApplicationRecord
     update(response_body: message, status: 'fail')
   end
 
+  def payload
+    JSON.parse(request_payload)
+  rescue JSON::ParserError
+    { payload: 'unparseable' }
+  end
+
   def hook_event
     parsed_request_headers['HTTP_X_GITHUB_EVENT'] ||
       parsed_request_headers['HTTP_X_GITLAB_EVENT']
+  end
+
+  def hook_action
+    return payload['action'] if pull_request_with_allowed_action
+    return payload.dig('object_attributes', 'action') if merge_request_with_allowed_action
+  end
+
+  def repository_name
+    payload.dig('repository', 'full_name') || # For GitHub
+      payload.dig('repository', 'name') # For GitLab
+  end
+
+  def repository_url
+    payload.dig('repository', 'html_url') || # For GitHub
+      payload.dig('repository', 'git_http_url') || payload.dig('repository', 'url') # For GitLab
+  end
+
+  def event_source_name
+    path = SOURCE_NAME_PAYLOAD_MAPPING[hook_event]
+    payload.dig(*path) if path
+  end
+
+  def event_source_url
+    mapped_source_url = SOURCE_URL_PAYLOAD_MAPPING[hook_event]
+    payload.dig(*mapped_source_url) if mapped_source_url
   end
 
   private
@@ -29,6 +74,16 @@ class WorkflowRun < ApplicationRecord
       k, v = h.split(':')
       headers[k] = v.strip
     end
+  end
+
+  def pull_request_with_allowed_action
+    hook_event == 'pull_request' &&
+      ScmWebhookEventValidator::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
+  end
+
+  def merge_request_with_allowed_action
+    hook_event == 'Merge Request Hook' &&
+      ScmWebhookEventValidator::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
 
