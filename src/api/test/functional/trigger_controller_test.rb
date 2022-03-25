@@ -27,7 +27,7 @@ class TriggerControllerTest < ActionDispatch::IntegrationTest
     reset_auth
     post '/trigger/rebuild'
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'permission_denied' }
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_token' }
     assert_match(/No valid token found/, @response.body)
 
     # with wrong token
