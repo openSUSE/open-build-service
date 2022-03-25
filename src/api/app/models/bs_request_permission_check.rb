@@ -109,6 +109,11 @@ class BsRequestPermissionCheck
     if opts[:newstate].in?(['new', 'review', 'revoked', 'superseded']) && req.creator == User.session!.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
+    elsif opts[:newstate] == 'revoked' && req.creator == opts[:override_creator]
+      # NOTE: request should be revoked if project is removed.
+      # override_creator is needed if the logged in user is different than the creator of the request
+      # at the time of removing the project.
+      permission_granted = true
     elsif req.state == :declined && opts[:newstate].in?(['new', 'review']) && (req.commenter == User.session!.login || user_is_staging_manager)
       # people who declined a request shall also be able to reopen it
 
