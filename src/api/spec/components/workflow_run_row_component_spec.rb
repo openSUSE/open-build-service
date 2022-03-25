@@ -169,7 +169,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
             "url": "http://example.com/gitlabhq/gitlab-test.git"
           },
           "object_attributes": {
-            "id": 99,
+            "iid": 1,
             "url": "http://example.com/diaspora/merge_requests/1",
             "action": "open"
           }
@@ -202,7 +202,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it 'shows a link to the pull request' do
-        expect(rendered_component).to have_link('#99', href: 'http://example.com/diaspora/merge_requests/1')
+        expect(rendered_component).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
       end
 
       ['close', 'merge', 'open', 'reopen', 'update'].each do |action|
