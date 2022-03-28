@@ -11,13 +11,15 @@ module Triggerable
     raise Project::Errors::UnknownObjectError, "Sorry, triggering tokens for remote project \"#{@project_name}\" is not possible." unless @project.is_a?(Project)
   end
 
-  def set_package
+  # rubocop:disable Naming/AccessorMethodName
+  def set_package(package_find_options: {})
+    package_find_options = @token.package_find_options if package_find_options.blank?
     # By default we operate on the package association
     @package = @token.package
     # If the token has no package, let's find one from the parameters
     @package ||= Package.get_by_project_and_name(@project,
                                                  @package_name,
-                                                 @token.package_find_options)
+                                                 package_find_options)
     return unless @project.links_to_remote?
 
     # The token has no package, we did not find a package in the database but the project has a link to remote.

@@ -14,7 +14,7 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
     set_project_name
     set_package_name
     set_project
-    set_package
+    set_package(package_find_options: package_find_options)
     set_object_to_authorize
     set_multibuild_flavor
 
@@ -31,6 +31,10 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
   end
 
   private
+
+  def package_find_options
+    { use_source: false, follow_project_links: true, follow_multibuild: true }
+  end
 
   def rebuild_package
     Backend::Api::Sources::Package.rebuild(project_name, package_name)
