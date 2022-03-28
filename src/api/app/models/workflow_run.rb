@@ -48,13 +48,13 @@ class WorkflowRun < ApplicationRecord
   end
 
   def repository_name
-    payload.dig('repository', 'full_name') || # For GitHub
-      payload.dig('repository', 'name') # For GitLab
+    payload.dig('repository', 'full_name') || # For GitHub on pull_request and push events
+      payload.dig('project', 'path_with_namespace') # For GitLab on merge request and push events
   end
 
   def repository_url
-    payload.dig('repository', 'html_url') || # For GitHub
-      payload.dig('repository', 'git_http_url') || payload.dig('repository', 'url') # For GitLab
+    payload.dig('repository', 'html_url') || # For GitHub on pull_request and push events
+      payload.dig('project', 'web_url') # For GitLab on merge request and push events
   end
 
   def event_source_name
