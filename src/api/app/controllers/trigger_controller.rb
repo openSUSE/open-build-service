@@ -54,7 +54,7 @@ class TriggerController < ApplicationController
   # AUTHENTICATION
   def set_token
     @token = ::TriggerControllerService::TokenExtractor.new(request).call
-    raise InvalidToken unless @token
+    raise InvalidToken, 'No valid token found' unless @token
   end
 
   def pundit_user
