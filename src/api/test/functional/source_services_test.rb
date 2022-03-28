@@ -561,7 +561,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 401
     post '/trigger/runservice'
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'permission_denied' }
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_token' }
     assert_match(/No valid token found/, @response.body)
 
     # with wrong token

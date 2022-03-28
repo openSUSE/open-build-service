@@ -26,6 +26,7 @@ RSpec.describe TriggerController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response.body).to include('No valid token') }
     end
 
     context 'when token is valid' do
