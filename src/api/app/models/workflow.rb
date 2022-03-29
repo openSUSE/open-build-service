@@ -5,7 +5,7 @@ class Workflow
   SUPPORTED_STEPS = {
     branch_package: Workflow::Step::BranchPackageStep, link_package: Workflow::Step::LinkPackageStep,
     configure_repositories: Workflow::Step::ConfigureRepositories, rebuild_package: Workflow::Step::RebuildPackage,
-    set_flags: Workflow::Step::SetFlags
+    set_flags: Workflow::Step::SetFlags, trigger_services: Workflow::Step::TriggerServices
   }.freeze
 
   SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
