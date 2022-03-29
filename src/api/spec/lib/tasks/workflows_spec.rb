@@ -31,8 +31,8 @@ RSpec.describe 'workflows' do
         "pull_request": {
           "number": 2
         },
-        "repository": {
-          "full_name": "iggy/hello_world"
+        "project": {
+          "path_with_namespace": "iggy/hello_world"
         }
       }
     END_OF_REQUEST
@@ -46,8 +46,8 @@ RSpec.describe 'workflows' do
           "iid": 3,
           "action": "merge"
         },
-        "repository": {
-          "name": "iggy/test"
+        "project": {
+          "path_with_namespace": "iggy/test"
         }
       }
     END_OF_REQUEST
