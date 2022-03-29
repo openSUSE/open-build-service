@@ -71,7 +71,10 @@ class TriggerWorkflowController < TriggerController
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
 
     request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
-    @workflow_run = @token.workflow_runs.create(request_headers: request_headers, request_payload: request.body.read)
+    # We need to write the payload into `request_json_payload` too, while the `request_payload` is still around
+    @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
+                                                request_payload: request.body.read,
+                                                request_json_payload: request.body.read)
   end
 
   def abort_trigger_if_ignored_pull_request_action
