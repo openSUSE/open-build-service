@@ -36,15 +36,16 @@ end
 #
 # Table name: workflow_runs
 #
-#  id              :integer          not null, primary key
-#  request_headers :text(65535)      not null
-#  request_payload :text(65535)      not null
-#  response_body   :text(65535)
-#  response_url    :string(255)
-#  status          :integer          default("running"), not null
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  token_id        :integer          not null, indexed
+#  id                   :integer          not null, primary key
+#  request_headers      :text(65535)      not null
+#  request_json_payload :text(4294967295)
+#  request_payload      :text(65535)      not null
+#  response_body        :text(65535)
+#  response_url         :string(255)
+#  status               :integer          default("running"), not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  token_id             :integer          not null, indexed
 #
 # Indexes
 #
