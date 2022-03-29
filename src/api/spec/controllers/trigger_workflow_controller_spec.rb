@@ -259,6 +259,31 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
       it { expect(WorkflowRun.count).to eq(1) }
       it { expect(WorkflowRun.last.status).to eq('success') }
       it { expect(response.body).to include('Ok') }
+
+      it 'stores the payload in the new column too' do
+        expect(WorkflowRun.last.request_json_payload).not_to be_empty
+      end
+    end
+
+    context 'when the data is too big' do
+      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, user: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:big_payload) do
+        {
+          'blah' => (['some' => 'parameter'] * 10_000)
+        }
+      end
+
+      before do
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+      end
+
+      it { expect { post :create, body: big_payload.to_json }.to raise_error(ActiveRecord::ValueTooLong) }
     end
   end
 end
