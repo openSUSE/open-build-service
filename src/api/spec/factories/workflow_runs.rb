@@ -6,7 +6,7 @@ FactoryBot.define do
         HTTP_X_GITHUB_EVENT: pull_request
       END_OF_HEADERS
     end
-    request_payload do
+    request_json_payload do
       <<~END_OF_PAYLOAD
         {
           "action": "opened",

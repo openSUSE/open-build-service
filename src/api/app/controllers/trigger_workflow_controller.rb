@@ -73,7 +73,6 @@ class TriggerWorkflowController < TriggerController
     request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
     # We need to write the payload into `request_json_payload` too, while the `request_payload` is still around
     @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
-                                                request_payload: request.body.read,
                                                 request_json_payload: request.body.read)
   end
 

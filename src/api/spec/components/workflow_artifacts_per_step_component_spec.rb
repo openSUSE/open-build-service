@@ -18,7 +18,7 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
     create(:workflow_run,
            token: workflow_token,
            request_headers: request_headers,
-           request_payload: request_payload)
+           request_json_payload: request_payload)
   end
   let(:scm_webhook) do
     ScmWebhook.new(payload: extractor_payload)

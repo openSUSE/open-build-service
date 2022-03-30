@@ -18,7 +18,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
     create(:workflow_run,
            token: workflow_token,
            request_headers: request_headers,
-           request_payload: request_payload)
+           request_json_payload: request_payload)
   end
 
   before do
@@ -304,7 +304,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                status: 'running',
                token: workflow_token,
                request_headers: request_headers,
-               request_payload: request_payload)
+               request_json_payload: request_payload)
       end
       let(:request_payload) { {} }
 
@@ -319,7 +319,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                status: 'success',
                token: workflow_token,
                request_headers: request_headers,
-               request_payload: request_payload)
+               request_json_payload: request_payload)
       end
       let(:request_payload) { {} }
 
@@ -334,7 +334,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                status: 'fail',
                token: workflow_token,
                request_headers: request_headers,
-               request_payload: request_payload)
+               request_json_payload: request_payload)
       end
       let(:request_payload) { {} }
 
@@ -349,7 +349,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                status: 'fail',
                token: workflow_token,
                request_headers: request_headers,
-               request_payload: request_payload)
+               request_json_payload: request_payload)
       end
       let(:request_payload) { {} }
       let(:request_headers) do
