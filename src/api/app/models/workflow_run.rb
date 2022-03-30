@@ -1,4 +1,6 @@
 class WorkflowRun < ApplicationRecord
+  self.ignored_columns = ['request_payload']
+
   validates :response_url, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 

@@ -15,8 +15,8 @@ class WorkflowRunDetailComponent < ApplicationComponent
   private
 
   def parse_payload(workflow_run)
-    JSON.pretty_generate(JSON.parse(workflow_run.request_payload))
+    JSON.pretty_generate(JSON.parse(workflow_run.request_json_payload))
   rescue JSON::ParserError
-    workflow_run.request_payload
+    workflow_run.request_json_payload
   end
 end

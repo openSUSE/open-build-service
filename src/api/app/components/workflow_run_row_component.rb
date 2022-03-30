@@ -83,7 +83,7 @@ class WorkflowRunRowComponent < ApplicationComponent
   private
 
   def payload
-    @payload ||= JSON.parse(workflow_run.request_payload)
+    @payload ||= JSON.parse(workflow_run.request_json_payload)
   rescue JSON::ParserError
     { payload: 'unparseable' }
   end
