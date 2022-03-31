@@ -1,5 +1,6 @@
 class Workflow::Step::TriggerServices < Workflow::Step
   include Triggerable
+  include Workflow::Step::Errors
 
   REQUIRED_KEYS = [:project, :package].freeze
 
@@ -15,7 +16,12 @@ class Workflow::Step::TriggerServices < Workflow::Step
     set_multibuild_flavor
 
     Pundit.authorize(@token.user, @token, :trigger_service?)
-    Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.user.login)
+
+    begin
+      Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.user.login)
+    rescue Backend::NotFoundError => e
+      raise NoSourceServiceDefined, "Package #{@project_name}/#{@package_name} does not have a source service defined: #{e.summary}"
+    end
   end
 
   private
