@@ -84,7 +84,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                   "number": 4330
                 },
                 "repository": {
-                  "full_name": "Example Repository",
+                  "full_name": "example/repo",
                   "html_url": "https://example.com"
                 }
               }
@@ -105,7 +105,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                 "number": 4330
               },
               "repository": {
-                "full_name": "Example Repository",
+                "full_name": "example/repo",
                 "html_url": "https://example.com"
               }
             }
@@ -132,7 +132,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
               "url": "https://example.com/commit/1234"
             },
             "repository": {
-              "full_name": "Example Repository",
+              "full_name": "example/repo",
               "html_url": "https://example.com"
             }
           }
@@ -142,7 +142,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       it { expect(rendered_component).to have_text 'Push event' }
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('Example Repository', href: 'https://example.com')
+        expect(rendered_component).to have_link('example/repo', href: 'https://example.com')
       end
 
       it 'shows a link to the pushed commit' do
@@ -162,11 +162,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         {
           "object_kind": "merge_request",
           "project": {
-            "name":"Gitlab Test"
-          },
-          "repository": {
-            "name": "Gitlab Test",
-            "url": "http://example.com/gitlabhq/gitlab-test.git"
+            "path_with_namespace": "gitlabhq/gitlab-test",
+            "web_url":"http://example.com/gitlabhq/gitlab-test"
           },
           "object_attributes": {
             "iid": 1,
@@ -185,7 +182,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it { expect(rendered_component).to have_text('Unknown source') }
-      it { expect(rendered_component).not_to have_link('Gitlab Test', href: 'http://example.com/gitlabhq/gitlab-test.git') }
+      it { expect(rendered_component).not_to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test') }
     end
 
     context 'and comes from a merge request event' do
@@ -198,7 +195,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       it { expect(rendered_component).to have_text('Merge request hook event') }
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('Gitlab Test', href: 'http://example.com/gitlabhq/gitlab-test.git')
+        expect(rendered_component).to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test')
       end
 
       it 'shows a link to the pull request' do
@@ -249,8 +246,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
             "event_name":"push",
             "project":{
               "id":27158549,
-              "name":"hello_world",
-              "url":"git@gitlab.com:vpereira/hello_world.git"
+              "path_with_namespace":"vpereira/hello_world",
+              "web_url":"https://gitlab.com/vpereira/hello_world"
             },
             "commits":[
               {
@@ -267,18 +264,13 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                 "title":"Update obs project",
                 "url":"https://gitlab.com/vpereira/hello_world/-/commit/cff1dafb4e61f958db8ed8697a8e720d1fe3d3e7"
               }
-            ],
-            "repository":{
-              "name":"hello_world",
-              "url":"git@gitlab.com:vpereira/hello_world.git",
-              "git_http_url":"https://gitlab.com/vpereira/hello_world.git"
-            }
+            ]
           }
         END_OF_PAYLOAD
       end
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('hello_world', href: 'https://gitlab.com/vpereira/hello_world.git')
+        expect(rendered_component).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
       end
 
       it 'is expected to have text "Push Event"' do

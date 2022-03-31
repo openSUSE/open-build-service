@@ -59,7 +59,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
                 "number": 4330
               },
               "repository": {
-                "full_name": "ZeroMQ",
+                "full_name": "zeromq/libzmq",
                 "html_url": "https://github.com/zeromq/libzmq"
               }
             }
@@ -73,6 +73,10 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
         it 'shows a link to the PR' do
           expect(rendered_component).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
         end
+
+        it 'shows a link to the repository' do
+          expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
+        end
       end
 
       context 'but does not have a supported action' do
@@ -85,7 +89,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
                 "number": 4330
               },
               "repository": {
-                "full_name": "ZeroMQ",
+                "full_name": "zeromq/libzmq",
                 "html_url": "https://github.com/zeromq/libzmq"
               }
             }
@@ -98,6 +102,10 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
 
         it 'shows a link to the PR' do
           expect(rendered_component).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
+        end
+
+        it 'shows a link to the repository' do
+          expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
         end
       end
     end
@@ -116,7 +124,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
               "url": "https://example.com/commit/1234"
             },
             "repository": {
-              "full_name": "Example Repository",
+              "full_name": "foo/bar",
               "html_url": "https://example.com"
             }
           }
@@ -139,10 +147,9 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
       <<~END_OF_PAYLOAD
         {
           "event_name":"push",
-          "repository":{
-            "name":"hello_world",
-            "url":"git@gitlab.com:vpereira/hello_world.git",
-            "git_http_url":"https://gitlab.com/vpereira/hello_world.git"
+          "project": {
+            "path_with_namespace": "vpereira/hello_world",
+            "web_url":"https://gitlab.com/vpereira/hello_world"
           }
         }
       END_OF_PAYLOAD
@@ -157,7 +164,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
     end
 
     it 'shows the repository' do
-      expect(rendered_component).to have_link('hello_world', href: 'https://gitlab.com/vpereira/hello_world.git')
+      expect(rendered_component).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
     end
 
     context 'when the workflow comes from a merge request' do
@@ -169,13 +176,13 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
       let(:request_payload) do
         <<~END_OF_REQUEST
           {
-            "repository": {
-              "name": "Gitlab Test",
-              "url": "http://example.com/gitlabhq/gitlab-test.git"
-            },
             "object_attributes":{
               "iid": 1,
               "url": "http://example.com/diaspora/merge_requests/1"
+            },
+            "project": {
+              "path_with_namespace": "gitlabhq/gitlab-test",
+              "web_url":"http://example.com/gitlabhq/gitlab-test"
             }
           }
         END_OF_REQUEST
@@ -190,9 +197,9 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
                   "url": "http://example.com/diaspora/merge_requests/1",
                   "action": "#{action}"
                 },
-                "repository": {
-                  "name": "Gitlab Test",
-                  "url": "http://example.com/gitlabhq/gitlab-test.git"
+                "project": {
+                  "path_with_namespace": "gitlabhq/gitlab-test",
+                  "web_url":"http://example.com/gitlabhq/gitlab-test"
                 }
               }
             END_OF_REQUEST
@@ -213,9 +220,9 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
                 "url": "http://example.com/diaspora/merge_requests/1",
                 "action": "unapproved"
               },
-              "repository": {
-                "name": "Gitlab Test",
-                "url": "http://example.com/gitlabhq/gitlab-test.git"
+              "project": {
+                "path_with_namespace": "gitlabhq/gitlab-test",
+                "web_url":"http://example.com/gitlabhq/gitlab-test"
               }
             }
           END_OF_REQUEST
@@ -228,6 +235,10 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
 
       it 'shows a link to the MR' do
         expect(rendered_component).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
+      end
+
+      it 'shows a link to the repository' do
+        expect(rendered_component).to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test')
       end
     end
 
@@ -243,8 +254,8 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
             "event_name":"push",
             "project":{
               "id":27158549,
-              "name":"hello_world",
-              "url":"git@gitlab.com:vpereira/hello_world.git"
+              "path_with_namespace":"vpereira/hello_world",
+              "web_url":"http://gitlab.com:vpereira/hello_world"
             },
             "commits":[
               {
@@ -261,12 +272,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
                 "title":"Update obs project",
                 "url":"https://gitlab.com/vpereira/hello_world/-/commit/cff1dafb4e61f958db8ed8697a8e720d1fe3d3e7"
               }
-            ],
-            "repository":{
-              "name":"hello_world",
-              "url":"git@gitlab.com:vpereira/hello_world.git",
-              "git_http_url":"https://gitlab.com/vpereira/hello_world.git"
-            }
+            ]
           }
         END_OF_PAYLOAD
       end
