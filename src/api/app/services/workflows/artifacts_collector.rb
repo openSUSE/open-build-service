@@ -14,7 +14,7 @@ module Workflows
                       target_project: @step.target_project_name,
                       target_package: @step.target_package_name
                     }
-                  when 'Workflow::Step::RebuildPackage'
+                  when 'Workflow::Step::RebuildPackage', 'Workflow::Step::TriggerServices'
                     @step.step_instructions
                   when 'Workflow::Step::ConfigureRepositories'
                     {
@@ -22,7 +22,7 @@ module Workflows
                       repositories: @step.step_instructions[:repositories]
                     }
                   end
-      WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json)
+      WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json) if artifacts
     end
   end
 end

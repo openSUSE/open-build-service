@@ -41,6 +41,14 @@ FactoryBot.define do
                                                   package: evaluator.source_package_name }.to_json
       end
     end
+    factory :workflow_artifacts_per_step_trigger_services do
+      step { 'Workflow::Step::TriggerServices' }
+
+      before(:create) do |workflow_artifacts_per_step, evaluator|
+        workflow_artifacts_per_step.artifacts = { project: evaluator.source_project_name,
+                                                  package: evaluator.source_package_name }.to_json
+      end
+    end
     factory :workflow_artifacts_per_step_config_repositories do
       step { 'Workflow::Step::ConfigureRepositories' }
       before(:create) do |workflow_artifacts_per_step, evaluator|
