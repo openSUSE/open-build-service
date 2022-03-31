@@ -93,7 +93,7 @@ end
 #
 #  id              :integer          not null, primary key
 #  request_headers :text(65535)      not null
-#  request_payload :text(65535)      not null
+#  request_payload :text(4294967295) not null
 #  response_body   :text(65535)
 #  response_url    :string(255)
 #  status          :integer          default("running"), not null

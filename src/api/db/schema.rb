@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_09_122242) do
+ActiveRecord::Schema.define(version: 2022_03_30_125635) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -1088,7 +1088,7 @@ ActiveRecord::Schema.define(version: 2022_03_09_122242) do
 
   create_table "workflow_runs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "request_headers", null: false
-    t.text "request_payload", null: false
+    t.text "request_payload", size: :long, null: false
     t.integer "status", limit: 1, default: 0, null: false
     t.text "response_body"
     t.datetime "created_at", precision: 6, null: false
