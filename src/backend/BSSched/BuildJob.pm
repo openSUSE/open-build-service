@@ -1064,13 +1064,20 @@ sub create {
   unshift @bdeps, @{$genbuildreqs->[1]} if $genbuildreqs;
   unshift @bdeps, @{$info->{'dep'} || []}, @btdeps, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps || $buildtype eq 'simpleimage';
-  if ($packid && exists($bconf->{'buildflags:useccache'}) && ($buildtype eq 'arch' || $buildtype eq 'spec' || $buildtype eq 'dsc')) {
-    my $opackid = $packid;
-    $opackid = $pdata->{'releasename'} if $pdata->{'releasename'};
-    if (grep {$_ eq "useccache:$opackid" || $_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
+  # enable ccache support if requested
+  if ($buildtype eq 'arch' || $buildtype eq 'spec' || $buildtype eq 'dsc') {
+    my @enable_ccache = grep {/^--enable-ccache/} @{$info->{'dep'} || []};
+    if (@enable_ccache) {
       $ccache = $bconf->{'buildflags:ccachetype'} || 'ccache';
-      push @bdeps, @{$bconf->{'substitute'}->{"build-packages:$ccache"} || [ $ccache ] };
+      $ccache = $1 if $enable_ccache[0] =~ /--enable-ccache=(.+)$/;
+    } elsif ($packid && exists($bconf->{'buildflags:useccache'})) {
+      my $opackid = $packid;
+      $opackid = $pdata->{'releasename'} if $pdata->{'releasename'};
+      if (grep {$_ eq "useccache:$opackid" || $_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
+        $ccache = $bconf->{'buildflags:ccachetype'} || 'ccache';
+      }
     }
+    push @bdeps, @{$bconf->{'substitute'}->{"build-packages:$ccache"} || [ $ccache ] } if $ccache;
   }
 
   if ($kiwimode || $buildtype eq 'buildenv') {
