@@ -8,104 +8,74 @@ use vars qw($VERSION @ISA @EXPORT);
 
 require Exporter;
 @ISA               = qw(Exporter);
-@EXPORT            = qw(XMLin XMLinfile XMLout);
-$VERSION           = '1.1';
+@EXPORT            = qw(XMLin XMLinfile XMLout XMLoutfile);
+$VERSION           = '1.3';
 
 use Encode;
 
 use strict;
 
-our $bytes;
+our $bytes = 0;
+our $pureperl = 1;
+our $preferred_parser;
+our $force_preferred_parser;
+
+if (!$pureperl) {
+  require XSLoader;
+  eval { XSLoader::load('XML::Structured', $VERSION) };
+  $pureperl = 1 if $@;
+}
+
+if ($pureperl) {
+  *_addescaped = sub ($$) { $_[0] .= _escape($_[1]) };
+  *_addescaped3 = sub ($$$$) { $_[0] .= $_[1] . _escape($_[2]). $_[3] };
+}
 
 sub import {
   $bytes = 1 if grep {$_ eq ':bytes'} @_;
-  __PACKAGE__->export_to_level(1, grep {$_ ne ':bytes'} @_);
-}
-
-sub _workin {
-  my ($how, $out, $ain, @in) = @_;
-  my @how = @$how;
-  my $am = shift @how;
-
-  my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
-  for my $a (keys %$ain) {
-    die("unknown attribute: $a\n") unless $known{$a};
-    if (ref($known{$a})) {
-      die("attribute '$a' must be element\n") if @{$known{$a}} > 1 || ref($known{$a}->[0]);
-      push @{$out->{$a}}, $ain->{$a};
-    } else {
-      die("attribute '$a' must be singleton\n") if exists $out->{$a};
-      $out->{$a} = $ain->{$a};
-      Encode::_utf8_off($out->{$a}) if $bytes;
+  if (grep {$_ eq ':pureperl'} @_) {
+    if (!$pureperl) {
+      *_addescaped = sub ($$) { $_[0] .= _escape($_[1]) };
+      *_addescaped3 = sub ($$$$) { $_[0] .= $_[1] . _escape($_[2]). $_[3] };
     }
+    $pureperl = 1;
   }
-  while (@in) {
-    my ($e, $v) = splice(@in, 0, 2);
-    my $ke = $known{$e};
-    if ($e eq '0') {
-      next if $v =~ /^\s*$/s;
-      die("element '$am' contains content\n") unless $known{'_content'};
-      Encode::_utf8_off($v) if $bytes;
-      $v =~ s/\s+$/ /s;
-      $v =~ s/^\s+/ /s;
-      if (exists $out->{'_content'}) {
-        $out->{'_content'} =~ s/ $//s if $v =~ /^ /s;
-        $out->{'_content'} .= $v;
-      } else {
-        $out->{'_content'} = $v;
-      }
-      next;
-    }
-    if (!$ke && $known{''}) {
-      $ke = $known{''};
-      $v = [{}, $e, $v];
-      $e = '';
-    }
-    die("unknown element: $e\n") unless $ke;
-    if (!ref($ke)) {
-      push @$v, '0', '' if @$v == 1;
-      die("element '$e' contains attributes @{[keys %{$v->[0]}]}\n") if %{$v->[0]};
-      die("element '$e' has subelements\n") if $v->[1] ne '0';
-      die("element '$e' must be singleton\n") if exists $out->{$e};
-      Encode::_utf8_off($v->[2]) if $bytes;
-      $out->{$e} = $v->[2];
-    } elsif (@$ke == 1 && !ref($ke->[0])) {
-      push @$v, '0', '' if @$v == 1;
-      die("element '$e' contains attributes\n") if %{$v->[0]};
-      die("element '$e' has subelements\n") if $v->[1] ne '0';
-      Encode::_utf8_off($v->[2]) if $bytes;
-      push @{$out->{$e}}, $v->[2];
-    } else {
-      if (@$ke == 1) {
-	push @{$out->{$e}}, {};
-	_workin($ke->[0], $out->{$e}->[-1], @$v);
-      } else {
-        die("element '$e' must be singleton\n") if exists $out->{$e};
-        $out->{$e} = {};
-        _workin($ke, $out->{$e}, @$v);
-      }
-    }
-  }
-  if (exists $out->{'_content'}) {
-    $out->{'_content'} =~ s/^ //s;
-    $out->{'_content'} =~ s/ $//s;
-  }
+  __PACKAGE__->export_to_level(1, grep {$_ ne ':bytes' && $_ ne ':pureperl'} @_);
 }
 
 sub _escape {
-  my ($d) = @_;
+  my $d = $_[0];
+  Encode::_utf8_off($d);
   $d =~ s/&/&amp;/sg;
   $d =~ s/</&lt;/sg;
   $d =~ s/>/&gt;/sg;
   $d =~ s/"/&quot;/sg;
-  return $d;
+  $d =~ tr/[\000-\010\013\014\016-\037]//d;	# illegal xml
+  return $d unless $d =~ /[\200-\377]/;		# common case
+  eval {
+    Encode::_utf8_on($d);
+    $d = encode('UTF-8', $d, Encode::FB_CROAK);
+  };
+  if ($@) {
+    eval {
+      Encode::_utf8_off($d);
+      $d = encode('UTF-8', $d, Encode::FB_CROAK);
+    };
+    if ($@) {
+      Encode::_utf8_on($d);
+      $d = encode('UTF-8', $d, Encode::FB_XMLCREF);
+    }
+  }
+  Encode::_utf8_off($d);
+  return $d; 
 }
 
 sub _workout {
-  my ($how, $d, $indent) = @_;
+  my ($how, $d, $indent, $fh) = @_;
   my @how = @$how;
-  my $am = _escape(shift @how);
-  my $ret = "$indent<$am";
+  my $am = shift @how;
+  my $ret = $indent;
+  _addescaped3($ret, '<', $am, '');
   my $inelem;
   my %d2 = %$d;
   my $gotel = 0;
@@ -117,7 +87,8 @@ sub _workout {
   for my $e (@how) {
     if (!$inelem && !ref($e) && $e ne '_content') {
       next unless exists $d2{$e};
-      $ret .= _escape(" $e=").'"'._escape($d2{$e}).'"';
+      _addescaped($ret, " $e");
+      _addescaped3($ret, '="', $d2{$e}, '"');
       delete $d2{$e};
       next;
     }
@@ -127,10 +98,11 @@ sub _workout {
     $en = $en->[0] if ref($en);
     $en = $en->[0] if ref($en);
     next unless exists $d2{$en};
-    my $ee = _escape($en);
+    my $ee = '';
+    _addescaped($ee, $en);
     if (!ref($e) && $e eq '_content' && !$gotel) {
       $gotel = 2;	# special marker to strip indent
-      $ret .= ">"._escape($d2{$e})."\n";
+      _addescaped3($ret, '>', $d2{$e}, "\n");
       delete $d2{$e};
       next;
     }
@@ -140,12 +112,12 @@ sub _workout {
       die("'$e' must be scalar\n") if ref($d2{$e});
       if ($e eq '_content') {
 	my $c = $d2{$e};
-        $ret .= "$indent  "._escape("$c\n");
+        _addescaped3($ret, "$indent  ", $c, "\n");
         delete $d2{$e};
         next;
       }
       if (defined($d2{$e})) {
-        $ret .= "$indent  <$ee>"._escape($d2{$e})."</$ee>\n";
+        _addescaped3($ret, "$indent  <$ee>", $d2{$e}, "</$ee>\n");
       } else {
         $ret .= "$indent  <$ee/>\n";
       }
@@ -154,124 +126,264 @@ sub _workout {
     } elsif (@$e == 1 && !ref($e->[0])) {
       die("'$en' must be array\n") unless UNIVERSAL::isa($d2{$en}, 'ARRAY');
       for my $se (@{$d2{$en}}) {
-        $ret .= "$indent  <$ee>"._escape($se)."</$ee>\n";
+	_addescaped3($ret, "$indent  <$ee>", $se, "</$ee>\n");
       }
       delete $d2{$en};
     } elsif (@$e == 1) {
       die("'$en' must be array\n") unless UNIVERSAL::isa($d2{$en}, 'ARRAY');
+      if ($fh) {
+        print $fh $ret or die("XMLout: write error\n");
+        $ret = '';
+      }
       for my $se (@{$d2{$en}}) {
         die("'$en' must be array of hashes\n") unless UNIVERSAL::isa($se, 'HASH');
-	$ret .= _workout($e->[0], $se, "$indent  ");
+	$ret .= _workout($e->[0], $se, "$indent  ", $fh);
       }
       delete $d2{$en};
     } else {
       die("'$en' must be hash\n") unless UNIVERSAL::isa($d2{$en}, 'HASH');
-      $ret .= _workout($e, $d2{$en}, "$indent  ");
+      if ($fh) {
+        print $fh $ret or die("XMLout: write error\n");
+        $ret = '';
+      }
+      $ret .= _workout($e, $d2{$en}, "$indent  ", $fh);
       delete $d2{$en};
     }
   }
   die("excess hash entries: ".join(', ', sort keys %d2)."\n") if %d2;
   if ($gotel == 2 && $ret =~ s/\n$//s) {
-    $ret .= "</$am>\n" unless $am eq '';
+    _addescaped3($ret, '</', $am, ">\n") unless $am eq '';
   } elsif ($gotel) {
-    $ret .= "$indent</$am>\n" unless $am eq '';
+    _addescaped3($ret, "$indent</", $am, ">\n") unless $am eq '';
   } else {
-    $ret .= " />\n";
+    $ret .= "/>\n";
+  }
+  if ($fh) {
+    print $fh $ret or die("XMLout: write error\n");
+    return '';
   }
   return $ret;
 }
 
-package XML::Structured::saxparser;
+sub _handle_start_slow {
+  my ($p, $e, @a) = @_;
 
-sub new {
-  return bless [];
-}
+  if (ref($e)) {
+    # deal with SAX
+    ($e, @a) = ($e->{'Name'}, map {$_->{'Name'} => $_->{'Value'}} values %{$e->{'Attributes'} || {}});
+  }
+  my ($known, $out) = @{$p->{'work'}}[-3, -2];
+  my $chr;
 
-sub start_document {
-  my ($self) = @_;
-  $self->[0] = [];
-}
-
-sub start_element {
-  my ($self, $e) = @_;
-  my %as = map {$_->{'Name'} => $_->{'Value'}} values %{$e->{'Attributes'} || {}};
-  push @{$self->[0]}, $e->{'Name'}, [ $self->[0], \%as ];
-  $self->[0] = $self->[0]->[-1];
-}
-
-sub end_element {
-  my ($self) = @_;
-  $self->[0] = shift @{$self->[0]};
-}
-
-sub characters {
-  my ($self, $c)  = @_;
-
-  my $cl = $self->[0];
-  if (@$cl > 2 && $cl->[-2] eq '0') {
-    $cl->[-1] .= $c->{'Data'};
+  my $ke = $known->{$e};
+  if (!defined($ke)) {
+    $ke = $known->{''};
+    die("unknown element '$e'\n") unless defined $ke;
+    die("bad dtd\n") unless ref $ke;
+    my $ed = {};
+    if (!$ke->[0]) {
+      die("element '' must be singleton\n") if exists $out->{''};
+      $out->{''} = $ed;
+    } else {
+      push @{$out->{''}}, $ed;
+    }
+    $out = $ed;
+    $known= $ke->[1];
+    $ke = $known->{$e};
+    die("unknown element '$e'\n") unless defined $ke;
+  }
+  if (!ref($ke)) {
+    die("element '$e' contains attributes @{[keys %{{@a}}]}\n") if @a;
+    if (!$ke) {
+      die("element '$e' must be singleton\n") if exists $out->{$e};
+      $out->{$e} = '';
+      $chr = \$out->{$e};
+    } else {
+      push @{$out->{$e}}, '';
+      $chr = \$out->{$e}->[-1];
+    }
+    Encode::_utf8_on($$chr) unless $bytes;
+    push @{$p->{'work'}}, {}, undef, $chr;
   } else {
-    push @$cl, '0' => $c->{'Data'};
+    my $ed = {};
+    if (!$ke->[0]) {
+      die("element '$e' must be singleton\n") if exists $out->{$e};
+      $out->{$e} = $ed;
+    } else {
+      push @{$out->{$e}}, $ed;
+    }
+    $known= $ke->[1];
+    $out = $ed;
+    while (@a > 1) {
+      my ($a, $av) = splice(@a, 0, 2);
+      die("element '$e' contains unknown attribute '$a'\n") unless defined $known->{$a};
+      die("attribute '$a' in '$e' must be element\n") if ref($known->{$a});
+      Encode::_utf8_off($av) if $bytes;
+      if ($known->{$a}) {
+        push @{$out->{$a}}, $av
+      } else {
+        die("attribute '$a' in '$e' must be singleton\n") if exists $out->{$a};
+        $out->{$a} = $av
+      }
+    }
+    if (defined $known->{'_content'}) {
+      $out->{'_content'} = '';
+      Encode::_utf8_on($out->{'_content'}) unless $bytes;
+      $chr = \$out->{'_content'};
+    }
+    push @{$p->{'work'}}, $known, $out, $chr;
   }
 }
 
-sub end_document {
-  my ($self) = @_;
-  return $self->[0];
+sub _handle_end_slow {
+  my ($p) = @_;
+  my (undef, $out, $chr) = splice(@{$p->{'work'}}, -3);
+  if ($out && $chr) {
+    $$chr =~ s/^[ \t\r\n]+//s;
+    $$chr =~ s/[ \t\r\n]+$//s;
+    delete $out->{'_content'} if $$chr eq '';
+  }
 }
+
+sub _handle_char_slow {
+  my ($p, $str) = @_;
+  $str = $str->{'Data'} if ref($str);	# deal with SAX
+  Encode::_utf8_off($str) if $bytes;
+  my $cp = $p->{'work'}->[-1];
+  if (!defined $cp) {
+    return if $str !~ /[^ \t\r\n]/;
+    my $known = $p->{'work'}->[-3];
+    die("element '$known->{'.'}' contains content\n");
+  }
+  $$cp .= $str;
+}
+
+sub _toknown {
+  my ($me, @dtd) = @_;
+  my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @dtd;
+  for my $v (values %known) {
+    if (!ref($v)) {
+      $v = 0;
+    } elsif (@$v == 1 && !ref($v->[0])) {
+      $v = 1;
+    } elsif (@$v == 1) {
+      $v = [1, _toknown(@{$v->[0]}) ];
+    } else {
+      $v = [0, _toknown(@$v) ];
+    }
+  }
+  $known{'.'} = $me;
+  return \%known;
+}
+
+
+package XML::Structured::saxparser;
+
+sub new { bless {} }
+sub start_element;
+sub end_element;
+sub characters;
+
+*start_element = *XML::Structured::_handle_start;
+*end_element = *XML::Structured::_handle_end;
+*characters = *XML::Structured::_handle_char;
+
+package XML::Structured::saxparser_pureperl;
+
+sub new { bless {} }
+sub start_element;
+sub end_element;
+sub characters;
+
+*start_element = *XML::Structured::_handle_start_slow;
+*end_element = *XML::Structured::_handle_end_slow;
+*characters = *XML::Structured::_handle_char_slow;
 
 package XML::Structured;
 
 my $xmlinparser;
 
 sub _xmlparser {
-  my ($str) = @_;
-  my $p = new XML::Parser(Style => 'Tree');
-  return $p->parse($str);
+  my ($dtd, $str) = @_;
+  my $p;
+  my $hashsalt = int(rand(2**32));
+  if ($pureperl) {
+    $p = new XML::Parser(Style => 'Subs', 'Handlers' => {
+      'Start' => \&_handle_start_slow,
+      'End'   => \&_handle_end_slow,
+      'Char'  => \&_handle_char_slow,
+    }, 'HashSalt' => $hashsalt);
+  } else {
+    $p = new XML::Parser(Style => 'Subs', 'Handlers' => {
+      'Start' => \&_handle_start,
+      'End'   => \&_handle_end,
+      'Char'  => \&_handle_char,
+    }, 'HashSalt' => $hashsalt);
+  }
+  $p->setHandlers('ExternEnt' => sub {undef});
+  my $ret = {};
+  $p->{'work'} = [ {$dtd->[0] => [ 0, _toknown(@$dtd) ]}, $ret, undef ];
+  $p->parse($str);
+  return $ret->{$dtd->[0]};
 }
 
 sub _saxparser {
-  my ($str) = @_;
-  my $handler = new XML::Structured::saxparser;
-  my $sp = XML::SAX::ParserFactory->parser('Handler' => $handler);
-  if (ref(\$str) eq 'GLOB' || UNIVERSAL::isa($str, 'IO::Handle')) {
-    return $sp->parse_file($str);
+  my ($dtd, $str) = @_;
+  my $p;
+  if ($pureperl) {
+    $p = new XML::Structured::saxparser_pureperl;
+  } else {
+    $p = new XML::Structured::saxparser;
   }
-  return $sp->parse_string($str);
+  my $ret = {};
+  $p->{'work'} = [ {$dtd->[0] => [ 0, _toknown(@$dtd) ]}, $ret, undef ];
+
+  my $sp = XML::SAX::ParserFactory->parser('Handler' => $p, 'LibParser' => 'FOO');
+  if (ref($sp) eq 'XML::LibXML::SAX') {
+    $sp->{ParserOptions}->{LibParser} = XML::LibXML->new(no_network => 1, expand_xinclude => 0, expand_entities => 0, load_ext_dtd => 0);
+  }
+  if (ref(\$str) eq 'GLOB' || UNIVERSAL::isa($str, 'IO::Handle')) {
+    $sp->parse_file($str);
+  } else {
+    $sp->parse_string($str);
+  }
+  return $ret->{$dtd->[0]};
 }
 
 sub _chooseparser {
-  eval { require XML::SAX; };
-  my $saxok;
-  if (!$@) {
-    $saxok = 1;
-    eval { require XML::LibXML::SAX; };
-    if (!$@) {
-      $XML::SAX::ParserPackage = 'XML::LibXML::SAX';
-      return \&_saxparser;
-    }
-    my $parsers = XML::SAX->parsers();
-    return \&_saxparser if $parsers && @$parsers && (@$parsers > 1 || $parsers->[0]->{'Name'} ne 'XML::SAX::PurePerl');
+  if ($preferred_parser) {
+    my $module = $preferred_parser;
+    $module =~ s/::/\//g;
+    eval {
+      require XML::SAX if $preferred_parser ne 'XML::Parser';
+      require "$module.pm";
+      $XML::SAX::ParserPackage = $preferred_parser if $preferred_parser ne 'XML::Parser' && $preferred_parser ne 'XML::SAX';
+    };
+    return $preferred_parser eq 'XML::Parser' ? \&_xmlparser : \&_saxparser unless $@;
+    die($@) if $force_preferred_parser;
   }
   eval { require XML::Parser; };
   return \&_xmlparser unless $@;
-  return \&_saxparser if $saxok;
+  eval { require XML::SAX };
+  if (!$@) {
+    eval { require XML::LibXML::SAX; $XML::SAX::ParserPackage = 'XML::LibXML::SAX' } unless $XML::SAX::ParserPackage;
+    return \&_saxparser;
+  }
   die("XML::Structured needs either XML::SAX or XML::Parser\n");
 }
 
 sub XMLin {
   my ($dtd, $str) = @_;
   $xmlinparser = _chooseparser() unless defined $xmlinparser;
-  my $d = $xmlinparser->($str);
-  my $out = {};
-  $d = ['', [{}, @$d]] if $dtd->[0] eq '';
-  die("document element must be '$dtd->[0]', was '$d->[0]'\n") if $d->[0] ne $dtd->[0];
-  _workin($dtd, $out, @{$d->[1]});
-  return $out;
+  _setbytes($bytes) unless $pureperl;
+  return $xmlinparser->($dtd, $str);
 }
 
 sub XMLinfile {
   my ($dtd, $fn) = @_;
+  if (ref($fn)) {
+    return XMLin($dtd, $fn) if ref($fn) eq 'GLOB' || UNIVERSAL::isa($fn, 'IO::Handle');
+  }
   local *F;
   open(F, '<', $fn) || die("$fn: $!\n");
   my $out = XMLin($dtd, *F);
@@ -290,6 +402,37 @@ sub XMLout {
     die("no match for alternative\n");
   }
   return _workout($dtd, $d, '');
+}
+
+# XXX: should stream into the io handle
+sub _XMLout_file {
+  my ($dtd, $d, $fh) = @_;
+  if ($dtd->[0] eq '') {
+    die("excess hash elements\n") if keys %$d > 1;
+    for my $el (@$dtd) {
+      next unless ref($el) && $d->{$el->[0]};
+      _workout($el, $d->{$el->[0]}, '', $fh);
+      $fh->flush() or die("XMLout: write error: $!\n");
+      return 1;
+    }
+    die("no match for alternative\n");
+  }
+  _workout($dtd, $d, '', $fh);
+  $fh->flush() or die("XMLout: write error: $!\n");
+  return 1;
+}
+
+sub XMLoutfile {
+  my ($dtd, $d, $fn) = @_;
+  die("parameter is not a hash\n") unless UNIVERSAL::isa($d, 'HASH');
+  if (ref($fn)) {
+    return _XMLout_file($dtd, $d, $fn) if ref($fn) eq 'GLOB' || UNIVERSAL::isa($fn, 'IO::Handle');
+  }
+  local *F;
+  open(F, '>', $fn) || die("$fn: $!\n");
+  _XMLout_file($dtd, $d, \*F);
+  close(F) || die("$fn close: $!\n");
+  return 1;
 }
 
 1;
@@ -320,8 +463,9 @@ XML::Structured - simple conversion API from XML to perl structures and back
     ];
 
     $hashref = XMLin($dtd, $xmlstring);
-    $hashref = XMLinfile($dtd, $filename_or_glob);
+    $hashref = XMLinfile($dtd, $filename_or_handle);
     $xmlstring = XMLout($dtd, $hashref);
+    XMLoutfile($dtd, $hashref, $filename_or_handle);
 
 =head1 DESCRIPTION
 
@@ -340,12 +484,16 @@ returns a hash reference containing the data.
 =head2 XMLinfile()
 
 This function works like C<XMLin()>, but takes a filename or a
-file descriptor glob as second argument.
+file handle as second argument.
 
 =head2 XMLout()
 
 C<XMLout()> provides the reverse operation to C<XMLin()>, it takes
 a dtd and a hash reference as arguments and returns an XML string.
+
+=head2 XMLoutfile()
+This function works like C<XMLout()>, but takes a filename or a
+file handle as third argument.
 
 =head1 The DTD
 
@@ -504,7 +652,7 @@ into a single "_content" element. As example,
       <address street="rural road 12" city="tempe"/>world
     </user>
 
-would set the _content element to C<hello world> (the dtd must allow
+would set the _content element to C<hello\n  world> (the dtd must allow
 a _content element, of course). If the dtd is
 
     $dtd = [ 'user' =>
@@ -518,7 +666,8 @@ the xml string created by XMLout() will be:
     <user login="foo">
       <address street="broadway 7" city="new york" />
       <address street="rural road 12" city="tempe" />
-      hello world    
+      hello
+      world    
     </user>
 
 The exact input cannot be re-created, as the positions and the
@@ -530,7 +679,7 @@ B<XML::Structured> requires either L<XML::Parser> or L<XML::SAX>.
 
 =head1 COPYRIGHT 
 
-Copyright 2006 Michael Schroeder E<lt>mls@suse.deE<gt>
+Copyright 2006-2019 Michael Schroeder E<lt>mls@suse.deE<gt>
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. 
