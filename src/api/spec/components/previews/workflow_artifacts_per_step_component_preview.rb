@@ -1,65 +1,28 @@
 class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_branch_package_step
   def with_branch_package_step
-    step = Workflow::Step::BranchPackageStep.new({
-                                                   step_instructions: {
-                                                     source_project: 'OBS:Server:Unstable',
-                                                     source_package: 'obs-server',
-                                                     target_project: 'OBS:Server:Unstable:CI'
-                                                   },
-                                                   scm_webhook: scm_webhook,
-                                                   token: token
-                                                 })
-
-    artifacts = {
-      source_project: step.step_instructions[:source_project],
-      source_package: step.step_instructions[:source_package],
-      target_project: step.target_project_name,
-      target_package: step.target_package_name
-    }.to_json
-
-    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
-    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+    step = Workflow::Step::BranchPackageStep.new(branch_or_link_package_parameters)
+    render_artifacts_per_step(step, branch_or_link_package_artifacts)
   end
 
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_link_package_step
   def with_link_package_step
-    step = Workflow::Step::LinkPackageStep.new({
-                                                 step_instructions: {
-                                                   source_project: 'OBS:Server:Unstable',
-                                                   source_package: 'obs-server',
-                                                   target_project: 'OBS:Server:Unstable:CI'
-                                                 },
-                                                 scm_webhook: scm_webhook,
-                                                 token: token
-                                               })
-
-    artifacts = {
-      source_project: step.step_instructions[:source_project],
-      source_package: step.step_instructions[:source_package],
-      target_project: step.target_project_name,
-      target_package: step.target_package_name
-    }.to_json
-
-    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
-    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+    step = Workflow::Step::LinkPackageStep.new(branch_or_link_package_parameters)
+    render_artifacts_per_step(step, branch_or_link_package_artifacts)
   end
 
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_rebuild_package_step
   def with_rebuild_package_step
-    step = Workflow::Step::RebuildPackage.new({
-                                                step_instructions: {
-                                                  project: 'OBS:Server:Unstable',
-                                                  package: 'obs-server'
-                                                },
-                                                scm_webhook: scm_webhook,
-                                                token: token
-                                              })
-
+    step = Workflow::Step::RebuildPackage.new(rebuild_package_or_trigger_services_parameters)
     artifacts = step.step_instructions.to_json
+    render_artifacts_per_step(step, artifacts)
+  end
 
-    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
-    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+  # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_trigger_services_step
+  def with_trigger_services_step
+    step = Workflow::Step::TriggerServices.new(rebuild_package_or_trigger_services_parameters)
+    artifacts = step.step_instructions.to_json
+    render_artifacts_per_step(step, artifacts)
   end
 
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_configure_repositories_step
@@ -90,8 +53,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
       repositories: step.step_instructions[:repositories]
     }.to_json
 
-    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
-    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
+    render_artifacts_per_step(step, artifacts)
   end
 
   private
@@ -116,5 +78,42 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
 
   def workflow_run
     WorkflowRun.first
+  end
+
+  def rebuild_package_or_trigger_services_parameters
+    {
+      step_instructions: {
+        project: 'OBS:Server:Unstable',
+        package: 'obs-server'
+      },
+      scm_webhook: scm_webhook,
+      token: token
+    }
+  end
+
+  def branch_or_link_package_parameters
+    {
+      step_instructions: {
+        source_project: 'OBS:Server:Unstable',
+        source_package: 'obs-server',
+        target_project: 'OBS:Server:Unstable:CI'
+      },
+      scm_webhook: scm_webhook,
+      token: token
+    }
+  end
+
+  def branch_or_link_package_artifacts
+    {
+      source_project: step.step_instructions[:source_project],
+      source_package: step.step_instructions[:source_package],
+      target_project: step.target_project_name,
+      target_package: step.target_package_name
+    }.to_json
+  end
+
+  def render_artifacts_per_step(step, artifacts)
+    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
+    render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
   end
 end

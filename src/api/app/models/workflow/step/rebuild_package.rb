@@ -14,7 +14,7 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
     set_project_name
     set_package_name
     set_project
-    set_package
+    set_package(package_find_options: package_find_options)
     set_object_to_authorize
     set_multibuild_flavor
 
@@ -32,12 +32,11 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
 
   private
 
-  def rebuild_package
-    Backend::Api::Sources::Package.rebuild(project_name, package_name)
+  def package_find_options
+    { use_source: false, follow_project_links: true, follow_multibuild: true }
   end
 
-  def validate_project_and_package_name
-    errors.add(:base, "invalid project '#{step_instructions[:project]}'") if step_instructions[:project] && !Project.valid_name?(step_instructions[:project])
-    errors.add(:base, "invalid package '#{step_instructions[:package]}'") if step_instructions[:package] && !Package.valid_name?(step_instructions[:package])
+  def rebuild_package
+    Backend::Api::Sources::Package.rebuild(project_name, package_name)
   end
 end

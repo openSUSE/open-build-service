@@ -19,7 +19,9 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
     when 'Workflow::Step::LinkPackageStep'
       artifacts_for_branch_or_link_package(parsed_artifacts, 'Linked package from ')
     when 'Workflow::Step::RebuildPackage'
-      artifacts_for_rebuild_package(parsed_artifacts)
+      artifacts_for_rebuild_or_trigger_package(parsed_artifacts, 'Rebuilt package ')
+    when 'Workflow::Step::TriggerServices'
+      artifacts_for_rebuild_or_trigger_package(parsed_artifacts, 'Triggered services on package ')
     when 'Workflow::Step::ConfigureRepositories'
       artifacts_for_configure_repositories(parsed_artifacts)
     end
@@ -43,11 +45,11 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
     end
   end
 
-  def artifacts_for_rebuild_package(parsed_artifacts)
+  def artifacts_for_rebuild_or_trigger_package(parsed_artifacts, label)
     package_path = helpers.package_show_path(project: parsed_artifacts[:project], package: parsed_artifacts[:package])
 
     tag.li do
-      concat('Rebuilt package ')
+      concat(label)
       concat(link_to("#{parsed_artifacts[:project]}/#{parsed_artifacts[:package]}", package_path))
       concat('.')
     end

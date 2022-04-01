@@ -122,6 +122,23 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
     end
   end
 
+  context 'step is a trigger services step' do
+    let(:artifacts) do
+      {
+        project: 'devel:languages:ruby:extensions',
+        package: 'ruby2.5'
+      }.to_json
+    end
+    let(:step_name) { 'Workflow::Step::TriggerServices' }
+
+    it { expect(rendered_component).to have_text('Triggered services on package') }
+
+    it 'shows a link to the package where we triggered the services' do
+      expect(rendered_component).to have_link('devel:languages:ruby:extensions/ruby2.5',
+                                              href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
+    end
+  end
+
   context 'step is a configure repositories step' do
     let(:artifacts) do
       {

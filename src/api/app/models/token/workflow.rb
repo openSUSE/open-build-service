@@ -31,11 +31,6 @@ class Token::Workflow < Token
     raise Token::Errors::SCMTokenInvalid, e.message
   end
 
-  # Only used by rebuild steps
-  def package_find_options
-    { use_source: false, follow_project_links: true, follow_multibuild: true }
-  end
-
   private
 
   def validation_errors

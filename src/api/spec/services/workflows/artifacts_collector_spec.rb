@@ -265,6 +265,43 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
     end
 
+    context 'for a trigger_services step' do
+      let(:step) do
+        Workflow::Step::TriggerServices.new(step_instructions: step_instructions,
+                                            scm_webhook: scm_webhook,
+                                            token: token)
+      end
+
+      let(:step_instructions) do
+        {
+          project: 'home:Iggy',
+          package: 'hello_world'
+        }
+      end
+
+      let(:scm_webhook) do
+        ScmWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'pull_request',
+                         pr_number: 1,
+                         target_branch: 'master',
+                         action: 'opened',
+                         source_repository_full_name: 'iggy/hello_world',
+                         target_repository_full_name: 'iggy/hello_world'
+                       })
+      end
+
+      let(:artifacts) { step_instructions }
+
+      it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(1) }
+
+      it do
+        subject.call
+        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+        expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::TriggerServices')
+      end
+    end
+
     context 'for a configure_repositories step' do
       let(:step) do
         Workflow::Step::ConfigureRepositories.new(step_instructions: step_instructions,
