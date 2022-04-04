@@ -184,5 +184,18 @@ RSpec.describe TriggerController, vcr: true do
 
       it_behaves_like 'it verifies the signature'
     end
+
+    context 'when some parameters are not strings' do
+      before do
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_OBS_SIGNATURE'] = signature
+        post :create, body: { a_hash: { integer1: 123 }, integer2: 456 }.to_json
+      end
+
+      it 'still processes the request without validating parameters' do
+        expect(response).to have_http_status(:success)
+      end
+    end
   end
 end
