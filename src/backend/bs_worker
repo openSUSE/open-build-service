@@ -31,6 +31,7 @@ BEGIN {
 }
 
 use Digest::MD5 ();
+use Digest::SHA ();
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
@@ -53,7 +54,6 @@ use BSVerify;
 
 my $can_rewrite_containers;
 eval {
-  require Digest::SHA;
   require BSTar;
   require BSContar;
   $can_rewrite_containers = 1;
@@ -1033,6 +1033,16 @@ sub importbuild {
     Build->import();
 }
 
+sub sha256file {
+  my ($fn) = @_;
+  my $fd;
+  open($fd, '<', $fn) || die("$fn: $!\n");
+  my $ctx = Digest::SHA->new(256);
+  $ctx->addfile($fd);
+  close($fd);
+  return $ctx->hexdigest();
+}
+
 sub getsources {
   my ($buildinfo, $dir) = @_;
 
@@ -1056,12 +1066,16 @@ sub getsources {
     die("getsources: $errors");
   }
   # verify sources
+  my @materials;
   my %res = map {$_->{'name'} => $_} @$res;
   my $md5 = '';
   my @f = ls($dir);
   for my $f (sort @f) {
     die("unexpected file: $f") unless $res{$f};
     $md5 .= "$res{$f}->{'md5'}  $f\n";
+    my $sha256sum = sha256file("$dir/$f");
+    my $uri = BSHTTP::urlescape("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$f")."?rev=$buildinfo->{'srcmd5'}";
+    push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
   }
   $md5 = Digest::MD5::md5_hex($md5);
   die("source verification fails: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
@@ -3168,6 +3182,43 @@ sub normalize_container {
   rename("$container.new", "$container") || die("rename $container.new $container: $!\n");
 }
 
+my $slsa_json_template = {
+  '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
+  'subject' => {
+    '_order' => [ 'name', 'digest' ],
+  },
+  'predicate' => {
+    '_order' => [ 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    'invocation' => {
+      '_order' => [ 'configSource', 'parameters', 'environment' ],
+      'configSource' => {
+	'_order' => [ 'uri', 'digest', 'entryPoint' ],
+      }
+    },
+    'metadata' => {
+      '_order' => [ 'buildInvocationId', 'buildStartedOn', 'buildFinishedOn', 'completeness', 'reproducible' ],
+      'completeness' => {
+	'_order' => [ 'parameters', 'environment', 'materials' ],
+	'*' => 'bool',
+      },
+      'reproducible' => 'bool',
+    },
+    'materials' => {
+      '_order' => ['uri', 'digest' ],
+    }
+  }
+};
+
+sub generate_slsa_provenance_statement {
+  my ($buildinfo) = @_;
+  my $stmt = {
+    '_type' => "https://in-toto.io/Statement/v0.1",
+    'materials' => $buildinfo->{'materials'} || [],
+  };
+  require Build::SimpleJSON;
+  return Build::SimpleJSON::unparse($stmt,  'template' => $slsa_json_template, 'keepspecial' => 1);
+}
+
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
 
 sub dobuild {
@@ -3338,6 +3389,7 @@ sub dobuild {
 
 
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
+  $buildinfo->{'slsaprovenance'} = 1 if $bconf->{'buildflags:slsaprovenance'};
   my $useccache = $buildinfo->{'ccache'} ? 1 : 0;
   my $ccachetype = $useccache ? $buildinfo->{'ccache'} : undef;
 
@@ -4304,6 +4356,13 @@ if ($ex == 0) {
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
   @send = grep {$_->{'name'} ne '_generated_buildreqs'} @send;
+
+  if ($buildinfo->{'slsaprovenance'}) {
+    @send = grep {$_->{'name'} ne '_slsa_provenance_stmt.json'} @send;
+    my $slsa_provenance = generate_slsa_provenance_statement($buildinfo);
+    push @send, { 'name' => '_slsa_provenance_stmt.json', 'data' => $slsa_provenance };
+  }
+  
   if ($kiwitree) {
     my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
     eval {
