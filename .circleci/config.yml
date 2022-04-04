@@ -7,21 +7,25 @@ images:
       NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
 
   - &mariadb
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/mariadb:latest
+    image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/mariadb:latest
     command: |
       /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
     name: db
 
-  - &backend registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend:latest
+  - &backend registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/backend:latest
 
-  - &frontend_backend
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-backend:latest
+  - &frontend_minitest
+    image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-minitest:latest
     <<: *common_frontend_config
     environment:
       EAGER_LOAD: 1
 
   - &frontend_base
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
+    image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-base:latest
+    <<: *common_frontend_config
+
+  - &frontend_features
+    image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-features:latest
     <<: *common_frontend_config
 
 aliases:
@@ -112,7 +116,7 @@ jobs:
   rspec:
     parallelism: 3
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_features
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -160,7 +164,7 @@ jobs:
   minitest:
     parallelism: 2
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_minitest
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -196,7 +200,7 @@ jobs:
 
   migrations_test:
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_base
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -215,7 +219,7 @@ jobs:
 
   spider:
     docker:
-      - <<: *frontend_backend
+      - <<: *frontend_minitest
       - <<: *mariadb
     steps:
       - attach_workspace:
@@ -268,7 +272,7 @@ jobs:
   feature:
     parallelism: 2
     docker:
-      - <<: *frontend_base
+      - <<: *frontend_features
       - <<: *mariadb
     steps:
       - attach_workspace:
