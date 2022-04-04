@@ -1066,7 +1066,7 @@ sub create {
   push @bdeps, '--ignoreignore--' if @sysdeps || $buildtype eq 'simpleimage';
   # enable ccache support if requested
   if ($buildtype eq 'arch' || $buildtype eq 'spec' || $buildtype eq 'dsc') {
-    my @enable_ccache = grep {/^--enable-ccache/} @{$info->{'dep'} || []};
+    my @enable_ccache = grep {/^--enable-ccache/} Build::do_subst($bconf, @{$info->{'dep'} || []});
     if (@enable_ccache) {
       $ccache = $bconf->{'buildflags:ccachetype'} || 'ccache';
       $ccache = $1 if $enable_ccache[0] =~ /--enable-ccache=(.+)$/;
