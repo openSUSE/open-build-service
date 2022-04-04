@@ -28,35 +28,3 @@ RSpec.configure do |config|
   # You can also limit this to the type of test with
   # config.before(:each, type: feature) do...
 end
-
-# FIXME: Remove when VCR 6.0.1 is released
-# https://github.com/vcr/vcr/pull/907/files
-# rubocop:disable Style/ModuleFunction
-module VCR
-  class LibraryHooks
-    # @private
-    module WebMock
-      extend self
-
-      def with_global_hook_disabled(request)
-        global_hook_disabled_requests << request
-
-        begin
-          yield
-        ensure
-          global_hook_disabled_requests.delete(request)
-        end
-      end
-
-      def global_hook_disabled?(request)
-        requests = Thread.current[:_vcr_webmock_disabled_requests]
-        requests && requests.include?(request)
-      end
-
-      def global_hook_disabled_requests
-        Thread.current[:_vcr_webmock_disabled_requests] ||= []
-      end
-    end
-  end
-end
-# rubocop:enable Style/ModuleFunction
