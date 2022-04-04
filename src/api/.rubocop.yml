@@ -304,6 +304,10 @@ Rails/UniqueValidationWithoutIndex:
 Rails/BulkChangeTable:
   Enabled: false
 
+# This requires texts be moved to the locale files in the config/locales directory
+Rails/I18nLocaleTexts:
+  Enabled: false
+
 ##################### RSpec ##################################
 
 RSpec/FilePath:

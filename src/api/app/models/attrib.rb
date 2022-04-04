@@ -119,20 +119,17 @@ class Attrib < ApplicationRecord
 
     values.map(&:value).each do |value|
       allowed_values = attrib_type.allowed_values.map(&:value)
-      unless allowed_values.include?(value)
-        errors[:values] <<
-          "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
-      end
+      errors.add(:values, "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}") unless allowed_values.include?(value)
     end
   end
 
   def validate_issues
-    errors[:issues] << "can't have issues" if attrib_type && !attrib_type.issue_list && issues.any?
+    errors.add(:issues, "can't have issues") if attrib_type && !attrib_type.issue_list && issues.any?
   end
 
   def validate_allowed_values_for_attrib_type
     value_count = attrib_type.try(:value_count)
-    errors[:values] << "has #{values.length} values, but only #{value_count} are allowed" if value_count && value_count != values.length
+    errors.add(:values, "has #{values.length} values, but only #{value_count} are allowed") if value_count && value_count != values.length
   end
 
   def write_container_attributes
