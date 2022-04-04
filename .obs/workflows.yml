@@ -1,4 +1,4 @@
-workflow:
+testbuild:
   steps:
     - link_package:
         source_project: OBS:Server:Unstable
@@ -15,3 +15,14 @@ workflow:
               - x86_64
   filters:
     event: pull_request
+
+rebuild:
+  steps:
+    - trigger_services:
+        project: OBS:Server:Unstable
+        package: obs-server
+  filters:
+    event: push
+    branches:
+      only:
+        - master
