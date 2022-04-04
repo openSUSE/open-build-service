@@ -593,7 +593,7 @@ class Package < ApplicationRecord
       begin
         xml = Xmlhash.parse(Backend::Connection.get(source_path(nil, view: :products)).body)
       rescue StandardError
-        return
+        next
       end
       xml.elements('productdefinition') do |pd|
         pd.elements('products') do |ps|

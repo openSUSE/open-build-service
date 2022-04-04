@@ -42,7 +42,7 @@ class Repository < ApplicationRecord
   validate do |repository|
     repository.path_elements.reject(&:valid?).each do |path_element|
       path_element.errors.full_messages.each do |msg|
-        errors[:base] << "Path Element: #{msg}"
+        errors.add(:base, "Path Element: #{msg}")
       end
     end
   end
