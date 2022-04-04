@@ -1074,7 +1074,7 @@ sub getsources {
     die("unexpected file: $f") unless $res{$f};
     $md5 .= "$res{$f}->{'md5'}  $f\n";
     my $sha256sum = sha256file("$dir/$f");
-    my $uri = BSHTTP::urlescape("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$f")."?rev=$buildinfo->{'srcmd5'}";
+    my $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$f")."?rev=$buildinfo->{'srcmd5'}";
     push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
   }
   $md5 = Digest::MD5::md5_hex($md5);
