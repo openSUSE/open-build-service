@@ -396,6 +396,7 @@ my $exitrestart;
 my $exitrestart_timeout = 300;	# wait max 5 minuntes
 
 exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
+return 1 if @ARGV == 1 && $ARGV[0] eq '--testcase';
 
 while (@ARGV) {
   usage(0) if $ARGV[0] eq '--help';

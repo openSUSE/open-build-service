@@ -57,7 +57,7 @@ BEGIN {
 
       my $receiver = $param->{'receiver'};
       if ($receiver) {
-	$ret = $receiver->(BSHTTP::str2req($ret), $param, $xmlargs || $param->{'receiverarg'}) if $receiver;
+        $ret = $receiver->(BSHTTP::str2req($ret), $param, $xmlargs || $param->{'receiverarg'});
       } elsif ($xmlargs) {
 	$ret = BSUtil::fromxml($ret, $xmlargs);
       }
