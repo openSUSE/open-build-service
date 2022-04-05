@@ -591,7 +591,7 @@ RSpec.describe Project, vcr: true do
     end
 
     it "uses the package's release target name when releasing the package" do
-      project.do_project_release(user: user)
+      project.do_project_release(user: user.login)
       expect(project_release.packages.where(name: 'my_release_target')).to exist
     end
   end
