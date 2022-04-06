@@ -132,9 +132,11 @@ class BsRequestPermissionCheck
       # TODO: Get the relevant project attribute, from the target project or target package. Retrieve the accepter and check if it's the same person than the creator. And fail if true
       target_package = Package.get_by_project_and_name(action.target_project, action.target_package) if Package.exists_by_project_and_name(action.target_project, action.target_package)
       target_project = Project.find_by_name(action.target_project) if action.target_project
-      cannot_accept_request = target_package&.find_attribute('OBS', 'CreatorCannotAcceptOwnRequests').present?
-      cannot_accept_request ||= target_project&.find_attribute('OBS', 'CreatorCannotAcceptOwnRequests').present?
-      raise BsRequest::Errors::CreatorCannotAcceptOwnRequests if cannot_accept_request && User.session!.login == req.creator
+      if accept_check
+        cannot_accept_request = target_package&.find_attribute('OBS', 'CreatorCannotAcceptOwnRequests').present?
+        cannot_accept_request ||= target_project&.find_attribute('OBS', 'CreatorCannotAcceptOwnRequests').present?
+        raise BsRequest::Errors::CreatorCannotAcceptOwnRequests if cannot_accept_request && User.session!.login == req.creator
+      end
 
       # abort immediatly if we want to write and can't
       next unless accept_check && !@write_permission_in_this_action
