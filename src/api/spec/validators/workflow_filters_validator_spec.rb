@@ -5,6 +5,11 @@ RSpec.describe WorkflowFiltersValidator do
     Struct.new(:workflow_instructions) do
       include ActiveModel::Validations
 
+      # To prevent the error "ArgumentError: Class name cannot be blank. You need to supply a name argument when anonymous class given"
+      def self.name
+        'FakeModel'
+      end
+
       validates_with WorkflowFiltersValidator
     end
   end
@@ -29,7 +34,8 @@ RSpec.describe WorkflowFiltersValidator do
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('Unsupported filters: something and else')
+        expect(subject.errors.full_messages.to_sentence).to eq('Filters something and else are unsupported and ' \
+                                                               "Documentation for filters: #{described_class::DOCUMENTATION_LINK}")
       end
     end
 
@@ -38,8 +44,9 @@ RSpec.describe WorkflowFiltersValidator do
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('Filter event only supports a string value and ' \
-                                                               "Filters repositories and architectures have unsupported values, 'only' and 'ignore' are the only supported values.")
+        expect(subject.errors.full_messages.to_sentence).to eq('Filter event only supports a string value, ' \
+                                                               "Filters repositories and architectures have unsupported values, 'only' and 'ignore' are the only supported values., and " \
+                                                               "Documentation for filters: #{described_class::DOCUMENTATION_LINK}")
       end
     end
 
