@@ -107,6 +107,9 @@ def ignore_by_class?(notice)
 end
 
 def ignore_exception?(notice)
+  notice[:errors].pluck(:type).each do |type|
+    InfluxDB::Rails.instrument('exceptions', tags: { exception: type }, values: { value: 1 })
+  end
   ignore_by_class?(notice) || ignore_by_class_and_message?(notice)
 end
 
