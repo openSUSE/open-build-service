@@ -1244,7 +1244,7 @@ sub link_or_copy {
 
 sub get_cachefile {
   my ($prpa, $key) = @_;
-  my $cacheid =  Digest::MD5::md5_hex("$prpa/$key");
+  my $cacheid = Digest::SHA::sha256_hex("$prpa/$key");
   my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
   return ($cacheid, $cachefile);
 }
