@@ -79,6 +79,13 @@ sub set_maxopen() {
   print "file descriptor limit is $maxopen\n";
 }
 
+sub get_cachefile {
+  my ($prpa, $key) = @_;
+  my $cacheid =  Digest::MD5::md5_hex("$prpa/$key");
+  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+  return ($cacheid, $cachefile);
+}
+
 sub move_entry_into_cache {
   my ($cacheid, $path) = @_;
   my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
@@ -242,8 +249,7 @@ sub getbinaries {
       push @cpio, {'name' => $bin, 'error' => $bv->{'error'}};
       next;
     }
-    my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
-    my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+    my ($cacheid, $cachefile) = get_cachefile($prpa, $bv->{'hdrmd5'});
     my $usecache;
     my @s;
     my $binfd;
@@ -343,7 +349,7 @@ sub getbinaries {
 	    push @cpio, {'name' => "$n.$suf", 'filename' => $fd};
 	    $openfds++;
 	  }
-	  my $cacheid =  Digest::MD5::md5_hex("$prpa/$id");
+	  my ($cacheid) = get_cachefile($prpa, $id);
 	  push @cachenew, [$cacheid, $s[7], "$cachetmpdir/$r->{'name'}"];
 	  $nmiss++;
 	  $kmiss += int($s[7] / 1024);
@@ -388,8 +394,7 @@ sub getpreinstallimage {
   mkdir_p($cachetmpdir);
   set_maxopen() unless defined $maxopen;
 
-  my $cacheid = Digest::MD5::md5_hex("$prpa/$hdrmd5");
-  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+  my ($cacheid, $cachefile) = get_cachefile($prpa, $hdrmd5);
   my $cachefilemeta = readstr("$cachefile.meta", 1) || '';
   if ($cachefilemeta eq "$hdrmd5  :preinstallimage\n") {
     # got it
