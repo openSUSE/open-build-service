@@ -1242,6 +1242,13 @@ sub link_or_copy {
   return 1;
 }
 
+sub get_cachefile {
+  my ($prpa, $key) = @_;
+  my $cacheid = Digest::SHA::sha256_hex("$prpa/$key");
+  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+  return ($cacheid, $cachefile);
+}
+
 sub move_entry_into_cache {
   my ($cacheid, $path) = @_;
   my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
@@ -1432,8 +1439,7 @@ sub getbinaries_cache {
       next;
     }
     next if $bv->{'error'};
-    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
-    my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+    my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", $bv->{'hdrmd5'});
     if (!link_or_copy($cachefile, "$dir/$binprefix$bv->{'name'}")) {
       push @downloadbins, $bin;
       $downloadsizek += $bv->{'sizek'};
@@ -1509,7 +1515,7 @@ sub getbinaries_cache {
 	die unless @s;
         my $id = Build::queryhdrmd5("$dir/$r->{'name'}");
 	$r->{'hdrmd5'} = $id;
-	my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
+	my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $id);
 	push @cachenew, [$cacheid, $s[7], "$dir/$r->{'name'}"];
 	$ret{$n} = $r;
       } elsif ($r->{'name'} =~ /^(.*)\.meta$/) {
@@ -1690,8 +1696,7 @@ sub getbinaries_kiwiproduct {
 	next unless $binfilter{"$packid/$1.$2"};
 	next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
 	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
-	my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
-	my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+	my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", "$bv->{'hdrmd5'}$rpmhdrs_only");
 	mkdir_p("$ddir/$rarch");
 	if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
 	  my @s = stat("$ddir/$rarch/$bin.new.rpm");
@@ -1794,7 +1799,7 @@ sub getbinaries_kiwiproduct {
 	my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
 	if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
 	  push @done, "$rarch/$bin";
-	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
+	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", "$bv->{'hdrmd5'}$rpmhdrs_only");
 	  $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
 	  $knownmd5{"$rarch/$bin"} = $id;
 	} else {
@@ -1855,7 +1860,7 @@ sub getbinaries_kiwiproduct {
 	  next unless @s;
 	  my $id = Build::queryhdrmd5("$ddir/$f");
 	  next unless $id;
-	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id$rpmhdrs_only");
+	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", "$id$rpmhdrs_only");
 	  $cachenew{"$ddir/$f"} = [$cacheid, $s[7], "$ddir/$f"];
 	  $knownmd5{$f} = $id;
 	}
@@ -1939,8 +1944,7 @@ sub getpreinstallimage_metas {
     # check the cache
     for my $bin (@bins) {
       my $bv = $metas->{$bin};
-      my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
-      my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+      my ($cacheid, $cachefile) = get_cachefile($prpa, $bv->{'hdrmd5'});
       if (link_or_copy("$cachefile.meta", "$dir/$bin.meta")) {
 	next if checkmd5("$dir/$bin.meta", $bv->{'metamd5'});
 	unlink("$dir/$bin.meta");
@@ -1992,8 +1996,7 @@ sub getpreinstallimage_metas {
       $havemeta{$bin} = 1;
       if ($cachedir) {
 	# put in cache so that we don't need to download it the next time
-	my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
-	my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+	my ($cacheid, $cachefile) = get_cachefile($prpa, $bv->{'hdrmd5'});
 	unlink("$cachefile.meta.$$");
 	if (link_or_copy("$dir/$bin.meta", "$cachefile.meta.$$")) {
 	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
@@ -2134,8 +2137,7 @@ sub getpreinstallimage {
     my $cacheid;
     my $cachefile;
     if ($cachedir) {
-      $cacheid =  Digest::MD5::md5_hex("$bestimg->{'prpa'}/$bestimg->{'hdrmd5'}");
-      $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+      my ($cacheid, $cachefile) = get_cachefile($bestimg->{'prpa'}, $bestimg->{'hdrmd5'});
       my $cachefilemeta = readstr("$cachefile.meta", 1) || '';
       if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preinstallimage\n") {
 	if (link_or_copy($cachefile, "$dir/$ifile")) {
@@ -2311,8 +2313,7 @@ sub getbinaries_buildenv {
         my $repo = $bv->{'repo'};
         my $projid = $repo->{'project'};
         my $repoid = $repo->{'repository'};
-        my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
-        my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+        my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", $bv->{'hdrmd5'});
         if (link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
 	  my @s = stat("$dir/$bv->{'name'}");
 	  die unless @s;
@@ -2386,7 +2387,7 @@ sub getbinaries_buildenv {
       }
       die unless $bv->{'name'} =~ /(.*)\.rpm$/;
       $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
-      my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+      my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $bv->{'hdrmd5'});
       push @cachenew, [$cacheid, $s[7], "$dir/$bv->{'name'}"];
       delete $needed{$needed};
       last;
