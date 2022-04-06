@@ -40,6 +40,7 @@ OBSApi::Application.routes.draw do
     service: %r{\w[^\/]*},
     title: %r{[^\/]*},
     user: %r{[^\/]*},
+    user_login: %r{[^\/]*},
     repository_publish_build_id: %r{[^\/]*}
   }
 
