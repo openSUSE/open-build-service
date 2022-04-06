@@ -137,7 +137,7 @@ RSpec.describe Token::Workflow do
       subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
 
       it 'returns the validation errors' do
-        expect(subject).to eq(['Event not supported.', 'Workflow steps are not present'])
+        expect(subject).to eq(['Event not supported.', 'Steps are mandatory in a workflow', "Documentation for steps: #{WorkflowStepsValidator::DOCUMENTATION_LINK}"])
       end
 
       it { expect { subject }.to change(workflow_token, :triggered_at) & change(workflow_run, :response_url).to('https://api.github.com') }

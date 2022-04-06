@@ -1,25 +1,32 @@
 class WorkflowStepsValidator < ActiveModel::Validator
+  DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.obs_workflows.steps".freeze
+
   def validate(record)
     @workflow = record
 
     validate_steps
+
+    return unless @workflow.errors.include?(:steps)
+
+    # Guide users by sharing a link whenever there's a validation error
+    @workflow.errors.add(:base, "Documentation for steps: #{DOCUMENTATION_LINK}")
   end
 
   private
 
   def validate_steps
     if @workflow.workflow_steps.blank?
-      @workflow.errors.add(:base, 'Workflow steps are not present')
+      @workflow.errors.add(:steps, 'are mandatory in a workflow')
       return
     end
 
     if @workflow.steps.blank?
-      @workflow.errors.add(:base, 'The provided workflow steps are unsupported')
+      @workflow.errors.add(:steps, 'provided in the workflow are unsupported')
       return
     end
 
-    @workflow.errors.add(:base, unsupported_steps_error_message) if unsupported_steps.present?
-    @workflow.errors.add(:base, invalid_steps_error_message) if invalid_steps.present?
+    @workflow.errors.add(:steps, unsupported_steps_error_message) if unsupported_steps.present?
+    @workflow.errors.add(:steps, invalid_steps_error_message) if invalid_steps.present?
   end
 
   def unsupported_steps
@@ -34,11 +41,11 @@ class WorkflowStepsValidator < ActiveModel::Validator
   end
 
   def unsupported_steps_error_message
-    "The following workflow steps are unsupported: #{unsupported_steps.map { |step| "'#{step}'" }.to_sentence}"
+    "#{unsupported_steps.map { |step| "'#{step}'" }.to_sentence} are unsupported"
   end
 
   def invalid_steps_error_message
-    # TODO: Include the name of the step in this error message.
-    "#{invalid_steps.map { |step| step.errors.full_messages }.flatten.to_sentence}"
+    "with errors:\n" +
+      invalid_steps.map { |step| "#{Workflow::SUPPORTED_STEPS.key(step.class)} - #{step.errors.full_messages.to_sentence}" }.flatten.to_sentence
   end
 end

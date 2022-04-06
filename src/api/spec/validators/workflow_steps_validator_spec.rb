@@ -5,6 +5,11 @@ RSpec.describe WorkflowStepsValidator do
     Struct.new(:steps, :workflow_steps) do
       include ActiveModel::Validations
 
+      # To prevent the error "ArgumentError: Class name cannot be blank. You need to supply a name argument when anonymous class given"
+      def self.name
+        'FakeModel'
+      end
+
       validates_with WorkflowStepsValidator
     end
   end
@@ -18,7 +23,8 @@ RSpec.describe WorkflowStepsValidator do
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('Workflow steps are not present')
+        expect(subject.errors.full_messages.to_sentence).to eq('Steps are mandatory in a workflow and ' \
+                                                               "Documentation for steps: #{described_class::DOCUMENTATION_LINK}")
       end
     end
 
@@ -28,7 +34,8 @@ RSpec.describe WorkflowStepsValidator do
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq('The provided workflow steps are unsupported')
+        expect(subject.errors.full_messages.to_sentence).to eq('Steps provided in the workflow are unsupported and ' \
+                                                               "Documentation for steps: #{described_class::DOCUMENTATION_LINK}")
       end
     end
 
@@ -39,7 +46,8 @@ RSpec.describe WorkflowStepsValidator do
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq("The following workflow steps are unsupported: 'unsupported_step'")
+        expect(subject.errors.full_messages.to_sentence).to eq("Steps 'unsupported_step' are unsupported and " \
+                                                               "Documentation for steps: #{described_class::DOCUMENTATION_LINK}")
       end
     end
 
@@ -50,8 +58,9 @@ RSpec.describe WorkflowStepsValidator do
 
       it 'is not valid and has an error message' do
         subject.valid?
-        expect(subject.errors.full_messages.to_sentence).to eq("The following workflow steps are unsupported: 'unsupported_step' and " \
-                                                               "The 'source_package' key is missing and The 'target_project' key is missing")
+        expect(subject.errors.full_messages.to_sentence).to eq("Steps 'unsupported_step' are unsupported, Steps with errors:\n" \
+                                                               "branch_package - The 'source_package' key is missing and The 'target_project' key is missing, and " \
+                                                               "Documentation for steps: #{described_class::DOCUMENTATION_LINK}")
       end
     end
   end
