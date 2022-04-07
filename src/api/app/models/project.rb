@@ -1122,22 +1122,22 @@ class Project < ApplicationRecord
 
   # called either directly or from delayed job
   def do_project_release(params)
-    User.session ||= User.find_by!(login: params[:user])
+    User.find_by!(login: params[:user]).run_as do
+      # uniq timestring for all targets
+      time_now = Time.now.utc
 
-    # uniq timestring for all targets
-    time_now = Time.now.utc
-
-    packages.each do |pkg|
-      next if pkg.name == '_product' # will be handled via _product:*
-      pkg.project.repositories.each do |repo|
-        next if params[:repository] && params[:repository] != repo.name
-        repo.release_targets.each do |releasetarget|
-          next unless releasetarget.trigger.in?(['manual', 'maintenance'])
-          next if params[:targetproject] && params[:targetproject] != releasetarget.target_repository.project.name
-          next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
-          # release source and binaries
-          # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true)
+      packages.each do |pkg|
+        next if pkg.name == '_product' # will be handled via _product:*
+        pkg.project.repositories.each do |repo|
+          next if params[:repository] && params[:repository] != repo.name
+          repo.release_targets.each do |releasetarget|
+            next unless releasetarget.trigger.in?(['manual', 'maintenance'])
+            next if params[:targetproject] && params[:targetproject] != releasetarget.target_repository.project.name
+            next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
+            # release source and binaries
+            # permission checking happens inside this function
+            release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true)
+          end
         end
       end
     end
