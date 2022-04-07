@@ -1,5 +1,6 @@
 module Workflows
   class YAMLDownloader
+    DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.obs_workflows".freeze
     MAX_FILE_SIZE = 1024 * 1024 # 1MB
 
     def initialize(scm_payload, token:)
@@ -16,7 +17,8 @@ module Workflows
     def download_yaml_file
       Down.download(download_url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
-      raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded from the SCM branch #{@scm_payload[:target_branch]}: #{e.message}"
+      raise Token::Errors::NonExistentWorkflowsFile, ".obs/workflows.yml could not be downloaded from the SCM branch #{@scm_payload[:target_branch]}." \
+                                                     "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}"
     end
 
     def download_url
