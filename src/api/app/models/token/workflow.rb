@@ -3,10 +3,6 @@ class Token::Workflow < Token
 
   validates :scm_token, presence: true
 
-  def self.token_name
-    'workflow'
-  end
-
   def call(options)
     set_triggered_at
     @scm_webhook = options[:scm_webhook]

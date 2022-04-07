@@ -1,7 +1,4 @@
 class Token::Rss < Token
-  def self.token_name
-    'rss'
-  end
 end
 
 # == Schema Information

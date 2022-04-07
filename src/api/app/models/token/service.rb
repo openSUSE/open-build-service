@@ -1,8 +1,4 @@
 class Token::Service < Token
-  def self.token_name
-    'runservice'
-  end
-
   def call(options)
     set_triggered_at
     Backend::Api::Sources::Package.trigger_services(options[:project].to_param,

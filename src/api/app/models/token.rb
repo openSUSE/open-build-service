@@ -23,6 +23,10 @@ class Token < ApplicationRecord
     self.class.token_name
   end
 
+  def self.token_name
+    name.demodulize.downcase
+  end
+
   def self.token_type(action)
     case action
     when 'rebuild'
