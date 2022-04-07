@@ -8,7 +8,7 @@ class TokenCardComponent < ApplicationComponent
   end
 
   def operation
-    "Operation: #{@token.class.token_name.capitalize}"
+    "Operation: #{@token.token_name.capitalize}"
   end
 
   def token_package_link

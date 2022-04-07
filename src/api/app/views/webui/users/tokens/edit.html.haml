@@ -22,7 +22,7 @@
                 = @token.id
               .form-group
                 = f.label(:type, 'Operation:')
-                = @token.class.token_name.capitalize
+                = @token.token_name.capitalize
               .form-group
                 = f.label(:name, 'Name:')
                 %span.d-none#original-token-name
