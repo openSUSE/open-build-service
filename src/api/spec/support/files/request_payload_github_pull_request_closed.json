@@ -1,0 +1,10 @@
+{
+  "action": "closed",
+  "pull_request": {
+    "number": 1
+  },
+  "repository": {
+    "full_name": "iggy/hello_world",
+    "html_url": "https://github.com"
+  }
+}

@@ -6,24 +6,6 @@ RSpec.describe 'workflows' do
   include_context 'rake'
 
   let!(:admin_user) { create(:admin_user, login: 'Admin') }
-  let(:gitlab_request_headers) do
-    <<~END_OF_HEADERS
-      HTTP_X_GITLAB_EVENT: Merge Request Hook
-    END_OF_HEADERS
-  end
-  let(:github_request_payload_opened) do
-    <<~END_OF_REQUEST
-      {
-        "action": "opened",
-        "pull_request": {
-          "number": 1
-        },
-        "repository": {
-          "full_name": "iggy/hello_world"
-        }
-      }
-    END_OF_REQUEST
-  end
   let(:github_request_payload_closed) do
     <<~END_OF_REQUEST
       {
@@ -57,12 +39,12 @@ RSpec.describe 'workflows' do
   let!(:project_iggy_hello_world_pr2) { create(:project, name: 'home:Iggy:iggy:hello_world:PR-2') }
   let!(:project_iggy_test_pr3) { create(:project, name: 'home:Iggy:iggy:test:PR-3') }
 
-  let!(:workflow_run_running_pr_opened) { create(:running_workflow_run, request_payload: github_request_payload_opened) }
-  let!(:workflow_run_succeeded_pr_opened) { create(:succeeded_workflow_run, request_payload: github_request_payload_opened) }
-  let!(:workflow_run_failed_pr_opened) { create(:failed_workflow_run, request_payload: github_request_payload_opened) }
-  let!(:workflow_run_running_pr_closed) { create(:running_workflow_run, request_payload: github_request_payload_closed) }
-  let!(:another_workflow_run_running_pr_closed) { create(:running_workflow_run, request_payload: github_request_payload_closed) }
-  let!(:workflow_run_running_pr_merge) { create(:running_workflow_run, request_headers: gitlab_request_headers, request_payload: gitlab_request_payload_merge) }
+  let!(:workflow_run_running_pr_opened) { create(:workflow_run_github_running) }
+  let!(:workflow_run_succeeded_pr_opened) { create(:workflow_run_github_succeeded, :pull_request_opened) }
+  let!(:workflow_run_failed_pr_opened) { create(:workflow_run_github_failed) }
+  let!(:workflow_run_running_pr_closed) { create(:workflow_run_github_running, request_payload: github_request_payload_closed) }
+  let!(:another_workflow_run_running_pr_closed) { create(:workflow_run_github_running, request_payload: github_request_payload_closed) }
+  let!(:workflow_run_running_pr_merge) { create(:workflow_run_gitlab_running, request_payload: gitlab_request_payload_merge) }
 
   describe 'cleanup_non_closed_projects' do
     let(:task) { 'workflows:cleanup_non_closed_projects' }
