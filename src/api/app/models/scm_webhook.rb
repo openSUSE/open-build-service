@@ -11,6 +11,8 @@ class ScmWebhook
                                   'edited', 'labeled', 'locked', 'ready_for_review', 'review_request_removed',
                                   'review_requested', 'unassigned', 'unlabeled', 'unlocked'].freeze
   IGNORED_MERGE_REQUEST_ACTIONS = ['approved', 'unapproved'].freeze
+  ALLOWED_PULL_REQUEST_ACTIONS = ['closed', 'opened', 'reopened', 'synchronize'].freeze
+  ALLOWED_MERGE_REQUEST_ACTIONS = ['close', 'merge', 'open', 'reopen', 'update'].freeze
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
