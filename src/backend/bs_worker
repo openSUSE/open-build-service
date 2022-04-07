@@ -1566,6 +1566,7 @@ sub sendbadpackagebinaryversionlist {
 
 # this specialized version of getbinaries only works for
 # kiwi product builds
+# TODO: add provenance materials
 sub getbinaries_kiwiproduct {
   my ($buildinfo, $dir, $srcdir, $kiwiorigins) = @_;
 
@@ -2487,6 +2488,7 @@ sub getbinaries_containers {
   return @meta;
 }
 
+# TODO: add provenance materials
 sub getbinaries_kiwiimage {
   my ($buildinfo, $dir, $srcdir, $origins) = @_;
 
@@ -2659,6 +2661,9 @@ sub getbinaries {
 	# sigh, no package information available yet...
 	$origins->{$_} = "$repoprp/$arch";
       }
+      my $sha256sum = sha256file("$dir/$gotpkg->{'name'}");
+      my $uri = BSHTTP::urlencode("$server/build/$repo->{'project'}/$repo->{'repository'}/$arch/_repository/$gotpkg->{'name'}");
+      push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
     }
     @todo = grep {!$done{"$binaryprefix$_"}} @todo;
   }
@@ -2686,6 +2691,9 @@ sub getbinaries {
         # sigh, no package information available yet...
         $origins->{$_} = "$repoprp/$arch";
       }
+      my $sha256sum = sha256file("$dir/$gotpkg->{'name'}");
+      my $uri = BSHTTP::urlencode("$server/build/$repo->{'project'}/$repo->{'repository'}/$arch/_repository/$gotpkg->{'name'}");
+      push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
     }
     @todo = grep {!$done{$_}} @todo;
   }
