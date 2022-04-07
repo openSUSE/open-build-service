@@ -11,11 +11,13 @@
         = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter, finder: @workflow_runs_finder)
   .col-md-8.col-lg-9.px-0.px-md-3#workflow-run-list
     .card
-      - if @workflow_runs.blank?
-        .card-body
-          %p There are no workflow runs for this token yet
-      - else
-        .card-body
+      .card-body
+        - if @selected_filter[:generic_event_type] == 'pull_request'
+          = render WorkflowRunRequestActionFilterComponent.new(token_id: @token.id, request_action: @request_action)
+        - if @workflow_runs.blank?
+          .text-center
+            %p There are no workflow runs available
+        - else
           .text-center
             %span.ml-3= page_entries_info(@workflow_runs)
           .accordion.pt-3#workflow-runs-accordion

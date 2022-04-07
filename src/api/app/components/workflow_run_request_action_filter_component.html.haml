@@ -1,0 +1,12 @@
+= form_with(url: token_workflow_runs_path(@token_id), method: :get, local: true, class: 'form-inline') do
+  = hidden_field_tag('generic_event_type', @generic_event_type)
+  = label_tag('request_action', 'Action', class: 'sr-only')
+  .input-group.mr-sm-2
+    .input-group-prepend
+      .input-group-text
+        Action
+    = select_tag('request_action',
+                  options_for_select(@filter_options, @request_action),
+                  class: 'form-control custom-select')
+  %button.btn.btn-primary#filter-button{ type: :submit }
+    Apply
