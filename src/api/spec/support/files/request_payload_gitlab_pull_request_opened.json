@@ -1,0 +1,19 @@
+{
+  "object_kind": "merge_request",
+  "event_type": "merge_request",
+  "project": {
+    "name": "hello_world-test",
+    "web_url": "https://gitlab.com/iggy/hello_world",
+    "path_with_namespace": "iggy/hello_world"
+  },
+  "object_attributes": {
+    "id": 49732567,
+    "iid": 1,
+    "action": "open"
+  },
+  "repository": {
+    "name": "hello_world",
+    "url": "git@gitlab.com:iggy/hello_world.git",
+    "homepage": "https://gitlab.com/iggy/hello_world"
+  }
+}

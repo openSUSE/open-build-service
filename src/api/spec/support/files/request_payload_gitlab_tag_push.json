@@ -1,0 +1,25 @@
+{
+  "object_kind": "tag_push",
+  "before": "60cd89df0215ab64cff9b8076a4a3334dce71ba7",
+  "after": "1873d25e0fb0c245e3ad75aadca1f69fdf5fd70b",
+  "ref": "refs/tags/v1",
+  "project_id": 16871458,
+  "project": {
+    "id": 16871458,
+    "name": "hello_world",
+    "web_url": "https://gitlab.com/iggy/hello_world",
+    "path_with_namespace": "iggy/hello_world",
+    "http_url": "https://gitlab.com/iggy/hello_world.git"
+  },
+  "commits": [
+    {
+      "id": "1873d25e0fb0c245e3ad75aadca1f69fdf5fd70b",
+      "url": "https://gitlab.com/iggy/hello_world/-/commit/1873d25e0fb0c245e3ad75aadca1f69fdf5fd70b"
+    }
+  ],
+  "repository": {
+    "name": "hello_world",
+    "url": "git@gitlab.com:iggy/hello_world.git",
+    "homepage": "https://gitlab.com/iggy/hello_world"
+  }
+}
