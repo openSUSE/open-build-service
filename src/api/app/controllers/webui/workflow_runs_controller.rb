@@ -5,8 +5,8 @@ class Webui::WorkflowRunsController < Webui::WebuiController
 
     @workflow_runs = if params[:status]
                        @workflow_runs_finder.with_status(params[:status])
-                     elsif params[:event_type]
-                       @workflow_runs_finder.with_event_type(params[:event_type])
+                     elsif params[:generic_event_type]
+                       @workflow_runs_finder.with_generic_event_type(params[:generic_event_type])
                      else
                        @workflow_runs_finder.all
                      end
@@ -25,6 +25,6 @@ class Webui::WorkflowRunsController < Webui::WebuiController
   end
 
   def selected_filter
-    { event_type: params[:event_type], status: params[:status] }.compact
+    { generic_event_type: params[:generic_event_type], status: params[:status] }.compact
   end
 end

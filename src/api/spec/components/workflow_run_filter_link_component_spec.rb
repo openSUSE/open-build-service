@@ -37,9 +37,9 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
     end
 
     context 'when the selected filter matches the filter item' do
-      let(:filter_item) { { event_type: 'pull_request' } }
-      let(:selected_filter) { { event_type: 'pull_request' } }
-      let(:link_selector) { 'a.active[href="/my/tokens/1/workflow_runs?event_type=pull_request"]' }
+      let(:filter_item) { { generic_event_type: 'pull_request' } }
+      let(:selected_filter) { { generic_event_type: 'pull_request' } }
+      let(:link_selector) { 'a.active[href="/my/tokens/1/workflow_runs?generic_event_type=pull_request"]' }
 
       it 'displays link with active class and a light badge' do
         expect(rendered_component).to have_css("#{link_selector} span.badge.badge-light")
@@ -47,9 +47,9 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
     end
 
     context 'when the selected filter does not match the filter item' do
-      let(:filter_item) { { event_type: 'pull_request' } }
-      let(:selected_filter) { { event_type: 'push' } }
-      let(:link_selector) { 'a[href="/my/tokens/1/workflow_runs?event_type=pull_request"]' }
+      let(:filter_item) { { generic_event_type: 'pull_request' } }
+      let(:selected_filter) { { generic_event_type: 'push' } }
+      let(:link_selector) { 'a[href="/my/tokens/1/workflow_runs?generic_event_type=pull_request"]' }
 
       it 'displays link without active class and a primary badge' do
         expect(rendered_component).to have_css("#{link_selector} span.badge.badge-primary")
