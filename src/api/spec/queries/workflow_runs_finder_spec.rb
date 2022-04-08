@@ -25,9 +25,19 @@ RSpec.describe WorkflowRunsFinder do
     end
   end
 
-  describe '#group_by_event_type' do
+  describe '#group_by_generic_event_type' do
     it 'returns a hash with the amount of workflow runs grouped by event' do
-      expect(subject.group_by_event_type).to include({ 'pull_request' => 4, 'push' => 1, 'Merge Request Hook' => 1, 'Push Hook' => 1, 'Tag Push Hook' => 1 })
+      expect(subject.group_by_generic_event_type).to include({ 'pull_request' => 5, 'push' => 3 })
+    end
+  end
+
+  describe '#with_generic_event_type' do
+    it 'returns workflows for pull_request generic event' do
+      expect(subject.with_generic_event_type('pull_request').count).to eq(5)
+    end
+
+    it 'returns workflows for push generic event' do
+      expect(subject.with_generic_event_type('push').count).to eq(3)
     end
   end
 
