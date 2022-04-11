@@ -66,7 +66,7 @@ Requires:       perl(GD)
 Requires:       rubygem(ruby:2.5.0:bundler)
 Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
 Requires:       rubygem(ruby:2.5.0:rack:%{rack_version})
-BuildRequires:  rubygem-yajl-ruby
+BuildRequires:  ruby2.5-rubygem-yajl-ruby
 
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
