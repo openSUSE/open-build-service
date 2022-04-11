@@ -102,7 +102,7 @@ cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
 # Use packaged yajl ruby gem instead of the one from rubygems.
 # This one is patched and runs on ruby 2.5
 # See https://github.com/brianmario/yajl-ruby/security/advisories/GHSA-jj47-x69x-mxrm
-cp %{_libdir}/ruby/gems/2.5.0/cache/yajl-ruby-1.4.2.gem/vendor/cache/*.gem vendor/cache
+cp %{_libdir}/ruby/gems/2.5.0/cache/yajl-ruby-1.4.2.gem vendor/cache
 
 %build
 # emtpy since bundle does not decouple compile and install
