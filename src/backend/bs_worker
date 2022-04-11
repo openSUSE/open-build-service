@@ -3220,9 +3220,20 @@ my $slsa_json_template = {
 };
 
 sub generate_slsa_provenance_statement {
-  my ($buildinfo) = @_;
+  my ($buildinfo, $send) = @_;
+
+  # Generate subject, from the output artifacts
+  my $subject = [];
+  for my $artifact (@$send) {
+    next if $artifact->{name} =~ /^(rpmlint\.log|_statistics|_buildenv)$/;
+
+    my $sha256sum = sha256file($artifact->{'filename'});
+    push @$subject, { 'name' => $artifact->{'name'}, 'digest' => { 'sha256' => $sha256sum }};
+  }
+
   my $stmt = {
     '_type' => "https://in-toto.io/Statement/v0.1",
+    'subject' => $subject,
     'materials' => $buildinfo->{'materials'} || [],
   };
   require Build::SimpleJSON;
@@ -4369,7 +4380,7 @@ if ($ex == 0) {
 
   if ($buildinfo->{'slsaprovenance'}) {
     @send = grep {$_->{'name'} ne '_slsa_provenance_stmt.json'} @send;
-    my $slsa_provenance = generate_slsa_provenance_statement($buildinfo);
+    my $slsa_provenance = generate_slsa_provenance_statement($buildinfo, \@send);
     push @send, { 'name' => '_slsa_provenance_stmt.json', 'data' => $slsa_provenance };
   }
   
