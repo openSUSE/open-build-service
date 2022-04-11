@@ -1,8 +1,4 @@
 class Token::Rebuild < Token
-  def self.token_name
-    'rebuild'
-  end
-
   def call(options)
     set_triggered_at
     package_name = options[:package].to_param

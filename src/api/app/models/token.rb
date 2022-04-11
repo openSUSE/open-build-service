@@ -20,7 +20,11 @@ class Token < ApplicationRecord
   OPERATIONS = ['Rebuild', 'Release', 'Service', 'Workflow'].freeze
 
   def token_name
-    self.class.token_name
+    self.class.token_name.downcase
+  end
+
+  def self.token_name
+    name.demodulize
   end
 
   def self.token_type(action)

@@ -1,10 +1,6 @@
 class Token::Release < Token
   include MaintenanceHelper
 
-  def self.token_name
-    'release'
-  end
-
   def call(options)
     set_triggered_at
     return unless options[:package]

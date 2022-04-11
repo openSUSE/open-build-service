@@ -13,7 +13,7 @@
             = @token.id
           .form-group
             = f.label(:type, 'Operation:')
-            = @token.class.token_name.capitalize
+            = @token.token_name.capitalize
           - token_package = @token.package
           - if token_package.present?
             = fields_for(:package, token_package) do |token_fields|
