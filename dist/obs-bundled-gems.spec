@@ -66,6 +66,7 @@ Requires:       perl(GD)
 Requires:       rubygem(ruby:2.5.0:bundler)
 Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
 Requires:       rubygem(ruby:2.5.0:rack:%{rack_version})
+BuildRequires:  rubygem-yajl-ruby
 
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
@@ -98,6 +99,10 @@ cp %{S:0} %{S:1} .
 # copy gem files into cache
 mkdir -p vendor/cache
 cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
+# Use packaged yajl ruby gem instead of the one from rubygems.
+# This one is patched and runs on ruby 2.5
+# See https://github.com/brianmario/yajl-ruby/security/advisories/GHSA-jj47-x69x-mxrm
+cp %{_libdir}/ruby/gems/2.5.0/cache/yajl-ruby-1.4.2.gemr}/vendor/cache/*.gem vendor/cache
 
 %build
 # emtpy since bundle does not decouple compile and install
