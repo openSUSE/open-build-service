@@ -2134,10 +2134,9 @@ sub getpreinstallimage {
     unlink("$dir/$ifile");
 
     # check if the image is in the cache
-    my $cacheid;
-    my $cachefile;
+    my ($cacheid, $cachefile);
     if ($cachedir) {
-      my ($cacheid, $cachefile) = get_cachefile($bestimg->{'prpa'}, $bestimg->{'hdrmd5'});
+      ($cacheid, $cachefile) = get_cachefile($bestimg->{'prpa'}, $bestimg->{'hdrmd5'});
       my $cachefilemeta = readstr("$cachefile.meta", 1) || '';
       if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preinstallimage\n") {
 	if (link_or_copy($cachefile, "$dir/$ifile")) {
