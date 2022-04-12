@@ -9,8 +9,8 @@ Environment = "RAILS_ENV=production"
 User = wwwrun
 Group = www
 WorkingDirectory = /srv/www/obs/api
-ExecStart = /usr/bin/bundle.ruby2.5 exec rails sphinx:start
-ExecStop = /usr/bin/bundle.ruby2.5 exec rails ts:stop
+ExecStart = /usr/bin/bundle.ruby2.7 exec rails sphinx:start
+ExecStop = /usr/bin/bundle.ruby2.7 exec rails ts:stop
 Type = forking
 PIDFile = /srv/www/obs/api/log/production.sphinx.pid
 

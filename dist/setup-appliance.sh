@@ -516,7 +516,7 @@ function prepare_apache2 {
 function prepare_passenger {
 
   perl -p -i -e \
-    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.5"#' \
+    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.7"#' \
       /etc/apache2/conf.d/mod_passenger.conf
 
 
