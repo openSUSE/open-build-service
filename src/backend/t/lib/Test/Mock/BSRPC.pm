@@ -29,6 +29,9 @@ BEGIN {
     $param = {'uri' => $param} if ref($param) ne 'HASH';
     my $uri = $param->{'uri'};
 
+    # Exclude `now`
+    @args = grep {!/^now=/} @args;
+
     for (@args) {
       $_ = BSRPC::urlencode($_);
       s/%3D/=/;
