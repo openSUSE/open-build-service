@@ -1,11 +1,11 @@
 .card.m-1.p-2
   .card-body
     = link_to token_path(@token) do
-      - if @token.name.present?
+      - if @token.description.present?
         %h5.card-title
-          = @token.name
+          = @token.description
       - else
-        %h5.card-title.font-italic No name
+        %h5.card-title.font-italic No description
     %p.card-text
       Id: #{@token.id}
     %p.card-text
