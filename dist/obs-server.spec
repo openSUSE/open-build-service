@@ -255,11 +255,11 @@ Requires:       user(wwwrun)
 # For apache
 Requires:       apache2
 Requires:       apache2-mod_xforward
-Requires:       ruby2.5-rubygem-passenger
+Requires:       ruby2.7-rubygem-passenger
 Requires:       rubygem-passenger-apache2
 Conflicts:      memcached < 1.4
 
-Requires:       ruby(abi) = 2.5.0
+Requires:       ruby(abi) = 2.7.0
 # for test suite:
 BuildRequires:  createrepo_c
 BuildRequires:  curl
