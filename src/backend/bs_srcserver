@@ -2363,8 +2363,13 @@ sub getpackagehistory {
     }
   }
   my $filter;
-  if ($cgi->{'rev'}) {
-    $filter = sub { return $cgi->{'rev'} eq $_[0]->{'rev'} || $cgi->{'rev'} eq $_[0]->{'srcmd5'} ? 1 : 0 };
+  if ($cgi->{'rev'} && $cgi->{'rev'} =~ /^[0-9a-f]{32}/) {
+    # get all revisions with this srcmd5
+    $filter = sub { return $cgi->{'rev'} eq $_[0]->{'srcmd5'} ? 1 : 0 };
+  } elsif ($cgi->{'rev'}) {
+    # get a specific revision
+    $filter = sub { return $cgi->{'rev'} eq $_[0]->{'rev'} ? 1 : 0 };
+    $cgi->{'limit'} = 1 unless defined $cgi->{'limit'};
   }
   for (BSFileDB::fdb_getall_reverse($revfile, $srcrevlay, $cgi->{'limit'}, $filter)) {
     $_->{'comment'} = str2utf8xml($_->{'comment'}) if $_->{'comment'};
