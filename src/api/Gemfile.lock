@@ -173,10 +173,10 @@ GEM
       haml (>= 4.0.6, < 6.0)
       html2haml (>= 1.0.1)
       railties (>= 5.1)
-    haml_lint (0.32.0)
-      haml (>= 4.0, < 5.2)
+    haml_lint (0.40.0)
+      haml (>= 4.0, < 5.3)
+      parallel (~> 1.10)
       rainbow
-      rake (>= 10, < 13)
       rubocop (>= 0.50.0)
       sysexits (~> 1.1)
     hashdiff (0.4.0)
