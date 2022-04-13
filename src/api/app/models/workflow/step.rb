@@ -166,18 +166,6 @@ class Workflow::Step
     architectures
   end
 
-  def report_to_scm(workflow_filters)
-    workflow_repositories(target_project_name, workflow_filters).each do |repository|
-      # TODO: Fix n+1 queries
-      workflow_architectures(repository, workflow_filters).each do |architecture|
-        target_package_names.each do |target_package_name_or_flavor|
-          SCMStatusReporter.new({ project: target_project_name, package: target_package_name_or_flavor, repository: repository.name, arch: architecture.name },
-                                scm_webhook.payload, @token.scm_token).call
-        end
-      end
-    end
-  end
-
   # Only used in LinkPackageStep and BranchPackageStep.
   def validate_source_project_and_package_name
     errors.add(:base, "invalid source project '#{source_project_name}'") if step_instructions[:source_project] && !Project.valid_name?(source_project_name)
