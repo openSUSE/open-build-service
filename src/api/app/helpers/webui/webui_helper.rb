@@ -137,7 +137,8 @@ module Webui::WebuiHelper
   end
 
   def webui2_repository_status_icon(status:, details: nil, html_class: '')
-    outdated = status.sub!(/^outdated_/, '')
+    outdated = status.start_with?('outdated_')
+    status = status.sub('outdated_', '')
     description = outdated ? 'State needs recalculations, former state was: ' : ''
     description << repo_status_description(status)
     description << " (#{details})" if details
