@@ -6,7 +6,7 @@ class Workflow::Step
 
   validate :validate_step_instructions
 
-  attr_accessor :scm_webhook, :step_instructions, :token
+  attr_accessor :scm_webhook, :step_instructions, :token, :workflow_run
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
@@ -48,7 +48,8 @@ class Workflow::Step
                                                           channel: 'scm',
                                                           enabled: true,
                                                           token: @token,
-                                                          package: package)
+                                                          package: package,
+                                                          workflow_run: workflow_run)
       subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
     end
   end

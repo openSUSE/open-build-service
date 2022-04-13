@@ -1,8 +1,8 @@
 class SCMStatusReporter < SCMExceptionHandler
   attr_accessor :state
 
-  def initialize(event_payload, event_subscription_payload, scm_token, event_type = nil)
-    super(event_payload, event_subscription_payload, scm_token)
+  def initialize(event_payload, event_subscription_payload, scm_token, event_type = nil, workflow_run = nil)
+    super(event_payload, event_subscription_payload, scm_token, workflow_run)
 
     @state = event_type.nil? ? 'pending' : scm_final_state(event_type)
   end
@@ -24,7 +24,7 @@ class SCMStatusReporter < SCMExceptionHandler
                                          @state,
                                          status_options)
     end
-  rescue Octokit::InvalidRepository
+  rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
     return if package.blank?
 
@@ -32,6 +32,8 @@ class SCMStatusReporter < SCMExceptionHandler
     return if tokens.none?
 
     EventSubscription.where(channel: 'scm', token: tokens, package: package).delete_all
+
+    @workflow_run.update_to_fail("Failed to report back to GitHub: #{e.message}") if @workflow_run.present?
   rescue Octokit::Error, Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
   end

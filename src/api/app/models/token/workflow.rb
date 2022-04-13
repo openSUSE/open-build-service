@@ -10,12 +10,11 @@ class Token::Workflow < Token
     set_triggered_at
     @scm_webhook = options[:scm_webhook]
     workflow_run = options[:workflow_run]
-
     raise Token::Errors::MissingPayload, 'A payload is required' if @scm_webhook.payload.blank?
 
     workflow_run.update(response_url: @scm_webhook.payload[:api_endpoint])
     yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
-    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run_id: workflow_run.id).call
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run: workflow_run).call
 
     return validation_errors unless validation_errors.none?
 

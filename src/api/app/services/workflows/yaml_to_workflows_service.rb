@@ -1,10 +1,10 @@
 module Workflows
   class YAMLToWorkflowsService
-    def initialize(yaml_file:, scm_webhook:, token:, workflow_run_id:)
+    def initialize(yaml_file:, scm_webhook:, token:, workflow_run:)
       @yaml_file = yaml_file
       @scm_webhook = scm_webhook
       @token = token
-      @workflow_run_id = workflow_run_id
+      @workflow_run = workflow_run
     end
 
     def call
@@ -23,7 +23,7 @@ module Workflows
       parsed_workflows_yaml
         .map do |_workflow_name, workflow_instructions|
         Workflow.new(workflow_instructions: workflow_instructions, scm_webhook: @scm_webhook, token: @token,
-                     workflow_run_id: @workflow_run_id)
+                     workflow_run: @workflow_run)
       end
     end
   end
