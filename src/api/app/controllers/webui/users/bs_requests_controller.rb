@@ -2,7 +2,7 @@ module Webui
   module Users
     class BsRequestsController < WebuiController
       include Webui::Mixins::BsRequestsControllerMixin
-      before_action :check_displayed_user
+      before_action :require_login
       before_action :set_user
 
       REQUEST_METHODS = {
@@ -16,7 +16,7 @@ module Webui
       private
 
       def set_user
-        @user_or_group = @displayed_user
+        @user_or_group = User.session!
       end
 
       def request_method
