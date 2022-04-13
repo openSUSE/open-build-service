@@ -105,23 +105,25 @@ end
 #
 # Table name: event_subscriptions
 #
-#  id            :integer          not null, primary key
-#  channel       :integer          default("disabled"), not null
-#  enabled       :boolean          default(FALSE)
-#  eventtype     :string(255)      not null
-#  payload       :text(65535)
-#  receiver_role :string(255)      not null
-#  created_at    :datetime
-#  updated_at    :datetime
-#  group_id      :integer          indexed
-#  package_id    :integer          indexed
-#  token_id      :integer          indexed
-#  user_id       :integer          indexed
+#  id              :integer          not null, primary key
+#  channel         :integer          default("disabled"), not null
+#  enabled         :boolean          default(FALSE)
+#  eventtype       :string(255)      not null
+#  payload         :text(65535)
+#  receiver_role   :string(255)      not null
+#  created_at      :datetime
+#  updated_at      :datetime
+#  group_id        :integer          indexed
+#  package_id      :integer          indexed
+#  token_id        :integer          indexed
+#  user_id         :integer          indexed
+#  workflow_run_id :integer          indexed
 #
 # Indexes
 #
-#  index_event_subscriptions_on_group_id    (group_id)
-#  index_event_subscriptions_on_package_id  (package_id)
-#  index_event_subscriptions_on_token_id    (token_id)
-#  index_event_subscriptions_on_user_id     (user_id)
+#  index_event_subscriptions_on_group_id         (group_id)
+#  index_event_subscriptions_on_package_id       (package_id)
+#  index_event_subscriptions_on_token_id         (token_id)
+#  index_event_subscriptions_on_user_id          (user_id)
+#  index_event_subscriptions_on_workflow_run_id  (workflow_run_id)
 #
