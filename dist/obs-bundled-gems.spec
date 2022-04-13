@@ -15,6 +15,8 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%define rack_version 2.2.3
+%define rake_version 13.0.1
 
 Name:           obs-bundled-gems
 Version:        2.10~pre
@@ -49,8 +51,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %description
 This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
-
-%define rack_version 2.2.3
 
 %package -n obs-api-deps
 Summary:        Holding dependencies required to run the OBS frontend
@@ -105,7 +105,12 @@ bundle config build.nokogiri --use-system-libraries
 
 bundle --local --path %{buildroot}%_libdir/obs-api/
 
+# Make sure rake and rack in Gemfile.lock match the versions from the
+# rubygem-rack and ruby2.7 packages
+# otherwise Passenger wont start the app
+
 test -f %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/rack-%{rack_version}/rack.gemspec
+test -f %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/rake-%{rake_version}/rake.gemspec
 
 # run gem clean up script
 /usr/lib/rpm/gem_build_cleanup.sh %{buildroot}%_libdir/obs-api/ruby/*/
