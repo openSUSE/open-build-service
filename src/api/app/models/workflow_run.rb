@@ -78,12 +78,12 @@ class WorkflowRun < ApplicationRecord
 
   def pull_request_with_allowed_action
     hook_event == 'pull_request' &&
-      ScmWebhookEventValidator::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
+      ScmWebhook::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
   end
 
   def merge_request_with_allowed_action
     hook_event == 'Merge Request Hook' &&
-      ScmWebhookEventValidator::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
+      ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
 

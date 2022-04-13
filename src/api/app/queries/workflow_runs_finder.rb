@@ -22,12 +22,17 @@ class WorkflowRunsFinder
     end
   end
 
-  def with_generic_event_type(generic_event_type)
+  def with_generic_event_type(generic_event_type, request_action = nil)
     query = find_real_event_types(generic_event_type).map do |real_event_type|
       "request_headers LIKE '%#{real_event_type}%'"
     end.join(' OR ')
 
-    @relation.where(query)
+    workflow_runs = @relation.where(query)
+    if request_action
+      workflow_runs = workflow_runs.where("JSON_EXTRACT(request_payload, '$.action') = (?) OR JSON_EXTRACT(request_payload, '$.object_attributes.action') = (?)", request_action,
+                                          request_action)
+    end
+    workflow_runs
   end
 
   def with_status(status)
