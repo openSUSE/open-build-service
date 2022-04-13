@@ -9,6 +9,7 @@ RSpec.describe Webui::Users::BsRequestsController do
     let(:params) { base_params.merge(context_params) }
 
     before do
+      login user
       get :index, params: params
     end
 

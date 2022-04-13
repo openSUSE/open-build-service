@@ -61,7 +61,7 @@ GEM
     amq-protocol (2.3.0)
     ansi (1.5.0)
     arel (9.0.0)
-    ast (2.4.0)
+    ast (2.4.2)
     autoprefixer-rails (9.6.0)
       execjs
     bcrypt (3.1.13)
@@ -173,10 +173,10 @@ GEM
       haml (>= 4.0.6, < 6.0)
       html2haml (>= 1.0.1)
       railties (>= 5.1)
-    haml_lint (0.32.0)
-      haml (>= 4.0, < 5.2)
+    haml_lint (0.40.0)
+      haml (>= 4.0, < 5.3)
+      parallel (~> 1.10)
       rainbow
-      rake (>= 10, < 13)
       rubocop (>= 0.50.0)
       sysexits (~> 1.1)
     hashdiff (0.4.0)
@@ -253,8 +253,8 @@ GEM
     nokogumbo (2.0.1)
       nokogiri (~> 1.8, >= 1.8.4)
     parallel (1.17.0)
-    parser (2.6.3.0)
-      ast (~> 2.4.0)
+    parser (3.1.2.0)
+      ast (~> 2.4.1)
     pastel (0.7.3)
       equatable (~> 0.6)
       tty-color (~> 0.5)
@@ -326,7 +326,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
     rainbow (3.0.0)
-    rake (12.3.3)
+    rake (13.0.6)
     rantly (2.0.0)
     rbtree (0.4.2)
     rdoc (6.1.1)
@@ -576,4 +576,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.17.3
+   2.1.4

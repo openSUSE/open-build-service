@@ -41,8 +41,7 @@ BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 BuildRequires:  openldap2-devel
 BuildRequires:  python-devel
-BuildRequires:  ruby2.5-devel
-BuildRequires:  rubygem(ruby:2.5.0:bundler)
+BuildRequires:  ruby2.7-devel
 BuildRequires:  chrpath
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -51,7 +50,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
 
-%define rake_version 12.3.3
 %define rack_version 2.2.3
 
 %package -n obs-api-deps
@@ -63,9 +61,7 @@ Requires:       mysql
 Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.1.8
 Requires:       perl(GD)
-Requires:       rubygem(ruby:2.5.0:bundler)
-Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
-Requires:       rubygem(ruby:2.5.0:rack:%{rack_version})
+Requires:       rubygem(ruby:2.7.0:rack:%{rack_version})
 
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
@@ -109,15 +105,13 @@ bundle config build.nokogiri --use-system-libraries
 
 bundle --local --path %{buildroot}%_libdir/obs-api/
 
-# test that the rake and rack macros is still matching our Gemfile
-test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
-test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rack-%{rack_version}/rack.gemspec
+test -f %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/rack-%{rack_version}/rack.gemspec
 
 # run gem clean up script
 /usr/lib/rpm/gem_build_cleanup.sh %{buildroot}%_libdir/obs-api/ruby/*/
 
 # work around sassc bug - and install libsass
-sassc_dir=$(ls -1d %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/sassc-2*)
+sassc_dir=$(ls -1d %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/sassc-2*)
 install -D -m 755 $sassc_dir/ext/libsass/lib/libsass.so $sassc_dir/lib
 sed -i -e 's,/ext/libsass,,' $sassc_dir/lib/sassc/native.rb
 
@@ -142,7 +136,7 @@ find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
 # fix interpreter in installed binaries
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e 's,/usr/bin/env ruby.ruby2.5,/usr/bin/ruby.ruby2.5,' $bin
+  sed -i -e 's,/usr/bin/env ruby.ruby2.7,/usr/bin/ruby.ruby2.7,' $bin
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
