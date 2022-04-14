@@ -6,7 +6,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
   let!(:workflow_run) { create(:workflow_run, token: token) }
 
   subject do
-    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: extractor_payload), token: token, workflow_run_id: workflow_run.id)
+    described_class.new(workflow_instructions: yaml, scm_webhook: ScmWebhook.new(payload: extractor_payload), token: token, workflow_run: workflow_run)
   end
 
   describe '#call' do

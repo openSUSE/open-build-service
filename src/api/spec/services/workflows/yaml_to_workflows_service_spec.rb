@@ -35,7 +35,7 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
 
   describe '#call' do
     subject do
-      Workflows::YAMLToWorkflowsService.new(yaml_file: workflows_yml_file, scm_webhook: ScmWebhook.new(payload: payload), token: token, workflow_run_id: workflow_run.id).call
+      Workflows::YAMLToWorkflowsService.new(yaml_file: workflows_yml_file, scm_webhook: ScmWebhook.new(payload: payload), token: token, workflow_run: workflow_run).call
     end
 
     context 'it supports many workflows' do
