@@ -27,3 +27,5 @@
                                               filter_item: { generic_event_type: 'pull_request' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push', amount: @count['push'],
                                               filter_item: { generic_event_type: 'push' }, selected_filter: @selected_filter)
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Tag Push', amount: @count['tag_push'],
+                                              filter_item: { generic_event_type: 'tag_push' }, selected_filter: @selected_filter)
