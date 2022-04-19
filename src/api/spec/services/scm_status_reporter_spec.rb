@@ -39,12 +39,15 @@ RSpec.describe SCMStatusReporter, type: :service do
   end
 
   describe '#call' do
-    context "repository doesn't exist" do
+    context 'when sending a report back to SCM fails' do
+      let(:scm_status_reporter) { SCMStatusReporter.new(event_payload, event_subscription_payload, token, event_type, workflow_run) }
+
       let!(:user) { create(:confirmed_user, :with_home, login: 'jane_doe') }
       let!(:package) { create(:package, name: 'bye', project: user.home_project) }
 
       let(:workflow_token) { create(:workflow_token, user: user) }
       let(:token) { workflow_token.scm_token }
+      let(:workflow_run) { create(:workflow_run, token: workflow_token, request_headers: {}, request_payload: {}) }
 
       let(:event_payload) do
         { project: user.home_project_name, package: package.name, repository: 'openSUSE_Leap', arch: 'x86_64' }
@@ -55,19 +58,40 @@ RSpec.describe SCMStatusReporter, type: :service do
       let(:event_type) { 'Event::BuildSuccess' }
 
       let!(:event_subscription) do
-        EventSubscription.create(channel: 'scm', package: package, eventtype: event_type, receiver_role: 'reader', token: workflow_token)
+        EventSubscription.create(channel: 'scm', package: package, eventtype: event_type, receiver_role: 'reader', token: workflow_token, workflow_run: workflow_run)
       end
 
       let(:octokit_client) { Octokit::Client.new }
 
       subject { scm_status_reporter.call }
 
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_raise(Octokit::InvalidRepository)
+      context "repository doesn't exist" do
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_raise(Octokit::InvalidRepository)
+        end
+
+        it { expect { subject }.to change(EventSubscription, :count).by(-1) }
+
+        it 'tracks the exception in the workflow_run response body and sets the status to fail' do
+          subject
+          expect(workflow_run.status).to eq('fail')
+          expect(workflow_run.response_body).to eq('Failed to report back to GitHub: Octokit::InvalidRepository')
+        end
       end
 
-      it { expect { subject }.to change(EventSubscription, :count).by(-1) }
+      context 'scm exception handler rescues from exception' do
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_raise(Octokit::AccountSuspended)
+          subject
+        end
+
+        it 'tracks the exception in the workflow_run response body and sets the status to fail' do
+          expect(workflow_run.status).to eq('fail')
+          expect(workflow_run.response_body).to eq('Failed to report back to GitHub: Octokit::AccountSuspended')
+        end
+      end
     end
 
     context 'when sending a report back to GitHub' do
@@ -101,7 +125,7 @@ RSpec.describe SCMStatusReporter, type: :service do
       end
     end
 
-    context 'when sending a report back to GitLub' do
+    context 'when sending a report back to GitLab' do
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }

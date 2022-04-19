@@ -12,10 +12,12 @@ class TriggerWorkflowController < TriggerController
     @token.user.run_as do
       validation_errors = @token.call(workflow_run: @workflow_run, scm_webhook: @scm_webhook)
 
-      if validation_errors.none?
-        @workflow_run.update(status: 'success', response_body: render_ok)
-      else
-        @workflow_run.update_to_fail(render_error(status: 400, message: validation_errors.to_sentence))
+      unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
+        if validation_errors.none?
+          @workflow_run.update(status: 'success', response_body: render_ok)
+        else
+          @workflow_run.update_to_fail(render_error(status: 400, message: validation_errors.to_sentence))
+        end
       end
     rescue APIError => e
       @workflow_run.update_to_fail(render_error(status: e.status, errorcode: e.errorcode, message: e.message))

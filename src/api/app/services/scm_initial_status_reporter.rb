@@ -2,7 +2,7 @@ class ScmInitialStatusReporter < SCMStatusReporter
   attr_accessor :state
 
   def initialize(event_payload, event_subscription_payload, scm_token, workflow_run, event_type = nil)
-    super(event_payload, event_subscription_payload, scm_token)
+    super(event_payload, event_subscription_payload, scm_token, event_type, workflow_run)
     @state = event_type.nil? ? 'pending' : 'success'
     @workflow_run = workflow_run
   end

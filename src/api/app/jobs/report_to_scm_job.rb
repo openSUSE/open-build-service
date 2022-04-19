@@ -11,7 +11,8 @@ class ReportToScmJob < CreateJob
       SCMStatusReporter.new(@event.payload,
                             event_subscription.payload,
                             event_subscription.token.scm_token,
-                            event_subscription.eventtype).call
+                            event_subscription.eventtype,
+                            event_subscription.workflow_run).call
     end
     true
   end

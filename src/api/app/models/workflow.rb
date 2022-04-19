@@ -12,7 +12,7 @@ class Workflow
 
   SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
 
-  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run_id
+  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
@@ -44,7 +44,7 @@ class Workflow
 
   # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
   def call_step_and_collect_artifacts(step)
-    step.call({ workflow_filters: filters }) && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run_id).call
+    step.call({ workflow_filters: filters }) && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
   end
 
   def steps
@@ -76,7 +76,8 @@ class Workflow
   def initialize_step(step_name, step_instructions)
     SUPPORTED_STEPS[step_name].new(step_instructions: step_instructions,
                                    scm_webhook: scm_webhook,
-                                   token: token)
+                                   token: token,
+                                   workflow_run: workflow_run)
   end
 
   def supported_filters
