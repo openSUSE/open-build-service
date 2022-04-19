@@ -1,0 +1,44 @@
+#
+# Open Build Service 2.10.13
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+Updating from OBS 2.10.12
+=========================
+
+We have updated the ruby interpreter which requires a manual step when updating
+from a previous OBS version:
+
+  1) Change Passenger to use ruby2.7
+
+        edit /etc/apache2/conf.d/mod_passenger.conf:
+
+        PassengerRuby "/usr/bin/ruby.ruby2.7"
+
+  2) Setup the rake alternative if you have multiple rake versions installed
+
+        update-alternatives --set rake /usr/bin/rake.ruby.ruby2.7
+
+  3) Restart apache2 service
+
+        systemctl restart apache2
+
+Bugfixes
+========
+
+* Frontend:
+  - Fix XML external entity (XXE) injection with xmlhash gem
+    CVE-2022-21949
+  - Fix heap memory corruption in yajl-ruby gem
+    https://github.com/brianmario/yajl-ruby/security/advisories/GHSA-jj47-x69x-mxrm
+  - Fix excessive backtracking in nokogiri gem
+    https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-crjr-9rc5-ghw8
+  - Fix privilege escalation issue in ProjectDoProjectReleaseJob (#12407)
+  - Update to Ruby 2.7
