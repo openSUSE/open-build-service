@@ -172,7 +172,7 @@ Requires:       perl(Date::Parse)
 Requires:       diffutils
 PreReq:         git-core
 Requires:       patch
-Requires:       createrepo_c
+Requires:       createrepo_c >= 0.20
 Recommends:     cron logrotate
 # zsync for appimage signing
 Recommends:     zsync

@@ -617,6 +617,9 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--content', 'debug' if $data->{'dbgsplit'};
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_incident';
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_release';
+  # createrepo_c 0.20.0 defaults to keep always additional metadata. We must change
+  # to old behaviour or old data would stay forever when it got removed actually
+  push @createrepoargs, '--discard-additional-metadata';
   my @legacyargs;
   if ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
