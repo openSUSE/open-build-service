@@ -1012,7 +1012,7 @@ ActiveRecord::Schema.define(version: 2022_04_13_223300) do
     t.integer "package_id"
     t.string "type", collation: "utf8_unicode_ci"
     t.string "scm_token"
-    t.string "name", limit: 64, default: ""
+    t.string "description", limit: 64, default: ""
     t.datetime "triggered_at"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"

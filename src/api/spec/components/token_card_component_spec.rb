@@ -9,8 +9,8 @@ RSpec.describe TokenCardComponent, type: :component do
     render_inline(described_class.new(token: token))
   end
 
-  context 'token with a name' do
-    let(:token) { build_stubbed(:rebuild_token, user: user, name: 'foo_token') }
+  context 'token with a description' do
+    let(:token) { build_stubbed(:rebuild_token, user: user, description: 'foo_token') }
 
     it { expect(rendered_component).to have_text('foo_token') }
   end
@@ -18,7 +18,7 @@ RSpec.describe TokenCardComponent, type: :component do
   context 'token without any optional information' do
     let(:token) { build_stubbed(:rebuild_token, user: user) }
 
-    it { expect(rendered_component).to have_text('No name') }
+    it { expect(rendered_component).to have_text('No description') }
     it { expect(rendered_component).to have_text("Id: #{token.id}") }
     it { expect(rendered_component).to have_text("Operation: #{token.class.token_name.capitalize}") }
     it { expect(rendered_component).to have_link(href: "/my/tokens/#{token.id}/edit") }

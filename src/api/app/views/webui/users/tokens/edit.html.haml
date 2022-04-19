@@ -24,11 +24,11 @@
                 = f.label(:type, 'Operation:')
                 = @token.token_name.capitalize
               .form-group
-                = f.label(:name, 'Name:')
-                %span.d-none#original-token-name
-                  = @token.name
-                .input-group#token-name-text-field
-                  = f.text_field(:name, class: 'form-control', placeholder: 'Eg: Rebuild vim package', maxlength: 64)
+                = f.label(:description, 'Description:')
+                %span.d-none#original-token-description
+                  = @token.description
+                .input-group#token-description-text-field
+                  = f.text_field(:description, class: 'form-control', placeholder: 'Eg: Rebuild vim package', maxlength: 64)
               - if @token.package.present?
                 .form-group
                   = f.label(:type, 'Package:')

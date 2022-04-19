@@ -8,10 +8,10 @@ class Token < ApplicationRecord
   has_secure_token :string
 
   before_validation do
-    self.name ||= ''
+    self.description ||= ''
   end
 
-  validates :name, length: { maximum: 64 }
+  validates :description, length: { maximum: 64 }
   validates :string, uniqueness: { case_sensitive: false }
   validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
 
@@ -63,7 +63,7 @@ end
 # Table name: tokens
 #
 #  id           :integer          not null, primary key
-#  name         :string(64)       default("")
+#  description  :string(64)       default("")
 #  scm_token    :string(255)      indexed
 #  string       :string(255)      indexed
 #  triggered_at :datetime

@@ -83,7 +83,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def set_parameters
-    @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly).permit(:type, :name, :scm_token).tap do |token_parameters|
+    @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly).permit(:type, :description, :scm_token).tap do |token_parameters|
       token_parameters.require(:type)
     end
     @params = @params.except(:scm_token) unless @params[:type] == 'workflow'
@@ -91,7 +91,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def update_parameters
-    params.require(:token).except(:string_readonly).permit(:name, :scm_token).reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
+    params.require(:token).except(:string_readonly).permit(:description, :scm_token).reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
   end
 
   def set_package
