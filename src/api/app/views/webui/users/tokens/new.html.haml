@@ -1,5 +1,5 @@
 - @pagetitle = 'Create Token'
-- type_options = Token::OPERATIONS.map { |a| "Token::#{a}".constantize.token_name }
+- type_options = Token::OPERATIONS.map { |a| "Token::#{a}".constantize.token_name.downcase }
 
 .card
   .card-body
