@@ -494,7 +494,6 @@ class Project < ApplicationRecord
           begin
             request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed", override_creator: request.creator)
           rescue PostRequestNoPermission
-            Airbrake.notify("#{User.session!.login} tried to revoke request #{request.number} but had no permissions")
           end
           break
         end
@@ -503,7 +502,6 @@ class Project < ApplicationRecord
         begin
           request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
         rescue PostRequestNoPermission
-          Airbrake.notify("#{User.session!.login} tried to decline request #{request.number} but had no permissions")
         end
         break
       end
