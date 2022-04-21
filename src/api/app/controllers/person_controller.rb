@@ -10,7 +10,8 @@ class PersonController < ApplicationController
   skip_before_action :extract_user, only: [:command, :register]
   skip_before_action :require_login, only: [:command, :register]
 
-  before_action :set_user, only: [:post_userinfo, :change_my_password]
+  before_action :set_user, only: [:post_userinfo, :change_my_password, :get_watchlist, :put_watchlist]
+  before_action :check_user_belongs_feature_flag, only: [:get_watchlist, :put_watchlist]
 
   def show
     @list = if params[:prefix]
@@ -134,6 +135,34 @@ class PersonController < ApplicationController
     render_ok
   end
 
+  def get_watchlist
+    if @user
+      authorize @user, :check_watchlist?
+
+      render xml: @user.render_axml(render_watchlist_only: true)
+    else
+      @errorcode = 404
+      @summary = 'Requested non-existing user'
+      render_error(status: @errorcode)
+    end
+  end
+
+  def put_watchlist
+    if @user
+      authorize @user, :check_watchlist?
+    else
+      @errorcode = 404
+      @summary = 'Requested non-existing user'
+      render_error(status: @errorcode) && return
+    end
+
+    xml = Xmlhash.parse(request.raw_post)
+    ActiveRecord::Base.transaction do
+      update_new_watchlist(@user, xml)
+    end
+    render_ok
+  end
+
   class NoPermissionToGroupList < APIError
     setup 401, 'No user logged in, permission to grouplist denied'
   end
@@ -193,16 +222,21 @@ class PersonController < ApplicationController
   end
 
   def update_watchlist(user, xml)
-    new_watchlist = []
-    xml.get('watchlist').elements('project') do |e|
-      new_watchlist << e['name']
-    end
+    # Keeping the backwards compatibility
+    if Flipper.enabled?(:new_watchlist, User.session)
+      update_new_watchlist(user, xml)
+    else
+      new_watchlist = []
+      xml.get('watchlist').elements('project') do |e|
+        new_watchlist << e['name']
+      end
 
-    new_watchlist.map! do |name|
-      WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
+      new_watchlist.map! do |name|
+        WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
+      end
+      user.watched_projects.replace(new_watchlist)
+      Rails.cache.delete(['watched_project_names', user])
     end
-    user.watched_projects.replace(new_watchlist)
-    Rails.cache.delete(['watched_project_names', user])
   end
   private :update_watchlist
 
@@ -262,7 +296,32 @@ class PersonController < ApplicationController
 
   private
 
+  def update_new_watchlist(user, xml)
+    if xml.get('watchlist').empty?
+      projects = [xml.get('project')].flatten
+      packages = [xml.get('package')].flatten
+      requests = [xml.get('request')].flatten
+    else
+      projects = xml.get('watchlist').elements('project')
+      packages = xml.get('watchlist').elements('package')
+      requests = xml.get('watchlist').elements('request')
+    end
+
+    watchables = []
+    watchables << projects.map { |proj| Project.find_by(name: proj['name']) }
+    watchables << packages.map { |pkg| Package.find_by_project_and_name(pkg['project'], pkg['name']) }
+    watchables << requests.map { |req| BsRequest.find_by(number: req['number']) }
+    user.watched_items.clear
+    watchables.flatten.compact.each do |item|
+      user.watched_items.create!(watchable: item)
+    end
+  end
+
   def set_user
     @user = User.find_by(login: params[:login])
+  end
+
+  def check_user_belongs_feature_flag
+    raise NotFoundError unless Flipper.enabled?(:new_watchlist, User.session)
   end
 end

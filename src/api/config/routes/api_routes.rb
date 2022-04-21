@@ -31,6 +31,8 @@ OBSApi::Application.routes.draw do
     get 'person/:login' => 'person#get_userinfo', constraints: cons
     put 'person/:login' => 'person#put_userinfo', constraints: cons
     post 'person/:login' => 'person#post_userinfo', constraints: cons
+    get 'person/:login/watchlist' => 'person#get_watchlist', constraints: cons
+    put 'person/:login/watchlist' => 'person#put_watchlist', constraints: cons
 
     ### /group
     controller :group do
