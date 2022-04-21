@@ -8,15 +8,11 @@
     .col-10
       .row
         .col
+          = notification_icon
+          = render NotificationNotifiableLinkComponent.new(@notification)
+          %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
           - if @notification.notifiable_type == 'BsRequest'
-            = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
-            = render NotificationNotifiableLinkComponent.new(@notification)
-            %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
             = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ml-1')
-          - else
-            %i.fas.fa-comments{ title: 'Comment notification' }
-            = render NotificationNotifiableLinkComponent.new(@notification)
-            %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
         .col-auto.actions.ml-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, params[:page], params[:show_more])
       .row.mt-1.pl-sm-4
