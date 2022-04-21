@@ -62,14 +62,14 @@ class WatchlistComponent < ApplicationComponent
   end
 
   def projects
-    @projects ||= Project.joins(:watched_items).where(watched_items: { user: @user })
+    @projects ||= Project.joins(:watched_items).where(watched_items: { user: @user }).order(:name)
   end
 
   def packages
-    @packages ||= Package.includes(:project).joins(:watched_items).where(watched_items: { user: @user })
+    @packages ||= Package.includes(:project).joins(:watched_items).where(watched_items: { user: @user }).order('projects.name, packages.name')
   end
 
   def bs_requests
-    @bs_requests ||= BsRequest.joins(:watched_items).where(watched_items: { user: @user })
+    @bs_requests ||= BsRequest.joins(:watched_items).where(watched_items: { user: @user }).order('number DESC')
   end
 end
