@@ -32,7 +32,7 @@ install_data_dirs: prepare_dirs
 
 test_unit: bs_config
 	rm -rf t/tmp/*
-	LANG=C prove -Ibuild -I. -v t/*.t
+	LANG=C prove -Ibuild -I. -I/usr/lib/build -v t/*.t
 
 cover: bs_config clean_cover
 	rm -rf t/tmp/*
