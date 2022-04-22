@@ -3233,7 +3233,10 @@ sub generate_slsa_provenance_statement {
   my $stmt = {
     '_type' => "https://in-toto.io/Statement/v0.1",
     'subject' => $subject,
-    'materials' => $buildinfo->{'materials'} || [],
+    'predicateType' => 'https://slsa.dev/provenance/v0.2',
+    'predicate' => {
+      'materials' => $buildinfo->{'materials'} || [],
+    },
   };
   require Build::SimpleJSON;
   return Build::SimpleJSON::unparse($stmt,  'template' => $slsa_json_template, 'keepspecial' => 1);

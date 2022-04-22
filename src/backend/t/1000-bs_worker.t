@@ -183,7 +183,6 @@ use JSON::XS ();
 $got = JSON::XS::decode_json($got);
 my $expected_statement = {
   '_type' => 'https://in-toto.io/Statement/v0.1',
-  'materials' => $expected_materials,
   'subject' => [
     {
       'digest' => {
@@ -198,5 +197,9 @@ my $expected_statement = {
       }
     }
   ],
+  'predicateType' => 'https://slsa.dev/provenance/v0.2',
+  'predicate' => {
+    'materials' => $expected_materials,
+  }
 };
 is_deeply($got, $expected_statement, 'generate_slsa_provenance_statement - Return value');
