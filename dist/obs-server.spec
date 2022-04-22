@@ -77,6 +77,7 @@ Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 
 %define secret_key_file %{__obs_api_prefix}/config/secret.key
 %define obs_backend_data_dir /srv/obs
+%define obs_backend_dir /usr/lib/obs/server
 
 %if ! %{defined _restart_on_update_reload}
 %define _restart_on_update_reload() (\
@@ -441,7 +442,7 @@ export BUNDLE_FORCE_RUBY_PLATFORM=true
 
 cat <<EOF > Makefile.local
 INSTALL=/usr/bin/install
-OBS_BACKEND_PREFIX=/usr/lib/obs/server
+OBS_BACKEND_PREFIX=%{obs_backend_dir}
 OBS_BACKEND_DATA_DIR=%{obs_backend_data_dir}
 OBS_DOCUMENT_ROOT=%{__obs_document_root}
 OBS_API_PREFIX=%{__obs_document_root}/api
@@ -513,8 +514,8 @@ rm %{buildroot}%{__obs_api_prefix}/config/brakeman.ignore
 rm %{buildroot}%{__obs_api_prefix}/Gemfile.next %{buildroot}%{__obs_api_prefix}/Gemfile.next.lock
 
 # fail when Makefiles created a directory
-if ! test -L %{buildroot}/usr/lib/obs/server/build; then
-  echo "/usr/lib/obs/server/build is not a symlink!"
+if ! test -L %{buildroot}%{obs_backend_dir}/build; then
+  echo "%{obs_backend_dir}/build is not a symlink!"
   exit 1
 fi
 
@@ -560,7 +561,7 @@ exit 0
 
 export DESTDIR=$RPM_BUILD_ROOT
 # check installed backend
-pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
+pushd $RPM_BUILD_ROOT%{obs_backend_dir}
 rm -rf build
 ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
 popd
@@ -573,7 +574,7 @@ popd
 
 ####
 # start backend testing
-pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
+pushd $RPM_BUILD_ROOT%{obs_backend_dir}
 %if 0%{?disable_obs_backend_test_suite:1} < 1
 # TODO: move syntax check to backend test suite
 for i in bs_*; do
@@ -699,11 +700,11 @@ exit 0
 %posttrans
 [ -d %{obs_backend_data_dir} ] || install -d -o obsrun -g obsrun %{obs_backend_data_dir}
 # this changes from directory to symlink. rpm can not handle this itself.
-if [ -e /usr/lib/obs/server/build -a ! -L /usr/lib/obs/server/build ]; then
-  rm -rf /usr/lib/obs/server/build
+if [ -e %{obs_backendd_dir}/build -a ! -L %{obs_backend_dir}/build ]; then
+  rm -rf %{obs_backend_dir}/build
 fi
-if [ ! -e /usr/lib/obs/server/build ]; then
-  ln -sf ../../build /usr/lib/obs/server/build
+if [ ! -e %{obs_backend_dir}/build ]; then
+  ln -sf ../../build %{obs_backend_dir}/build
 fi
 
 %postun
@@ -816,7 +817,7 @@ fi
 %doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
 %dir /etc/slp.reg.d
 %dir /usr/lib/obs
-%dir /usr/lib/obs/server
+%dir %{obs_backend_dir}
 %config(noreplace) /etc/logrotate.d/obs-server
 %{_unitdir}/obsscheduler.service
 %{_unitdir}/obssrcserver.service
@@ -851,51 +852,51 @@ fi
 /usr/sbin/rcobsnotifyforward
 /usr/sbin/rcobsredis
 %endif
-/usr/lib/obs/server/plugins
-/usr/lib/obs/server/BSDispatcher
-/usr/lib/obs/server/BSRepServer
-/usr/lib/obs/server/BSSched
-/usr/lib/obs/server/BSSrcServer
-/usr/lib/obs/server/BSPublisher
-/usr/lib/obs/server/*.pm
-/usr/lib/obs/server/BSConfig.pm.template
-/usr/lib/obs/server/DESIGN
-/usr/lib/obs/server/License
-/usr/lib/obs/server/README
-/usr/lib/obs/server/bs_admin
-/usr/lib/obs/server/bs_cleanup
-/usr/lib/obs/server/bs_archivereq
-/usr/lib/obs/server/bs_check_consistency
-/usr/lib/obs/server/bs_deltastore
-/usr/lib/obs/server/bs_servicedispatch
-/usr/lib/obs/server/bs_dodup
-/usr/lib/obs/server/bs_getbinariesproxy
-/usr/lib/obs/server/bs_mergechanges
-/usr/lib/obs/server/bs_mkarchrepo
-/usr/lib/obs/server/bs_notar
-/usr/lib/obs/server/bs_regpush
-/usr/lib/obs/server/bs_dispatch
-/usr/lib/obs/server/bs_publish
-/usr/lib/obs/server/bs_repserver
-/usr/lib/obs/server/bs_sched
-/usr/lib/obs/server/bs_serverstatus
-/usr/lib/obs/server/bs_sourcepublish
-/usr/lib/obs/server/bs_srcserver
-/usr/lib/obs/server/bs_worker
-/usr/lib/obs/server/bs_signer
-/usr/lib/obs/server/bs_warden
-/usr/lib/obs/server/bs_redis
-/usr/lib/obs/server/bs_notifyforward
-/usr/lib/obs/server/bs_dbtool
-/usr/lib/obs/server/modifyrpmheader
-/usr/lib/obs/server/obs-ptf.spec
-/usr/lib/obs/server/worker
-/usr/lib/obs/server/worker-deltagen.spec
-%config(noreplace) /usr/lib/obs/server/BSConfig.pm
+%{obs_backend_dir}/plugins
+%{obs_backend_dir}/BSDispatcher
+%{obs_backend_dir}/BSRepServer
+%{obs_backend_dir}/BSSched
+%{obs_backend_dir}/BSSrcServer
+%{obs_backend_dir}/BSPublisher
+%{obs_backend_dir}/*.pm
+%{obs_backend_dir}/BSConfig.pm.template
+%{obs_backend_dir}/DESIGN
+%{obs_backend_dir}/License
+%{obs_backend_dir}/README
+%{obs_backend_dir}/bs_admin
+%{obs_backend_dir}/bs_cleanup
+%{obs_backend_dir}/bs_archivereq
+%{obs_backend_dir}/bs_check_consistency
+%{obs_backend_dir}/bs_deltastore
+%{obs_backend_dir}/bs_servicedispatch
+%{obs_backend_dir}/bs_dodup
+%{obs_backend_dir}/bs_getbinariesproxy
+%{obs_backend_dir}/bs_mergechanges
+%{obs_backend_dir}/bs_mkarchrepo
+%{obs_backend_dir}/bs_notar
+%{obs_backend_dir}/bs_regpush
+%{obs_backend_dir}/bs_dispatch
+%{obs_backend_dir}/bs_publish
+%{obs_backend_dir}/bs_repserver
+%{obs_backend_dir}/bs_sched
+%{obs_backend_dir}/bs_serverstatus
+%{obs_backend_dir}/bs_sourcepublish
+%{obs_backend_dir}/bs_srcserver
+%{obs_backend_dir}/bs_worker
+%{obs_backend_dir}/bs_signer
+%{obs_backend_dir}/bs_warden
+%{obs_backend_dir}/bs_redis
+%{obs_backend_dir}/bs_notifyforward
+%{obs_backend_dir}/bs_dbtool
+%{obs_backend_dir}/modifyrpmheader
+%{obs_backend_dir}/obs-ptf.spec
+%{obs_backend_dir}/worker
+%{obs_backend_dir}/worker-deltagen.spec
+%config(noreplace) %{obs_backend_dir}/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from
 # directory to symlink
-%ghost /usr/lib/obs/server/build
+%ghost %{obs_backend_dir}/build
 %attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/build
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/events
@@ -919,15 +920,15 @@ fi
 %if 0%{?suse_version}
 /usr/sbin/rcobsservice
 %endif
-/usr/lib/obs/server/bs_service
-/usr/lib/obs/server/call-service-in-docker.sh
-/usr/lib/obs/server/call-service-in-container
-/usr/lib/obs/server/run-service-containerized
-/usr/lib/obs/server/cleanup_scm_cache
+%{obs_backend_dir}/bs_service
+%{obs_backend_dir}/call-service-in-docker.sh
+%{obs_backend_dir}/call-service-in-container
+%{obs_backend_dir}/run-service-containerized
+%{obs_backend_dir}/cleanup_scm_cache
 
 # formerly obs-productconverter
 /usr/bin/obs_productconvert
-/usr/lib/obs/server/bs_productconvert
+%{obs_backend_dir}/bs_productconvert
 
 # add obsservicerun user into docker group if docker
 # gets installed
@@ -1063,8 +1064,8 @@ usermod -a -G docker obsservicerun
 %else
 %{_fillupdir}/sysconfig.obs-server
 %endif
-/usr/lib/obs/server/setup-appliance.sh
-/usr/lib/obs/server/functions.setup-appliance.sh
+%{obs_backend_dir}/setup-appliance.sh
+%{obs_backend_dir}/functions.setup-appliance.sh
 %{_unitdir}/obsstoragesetup.service
 /usr/sbin/obsstoragesetup
 %if 0%{?suse_version}
@@ -1089,8 +1090,8 @@ usermod -a -G docker obsservicerun
 /usr/sbin/rcobsclouduploadworker
 /usr/sbin/rcobsclouduploadserver
 %endif
-/usr/lib/obs/server/bs_clouduploadserver
-/usr/lib/obs/server/bs_clouduploadworker
+%{obs_backend_dir}/bs_clouduploadserver
+%{obs_backend_dir}/bs_clouduploadworker
 %{_bindir}/clouduploader
 %dir /etc/obs
 %dir /etc/obs/cloudupload
