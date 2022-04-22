@@ -27,7 +27,7 @@ namespace :db do
   desc 'Create YAML test fixtures from data in test database.'
 
   task extract_fixtures: :environment do
-    raise 'You only want to run this in test environment' unless ENV['RAILS_ENV'] == 'test'
+    raise 'You only want to run this in test environment' unless ENV.fetch('RAILS_ENV', nil) == 'test'
 
     sql = 'SELECT * FROM %s'
     skip_tables = ['schema_info', 'sessions', 'schema_migrations']

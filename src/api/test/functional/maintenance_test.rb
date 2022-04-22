@@ -1592,12 +1592,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'description'
     assert_xml_tag tag: 'mtime'
     hashed = node = nil
-    IO.popen("gunzip -cd #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
+    IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
       node = REXML::Document.new(io.read)
     end
     assert_equal "My-oldname-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
     # verify meta data created by createrepo
-    IO.popen("gunzip -cd #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-primary.xml.gz") do |io|
+    IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-primary.xml.gz") do |io|
       hashed = Xmlhash.parse(io.read)
     end
     pac = nil
@@ -1630,13 +1630,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
       puts 'WARNING: some tests are skipped on non-SUSE systems. rpmmd meta data may not be complete.'
     end
     # file lists
-    IO.popen("gunzip -cd #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
+    IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
       hashed = Xmlhash.parse(io.read)
     end
     # STDERR.puts JSON.pretty_generate(hashed)
     assert hashed['package'].map { |f| f['file'] }.include?('/my_packaged_file')
     # master tags
-    IO.popen("cat #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
+    IO.popen("cat #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)
     end
     # check repository markers
@@ -2460,7 +2460,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_copy_project_for_release_with_history
     # Backup
-    system("for i in #{ENV['OBS_BACKEND_TEMP']}/data/projects/BaseDistro.pkg/*.rev; do cp $i $i.backup; done")
+    system("for i in #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/projects/BaseDistro.pkg/*.rev; do cp $i $i.backup; done")
 
     # store revisions before copy
     login_king
@@ -2520,7 +2520,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal 'king', last_revision(copyhistory).value('user')
 
     # cleanup
-    system("for i in #{ENV['OBS_BACKEND_TEMP']}/data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
+    system("for i in #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
     delete '/source/CopyOfBaseDistro'
     assert_response :success
   end
@@ -2542,7 +2542,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_copy_project_for_release_using_makeoriginolder
     # Backup
-    system("for i in #{ENV['OBS_BACKEND_TEMP']}/data/projects/BaseDistro.pkg/*.rev; do cp $i $i.backup; done")
+    system("for i in #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/projects/BaseDistro.pkg/*.rev; do cp $i $i.backup; done")
 
     # store revisions before copy
     login_tom
@@ -2604,7 +2604,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal 'king', last_revision(copyhistory).value('user')
 
     # cleanup
-    system("for i in #{ENV['OBS_BACKEND_TEMP']}/data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
+    system("for i in #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
     delete '/source/CopyOfBaseDistro'
     assert_response :success
   end
