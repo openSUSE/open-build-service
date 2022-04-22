@@ -13,10 +13,6 @@ module HistoryElement
     def user_action
       'superseded request'
     end
-
-    def initialize(a)
-      super
-    end
   end
 end
 

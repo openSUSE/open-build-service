@@ -1,9 +1,5 @@
 module ConsistencyCheckJobService
   class ProjectConsistencyChecker < BaseConsistencyChecker
-    def initialize
-      super
-    end
-
     def list_frontend
       Project.order(:name).pluck(:name)
     end
