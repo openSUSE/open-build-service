@@ -3235,6 +3235,25 @@ sub generate_slsa_provenance_statement {
     'subject' => $subject,
     'predicateType' => 'https://slsa.dev/provenance/v0.2',
     'predicate' => {
+      'builder' => {
+        'id' => $buildinfo->{'srcserver'}
+      },
+      'buildType' => 'https://open-build-server/worker',
+      'invocation' => {
+        'configSource' => {
+          'uri' => BSHTTP::urlencode("$buildinfo->{'srcserver'}/source/$buildinfo->{'project'}/$buildinfo->{'package'}")."?rev=$buildinfo->{'srcmd5'}",
+          'digest' => { 'md5' => $buildinfo->{'srcmd5'} }, # TODO: change to sha256
+          'entryPoint' => $buildinfo->{'file'},
+        },
+      },
+      'metadata' => {
+        'completeness' => {
+          'parameters' => 1,
+          'environment' => 1,
+          'materials' => 1,
+        },
+        'reproducible' => 0,
+      },
       'materials' => $buildinfo->{'materials'} || [],
     },
   };
