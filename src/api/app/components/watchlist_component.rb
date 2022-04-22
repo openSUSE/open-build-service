@@ -61,12 +61,15 @@ class WatchlistComponent < ApplicationComponent
     end
   end
 
+  # Sort projects and packages names in a case-insensitive manner first
+
   def projects
-    @projects ||= Project.joins(:watched_items).where(watched_items: { user: @user }).order(:name)
+    @projects ||= Project.joins(:watched_items).where(watched_items: { user: @user }).order('LOWER(name), name')
   end
 
   def packages
-    @packages ||= Package.includes(:project).joins(:watched_items).where(watched_items: { user: @user }).order('projects.name, packages.name')
+    @packages ||= Package.joins(:project).joins(:watched_items).where(watched_items: { user: @user })
+                         .order('LOWER(projects.name), projects.name, LOWER(packages.name), packages.name')
   end
 
   def bs_requests
