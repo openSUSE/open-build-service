@@ -14,6 +14,8 @@ class Notification < ApplicationRecord
 
   after_create :track_notification_creation
 
+  after_save :track_notification_delivered, if: :saved_change_to_delivered?
+
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
 
@@ -50,6 +52,11 @@ class Notification < ApplicationRecord
   def track_notification_creation
     RabbitmqBus.send_to_bus('metrics',
                             "notification.create,notifiable_type=#{notifiable_type},web=#{web},rss=#{rss} value=1")
+  end
+
+  def track_notification_delivered
+    RabbitmqBus.send_to_bus('metrics',
+                            "notification.delivered,notifiable_type=#{notifiable_type},web=#{web},rss=#{rss} value=1")
   end
 end
 
