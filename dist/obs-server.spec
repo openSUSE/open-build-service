@@ -397,6 +397,17 @@ getent passwd obsapidelayed >/dev/null || \
 %files -n system-user-obsservicerun
 %endif
 
+%package -n obs-backend-testsuite
+Summary:        The Open Build Service -- Backend Testsuite
+Group:          Productivity/Networking/Web/Utilities
+Requires:       obs-server
+
+%description  -n obs-backend-testsuite
+This package contains the backend unit tests
+
+%files  -n obs-backend-testsuite
+%{obs_backend_dir}/t
+
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
