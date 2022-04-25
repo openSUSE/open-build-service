@@ -27,6 +27,7 @@ my $buildinfo = {
   package    => 'package1',
   srcmd5     => 'f157738ddea737a2b7479996175a6cec',
   verifymd5  => 'f157738ddea737a2b7479996175a6cec',
+  file       => 'hello_world.spec',
   bdep       => [
                   {
                     'notmeta' => '1',
@@ -183,7 +184,6 @@ use JSON::XS ();
 $got = JSON::XS::decode_json($got);
 my $expected_statement = {
   '_type' => 'https://in-toto.io/Statement/v0.1',
-  'materials' => $expected_materials,
   'subject' => [
     {
       'digest' => {
@@ -198,5 +198,28 @@ my $expected_statement = {
       }
     }
   ],
+  'predicateType' => 'https://slsa.dev/provenance/v0.2',
+  'predicate' => {
+    'buildType' => 'https://open-build-server/worker',
+    'builder' => {
+      'id' => 'srcserver',
+    },
+    'invocation' => {
+      'configSource' => {
+        'uri' => 'srcserver/source/project1/package1?rev=f157738ddea737a2b7479996175a6cec',
+        'digest' => { 'md5' => 'f157738ddea737a2b7479996175a6cec' },
+        'entryPoint' => 'hello_world.spec',
+      },
+    },
+    'metadata' => {
+      'completeness' => {
+        'parameters' => 1,
+        'environment' => 1,
+        'materials' => 1,
+      },
+      'reproducible' => 0,
+    },
+    'materials' => $expected_materials,
+  }
 };
 is_deeply($got, $expected_statement, 'generate_slsa_provenance_statement - Return value');
