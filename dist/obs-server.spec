@@ -711,7 +711,7 @@ exit 0
 %posttrans
 [ -d %{obs_backend_data_dir} ] || install -d -o obsrun -g obsrun %{obs_backend_data_dir}
 # this changes from directory to symlink. rpm can not handle this itself.
-if [ -e %{obs_backendd_dir}/build -a ! -L %{obs_backend_dir}/build ]; then
+if [ -e %{obs_backend_dir}/build -a ! -L %{obs_backend_dir}/build ]; then
   rm -rf %{obs_backend_dir}/build
 fi
 if [ ! -e %{obs_backend_dir}/build ]; then
