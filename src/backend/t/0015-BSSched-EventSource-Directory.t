@@ -78,24 +78,24 @@ my $stdout_content;
   @ev = BSSched::EventSource::Directory::readevents($gctx,$eventdir->{$arch});
   $expected = [
 	    {
-	      'evfilename' => 't/data/0015/events/x86_64/finished:devel:languages:perl:CPAN-P::openSUSE_Tumbleweed::perl-perlbench-1c7e973409998f482ce9dba10304e653',
+	      'evfilename' => $eventdir->{$arch}.'/finished:devel:languages:perl:CPAN-P::openSUSE_Tumbleweed::perl-perlbench-1c7e973409998f482ce9dba10304e653',
 	      'type' => 'built',
 	      'job' => 'devel:languages:perl:CPAN-P::openSUSE_Tumbleweed::perl-perlbench-1c7e973409998f482ce9dba10304e653'
 	    },
 	    {
 	      'project' => 'devel:languages:perl:CPAN-S',
-	      'evfilename' => 't/data/0015/events/x86_64/package:devel:languages:perl::test-package',
+	      'evfilename' => $eventdir->{$arch}.'/package:devel:languages:perl::test-package',
 	      'type' => 'unknown',
 	      'package' => 'perl-SWISH'
 	    },
 	    {
 	      'project' => 'devel:languages:perl:CPAN-S',
-	      'evfilename' => 't/data/0015/events/x86_64/package:devel:languages:perl:CPAN-S::perl-SWISH',
+	      'evfilename' => $eventdir->{$arch}.'/package:devel:languages:perl:CPAN-S::perl-SWISH',
 	      'type' => 'package',
 	      'package' => 'perl-SWISH'
 	    },
 	    {
-	      'evfilename' => 't/data/0015/events/x86_64/package:devel:languages:perl:CPAN-S::perl-Scalar-Boolean',
+	      'evfilename' => $eventdir->{$arch}.'/package:devel:languages:perl:CPAN-S::perl-Scalar-Boolean',
 	      'project' => 'devel:languages:perl:CPAN-S',
 	      'package' => 'perl-Scalar-Boolean',
 	      'type' => 'package'
@@ -104,10 +104,10 @@ my $stdout_content;
 	      'type' => 'package',
 	      'package' => 'perl-ScatterPlot',
 	      'project' => 'devel:languages:perl:CPAN-S',
-	      'evfilename' => 't/data/0015/events/x86_64/package:devel:languages:perl:CPAN-S::perl-ScatterPlot'
+	      'evfilename' => $eventdir->{$arch}.'/package:devel:languages:perl:CPAN-S::perl-ScatterPlot'
 	    },
 	    {
-	      'evfilename' => 't/data/0015/events/x86_64/package:project-name::test-package-name',
+	      'evfilename' => $eventdir->{$arch}.'/package:project-name::test-package-name',
 	      'package' => 'test-package-name',
 	      'type' => 'package'
 	    }
@@ -125,7 +125,7 @@ $expected = [
           {
             'package' => 'test-package-name',
             'type' => 'package',
-            'evfilename' => 't/data/0015/events/i586/package:project-name::test-package-name'
+            'evfilename' => $eventdir->{$arch}.'/package:project-name::test-package-name'
           }
         ];
 
