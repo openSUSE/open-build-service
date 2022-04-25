@@ -123,7 +123,7 @@ RSpec.describe WatchlistComponent, type: :component do
       before { render_inline(described_class.new(user: user, bs_request: bs_request)) }
 
       it { expect(rendered_component).to have_text('There are no requests in the watchlist yet.') }
-      it { expect(rendered_component).not_to have_link("Request ##{bs_request.number}") }
+      it { expect(rendered_component).not_to have_link("##{bs_request.number} Submit") }
       it { expect(rendered_component).to have_text('Watch this request') }
     end
 
@@ -134,7 +134,7 @@ RSpec.describe WatchlistComponent, type: :component do
       end
 
       it { expect(rendered_component).not_to have_text('There are no requests in the watchlist yet.') }
-      it { expect(rendered_component).to have_link("Request ##{bs_request.number}") }
+      it { expect(rendered_component).to have_link("##{bs_request.number} Submit") }
       it { expect(rendered_component).to have_text('Remove this request from Watchlist') }
     end
   end
