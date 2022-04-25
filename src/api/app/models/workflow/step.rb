@@ -93,15 +93,7 @@ class Workflow::Step
     step_instructions[:source_project]
   end
 
-  def target_package_names
-    [target_package_name(short_commit_sha: true)] + multibuild_flavors
-  end
-
   private
-
-  def multibuild_flavors
-    target_package.multibuild_flavors.collect { |flavor| "#{target_package_name}:#{flavor}" }
-  end
 
   def target_project_base_name
     raise AbstractMethodCalled
@@ -141,30 +133,6 @@ class Workflow::Step
     { object_kind: scm_webhook.payload[:object_kind],
       project: { http_url: scm_webhook.payload[:http_url] },
       object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
-  end
-
-  # TODO: Move to a query object.
-  def workflow_repositories(target_project_name, filters)
-    repositories = Project.get_by_name(target_project_name).repositories
-    return repositories unless filters.key?(:repositories)
-
-    return repositories.where(name: filters[:repositories][:only]) if filters[:repositories][:only]
-
-    return repositories.where.not(name: filters[:repositories][:ignore]) if filters[:repositories][:ignore]
-
-    repositories
-  end
-
-  # TODO: Move to a query object.
-  def workflow_architectures(repository, filters)
-    architectures = repository.architectures
-    return architectures unless filters.key?(:architectures)
-
-    return architectures.where(name: filters[:architectures][:only]) if filters[:architectures][:only]
-
-    return architectures.where.not(name: filters[:architectures][:ignore]) if filters[:architectures][:ignore]
-
-    architectures
   end
 
   # Only used in LinkPackageStep and BranchPackageStep.
