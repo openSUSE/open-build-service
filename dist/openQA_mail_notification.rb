@@ -55,7 +55,7 @@ def send_notification(from, to, subject, message)
     body    message
   end
   settings = { address: SMTP_SERVER, port: 25, enable_starttls_auto: false }
-  settings[:domain] = ENV['HOSTNAME'] if ENV['HOSTNAME'].present?
+  settings[:domain] = ENV.fetch('HOSTNAME') if ENV.fetch('HOSTNAME', nil).present?
   mail.delivery_method :smtp, settings
   mail.deliver
 rescue Exception => e

@@ -36,7 +36,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
 
     progress = nil
     failed = nil
-    IO.popen("cd #{ENV['OBS_BACKEND_TEMP']}/config; exec perl #{perlopts} ./bs_check_consistency --check-all --do-check-meta --do-check-signatures 2>&1") do |io|
+    IO.popen("cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/config; exec perl #{perlopts} ./bs_check_consistency --check-all --do-check-meta --do-check-signatures 2>&1") do |io|
       io.each do |line|
         #        puts ">#{line}<"
         next if line.blank?

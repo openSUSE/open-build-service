@@ -11,14 +11,14 @@ port_src_server = 3200
 port_rep_server = 3201
 port_service_server = 3202
 backend_dir_suffix = ''
-if ENV['origin_RAILS_ENV'] == 'development'
+if ENV.fetch('origin_RAILS_ENV', nil) == 'development'
   port_src_server = 6200
   port_rep_server = 6201
   port_service_server = 6202
   backend_dir_suffix = '_development'
 end
 
-backendtempdir = ENV['OBS_BACKEND_TEMP'] || "#{Rails.root}/tmp"
+backendtempdir = ENV.fetch('OBS_BACKEND_TEMP', nil) || "#{Rails.root}/tmp"
 backend_config = "#{backendtempdir}/config#{backend_dir_suffix}"
 backend_data   = "#{backendtempdir}/data#{backend_dir_suffix}"
 require __dir__ + '/../test/test_helper'

@@ -1,4 +1,4 @@
-ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
+ENV['origin_RAILS_ENV'] = ENV.fetch('RAILS_ENV', nil)
 
 ENV['RAILS_ENV'] = 'test'
 ENV['RUNNING_MINITEST'] = '1'
@@ -10,7 +10,7 @@ require 'minitest/reporters'
 Minitest::Reporters.use!(Minitest::Reporters::SpecReporter.new)
 
 if ENV['DO_COVERAGE']
-  ENV['CODECOV_FLAG'] = ENV['CIRCLE_STAGE']
+  ENV['CODECOV_FLAG'] = ENV.fetch('CIRCLE_STAGE', nil)
   SimpleCov.start 'rails' do
     # NOTE: Keep filters in sync with spec/support/coverage.rb
     add_filter '/app/indices/'
@@ -66,14 +66,14 @@ end
 
 def backend_config
   backend_dir_suffix = ''
-  backend_dir_suffix = '_development' if ENV['origin_RAILS_ENV'] == 'development'
-  "#{ENV['OBS_BACKEND_TEMP']}/config#{backend_dir_suffix}"
+  backend_dir_suffix = '_development' if ENV.fetch('origin_RAILS_ENV', nil) == 'development'
+  "#{ENV.fetch('OBS_BACKEND_TEMP', nil)}/config#{backend_dir_suffix}"
 end
 
 def backend_data
   backend_dir_suffix = ''
-  backend_dir_suffix = '_development' if ENV['origin_RAILS_ENV'] == 'development'
-  "#{ENV['OBS_BACKEND_TEMP']}/data#{backend_dir_suffix}"
+  backend_dir_suffix = '_development' if ENV.fetch('origin_RAILS_ENV', nil) == 'development'
+  "#{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data#{backend_dir_suffix}"
 end
 
 def inject_build_job(project, package, repo, arch, extrabinary = nil)
