@@ -78,6 +78,7 @@ use BSRepServer::Remote;
 use BSRepServer::Registry;
 use BSRepServer::YMP;
 use BSRepServer::DoD;
+use BSRepServer::SLSA;
 use BSDispatcher::Constraints;
 use BSCando;
 
@@ -4268,6 +4269,15 @@ sub registry_version {
   return undef;
 }
 
+sub slsa_addrefs {
+  my ($cgi, $refprpa) = @_;
+  my $refs = BSUtil::fromstorable(BSServer::read_data(1000000000));
+  for my $prpa (sort keys %$refs) {
+    BSRepServer::SLSA::add_references($prpa, $refprpa, $refs->{$prpa});
+  }
+  return $BSStdServer::return_ok;
+}
+
 sub hello {
   my ($cgi) = @_;
   my $part = "";
@@ -4361,6 +4371,9 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_info,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,
   'GET|HEAD:/registry' => \&registry_version,
+
+  # slsa
+  'POST:/slsa cmd=addrefs $prpa' => \&slsa_addrefs,
 
   # configuration
   'PUT:/configuration' => \&putconfiguration,
