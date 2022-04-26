@@ -3,7 +3,7 @@
 BASH_TAP_ROOT=$(dirname "$0")
 
 
-# shellcheck disable=SC1090
+# shellcheck source=/dev/null
 . "$BASH_TAP_ROOT"/bash-tap-bootstrap
 
 
