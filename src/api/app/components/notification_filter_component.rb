@@ -15,6 +15,8 @@ class NotificationFilterComponent < ApplicationComponent
     counted_notifications = finder.unread.group(:notifiable_type).count
     counted_notifications['incoming_requests'] = finder.for_incoming_requests.count
     counted_notifications['outgoing_requests'] = finder.for_outgoing_requests.count
+    counted_notifications['relationships_created'] = finder.for_relationships_created.count
+    counted_notifications['relationships_deleted'] = finder.for_relationships_deleted.count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
   end
 end

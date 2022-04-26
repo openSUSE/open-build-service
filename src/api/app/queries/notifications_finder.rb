@@ -27,6 +27,16 @@ class NotificationsFinder
     @relation.where(notifiable: User.session.outgoing_requests(all_states: true), delivered: false)
   end
 
+  def for_relationships_created
+    @relation.where(event_type: 'Event::RelationshipCreate', delivered: false)
+  end
+
+  def for_relationships_deleted
+    @relation.where(event_type: 'Event::RelationshipDelete', delivered: false)
+  end
+
+  # rubocop:disable Metrics/CyclomaticComplexity
+  # We need to refactor this method, the `case` statement is way too big
   def for_notifiable_type(type = 'unread')
     notifications = self.class.new(with_notifiable)
 
@@ -41,10 +51,15 @@ class NotificationsFinder
       notifications.for_incoming_requests
     when 'outgoing_requests'
       notifications.for_outgoing_requests
+    when 'relationships_created'
+      notifications.for_relationships_created
+    when 'relationships_deleted'
+      notifications.for_relationships_deleted
     else
       notifications.unread
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def for_project_name(project_name)
     unread.joins(:projects).where(projects: { name: project_name })
