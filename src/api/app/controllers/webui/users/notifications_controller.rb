@@ -22,10 +22,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                       fetch_notifications.where(id: params[:notification_ids])
                     end
     # rubocop:disable Rails/SkipsModelValidations
-    unless notifications.update_all('delivered = !delivered')
-      flash.now[:error] = "Couldn't mark the notifications as #{notifications.first.unread? ? 'read' : 'unread'}"
-    end
+    updated_notifications = notifications.update_all('delivered = !delivered')
     # rubocop:enable Rails/SkipsModelValidations
+
+    if updated_notifications.zero?
+      flash.now[:error] = "Couldn't update the notifications"
+    else
+      send_notifications_information_rabbitmq(updated_notifications)
+    end
 
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
@@ -90,5 +94,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def show_read_all_button?
     fetch_notifications.count > Notification::MAX_PER_PAGE
+  end
+
+  def send_notifications_information_rabbitmq(number_of_records)
+    RabbitmqBus.send_to_bus('metrics',
+                            "notification.delivered,web=true,rss=false value=#{number_of_records}")
   end
 end
