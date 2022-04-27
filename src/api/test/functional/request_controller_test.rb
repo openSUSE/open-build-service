@@ -404,6 +404,57 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_submit_prjconf
+    login_king
+
+    get '/source/home:king/_project/_config'
+    assert_response :success
+    get '/source/home:adrian/_project'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    assert node['srcmd5']
+    orev = node.value(:srcmd5)
+    get '/source/home:adrian/_project/_config'
+    assert_response 404
+
+    xml = <<-XML.strip_heredoc
+      <request>
+        <action type='submit'>
+          <source project='home:king' package='_project'/>
+          <target project='home:adrian' package='_project'/>
+        </action>
+        <description/>
+        <state name='new' who='tom' when='2011-12-02T17:20:42'/>
+      </request>
+    XML
+    post '/request?cmd=create', params: xml
+    assert_response :success
+    new_request_id = BsRequest.last.number
+    assert_select 'request', id: new_request_id do
+      assert_select 'action', type: 'submit' do
+        assert_select 'source', project: 'home:king', package: '_project'
+        assert_select 'target', project: 'home:adrian', package: '_project'
+      end
+    end
+
+    # diff
+    post "/request/#{new_request_id}?cmd=diff&view=xml"
+    assert_response :success
+    assert_xml_tag(parent: { tag: 'file', attributes: { state: 'added' } }, tag: 'new', attributes: { name: '_config' })
+
+    # accept
+    post "/request/#{new_request_id}?cmd=changestate&newstate=accepted&comment=go&force=1"
+    assert_response :success
+
+    get '/source/home:adrian/_project/_config'
+    assert_response :success
+    assert_match(/Type: spec/, @response.body)
+
+    # cleanup
+    post "/source/home:adrian/_project?cmd=copy&orev=#{orev}&oproject=home:adrian&opackage=_project"
+    assert_response :success
+  end
+
   def test_submit_request_with_broken_source
     login_Iggy
     post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', params: { cmd: :branch }
