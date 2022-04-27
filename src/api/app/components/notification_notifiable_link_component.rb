@@ -14,10 +14,10 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   def notifiable_link_text
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      "#{type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
+      "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
     when 'Event::CommentForRequest'
       bs_request = @notification.notifiable.commentable
-      "Comment on #{type_of_action(bs_request)} Request ##{bs_request.number}"
+      "Comment on #{helpers.request_type_of_action(bs_request)} Request ##{bs_request.number}"
     when 'Event::CommentForProject'
       'Comment on Project'
     when 'Event::CommentForPackage'
@@ -45,12 +45,5 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                              notification_id: @notification.id,
                                                              anchor: 'comments-list')
     end
-  end
-
-  # Returns strings like "Add Role", "Submit", etc.
-  def type_of_action(bs_request)
-    return 'Multiple Actions\'' if bs_request.bs_request_actions.size > 1
-
-    bs_request.bs_request_actions.first.type.titleize
   end
 end

@@ -167,4 +167,11 @@ module Webui::RequestHelper
       user_with_realname_and_icon(maintainer, short: true)
     end.to_sentence.html_safe
   end
+
+  # Returns strings like "Add Role", "Submit", etc.
+  def request_type_of_action(bs_request)
+    return 'Multiple Actions\'' if bs_request.bs_request_actions.size > 1
+
+    bs_request.bs_request_actions.first.type.titleize
+  end
 end

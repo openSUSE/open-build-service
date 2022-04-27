@@ -76,7 +76,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
 
       it 'does show the watched request in the list' do
         expect(rendered_component).not_to have_text('There are no requests in the watchlist yet.')
-        expect(rendered_component).to have_text("Request ##{requests.sample.number}")
+        expect(rendered_component).to have_text("##{requests.sample.number} Submit")
       end
     end
   end

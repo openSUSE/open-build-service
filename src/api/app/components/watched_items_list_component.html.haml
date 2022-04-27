@@ -11,8 +11,8 @@
           %i.fas.fa-cubes.mr-1
           #{item}
       - when 'BsRequest'
-        = link_to(request_show_path(number: item.number), class: 'text-word-break-all') do
+        = link_to(request_show_path(item.number), class: 'text-word-break-all') do
           = image_tag('icons/request-icon.svg', height: 18, class: 'mr-1 color-inverted')
-          Request ##{item.number}
+          = "##{item.number} #{helpers.request_type_of_action(item)}"
 - else
   %p.text-muted= empty_list_text
