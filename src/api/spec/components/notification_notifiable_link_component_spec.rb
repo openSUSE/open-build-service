@@ -13,7 +13,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the BsRequest with a generic text and its number' do
-      expect(rendered_component).to have_link("Multiple Actions' Request #456345", href: "/request/show/456345?notification_id=#{notification.id}")
+      expect(rendered_component).to have_link('Multiple Actions Request #456345', href: "/request/show/456345?notification_id=#{notification.id}")
     end
   end
 
