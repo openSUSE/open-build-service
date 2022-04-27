@@ -465,6 +465,67 @@ sub signhelm {
   writestr("$jobdir/$chart.prov", undef, $prov_signed);
 }
 
+sub dsse_pae {
+  my ($type, $payload) = @_;
+  return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload))."$payload";
+}
+
+sub signslaprovenance {
+  my ($jobstatus, $signfile, $jobdir, $refprpa, @signargs) = @_;
+  # for now just do reposerver communication
+  return unless -e $signfile && -s _ < 1000000000;
+  my $provenance_json = readstr($signfile);
+  # not user generated, so we die() on error
+  my $provenance = JSON::XS::decode_json($provenance_json);
+  die unless $provenance && ref($provenance) eq 'HASH';
+  my $alreadysigned;
+  if ($provenance->{'payload'}) {
+    $alreadysigned = 1;
+    die("bad payload type\n") unless $provenance->{'payloadType'} eq 'application/vnd.in-toto+json';
+    $provenance_json = MIME::Base64::decode_base64($provenance->{'payload'});
+    $provenance = JSON::XS::decode_json($provenance_json);
+  }
+  die("no predicate in provenance file?\n") unless ref($provenance->{'predicate'}) eq 'HASH';
+
+  # pin all binaries from the materials
+  my $materials = $provenance->{'predicate'}->{'materials'};
+  die("no materials in provenance file?\n") unless ref($materials) eq 'ARRAY';
+  my %todo;
+  for my $material (@$materials) {
+    die("bad material in provenance file?\n") unless ref($material) eq 'HASH';
+    die("bad material uri in provenance file?\n") unless $material->{'uri'};
+    next unless $material->{'uri'} =~ /^(https?:.*)\/build\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(?:[^\/]+)\/([^\/]+)$/s;
+    my $server = $1;
+    my $prpa = "$2/$3/$4";
+    my $bin = $5;
+    die("material with bad digest\n") unless ref($material->{'digest'}) eq 'HASH' && $material->{'digest'}->{'sha256'};
+    $todo{$prpa}->{$material->{'digest'}->{'sha256'}} = $bin;
+  }
+  my $param = {
+    'uri' => "$BSConfig::srcserver/slsa",
+    'request' => 'POST',
+    'data' => BSUtil::tostorable(\%todo),
+  };
+  eval { BSRPC::rpc($param, undef, "cmd=addrefs", "prpa=$refprpa") };
+  $jobstatus->{'result'} = 'rebuild' if $@ && $@ =~ /^404/;	# rebuild if a binary is missing
+  die($@) if $@;
+
+  # now sign the provenance statement
+  if (!$alreadysigned) {
+    # hack: prepend _ to payloadType so it comes first
+    my $envelope = {
+      '_payloadType' => 'application/vnd.in-toto+json',
+      'payload' => MIME::Base64::encode_base64($provenance_json, ''),
+    };
+    my $dsse = dsse_pae($envelope->{'_payloadType'}, $envelope->{'payload'});
+    my $sig = BSUtil::xsystem($dsse, $BSConfig::sign, @signargs, '-D');
+    push @{$envelope->{'signatures'}}, {'sig' => MIME::Base64::encode_base64($sig)};
+    my $envelope_json = JSON::XS->new->utf8->canonical->encode($envelope);;
+    $envelope_json =~ s/_payloadType/payloadType/;
+    writestr("$jobdir/.slsa_provenance.sIgN$$", $signfile, $envelope_json);
+  }
+}
+
 sub fixup_sha256_checksum {
   my ($jobdir, $shafile, $isofile) = @_;
   return if ((-s "$jobdir/$shafile") || 0) > 65536;
@@ -614,7 +675,7 @@ sub signjob {
   my $projid = $info->{'project'};
   $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
+  my @signfiles = grep {$_ eq '_slsa_provenance_stmt.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -662,6 +723,10 @@ sub signjob {
 
     eval {
       for my $signfile (@signfiles) {
+	if ($signfile eq '_slsa_provenance_stmt.json') {
+	  signslaprovenance($jobstatus, "$jobdir/$signfile", $jobdir, "$projid/$info->{'repository'}/$info->{'arch'}", @signargs);
+	  next;
+	}
 	if ($signfile =~ /\.helminfo$/) {
 	  signhelm($jobstatus, "$jobdir/$signfile", $jobdir, @signargs);
 	  next;

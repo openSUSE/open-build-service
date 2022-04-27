@@ -7305,6 +7305,34 @@ sub sigstore_forward {
 
 ####################################################################
 
+sub slsa_addrefs {
+  my ($cgi, $refprpa) = @_;
+  my $refs = BSUtil::fromstorable(BSServer::read_data(1000000000));
+  my %servers;
+  for my $prpa (sort keys %$refs) {
+    my ($projid) = split('/', $prpa);
+    my $proj = BSRevision::readproj_local($projid, 1);
+    $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+    if ($proj->{'remoteurl'}) {
+      # skip interconnect references for now
+      next;
+    }
+    my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+    $servers{$reposerver}->{$prpa} = $refs->{$prpa};
+  }
+  for my $server (sort keys %servers) {
+    my $param = {
+      'uri' => "$server/slsa",
+      'request' => 'POST',
+      'data' => BSUtil::tostorable($servers{$server}),
+    };
+    BSRPC::rpc($param, undef, "cmd=addrefs", "prpa=$refprpa");
+  }
+  return $BSStdServer::return_ok;
+}
+
+####################################################################
+
 sub run {
   my ($conf) = @_;
   BSSrcServer::SQLite::init_publisheddb($extrepodb) if $BSConfig::published_db_sqlite;
@@ -7515,6 +7543,9 @@ my $dispatches = [
   'GET|HEAD:/registry/info.json' => \&registry_rootinfo,
   'GET|HEAD:/registry' => \&registry_version,
   'GET|HEAD:/sigstore/$...:regrepo/$sig:' => \&sigstore_forward,
+
+  # slsa
+  'POST:/slsa cmd=addrefs $prpa' => \&slsa_addrefs,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
