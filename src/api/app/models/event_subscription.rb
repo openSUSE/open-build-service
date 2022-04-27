@@ -57,6 +57,8 @@ class EventSubscription < ApplicationRecord
     end
   }
 
+  after_save :track_event_subscription_enabled, if: :saved_change_to_enabled?
+
   def self.receiver_roles_to_display(user)
     roles = RECEIVER_ROLE_TEXTS.keys
     # We have to show the new_watchlist subscription options to the admin in order to allow the global
@@ -99,6 +101,11 @@ class EventSubscription < ApplicationRecord
 
   def self.without_disabled_or_internal_channels
     channels.keys.reject { |channel| channel == 'disabled' || channel.in?(INTERNAL_ONLY_CHANNELS) }
+  end
+
+  def track_event_subscription_enabled
+    RabbitmqBus.send_to_bus('metrics',
+                            "event_subscription.enabled,event_type=#{eventtype},channel=#{channel} value=1")
   end
 end
 
