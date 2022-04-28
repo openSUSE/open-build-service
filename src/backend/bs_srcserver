@@ -7311,6 +7311,7 @@ sub slsa_addrefs {
   my %servers;
   for my $prpa (sort keys %$refs) {
     my ($projid) = split('/', $prpa);
+    $projid = (split('/', $refprpa))[0] if $prpa eq '_config';	# keep extra config data
     my $proj = BSRevision::readproj_local($projid, 1);
     $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
     if ($proj->{'remoteurl'}) {

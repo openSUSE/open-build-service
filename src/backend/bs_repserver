@@ -4272,8 +4272,9 @@ sub registry_version {
 sub slsa_addrefs {
   my ($cgi, $refprpa) = @_;
   my $refs = BSUtil::fromstorable(BSServer::read_data(1000000000));
+  my $configs = delete $refs->{'_config'};
   for my $prpa (sort keys %$refs) {
-    BSRepServer::SLSA::add_references($prpa, $refprpa, $refs->{$prpa});
+    BSRepServer::SLSA::add_references($prpa, $refprpa, $refs->{$prpa}, $configs);
   }
   return $BSStdServer::return_ok;
 }

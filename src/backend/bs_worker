@@ -1067,25 +1067,27 @@ sub getsources {
     die("getsources: $errors");
   }
   # verify sources
-  my @materials;
   my %res = map {$_->{'name'} => $_} @$res;
   my $md5 = '';
   my @f = ls($dir);
   for my $f (sort @f) {
     die("unexpected file: $f") unless $res{$f};
     $md5 .= "$res{$f}->{'md5'}  $f\n";
-    my $sha256sum = sha256file("$dir/$f");
-    my $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$f")."?rev=$buildinfo->{'srcmd5'}";
-    push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
   }
   $md5 = Digest::MD5::md5_hex($md5);
   die("source verification fails: $md5 != $buildinfo->{'verifymd5'}\n") if $md5 ne $buildinfo->{'verifymd5'};
+
+  # add to slsa materials list
+  if ($buildinfo->{'slsaprovenance'}) {
+    add_slsa_materials_sourcefile($buildinfo, $_, "$dir/$_") for @f;
+  }
 
   return @meta unless $buildinfo->{'file'} =~ /\.kiwi$/;
 
   # get additional kiwi sources
   my @sdep = grep {($_->{'repoarch'} || '') eq 'src'} @{$buildinfo->{'bdep'} || []};
   for my $src (@sdep) {
+    die("additional kiwi sources not implemented for slsa provenance\n") if $buildinfo->{'slsaprovenance'};
     print "$src->{'name'}, ";
     my $idir = "$src->{'project'}/$src->{'package'}";
     $idir = "$dir/images/$idir";
@@ -2660,9 +2662,7 @@ sub getbinaries {
 	# sigh, no package information available yet...
 	$origins->{$_} = "$repoprp/$arch";
       }
-      my $sha256sum = sha256file("$dir/$gotpkg->{'name'}");
-      my $uri = BSHTTP::urlencode("$server/build/$repo->{'project'}/$repo->{'repository'}/$arch/_repository/$gotpkg->{'name'}");
-      push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+      add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", $gotpkg->{'name'}, "$dir/$gotpkg->{'name'}") if $buildinfo->{'slsaprovenance'};
     }
     @todo = grep {!$done{"$binaryprefix$_"}} @todo;
   }
@@ -2690,9 +2690,7 @@ sub getbinaries {
         # sigh, no package information available yet...
         $origins->{$_} = "$repoprp/$arch";
       }
-      my $sha256sum = sha256file("$dir/$gotpkg->{'name'}");
-      my $uri = BSHTTP::urlencode("$server/build/$repo->{'project'}/$repo->{'repository'}/$arch/_repository/$gotpkg->{'name'}");
-      push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+      add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", $gotpkg->{'name'}, "$dir/$gotpkg->{'name'}") if $buildinfo->{'slsaprovenance'};
     }
     @todo = grep {!$done{$_}} @todo;
   }
@@ -3261,6 +3259,55 @@ sub generate_slsa_provenance_statement {
   return Build::SimpleJSON::unparse($stmt,  'template' => $slsa_json_template, 'keepspecial' => 1);
 }
 
+sub add_slsa_materials_sourcefile {
+  my ($buildinfo, $filename, $localfile) = @_;
+  my $sha256sum = sha256file($localfile);
+  my $uri;
+  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /(.*)\/_slsa$/) {
+    # using the source publishing server
+    my $server = $1;
+    $uri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$buildinfo->{'package'}/$buildinfo->{'srcmd5'}/$filename");
+  } else {
+    # using the api server
+    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
+    $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$filename")."?rev=$buildinfo->{'srcmd5'}";
+  }
+  push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+}
+
+sub add_slsa_materials_binary {
+  my ($buildinfo, $prpa, $filename, $localfile) = @_;
+  my $sha256sum = sha256file($localfile);
+  my $uri;
+  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /\/_slsa$/) {
+    # using the source publishing server
+    my $server = $buildinfo->{'slsadownloadurl'};
+    $uri = BSHTTP::urlencode("$server/$prpa/$filename/$sha256sum");
+  } else {
+    # using the api server
+    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
+    $uri = BSHTTP::urlencode("$server/slsa/$prpa/$filename/$sha256sum");
+  }
+  push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+}
+
+sub add_slsa_materials_config {
+  my ($buildinfo, $prp, $config) = @_;
+  my $sha256sum = Digest::SHA::sha256_hex($config);
+  my ($prpa, $filename) = ("$prp/noarch", '_config');
+  my $uri;
+  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /\/_slsa$/) {
+    # using the source publishing server
+    my $server = $buildinfo->{'slsadownloadurl'};
+    $uri = BSHTTP::urlencode("$server/$prpa/$filename/$sha256sum");
+  } else {
+    # using the api server
+    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
+    $uri = BSHTTP::urlencode("$server/slsa/$prpa/$filename/$sha256sum");
+  }
+  push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+}
+
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
 
 sub dobuild {
@@ -3428,7 +3475,7 @@ sub dobuild {
   }
   $buildinfo->{'outbuildinfo'}->{'config'} = $config;
   writestr("$buildroot/.build.config", undef, $config);
-
+  add_slsa_materials_config($buildinfo, "$projid/$repoid", $config);
 
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
   my $useccache = $buildinfo->{'ccache'} ? 1 : 0;
@@ -4398,10 +4445,10 @@ if ($ex == 0) {
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
   @send = grep {$_->{'name'} ne '_generated_buildreqs'} @send;
 
+  @send = grep {$_->{'name'} !~ /slsa_provenance.json$/} @send;
   if ($buildinfo->{'slsaprovenance'}) {
-    @send = grep {$_->{'name'} ne '_slsa_provenance_stmt.json'} @send;
     my $slsa_provenance = generate_slsa_provenance_statement($buildinfo, \@send);
-    push @send, { 'name' => '_slsa_provenance_stmt.json', 'data' => $slsa_provenance };
+    push @send, { 'name' => '_slsa_provenance.json', 'data' => $slsa_provenance };
   }
   
   if ($kiwitree) {
