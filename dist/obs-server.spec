@@ -338,6 +338,7 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       obs-api = %{version}
 Requires:       obs-server = %{version}
 Requires:       perl(Test::Most)
+Requires:       osc
 
 %description -n obs-tests-appliance
 This package contains test cases for testing a installed appliances.
