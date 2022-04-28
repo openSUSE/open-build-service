@@ -610,7 +610,6 @@ sub createrepo_rpmmd {
   }
   my $repoinfo = $data->{'repoinfo'};
   # create generic rpm-md meta data
-  # --update requires a newer createrepo version, tested with version 0.4.10
   my @createrepoargs;
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, map { ('--repo', $_ ) } @repotags;
@@ -618,9 +617,6 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_incident';
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_release';
   push @createrepoargs, '--filelists_ext' if $options{'filelists_ext'};
-  # createrepo_c 0.20.0 defaults to keep always additional metadata. We must change
-  # to old behaviour or old data would stay forever when it got removed actually
-  push @createrepoargs, '--discard-additional-metadata';
   my @legacyargs;
   if ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
@@ -647,6 +643,9 @@ sub createrepo_rpmmd {
   push @updateargs, '--no-database';
   if (-f "$extrep/repodata/repomd.xml") {
     push @updateargs, '--update';
+    # createrepo_c 0.20.0 defaults to keep always additional metadata. We must change
+    # to old behaviour or old data would stay forever when it got removed actually
+    push @createrepoargs, '--discard-additional-metadata';
   }
   if (qsystem($createrepo_bin, '-q', '-c', "$extrep/repocache", @updateargs, @createrepoargs, @legacyargs, $extrep)) {
     die("    createrepo failed: $?\n") unless @updateargs;
