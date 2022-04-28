@@ -146,6 +146,8 @@ paths:
     $ref: 'paths/person_login_token.yaml'
   /person/{login}/token/{id}:
     $ref: 'paths/person_login_token_id.yaml'
+  /person/{login}/watchlist:
+    $ref: 'paths/watchlist.yaml'
 
   /published:
     $ref: 'paths/published.yaml'

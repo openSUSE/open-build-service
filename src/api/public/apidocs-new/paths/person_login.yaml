@@ -24,6 +24,11 @@ get:
             watchlist:
               - project:
                   name: "home:Admin"
+                package:
+                  name: "ad"
+                  project: "home:Admin"
+                request:
+                  number: "7"
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
