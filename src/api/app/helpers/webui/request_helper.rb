@@ -170,7 +170,7 @@ module Webui::RequestHelper
 
   # Returns strings like "Add Role", "Submit", etc.
   def request_type_of_action(bs_request)
-    return 'Multiple Actions\'' if bs_request.bs_request_actions.size > 1
+    return 'Multiple Actions' if bs_request.bs_request_actions.size > 1
 
     bs_request.bs_request_actions.first.type.titleize
   end

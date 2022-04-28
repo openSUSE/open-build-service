@@ -12,8 +12,7 @@
             = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
             = render NotificationNotifiableLinkComponent.new(@notification)
             %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
-            %span.badge.ml-1{ class: "badge badge-#{helpers.request_badge_color(@notification.notifiable.state)}" }
-              = @notification.notifiable.state
+            = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ml-1')
           - else
             %i.fas.fa-comments{ title: 'Comment notification' }
             = render NotificationNotifiableLinkComponent.new(@notification)

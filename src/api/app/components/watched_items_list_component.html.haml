@@ -11,8 +11,15 @@
           %i.fas.fa-cubes.mr-1
           #{item}
       - when 'BsRequest'
-        = link_to(request_show_path(item.number), class: 'text-word-break-all') do
-          = image_tag('icons/request-icon.svg', height: 18, class: 'mr-1 color-inverted')
-          = "##{item.number} #{helpers.request_type_of_action(item)}"
+        .d-flex.flex-row.flex-wrap.align-items-baseline.toggle-tooltip-parent
+          = link_to(request_show_path(item.number), class: 'text-word-break-all') do
+            = image_tag('icons/request-icon.svg', height: 18, class: 'mr-1 color-inverted')
+            = "##{item.number} #{helpers.request_type_of_action(item)}"
+          %i.fa.fa-question-circle.text-light.px-2.toggle-tooltip{ title: 'Click to keep it open' }
+        .extended-info.mt-2.mb-3.collapsed
+          .triangle.left
+          .extended-info-content
+            = render BsRequestStateBadgeComponent.new(bs_request: item, css_class: 'mt-2 ml-2')
+            %p.px-2.pt-2= render(BsRequestActionSourceAndTargetComponent.new(item))
 - else
   %p.text-muted= empty_list_text

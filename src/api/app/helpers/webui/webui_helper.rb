@@ -291,6 +291,7 @@ module Webui::WebuiHelper
   def feature_css_class
     css_classes = []
     css_classes << 'notifications-redesign' if feature_enabled?(:notifications_redesign)
+    css_classes << 'new-watchlist' if feature_enabled?(:new_watchlist)
     css_classes.join(' ')
   end
 
