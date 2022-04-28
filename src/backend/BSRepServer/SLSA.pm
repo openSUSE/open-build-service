@@ -132,9 +132,9 @@ sub add_references {
   my $h = connectdb($prpa);
   BSSQLite::begin_work($h);
   my $got = $h->selectcol_arrayref("SELECT digest FROM refs WHERE prpa = ?", undef, $refprpa) || die($h->errstr);
-  my %got = map {pack("H*", $_) => 1} @$got;
+  my %got = map {unpack("H*", $_) => 1} @$got;
   for my $digest (grep {!$got{$_}} sort keys %$digests) {
-    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ unpack("H*", $digest), SQL_BLOB ]);
+    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ pack("H*", $digest), SQL_BLOB ]);
   }
   BSSQLite::commit($h);
 }
@@ -146,13 +146,13 @@ sub set_references {
   my $h = connectdb($prpa);
   BSSQLite::begin_work($h);
   my $got = $h->selectcol_arrayref("SELECT digest FROM refs WHERE prpa = ?", undef, $refprpa) || die($h->errstr);
-  my %got = map {pack("H*", $_) => 1} @$got;
+  my %got = map {unpack("H*", $_) => 1} @$got;
   for my $digest (grep {!$got{$_}} sort keys %$digests) {
-    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ unpack("H*", $digest), SQL_BLOB ]);
+    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ pack("H*", $digest), SQL_BLOB ]);
   }
   delete $got{$_} for keys %$digests;
   for my $digest (sort keys %$got) {
-    BSSQLite::dbdo_bind($h, 'DELETE FROM refs WHERE prpa = ? AND digest = ?', [ $refprpa ], [ unpack("H*", $digest), SQL_BLOB ]);
+    BSSQLite::dbdo_bind($h, 'DELETE FROM refs WHERE prpa = ? AND digest = ?', [ $refprpa ], [ pack("H*", $digest), SQL_BLOB ]);
   }
   BSSQLite::commit($h);
 }
