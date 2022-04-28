@@ -187,7 +187,8 @@ class SourceController < ApplicationController
       if PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name,
                                                                                             @target_package_name,
                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
-        validate_target_for_package_command_exists!
+        # is a local project, which is not scm managed. Or using a command not supported for scm projects.
+        validate_target_for_package_command_exists! if @project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command)
       end
     end
 
@@ -200,6 +201,9 @@ class SourceController < ApplicationController
   PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
   # list of commands which are allowed even when the project has the package only via a project link
   READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
+  # commands which are fine to operate on external scm managed projects
+  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
+                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
 
   def validate_target_for_package_command_exists!
     @project = nil
@@ -1067,7 +1071,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend(path)
 
-    @package.sources_changed unless params[:package] == '_project'
+    @package.sources_changed unless @project.scmsync.present? || params[:package] == '_project'
   end
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
