@@ -3227,6 +3227,16 @@ sub generate_slsa_provenance_statement {
     my $sha256sum = sha256file($artifact->{'filename'});
     push @$subject, { 'name' => $artifact->{'name'}, 'digest' => { 'sha256' => $sha256sum }};
   }
+  
+  my $configsourceuri;
+  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /(.*)\/_slsa$/) {
+    # using the source publishing server
+    my $server = $1;
+    $configsourceuri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$buildinfo->{'package'}/$buildinfo->{'srcmd5'}");
+  } else {
+    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
+    $configsourceuri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}")."?rev=$buildinfo->{'srcmd5'}";
+  }
 
   my $stmt = {
     '_type' => "https://in-toto.io/Statement/v0.1",
@@ -3239,8 +3249,7 @@ sub generate_slsa_provenance_statement {
       'buildType' => 'https://open-build-server/worker',
       'invocation' => {
         'configSource' => {
-          'uri' => BSHTTP::urlencode("$buildinfo->{'srcserver'}/source/$buildinfo->{'project'}/$buildinfo->{'package'}")."?rev=$buildinfo->{'srcmd5'}",
-          'digest' => { 'md5' => $buildinfo->{'srcmd5'} }, # TODO: change to sha256
+          'uri' => $configsourceuri,
           'entryPoint' => $buildinfo->{'file'},
         },
       },
