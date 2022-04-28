@@ -208,7 +208,6 @@ my $expected_statement = {
     'invocation' => {
       'configSource' => {
         'uri' => 'srcserver/source/project1/package1?rev=f157738ddea737a2b7479996175a6cec',
-        'digest' => { 'md5' => 'f157738ddea737a2b7479996175a6cec' },
         'entryPoint' => 'hello_world.spec',
       },
     },
