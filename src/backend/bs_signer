@@ -494,13 +494,21 @@ sub signslaprovenance {
   for my $material (@$materials) {
     die("bad material in provenance file?\n") unless ref($material) eq 'HASH';
     die("bad material uri in provenance file?\n") unless $material->{'uri'};
-    next unless $material->{'uri'} =~ /^(https?:.*)\/build\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(?:[^\/]+)\/([^\/]+)$/s;
-    my $server = $1;
-    my $prpa = "$2/$3/$4";
-    my $bin = $5;
+    next unless $material->{'uri'} =~ /\/_?slsa\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(?:[^\/]+)\/([^\/]+)\/([^\/]+)$/s;
+    my $prpa = "$1/$2/$3";
+    my $bin = $4;
     die("material with bad digest\n") unless ref($material->{'digest'}) eq 'HASH' && $material->{'digest'}->{'sha256'};
     $todo{$prpa}->{$material->{'digest'}->{'sha256'}} = $bin;
   }
+  if ($signfile eq '_slsa_provenance.json') {
+    # also send the config if we have one
+    my $buildinfo = readxml("$jobdir/_buildenv", 1) || {};
+    if ($buildinfo->{'config'}) {
+      my $digest = Digest::SHA::sha256_hex($buildinfo->{'config'});
+      $todo{'_config'}->{$digest} = $buildinfo->{'config'};
+    }
+  }
+  
   my $param = {
     'uri' => "$BSConfig::srcserver/slsa",
     'request' => 'POST',
@@ -675,7 +683,7 @@ sub signjob {
   my $projid = $info->{'project'};
   $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {$_ eq '_slsa_provenance_stmt.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
+  my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -723,7 +731,7 @@ sub signjob {
 
     eval {
       for my $signfile (@signfiles) {
-	if ($signfile eq '_slsa_provenance_stmt.json') {
+	if ($signfile eq '_slsa_provenance.json') {
 	  signslaprovenance($jobstatus, "$jobdir/$signfile", $jobdir, "$projid/$info->{'repository'}/$info->{'arch'}", @signargs);
 	  next;
 	}

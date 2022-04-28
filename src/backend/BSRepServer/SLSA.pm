@@ -103,15 +103,23 @@ sub link_binary {
 }
 
 sub link_binaries {
-  my ($prpa, $digests) = @_;
+  my ($prpa, $digests, $configs) = @_;
 
   my $gbininfo;
   for my $digest (sort keys %$digests) {
     next if -e "$slsadir/$prpa/$digest";
     mkdir_p("$slsadir/$prpa");
-    $gbininfo ||= read_gbininfo($prpa);
     my $tmp = "$slsadir/$prpa/.incoming$$";
-    die("404 binary $digests->{$digest} digest $digest does not exist in $prpa\n") unless link_binary($prpa, $gbininfo, $digests->{$digest}, $digest, $tmp);
+    my $filename = $digests->{$digest};
+    if ($filename eq '_config') {
+      if ($configs && $configs->{$digest} && Digest::SHA::sha256_hex($configs->{$digest}) eq $digest) {
+	writestr($tmp, "$slsadir/$prpa/$digest", $configs->{$digest});
+	next;
+      }
+      die("404 a config with digest $digest does not exist in $prpa\n");
+    }
+    $gbininfo ||= read_gbininfo($prpa);
+    die("404 binary $digests->{$digest} digest $digest does not exist in $prpa\n") unless link_binary($prpa, $gbininfo, $filename, $digest, $tmp);
     if (!link($tmp, "$slsadir/$prpa/$digest")) {
       my $err = "link $slsadir/$prpa/.incoming$$ $slsadir/$prpa/$digest: $!";
       unlink($tmp);
@@ -126,15 +134,15 @@ sub link_binaries {
 }
 
 sub add_references {
-  my ($prpa, $refprpa, $digests) = @_;
+  my ($prpa, $refprpa, $digests, $configs) = @_;
 
-  link_binaries($prpa, $digests);
+  link_binaries($prpa, $digests, $configs);
   my $h = connectdb($prpa);
   BSSQLite::begin_work($h);
   my $got = $h->selectcol_arrayref("SELECT digest FROM refs WHERE prpa = ?", undef, $refprpa) || die($h->errstr);
-  my %got = map {pack("H*", $_) => 1} @$got;
+  my %got = map {unpack("H*", $_) => 1} @$got;
   for my $digest (grep {!$got{$_}} sort keys %$digests) {
-    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ unpack("H*", $digest), SQL_BLOB ]);
+    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ pack("H*", $digest), SQL_BLOB ]);
   }
   BSSQLite::commit($h);
 }
@@ -146,13 +154,13 @@ sub set_references {
   my $h = connectdb($prpa);
   BSSQLite::begin_work($h);
   my $got = $h->selectcol_arrayref("SELECT digest FROM refs WHERE prpa = ?", undef, $refprpa) || die($h->errstr);
-  my %got = map {pack("H*", $_) => 1} @$got;
+  my %got = map {unpack("H*", $_) => 1} @$got;
   for my $digest (grep {!$got{$_}} sort keys %$digests) {
-    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ unpack("H*", $digest), SQL_BLOB ]);
+    BSSQLite::dbdo_bind($h, 'INSERT INTO refs(prpa,digest) VALUES(?,?)', [ $refprpa ], [ pack("H*", $digest), SQL_BLOB ]);
   }
   delete $got{$_} for keys %$digests;
   for my $digest (sort keys %$got) {
-    BSSQLite::dbdo_bind($h, 'DELETE FROM refs WHERE prpa = ? AND digest = ?', [ $refprpa ], [ unpack("H*", $digest), SQL_BLOB ]);
+    BSSQLite::dbdo_bind($h, 'DELETE FROM refs WHERE prpa = ? AND digest = ?', [ $refprpa ], [ pack("H*", $digest), SQL_BLOB ]);
   }
   BSSQLite::commit($h);
 }

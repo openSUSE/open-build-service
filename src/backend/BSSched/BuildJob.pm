@@ -1220,6 +1220,14 @@ sub create {
                                   'repository' => $releasetarget->{'repository'} };
 
     }
+    $binfo->{'slsaprovenance'} = $bconf->{'buildflags:slsaprovenance'} if $bconf->{'buildflags:slsaprovenance'};
+    if ($binfo->{'slsaprovenance'}) {
+      if ($BSConfig::sourcepublish_downloadurl) {
+	$binfo->{'slsadownloadurl'} = "$BSConfig::sourcepublish_downloadurl/_slsa";
+      } elsif ($BSConfig::api_url) {
+	$binfo->{'slsadownloadurl'} = $BSConfig::api_url;
+      }
+    }
   }
   $ctx->writejob($job, $binfo, $reason);
 

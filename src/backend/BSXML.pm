@@ -643,6 +643,9 @@ our $buildinfo = [
         'modularity_meta',
         'modularity_yaml',	# external
 
+	'slsaprovenance',	# internal
+	'slsadownloadurl',	# internal
+
       [ 'preinstallimage' =>
 	    'project',
 	    'repository',

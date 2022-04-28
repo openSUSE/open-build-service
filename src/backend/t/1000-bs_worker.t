@@ -73,6 +73,7 @@ my $buildinfo = {
                   }
                 ],
   arch       => 'x86_64',
+  slsaprovenance => 1,
 };
 
 $Test::Mock::BSRPC::fixtures_map = {
@@ -131,19 +132,19 @@ $expected_materials = [
     'digest' => {
       'sha256' => 'acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28'
     },
-    'uri' => 'http://srcserver/build/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/_repository/aaa_base.rpm'
+    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/aaa_base.rpm/acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28'
   },
   {
     'digest' => {
       'sha256' => 'be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680'
     },
-    'uri' => 'http://srcserver/build/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/_repository/filesystem.rpm'
+    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/filesystem.rpm/be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680'
   },
   {
     'digest' => {
       'sha256' => '80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26'
     },
-    'uri' => 'http://srcserver/build/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/_repository/liblua5_4-5.rpm'
+    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26'
   }
 ];
 is_deeply($buildinfo->{'materials'}, $expected_materials, "getbinaries- Add 'materials' of binaries to \$buildinfo");
