@@ -1220,6 +1220,7 @@ sub create {
                                   'repository' => $releasetarget->{'repository'} };
 
     }
+    $binfo->{'slsaprovenance'} = $bconf->{'buildflags:slsaprovenance'} if $bconf->{'buildflags:slsaprovenance'};
   }
   $ctx->writejob($job, $binfo, $reason);
 

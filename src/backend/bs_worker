@@ -3431,7 +3431,6 @@ sub dobuild {
 
 
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
-  $buildinfo->{'slsaprovenance'} = 1 if $bconf->{'buildflags:slsaprovenance'};
   my $useccache = $buildinfo->{'ccache'} ? 1 : 0;
   my $ccachetype = $useccache ? $buildinfo->{'ccache'} : undef;
 
