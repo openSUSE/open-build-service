@@ -7,8 +7,8 @@ body.new-watchlist {
   // TODO: the following rules are mostly duplicated from build-results.scss.
   // Please try to unify both when new_watchlist feature is rolled out.
 
-  .toggle-tooltip { cursor: pointer; }
-  .toggle-tooltip-parent { z-index: 2; }
+  .collapsible-tooltip { cursor: pointer; }
+  .collapsible-tooltip-parent { z-index: 2; }
 
   .extended-info {
     @extend .d-flex;
