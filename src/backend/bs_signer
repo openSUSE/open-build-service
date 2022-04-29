@@ -506,10 +506,14 @@ sub signslaprovenance {
   }
   if ($signfile =~ /\/_slsa_provenance.json$/) {
     # also send the config if we have one
-    my $buildinfo = readxml("$jobdir/_buildenv", $BSXML::buildinfo, 1) || {};
-    if ($buildinfo->{'config'}) {
-      my $digest = Digest::SHA::sha256_hex($buildinfo->{'config'});
-      $todo{'_config'}->{$digest} = $buildinfo->{'config'};
+    my $config = readstr("$jobdir/_slsa_provenance.config", 1);
+    if (!defined $config) {
+      my $buildinfo = readxml("$jobdir/_buildenv", $BSXML::buildinfo, 1) || {};
+      $config = $buildinfo->{'config'};
+    }
+    if (defined($config)) {
+      my $digest = Digest::SHA::sha256_hex($config);
+      $todo{'_config'}->{$digest} = $config;
     }
   }
   
