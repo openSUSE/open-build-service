@@ -93,7 +93,7 @@ sub link_binary {
       unlink($tmp);
       next unless link("$reporoot/$prpa/$packid/$ent->{'filename'}", $tmp);
       unlink("$tmp.prov");
-      link("$reporoot/$prpa/$packid/_slsa_provenance_stmt.json", "$tmp.prov");
+      link("$reporoot/$prpa/$packid/_slsa_provenance.json", "$tmp.prov");
       return 1 if sha256file($tmp) eq $digest;
       unlink($tmp);
       unlink("$tmp.prov");
