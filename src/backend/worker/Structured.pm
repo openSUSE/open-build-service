@@ -47,7 +47,7 @@ sub _escape {
   $d =~ s/</&lt;/sg;
   $d =~ s/>/&gt;/sg;
   $d =~ s/"/&quot;/sg;
-  $d =~ tr/[\000-\010\013\014\016-\037]//d;	# illegal xml
+  $d =~ tr/\000-\010\013\014\016-\037//d;	# illegal xml
   return $d unless $d =~ /[\200-\377]/;		# common case
   eval {
     Encode::_utf8_on($d);
