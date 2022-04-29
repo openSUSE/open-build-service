@@ -1220,7 +1220,7 @@ sub create {
                                   'repository' => $releasetarget->{'repository'} };
 
     }
-    $binfo->{'slsaprovenance'} = $bconf->{'buildflags:slsaprovenance'} if $bconf->{'buildflags:slsaprovenance'};
+    $binfo->{'slsaprovenance'} = 1 if $BSConfig::slsaprovenance && grep { $prp =~ /^$_/} @$BSConfig::slsaprovenance;
     if ($binfo->{'slsaprovenance'}) {
       if ($BSConfig::sourcepublish_downloadurl) {
 	$binfo->{'slsadownloadurl'} = "$BSConfig::sourcepublish_downloadurl/_slsa";
