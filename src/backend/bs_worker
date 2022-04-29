@@ -3482,6 +3482,7 @@ sub dobuild {
     $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
     $config = Build::combine_configs($config, "Macros:\n$buildinfo->{'modularity_macros'}") if $buildinfo->{'modularity_macros'};
   }
+  $buildinfo->{'slsa_provenance_config'} = $config if $buildinfo->{'slsaprovenance'};
   $buildinfo->{'outbuildinfo'}->{'config'} = $config;
   writestr("$buildroot/.build.config", undef, $config);
   add_slsa_materials_config($buildinfo, "$projid/$repoid", $config);
@@ -4454,10 +4455,11 @@ if ($ex == 0) {
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
   @send = grep {$_->{'name'} ne '_generated_buildreqs'} @send;
 
-  @send = grep {$_->{'name'} !~ /slsa_provenance.json$/} @send;
+  @send = grep {$_->{'name'} !~ /slsa_provenance.(?:json|config)$/} @send;
   if ($buildinfo->{'slsaprovenance'}) {
     my $slsa_provenance = generate_slsa_provenance_statement($buildinfo, \@send);
     push @send, { 'name' => '_slsa_provenance.json', 'data' => $slsa_provenance };
+    push @send, { 'name' => '_slsa_provenance.config', 'data' => $buildinfo->{'slsa_provenance_config'}} if $buildinfo->{'slsa_provenance_config'};
   }
   
   if ($kiwitree) {
