@@ -32,6 +32,7 @@ use POSIX;
 use Data::Dumper;
 use Digest;
 use Digest::MD5 ();
+use Digest::SHA ();
 use XML::Structured ':bytes';
 use Build;
 use Storable;
@@ -493,16 +494,19 @@ sub signslaprovenance {
   my %todo;
   for my $material (@$materials) {
     die("bad material in provenance file?\n") unless ref($material) eq 'HASH';
-    die("bad material uri in provenance file?\n") unless $material->{'uri'};
-    next unless $material->{'uri'} =~ /\/_?slsa\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(?:[^\/]+)\/([^\/]+)\/([^\/]+)$/s;
+    my $uri = $material->{'uri'};
+    die("bad material uri in provenance file?\n") unless $uri;
+    $uri = BSHTTP::urldecode($uri);
+    # .../_slsa/<proj>/<repo>/<arch>/<filename>/<digest>
+    next unless $uri =~ /\/_?slsa\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)$/s;
     my $prpa = "$1/$2/$3";
     my $bin = $4;
     die("material with bad digest\n") unless ref($material->{'digest'}) eq 'HASH' && $material->{'digest'}->{'sha256'};
     $todo{$prpa}->{$material->{'digest'}->{'sha256'}} = $bin;
   }
-  if ($signfile eq '_slsa_provenance.json') {
+  if ($signfile =~ /\/_slsa_provenance.json$/) {
     # also send the config if we have one
-    my $buildinfo = readxml("$jobdir/_buildenv", 1) || {};
+    my $buildinfo = readxml("$jobdir/_buildenv", $BSXML::buildinfo, 1) || {};
     if ($buildinfo->{'config'}) {
       my $digest = Digest::SHA::sha256_hex($buildinfo->{'config'});
       $todo{'_config'}->{$digest} = $buildinfo->{'config'};
