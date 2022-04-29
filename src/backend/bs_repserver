@@ -2345,7 +2345,7 @@ sub putjob {
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
     if ($file->{'name'} !~ /\.(?:$binsufsre)$/) {
-      if ($file->{'name'} =~ /^.*[-.]appdata.xml$/ || $file->{'name'} eq '_modulemd.yaml') {
+      if ($file->{'name'} =~ /^.*[-.]appdata.xml$/ || $file->{'name'} eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/) {
 	# used in product building, store md5sum
 	local *F;
 	open(F, '<', "$dir/$file->{'name'}");
