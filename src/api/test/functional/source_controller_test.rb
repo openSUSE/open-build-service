@@ -2687,6 +2687,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     doc.root.attributes['name'] = 'home:Iggy:TEST'
     put '/source/home:Iggy:TEST/_meta', params: doc.to_s
     assert_response :success
+
+    # limit source via attribute, none allowed
+    post '/source/home:Iggy:TEST/_attribute', params: "
+        <attributes><attribute namespace='OBS' name='LimitReleaseSourceProject'>
+        </attribute></attributes>"
+    assert_response :success
+    post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'outside_limit_release_source_project' }
+    post '/source/home:Iggy:TEST/_attribute', params: "
+        <attributes><attribute namespace='OBS' name='LimitReleaseSourceProject'>
+          <value>home:Iggy</value>
+        </attribute></attributes>"
+    assert_response :success
+
     # but now it works for real
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2'
     assert_response :success
