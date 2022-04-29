@@ -162,6 +162,16 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         repo.check_valid_release_target!(rt.target_repository)
       end
     end
+
+    tprj = Project.get_by_name(target_project)
+    # validate possible source limitations
+    attrib = tprj.attribs.find_by(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'LimitReleaseSourceProject'))
+    if attrib.present?
+      unless attrib.values.pluck(:value).include?(source_project)
+        raise OutsideLimitReleaseSourceProject, "Source project is not listed in OBS:LimitReleaseSourceProject attribute"
+
+      end
+    end
   end
 
   # Delaying removal of published repositories for accepted maintenance release requests,
