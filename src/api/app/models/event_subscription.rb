@@ -57,7 +57,7 @@ class EventSubscription < ApplicationRecord
     end
   }
 
-  after_save :track_event_subscription_enabled, if: :saved_change_to_enabled?
+  after_save :track_event_subscription_saved
 
   def self.receiver_roles_to_display(user)
     roles = RECEIVER_ROLE_TEXTS.keys
@@ -103,9 +103,9 @@ class EventSubscription < ApplicationRecord
     channels.keys.reject { |channel| channel == 'disabled' || channel.in?(INTERNAL_ONLY_CHANNELS) }
   end
 
-  def track_event_subscription_enabled
+  def track_event_subscription_saved
     RabbitmqBus.send_to_bus('metrics',
-                            "event_subscription.enabled,event_type=#{eventtype},channel=#{channel} value=1")
+                            "event_subscription.event,event_type=#{eventtype},receiver_role=#{receiver_role},enabled=#{enabled},user=#{user},channel=#{channel} value=1")
   end
 end
 
