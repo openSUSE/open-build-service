@@ -2340,44 +2340,45 @@ sub putjob {
 
   # calculate binary info to speed up scheduler
   for my $file (@$uploaded) {
-    my @s = stat("$dir/$file->{'name'}");
+    my $filename = $file->{'name'};
+    my @s = stat("$dir/$filename");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
-    if ($file->{'name'} !~ /\.(?:$binsufsre)$/) {
-      if ($file->{'name'} =~ /^.*[-.]appdata.xml$/ || $file->{'name'} eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/) {
+    if ($filename !~ /\.(?:$binsufsre)$/) {
+      if ($filename =~ /^.*[-.]appdata.xml$/ || $filename eq '_modulemd.yaml' || $filename =~ /slsa_provenance\.json$/) {
 	# used in product building, store md5sum
 	local *F;
-	open(F, '<', "$dir/$file->{'name'}");
+	open(F, '<', "$dir/$filename");
 	@s = stat(F);
 	next unless @s;
 	$id = "$s[9]/$s[7]/$s[1]";
 	my $ctx = Digest::MD5->new;
 	$ctx->addfile(*F);
 	close F;
-	$data = {'md5sum' => $ctx->hexdigest(), 'filename' => $file->{'name'}, 'id' => $id };
+	$data = {'md5sum' => $ctx->hexdigest(), 'filename' => $filename, 'id' => $id };
 	$bininfo->{$file->{'name'}} = $data;
       }
       next;
     }
     eval {
       my $leadsigmd5;
-      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file->{'name'}", \$leadsigmd5);
-      $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
+      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$filename", \$leadsigmd5);
+      $data = Build::query("$dir/$filename", 'evra' => 1);
       die("query failed\n") unless $data;
       BSVerify::verify_nevraquery($data);
       $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
     };
-    $data->{'filename'} = $file->{'name'};
+    $data->{'filename'} = $filename;
     $data->{'id'} = $id;
     if ($@) {
-      BSUtil::appendstr("$dir/logfile", "$file->{'name'}: $@");
-      unlink("$dir/$file->{'name'}");
-      $uploaded = [ grep {$_->{'name'} ne $file->{'name'}} @$uploaded ];
+      BSUtil::appendstr("$dir/logfile", "$filename: $@");
+      unlink("$dir/$filename");
+      $uploaded = [ grep {$_->{'name'} ne $filename} @$uploaded ];
       $jobstatus->{'result'} = 'failed';
       next;
     }
-    $bininfo->{$file->{'name'}} = $data;
+    $bininfo->{$filename} = $data;
   }
   $bininfo->{'.bininfo'} = {};
   BSUtil::store("$dir/.bininfo", undef, $bininfo);
