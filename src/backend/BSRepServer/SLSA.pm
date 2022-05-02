@@ -165,4 +165,31 @@ sub set_references {
   BSSQLite::commit($h);
 }
 
+sub get_references {
+  my ($prpa, $digest) = @_;
+  die("404: unknown file in $prpa digest $digest\n") unless -e "$slsadir/$prpa/$digest";
+  my $h = connectdb($prpa);
+  BSSQLite::begin_work($h);
+  my $dig = pack("H*", $digest);
+  my $sh = BSSQLite::dbdo_bind($h, 'SELECT prpa FROM refs WHERE digest = ?', [ $dig, SQL_BLOB ]);
+  my ($refprpa);
+  $sh->bind_columns(\$refprpa);
+  my @refs;
+  push @refs, $refprpa while $sh->fetch();
+  die($sh->errstr) if $sh->err();
+  BSSQLite::commit($h);
+  return @refs;
+}
+
+sub openfile {
+  my ($prpa, $digest, $filename) = @_;
+  my $fd;
+  if ($filename =~ /slsa_provenance\.json$/) {
+    open($fd, '<', "$slsadir/$prpa/$digest.prov") || die("404: unknown provenance file $prpa/$filename for digest $digest\n");
+  } else {
+    open($fd, '<', "$slsadir/$prpa/$digest") || die("404: unknown file $prpa/$filename with digest $digest\n");
+  }
+  return $fd;
+}
+
 1;

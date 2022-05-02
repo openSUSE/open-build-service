@@ -7332,6 +7332,24 @@ sub slsa_addrefs {
   return $BSStdServer::return_ok;
 }
 
+sub slsa_getfile {
+  my ($cgi, $projid, $repoid, $arch, $filename, $digest) = @_;
+  my $proj = BSRevision::readproj_local($projid, 1);
+  $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  if ($proj->{'remoteurl'}) {
+    die("404 no remote slsa references\n");
+  }
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my @args = BSRPC::args($cgi, 'view');
+  my $param = {
+    'uri' => "$reposerver/slsa/$projid/$repoid/$arch/$filename/$digest",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef, @args);
+  return undef;
+}
+
 ####################################################################
 
 sub run {
@@ -7547,6 +7565,7 @@ my $dispatches = [
 
   # slsa
   'POST:/slsa cmd=addrefs $prpa' => \&slsa_addrefs,
+  '/slsa/$project/$repsitory/$arch/$filename/$digest: view:?' => \&slsa_getfile,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
