@@ -1906,6 +1906,7 @@ sub getbinaries_kiwiproduct {
 	next unless $rpm =~ /(.*)\.rpm$/;
 	next if $rpm =~ /\/::import::/;
 	next if $provenance{"$1.slsa_provenance.json"};
+	unlink("$ddir/$1.slsa_provenance.json");
 	link("$ddir/_slsa_provenance/_slsa_provenance.json", "$ddir/$1.slsa_provenance.json") || die("link $ddir/_slsa_provenance/_slsa_provenance.json $ddir/$1.slsa_provenance.json: $!\n");
 	$kiwiorigins->{"obs://$prp/$1.slsa_provenance.json"} = $prpap;
       }
