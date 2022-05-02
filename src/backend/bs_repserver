@@ -4279,6 +4279,39 @@ sub slsa_addrefs {
   return $BSStdServer::return_ok;
 }
 
+sub slsa_getfile {
+  my ($cgi, $projid, $repoid, $arch, $filename, $digest) = @_;
+  my $view = $cgi->{'view'} || '';
+  die("bad digest '$digest'\n") unless $digest =~ /^[0-9a-f]{64}$/;
+  my $prpa = "$projid/$repoid/$arch";
+  if ($view eq 'refs') {
+    my @refs = BSRepServer::SLSA::get_references($prpa, $digest);
+    for my $ref (@refs) {
+      my ($refprojid, $refrepoid, $refarch) = split('/', $ref);
+      $ref = {
+	'project' => $refprojid,
+	'repository' => $refrepoid,
+	'arch' => $refarch,
+      };
+    }
+    my $fileinfo = {
+      'filename' => $filename,
+      'provides_ext' => [ {
+	'dep' => $digest,
+	'requiredby' => \@refs,
+      } ],
+    };
+    return ($fileinfo, $BSXML::fileinfo);
+  }
+  die("unknown view '$view'\n") if $view;
+  my $fd = BSRepServer::SLSA::openfile($prpa, $digest, $filename);
+  my $type = 'application/octet-stream';
+  $type = 'application/x-rpm' if $filename =~ /\.rpm$/;
+  $type = 'application/x-debian-package' if $filename =~ /\.deb$/;
+  BSServer::reply_file($fd, "Content-Type: $type");
+  return undef;
+}
+
 sub hello {
   my ($cgi) = @_;
   my $part = "";
@@ -4375,6 +4408,7 @@ my $dispatches = [
 
   # slsa
   'POST:/slsa cmd=addrefs $prpa' => \&slsa_addrefs,
+  '/slsa/$project/$repository/$arch/$filename/$digest: view:?' => \&slsa_getfile,
 
   # configuration
   'PUT:/configuration' => \&putconfiguration,
