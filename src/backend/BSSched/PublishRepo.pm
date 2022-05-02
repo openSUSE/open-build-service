@@ -54,6 +54,8 @@ use BSSched::EventSource::Directory;  # sendpublishevent
 use BSSched::Blobstore;
 
 my $default_publishfilter;
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 
 =head1 NAME
@@ -204,7 +206,8 @@ sub prpfinished {
     next if $all{'.preinstallimage'};
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = $all{'.nosourceaccess'};
-    @all = grep {$_ ne '_ccache.tar' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    @all = grep {$_ ne '_ccache.tar' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne '_slsa_provenance.json' && $_ ne '_slsa_provenance.config' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    @all = grep {!/slsa_provenance\.json$/} @all;
     my $taken;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
@@ -235,6 +238,21 @@ sub prpfinished {
       }
       $origin{$rbin} = $packid;
 
+      # find out if we have a corresponding provenance file
+      my $provenance;
+      my $rprovenance;
+      if ($bin =~ /^(.*)\.(?:$binsufsre)$/) {
+        $provenance = "$pdir/$1.slsa_provenance.json" if $all{"$1.slsa_provenance.json"};
+        $provenance = "$pdir/_slsa_provenance.json" if !$provenance && $all{'_slsa_provenance.json'};
+	if ($provenance) {
+	  if ($rbin =~ /^(.*)\.(?:$binsufsre)$/) {
+            $rprovenance = "$1.slsa_provenance.json";
+	  } else {
+            $rprovenance = "$rbin.slsa_provenance.json";
+	  }
+	}
+      }
+
       # link from package dir (pdir) to repo dir (rdir)
       my @sr = lstat("$rdir/$rbin");
       if (@sr) {
@@ -249,6 +267,7 @@ sub prpfinished {
               $changed = 1 if publishdelta($ctx, $delta, $bin, $rdir, $rbin, \%origin, $packid);
             }
           }
+          $changed = 1 if $provenance && publishprovenance($ctx, $provenance, $rdir, $rprovenance, \%origin, $packid);
           next;
         }
         if ($risdir && $pisdir) {
@@ -278,6 +297,7 @@ sub prpfinished {
             publishdelta($ctx, $delta, $bin, $rdir, $rbin, \%origin, $packid);
           }
         }
+        publishprovenance($ctx, $provenance, $rdir, $rprovenance, \%origin, $packid) if $provenance;
       }
       $changed = 1;
     }
@@ -593,6 +613,21 @@ sub publishdelta {
   }
   $origin->{"${rbin}::$deltaname"} = $packid;
   $origin->{"${rbin}::$deltaseqname"} = $packid;
+  return $changed;
+}
+
+sub publishprovenance {
+  my ($ctx, $provenance, $rdir, $rprovenance, $origin, $packid) = @_;
+  my @s = stat($provenance);
+  my @sr = stat("$rdir/$rprovenance");
+  my $changed;
+  if (!@sr || "$s[9]/$s[7]/$s[1]" ne "$sr[9]/$sr[7]/$sr[1]") {
+    print @sr ? "      ! :repo/$rprovenance$\n" : "      + :repo/$rprovenance\n";
+    unlink("$rdir/$rprovenance");
+    link($provenance, "$rdir/$rprovenance") || die("link $provenance $rdir/$rprovenance: $!");
+    $changed = 1;
+  }
+  $origin->{$rprovenance} = $packid;
   return $changed;
 }
 
