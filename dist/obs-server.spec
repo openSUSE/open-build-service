@@ -225,6 +225,8 @@ Requires:       user(obsservicerun)
 Requires:       zstd
 # needed for optional sqlite databases, which are default for new installations
 Requires:     perl-DBD-SQLite
+# psmisc for obsscheduler script
+Requires:       psmisc
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9
