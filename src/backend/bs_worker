@@ -1685,12 +1685,13 @@ sub getbinaries_kiwiproduct {
     }
     my @done;
     my @todo;
+    my %provenance;
 
     # try the cache first
     if ($bvl) {
       for my $bv (@{$bvl->{'binary'} || []}) {
 	my $bin = $bv->{'name'};
-	if ($bin =~ /appdata\.xml$/ || $bin eq '_modulemd.yaml') {
+	if ($bin =~ /appdata\.xml$/ || $bin eq '_modulemd.yaml' || $bin =~ /slsa_provenance.json$/) {
 	  push @todo, $bv;	# currently not in cache
 	  $downloadsizek += $bv->{'sizek'};
 	  next;
@@ -1711,6 +1712,7 @@ sub getbinaries_kiwiproduct {
 	    push @done, "$rarch/$bin";
 	    push @cacheold, [$cacheid, $s[7]];
 	    $knownmd5{"$rarch/$bin"} = $id;
+	    $provenance{"$rarch/$bin"} = 1;
 	  } else {
 	    unlink "$ddir/$rarch/$bin.new.rpm";
 	    push @todo, $bv;
@@ -1750,8 +1752,12 @@ sub getbinaries_kiwiproduct {
 	    my $rarch;
 	    if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	      $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	    } elsif ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.slsa_provenance\.json$/) {
+	      $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	    } elsif ($name eq '_modulemd.yaml') {
 	      $rarch = 'modulemd';
+	    } elsif ($name eq '_slsa_provenance.json') {
+	      $rarch = '_slsa_provenance';
 	    } elsif ($name =~ /appdata\.xml$/) {
 	      $rarch = 'appdata'; 
 	    }
@@ -1768,10 +1774,14 @@ sub getbinaries_kiwiproduct {
 	  my $bin = $bv->{'name'};
 	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	    unlink("$ddir/$1/$bin.new.rpm");
+	  } elsif ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.slsa_provenance\.json$/) {
+	    unlink("$ddir/$1/$bin.new.rpm");
 	  } elsif ($bin =~ /appdata\.xml$/) {
 	    unlink("$ddir/appdata/$bin.new.rpm");
 	  } elsif ($bin eq '_modulemd.yaml') {
 	    unlink("$ddir/modulemd/$bin.new.rpm");
+	  } elsif ($bin eq '_slsa_provenance.json') {
+	    unlink("$ddir/_slsa_provenance/$bin.new.rpm");
 	  }
 	}
       }
@@ -1780,10 +1790,14 @@ sub getbinaries_kiwiproduct {
 	my $rarch;
 	if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	} elsif ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.slsa_provenance\.json$/) {
+	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	} elsif ($bin =~ /appdata\.xml$/) {
 	  $rarch = 'appdata'; 
 	} elsif ($bin eq '_modulemd.yaml') {
 	  $rarch = 'modulemd'; 
+	} elsif ($bin eq '_slsa_provenance.json') {
+	  $rarch = '_slsa_provenance';
 	}
 	next unless $rarch;
 	my @s = stat("$ddir/$rarch/$bin.new.rpm");
@@ -1796,6 +1810,7 @@ sub getbinaries_kiwiproduct {
 	    rename("$ddir/$rarch/$bin.new.rpm", "$ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm") || die("rename $ddir/$rarch/$bin.new.rpm $ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm: $!\n");
 	    $bin = "$packid.$arch.modulemd.yaml";
 	  }
+	  $provenance{"$rarch/$bin"} = 1 if $bin eq '_slsa_provenance.json' || $bin =~ /\.slsa_provenance\.json$/;
 	  push @done, "$rarch/$bin";
 	  next;
 	}
@@ -1806,6 +1821,7 @@ sub getbinaries_kiwiproduct {
 	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", "$bv->{'hdrmd5'}$rpmhdrs_only");
 	  $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
 	  $knownmd5{"$rarch/$bin"} = $id;
+	  $provenance{"$rarch/$bin"} = 1;
 	} else {
 	  unlink "$ddir/$rarch/$bin.new.rpm";
 	  push @todo, $bv;
@@ -1829,6 +1845,7 @@ sub getbinaries_kiwiproduct {
 	delete $cachenew{"$ddir/$_"};
       }
 
+      %provenance = ();
       my @args;
       push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
       push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
@@ -1841,8 +1858,15 @@ sub getbinaries_kiwiproduct {
 	  my $rarch;
 	  if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	    $provenance{"$rarch/$name"} = 1 if $rarch;
+	  } elsif ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.slsa_provenance\.json$/) {
+	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	    $provenance{"$rarch/$name"} = 1 if $rarch;
 	  } elsif ($name =~ /appdata\.xml$/) {
 	    $rarch = 'appdata';
+	  } elsif ($name eq '_slsa_provenance.json') {
+	    $rarch = '_slsa_provenance';
+	    $provenance{"$rarch/$name"} = 1;
 	  } elsif ($name eq '_modulemd.yaml') {
 	    $rarch = 'modulemd';
 	    $name = "$packid.$arch.modulemd.yaml";
@@ -1858,6 +1882,8 @@ sub getbinaries_kiwiproduct {
       }, undef, @args);
       die unless $res;
       @done = map {$_->{'name'}} @$res;
+
+      # put into our cache
       if ($cachedir) {
 	for my $f (@done) {
 	  my @s = stat("$ddir/$f");
@@ -1872,6 +1898,20 @@ sub getbinaries_kiwiproduct {
       }
       # the bvl entry seems to be wrong. tell our server about that.
       sendbadpackagebinaryversionlist($server, $projid, $repoid, $arch, $packid) if $bvl && $server ne $buildinfo->{'srcserver'};
+    }
+
+    # spread provenance to rpms
+    if ($provenance{'_slsa_provenance/_slsa_provenance.json'}) {
+      for my $rpm (sort keys %provenance) {
+	next unless $rpm =~ /(.*)\.rpm$/;
+	next if $rpm =~ /\/::import::/;
+	next if $provenance{"$1.slsa_provenance.json"};
+	link("$ddir/_slsa_provenance/_slsa_provenance.json", "$ddir/$1.slsa_provenance.json") || die("link $ddir/_slsa_provenance/_slsa_provenance.json $ddir/$1.slsa_provenance.json: $!\n");
+	$kiwiorigins->{"obs://$prp/$1.slsa_provenance.json"} = $prpap;
+      }
+      unlink("$ddir/_slsa_provenance/_slsa_provenance.json");
+      rmdir("$ddir/_slsa_provenance");
+      delete $kiwiorigins->{"obs://$prp/_slsa_provenance/_slsa_provenance.json"};
     }
 
     # add all entries to meta hash
