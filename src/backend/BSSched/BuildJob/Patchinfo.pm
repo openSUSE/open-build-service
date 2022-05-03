@@ -26,6 +26,9 @@ use BSXML;
 use Build;			# for query
 use BSVerify;			# for verify_nevraquery
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 =head1 NAME
 
 BSSched::BuildJob::Patchinfo - A Class to handle Patchinfo builds
@@ -401,6 +404,18 @@ sub build_ptf_job {
   return BSSched::BuildJob::create($ctx, $packid, $pdata_job, $info_job, [], [], $reason, 0);
 }
 
+sub genbininfo {
+  my ($dir, $filename) = @_;
+  my $fd;
+  open($fd, '<', "$dir/$filename") || die("$dir/$filename: $!\n");
+  my @s = stat($fd);
+  die unless @s;
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile($fd);
+  close $fd;
+  return { 'md5sum' => $ctx->hexdigest(), 'filename' => $filename, 'id' => "$s[9]/$s[7]/$s[1]" };
+}
+
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
@@ -566,6 +581,7 @@ sub build {
           my $error = "link $from/$d->{'name'}-appdata.xml $jobdatadir/$d->{'name'}-appdata.xml: $!\n";
           return ('broken', $error);
         }
+	$bininfo->{"$d->{'name'}-appdata.xml"} = genbininfo($jobdatadir, "$d->{'name'}-appdata.xml");
       }
       if ($d->{'arch'} ne 'src' && $d->{'arch'} ne 'nosrc' && -e "$from/$d->{'name'}.appdata.xml") {
         unlink("$jobdatadir/$d->{'name'}.appdata.xml");
@@ -573,6 +589,18 @@ sub build {
           my $error = "link $from/$d->{'name'}.appdata.xml $jobdatadir/$d->{'name'}.appdata.xml: $!\n";
           return ('broken', $error);
         }
+	$bininfo->{"$d->{'name'}.appdata.xml"} = genbininfo($jobdatadir, "$d->{'name'}.appdata.xml");
+      }
+      if ($bin =~ /(.*)\.(:?$binsufsre)$/) {
+	my $tprovenance = "$1.slsa_provenance.json";
+	my $provenance;
+	$provenance = "$from/$1.slsa_provenance.json" if -e "$from/$1.slsa_provenance.json";
+	$provenance = "$from/_slsa_provenance.json" if !$provenance && $bin !~ /^::import::/ && -e "$from/_slsa_provenance.json";
+	if ($provenance) {
+	  unlink("$jobdatadir/$tprovenance");
+	  link($provenance, "$jobdatadir/$tprovenance") || die("link $provenance $jobdatadir/$tprovenance: $!\n");
+	  $bininfo->{$tprovenance} =  genbininfo($jobdatadir, $tprovenance);
+	}
       }
       $donebins{$bin} = $tocopy;
       $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};

@@ -24,6 +24,9 @@ use BSUtil;
 use BSSched::BuildJob;
 use BSSched::BuildResult;
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 =head1 NAME
 
 BSSched::BuildJob::Channel - A Class to handle Channel builds
@@ -289,6 +292,18 @@ sub check {
 
 =cut
 
+sub genbininfo {
+  my ($dir, $filename) = @_;
+  my $fd;
+  open($fd, '<', "$dir/$filename") || die("$dir/$filename: $!\n");
+  my @s = stat($fd);
+  die unless @s;
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile($fd);
+  close $fd;
+  return { 'md5sum' => $ctx->hexdigest(), 'filename' => $filename, 'id' => "$s[9]/$s[7]/$s[1]" };
+}
+
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
   my $new_meta = $data->[0];
@@ -327,10 +342,24 @@ sub build {
     if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}-appdata.xml") {
       unlink("$jobdatadir/$bi->{'name'}-appdata.xml");
       link("$dir/$bi->{'name'}-appdata.xml", "$jobdatadir/$bi->{'name'}-appdata.xml") || die("link $bi->{'name'}-appdata.xml $jobdatadir/$bi->{'name'}-appdata.xml: $!\n");
+      $bininfo->{"$bi->{'name'}-appdata.xml"} = genbininfo($jobdatadir, "$bi->{'name'}-appdata.xml");
     }
     if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}.appdata.xml") {
       unlink("$jobdatadir/$bi->{'name'}.appdata.xml");
       link("$dir/$bi->{'name'}.appdata.xml", "$jobdatadir/$bi->{'name'}.appdata.xml") || die("link $bi->{'name'}.appdata.xml $jobdatadir/$bi->{'name'}.appdata.xml: $!\n");
+      $bininfo->{"$bi->{'name'}.appdata.xml"} = genbininfo($jobdatadir, "$bi->{'name'}.appdata.xml");
+    }
+    if ($bi->{'filename'} =~ /(.*)\.(:?$binsufsre)$/) {
+      my $tprovenance = "$1.slsa_provenance.json";
+      my $provenance;
+      $provenance = "$dir/$1.slsa_provenance.json" if -e "$dir/$1.slsa_provenance.json";
+      $provenance = "$dir/_slsa_provenance.json" if !$provenance && $bi->{'filename'} !~ /^::import::/ && -e "$dir/_slsa_provenance.json";
+      if ($provenance) {
+	$tprovenance =~ s/^::import::.*?:://;
+	unlink("$jobdatadir/$tprovenance");
+	link($provenance, "$jobdatadir/$tprovenance") || die("link $provenance $jobdatadir/$tprovenance: $!\n");
+	$bininfo->{$tprovenance} =  genbininfo($jobdatadir, $tprovenance);
+      }
     }
     if (!$checksums_seen{"$arepoid/$apackid"}) {
       $checksums_seen{"$arepoid/$apackid"} = 1;
