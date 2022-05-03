@@ -526,6 +526,16 @@ sub signslaprovenance {
   $jobstatus->{'result'} = 'rebuild' if $@ && $@ =~ /^404/;	# rebuild if a binary is missing
   die($@) if $@;
 
+  # fixup digests in subject list
+  for my $subject (@{$provenance->{'subject'} || []}) {
+    next unless $subject->{'digest'} && $subject->{'name'} =~ /\.rpm$/;
+    next unless -e "$jobdir/$subject->{'name'}";
+    my $newdigest = sha256file("$jobdir/$subject->{'name'}");
+    next if $subject->{'digest'}->{'sha256'} eq $newdigest;
+    $subject->{'digest'}->{'sha256'} = $newdigest;
+    $alreadysigned = 0;		# need to rewrite file
+  }
+
   # now sign the provenance statement
   if (!$alreadysigned) {
     # hack: prepend _ to payloadType so it comes first
@@ -542,6 +552,16 @@ sub signslaprovenance {
   }
 }
 
+sub sha256file {
+  my ($file) = @_;
+  my $fd;
+  open($fd, '<', $file) || die("$file: $!\n");
+  my $ctx = Digest->new('SHA-256');
+  $ctx->addfile($fd);
+  close $fd;
+  return $ctx->hexdigest();
+}
+
 sub fixup_sha256_checksum {
   my ($jobdir, $shafile, $isofile) = @_;
   return if ((-s "$jobdir/$shafile") || 0) > 65536;
@@ -555,12 +575,9 @@ sub fixup_sha256_checksum {
     $sha =~ s/.*?\n\n//s;
     $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
   }
-  local *F;
-  open(F, '<', "$jobdir/$isofile") || return;
-  my $ctx = Digest->new('SHA-256');
-  $ctx->addfile(\*F);
-  close F;
-  $sha =~ s/^.{64}(  (?:.*\/)?\Q$isofile\E)$/$ctx->hexdigest().$1/em;
+  return unless -e "$jobdir/$isofile";
+  my $newdigest = sha256file("$jobdir/$isofile");
+  $sha =~ s/^.{64}(  (?:.*\/)?\Q$isofile\E)$/$newdigest$1/m;
   writestr("$jobdir/$shafile", undef, $sha);
 }
 
@@ -736,6 +753,12 @@ sub signjob {
     }
 
     push @signargs, '-S', "$jobdir/.checksums" if !$followupfile && $sign_supports_S;
+
+    if (grep {$_ eq '_slsa_provenance.json'} @signfiles) {
+      # do this last as we need to update the digests in the subject list
+      @signfiles = grep {$_ ne '_slsa_provenance.json'} @signfiles;
+      push @signfiles, '_slsa_provenance.json';
+    }
 
     eval {
       for my $signfile (@signfiles) {
