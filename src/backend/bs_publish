@@ -2326,6 +2326,29 @@ sub publish {
 	  }
 	}
       }
+
+      if ($rbin =~ /(.*)\.(?:$binsufsre)$/) {
+	# we took a binary. also take provenance if we have it
+	my $rprovenance = "$1.slsa_provenance.json";
+	my $provenance = $p;
+	if ($provenance =~ s/\.(?:$binsufsre)$/.slsa_provenance.json/) {
+	  if (-e "$r/$rprovenance") {
+	    my @s = stat(_);
+	    $bins{$provenance} = "$r/$rprovenance";
+	    $bins_id{$provenance} = "$s[9]/$s[7]/$s[1]";
+	    $binaryorigins->{$provenance} = $repoinfo->{'binaryorigins'}->{$rbin};
+	    $kiwimedium{$provenance} = $kiwimedium if $kiwimedium;
+	    $containers{$provenance} = $containerinfo if $containerinfo;
+	  } else {
+	    delete $bins{$provenance};
+	    delete $bins_id{$provenance};
+	    delete $binaryorigins->{$provenance};
+	    delete $kiwimedium{$provenance};
+	    delete $containers{$provenance};
+	  }
+	}
+      }
+
     }
   }
 
