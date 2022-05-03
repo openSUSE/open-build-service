@@ -2058,6 +2058,7 @@ sub getpreinstallimage {
   my ($buildinfo, $dir, $todo, $bvls) = @_;
 
   return undef unless $Build::Features::preinstallimage;
+  return undef if $buildinfo->{'slsaprovenance'};	# for now
   # get all bvls to calculate image data
   my @bins = @$todo;
   my %prpas;	# server -> prpas on this server
