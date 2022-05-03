@@ -111,7 +111,7 @@ RSpec.describe SCMStatusReporter, type: :service do
           target_url: 'https://unconfigured.openbuildservice.org/package/show/home:danidoni/hello_world'
         }
       end
-      let(:octokit_client) { instance_spy('Octokit::Client', create_status: true) }
+      let(:octokit_client) { instance_spy(Octokit::Client, create_status: true) }
 
       subject { scm_status_reporter.call }
 

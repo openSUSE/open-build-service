@@ -38,7 +38,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
   end
 
   RSpec.shared_context 'failed without branch permissions' do
-    let(:branch_package_mock) { instance_double('BranchPackage') }
+    let(:branch_package_mock) { instance_double(BranchPackage) }
     before do
       allow(BranchPackage).to receive(:new).and_return(branch_package_mock)
       allow(branch_package_mock).to receive(:branch).and_raise(CreateProjectNoPermission)

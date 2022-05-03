@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe WorkflowRunFilterComponent, type: :component do
   let(:token) { create(:workflow_token) }
   let(:stub_finder) do
-    instance_double('WorkflowRunsFinder',
+    instance_double(WorkflowRunsFinder,
                     succeeded: [:workflow_run],
                     running: [:workflow_run, :workflow_run],
                     failed: [:workflow_run, :workflow_run, :workflow_run],
