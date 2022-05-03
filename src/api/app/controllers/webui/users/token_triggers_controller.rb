@@ -1,5 +1,4 @@
 class Webui::Users::TokenTriggersController < Webui::WebuiController
-  include Pundit
   include Triggerable
 
   before_action :set_token
