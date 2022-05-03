@@ -3306,6 +3306,8 @@ sub generate_slsa_provenance_statement {
       'materials' => $buildinfo->{'materials'} || [],
     },
   };
+  $stmt->{'predicate'}->{'invocation'}->{'parameters'}->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
+  $stmt->{'predicate'}->{'invocation'}->{'parameters'}->{'buildflavor'} = $buildinfo->{'buildflavor'} if defined $buildinfo->{'buildflavor'};
   require Build::SimpleJSON;
   return Build::SimpleJSON::unparse($stmt,  'template' => $slsa_json_template, 'keepspecial' => 1);
 }
@@ -3698,6 +3700,7 @@ sub dobuild {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needobspackage;
     push @args, "--buildflavor=$2";
+    $buildinfo->{'buildflavor'} = $2;
   } else {
     push @args, "--obspackage=$packid" if $needobspackage;
   }
