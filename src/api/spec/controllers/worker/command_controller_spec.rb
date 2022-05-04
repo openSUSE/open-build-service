@@ -24,7 +24,7 @@ RSpec.describe Worker::CommandController do
   let(:repository) { project.repositories.first }
 
   let(:backend_response) do
-    instance_double('Net::HTTPResponse', body: backend_body)
+    instance_double(Net::HTTPResponse, body: backend_body)
   end
 
   before do
