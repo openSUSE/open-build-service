@@ -28,7 +28,7 @@ use BSASN1;
 my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
 
-my $keyalgo = 'rsa@2048';
+my $keyalgo = 'rsa@4096';
 my $keyexpiry = 800;
 
 sub createkey {
