@@ -1,0 +1,21 @@
+#
+# Open Build Service 2.10.15
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+Bugfixes
+========
+
+* Frontend:
+  - Fix CVE-2022-22577: There is a possible XSS vulnerability in Rails / Action Pack. CSP headers
+    were only sent along with responses that Rails considered as "HTML" responses. This left API
+    requests without CSP headers, which could possibly expose users to XSS attacks.
+  - Fix CVE-2022-27777: There is a possible XSS vulnerability in Action View tag helpers. Passing
+    untrusted input as hash keys can lead to a possible XSS vulnerability.
