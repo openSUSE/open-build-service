@@ -4,7 +4,7 @@
 require 'api_error'
 
 class ApplicationController < ActionController::Base
-  include Pundit
+  include Pundit::Authorization
   protect_from_forgery
 
   include ActionController::ImplicitRender

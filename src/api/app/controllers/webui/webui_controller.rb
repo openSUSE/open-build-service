@@ -6,7 +6,7 @@ class Webui::WebuiController < ActionController::Base
 
   Rails.cache.set_domain if Rails.cache.respond_to?(:set_domain)
 
-  include Pundit
+  include Pundit::Authorization
   include FlipperFeature
   include Webui::RescueHandler
   include SetCurrentRequestDetails
