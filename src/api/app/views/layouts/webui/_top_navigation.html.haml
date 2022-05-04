@@ -9,19 +9,9 @@
           = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
             %i.fas.fa-bookmark
             %span.d-block Watchlist
-        - if feature_enabled?(:notifications_redesign)
-          .toggler.text-center.justify-content-center
-            = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
-              = render partial: 'layouts/webui/unread_notifications_counter'
-        - else # TODO: Remove `else` block when the notifications_redesign is rolled out
-          .toggler.text-center.justify-content-center
-            - tasks = User.session!.tasks
-            = link_to(my_tasks_path, class: 'nav-link text-light p-0 w-100', alt: 'Tasks') do
-              .tasks-counter
-                %i.fas.fa-tasks
-                - unless tasks.zero?
-                  %span.badge.badge-primary.align-text-top= tasks
-                %span.d-block Tasks
+        .toggler.text-center.justify-content-center
+          = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
+            = render partial: 'layouts/webui/unread_notifications_counter'
         .toggler.text-center.justify-content-center.nav-item.dropdown
           = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',
                     'data-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do

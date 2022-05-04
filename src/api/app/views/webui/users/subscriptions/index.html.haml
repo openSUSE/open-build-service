@@ -20,13 +20,12 @@
                     onchange: "$(this).data('params', 'groups[#{group_user.group.title}][email]=' + this.checked)"
                   = label_tag nil, 'email', class: 'custom-control-label', for: "groups_#{group_user.group.title}_email"
                   %i.fas.fa-spinner.invisible
-                - if feature_enabled?(:notifications_redesign)
-                  .custom-control.custom-control-inline.custom-checkbox.my-2
-                    = check_box_tag "groups[#{group_user.group.title}][web]", '1', group_user.web, class: 'custom-control-input',
-                      data: { url: update_my_subscriptions_path, method: :put, remote: true },
-                      onchange: "$(this).data('params', 'groups[#{group_user.group.title}][web]=' + this.checked)"
-                    = label_tag nil, 'web', class: 'custom-control-label', for: "groups_#{group_user.group.title}_web"
-                    %i.fas.fa-spinner.invisible
+                .custom-control.custom-control-inline.custom-checkbox.my-2
+                  = check_box_tag "groups[#{group_user.group.title}][web]", '1', group_user.web, class: 'custom-control-input',
+                    data: { url: update_my_subscriptions_path, method: :put, remote: true },
+                    onchange: "$(this).data('params', 'groups[#{group_user.group.title}][web]=' + this.checked)"
+                  = label_tag nil, 'web', class: 'custom-control-label', for: "groups_#{group_user.group.title}_web"
+                  %i.fas.fa-spinner.invisible
   .card-body
     %h4.card-title Events
     %p Choose events you want to get notified about and the corresponding channels.

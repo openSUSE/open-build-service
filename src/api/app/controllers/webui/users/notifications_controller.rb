@@ -4,7 +4,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth
   before_action :check_param_type, :check_param_project, only: :index
-  before_action :check_feature_toggle
 
   after_action :verify_policy_scoped
 
@@ -61,10 +60,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
     flash[:error] = 'Filter not valid.'
     redirect_to my_notifications_path
-  end
-
-  def check_feature_toggle
-    feature_enabled?(:notifications_redesign)
   end
 
   def show_more(notifications)
