@@ -40,7 +40,7 @@ if ($version !~ /^2\.[89]\./) {
   push @active_daemons, 'obs-clockwork.service', 'obs-delayedjob-queue-consistency_check.service', 'obs-delayedjob-queue-default.service', 'obs-delayedjob-queue-issuetracking.service', 'obs-delayedjob-queue-mailers.service', 'obs-delayedjob-queue-project_log_rotate.service', 'obs-delayedjob-queue-quick@0.service', 'obs-delayedjob-queue-quick@1.service', 'obs-delayedjob-queue-quick@2.service', 'obs-delayedjob-queue-releasetracking.service', 'obs-delayedjob-queue-staging.service', 'obs-sphinx.service';
   $tests += 12;
   my @out=`systemctl show --property=LoadError obs-delayedjob-queue-scm.service`;
-  if ($out[0] !~ /^LoadError=org.freedesktop.systemd1.NoSuchUnit/) {
+  if ($out[0] !~  /^LoadError=(org.freedesktop.systemd1.NoSuchUnit|org.freedesktop.DBus.Error.FileNotFound) /) {
     push @active_daemons, 'obs-delayedjob-queue-scm.service';
     $tests += 1;
   }
