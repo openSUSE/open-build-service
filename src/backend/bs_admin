@@ -584,6 +584,40 @@ sub shutdown_scheduler {
   write_event( '', undef, $arch, 'exitcomplete' );
 }
 
+sub check_scheduler_status {
+  my ($arch) = @_;
+  return 0 unless -e "$rundir/bs_sched.$arch.lock";
+  my $r = BSUtil::lockcheck('>>', "$rundir/bs_sched.$arch.lock");
+  warn("cannot determine status of scheduler architecture $arch\n") if $r < 0;
+  return $r;
+}
+
+sub shutdown_all_schedulers {
+  my ($waittime) = @_;
+  my @archs = grep {s/bs_sched\.([^\/]+?)\.lock/$1/} ls($rundir);
+  my @running;
+  for my $arch (@archs) {
+    my $r = check_scheduler_status($arch);
+    next unless $r == 0;
+    shutdown_scheduler($arch);
+    push @running, $arch;
+  }
+  if (!$waittime) {
+    print "initiated shutdown of schedulers: @running\n" if @running;
+    exit(0);
+  }
+  my $now = time();
+  while (@running && time() < $now + $waittime) {
+    sleep(1);
+    for my $arch (splice @running) {
+      my $r = check_scheduler_status($arch);
+      push @running, $arch if $r == 0;
+    }
+  }
+  print "schedulers still runninig: @running\n" if @running;
+  exit(@running ? 2 : 0);
+}
+
 sub rebuild_full_tree {
   my ($project, $repo, $arch) = @_;
   write_event($project, $repo, $arch, 'useforbuild');
@@ -791,6 +825,11 @@ while (@ARGV) {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
     shutdown_scheduler( $arch );
+  } elsif ($arg eq "--shutdown-all-schedulers") {
+    my $waittime = 0;
+    $waittime = shift @ARGV if @ARGV;
+    die("bad wait time: $waittime\n") if $waittime !~ /^[0-9]+$/;
+    shutdown_all_schedulers( $waittime );
   } elsif ( $arg eq "--check-project" ) {
     die("ERROR: need at least project and architecture as argument!\n") if @ARGV < 2;
     my $project = shift @ARGV;
