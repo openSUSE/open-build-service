@@ -52,18 +52,8 @@ case "$1" in
 		done
 	;;
 	stop)
-		if checkproc bs_sched; then
-			for i in $OBS_SCHEDULER_ARCHITECTURES; do
-			 	$obsdir/bs_admin --shutdown-scheduler "$i"
-			done
-			for i in `seq 600`; do
-				checkproc bs_sched || break
-			        sleep 1
-			done
-			if checkproc bs_sched ; then
-				killall bs_sched
-			fi
-		fi
+		$obsdir/bs_admin --shutdown-all-schedulers 600
+		test $? != 2 || pkill bs_sched 
 	;;
 	*)
 		echo "Usage: $0 {start|stop}"
