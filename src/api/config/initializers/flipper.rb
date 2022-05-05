@@ -1,5 +1,4 @@
 ENABLED_FEATURE_TOGGLES = [
-  { name: :notifications_redesign, description: 'Introducing notifications page' },
   { name: :trigger_workflow, description: 'Better SCM and CI integration with OBS workflows' },
   { name: :new_watchlist, description: 'New implementation of watchlist including projects, packages and requests' }
 ].freeze

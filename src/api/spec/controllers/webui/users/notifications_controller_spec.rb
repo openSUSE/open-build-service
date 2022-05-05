@@ -19,10 +19,6 @@ RSpec.describe Webui::Users::NotificationsController do
     end
   end
 
-  before do
-    Flipper[:notifications_redesign].enable
-  end
-
   describe 'GET #index' do
     let(:user_to_log_in) { user }
     let(:default_params) { { user_login: username } }
@@ -228,26 +224,6 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it 'sets the notification as not delivered' do
         expect(read_notification.reload.delivered).to be false
-      end
-    end
-  end
-
-  context 'with feature flag not enabled' do
-    before do
-      Flipper[:notifications_redesign].disable
-      login user_to_log_in
-    end
-
-    describe 'GET #index' do
-      let(:user_to_log_in) { user }
-      let(:default_params) { { user_login: username } }
-
-      subject! do
-        get :index, params: default_params
-      end
-
-      it 'returns not_found status' do
-        expect(response.status).to be 404
       end
     end
   end
