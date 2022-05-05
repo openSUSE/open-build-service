@@ -112,6 +112,9 @@ if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
 } elsif (@ARGV && $ARGV[0] eq '--restart') {
   $testmode = 'restart';
   shift @ARGV;
+} elsif (@ARGV && $ARGV[0] eq '--status') {
+  $testmode = 'status';
+  shift @ARGV;
 }
 
 my $_myarch = $ARGV[0] || 'i586';
@@ -345,7 +348,24 @@ sub critlogger {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
+
+if ($testmode && $testmode eq 'status') {
+  if (! -e "$_rundir/bs_sched.$_myarch.lock") {
+    print("Scheduler is not running for $_myarch.\n");
+    exit(1);
+  }
+  my $r = BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock");
+  if ($r < 0) {
+    print("Cannot determine status of scheduler for $_myarch.\n");
+    exit(2);
+  }
+  if ($r == 0) {
+    print("Scheduler is running for $_myarch.\n");
+    exit(0);
+  }
+  print("Scheduler is not running for $_myarch.\n");
+  exit(1);
+} elsif ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
   if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
     die("scheduler is not running for $_myarch.\n") if $testmode eq 'restart';
     print("scheduler is not running for $_myarch.\n");
