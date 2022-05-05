@@ -81,6 +81,6 @@
                                           bs_request: @bs_request,
                                           package: @package,
                                           project: @project)
-
+          = render partial: 'webui/shared/remove_item_from_watchlist_dialog'
         - else
           = render partial: 'layouts/webui/watchlist'
