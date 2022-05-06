@@ -1,0 +1,13 @@
+.modal.fade{ id: "#{modal_id}", tabindex: -1, role: 'dialog', aria: { labelledby: "#{modal_id}-label", hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title{ id: "#{modal_id}-label" }= modal_title
+      .modal-body
+        %p.confirmation-text= confirmation_text
+
+        = form_tag(action, method: method) do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Remove', class: 'btn btn-sm btn-danger px-4')
