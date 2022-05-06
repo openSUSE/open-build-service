@@ -68,8 +68,6 @@ class WorkerStatus
 
     architecture_name = daemon.attributes['arch'].value
 
-    daemon_architecture(architecture_name)
-
     ['high', 'next', 'med', 'low'].each do |key|
       s_key = squeue_key([key, architecture_name])
       add_squeue(s_key, queue.attributes[key].value)
@@ -82,10 +80,6 @@ class WorkerStatus
 
   def generic_key_generation(key_parts)
     key_parts.join('_')
-  end
-
-  def daemon_architecture(arch_name)
-    Architecture.unavailable.find_by(name: arch_name).try(:update, available: true)
   end
 
   def parse_worker_infos(wdata)

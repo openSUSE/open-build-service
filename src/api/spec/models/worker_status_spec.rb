@@ -113,15 +113,5 @@ RSpec.describe WorkerStatus do
     subject { WorkerStatus.new.save }
 
     it { expect { subject }.to change(StatusHistory, :count).from(0).to(23) }
-
-    context 'it change the Architecture to active' do
-      before do
-        Architecture.available.update(available: false)
-      end
-
-      it { expect(Architecture.available).to be_empty }
-      it { expect(Architecture.unavailable).not_to be_empty }
-      it { expect { subject }.to change { Architecture.available.count }.by(3) }
-    end
   end
 end
