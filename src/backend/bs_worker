@@ -3258,6 +3258,12 @@ my $slsa_json_template = {
   }
 };
 
+sub provenance_tojson {
+  my ($provenance) = @_;
+  require Build::SimpleJSON;
+  return Build::SimpleJSON::unparse($provenance,  'template' => $slsa_json_template, 'keepspecial' => 1);
+}
+
 sub generate_slsa_provenance_statement {
   my ($buildinfo, $send) = @_;
 
@@ -3308,8 +3314,7 @@ sub generate_slsa_provenance_statement {
   };
   $stmt->{'predicate'}->{'invocation'}->{'parameters'}->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
   $stmt->{'predicate'}->{'invocation'}->{'parameters'}->{'buildflavor'} = $buildinfo->{'buildflavor'} if defined $buildinfo->{'buildflavor'};
-  require Build::SimpleJSON;
-  return Build::SimpleJSON::unparse($stmt,  'template' => $slsa_json_template, 'keepspecial' => 1);
+  return provenance_tojson($stmt);
 }
 
 sub add_slsa_materials_sourcefile {
