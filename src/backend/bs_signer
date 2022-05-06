@@ -471,6 +471,40 @@ sub dsse_pae {
   return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload))."$payload";
 }
 
+
+my $slsa_json_template = {
+  '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
+  'subject' => {
+    '_order' => [ 'name', 'digest' ],
+  },
+  'predicate' => {
+    '_order' => [ 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    'invocation' => {
+      '_order' => [ 'configSource', 'parameters', 'environment' ],
+      'configSource' => {
+	'_order' => [ 'uri', 'digest', 'entryPoint' ],
+      }
+    },
+    'metadata' => {
+      '_order' => [ 'buildInvocationId', 'buildStartedOn', 'buildFinishedOn', 'completeness', 'reproducible' ],
+      'completeness' => {
+	'_order' => [ 'parameters', 'environment', 'materials' ],
+	'*' => 'bool',
+      },
+      'reproducible' => 'bool',
+    },
+    'materials' => {
+      '_order' => ['uri', 'digest' ],
+    }
+  }
+};
+
+sub provenance_tojson {
+  my ($provenance) = @_;
+  require Build::SimpleJSON;
+  return Build::SimpleJSON::unparse($provenance,  'template' => $slsa_json_template, 'keepspecial' => 1);
+}
+
 sub signslaprovenance {
   my ($jobstatus, $signfile, $jobdir, $refprpa, @signargs) = @_;
   # for now just do reposerver communication
@@ -527,13 +561,18 @@ sub signslaprovenance {
   die($@) if $@;
 
   # fixup digests in subject list
+  my $patched;
   for my $subject (@{$provenance->{'subject'} || []}) {
     next unless $subject->{'digest'} && $subject->{'name'} =~ /\.rpm$/;
     next unless -e "$jobdir/$subject->{'name'}";
     my $newdigest = sha256file("$jobdir/$subject->{'name'}");
     next if $subject->{'digest'}->{'sha256'} eq $newdigest;
     $subject->{'digest'}->{'sha256'} = $newdigest;
-    $alreadysigned = 0;		# need to rewrite file
+    $patched = 1;		# need to rewrite file
+  }
+  if ($patched) {
+    $provenance_json = provenance_tojson($provenance);
+    $alreadysigned = 0;		# no longer signed
   }
 
   # now sign the provenance statement
