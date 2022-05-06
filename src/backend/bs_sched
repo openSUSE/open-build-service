@@ -349,47 +349,53 @@ sub critlogger {
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 
-if ($testmode && $testmode eq 'status') {
-  if (! -e "$_rundir/bs_sched.$_myarch.lock") {
+if ($testmode) {
+  if ($testmode eq 'status') {
+    if (! -e "$_rundir/bs_sched.$_myarch.lock") {
+      print("Scheduler is not running for $_myarch.\n");
+      exit(1);
+    }
+    my $r = BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock");
+    if ($r < 0) {
+      print("Cannot determine status of scheduler for $_myarch.\n");
+      exit(2);
+    }
+    if ($r == 0) {
+      print("Scheduler is running for $_myarch.\n");
+      exit(0);
+    }
     print("Scheduler is not running for $_myarch.\n");
     exit(1);
-  }
-  my $r = BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock");
-  if ($r < 0) {
-    print("Cannot determine status of scheduler for $_myarch.\n");
-    exit(2);
-  }
-  if ($r == 0) {
-    print("Scheduler is running for $_myarch.\n");
-    exit(0);
-  }
-  print("Scheduler is not running for $_myarch.\n");
-  exit(1);
-} elsif ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
-  if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
-    die("scheduler is not running for $_myarch.\n") if $testmode eq 'restart';
-    print("scheduler is not running for $_myarch.\n");
-    exit(0);
-  }
-  if ($testmode eq 'restart') {
-    print "restarting scheduler for $_myarch...\n";
-  } else {
+
+  } elsif ($testmode eq 'exit') {
+    if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
+      print("scheduler is not running for $_myarch.\n");
+      exit(0);
+    }
     print "shutting down scheduler for $_myarch...\n";
-  }
-  my $ev = {
-    'type' => $testmode eq 'restart' ? 'restart' : 'exitcomplete',
-  };
-  my $evname = "$ev->{'type'}::";
-  my $gctx = {'eventdir' => $_eventdir};
-  BSSched::EventSource::Directory::sendevent($gctx, $ev, $_myarch, $evname);
-  BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
-  if ($testmode eq 'exit') {
+    my $ev = {'type' => 'exitcomplete'};
+    my $evname = "$ev->{'type'}::";
+    my $gctx = {'eventdir' => $_eventdir};
+    BSSched::EventSource::Directory::sendevent($gctx, $ev, $_myarch, $evname);
+    BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
     # scheduler saw the event, wait until the process is gone
     local *F;
     BSUtil::lockopen(\*F, '>>', "$_rundir/bs_sched.$_myarch.lock", 1);
     close F;
+    exit(0);
+
+  } elsif ($testmode eq 'restart') {
+    if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
+      die("scheduler is not running for $_myarch.\n");
+    }
+    print "restarting scheduler for $_myarch...\n";
+    my $ev = {'type' => $testmode};
+    my $evname = "$ev->{'type'}::";
+    my $gctx = {'eventdir' => $_eventdir};
+    BSSched::EventSource::Directory::sendevent($gctx, $ev, $_myarch, $evname);
+    BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
+    exit(0);
   }
-  exit(0);
 }
 
 # get lock
