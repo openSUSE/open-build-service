@@ -11,4 +11,4 @@ ARGV.concat ['--readline',
 IRB.conf[:SAVE_HISTORY] = 500
 
 # Store results in home directory with specified file name
-IRB.conf[:HISTORY_FILE] = "#{ENV.fetch('HOME', nil)}/.irb_history"
+IRB.conf[:HISTORY_FILE] = "#{Dir.home}/.irb_history"
