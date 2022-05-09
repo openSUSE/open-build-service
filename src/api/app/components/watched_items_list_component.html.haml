@@ -3,29 +3,45 @@
   - @items.each do |item|
     - case @class_name
       - when 'Package'
+        - name = "#{item.project}/#{item}"
         .d-flex.flex-row.flex-wrap.align-items-baseline
           = link_to(package_show_path(item.project, item), class: 'text-word-break-all') do
             %i.fas.fa-archive.mr-1
-            #{item.project}/#{item}
-          = link_to(project_package_toggle_watched_item_path(project_name: item.project.name, package_name: item.name),
-                    method: :put,
-                    class: 'text-light ml-auto') do
-            %i.fa.fa-times-circle
+            = name
+          = link_to('#', class: 'text-light ml-auto',
+                    data: { toggle: 'modal',
+                            target: '#delete-item-from-watchlist-modal',
+                            modal_title: 'Do you really want to remove this package from the watchlist?',
+                            confirmation_text: "Please confirm you want to remove '#{name}' from the watchlist.",
+                            action: project_package_toggle_watched_item_path(project_name: item.project.name, package_name: item.name) }) do
+            %i.fa.fa-times-circle{ title: 'Remove package from watchlist' }
       - when 'Project'
+        - name = item.name
         .d-flex.flex-row.flex-wrap.align-items-baseline
           = link_to(project_show_path(item), class: 'text-word-break-all') do
             %i.fas.fa-cubes.mr-1
-            #{item}
-          = link_to(project_toggle_watched_item_path(project_name: item.name), method: :put, class: 'text-light ml-auto') do
-            %i.fa.fa-times-circle
+            = name
+          = link_to('#', class: 'text-light ml-auto',
+                    data: { toggle: 'modal',
+                            target: '#delete-item-from-watchlist-modal',
+                            modal_title: 'Do you really want to remove this project from the watchlist?',
+                            confirmation_text: "Please confirm you want to remove '#{name}' from the watchlist.",
+                            action: project_toggle_watched_item_path(project_name: name) }) do
+            %i.fa.fa-times-circle{ title: 'Remove project from watchlist' }
       - when 'BsRequest'
+        - name = "##{item.number} #{helpers.request_type_of_action(item)}"
         .d-flex.flex-row.flex-wrap.align-items-baseline.collapsible-tooltip-parent
           = link_to(request_show_path(item.number), class: 'text-word-break-all') do
             = image_tag('icons/request-icon.svg', height: 18, class: 'mr-1 color-inverted')
-            = "##{item.number} #{helpers.request_type_of_action(item)}"
+            = name
           %i.fa.fa-question-circle.text-light.px-2.collapsible-tooltip{ title: 'Click to keep it open' }
-          = link_to(toggle_watched_item_request_path(number: item.number), method: :put, class: 'text-light ml-auto') do
-            %i.fa.fa-times-circle
+          = link_to('#', class: 'text-light ml-auto',
+                    data: { toggle: 'modal',
+                            target: '#delete-item-from-watchlist-modal',
+                            modal_title: 'Do you really want to remove this request from the watchlist?',
+                            confirmation_text: "Please confirm you want to remove '#{name}' from the watchlist.",
+                            action: toggle_watched_item_request_path(number: item.number) }) do
+            %i.fa.fa-times-circle{ title: 'Remove request from watchlist' }
         .extended-info.mt-2.mb-3.collapsed
           .triangle.left
           .extended-info-content
