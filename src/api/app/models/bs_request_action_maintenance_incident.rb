@@ -160,7 +160,6 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     self.source_project = stage_project.name
     self.source_package = pkg.name
     self.source_rev = pkg.backend_package.srcmd5 if source_rev.present?
-    self.sourceupdate ||= 'cleanup'
     # create channels
     pkg.add_channels(:enable_all)
     # create patchinfo unless we have one
