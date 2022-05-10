@@ -194,15 +194,11 @@ sub lookuphost {
     $hostaddr = $cache->{$host}->[0];
   } else {
     my $hints = { 'socktype' => SOCK_STREAM, 'flags' => Socket::AI_ADDRCONFIG };
-    $hints->{'family'} = AF_INET;
     my ($err, @ai) = Socket::getaddrinfo($host, undef, $hints);
     return undef if $err;
-    for my $ai (@ai) {
-      if ($ai->{'family'} == AF_INET || $ai->{'family'} == AF_INET6) {
-	$hostaddr = $ai->{'addr'};
-	last;
-      }
-    }
+    my @aif = grep {$_->{'family'} == AF_INET} @ai;
+    @aif = grep {$_->{'family'} == AF_INET6} @ai unless @aif;
+    $hostaddr = $aif[0]->{'addr'} if @aif;
     return undef unless $hostaddr;
     $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
   }
