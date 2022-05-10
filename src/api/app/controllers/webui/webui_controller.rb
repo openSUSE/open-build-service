@@ -139,6 +139,7 @@ class Webui::WebuiController < ActionController::Base
     @is_displayed_user = (User.session == @displayed_user)
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def require_package
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
@@ -150,8 +151,9 @@ class Webui::WebuiController < ActionController::Base
       @package = Package.get_by_project_and_name(@project.to_param, params[:package],
                                                  follow_project_links: true, follow_multibuild: true)
     rescue APIError => e
-      if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser].include?(e.class)
+      if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser, Package::UnknownObjectError].include?(e.class)
         flash[:error] = "You don't have access to the sources of this package: \"#{elide(params[:package])}\""
+        flash[:error] = e.message if e.instance_of?(Package::UnknownObjectError)
         redirect_back(fallback_location: project_show_path(@project))
         return
       end
@@ -161,6 +163,7 @@ class Webui::WebuiController < ActionController::Base
       render nothing: true, status: :not_found
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   private
 

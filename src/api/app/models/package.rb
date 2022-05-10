@@ -164,7 +164,10 @@ class Package < ApplicationRecord
     prj = internal_get_project(project)
     return unless prj # remote prjs
 
-    return nil if prj.scmsync.present?
+    if prj.scmsync.present?
+      raise UnknownObjectError, "Package sources for project #{prj.name} are received through scmsync.
+                                 This is not yet supported by the OBS frontend"
+    end
 
     if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
