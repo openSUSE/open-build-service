@@ -193,14 +193,27 @@ sub lookuphost {
   if ($cache && $cache->{$host} && $cache->{$host}->[1] > time()) {
     $hostaddr = $cache->{$host}->[0];
   } else {
-    $hostaddr = inet_aton($host);
+    my $hints = { 'socktype' => SOCK_STREAM, 'flags' => Socket::AI_ADDRCONFIG };
+    $hints->{'family'} = AF_INET;
+    my ($err, @ai) = Socket::getaddrinfo($host, undef, $hints);
+    return undef if $err;
+    for my $ai (@ai) {
+      if ($ai->{'family'} == AF_INET || $ai->{'family'} == AF_INET6) {
+	$hostaddr = $ai->{'addr'};
+	last;
+      }
+    }
     return undef unless $hostaddr;
-    $hostaddr = sockaddr_in(0, $hostaddr);
     $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
   }
   if (defined($port)) {
-    (undef, $hostaddr) = sockaddr_in($hostaddr);
-    $hostaddr = sockaddr_in($port, $hostaddr);
+    if (sockaddr_family($hostaddr) == AF_INET6) {
+      (undef, $hostaddr) = sockaddr_in6($hostaddr);
+      $hostaddr = sockaddr_in6($port, $hostaddr);
+    } else {
+      (undef, $hostaddr) = sockaddr_in($hostaddr);
+      $hostaddr = sockaddr_in($port, $hostaddr);
+    }
   }
   return $hostaddr;
 }
@@ -208,7 +221,11 @@ sub lookuphost {
 sub opensocket {
   my ($hostaddr) = @_;
   my $sock;
-  socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+  if (sockaddr_family($hostaddr) == AF_INET6) {
+    socket($sock, PF_INET6, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+  } else {
+    socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+  }
   setsockopt($sock, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   return $sock;
 }
