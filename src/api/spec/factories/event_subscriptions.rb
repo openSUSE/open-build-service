@@ -61,5 +61,21 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_relationship_create do
+      eventtype { 'Event::RelationshipCreate' }
+      receiver_role { 'any_role' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_relationship_delete do
+      eventtype { 'Event::RelationshipDelete' }
+      receiver_role { 'any_role' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end
