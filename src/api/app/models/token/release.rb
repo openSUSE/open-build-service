@@ -10,7 +10,9 @@ class Token::Release < Token
     manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
     raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
 
-    # releasing ...
+    # uniq timestring for all targets
+    time_now = Time.now.utc
+
     manual_release_targets.each do |release_target|
       opts = { filter_source_repository: release_target.repository,
                manual: true,
@@ -18,7 +20,7 @@ class Token::Release < Token
       opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
       release_package(package_to_release,
                       release_target.target_repository,
-                      package_to_release.release_target_name,
+                      package_to_release.release_target_name(release_target.target_repository, time_now),
                       opts)
     end
   end
