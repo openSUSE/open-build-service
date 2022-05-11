@@ -13,7 +13,7 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
 
         before do
           login user
-          put :toggle_watched_item, params: { package_name: package, project_name: package.project }
+          put :toggle_watched_item, params: { package_name: package, project_name: package.project }, xhr: true
         end
 
         it 'adds the package to the watchlist' do
@@ -27,7 +27,7 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
 
         before do
           login user
-          put :toggle_watched_item, params: { number: bs_request.number }
+          put :toggle_watched_item, params: { number: bs_request.number }, xhr: true
         end
 
         it 'adds the request to the watchlist' do
@@ -42,7 +42,7 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
         before do
           login user
           user.watched_items.create(watchable: package)
-          put :toggle_watched_item, params: { package_name: package, project_name: package.project }
+          put :toggle_watched_item, params: { package_name: package, project_name: package.project }, xhr: true
         end
 
         it 'removes the item from the watchlist' do
