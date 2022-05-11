@@ -60,12 +60,10 @@ sub verify_sslfingerprint {
 sub connect {
   my ($self) = @_;
   return if $self->{'sock'};
-  my $hostaddr = inet_aton($self->{'server'});
+  my $hostaddr = BSRPC::lookuphost($self->{'server'}, $self->{'port'});
   die("unknown host '$self->{'server'}'\n") unless $hostaddr;
-  my $sock;
-  socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
-  setsockopt($sock, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
-  connect($sock, sockaddr_in($self->{'port'}, $hostaddr)) || die("connect to $self->{'server'}:$self->{'port'}: $!\n");
+  my $sock = BSRPC::opensocket($hostaddr);
+  connect($sock, $hostaddr) || die("connect to $self->{'server'}:$self->{'port'}: $!\n");
   if ($self->{'tls'}) {
     die("tls not supported\n") unless $self->{'tossl'} || $tossl;
     ($self->{'tossl'} || $tossl)->($sock, $self->{'ssl_keyfile'}, $self->{'certfile'}, 1, $self->{'service'});

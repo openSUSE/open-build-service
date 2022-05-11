@@ -188,12 +188,42 @@ sub readanswerheaderblock {
 }
 
 sub lookuphost {
-  my ($host, $cache) = @_;
-  return $cache->{$host}->[0] if $cache && $cache->{$host} && $cache->{$host}->[1] > time();
-  my $hostaddr = inet_aton($host);
-  return undef unless $hostaddr;
-  $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
+  my ($host, $port, $cache) = @_;
+  my $hostaddr;
+  if ($cache && $cache->{$host} && $cache->{$host}->[1] > time()) {
+    $hostaddr = $cache->{$host}->[0];
+  } else {
+    my $hints = { 'socktype' => SOCK_STREAM, 'flags' => Socket::AI_ADDRCONFIG };
+    my ($err, @ai) = Socket::getaddrinfo($host, undef, $hints);
+    return undef if $err;
+    my @aif = grep {$_->{'family'} == AF_INET} @ai;
+    @aif = grep {$_->{'family'} == AF_INET6} @ai unless @aif;
+    $hostaddr = $aif[0]->{'addr'} if @aif;
+    return undef unless $hostaddr;
+    $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
+  }
+  if (defined($port)) {
+    if (sockaddr_family($hostaddr) == AF_INET6) {
+      (undef, $hostaddr) = sockaddr_in6($hostaddr);
+      $hostaddr = sockaddr_in6($port, $hostaddr);
+    } else {
+      (undef, $hostaddr) = sockaddr_in($hostaddr);
+      $hostaddr = sockaddr_in($port, $hostaddr);
+    }
+  }
   return $hostaddr;
+}
+
+sub opensocket {
+  my ($hostaddr) = @_;
+  my $sock;
+  if (sockaddr_family($hostaddr) == AF_INET6) {
+    socket($sock, PF_INET6, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+  } else {
+    socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+  }
+  setsockopt($sock, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
+  return $sock;
 }
 
 #
@@ -297,11 +327,10 @@ sub rpc {
   if (exists($param->{'socket'})) {
     $sock = $param->{'socket'};
   } else {
-    my $hostaddr = lookuphost($host, \%hostlookupcache);
+    my $hostaddr = lookuphost($host, $port, \%hostlookupcache);
     die("unknown host '$host'\n") unless $hostaddr;
-    socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
-    setsockopt($sock, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
-    connect($sock, sockaddr_in($port, $hostaddr)) || die("connect to $host:$port: $!\n");
+    $sock = opensocket($hostaddr);
+    connect($sock, $hostaddr) || die("connect to $host:$port: $!\n");
     if ($proxytunnel) {
       BSHTTP::swrite($sock, $proxytunnel);
       my ($status, $ans) = readanswerheaderblock($sock);

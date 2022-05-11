@@ -1167,12 +1167,10 @@ sub rpc {
   }
   $param->{'proto'} = $proto;
   # should do this async, but that's hard to do in perl
-  my $hostaddr = BSRPC::lookuphost($host, \%hostlookupcache);
+  my $hostaddr = BSRPC::lookuphost($host, $port, \%hostlookupcache);
   die("unknown host '$host'\n") unless $hostaddr;
-  my $fd;
-  socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
+  my $fd = BSRPC::opensocket($hostaddr);
   fcntl($fd, F_SETFL,O_NONBLOCK);
-  setsockopt($fd, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   my $ev = BSEvents::new('write', \&rpc_send_handler);
   if ($proxytunnel) {
     $ev->{'proxytunnel'} = $req;
@@ -1188,7 +1186,7 @@ sub rpc {
   push @{$ev->{'joblist'}}, $jev;
   $rpcs{$rpcuri} = $ev;
   #print "new rpc $uri\n";
-  if (!connect($fd, sockaddr_in($port, $hostaddr))) {
+  if (!connect($fd, $hostaddr)) {
     if ($! == POSIX::EINPROGRESS) {
       $ev->{'handler'} = \&rpc_connect_handler;
       $ev->{'timeouthandler'} = \&rpc_connect_timeout;

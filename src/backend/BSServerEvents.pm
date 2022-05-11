@@ -25,6 +25,7 @@ package BSServerEvents;
 use POSIX;
 use Socket;
 use Fcntl qw(:DEFAULT);
+use BSServer;
 use BSEvents;
 use BSHTTP;
 use BSCpio;
@@ -358,13 +359,8 @@ sub newconnect {
   my $peeraddr = accept($newfd, *{$ev->{'fd'}});
   return unless $peeraddr;
   fcntl($newfd, F_SETFL, O_NONBLOCK);
-  my $peer = 'unknown';
-  my $peerport;
-  eval {
-    my $peera;
-    ($peerport, $peera) = sockaddr_in($peeraddr);
-    $peer = inet_ntoa($peera);
-  };
+  my ($peer, $peerport);
+  eval { ($peerport, $peer) = BSServer::getpeerdata({ '__socket' => $ev->{'fd'} }, $peeraddr) };
   my $conf = $ev->{'conf'};
   my $request = { 'conf' => $conf, 'peer' => $peer, 'starttime' => time(), 'state' => 'receiving', 'server' => $ev->{'server'} };
   $request->{'peerport'} = $peerport if $peerport;
@@ -395,17 +391,9 @@ sub cloneconnect {
   $nev->{'conf'} = $conf;
   $nev->{'request'} = $nreq;
   $nev->{'requestevents'} = $ev->{'requestevents'};
-  my $peer = 'unknown';
-  my $peerport;
-  eval {
-    my $peeraddr = getpeername($nev->{'fd'});
-    if ($peeraddr) {
-      my $peera;
-      ($peerport, $peera) = sockaddr_in($peeraddr);
-      $peer = inet_ntoa($peera);
-    }
-  };
-  $nreq->{'peer'} = $peer;
+  my ($peer, $peerport);
+  eval { ($peerport, $peer) = BSServer::getpeerdata({ '__socket' => $nev->{'fd'} }) };
+  $nreq->{'peer'} = $peer || 'unknown';
   $nreq->{'peerport'} = $peerport if $peerport;
   $nev->{'peer'} = $peer;
   $nev->{'requestevents'}->{$nev->{'id'}} = $nev;

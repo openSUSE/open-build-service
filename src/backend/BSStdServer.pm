@@ -439,7 +439,7 @@ sub server {
       $port2 = "&=$ports[1]" if $port2 && defined $ports[1];
       POSIX::close($ports[1]) if !$port2 && defined $ports[1];
     }
-    BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup);
+    BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup, $conf->{'socketfamily'});
   }
   if ($conf && $aconf) {
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'};
