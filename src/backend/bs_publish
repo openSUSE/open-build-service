@@ -2124,6 +2124,8 @@ sub publish {
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q && defined($q->{'arch'});
 	$p = "$q->{'arch'}/$bin";
+      } elsif ($bin =~ /\.slsa_provenance\.json$/) {
+	next;	# we pick them up with the binaries
       } else {
 	if ($bin =~ /\.iso(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "iso/$bin";
