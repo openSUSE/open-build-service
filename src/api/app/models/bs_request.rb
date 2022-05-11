@@ -412,6 +412,7 @@ class BsRequest < ApplicationRecord
           builder.comment!(description) if description.present?
         end
       end
+
       if opts[:withfullhistory]
         history_elements.each do |history|
           # we do ignore the review history here on purpose to stay compatible
@@ -1151,11 +1152,15 @@ class BsRequest < ApplicationRecord
   end
 
   def check_bs_request_actions!(opts = {})
+    uniq_keys = []
     bs_request_actions.each do |action|
+      uniq_keys << action.uniq_key
       action.check_action_permission!(opts[:skip_source])
       action.check_for_expand_errors!(!@addrevision.nil?)
       raisepriority(action.minimum_priority)
     end
+
+    raise ConflictingActions, 'Conflicting Actions' if uniq_keys.length > uniq_keys.uniq.length
 
     return unless persisted? && priority_changed?
 

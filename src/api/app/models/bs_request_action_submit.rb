@@ -23,6 +23,10 @@ class BsRequestActionSubmit < BsRequestAction
     true
   end
 
+  def uniq_key
+    "#{target_project}/#{target_package}"
+  end
+
   def execute_accept(opts)
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)

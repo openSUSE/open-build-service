@@ -27,6 +27,11 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     true
   end
 
+  def uniq_key
+    # source_package should be actually release_name, but this would be a speed burden here atm.
+    "#{target_project}/#{source_package}/#{target_releaseproject}"
+  end
+
   def get_releaseproject(pkg, tprj)
     return if pkg.is_patchinfo?
 

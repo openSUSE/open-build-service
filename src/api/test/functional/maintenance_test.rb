@@ -1939,6 +1939,22 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
+
+    # double entries
+    post '/request?cmd=create&addrevision=1', params: '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="RemoteInstance:kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <action type="maintenance_incident">
+                                     <source project="RemoteInstance:kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <description>To fix my &lt;bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: 'conflicting_actions' }
   end
 
   def test_create_invalid_release_request

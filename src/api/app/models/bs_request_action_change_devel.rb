@@ -26,6 +26,10 @@ class BsRequestActionChangeDevel < BsRequestAction
     target_package.store(comment: "change_devel request #{bs_request.number}", request: bs_request)
   end
 
+  def uniq_key
+    "changedevel/#{target_project}/#{target_package}"
+  end
+
   #### Alias of methods
 end
 

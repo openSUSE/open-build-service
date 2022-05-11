@@ -44,11 +44,11 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference('ActionMailer::Base.deliveries.size', +2) do
       body = "<request>\n"
       actions = 1000
-      actions.times do
-        body += "<action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action>\n"
+      actions.times do |number|
+        body += "<action type='submit'><source project='Apache' package='apache2'/><target project='home:tom' package='package_#{number}'/></action>\n"
       end
       body += '</request>'
       post '/request?cmd=create', params: body
@@ -61,8 +61,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
 
-    assert_match(/^Request #{myid} created by Iggy \(add_role home:tom, /, email.subject)
-    assert_equal ['tschmidt@example.com'], email.to # tom is maintainer
+    assert_match(%r{^Request #{myid} requires review \(submit home:tom/package_0, }, email.subject)
+    assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to
   end
 
   def test_set_bugowner_event

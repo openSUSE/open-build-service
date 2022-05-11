@@ -23,6 +23,10 @@ class BsRequestActionDelete < BsRequestAction
     errors.add(:target_project, 'must not target package and target repository') if target_repository && target_package
   end
 
+  def uniq_key
+    "#{target_project}/#{target_package}"
+  end
+
   def render_xml_attributes(node)
     attributes = xml_package_attributes('target')
     attributes[:repository] = target_repository if target_repository.present?
