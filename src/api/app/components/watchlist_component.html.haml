@@ -5,7 +5,7 @@
 
   - if @object_to_be_watched && @object_to_be_watched.persisted?
     .nav-item.pb-2.mb-4.border-bottom.border-gray-500
-      = link_to(toggle_watchable_path, method: :put, class: 'nav-link') do
+      = link_to(toggle_watchable_path, method: :put, class: 'nav-link', remote: true) do
         - if object_to_be_watched_in_watchlist?
           %p.mb-0.text-light
             %i.fas.fa-times-circle

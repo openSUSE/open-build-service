@@ -1,0 +1,6 @@
+$("#delete-item-from-watchlist-modal").modal('hide');
+$('#flash').html("<%= escape_javascript(render(partial: 'layouts/webui/flash'))%>")
+$('.watchlist-collapse').html("<%= escape_javascript(render WatchlistComponent.new(user: User.session!,
+                                                                                   bs_request: @bs_request,
+                                                                                   package: @package,
+                                                                                   project: @project)) %>");
