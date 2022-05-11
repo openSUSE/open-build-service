@@ -226,6 +226,13 @@ sub opensocket {
   return $sock;
 }
 
+sub verify_sslpeerfingerprint {
+  my ($sock, $sslfingerprint) = @_;
+  die("bad sslpeerfingerprint '$sslfingerprint'\n") unless $sslfingerprint =~ /^(.*?):(.*)$/s;
+  my $pfp =  tied(*{$sock})->peerfingerprint($1);
+  die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
+}
+
 #
 # handled paramters:
 # timeout
@@ -338,11 +345,7 @@ sub rpc {
     }
     if ($proto eq 'https' || $proxytunnel) {
       ($param->{'https'} || $tossl)->($sock, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1, $host);
-      if ($param->{'sslpeerfingerprint'}) {
-	die("bad sslpeerfingerprint '$param->{'sslpeerfingerprint'}'\n") unless $param->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
-	my $pfp =  tied(*{$sock})->peerfingerprint($1);
-	die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
-      }
+      verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
     }
   }
 
