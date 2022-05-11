@@ -203,11 +203,7 @@ sub setsocket {
     return;
   }
   $req->{'__socket'} = $_[0];
-  eval {
-    my ($peerport, $peeraddr) = getpeerdata($req);
-    $req->{'peerport'} = $peerport;
-    $req->{'peer'} = $peeraddr;
-  }
+  eval { ($req->{'peerport'}, $req->{'peer'}) = getpeerdata($req) };
 }
 
 sub setstatus {
@@ -435,11 +431,7 @@ sub server {
     }
   }
   $BSServer::request = $req;
-  eval {
-    my ($peerport, $peeraddr) = getpeerdata($req, $peeraddr);
-    $req->{'peerport'} = $peerport;
-    $req->{'peer'} = $peeraddr;
-  };
+  eval { ($req->{'peerport'}, $req->{'peer'}) = getpeerdata($req, $peeraddr) };
   warn($@) if $@;
 
   setsockopt($clnt, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
@@ -615,10 +607,12 @@ sub done {
 
 sub getpeerdata {
   my ($req, $peername) = @_;
-  $req ||= $BSServer::request || {};
-  return (undef, undef) unless defined $req->{'__socket'};
-  $peername ||= getpeername($req->{'__socket'});
-  return (undef, undef) unless $peername;
+  if (!$peername) {
+    $req ||= $BSServer::request || {};
+    return (undef, undef) unless defined $req->{'__socket'};
+    $peername = getpeername($req->{'__socket'});
+    return (undef, undef) unless $peername;
+  }
   if (sockaddr_family($peername) == AF_INET6) {
     my ($port, $addr) = sockaddr_in6($peername);
     # support decoding of mapped ipv4 addresses

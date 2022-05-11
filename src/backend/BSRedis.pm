@@ -50,13 +50,6 @@ sub new {
   return $self;
 }
 
-sub verify_sslfingerprint {
-  my ($self, $sock) = @_;
-  die("bad sslpeerfingerprint '$self->{'sslpeerfingerprint'}'\n") unless $self->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
-  my $pfp =  tied(*{$sock})->peerfingerprint($1);
-  die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
-}
-
 sub connect {
   my ($self) = @_;
   return if $self->{'sock'};
@@ -66,8 +59,8 @@ sub connect {
   connect($sock, $hostaddr) || die("connect to $self->{'server'}:$self->{'port'}: $!\n");
   if ($self->{'tls'}) {
     die("tls not supported\n") unless $self->{'tossl'} || $tossl;
-    ($self->{'tossl'} || $tossl)->($sock, $self->{'ssl_keyfile'}, $self->{'certfile'}, 1, $self->{'service'});
-    verify_sslfingerprint($self, $sock) if $self->{'sslpeerfingerprint'};
+    ($self->{'tossl'} || $tossl)->($sock, $self->{'ssl_keyfile'}, $self->{'certfile'}, 1, $self->{'server'});
+    BSRPC::verify_sslpeerfingerprint($sock, $self->{'sslpeerfingerprint'}) if $self->{'sslpeerfingerprint'};
   }
   $self->{'sock'} = $sock;
   $self->{'buf'} = '';
