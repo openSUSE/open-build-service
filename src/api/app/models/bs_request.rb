@@ -891,6 +891,8 @@ class BsRequest < ApplicationRecord
 
         begin
           change_state(newstate: 'accepted', comment: 'Auto accept')
+        rescue BsRequest::Errors::UnderEmbargo
+          # not yet free to release, postponing it without touching
         rescue BsRequestPermissionCheck::NotExistingTarget
           change_state(newstate: 'revoked', comment: 'Target disappeared')
         rescue PostRequestNoPermission
