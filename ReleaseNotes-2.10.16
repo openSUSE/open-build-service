@@ -1,0 +1,23 @@
+#
+# Open Build Service 2.10.16
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Features
+========
+
+Backend:
+ * Support for qemu system emulated worker instances
+
+Bugfixes
+========
+
+
