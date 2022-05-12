@@ -32,8 +32,6 @@ module NotificationService
           create_notification_per_subscription(subscription, channel)
         end
       end
-    rescue StandardError => e
-      Airbrake.notify(e, event_id: @event.id)
     end
 
     private
