@@ -3085,7 +3085,7 @@ sub dobuild {
   }
 
   push @args, "$statedir/build/build";
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
+  if ($vm =~ /(xen|kvm|zvm|emulator|qemu|pvm)/) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
