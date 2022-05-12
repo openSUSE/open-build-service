@@ -11,6 +11,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
 
   private
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def notifiable_link_text
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
@@ -22,8 +23,23 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       'Comment on Project'
     when 'Event::CommentForPackage'
       'Comment on Package'
+    when 'Event::RelationshipCreate'
+      role = @notification.event_payload['role']
+      if @notification.event_payload['package']
+        "Added as #{role} of a package"
+      else
+        "Added as #{role} of a project"
+      end
+    when 'Event::RelationshipDelete'
+      role = @notification.event_payload['role']
+      if @notification.event_payload['package']
+        "Removed as #{role} of a package"
+      else
+        "Removed as #{role} of a project"
+      end
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def notifiable_link_path
     case @notification.event_type
@@ -44,6 +60,13 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                              project: package.project,
                                                              notification_id: @notification.id,
                                                              anchor: 'comments-list')
+    when 'Event::RelationshipCreate', 'Event::RelationshipDelete'
+      if @notification.event_payload['package']
+        Rails.application.routes.url_helpers.package_users_path(@notification.event_payload['project'],
+                                                                @notification.event_payload['package'])
+      else
+        Rails.application.routes.url_helpers.project_users_path(@notification.event_payload['project'])
+      end
     end
   end
 end

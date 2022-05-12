@@ -4,6 +4,7 @@ class NotifiedProjects
     @notifiable = @notification.notifiable
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def call
     return Project.none if @notifiable.blank?
 
@@ -19,6 +20,11 @@ class NotifiedProjects
       when 'BsRequest'
         @notifiable.commentable.target_project_objects.distinct
       end
+    when 'Package'
+      @notifiable.project
+    when 'Project'
+      @notifiable
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 end

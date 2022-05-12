@@ -177,7 +177,8 @@ class Relationship < ApplicationRecord
     parameters = { who: User.session.login,
                    user: user&.login,
                    group: group&.title,
-                   role: role.title }
+                   role: role.title,
+                   notifiable_id: id }
     if package
       parameters[:project] = package.project.name
       parameters[:package] = package.name

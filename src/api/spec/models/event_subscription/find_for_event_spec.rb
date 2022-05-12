@@ -275,5 +275,267 @@ RSpec.describe EventSubscription::FindForEvent do
         end
       end
     end
+
+    context 'with an added relationship' do
+      let(:owner) { create(:confirmed_user) }
+      let(:group) { create(:group_with_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project_with_package) }
+      let(:package) { project.packages.first }
+
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(:web)
+      end
+
+      context 'when dealing with projects' do
+        context 'and there is a subscription for the target user' do
+          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, project: project.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipCreate',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { project: project.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target user' do
+          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, project: project.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+
+        context 'and there is a subscription for the group' do
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, project: project.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipCreate',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { project: project.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target group' do
+          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, project: project.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+      end
+
+      context 'when dealing with packages' do
+        context 'and there is a subscription for the target user' do
+          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, package: package.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipCreate',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { package: package.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target user' do
+          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, package: package.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+
+        context 'and there is a subscription for the group' do
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, package: package.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipCreate',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { package: package.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target group' do
+          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, package: package.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+      end
+    end
+
+    context 'with a removed relationship' do
+      let(:owner) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:group) { create(:group_with_user) }
+      let(:project) { create(:project_with_package) }
+      let(:package) { project.packages.first }
+
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(:web)
+      end
+
+      context 'when dealing with projects' do
+        context 'and there is a subscription for the target user' do
+          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, project: project.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipDelete',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { project: project.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target user' do
+          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, project: project.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+
+        context 'and there is a subscription for the group' do
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, project: project.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipDelete',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { project: project.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target group' do
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, project: project.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+      end
+
+      context 'when dealing with packages' do
+        context 'and there is a subscription for the target user' do
+          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, package: package.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipDelete',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { package: package.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target user' do
+          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, package: package.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+
+        context 'and there is a subscription for the group' do
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, package: package.name) }
+
+          before do
+            event_subscription = create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipDelete',
+              receiver_role: 'any_role',
+              user: user,
+              group: nil,
+              channel: :web
+            )
+            event_subscription.payload = { package: package.name }
+          end
+
+          it 'includes the target user' do
+            expect(subject.map(&:subscriber)).to include(user)
+          end
+        end
+
+        context 'and there is no subscription for the target group' do
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, package: package.name) }
+
+          it 'does not include the target user' do
+            expect(subject.map(&:subscriber)).not_to include(user)
+          end
+        end
+      end
+    end
   end
 end

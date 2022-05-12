@@ -9,10 +9,10 @@ class EventSubscription
     def subscriptions(channel = :instant_email)
       receivers_and_subscriptions = {}
 
-      event.class.receiver_roles.flat_map do |receiver_role|
+      event.class.receiver_roles.each do |receiver_role|
         # Find the users/groups who are receivers for this event
         receivers = event.send("#{receiver_role}s")
-        receivers = filter_receivers(receivers, channel)
+        receivers = expand_receivers(receivers, channel)
 
         options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
@@ -46,28 +46,28 @@ class EventSubscription
       receivers_and_subscriptions.values.flatten
     end
 
-    private
-
-    def filter_receivers(receivers, channel)
-      new_receivers = []
-
-      receivers.each do |receiver|
+    def expand_receivers(receivers, channel)
+      receivers.inject([]) do |new_receivers, receiver|
         case receiver
         when User
           new_receivers << receiver if receiver.is_active?
 
         when Group
-          # We don't split events which come through the web channel, for a group subscriber.
-          # They are split in the NotificationService::WebChannel service, if needed.
-          if channel == :web || receiver.email.present?
-            new_receivers << receiver
-          else
-            new_receivers += receiver.email_users
-          end
+          new_receivers += expand_receivers_for_groups(new_receivers, receiver, channel)
         end
-      end
 
-      new_receivers
+        new_receivers
+      end
+    end
+
+    def expand_receivers_for_groups(_new_receivers, receiver, channel)
+      # We don't subscribe Groups so we have to get the group's users to get the subscriptions
+      return receiver.users if event.instance_of?(Event::RelationshipCreate) || event.instance_of?(Event::RelationshipDelete)
+      # We don't split events which come through the web channel, for a group subscriber.
+      # They are split in the NotificationService::WebChannel service, if needed.
+      return [receiver] if channel == :web || receiver.email.present?
+
+      receiver.email_users
     end
   end
 end

@@ -3,7 +3,9 @@ module NotificationService
   class WebChannel
     ALLOWED_FINDERS = {
       'BsRequest' => OutdatedNotificationsFinder::BsRequest,
-      'Comment' => OutdatedNotificationsFinder::Comment
+      'Comment' => OutdatedNotificationsFinder::Comment,
+      'Project' => OutdatedNotificationsFinder::Project,
+      'Package' => OutdatedNotificationsFinder::Package
     }.freeze
 
     def initialize(subscription, event)

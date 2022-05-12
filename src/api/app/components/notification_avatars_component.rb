@@ -10,8 +10,11 @@ class NotificationAvatarsComponent < ApplicationComponent
   private
 
   def avatar_objects
-    @avatar_objects ||= if @notification.notifiable_type == 'Comment'
+    @avatar_objects ||= case @notification.notifiable_type
+                        when 'Comment'
                           commenters
+                        when 'Project', 'Package'
+                          [User.find_by(login: @notification.event_payload['who'])]
                         else
                           reviews = @notification.notifiable.reviews
                           reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)

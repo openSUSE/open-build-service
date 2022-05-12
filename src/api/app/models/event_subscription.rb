@@ -10,7 +10,8 @@ class EventSubscription < ApplicationRecord
     creator: 'Creator',
     watcher: 'Watching the project',
     source_watcher: 'Watching the source project',
-    target_watcher: 'Watching the target project'
+    target_watcher: 'Watching the target project',
+    any_role: 'Any role'
   }.freeze
   BETA_RECEIVER_ROLE_TEXTS = {
     package_watcher: 'Watching the package',
@@ -41,7 +42,7 @@ class EventSubscription < ApplicationRecord
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
          :reviewer, :commenter, :creator, :watcher, :source_watcher, :target_watcher,
-         :package_watcher, :target_package_watcher, :source_package_watcher, :request_watcher]
+         :package_watcher, :target_package_watcher, :source_package_watcher, :request_watcher, :any_role]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }

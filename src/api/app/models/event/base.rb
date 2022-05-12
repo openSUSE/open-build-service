@@ -30,7 +30,8 @@ module Event
       def notification_events
         ['Event::BuildFail', 'Event::ServiceFail', 'Event::ReviewWanted', 'Event::RequestCreate',
          'Event::RequestStatechange', 'Event::CommentForProject', 'Event::CommentForPackage',
-         'Event::CommentForRequest'].map(&:constantize)
+         'Event::CommentForRequest',
+         'Event::RelationshipCreate', 'Event::RelationshipDelete'].map(&:constantize)
       end
 
       def classnames
@@ -292,7 +293,7 @@ module Event
       { event_type: eventtype,
         event_payload: payload,
         notifiable_id: payload['id'],
-        created_at: payload['when'].to_datetime,
+        created_at: payload['when']&.to_datetime,
         title: subject_to_title }
     end
 
