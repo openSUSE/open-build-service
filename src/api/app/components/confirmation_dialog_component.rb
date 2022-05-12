@@ -4,9 +4,10 @@
 # - method: (the method or verb we use when submitting the form) it is compulsory.
 # - action: (URL we send the form to) you either pass it to the component or is '#' by default because we are going to set it by JavaScript.
 # - modal_title and confirmation_text: they are optional. Pass them only if you want to overwrite the default texts.
+# - remote: It is an optional parameter. If not provided, it's going to be false by default.
 
 class ConfirmationDialogComponent < ApplicationComponent
-  attr_accessor :modal_id, :method, :action, :modal_title, :confirmation_text
+  attr_accessor :modal_id, :method, :action, :modal_title, :confirmation_text, :remote
 
   def initialize(modal_id:, method:, options: {})
     super
@@ -16,5 +17,6 @@ class ConfirmationDialogComponent < ApplicationComponent
     @action = options[:action] || '#'
     @modal_title = options[:modal_title] || 'Do you really want to remove this item?'
     @confirmation_text = options[:confirmation_text] || 'Please confirm you want to remove this item.'
+    @remote = options[:remote] || false
   end
 end

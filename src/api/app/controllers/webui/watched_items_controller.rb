@@ -1,7 +1,7 @@
 class Webui::WatchedItemsController < Webui::WebuiController
   before_action :require_login
   before_action :check_user_belongs_feature_flag
-  before_action :set_item
+  before_action :set_watchable
 
   FLASH_PER_WATCHABLE_TYPE = {
     Package => 'package',
@@ -10,29 +10,31 @@ class Webui::WatchedItemsController < Webui::WebuiController
   }.freeze
 
   def toggle_watched_item
-    watched_item = User.session!.watched_items.find_by(watchable: @item)
+    watched_item = User.session!.watched_items.find_by(watchable: @watchable)
 
     if watched_item
       watched_item.destroy
-      flash[:success] = "Removed #{FLASH_PER_WATCHABLE_TYPE[@item.class]} from the watchlist"
+      flash[:success] = "Removed #{FLASH_PER_WATCHABLE_TYPE[@watchable.class]} from the watchlist"
     else
-      User.session!.watched_items.create(watchable: @item)
-      flash[:success] = "Added #{FLASH_PER_WATCHABLE_TYPE[@item.class]} to the watchlist"
+      User.session!.watched_items.create(watchable: @watchable)
+      flash[:success] = "Added #{FLASH_PER_WATCHABLE_TYPE[@watchable.class]} to the watchlist"
     end
 
-    redirect_back(fallback_location: root_path)
+    respond_to do |format|
+      format.js
+    end
   end
 
   private
 
-  def set_item
-    @item = if params[:project_name] && params[:package_name]
-              Package.find_by_project_and_name(params[:project_name], params[:package_name])
-            elsif params[:project_name]
-              Project.find_by(name: params[:project_name])
-            elsif params[:number]
-              BsRequest.find_by(number: params[:number])
-            end
+  def set_watchable
+    @watchable = if params[:project_name] && params[:package_name]
+                   @package = Package.get_by_project_and_name(params[:project_name], params[:package_name])
+                 elsif params[:project_name]
+                   @project = Project.get_by_name(params[:project_name])
+                 elsif params[:number]
+                   @bs_request = BsRequest.find_by(number: params[:number])
+                 end
   end
 
   def check_user_belongs_feature_flag

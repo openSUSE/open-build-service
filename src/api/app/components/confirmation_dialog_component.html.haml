@@ -6,7 +6,7 @@
       .modal-body
         %p.confirmation-text= confirmation_text
 
-        = form_tag(action, method: method) do
+        = form_tag(action, method: method, remote: remote) do
           .modal-footer
             %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
               Cancel
