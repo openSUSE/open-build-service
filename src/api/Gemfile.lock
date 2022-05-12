@@ -619,6 +619,7 @@ DEPENDENCIES
   simplecov
   single_test
   strong_migrations
+  strscan (= 3.0.1)
   test-unit
   thinking-sphinx
   timecop
