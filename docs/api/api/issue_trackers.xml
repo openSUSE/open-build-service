@@ -165,7 +165,7 @@
     <description>OpenOffice.org Bugzilla</description>
     <url>http://openoffice.org/bugzilla/</url>
     <show-url>http://openoffice.org/bugzilla/show_bug.cgi?id=@@@</show-url>
-    <regex>i#(\d+)</regex>
+    <regex>[(\s]i#(\d+)</regex>
     <label>i#@@@</label>
     <enable-fetch>false</enable-fetch>
   </issue-tracker>

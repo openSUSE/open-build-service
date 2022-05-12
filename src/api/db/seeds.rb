@@ -272,7 +272,7 @@ IssueTracker.where(name: 'ITS').first_or_create(description: 'OpenLDAP Issue Tra
                                                 show_url: 'http://www.openldap.org/its/index.cgi/Contrib?id=@@@')
 IssueTracker.where(name: 'i').first_or_create(description: 'OpenOffice.org Bugzilla',
                                               kind: 'bugzilla',
-                                              regex: 'i#(\d+)',
+                                              regex: '[(\s]i#(\d+)',
                                               url: 'http://openoffice.org/bugzilla/',
                                               label: 'boost#@@@',
                                               show_url: 'http://openoffice.org/bugzilla/show_bug.cgi?id=@@@')
