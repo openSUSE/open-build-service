@@ -456,6 +456,8 @@ def subscribe_to_all_notifications(user)
   create(:event_subscription_comment_for_project, channel: :web, user: user, receiver_role: 'maintainer')
   create(:event_subscription_comment_for_package, channel: :web, user: user, receiver_role: 'maintainer')
   create(:event_subscription_comment_for_request, channel: :web, user: user, receiver_role: 'target_maintainer')
+  create(:event_subscription_relationship_create, channel: :web, user: user, receiver_role: 'any_role')
+  create(:event_subscription_relationship_delete, channel: :web, user: user, receiver_role: 'any_role')
 
   user.groups.each do |group|
     create(:event_subscription_request_created, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
@@ -465,5 +467,7 @@ def subscribe_to_all_notifications(user)
     create(:event_subscription_comment_for_project, channel: :web, user: nil, group: group, receiver_role: 'maintainer')
     create(:event_subscription_comment_for_package, channel: :web, user: nil, group: group, receiver_role: 'maintainer')
     create(:event_subscription_comment_for_request, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
+    create(:event_subscription_relationship_create, channel: :web, user: nil, group: group, receiver_role: 'any_role')
+    create(:event_subscription_relationship_delete, channel: :web, user: nil, group: group, receiver_role: 'any_role')
   end
 end
