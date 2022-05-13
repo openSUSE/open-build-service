@@ -13,6 +13,11 @@
                                                filter_item: { type: 'incoming_requests' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: @count['outgoing_requests'],
                                                filter_item: { type: 'outgoing_requests' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Roles Granted', amount: @count['relationships_created'],
+                                               filter_item: { type: 'relationships_created' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Roles Revoked', amount: @count['relationships_deleted'],
+                                               filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
+
 - unless @projects_for_filter.empty?
   .row.list-group-flush.mt-5
     %h5.ml-3 Projects
