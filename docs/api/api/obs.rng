@@ -364,6 +364,11 @@
           </element>
         </optional>
         <optional>
+          <element name="publish-issues">
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="issues-updated">
             <text/>
           </element>

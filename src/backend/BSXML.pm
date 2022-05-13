@@ -1707,6 +1707,7 @@ our $issue_trackers = [
 	    'description',
 	    'kind',
             'label',
+            'publish-issues',
             'enable-fetch',
 	    'regex',
 	    'user',
