@@ -116,6 +116,142 @@ RSpec.describe EventMailer, vcr: true do
       end
     end
 
+    context 'for an event of type Event::RelationshipCreate' do
+      let(:who) { create(:confirmed_user) }
+      let(:project) { create(:project) }
+      let(:group) { create(:group_with_user, user: receiver) }
+      let!(:subscription) { create(:event_subscription_relationship_create, user: receiver) }
+      let(:mail) { EventMailer.event(Event::RelationshipCreate.last.subscribers, Event::RelationshipCreate.last).deliver_now }
+
+      before do
+        login(receiver)
+      end
+
+      context 'when a user is added to a project' do
+        before do
+          Event::RelationshipCreate.create!(who: who.login, user: receiver.login, project: project.name, role: 'reviewer')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'always uses default for FROM' do
+          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        end
+
+        it 'sends an email to the subscribed user' do
+          expect(mail.to).to include(receiver.email)
+        end
+
+        it 'contains the correct text' do
+          expect(mail.body.encoded).to include("#{who} made you reviewer of #{project}")
+          expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
+        end
+
+        it 'renders link to the users page' do
+          expected_html = "made you reviewer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expect(mail.html_part.to_s).to include(expected_html)
+        end
+      end
+
+      context 'when a group is added to a project' do
+        before do
+          Event::RelationshipCreate.create!(who: who.login, group: group.title, project: project.name, role: 'maintainer')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'always uses default for FROM' do
+          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        end
+
+        it 'sends an email to the user the user belonging to the subscribed group' do
+          expect(mail.to).to include(receiver.email)
+        end
+
+        it 'contains the correct text' do
+          expect(mail.body.encoded).to include("#{who} made you maintainer of #{project}")
+          expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
+        end
+
+        it 'renders link to the users page' do
+          expected_html = "made you maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expect(mail.html_part.to_s).to include(expected_html)
+        end
+      end
+    end
+
+    context 'for an event of type Event::RelationshipDelete' do
+      let(:who) { create(:confirmed_user) }
+      let(:project) { create(:project) }
+      let(:group) { create(:group_with_user, user: receiver) }
+      let!(:subscription) { create(:event_subscription_relationship_delete, user: receiver) }
+      let(:mail) { EventMailer.event(Event::RelationshipDelete.last.subscribers, Event::RelationshipDelete.last).deliver_now }
+
+      before do
+        login(receiver)
+      end
+
+      context 'when a user is added to a project' do
+        before do
+          Event::RelationshipDelete.create!(who: who.login, user: receiver.login, project: project.name, role: 'reviewer')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'always uses default for FROM' do
+          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        end
+
+        it 'sends an email to the subscribed user' do
+          expect(mail.to).to include(receiver.email)
+        end
+
+        it 'contains the correct text' do
+          expect(mail.body.encoded).to include("#{who} removed you as reviewer of #{project}")
+          expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
+        end
+
+        it 'renders link to the users page' do
+          expected_html = "removed you as reviewer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expect(mail.html_part.to_s).to include(expected_html)
+        end
+      end
+
+      context 'when a group is added to a project' do
+        before do
+          Event::RelationshipDelete.create!(who: who.login, group: group.title, project: project.name, role: 'maintainer')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'always uses default for FROM' do
+          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        end
+
+        it 'sends an email to the user the user belonging to the subscribed group' do
+          expect(mail.to).to include(receiver.email)
+        end
+
+        it 'contains the correct text' do
+          expect(mail.body.encoded).to include("#{who} removed you as maintainer of #{project}")
+          expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
+        end
+
+        it 'renders link to the users page' do
+          expected_html = "removed you as maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expect(mail.html_part.to_s).to include(expected_html)
+        end
+      end
+    end
+
     context 'when the subscriber has no email' do
       let(:group) { create(:group, email: nil) }
       let(:empty_event) { nil }
