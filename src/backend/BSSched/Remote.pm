@@ -462,9 +462,9 @@ sub addrepo_remote_unpackcpio {
     return undef;
   }
 
-  my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
+  my %cpio = map {$_->{'name'} => $_} @{$cpio || []};
   my $repostate = $cpio{'repositorystate'};
-  $repostate = BSUtil::fromxml($repostate, $BSXML::repositorystate, 2) if $repostate;
+  $repostate = BSUtil::fromxml($repostate->{'data'}, $BSXML::repositorystate, 2) if $repostate;
   if ($arch eq $myarch) {
     my $prpnotready = $gctx->{'prpnotready'};
     delete $prpnotready->{$prp};
@@ -475,16 +475,15 @@ sub addrepo_remote_unpackcpio {
   my $r;
   my $isempty;
   if (exists $cpio{'repositorysolv'} && $solvok) {
-    eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
+    eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}->{'data'}); };
     warn($@) if $@;
   } elsif (exists $cpio{'repositorycache'}) {
     my $cache;
     if (defined &BSSolv::thawcache) {
-      eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}); };
+      eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}->{'data'}) };
     } else {
-      eval { $cache = BSUtil::fromstorable($cpio{'repositorycache'}); };
+      eval { $cache = BSUtil::fromstorable($cpio{'repositorycache'}->{'data'}) };
     }
-    delete $cpio{'repositorycache'};    # free mem
     warn($@) if $@;
     return undef unless $cache;
     delete $cache->{'/url'};
