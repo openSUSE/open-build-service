@@ -617,7 +617,7 @@ sub getpeerdata {
     my ($port, $addr) = sockaddr_in6($peername);
     # support decoding of mapped ipv4 addresses
     if ($addr && substr($addr, 0, 12) eq "\0\0\0\0\0\0\0\0\0\0\377\377") {
-      return ($port, join('.', unpack("C4", substr($addr, 12, 4))));
+      return ($port, inet_ntoa(substr($addr, 12, 4)));
     }
     $addr = Socket::inet_ntop(AF_INET6, $addr) if $addr;
     return ($port, $addr);
