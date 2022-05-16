@@ -21,13 +21,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                       fetch_notifications.where(id: params[:notification_ids])
                     end
     # rubocop:disable Rails/SkipsModelValidations
-    updated_notifications = notifications.update_all('delivered = !delivered')
+    read_count = notifications.where(delivered: false).update_all('delivered = !delivered')
+    unread_count = notifications.where(delivered: true).update_all('delivered = !delivered')
     # rubocop:enable Rails/SkipsModelValidations
 
-    if updated_notifications.zero?
+    if read_count.zero? && unread_count.zero?
       flash.now[:error] = "Couldn't update the notifications"
     else
-      send_notifications_information_rabbitmq(updated_notifications)
+      send_notifications_information_rabbitmq(read_count, unread_count)
     end
 
     respond_to do |format|
@@ -91,8 +92,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     fetch_notifications.count > Notification::MAX_PER_PAGE
   end
 
-  def send_notifications_information_rabbitmq(number_of_records)
-    RabbitmqBus.send_to_bus('metrics',
-                            "notification.delivered,web=true,rss=false value=#{number_of_records}")
+  def send_notifications_information_rabbitmq(read_count, unread_count)
+    RabbitmqBus.send_to_bus('metrics', "notification,action=read value=#{read_count}") if read_count.positive?
+    RabbitmqBus.send_to_bus('metrics', "notification,action=unread value=#{unread_count}") if unread_count.positive?
   end
 end
