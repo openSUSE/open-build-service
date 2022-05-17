@@ -20,7 +20,7 @@
 # create a diff between two source trees
 #
 
-package BSSrcdiff;
+package BSSrcServer::Srcdiff;
 
 use Digest::MD5;
 use Digest::SHA;
@@ -69,7 +69,7 @@ sub batcher {
       $inl -= $l;
     }
     $in = BSUtil::fromstorable($in);
-    $in = BSSrcdiff::filediff(@$in);
+    $in = BSSrcServer::Srcdiff::filediff(@$in);
     $in = BSUtil::tostorable($in);
     $in = pack('N', length($in)).$in;
     while (length($in)) {
@@ -78,7 +78,7 @@ sub batcher {
       $in = substr($in, $l);
     }
     eval {
-      exec("/usr/bin/perl", '-I', $INC[0], '-MBSSrcdiff', '-e', 'BSSrcdiff::batcher()') if $r++ == 1000;
+      exec("/usr/bin/perl", '-I', $INC[0], '-MBSSrcServer::Srcdiff', '-e', 'BSSrcServer::Srcdiff::batcher()') if $r++ == 1000;
     };
     warn($@) if $@;
   }
@@ -95,7 +95,7 @@ sub startbatcher {
     POSIX::dup2(fileno(BATCHEROUT), 3);
     my $dir = __FILE__;
     $dir =~ s/[^\/]+$/./;
-    exec("/usr/bin/perl", '-I', $dir, '-MBSSrcdiff', '-e', 'BSSrcdiff::batcher()');
+    exec("/usr/bin/perl", '-I', $dir, '-MBSSrcServer::Srcdiff', '-e', 'BSSrcServer::Srcdiff::batcher()');
     die("/usr/bin/perl: $!\n");
   }
   my $p = '';
