@@ -90,7 +90,7 @@ sub sync_package {
   if (!$pack) {
     return unless -e "$projectsdir/$projid.pkg/$packid.xml";
     print "scmsync: delete $projid/$packid\n";
-    eval { delpackage($cgi, $projid, $packid) };
+    eval { deletepackage($cgi, $projid, $packid) };
     warn($@) if $@;
     $notify_repservers->('package', $projid, $packid);
     $notify->("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
