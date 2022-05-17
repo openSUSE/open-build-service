@@ -215,7 +215,7 @@ sub listtar {
     push @c, {'type' => $type, 'name' => $name, 'size' => $size, 'mode' => $mode, 'info' => $info};
     $c[-1]->{'md5'} = $md5 if defined $md5;
   }
-  close(F) || die("tar: $!\n");
+  close(F) || die($! ? "tar: $!\n" : "tar: exit status $?\n");
   if ($fc) {
     opentar(\*F, $tar, $gemdata, '-xOf');
     for my $c (@c) {
@@ -235,7 +235,7 @@ sub listtar {
       $c->{'md5'} = $ctx->hexdigest();
       $c->{'info'} = $ctx256->hexdigest();
     }
-    close(F) || die("tar: $!\n");
+    close(F) || die($! ? "tar: $!\n" : "tar: exit status $?\n");
   }
   return @c;
 }
@@ -287,7 +287,7 @@ sub extracttar {
       }
     }
   }
-  close(F) || die("tar: $!\n");
+  close(F) || die($! ? "tar: $!\n" : "tar: exit status $?\n");
 }
 
 sub listgem {
