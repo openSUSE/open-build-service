@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_13_223301) do
+ActiveRecord::Schema.define(version: 2022_05_18_094002) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -425,7 +425,7 @@ ActiveRecord::Schema.define(version: 2022_04_13_223301) do
     t.index ["workflow_run_id"], name: "index_event_subscriptions_on_workflow_run_id"
   end
 
-  create_table "events", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "events", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "eventtype", null: false, collation: "utf8_unicode_ci"
     t.text "payload"
     t.datetime "created_at"
