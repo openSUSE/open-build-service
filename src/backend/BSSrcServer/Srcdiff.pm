@@ -95,6 +95,7 @@ sub startbatcher {
     POSIX::dup2(fileno(BATCHEROUT), 3);
     my $dir = __FILE__;
     $dir =~ s/[^\/]+$/./;
+    $dir =~ s/BSSrcServer\/\.$/./;
     exec("/usr/bin/perl", '-I', $dir, '-MBSSrcServer::Srcdiff', '-e', 'BSSrcServer::Srcdiff::batcher()');
     die("/usr/bin/perl: $!\n");
   }
