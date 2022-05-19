@@ -23,7 +23,9 @@ class SCMExceptionHandler
               Octokit::InvalidRepository,
               Octokit::PathDiffTooLarge,
               Octokit::ServiceUnavailable,
-              Octokit::InternalServerError do |exception|
+              Octokit::InternalServerError,
+              Octokit::UnprocessableEntity,
+              Octokit::BadGateway do |exception|
     log_to_workflow_run(exception, 'GitHub') if @workflow_run.present?
   end
 
