@@ -115,10 +115,10 @@ sub serveropen {
       socket($s , PF_INET6, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
       setsockopt($s, SOL_SOCKET, SO_REUSEADDR, pack("l",1));
       if (ref($port)) {
-        bind($s, sockaddr_in6(0, Socket::IN6ADDR_ANY)) || die "bind: $!\n";
+        bind($s, sockaddr_in6(0, Socket::IN6ADDR_ANY())) || die "bind: $!\n";
         ($$port) = sockaddr_in6(getsockname($s));
       } else {
-        bind($s, sockaddr_in6($port, Socket::IN6ADDR_ANY)) || die "bind: $!\n";
+        bind($s, sockaddr_in6($port, Socket::IN6ADDR_ANY())) || die "bind: $!\n";
       }
     } else {
       socket($s , PF_INET, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
