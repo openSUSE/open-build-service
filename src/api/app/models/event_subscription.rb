@@ -106,11 +106,7 @@ class EventSubscription < ApplicationRecord
 
   def measure_changes
     RabbitmqBus.send_to_bus('metrics',
-                            "event_subscription,
-                             event_type=#{eventtype},
-                             enabled=#{enabled},
-                             receiver_role=#{receiver_role},
-                             channel=#{channel} value=1")
+                            "event_subscription,event_type=#{eventtype},enabled=#{enabled},receiver_role=#{receiver_role},channel=#{channel} value=1")
   end
 end
 
