@@ -79,6 +79,8 @@ sub deamonize {
   $| = 1; # flush all output immediately
 }
 
+my $ai_addrconfig = eval { Socket::AI_ADDRCONFIG() } || 0;
+
 sub serveropen {
   # creates master socket
   # 512 connections in the queue maximum
@@ -99,8 +101,8 @@ sub serveropen {
   }
 
   # check if we should do ipv6
-  if (!defined($family) && grep {ref($_) || !/^&/} @ports) {
-    my ($err, @ai) = Socket::getaddrinfo("", 0, { 'socktype' => SOCK_STREAM, 'flags' => Socket::AI_ADDRCONFIG });
+  if (!defined($family) && $ai_addrconfig && grep {ref($_) || !/^&/} @ports) {
+    my ($err, @ai) = Socket::getaddrinfo("", 0, { 'socktype' => SOCK_STREAM, 'flags' => $ai_addrconfig });
     $family = AF_INET6 if grep {$_->{'family'} == AF_INET6} @ai;
   }
 

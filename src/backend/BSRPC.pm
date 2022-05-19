@@ -187,18 +187,25 @@ sub readanswerheaderblock {
   return ($1, $ans);
 }
 
+my $ai_addrconfig = eval { Socket::AI_ADDRCONFIG() } || 0;
+
 sub lookuphost {
   my ($host, $port, $cache) = @_;
   my $hostaddr;
   if ($cache && $cache->{$host} && $cache->{$host}->[1] > time()) {
     $hostaddr = $cache->{$host}->[0];
   } else {
-    my $hints = { 'socktype' => SOCK_STREAM, 'flags' => Socket::AI_ADDRCONFIG };
-    my ($err, @ai) = Socket::getaddrinfo($host, undef, $hints);
-    return undef if $err;
-    my @aif = grep {$_->{'family'} == AF_INET} @ai;
-    @aif = grep {$_->{'family'} == AF_INET6} @ai unless @aif;
-    $hostaddr = $aif[0]->{'addr'} if @aif;
+    if (defined &Socket::getaddrinfo) {
+      my $hints = { 'socktype' => SOCK_STREAM, 'flags' => $ai_addrconfig };
+      my ($err, @ai) = Socket::getaddrinfo($host, undef, $hints);
+      return undef if $err;
+      my @aif = grep {$_->{'family'} == AF_INET} @ai;
+      @aif = grep {$_->{'family'} == AF_INET6} @ai unless @aif;
+      $hostaddr = $aif[0]->{'addr'} if @aif;
+    } else {
+      $hostaddr = inet_aton($host);
+      $hostaddr = sockaddr_in(0, $hostaddr) if $hostaddr;
+    }
     return undef unless $hostaddr;
     $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
   }
