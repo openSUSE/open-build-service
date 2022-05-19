@@ -78,6 +78,20 @@ class WorkflowRun < ApplicationRecord
     end
   end
 
+  # FIXME: This `if github do this and if gitlab do that` is scattered around
+  # the code regarding workflow runs. It is asking for a refactor putting
+  # together all the behaviour regarding GitHub and all the behaviour regarding
+  # GitLab.
+  def scm_vendor
+    if parsed_request_headers['HTTP_X_GITHUB_EVENT']
+      :github
+    elsif parsed_request_headers['HTTP_X_GITLAB_EVENT']
+      :gitlab
+    else
+      :unknown
+    end
+  end
+
   private
 
   def parsed_request_headers
