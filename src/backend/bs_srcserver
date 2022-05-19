@@ -53,7 +53,6 @@ use BSHandoff;
 use BSWatcher ':https';
 use BSXPath;
 use BSStdServer;
-use BSSrcdiff;
 use Build;
 use BSPGP;
 use BSSrcrep;
@@ -74,6 +73,7 @@ use BSSrcServer::Link;
 use BSSrcServer::Service;
 use BSSrcServer::Product;
 use BSSrcServer::Multibuild;
+use BSSrcServer::Srcdiff;
 use BSSrcServer::Blame;
 use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
@@ -3216,12 +3216,12 @@ sub sourcediff {
   }
   if ($view eq 'xml') {
     if (!$cgi->{'onlyissues'}) {
-      $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff($ofn, $ofiles, $fn, $files, %opts) };
+      $xmlret->{'files'} = { 'file' => BSSrcServer::Srcdiff::datadiff($ofn, $ofiles, $fn, $files, %opts) };
     }
     if ($cgi->{'withissues'}) {
       my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
       $opts{'trackers'} = $trackers->{'issue-tracker'} || [];
-      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff($ofn, $ofiles, $fn, $files, %opts) };
+      $xmlret->{'issues'} = { 'issue' => BSSrcServer::Srcdiff::issuediff($ofn, $ofiles, $fn, $files, %opts) };
     }
     BSUtil::data2utf8xml($xmlret);
     $d = XMLout($BSXML::sourcediff, $xmlret);
@@ -3231,9 +3231,9 @@ sub sourcediff {
     $opts{'nodecomp'} = 1;
     $opts{'oldrevision'} = $orev->{'rev'} if defined $orev->{'rev'};
     $opts{'newrevision'} = $rev->{'rev'} if defined $rev->{'rev'};
-    $d = BSSrcdiff::unifieddiff($ofn, $ofiles, $fn, $files, %opts);
+    $d = BSSrcServer::Srcdiff::unifieddiff($ofn, $ofiles, $fn, $files, %opts);
   } else {
-    $d = BSSrcdiff::srcdiff($ofn, $ofiles, $fn, $files, %opts);
+    $d = BSSrcServer::Srcdiff::srcdiff($ofn, $ofiles, $fn, $files, %opts);
   }
   unlink($_) for keys %xobscpio;
   if ($cn) {
