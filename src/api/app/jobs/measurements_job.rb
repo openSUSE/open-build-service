@@ -7,6 +7,7 @@ class MeasurementsJob < ApplicationJob
     RabbitmqBus.send_to_bus('metrics', "group count=#{Group.count}")
     RabbitmqBus.send_to_bus('metrics', "user #{measurements_to_fields(users_measurements)}")
     notifications_measurements
+    subscription_measurements
   end
 
   private
@@ -36,6 +37,26 @@ class MeasurementsJob < ApplicationJob
     User::STATES.each_with_object({}) do |state, fields|
       fields[state.to_sym] = User.where(state: state).count
       fields
+    end
+  end
+
+  def subscription_measurements
+    RabbitmqBus.send_to_bus('metrics', "event_subscription_count,default=true value=#{EventSubscription.where(user_id: nil).count}")
+
+    EventSubscription.group(:channel).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,channel=#{type.first} value=#{type.second}")
+    end
+
+    EventSubscription.group(:enabled).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,enabled=#{type.first} value=#{type.second}")
+    end
+
+    EventSubscription.group(:eventtype).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,eventtype=#{type.first} value=#{type.second}")
+    end
+
+    EventSubscription.group(:receiver_role).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,receiver_role=#{type.first} value=#{type.second}")
     end
   end
 
