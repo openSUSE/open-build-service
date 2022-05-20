@@ -34,7 +34,8 @@ class SCMExceptionHandler
               Gitlab::Error::NotFound,
               Gitlab::Error::ServiceUnavailable,
               Gitlab::Error::TooManyRequests,
-              Gitlab::Error::Unauthorized do |exception|
+              Gitlab::Error::Unauthorized,
+              Gitlab::Error::BadRequest do |exception|
     log_to_workflow_run(exception, 'GitLab') if @workflow_run.present?
   end
 
