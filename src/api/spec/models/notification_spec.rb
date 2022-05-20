@@ -68,31 +68,31 @@ RSpec.describe Notification do
 
   describe 'Instrumentation' do
     let!(:test_user) { create(:confirmed_user, login: 'foo') }
-    let!(:rss_notification) { create(:rss_notification, subscriber: test_user) }
+    let!(:web_notification) { create(:web_notification, subscriber: test_user) }
 
     before do
-      allow(RabbitmqBus).to receive(:send_to_bus).with('metrics', 'notification.delivered,notifiable_type=,web=false,rss=true value=1')
+      allow(RabbitmqBus).to receive(:send_to_bus).with('metrics', 'notification,action=read value=1')
     end
 
     context 'if delivered change, we should track it' do
       before do
-        rss_notification.delivered = true
+        web_notification.delivered = true
       end
 
       it do
-        rss_notification.save
-        expect(RabbitmqBus).to have_received(:send_to_bus).with('metrics', 'notification.delivered,notifiable_type=,web=false,rss=true value=1')
+        web_notification.save
+        expect(RabbitmqBus).to have_received(:send_to_bus).with('metrics', 'notification,action=read value=1')
       end
     end
 
-    context 'if delivered doe not change, we should not track it' do
+    context 'if delivered does not change, we should not track it' do
       before do
-        rss_notification.title = 'FOO FOO'
+        web_notification.title = 'FOO FOO'
       end
 
       it do
-        rss_notification.save
-        expect(RabbitmqBus).not_to have_received(:send_to_bus).with('metrics', 'notification.delivered,notifiable_type=,web=false,rss=true value=1')
+        web_notification.save
+        expect(RabbitmqBus).not_to have_received(:send_to_bus).with('metrics', 'notification,action=read value=1')
       end
     end
   end
