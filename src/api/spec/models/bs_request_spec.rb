@@ -593,7 +593,7 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       it 'does not change the priority of the bs request' do
-        expect { bs_request.sanitize! }.not_to(change { HistoryElement::RequestPriorityChange.count })
+        expect { bs_request.sanitize! }.not_to(change(HistoryElement::RequestPriorityChange, :count))
         expect(bs_request.priority).to eq('moderate')
       end
     end
