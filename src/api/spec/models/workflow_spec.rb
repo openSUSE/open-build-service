@@ -406,7 +406,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
       end
 
       # This example requires VCR
-      it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(0) }
+      it { expect { subject.call }.not_to change(WorkflowArtifactsPerStep, :count) }
     end
 
     context 'with step with invalid intructions' do
@@ -419,7 +419,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
       end
 
       # This example requires VCR
-      it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(0) }
+      it { expect { subject.call }.not_to change(WorkflowArtifactsPerStep, :count) }
     end
 
     context 'with step with invalid project name' do
@@ -434,7 +434,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
       end
 
       # This example requires VCR
-      it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(0) }
+      it { expect { subject.call }.not_to change(WorkflowArtifactsPerStep, :count) }
     end
   end
 

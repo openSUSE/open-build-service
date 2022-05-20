@@ -368,7 +368,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       it 'adds a validation error' do
         subject.valid?
 
-        expect { subject.call }.to change(Package, :count).by(0)
+        expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("Invalid project 'Invalid/format'")
       end
     end
