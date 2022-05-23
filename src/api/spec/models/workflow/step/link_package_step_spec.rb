@@ -112,7 +112,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       }
     end
 
-    it { expect { subject.call }.to(change(Project, :count).by(0)) }
+    it { expect { subject.call }.not_to(change(Project, :count)) }
     it { expect { subject.call }.to(change(Package, :count).by(2)) }
     it { expect(subject.call.project.name).to eq(target_project_name) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -365,7 +365,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
           expect(SCMStatusReporter).not_to have_received(:new)
         end
 
-        it { expect { subject.call }.to(change(Project, :count).by(0)) }
+        it { expect { subject.call }.not_to(change(Project, :count)) }
         it { expect { subject.call }.to(change(Package, :count).by(2)) }
         it { expect(subject.call.project.name).to eq(target_project_name) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
@@ -509,7 +509,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       it 'gives an error for invalid name' do
         subject.valid?
 
-        expect { subject.call }.to change(Package, :count).by(0)
+        expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("invalid source project 'Invalid/format'")
       end
     end
@@ -520,7 +520,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       it 'gives an error for invalid name' do
         subject.valid?
 
-        expect { subject.call }.to change(Package, :count).by(0)
+        expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("invalid source package 'Invalid/format'")
       end
     end
@@ -531,7 +531,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       it 'gives an error for invalid name' do
         subject.valid?
 
-        expect { subject.call }.to change(Package, :count).by(0)
+        expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("invalid target project 'Invalid/format'")
       end
     end
