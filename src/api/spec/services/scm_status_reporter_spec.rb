@@ -76,7 +76,7 @@ RSpec.describe SCMStatusReporter, type: :service do
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
           subject
           expect(workflow_run.status).to eq('fail')
-          expect(workflow_run.response_body).to eq('Failed to report back to GitHub: Octokit::InvalidRepository')
+          expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Octokit::InvalidRepository')
         end
       end
 
@@ -89,7 +89,7 @@ RSpec.describe SCMStatusReporter, type: :service do
 
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
           expect(workflow_run.status).to eq('fail')
-          expect(workflow_run.response_body).to eq('Failed to report back to GitHub: Sorry. Your account is suspended.')
+          expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Sorry. Your account is suspended.')
         end
       end
     end
