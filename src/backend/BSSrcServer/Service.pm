@@ -132,7 +132,7 @@ sub notify_serviceresult {
 
 sub commitobsscm {
   my ($projid, $packid, $servicemark, $rev, $files) = @_;
-  die("obs_scm_bridge must not return _service files\n") if grep {$_ eq '_service' || $_ eq '_serviceerror' || /^_service[:_]/} keys %$files;
+  die("obs_scm_bridge must not return _service files\n") if grep {$_ eq '_serviceerror' || /^_service[:_]/} keys %$files;
   my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
   my $data = BSSrcrep::readobsscmdata($projid, $packid, $servicemark);
   if (!$data || $data->{'run'} ne $rev->{'run'}) {
@@ -382,7 +382,6 @@ sub doservicerpc {
       if ($noprefix) {
 	$qfile = $1 if $qfile =~ /^_service:.*:(.*?)$/s;
 	next if $files->{$qfile};
-	next if $qfile eq '_service';	# hmm?
 	if ($qfile ne '_service_error' && $qfile =~ /^_service_/) {
 	  if (exists($rev->{$qfile}) && -s "$odir/$pfile" < 100000) {
 	    $rev->{$qfile} = readstr("$odir/$pfile");
