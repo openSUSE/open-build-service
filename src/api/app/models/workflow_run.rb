@@ -18,6 +18,7 @@ class WorkflowRun < ApplicationRecord
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
+  has_many :scm_status_reports, dependent: :destroy
 
   paginates_per 20
 
@@ -90,6 +91,10 @@ class WorkflowRun < ApplicationRecord
     else
       :unknown
     end
+  end
+
+  def last_response_body
+    scm_status_reports.last&.response_body
   end
 
   private

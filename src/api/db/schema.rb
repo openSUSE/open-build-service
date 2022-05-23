@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_18_094002) do
+ActiveRecord::Schema.define(version: 2022_05_20_131205) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
@@ -924,6 +924,14 @@ ActiveRecord::Schema.define(version: 2022_05_18_094002) do
     t.datetime "created_at"
     t.index ["role_id"], name: "role_id"
     t.index ["user_id", "role_id"], name: "roles_users_all_index", unique: true
+  end
+
+  create_table "scm_status_reports", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "workflow_run_id"
+    t.text "response_body", size: :long
+    t.text "request_parameters", size: :long
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "sessions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
