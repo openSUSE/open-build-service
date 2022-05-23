@@ -4,6 +4,10 @@
                         role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'true' } }
       Webhook from #{scm_vendor}
   %li.nav-item{ role: 'presentation' }
+    %a.nav-link{ id: "scm-reports-tab#{id}", data: { toggle: 'tab' }, href: "#scm-reports-tab-content#{id}",
+                role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
+      Reports to the SCM
+  %li.nav-item{ role: 'presentation' }
     %a.nav-link{ id: "artifacts#{id}", data: { toggle: 'tab' }, href: "#artifacts-tab-content#{id}",
                  role: 'tab', aria: { controls: "artifacts-tab-content#{id}", selected: 'false' } }
       Artifacts
@@ -22,6 +26,22 @@
     %h5 Webhook Request Payload
     %pre.border.p-2#request-payload
       = pretty_request_payload
+  .tab-pane.fade{ id: "scm-reports-tab-content#{id}", role: 'tabpanel',
+                  aria: { labelledby: "scm-reports-tab#{id}" } }
+    - if status_reports.any?
+      .list-group.list-group-flush
+        - status_reports.each do |status_report|
+          .list-group-item
+            %h6 Response body
+            %pre.border.p-2#status-report-response-body
+              = status_report.response_body
+            %h6 Request parameters
+            %pre.border.p-2#status-report-request-parameters
+              = status_report.pretty_request_parameters
+            %small.text-nowrap{ title: l(status_report.created_at.utc) }
+              Sent #{time_ago_in_words(status_report.created_at)} ago
+    - else
+      No failed status reports
   .tab-pane.fade{ id: "artifacts-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "artifacts#{id}" } }
     %h5 Artifacts
