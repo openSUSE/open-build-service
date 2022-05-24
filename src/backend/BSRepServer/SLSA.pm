@@ -107,26 +107,28 @@ sub link_binaries {
 
   my $gbininfo;
   for my $digest (sort keys %$digests) {
-    next if -e "$slsadir/$prpa/$digest";
-    mkdir_p("$slsadir/$prpa");
+    my $ddir = substr($digest, 0, 2);
+    my $ddigest = "$ddir/$digest";
+    next if -e "$slsadir/$prpa/$ddigest";
+    mkdir_p("$slsadir/$prpa/$ddir");
     my $tmp = "$slsadir/$prpa/.incoming$$";
     my $filename = $digests->{$digest};
     if ($filename eq '_config') {
       if ($configs && $configs->{$digest} && Digest::SHA::sha256_hex($configs->{$digest}) eq $digest) {
-	writestr($tmp, "$slsadir/$prpa/$digest", $configs->{$digest});
+	writestr($tmp, "$slsadir/$prpa/$ddigest", $configs->{$digest});
 	next;
       }
       die("404 a config with digest $digest does not exist in $prpa\n");
     }
     $gbininfo ||= read_gbininfo($prpa);
     die("404 binary $digests->{$digest} digest $digest does not exist in $prpa\n") unless link_binary($prpa, $gbininfo, $filename, $digest, $tmp);
-    if (!link($tmp, "$slsadir/$prpa/$digest")) {
-      my $err = "link $slsadir/$prpa/.incoming$$ $slsadir/$prpa/$digest: $!";
+    if (!link($tmp, "$slsadir/$prpa/$ddigest")) {
+      my $err = "link $slsadir/$prpa/.incoming$$ $slsadir/$prpa/$ddigest: $!";
       unlink($tmp);
       unlink("$tmp.prov");
-      die("$err\n") unless -e "$slsadir/$prpa/$digest";
+      die("$err\n") unless -e "$slsadir/$prpa/$ddigest";
     } else {
-      link("$tmp.prov", "$slsadir/$prpa/$digest.prov");
+      link("$tmp.prov", "$slsadir/$prpa/$ddigest.prov");
       unlink($tmp);
       unlink("$tmp.prov");
     }
@@ -167,7 +169,8 @@ sub set_references {
 
 sub get_references {
   my ($prpa, $digest) = @_;
-  die("404: unknown file in $prpa digest $digest\n") unless -e "$slsadir/$prpa/$digest";
+  my $ddigest = substr($digest, 0, 2).'/'.$digest;
+  die("404: unknown file in $prpa digest $digest\n") unless -e "$slsadir/$prpa/$ddigest";
   my $h = connectdb($prpa);
   BSSQLite::begin_work($h);
   my $dig = pack("H*", $digest);
@@ -184,10 +187,11 @@ sub get_references {
 sub openfile {
   my ($prpa, $digest, $filename) = @_;
   my $fd;
+  my $ddigest = substr($digest, 0, 2).'/'.$digest;
   if ($filename =~ /slsa_provenance\.json$/) {
-    open($fd, '<', "$slsadir/$prpa/$digest.prov") || die("404: unknown provenance file $prpa/$filename for digest $digest\n");
+    open($fd, '<', "$slsadir/$prpa/$ddigest.prov") || die("404: unknown provenance file $prpa/$filename for digest $digest\n");
   } else {
-    open($fd, '<', "$slsadir/$prpa/$digest") || die("404: unknown file $prpa/$filename with digest $digest\n");
+    open($fd, '<', "$slsadir/$prpa/$ddigest") || die("404: unknown file $prpa/$filename with digest $digest\n");
   }
   return $fd;
 }
