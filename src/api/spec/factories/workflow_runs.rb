@@ -53,6 +53,11 @@ FactoryBot.define do
           File.read('spec/support/files/request_payload_github_tag_push.json')
         end
       end
+
+      after(:create) do |workflow_run, _evaluator|
+        ScmStatusReport.create(workflow_run: workflow_run,
+                               response_body: "<status code=\"ok\">\n  <summary>Ok</summary>\n</status>\n")
+      end
     end
 
     factory :workflow_run_github_running do
@@ -69,6 +74,21 @@ FactoryBot.define do
             <summary>The 'target_project' key is missing</summary>
           </status>
         END_OF_RESPONSE_BODY
+      end
+
+      after(:create) do |workflow_run, _evaluator|
+        ScmStatusReport.create(workflow_run: workflow_run,
+                               response_body: 'Failed to report back to GitHub: Unauthorized request. Please check your credentials again.',
+                               request_parameters: JSON.generate({
+                                                                   api_endpoint: 'https://api.github.com',
+                                                                   target_repository_full_name: 'danidoni/hello_world',
+                                                                   commit_sha: '6d86fdff6124833e688f93eb3b36c5393fb0e5e5',
+                                                                   state: 'pending',
+                                                                   status_options: {
+                                                                     context: 'OBS:  - /',
+                                                                     target_url: nil
+                                                                   }
+                                                                 }))
       end
     end
   end
