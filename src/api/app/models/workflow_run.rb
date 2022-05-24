@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class WorkflowRun < ApplicationRecord
   SOURCE_NAME_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'number'],
@@ -12,6 +13,15 @@ class WorkflowRun < ApplicationRecord
     'push' => ['head_commit', 'url'],
     'Push Hook' => ['commits', 0, 'url']
   }.freeze
+
+  PERMITTED_OPTIONS = [
+    # Permitted keys for GitHub
+    :api_endpoint, :target_repository_full_name, :commit_sha,
+    # Permitted keys for GitLab
+    :endpoint, :project_id, :commit_sha,
+    # both GitHub and GitLab
+    :state, :status_options
+  ].freeze
 
   validates :response_url, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
@@ -28,8 +38,22 @@ class WorkflowRun < ApplicationRecord
     fail: 2
   }
 
-  def update_to_fail(message)
+  # Marks the workflow run as failed and records the relevant debug information in response_body
+  def update_as_failed(message)
     update(response_body: message, status: 'fail')
+  end
+
+  # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
+  # Marks the workflow run as failed also.
+  def save_scm_report_failure(message, options)
+    scm_status_reports.create(response_body: message,
+                              request_parameters: JSON.generate(options.slice(PERMITTED_OPTIONS)))
+    update(status: 'fail')
+  end
+
+  # Stores info from a succesful SCM status report
+  def save_scm_report_success(options)
+    scm_status_reports.create(request_parameters: JSON.generate(options.slice(PERMITTED_OPTIONS)))
   end
 
   def payload
@@ -116,6 +140,7 @@ class WorkflowRun < ApplicationRecord
       ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 # == Schema Information
 #
