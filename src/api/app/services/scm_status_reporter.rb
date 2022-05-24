@@ -33,7 +33,16 @@ class SCMStatusReporter < SCMExceptionHandler
 
     EventSubscription.where(channel: 'scm', token: tokens, package: package).delete_all
 
-    @workflow_run.update_to_fail("Failed to report back to GitHub: #{e.message}") if @workflow_run.present?
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_failure("Failed to report back to GitHub: #{e.message}",
+                                            {
+                                              api_endpoint: @event_subscription_payload[:api_endpoint],
+                                              target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
+                                              commit_sha: @event_subscription_payload[:commit_sha],
+                                              state: @state,
+                                              status_options: status_options
+                                            })
+    end
   rescue Octokit::Error, Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
   end

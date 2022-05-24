@@ -28,8 +28,23 @@ class WorkflowRun < ApplicationRecord
     fail: 2
   }
 
-  def update_to_fail(message)
+  # Marks the workflow run as failed and records the relevant debug information in response_body
+  def update_as_failed(message)
     update(response_body: message, status: 'fail')
+  end
+
+  # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
+  def save_scm_report_failure(message, options)
+    sanitized_options = options.slice(
+      # Permitted keys for GitHub
+      :api_endpoint, :target_repository_full_name, :commit_sha,
+      # Permitted keys for GitLab
+      :endpoint, :project_id, :commit_sha,
+      # both GitHub and GitLab
+      :state, :status_options
+    )
+    scm_status_reports.create(response_body: message, request_parameters: JSON.generate(sanitized_options))
+    update(status: 'fail')
   end
 
   def payload

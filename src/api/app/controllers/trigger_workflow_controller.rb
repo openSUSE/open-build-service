@@ -16,11 +16,11 @@ class TriggerWorkflowController < TriggerController
         if validation_errors.none?
           @workflow_run.update(status: 'success', response_body: render_ok)
         else
-          @workflow_run.update_to_fail(render_error(status: 400, message: validation_errors.to_sentence))
+          @workflow_run.update_as_failed(render_error(status: 400, message: validation_errors.to_sentence))
         end
       end
     rescue APIError => e
-      @workflow_run.update_to_fail(render_error(status: e.status, errorcode: e.errorcode, message: e.message))
+      @workflow_run.update_as_failed(render_error(status: e.status, errorcode: e.errorcode, message: e.message))
     end
   end
 
@@ -34,7 +34,7 @@ class TriggerWorkflowController < TriggerController
   def validate_scm_event
     return if @gitlab_event.present? || @github_event.present?
 
-    @workflow_run.update_to_fail(
+    @workflow_run.update_as_failed(
       render_error(
         status: 400,
         errorcode: 'bad_request',
