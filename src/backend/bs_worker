@@ -293,16 +293,6 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
                      currently supported architectures: 
                      @{[sort keys %BSCando::cando]}
 
-       --kvm       : enable kvm
-
-       --pvm       : enable pvm
-
-       --xen       : enable xen
-
-       --lxc       : enable lxc
-
-       --docker    : enable docker
-
        --emulator  : enable emulator (requires prepared emulator.sh script)
        
        --zvm       : enable z/VM
