@@ -1,6 +1,7 @@
 class WorkflowRunDetailComponent < ApplicationComponent
   attr_reader :id, :request_headers, :pretty_request_payload,
-              :response_url, :response_body, :artifacts
+              :response_url, :response_body, :artifacts,
+              :scm_vendor
 
   def initialize(workflow_run:)
     super
@@ -10,6 +11,7 @@ class WorkflowRunDetailComponent < ApplicationComponent
     @response_url = workflow_run.response_url
     @response_body = workflow_run.response_body
     @artifacts = workflow_run.artifacts # collection of WorkflowArtifactsPerStep
+    @scm_vendor = workflow_run.scm_vendor.to_s.humanize
   end
 
   private
