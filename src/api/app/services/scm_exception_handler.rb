@@ -51,6 +51,6 @@ class SCMExceptionHandler
   private
 
   def log_to_workflow_run(exception, scm)
-    @workflow_run.update_to_fail("Failed to report back to #{scm}: #{exception.message}")
+    @workflow_run.update_to_fail("Failed to report back to #{scm}: #{ScmExceptionMessage.for(exception: exception, scm: scm)}")
   end
 end
