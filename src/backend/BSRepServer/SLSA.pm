@@ -99,6 +99,29 @@ sub link_binary {
       unlink("$tmp.prov");
     }
   }
+
+  # if this is a dod repo check the full tree
+  return link_binary_from_full($prpa, $hint, $digest, $tmp) if -e "$reporoot/$prpa/:full/doddata";
+
+  return 0;
+}
+
+sub link_binary_from_full {
+  my ($prpa, $hint, $digest, $tmp) = @_;
+
+  my $binname1 = '';
+  my $binname2 = '';
+  $binname1 = $hint;
+  $binname1 =~ s/\.[^\.]+$//;
+  $binname2 = $1 if $hint =~ /(.*)-([^-]+)-([^-]+)\.([^-]+)\.rpm$/;
+  for my $bin (sort(ls("$reporoot/$prpa/:full"))) {
+    if (($binname1 && $bin =~ /^\Q$binname1\E[-_\.]/) || ($binname2 && $bin =~ /^\Q$binname2\E[-_\.]/)) {
+      unlink($tmp);
+      next unless link("$reporoot/$prpa/:full/$bin", $tmp);
+      unlink("$tmp.prov");
+      return 1 if sha256file($tmp) eq $digest;
+    }
+  }
   return 0;
 }
 
