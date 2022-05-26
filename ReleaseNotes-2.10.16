@@ -20,4 +20,7 @@ Backend:
 Bugfixes
 ========
 
-
+Frontend:
+ * Update Nokogiri to version 1.13.6 to fix two security issues:
+   - GHSA-xh29-r2w5-wx8m: Improper Handling of Unexpected Data Type.
+   - GHSA-cgx6-hpwq-fhv5: Integer Overflow or Wraparound in libxml2.
