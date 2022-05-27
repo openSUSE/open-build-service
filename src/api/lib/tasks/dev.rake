@@ -104,10 +104,10 @@ namespace :dev do
       end
 
       desc 'Autocorrect rubocop offenses in rails and in root'
-      task :auto_correct do
-        sh 'rubocop --auto-correct --ignore_parent_exclusion'
+      task :autocorrect do
+        sh 'rubocop --autocorrect --ignore_parent_exclusion'
         Dir.chdir('../..') do
-          sh 'rubocop --auto-correct'
+          sh 'rubocop --autocorrect'
         end
       end
     end
