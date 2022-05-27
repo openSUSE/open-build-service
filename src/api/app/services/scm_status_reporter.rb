@@ -36,6 +36,8 @@ class SCMStatusReporter < SCMExceptionHandler
     @workflow_run.update_to_fail("Failed to report back to GitHub: #{e.message}") if @workflow_run.present?
   rescue Octokit::Error, Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
+  rescue Faraday::ConnectionFailed => e
+    @workflow_run.update_to_fail("Failed to report back to GitHub: #{e.message}")
   end
 
   private
