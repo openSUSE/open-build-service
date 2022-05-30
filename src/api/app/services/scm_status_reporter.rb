@@ -7,6 +7,8 @@ class SCMStatusReporter < SCMExceptionHandler
     @state = event_type.nil? ? 'pending' : scm_final_state(event_type)
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   def call
     if github?
       github_client = Octokit::Client.new(access_token: @scm_token, api_endpoint: @event_subscription_payload[:api_endpoint])
@@ -24,6 +26,7 @@ class SCMStatusReporter < SCMExceptionHandler
                                          @state,
                                          status_options)
     end
+    @workflow_run.save_scm_report_success(request_context) if @workflow_run.present?
   rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
     return if package.blank?
@@ -33,12 +36,17 @@ class SCMStatusReporter < SCMExceptionHandler
 
     EventSubscription.where(channel: 'scm', token: tokens, package: package).delete_all
 
-    @workflow_run.update_to_fail("Failed to report back to GitHub: #{e.message}") if @workflow_run.present?
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_failure("Failed to report back to GitHub: #{e.message}",
+                                            request_context)
+    end
   rescue Octokit::Error, Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
   rescue Faraday::ConnectionFailed => e
     @workflow_run.update_to_fail("Failed to report back to GitHub: #{e.message}")
   end
+  # rubocop:enable Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   private
 
@@ -63,5 +71,15 @@ class SCMStatusReporter < SCMExceptionHandler
     else
       'pending'
     end
+  end
+
+  def request_context
+    {
+      api_endpoint: @event_subscription_payload[:api_endpoint],
+      target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
+      commit_sha: @event_subscription_payload[:commit_sha],
+      state: @state,
+      status_options: status_options
+    }
   end
 end
