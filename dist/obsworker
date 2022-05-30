@@ -381,6 +381,7 @@ case "$1" in
 	elif [ "--lxc" == "$vmopt" ]; then echo "LXC container"
 	elif [ "openstack" == "$OBS_VM_TYPE" ]; then echo "OpenStack virtual machine"
 	else  echo "chroot"
+	fi
 
         # find SLP announced OBS servers
         if [ "$OBS_USE_SLP" == "yes" ]; then
