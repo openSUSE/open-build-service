@@ -61,7 +61,7 @@ Requires:       mysql
 Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.1.8
 Requires:       perl(GD)
-Requires:       rubygem(ruby:2.7.0:rack:%{rack_version})
+Requires:       rubygem(ruby:2.7.0:rack) = %{rack_version}
 
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
