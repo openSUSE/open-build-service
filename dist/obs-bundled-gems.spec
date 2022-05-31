@@ -15,6 +15,7 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%define rack_version 2.2.3.1
 
 Name:           obs-bundled-gems
 Version:        2.10~pre
@@ -71,7 +72,7 @@ Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
-Requires:       rubygem(ruby:3.1.0:rack)
+Requires:       rubygem(ruby:3.1.0:rack) = %{rack_version}
 %else
 Requires:       rubygem-bundler
 Requires:       rubygem-rake
