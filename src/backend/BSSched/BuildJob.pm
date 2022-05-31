@@ -1330,7 +1330,7 @@ sub metacheck {
     return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
   }
   if (join('\n', @meta) eq join('\n', @$new_meta)) {
-    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') && $ctx->{'relsynctrigger'}->{$packid}) {
+    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker') && $ctx->{'relsynctrigger'}->{$packid}) {
       if ($ctx->{'verbose'}) {
         print "      - $packid ($buildtype)\n";
         print "        rebuild counter sync\n";
@@ -1342,7 +1342,7 @@ sub metacheck {
     return ('done');
   }
   my $repo = $ctx->{'repo'};
-  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') {
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker') {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local') {
       #print "      - $packid ($buildtype)\n";
