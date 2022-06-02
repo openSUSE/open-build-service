@@ -46,14 +46,14 @@ class WorkflowRun < ApplicationRecord
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
   # Marks the workflow run as failed also.
   def save_scm_report_failure(message, options)
-    scm_status_reports.create(response_body: message,
-                              request_parameters: JSON.generate(options.slice(PERMITTED_OPTIONS)))
     update(status: 'fail')
+    scm_status_reports.create(response_body: message,
+                              request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
   end
 
   # Stores info from a succesful SCM status report
   def save_scm_report_success(options)
-    scm_status_reports.create(request_parameters: JSON.generate(options.slice(PERMITTED_OPTIONS)))
+    scm_status_reports.create(request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
   end
 
   def payload
