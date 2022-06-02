@@ -36,6 +36,15 @@
               %span
                 = @token.token_name
 
+        - if @token.type == 'Token::Workflow'
+          .form-row
+            .col
+              .form-group
+                %label.col-form-label.mr-2.font-weight-bold
+                  Token trigger url:
+                .input-group
+                  = render CopyToClipboardInputComponent.new(token_string: trigger_workflow_url(id: @token.id))
+
         - if @token.package
           .form-row
             .col-sm
