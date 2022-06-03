@@ -8,7 +8,7 @@ RSpec.describe WorkflowRunRequestActionFilterComponent, type: :component do
     filters = ['all'] + ScmWebhook::ALLOWED_PULL_REQUEST_ACTIONS + ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS
 
     filters.each do |filter|
-      expect(rendered_component).to have_text(filter)
+      expect(rendered_content).to have_text(filter)
     end
   end
 end

@@ -16,32 +16,32 @@ RSpec.describe WorkflowRunFilterComponent, type: :component do
   end
 
   it 'renders a link to receive all workflow runs' do
-    expect(rendered_component).to have_css('a.active', text: 'All')
+    expect(rendered_content).to have_css('a.active', text: 'All')
   end
 
   context 'status filter links' do
     it 'renders the succeeded filter' do
-      expect(rendered_component).to have_css('a', text: 'Succeeded')
+      expect(rendered_content).to have_css('a', text: 'Succeeded')
     end
 
     it 'renders the failed filter' do
-      expect(rendered_component).to have_css('a', text: 'Failed')
+      expect(rendered_content).to have_css('a', text: 'Failed')
     end
 
     it 'renders the running filter' do
-      expect(rendered_component).to have_css('a', text: 'Running')
+      expect(rendered_content).to have_css('a', text: 'Running')
     end
   end
 
   context 'event type filter links' do
     it 'renders the push event filters' do
-      expect(rendered_component).to have_css('a', text: 'Push')
-      expect(rendered_component).not_to have_css('a', text: 'Push Hook')
+      expect(rendered_content).to have_css('a', text: 'Push')
+      expect(rendered_content).not_to have_css('a', text: 'Push Hook')
     end
 
     it 'renders the pull/merge request event filters' do
-      expect(rendered_component).to have_css('a', text: 'Pull/Merge Request')
-      expect(rendered_component).not_to have_css('a', text: 'Merge Request Hook')
+      expect(rendered_content).to have_css('a', text: 'Pull/Merge Request')
+      expect(rendered_content).not_to have_css('a', text: 'Merge Request Hook')
     end
   end
 end

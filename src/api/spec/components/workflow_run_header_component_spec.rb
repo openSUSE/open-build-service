@@ -31,15 +31,15 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
     end
 
     it 'shows the event as a title' do
-      expect(rendered_component).to have_text('Fake event')
+      expect(rendered_content).to have_text('Fake event')
     end
 
     it 'shows the status' do
-      expect(rendered_component).to have_text('Running')
+      expect(rendered_content).to have_text('Running')
     end
 
     it 'shows the repository' do
-      expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
+      expect(rendered_content).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
     end
 
     context 'and it comes from a pull request' do
@@ -67,15 +67,15 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
         end
 
         it 'shows the action' do
-          expect(rendered_component).to have_text('Opened')
+          expect(rendered_content).to have_text('Opened')
         end
 
         it 'shows a link to the PR' do
-          expect(rendered_component).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
+          expect(rendered_content).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
         end
 
         it 'shows a link to the repository' do
-          expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
+          expect(rendered_content).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
         end
       end
 
@@ -97,15 +97,15 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
         end
 
         it 'does not show the action' do
-          expect(rendered_component).not_to have_text('edit')
+          expect(rendered_content).not_to have_text('edit')
         end
 
         it 'shows a link to the PR' do
-          expect(rendered_component).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
+          expect(rendered_content).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
         end
 
         it 'shows a link to the repository' do
-          expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
+          expect(rendered_content).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
         end
       end
     end
@@ -132,7 +132,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
       end
 
       it 'shows a link to the commit diff' do
-        expect(rendered_component).to have_link('1234', href: 'https://example.com/commit/1234')
+        expect(rendered_content).to have_link('1234', href: 'https://example.com/commit/1234')
       end
     end
   end
@@ -156,15 +156,15 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
     end
 
     it 'shows the event as a title' do
-      expect(rendered_component).to have_text('Fake hook event')
+      expect(rendered_content).to have_text('Fake hook event')
     end
 
     it 'shows the status' do
-      expect(rendered_component).to have_text('Running')
+      expect(rendered_content).to have_text('Running')
     end
 
     it 'shows the repository' do
-      expect(rendered_component).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
+      expect(rendered_content).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
     end
 
     context 'when the workflow comes from a merge request' do
@@ -206,7 +206,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
           end
 
           it "shows the #{action}" do
-            expect(rendered_component).to have_text(action.humanize)
+            expect(rendered_content).to have_text(action.humanize)
           end
         end
       end
@@ -229,16 +229,16 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
         end
 
         it 'does not show the action' do
-          expect(rendered_component).not_to have_text('unapproved')
+          expect(rendered_content).not_to have_text('unapproved')
         end
       end
 
       it 'shows a link to the MR' do
-        expect(rendered_component).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
+        expect(rendered_content).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
       end
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test')
+        expect(rendered_content).to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test')
       end
     end
 
@@ -278,8 +278,8 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
       end
 
       it 'shows a link to the commit diff' do
-        expect(rendered_component).to have_link('3075e06879c6c4bd2ab207b30c5a09d75f825d78',
-                                                href: 'https://gitlab.com/vpereira/hello_world/-/commit/3075e06879c6c4bd2ab207b30c5a09d75f825d78')
+        expect(rendered_content).to have_link('3075e06879c6c4bd2ab207b30c5a09d75f825d78',
+                                              href: 'https://gitlab.com/vpereira/hello_world/-/commit/3075e06879c6c4bd2ab207b30c5a09d75f825d78')
       end
     end
   end
