@@ -12,7 +12,7 @@
               %fieldset.form-group
                 = f.label(:string_readonly, 'Your new OBS Personal Access Token Secret', class: 'col-form-label col-form-label-lg')
                 .input-group
-                  = render CopyToClipboardInputComponent.new(token_string: @token.string)
+                  = render CopyToClipboardInputComponent.new(input_text: @token.string)
               %hr
 
           .form-row

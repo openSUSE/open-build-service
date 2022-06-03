@@ -25,7 +25,7 @@
                 %label.col-form-label.font-weight-bold
                   Secret:
                 .input-group
-                  = render CopyToClipboardInputComponent.new(token_string: @token.string)
+                  = render CopyToClipboardInputComponent.new(input_text: @token.string)
               %hr
 
         .form-row
@@ -43,7 +43,7 @@
                 %label.col-form-label.mr-2.font-weight-bold
                   Token trigger url:
                 .input-group
-                  = render CopyToClipboardInputComponent.new(token_string: trigger_workflow_url(id: @token.id))
+                  = render CopyToClipboardInputComponent.new(input_text: trigger_workflow_url(id: @token.id))
 
         - if @token.package
           .form-row
