@@ -14,16 +14,16 @@ RSpec.describe NotificationFilterComponent, type: :component do
 
     ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests'].each do |filter_name|
       it "displays a '#{filter_name}' filter" do
-        expect(rendered_component).to have_link(filter_name)
+        expect(rendered_content).to have_link(filter_name)
       end
     end
 
     it "doesn't display project filters" do
-      expect(rendered_component).not_to have_css('h5', text: 'Projects')
+      expect(rendered_content).not_to have_css('h5', text: 'Projects')
     end
 
     it "doesn't display group filters" do
-      expect(rendered_component).not_to have_css('h5', text: 'Groups')
+      expect(rendered_content).not_to have_css('h5', text: 'Groups')
     end
   end
 
@@ -40,18 +40,18 @@ RSpec.describe NotificationFilterComponent, type: :component do
 
     ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests'].each do |filter_name|
       it "displays a '#{filter_name}' filter" do
-        expect(rendered_component).to have_link(filter_name)
+        expect(rendered_content).to have_link(filter_name)
       end
     end
 
     it 'displays project filters' do
-      expect(rendered_component).to have_css('h5', text: 'Projects')
-      expect(rendered_component).to have_link(project.name)
+      expect(rendered_content).to have_css('h5', text: 'Projects')
+      expect(rendered_content).to have_link(project.name)
     end
 
     it 'displays group filters' do
-      expect(rendered_component).to have_css('h5', text: 'Groups')
-      expect(rendered_component).to have_link(group.title)
+      expect(rendered_content).to have_css('h5', text: 'Groups')
+      expect(rendered_content).to have_link(group.title)
     end
   end
 end

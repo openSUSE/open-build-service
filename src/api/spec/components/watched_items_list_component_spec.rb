@@ -10,7 +10,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       end
 
       it 'does not show any watched package in the list' do
-        expect(rendered_component).to have_text('There are no packages in the watchlist yet.')
+        expect(rendered_content).to have_text('There are no packages in the watchlist yet.')
       end
     end
 
@@ -23,8 +23,8 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       end
 
       it 'does show the watched package in the list' do
-        expect(rendered_component).not_to have_text('There are no packages in the watchlist yet.')
-        expect(rendered_component).to have_text(packages.sample.name)
+        expect(rendered_content).not_to have_text('There are no packages in the watchlist yet.')
+        expect(rendered_content).to have_text(packages.sample.name)
       end
     end
   end
@@ -36,7 +36,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       end
 
       it 'does not show any watched project in the list' do
-        expect(rendered_component).to have_text('There are no projects in the watchlist yet.')
+        expect(rendered_content).to have_text('There are no projects in the watchlist yet.')
       end
     end
 
@@ -49,8 +49,8 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       end
 
       it 'does show the watched project in the list' do
-        expect(rendered_component).not_to have_text('There are no projects in the watchlist yet.')
-        expect(rendered_component).to have_text(projects.sample.name)
+        expect(rendered_content).not_to have_text('There are no projects in the watchlist yet.')
+        expect(rendered_content).to have_text(projects.sample.name)
       end
     end
   end
@@ -62,7 +62,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       end
 
       it 'does not show any watched request in the list' do
-        expect(rendered_component).to have_text('There are no requests in the watchlist yet.')
+        expect(rendered_content).to have_text('There are no requests in the watchlist yet.')
       end
     end
 
@@ -75,8 +75,8 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       end
 
       it 'does show the watched request in the list' do
-        expect(rendered_component).not_to have_text('There are no requests in the watchlist yet.')
-        expect(rendered_component).to have_text("##{requests.sample.number} Submit")
+        expect(rendered_content).not_to have_text('There are no requests in the watchlist yet.')
+        expect(rendered_content).to have_text("##{requests.sample.number} Submit")
       end
     end
   end

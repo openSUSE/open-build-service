@@ -8,19 +8,19 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     end
 
     it do
-      expect(rendered_component).to have_text("Mark all as 'Read'")
+      expect(rendered_content).to have_text("Mark all as 'Read'")
     end
 
     it do
-      expect(rendered_component).to have_selector(:css, 'a[href="my/notifications?update_all=true"]')
+      expect(rendered_content).to have_selector(:css, 'a[href="my/notifications?update_all=true"]')
     end
 
     it do
-      expect(rendered_component).to have_text("Mark selected as 'Read'")
+      expect(rendered_content).to have_text("Mark selected as 'Read'")
     end
 
     it do
-      expect(rendered_component).to have_text('Select All')
+      expect(rendered_content).to have_text('Select All')
     end
   end
 
@@ -31,19 +31,19 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     end
 
     it do
-      expect(rendered_component).to have_text("Mark all as 'Unread'")
+      expect(rendered_content).to have_text("Mark all as 'Unread'")
     end
 
     it do
-      expect(rendered_component).to have_selector(:css, 'a[href="my/notifications?type=read&update_all=true"]')
+      expect(rendered_content).to have_selector(:css, 'a[href="my/notifications?type=read&update_all=true"]')
     end
 
     it do
-      expect(rendered_component).to have_text("Mark selected as 'Unread'")
+      expect(rendered_content).to have_text("Mark selected as 'Unread'")
     end
 
     it do
-      expect(rendered_component).to have_text('Select All')
+      expect(rendered_content).to have_text('Select All')
     end
   end
 end

@@ -10,7 +10,7 @@ RSpec.describe NotificationMarkButtonComponent, type: :component do
     end
 
     it 'renders the link with an undo icon' do
-      expect(rendered_component).to have_selector("a#update_notification_#{notification.id}[title='Mark as \"Unread\"'] > i.fa-undo")
+      expect(rendered_content).to have_selector("a#update_notification_#{notification.id}[title='Mark as \"Unread\"'] > i.fa-undo")
     end
   end
 
@@ -23,7 +23,7 @@ RSpec.describe NotificationMarkButtonComponent, type: :component do
     end
 
     it 'renders the link with a check mark icon' do
-      expect(rendered_component).to have_selector("a#update_notification_#{notification.id}[title='Mark as \"Read\"'] > i.fa-check")
+      expect(rendered_content).to have_selector("a#update_notification_#{notification.id}[title='Mark as \"Read\"'] > i.fa-check")
     end
   end
 end
