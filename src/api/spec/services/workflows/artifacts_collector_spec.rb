@@ -90,7 +90,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
           ScmWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
-                           target_branch: 'main',
+                           target_branch: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            source_repository_full_name: 'iggy/hello_world',
                            commit_sha: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            target_repository_full_name: 'iggy/hello_world',
@@ -200,7 +200,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
           ScmWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
-                           target_branch: 'main',
+                           target_branch: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            source_repository_full_name: 'iggy/hello_world',
                            commit_sha: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            target_repository_full_name: 'iggy/hello_world',
