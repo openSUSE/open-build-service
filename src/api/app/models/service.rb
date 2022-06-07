@@ -95,7 +95,7 @@ class Service
                                                         use_source: true, follow_project_links: false)
       return false unless User.session!.can_modify?(service_package)
 
-      Backend::Api::Sources::Package.run_service(service_package.project.name, service_package.name, User.session!.login)
+      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session!.login)
       service_package.sources_changed
     end
     true

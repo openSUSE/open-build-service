@@ -21,7 +21,6 @@ use warnings;
 
 use BSRevision;
 use BSSrcrep;
-use BSAccess;
 
 use BSSrcServer::Local;
 

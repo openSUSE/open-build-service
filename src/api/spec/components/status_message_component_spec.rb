@@ -18,11 +18,11 @@ RSpec.describe StatusMessageComponent, type: :component do
     end
 
     it do
-      expect(rendered_component).to have_text('Everything is fine for an admin')
+      expect(rendered_content).to have_text('Everything is fine for an admin')
     end
 
     it do
-      expect(rendered_component).to have_text('Delete status message?')
+      expect(rendered_content).to have_text('Delete status message?')
     end
   end
 end

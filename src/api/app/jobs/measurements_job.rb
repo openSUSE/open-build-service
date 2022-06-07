@@ -6,7 +6,8 @@ class MeasurementsJob < ApplicationJob
 
     RabbitmqBus.send_to_bus('metrics', "group count=#{Group.count}")
     RabbitmqBus.send_to_bus('metrics', "user #{measurements_to_fields(users_measurements)}")
-    RabbitmqBus.send_to_bus('metrics', "notification #{measurements_to_fields(notifications_measurements)}")
+    notifications_measurements
+    subscription_measurements
   end
 
   private
@@ -39,15 +40,40 @@ class MeasurementsJob < ApplicationJob
     end
   end
 
+  def subscription_measurements
+    RabbitmqBus.send_to_bus('metrics', "event_subscription_count,default=true value=#{EventSubscription.where(user_id: nil).count}")
+
+    EventSubscription.group(:channel).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,channel=#{type.first} value=#{type.second}")
+    end
+
+    EventSubscription.group(:enabled).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,enabled=#{type.first} value=#{type.second}")
+    end
+
+    EventSubscription.group(:eventtype).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,eventtype=#{type.first} value=#{type.second}")
+    end
+
+    EventSubscription.group(:receiver_role).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "event_subscription_count,receiver_role=#{type.first} value=#{type.second}")
+    end
+  end
+
   def notifications_measurements
-    {
-      count: Notification.count,
-      for_web: Notification.for_web.count,
-      for_rss: Notification.for_rss.count,
-      read: NotificationsFinder.new.read.count,
-      unread: NotificationsFinder.new.unread.count,
-      about_comments: Notification.where(notifiable_type: 'Comment').count,
-      about_requests: Notification.where(notifiable_type: 'BsRequest').count
-    }
+    RabbitmqBus.send_to_bus('metrics', "notification_count,channel=web value=#{Notification.for_web.count}")
+    RabbitmqBus.send_to_bus('metrics', "notification_count,channel=rss value=#{Notification.for_rss.count}")
+
+    Notification.group(:subscriber_type).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "notification_count,subscriber=#{type.first} value=#{type.second}")
+    end
+
+    Notification.group(:delivered).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "notification_count,delivered=#{type.first} value=#{type.second}")
+    end
+
+    Notification.group(:notifiable_type).count.each do |type|
+      RabbitmqBus.send_to_bus('metrics', "notification_count,notifiable=#{type.first} value=#{type.second}")
+    end
   end
 end

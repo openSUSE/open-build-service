@@ -47,7 +47,7 @@ RSpec.describe Workflow::Step::RebuildPackage, vcr: true do
       it 'gives an error for invalid name' do
         subject.valid?
 
-        expect { subject.call }.to change(Package, :count).by(0)
+        expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("invalid project 'Invalid/format'")
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe Workflow::Step::RebuildPackage, vcr: true do
       it 'gives an error for invalid name' do
         subject.valid?
 
-        expect { subject.call }.to change(Package, :count).by(0)
+        expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("invalid package 'Invalid/format'")
       end
     end

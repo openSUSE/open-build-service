@@ -1193,7 +1193,7 @@ class BsRequest < ApplicationRecord
       review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
       review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
       review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
-      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.session!.id)
+      history_class.create(review: review, comment: "review assigned to user #{reviewer.login}", user_id: User.session!.id)
     end
     raise Review::NotFoundError unless review_comment
 

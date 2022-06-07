@@ -15,7 +15,7 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
       let(:link_selector) { 'a.active[href="/my/tokens/1/workflow_runs?status=success"]' }
 
       it 'displays link with active class and a light badge' do
-        expect(rendered_component).to have_css("#{link_selector} span.badge.badge-light")
+        expect(rendered_content).to have_css("#{link_selector} span.badge.badge-light")
       end
     end
 
@@ -25,7 +25,7 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
       let(:link_selector) { 'a[href="/my/tokens/1/workflow_runs?status=success"]' }
 
       it 'displays link without active class and a primary badge' do
-        expect(rendered_component).to have_css("#{link_selector} span.badge.badge-primary")
+        expect(rendered_content).to have_css("#{link_selector} span.badge.badge-primary")
       end
     end
   end
@@ -42,7 +42,7 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
       let(:link_selector) { 'a.active[href="/my/tokens/1/workflow_runs?generic_event_type=pull_request"]' }
 
       it 'displays link with active class and a light badge' do
-        expect(rendered_component).to have_css("#{link_selector} span.badge.badge-light")
+        expect(rendered_content).to have_css("#{link_selector} span.badge.badge-light")
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
       let(:link_selector) { 'a[href="/my/tokens/1/workflow_runs?generic_event_type=pull_request"]' }
 
       it 'displays link without active class and a primary badge' do
-        expect(rendered_component).to have_css("#{link_selector} span.badge.badge-primary")
+        expect(rendered_content).to have_css("#{link_selector} span.badge.badge-primary")
       end
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe WorkflowRunFilterLinkComponent, type: :component do
     end
 
     it 'does not show a badge for the displayed filter link' do
-      expect(rendered_component).not_to have_css("#{link_selector} span.badge")
+      expect(rendered_content).not_to have_css("#{link_selector} span.badge")
     end
   end
 end

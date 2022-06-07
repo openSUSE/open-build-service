@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class WorkflowRun < ApplicationRecord
   SOURCE_NAME_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'number'],
@@ -13,11 +14,21 @@ class WorkflowRun < ApplicationRecord
     'Push Hook' => ['commits', 0, 'url']
   }.freeze
 
+  PERMITTED_OPTIONS = [
+    # Permitted keys for GitHub
+    :api_endpoint, :target_repository_full_name, :commit_sha,
+    # Permitted keys for GitLab
+    :endpoint, :project_id, :commit_sha,
+    # both GitHub and GitLab
+    :state, :status_options
+  ].freeze
+
   validates :response_url, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
+  has_many :scm_status_reports, dependent: :destroy
 
   paginates_per 20
 
@@ -27,8 +38,22 @@ class WorkflowRun < ApplicationRecord
     fail: 2
   }
 
-  def update_to_fail(message)
+  # Marks the workflow run as failed and records the relevant debug information in response_body
+  def update_as_failed(message)
     update(response_body: message, status: 'fail')
+  end
+
+  # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
+  # Marks the workflow run as failed also.
+  def save_scm_report_failure(message, options)
+    update(status: 'fail')
+    scm_status_reports.create(response_body: message,
+                              request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
+  end
+
+  # Stores info from a succesful SCM status report
+  def save_scm_report_success(options)
+    scm_status_reports.create(request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
   end
 
   def payload
@@ -78,6 +103,24 @@ class WorkflowRun < ApplicationRecord
     end
   end
 
+  # FIXME: This `if github do this and if gitlab do that` is scattered around
+  # the code regarding workflow runs. It is asking for a refactor putting
+  # together all the behaviour regarding GitHub and all the behaviour regarding
+  # GitLab.
+  def scm_vendor
+    if parsed_request_headers['HTTP_X_GITHUB_EVENT']
+      :github
+    elsif parsed_request_headers['HTTP_X_GITLAB_EVENT']
+      :gitlab
+    else
+      :unknown
+    end
+  end
+
+  def last_response_body
+    scm_status_reports.last&.response_body
+  end
+
   private
 
   def parsed_request_headers
@@ -97,6 +140,7 @@ class WorkflowRun < ApplicationRecord
       ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 # == Schema Information
 #

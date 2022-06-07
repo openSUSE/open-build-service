@@ -11,7 +11,7 @@ RSpec.describe StagingProjectLinkComponent, type: :component do
     end
 
     it do
-      expect(rendered_component).to have_link('My Project Custom Title')
+      expect(rendered_content).to have_link('My Project Custom Title')
     end
   end
 
@@ -26,7 +26,7 @@ RSpec.describe StagingProjectLinkComponent, type: :component do
       end
 
       it do
-        expect(rendered_component).to have_link('Staging:A')
+        expect(rendered_content).to have_link('Staging:A')
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe StagingProjectLinkComponent, type: :component do
       end
 
       it do
-        expect(rendered_component).to have_link('home:user123')
+        expect(rendered_content).to have_link('home:user123')
       end
     end
   end

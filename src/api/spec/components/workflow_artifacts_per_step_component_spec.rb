@@ -35,10 +35,10 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
     let(:step_name) { 'Workflow::Step::BranchPackageStep' }
     let(:artifacts) { nil }
 
-    it { expect(rendered_component).to have_text("Could not display artifacts for #{step_name.split('::').last.titleize}") }
+    it { expect(rendered_content).to have_text("Could not display artifacts for #{step_name.split('::').last.titleize}") }
 
     it 'does not show any link' do
-      expect(rendered_component).not_to have_link
+      expect(rendered_content).not_to have_link
     end
   end
 
@@ -50,10 +50,10 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
       }.to_json
     end
 
-    it { expect(rendered_component).to have_text("Could not display artifacts for #{step_name.split('::').last.titleize}") }
+    it { expect(rendered_content).to have_text("Could not display artifacts for #{step_name.split('::').last.titleize}") }
 
     it 'does not show any link' do
-      expect(rendered_component).not_to have_link
+      expect(rendered_content).not_to have_link
     end
   end
 
@@ -68,16 +68,16 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
       }.to_json
     end
 
-    it { expect(rendered_component).to have_text('Branched package from') }
+    it { expect(rendered_content).to have_text('Branched package from') }
 
     it 'shows a link to the source package' do
-      expect(rendered_component).to have_link('devel:languages:ruby:extensions/ruby2.5',
-                                              href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
+      expect(rendered_content).to have_link('devel:languages:ruby:extensions/ruby2.5',
+                                            href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
     end
 
     it 'shows a link to the target package' do
-      expect(rendered_component).to have_link('home:Admin:branches:devel:languages:ruby:extensions/ruby2.5',
-                                              href: '/package/show/home:Admin:branches:devel:languages:ruby:extensions/ruby2.5')
+      expect(rendered_content).to have_link('home:Admin:branches:devel:languages:ruby:extensions/ruby2.5',
+                                            href: '/package/show/home:Admin:branches:devel:languages:ruby:extensions/ruby2.5')
     end
   end
 
@@ -92,16 +92,16 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
     end
     let(:step_name) { 'Workflow::Step::LinkPackageStep' }
 
-    it { expect(rendered_component).to have_text('Linked package from') }
+    it { expect(rendered_content).to have_text('Linked package from') }
 
     it 'shows a link to the source package' do
-      expect(rendered_component).to have_link('devel:languages:ruby:extensions/ruby2.5',
-                                              href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
+      expect(rendered_content).to have_link('devel:languages:ruby:extensions/ruby2.5',
+                                            href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
     end
 
     it 'shows a link to the target package' do
-      expect(rendered_component).to have_link('home:Admin:branches:devel:languages:ruby:extensions/ruby2.5',
-                                              href: '/package/show/home:Admin:branches:devel:languages:ruby:extensions/ruby2.5')
+      expect(rendered_content).to have_link('home:Admin:branches:devel:languages:ruby:extensions/ruby2.5',
+                                            href: '/package/show/home:Admin:branches:devel:languages:ruby:extensions/ruby2.5')
     end
   end
 
@@ -114,11 +114,11 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
     end
     let(:step_name) { 'Workflow::Step::RebuildPackage' }
 
-    it { expect(rendered_component).to have_text('Rebuilt package') }
+    it { expect(rendered_content).to have_text('Rebuilt package') }
 
     it 'shows a link to the rebuilt package' do
-      expect(rendered_component).to have_link('devel:languages:ruby:extensions/ruby2.5',
-                                              href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
+      expect(rendered_content).to have_link('devel:languages:ruby:extensions/ruby2.5',
+                                            href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
     end
   end
 
@@ -131,11 +131,11 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
     end
     let(:step_name) { 'Workflow::Step::TriggerServices' }
 
-    it { expect(rendered_component).to have_text('Triggered services on package') }
+    it { expect(rendered_content).to have_text('Triggered services on package') }
 
     it 'shows a link to the package where we triggered the services' do
-      expect(rendered_component).to have_link('devel:languages:ruby:extensions/ruby2.5',
-                                              href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
+      expect(rendered_content).to have_link('devel:languages:ruby:extensions/ruby2.5',
+                                            href: '/package/show/devel:languages:ruby:extensions/ruby2.5')
     end
   end
 
@@ -149,11 +149,11 @@ RSpec.describe WorkflowArtifactsPerStepComponent, type: :component do
 
     let(:step_name) { 'Workflow::Step::ConfigureRepositories' }
 
-    it { expect(rendered_component).to have_text('Configured repositories') }
+    it { expect(rendered_content).to have_text('Configured repositories') }
 
     it 'shows a link to the configured repositories of a project' do
-      expect(rendered_component).to have_link('repositories',
-                                              href: '/project/repositories/devel:languages:ruby:extensions')
+      expect(rendered_content).to have_link('repositories',
+                                            href: '/project/repositories/devel:languages:ruby:extensions')
     end
   end
 end

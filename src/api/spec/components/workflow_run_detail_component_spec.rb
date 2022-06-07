@@ -26,17 +26,17 @@ RSpec.describe WorkflowRunDetailComponent, type: :component do
   end
 
   context 'every single workflow run' do
-    it { expect(rendered_component).to have_text('Request') }
-    it { expect(rendered_component).to have_text('Response') }
-    it { expect(rendered_component).to have_text('pull_request') }
-    it { expect(rendered_component).to have_text('foo') }
+    it { expect(rendered_content).to have_text('Request') }
+    it { expect(rendered_content).to have_text('Response') }
+    it { expect(rendered_content).to have_text('pull_request') }
+    it { expect(rendered_content).to have_text('foo') }
   end
 
   context 'when the payload cannot be parsed' do
     let(:request_payload) { 'Unparseable payload' }
 
     it 'shows nothing on the payload tab' do
-      expect(rendered_component).to have_text('Unparseable payload')
+      expect(rendered_content).to have_text('Unparseable payload')
     end
   end
 end

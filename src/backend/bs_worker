@@ -219,7 +219,7 @@ sub cleanup_job {
 sub kill_job {
   my @args;
   # same args as in the build call
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
@@ -240,7 +240,7 @@ sub kill_job {
 sub sysrq_job {
   my ($sysrq) = @_;
   my @args;
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
@@ -257,7 +257,7 @@ sub sysrq_job {
 
 sub wipe_all {
   my @args;
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
@@ -293,16 +293,6 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
                      currently supported architectures: 
                      @{[sort keys %BSCando::cando]}
 
-       --kvm       : enable kvm
-
-       --pvm       : enable pvm
-
-       --xen       : enable xen
-
-       --lxc       : enable lxc
-
-       --docker    : enable docker
-
        --emulator  : enable emulator (requires prepared emulator.sh script)
        
        --zvm       : enable z/VM
@@ -314,6 +304,10 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --swap      : set kvm or xen swap device (default is <root>/swap file)
 
        --hostlabel : define a host label for build constraints, can be used multiple times
+
+       --vm-type   : set virtualisation mode to use (kvm, xen, qemu:\$HOSTARCH, zvm, emulator:\$HOSTARCH)
+                     Also possible are lxc or docker, but these are less secure and are not using
+                     the specified kernel for the build target.
 
        --vm-kernel : set kernel to use (xen/kvm)
 
@@ -3055,7 +3049,7 @@ sub createchannel {
         # add them for old tools, but only for -release packages for speed reasons
         my $rpm_file = $bin->{'_content'};
         my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
-        $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|emulator)/;
+        $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|qemu|emulator)/;
         $rpm_file =~ s/obs:\//$buildsrcdir\/repos/;
         if (-e $rpm_file) {
           my $cpeid = cpeid_from_rpm($rpm_file);
@@ -3633,7 +3627,7 @@ sub dobuild {
   }
 
   push @args, "$statedir/build/build";
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm)/) {
     # allow overriding the filesystem type via the build config
     my $filesystemtype = $bconf->{'buildflags:vmfstype'} || $vmdisk_filesystem;
     my $filesystemoptions = $bconf->{'buildflags:vmfsoptions'} || $vmdisk_filesystem_options;
@@ -3741,7 +3735,7 @@ sub dobuild {
     if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {
       $ret = 0;
     } else {
-      if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+      if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
         my $statsfile = "$buildroot/.mount/.build.packages/OTHER/_statistics";
         updatestatsfromfile($stats, $statsfile) if -e $statsfile;
       }
@@ -3755,7 +3749,7 @@ sub dobuild {
   } elsif ($ret == 4 * 256) {
     return 4;
   } elsif ($ret == 9 * 256) {
-    if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+    if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
       rm_rf("$buildroot/.build.packages");
       if (!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
         print "final rename failed: $!\n";
@@ -3772,7 +3766,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
@@ -4362,7 +4356,7 @@ if ($@) {
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
-  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|emulator)/;
+  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|qemu|emulator)/;
   # if it was a follow up build, prepend old logfile
   if (-s "$buildsrcdir/logfile") {
     local *F;

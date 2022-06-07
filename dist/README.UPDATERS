@@ -40,7 +40,21 @@ Note: Update from OBS 2.5 should also work, but it is not fully tested.
 
         PassengerRuby "/usr/bin/ruby.ruby3.1"
 
-  6) Reboot your system to restart all OBS components
+  6) Remove OBS default gpg keys/certs
+
+    Nowadays `signd` needs a key with an expiry date. The easiest way is to
+    cleanup the old gpg keys
+
+        rm -r /srv/obs/gnupg
+        rm /srv/obs/obs-default-gpg.*
+        mkdir /srv/obs/gnupg
+
+    and let obsapisetup re-create these keys/certs if `OBS_API_AUTOSETUP=yes`
+    is set in `/etc/sysconfig/obs-server`, or you can run
+    `/usr/lib/obs/server/setup-appliance.sh --force` manually
+
+
+  7) Reboot your system to restart all OBS components
 
 
 For Updaters from OBS 2.9 to OBS 2.10

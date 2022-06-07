@@ -54,9 +54,11 @@ class Notification < ApplicationRecord
                             "notification.create,notifiable_type=#{notifiable_type},web=#{web},rss=#{rss} value=1")
   end
 
+  # This is only called when the request come from the API. The UI performs 'update_all' that does not trigger callbacks.
+  # This metrics complements the same metrics tracked in Webui::Users::NotificationsController#send_notifications_information_rabbitmq
   def track_notification_delivered
     RabbitmqBus.send_to_bus('metrics',
-                            "notification.delivered,notifiable_type=#{notifiable_type},web=#{web},rss=#{rss} value=1")
+                            "notification,action=#{delivered ? 'read' : 'unread'} value=1")
   end
 end
 

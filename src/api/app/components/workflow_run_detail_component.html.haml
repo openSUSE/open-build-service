@@ -1,33 +1,49 @@
 %ul.nav.nav-tabs#workflow-run-tabs{ role: 'tablist' }
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link.active{ id: "request-tab#{id}", data: { toggle: 'tab' }, href: "#request-tab-content#{id}",
-                        role: 'tab', aria: { controls: "request-tab-content#{id}", selected: 'true' } }
-      Request
+    %a.nav-link.active{ id: "incoming-webhook-tab#{id}", data: { toggle: 'tab' }, href: "#incoming-webhook-tab-content#{id}",
+                        role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'true' } }
+      Webhook from #{scm_vendor}
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "response-tab#{id}", data: { toggle: 'tab' }, href: "#response-tab-content#{id}",
-                  role: 'tab', aria: { controls: "response-tab-content#{id}", selected: 'false' } }
-      Response
+    %a.nav-link{ id: "scm-reports-tab#{id}", data: { toggle: 'tab' }, href: "#scm-reports-tab-content#{id}",
+                role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
+      Reports to the SCM
   %li.nav-item{ role: 'presentation' }
     %a.nav-link{ id: "artifacts#{id}", data: { toggle: 'tab' }, href: "#artifacts-tab-content#{id}",
                  role: 'tab', aria: { controls: "artifacts-tab-content#{id}", selected: 'false' } }
       Artifacts
 .tab-content.p-3#workflow-run-tabs-content
-  .tab-pane.fade.show.active{ id: "request-tab-content#{id}", role: 'tabpanel',
-                              aria: { labelledby: "request-tab#{id}" } }
-    %h5 Request Headers
-    %pre.border.p-2#request-headers
-      = request_headers
-    %h5 Request Payload
-    %pre.border.p-2#request-payload
-      = pretty_request_payload
-  .tab-pane.fade{ id: "response-tab-content#{id}", role: 'tabpanel',
-                  aria: { labelledby: "response-tab#{id}" } }
-    %h5 Response URL
+  .tab-pane.fade.show.active{ id: "incoming-webhook-tab-content#{id}", role: 'tabpanel',
+                              aria: { labelledby: "incoming-webhook-tab#{id}" } }
+    %h5 Webhook URL
     %pre.border.p-2#response-url
       = response_url
-    %h5 Response Body
+    %h5 Webhook Request Headers
+    %pre.border.p-2#request-headers
+      = request_headers
+    %h5 Webhook Response Body
     %pre.border.p-2#response-body
       = response_body
+    %h5 Webhook Request Payload
+    %pre.border.p-2#request-payload
+      = pretty_request_payload
+  .tab-pane.fade{ id: "scm-reports-tab-content#{id}", role: 'tabpanel',
+                  aria: { labelledby: "scm-reports-tab#{id}" } }
+    - if status_reports.any?
+      .list-group.list-group-flush
+        - status_reports.each do |status_report|
+          .list-group-item
+            %h6 Response body
+            %p
+              %span.badge{ class: status_report.status_class }= status_report.status&.humanize
+            %pre.border.p-2#status-report-response-body
+              = status_report.response_body
+            %h6 Request parameters
+            %pre.border.p-2#status-report-request-parameters
+              = status_report.pretty_request_parameters
+            %small.text-nowrap{ title: l(status_report.created_at.utc) }
+              Sent #{time_ago_in_words(status_report.created_at)} ago
+    - else
+      No status reports
   .tab-pane.fade{ id: "artifacts-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "artifacts#{id}" } }
     %h5 Artifacts

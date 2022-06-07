@@ -79,6 +79,8 @@ sub deamonize {
   $| = 1; # flush all output immediately
 }
 
+my $ai_addrconfig = eval { Socket::AI_ADDRCONFIG() } || 0;
+
 sub serveropen {
   # creates master socket
   # 512 connections in the queue maximum
@@ -99,8 +101,8 @@ sub serveropen {
   }
 
   # check if we should do ipv6
-  if (!defined($family) && grep {ref($_) || !/^&/} @ports) {
-    my ($err, @ai) = Socket::getaddrinfo("", 0, { 'socktype' => SOCK_STREAM, 'flags' => Socket::AI_ADDRCONFIG });
+  if (!defined($family) && $ai_addrconfig && grep {ref($_) || !/^&/} @ports) {
+    my ($err, @ai) = Socket::getaddrinfo("", 0, { 'socktype' => SOCK_STREAM, 'flags' => $ai_addrconfig });
     $family = AF_INET6 if grep {$_->{'family'} == AF_INET6} @ai;
   }
 
@@ -113,10 +115,10 @@ sub serveropen {
       socket($s , PF_INET6, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
       setsockopt($s, SOL_SOCKET, SO_REUSEADDR, pack("l",1));
       if (ref($port)) {
-        bind($s, sockaddr_in6(0, Socket::IN6ADDR_ANY)) || die "bind: $!\n";
+        bind($s, sockaddr_in6(0, Socket::IN6ADDR_ANY())) || die "bind: $!\n";
         ($$port) = sockaddr_in6(getsockname($s));
       } else {
-        bind($s, sockaddr_in6($port, Socket::IN6ADDR_ANY)) || die "bind: $!\n";
+        bind($s, sockaddr_in6($port, Socket::IN6ADDR_ANY())) || die "bind: $!\n";
       }
     } else {
       socket($s , PF_INET, SOCK_STREAM, $tcpproto) || die "socket: $!\n";

@@ -349,6 +349,7 @@ end
 #  label          :text(65535)      not null
 #  name           :string(255)      not null
 #  password       :string(255)
+#  publish_issues :boolean          default(TRUE)
 #  regex          :string(255)      not null
 #  show_url       :string(255)
 #  url            :string(255)      not null

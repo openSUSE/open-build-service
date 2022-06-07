@@ -43,7 +43,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         END_OF_REQUEST
       end
 
-      it { expect(rendered_component).not_to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq') }
+      it { expect(rendered_content).not_to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq') }
     end
 
     context 'and comes from a pull request event' do
@@ -63,14 +63,14 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         END_OF_REQUEST
       end
 
-      it { expect(rendered_component).to have_text 'Pull request event' }
+      it { expect(rendered_content).to have_text 'Pull request event' }
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
+        expect(rendered_content).to have_link('zeromq/libzmq', href: 'https://github.com/zeromq/libzmq')
       end
 
       it 'shows a link to the pull request' do
-        expect(rendered_component).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
+        expect(rendered_content).to have_link('#4330', href: 'https://github.com/zeromq/libzmq/pull/4330')
       end
 
       ['closed', 'opened', 'reopened', 'synchronize'].each do |action|
@@ -91,7 +91,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
             END_OF_REQUEST
           end
 
-          it { expect(rendered_component).to have_text action.humanize }
+          it { expect(rendered_content).to have_text action.humanize }
         end
       end
 
@@ -113,7 +113,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         end
 
         it 'does not show the action anywhere' do
-          expect(rendered_component).not_to have_text('Unsupported')
+          expect(rendered_content).not_to have_text('Unsupported')
         end
       end
     end
@@ -139,14 +139,14 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         END_OF_REQUEST
       end
 
-      it { expect(rendered_component).to have_text 'Push event' }
+      it { expect(rendered_content).to have_text 'Push event' }
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('example/repo', href: 'https://example.com')
+        expect(rendered_content).to have_link('example/repo', href: 'https://example.com')
       end
 
       it 'shows a link to the pushed commit' do
-        expect(rendered_component).to have_link('1234', href: 'https://example.com/commit/1234')
+        expect(rendered_content).to have_link('1234', href: 'https://example.com/commit/1234')
       end
     end
   end
@@ -181,8 +181,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         END_OF_PAYLOAD
       end
 
-      it { expect(rendered_component).to have_text('Unknown source') }
-      it { expect(rendered_component).not_to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test') }
+      it { expect(rendered_content).to have_text('Unknown source') }
+      it { expect(rendered_content).not_to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test') }
     end
 
     context 'and comes from a merge request event' do
@@ -192,14 +192,14 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         END_OF_HEADERS
       end
 
-      it { expect(rendered_component).to have_text('Merge request hook event') }
+      it { expect(rendered_content).to have_text('Merge request hook event') }
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test')
+        expect(rendered_content).to have_link('gitlabhq/gitlab-test', href: 'http://example.com/gitlabhq/gitlab-test')
       end
 
       it 'shows a link to the pull request' do
-        expect(rendered_component).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
+        expect(rendered_content).to have_link('#1', href: 'http://example.com/diaspora/merge_requests/1')
       end
 
       ['close', 'merge', 'open', 'reopen', 'update'].each do |action|
@@ -214,7 +214,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
             END_OF_REQUEST
           end
 
-          it { expect(rendered_component).to have_text action.humanize }
+          it { expect(rendered_content).to have_text action.humanize }
         end
       end
       context 'and the action is unsupported' do
@@ -229,7 +229,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         end
 
         it 'does not show the action anywhere' do
-          expect(rendered_component).not_to have_text('unapproved')
+          expect(rendered_content).not_to have_text('unapproved')
         end
       end
     end
@@ -270,15 +270,15 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it 'shows a link to the repository' do
-        expect(rendered_component).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
+        expect(rendered_content).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
       end
 
       it 'is expected to have text "Push Event"' do
-        expect(rendered_component).to have_text('Push hook event')
+        expect(rendered_content).to have_text('Push hook event')
       end
 
       it 'shows a link to the pushed commit' do
-        expect(rendered_component).to have_link('3075e06879c6c4bd2ab207b30c5a09d75f825d78', href: 'https://gitlab.com/vpereira/hello_world/-/commit/3075e06879c6c4bd2ab207b30c5a09d75f825d78')
+        expect(rendered_content).to have_link('3075e06879c6c4bd2ab207b30c5a09d75f825d78', href: 'https://gitlab.com/vpereira/hello_world/-/commit/3075e06879c6c4bd2ab207b30c5a09d75f825d78')
       end
     end
   end
@@ -286,7 +286,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
   context 'no matter which vendor the workflow comes from' do
     context 'for every single workflow run' do
       it 'shows the date the workflow run was created' do
-        expect(rendered_component).to have_text(workflow_run.created_at)
+        expect(rendered_content).to have_text(workflow_run.created_at)
       end
     end
 
@@ -301,7 +301,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       let(:request_payload) { {} }
 
       it 'shows a green check mark' do
-        expect(rendered_component).to have_selector('i', class: 'fas fa-running')
+        expect(rendered_content).to have_selector('i', class: 'fas fa-running')
       end
     end
 
@@ -316,7 +316,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       let(:request_payload) { {} }
 
       it 'shows a green check mark' do
-        expect(rendered_component).to have_selector('i', class: 'fas fa-check text-primary')
+        expect(rendered_content).to have_selector('i', class: 'fas fa-check text-primary')
       end
     end
 
@@ -331,7 +331,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       let(:request_payload) { {} }
 
       it 'shows an exclamation mark' do
-        expect(rendered_component).to have_selector('i', class: 'fas fa-exclamation-triangle text-danger')
+        expect(rendered_content).to have_selector('i', class: 'fas fa-exclamation-triangle text-danger')
       end
     end
 
@@ -351,7 +351,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it 'does not blow up' do
-        expect(rendered_component).to have_text('Fake event')
+        expect(rendered_content).to have_text('Fake event')
       end
     end
   end

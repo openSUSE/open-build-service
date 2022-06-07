@@ -23,31 +23,31 @@ RSpec.describe SourcediffTabComponent, type: :component, vcr: true do
     end
 
     it do
-      expect(rendered_component).to have_text('Submit package')
+      expect(rendered_content).to have_text('Submit package')
     end
 
     it do
-      expect(rendered_component).to have_text('to package')
+      expect(rendered_content).to have_text('to package')
     end
 
     it do
-      expect(rendered_component).to have_link(source_project.name, href: "/project/show/#{source_project.name}")
+      expect(rendered_content).to have_link(source_project.name, href: "/project/show/#{source_project.name}")
     end
 
     it do
-      expect(rendered_component).to have_link(source_package.name, href: "/package/show/#{source_project.name}/#{source_package.name}")
+      expect(rendered_content).to have_link(source_package.name, href: "/package/show/#{source_project.name}/#{source_package.name}")
     end
 
     it do
-      expect(rendered_component).to have_link(target_project.name, href: "/project/show/#{target_project.name}")
+      expect(rendered_content).to have_link(target_project.name, href: "/project/show/#{target_project.name}")
     end
 
     it do
-      expect(rendered_component).to have_link(target_package.name, href: "/package/show/#{target_project.name}/#{target_package.name}")
+      expect(rendered_content).to have_link(target_package.name, href: "/package/show/#{target_project.name}/#{target_package.name}")
     end
 
     it do
-      expect(rendered_component).to have_text('No newline at end of file')
+      expect(rendered_content).to have_text('No newline at end of file')
     end
   end
 end
