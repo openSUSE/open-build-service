@@ -767,7 +767,9 @@ sub signjob {
   if (@signfiles) {
     my $needcert = grep {/\.appx$/} @signfiles;
     $needpubkey ||= grep {/\.iso$/} @signfiles;
+    $needpubkey = 1 if $info->{'file'} eq '_aggregate' && grep {/\.d?rpm$/} @signfiles;
     my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $needpubkey, $needcert);
+    my $pubkey_create_time;
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     if ($signkey) {
@@ -836,6 +838,20 @@ sub signjob {
 	  $signtime = $sigdata->{'signtime'};
 	  $signissuer = $sigdata->{'issuer'};
 	  rpmdelsign("$jobdir/$signfile");
+	  if ($signtime && $pubkey) {
+	    if (!defined($pubkey_create_time)) {
+	      eval {
+		$pubkey_create_time = 0;
+		my $keyinfo = BSPGP::pk2times(BSPGP::unarmor($pubkey));
+		$pubkey_create_time = $keyinfo->{'key_create'} || 0 if $keyinfo;
+	      };
+	      print "pubkey creation time: $pubkey_create_time\n";
+	    }
+	    if ($signtime < $pubkey_create_time) {
+	      print "clamping signtime $signtime to $pubkey_create_time\n";
+	      $signtime = $pubkey_create_time;
+	    }
+	  }
 	  print "using signtime $signtime\n" if $signtime;
 	}
 	my @signmode;
