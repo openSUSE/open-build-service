@@ -80,7 +80,6 @@ Metrics/ClassLength:
 
 Layout/LineLength:
   Max: 150
-  IgnoredPatterns: ['\A#']
 
 Metrics/ModuleLength:
   Severity: refactor
