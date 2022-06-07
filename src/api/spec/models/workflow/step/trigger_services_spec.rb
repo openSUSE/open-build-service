@@ -34,13 +34,15 @@ RSpec.describe Workflow::Step::TriggerServices do
     end
 
     context 'user has permission to trigger the services' do
+      let(:comment) { 'Service triggered by a workflow token via Github PR/MR #1 (pull_request).' }
+
       before do
         allow(Backend::Api::Sources::Package).to receive(:trigger_services).and_return(true)
       end
 
       it 'triggers the service on the backend' do
         subject.call
-        expect(Backend::Api::Sources::Package).to have_received(:trigger_services).with('openSUSE:Factory', 'hello_world', 'Iggy')
+        expect(Backend::Api::Sources::Package).to have_received(:trigger_services).with('openSUSE:Factory', 'hello_world', 'Iggy', comment)
       end
     end
   end

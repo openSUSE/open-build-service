@@ -53,8 +53,9 @@ module Backend
 
         # It triggers all the services of a package
         # @return [String]
-        def self.trigger_services(project_name, package_name, user_login)
-          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :runservice, user: user_login })
+        def self.trigger_services(project_name, package_name, user_login, comment = nil)
+          params = { cmd: :runservice, user: user_login, comment: comment }.compact
+          http_post(['/source/:project/:package', project_name, package_name], params: params)
         end
 
         # Writes the patchinfo
