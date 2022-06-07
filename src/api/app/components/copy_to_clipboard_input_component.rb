@@ -1,6 +1,6 @@
 class CopyToClipboardInputComponent < ApplicationComponent
-  def initialize(token_string:)
+  def initialize(input_text:)
     super
-    @token_string = token_string
+    @input_text = input_text
   end
 end
