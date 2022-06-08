@@ -331,7 +331,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
           ScmWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
-                           target_branch: 'main',
+                           target_branch: '123456789012345',
                            source_repository_full_name: 'openSUSE/open-build-service',
                            tag_name: 'release_abc',
                            commit_sha: '123456789012345',

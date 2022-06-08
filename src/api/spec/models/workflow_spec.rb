@@ -195,7 +195,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
           scm: 'github',
           event: 'push',
           ref: 'refs/tags/release_abc',
-          target_branch: 'master'
+          target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
         }
       end
 
@@ -218,7 +218,7 @@ RSpec.describe Workflow, type: :model, vcr: true do
           scm: 'gitlab',
           event: 'Tag Push Hook',
           ref: 'refs/tags/release_abc',
-          target_branch: 'master'
+          target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
         }
       end
 

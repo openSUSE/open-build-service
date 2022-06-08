@@ -124,7 +124,7 @@ RSpec.describe TriggerControllerService::ScmExtractor do
             event: 'push',
             api_endpoint: 'https://api.github.com',
             commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
-            target_branch: 'main',
+            target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/tags/release_abc',

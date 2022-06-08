@@ -109,14 +109,16 @@ module TriggerControllerService
                        # We need this for Workflow::Step#branch_request_content_{github,gitlab}
                        commit_sha: @payload[:after],
                        # We need this for Workflows::YAMLDownloader#download_url
-                       # base_ref is nil when the push event is for commits
-                       target_branch: (@payload[:base_ref] || payload_ref).sub('refs/heads/', '')
+                       # when the push event is for commits, we get the branch name from ref.
+                       target_branch: payload_ref.sub('refs/heads/', '')
                      })
 
       return unless payload_ref.start_with?('refs/tags/')
 
       # We need this for Workflow::Step#target_package_name
-      payload.merge!({ tag_name: payload_ref.sub('refs/tags/', '') })
+      # 'target_branch' will contain a commit SHA
+      payload.merge!({ tag_name: payload_ref.sub('refs/tags/', ''),
+                       target_branch: @payload[:after] })
     end
 
     def gitlab_payload_tag(payload)
