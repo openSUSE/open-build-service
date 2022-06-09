@@ -725,9 +725,8 @@ if ($multiarch) {
 
 if ($cosign && %digests_to_sign) {
   my $creator = 'OBS';
-  my $gpgpubkey = BSPGP::unarmor(readstr($pubkeyfile));
-  my $pubkeyid = BSPGP::pk2fingerprint($gpgpubkey);
-  my $cosigncookie = Digest::SHA::sha256_hex("$creator/$pubkeyid/$gun");
+  my $gpgpubkey = readstr($pubkeyfile);
+  my $cosigncookie = BSConSign::createcosigncookie($gpgpubkey, $gun, $creator);
   for my $digest (sort keys %digests_to_sign) {
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
@@ -759,7 +758,7 @@ if ($cosign && %digests_to_sign) {
     manifest_upload($mani_json, $sig_tag, $mediaType);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
       BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
     }

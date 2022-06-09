@@ -108,4 +108,11 @@ sub createcosign {
   return ($config_json, $payload_layer, $payload, $sig);
 }
 
+sub createcosigncookie {
+  my ($gpgpubkey, $reference, $creator) = @_;
+  $creator ||= '';
+  my $pubkeyid = BSPGP::pk2fingerprint(BSPGP::unarmor($gpgpubkey));
+  return Digest::SHA::sha256_hex("$creator/$pubkeyid/$reference");
+}
+
 1;
