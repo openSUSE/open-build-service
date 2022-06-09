@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 
 use FindBin;
@@ -147,7 +147,7 @@ $expected_materials = [
     'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26'
   }
 ];
-is_deeply($buildinfo->{'materials'}, $expected_materials, "getbinaries- Add 'materials' of binaries to \$buildinfo");
+is_deeply($buildinfo->{'materials'}, $expected_materials, "getbinaries - Add 'materials' of binaries to \$buildinfo");
 
 BSUtil::cleandir($tmpdir);
 rmdir($tmpdir);
@@ -223,3 +223,133 @@ my $expected_statement = {
   }
 };
 is_deeply($got, $expected_statement, 'generate_slsa_provenance_statement - Return value');
+
+
+# getbinaries_kiwiproduct
+
+$buildinfo = {
+          'rev' => '2',
+          'path' => [
+                      {
+                        'server' => 'http://reposerver',
+                        'project' => 'home:Admin:OBS-Kiwi',
+                        'repository' => 'OBS'
+                      },
+                      {
+                        'server' => 'http://srcserver',
+                        'project' => 'openSUSE.org:OBS:Server:Unstable',
+                        'repository' => 'images'
+                      },
+                      {
+                        'project' => 'openSUSE.org:OBS:Server:Unstable',
+                        'server' => 'http://srcserver',
+                        'repository' => '15.3'
+                      },
+                      {
+                        'project' => 'openSUSE.org:openSUSE:Tools',
+                        'server' => 'http://srcserver',
+                        'repository' => '15.3'
+                      },
+                    ],
+          'disturl' => 'obs://private/home:Admin:OBS-Kiwi/OBS/7aa92ea9f0986dc7d6280c12d856dca3-OBS-Kiwi',
+          'jobid' => '9199941939110fd0cfe02ceab6b62564',
+          'versrel' => '2.8.51-2',
+          'package' => 'OBS-Kiwi',
+          'needed' => '0',
+          'file' => 'obs.kiwi',
+          'srcserver' => 'http://srcserver',
+          'imagetype' => [
+                           'product'
+                         ],
+          'release' => '2.2',
+          'nodbgpkgs' => '1',
+          'project' => 'home:Admin:OBS-Kiwi',
+          'arch' => 'x86_64',
+          'reposerver' => 'http://reposerver',
+          'job' => 'home:Admin:OBS-Kiwi::OBS::OBS-Kiwi-7aa92ea9f0986dc7d6280c12d856dca3',
+          'prjconfconstraint' => [
+                                   'linux:version:min 3.0.0'
+                                 ],
+          'reason' => 'new build',
+          'verifymd5' => '7aa92ea9f0986dc7d6280c12d856dca3',
+          'nosrcpkgs' => '1',
+          'bcnt' => '2',
+          'revtime' => '1652262990',
+          'srcmd5' => '7aa92ea9f0986dc7d6280c12d856dca3',
+          'syspath' => [
+                         {
+                           'project' => 'home:Admin:OBS-Kiwi',
+                           'server' => 'http://reposerver',
+                           'repository' => 'OBS'
+                         },
+                         {
+                           'repository' => 'images',
+                           'server' => 'http://srcserver',
+                           'project' => 'openSUSE.org:OBS:Server:Unstable'
+                         },
+                         {
+                           'repository' => '15.3',
+                           'project' => 'openSUSE.org:OBS:Server:Unstable',
+                           'server' => 'http://srcserver'
+                         },
+                         {
+                           'server' => 'http://srcserver',
+                           'project' => 'openSUSE.org:openSUSE:Tools',
+                           'repository' => '15.3'
+                         },
+                       ],
+          'readytime' => '1652341877',
+          'repository' => 'OBS',
+          'bdep' => [
+                      {
+                        'release' => '12.8',
+                        'repoarch' => 'x86_64',
+                        'repository' => '15.3',
+                        'package' => '0product:OBS-Addon-release',
+                        'version' => '2.8.51',
+                        'name' => 'OBS-Addon-release',
+                        'arch' => 'x86_64',
+                        'project' => 'openSUSE.org:OBS:Server:Unstable'
+                      },
+                      {
+                        'notmeta' => '1',
+                        'name' => 'liblua5_4-5',
+                        'preinstall' => '1'
+                      },
+                      {
+                        'runscripts' => '1',
+                        'preinstall' => '1',
+                        'notmeta' => '1',
+                        'name' => 'aaa_base'
+                      },
+                      {
+                        'preinstall' => '1',
+                        'name' => 'filesystem',
+                        'notmeta' => '1'
+                      },
+                    ],
+          'genmetaalgo' => '1'
+        };
+my $kiwiorigins = {};
+
+$Test::Mock::BSRPC::fixtures_map = {
+  # getbinaries
+  'reposerver/getbinaries?project=home:Admin:OBS-Kiwi&repository=OBS&arch=x86_64&binaries=liblua5_4-5,aaa_base,filesystem'
+    => 'data/1000/reposerver/getbinaries_empty.cpio',
+  'srcserver/getbinaries?project=openSUSE.org:OBS:Server:Unstable&repository=images&arch=x86_64&binaries=liblua5_4-5,aaa_base,filesystem'
+    => 'data/1000/srcserver/getbinaries_empty.cpio',
+  'srcserver/getbinaries?project=openSUSE.org:OBS:Server:Unstable&repository=15.3&arch=x86_64&binaries=liblua5_4-5,aaa_base,filesystem'
+    => 'data/1000/srcserver/getbinaries_empty.cpio',
+  'srcserver/getbinaries?project=openSUSE.org:openSUSE:Tools&repository=15.3&arch=x86_64&binaries=liblua5_4-5,aaa_base,filesystem'
+    => 'data/1000/srcserver/getbinaries.cpio',
+
+  'srcserver/build/openSUSE.org:OBS:Server:Unstable/15.3/x86_64/0product:OBS-Addon-release?view=cpio'
+    => 'data/1000/srcserver/build_openSUSE.org:OBS:Server:Unstable_15.3_x86_64_0product:OBS-Addon-release?view=cpio'
+};
+
+@got = getbinaries_kiwiproduct($buildinfo, $dir, $srcdir, $kiwiorigins);
+@expected = ('c0f190787a4711126abe9d9273a1f6bd  openSUSE.org:OBS:Server:Unstable/15.3/x86_64/0product:OBS-Addon-release/OBS-Addon-release.x86_64');
+is_deeply(\@got, \@expected, 'getbinaries_kiwiproduct - Return value');
+
+BSUtil::cleandir($tmpdir);
+rmdir($tmpdir);
