@@ -249,12 +249,16 @@ sub upload_all_containers {
 	push @{$todo{$joinp}}, $tag;
 	$todo_p{$joinp} = \@p;
       }
+      my $repostate;
+      if (1) {
+	eval { $repostate = query_repostate($registry, $repository) };
+      }
       # now do the upload
       my $containerdigests = '';
       for my $joinp (sort keys %todo) {
 	my @tags = @{$todo{$joinp}};
 	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $signargs, $pubkey);
+	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $signargs, $pubkey, $multicontainer, $repostate);
 	add_notary_upload($notary_uploads, $registry, $repository, $digest, \@tags);
 	$containerdigests .= $digest;
 	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
@@ -323,21 +327,161 @@ sub upload_all_containers {
   return \%container_repositories;
 }
 
-sub reconstruct_container {
-  my ($containerinfo, $dst) = @_;
+sub construct_container_tar {
+  my ($containerinfo, $doopen) = @_;
   my $manifest = $containerinfo->{'tar_manifest'};
   my $mtime = $containerinfo->{'tar_mtime'};
   my $blobids = $containerinfo->{'tar_blobids'};
   my $blobdir = $containerinfo->{'blobdir'};
-  return unless $mtime && $manifest && $blobids && $blobdir;
+  return (undef, undef) unless $mtime && $manifest && $blobids && $blobdir;
   my @tar;
   for my $blobid (@$blobids) {
     my $file = "$blobdir/_blob.$blobid";
+    if ($doopen) {
+      my $fd;
+      open($fd, '<', $file) || die("$file: $!\n");
+      $file = $fd;
+    }
     die("missing blobid $blobid\n") unless -e $file;
-    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s _)};
+    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s _), 'blobid' => $blobid};
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  BSTar::writetarfile($dst, undef, \@tar, 'mtime' => $mtime);
+  return (\@tar, $mtime);
+}
+
+sub reconstruct_container {
+  my ($containerinfo, $dst, $dstfinal) = @_;
+  my ($tar, $mtime) = construct_container_tar($containerinfo);
+  BSTar::writetarfile($dst, $dstfinal, $tar, 'mtime' => $mtime) if $tar;
+}
+
+sub create_container_dist_info {
+  my ($containerinfo, $oci, $platforms) = @_;
+  my $file = $containerinfo->{'publishfile'};
+  my $tar;
+  if (!defined($file)) {
+    die("need a blobdir to reconstruct containers\n") unless $containerinfo->{'blobdir'};
+    ($tar) = construct_container_tar($containerinfo, 1);
+  } elsif (($containerinfo->{'type'} || '') eq 'helm') {
+    ($tar) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+  } elsif ($file =~ /\.tar$/) {
+    my $tarfd;
+    open($tarfd, '<', $file) || die("$file: $!\n");
+    $tar = BSTar::list($tarfd);
+    $_->{'file'} = $tarfd for @$tar;
+  } else {
+    my $tmpfile = decompress_container($file);
+    my $tarfd;
+    open($tarfd, '<', $tmpfile) || die("$tmpfile: $!\n");
+    unlink($tmpfile);
+    $tar = BSTar::list($tarfd);
+    $_->{'file'} = $tarfd for @$tar;
+  }
+  die("incomplete containerinfo\n") unless $tar;
+  my %tar = map {$_->{'name'} => $_} @$tar;
+  my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
+  my ($config_ent, $config) = BSContar::get_config(\%tar, $manifest);
+  my $goarch = $config->{'architecture'} || 'any';
+  my $goos = $config->{'os'} || 'any';
+  my $govariant = $containerinfo->{'govariant'};
+  $govariant = $config->{'variant'} if $config->{'variant'};
+
+  if ($platforms) {
+    my $platformstr = "architecture:$goarch os:$goos";
+    $platformstr .= " variant:$govariant" if $govariant;
+    return undef if $platforms->{$platformstr};
+    $platforms->{$platformstr} = 1;
+  }
+
+  my $config_data = {
+    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config),
+    'size' => $config_ent->{'size'},
+    'digest' => BSContar::blobid_entry($config_ent),
+  };
+  my @layer_data;
+  die("container has no layers\n") unless @{$manifest->{'Layers'} || []};
+  for my $layer_file (@{$manifest->{'Layers'}}) {
+    my $layer_ent = $tar{$layer_file};
+    die("File $layer_file not included in tar\n") unless $layer_ent;
+    # detect layer compression
+    my $comp = BSContar::detect_entry_compression($layer_ent);
+    die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
+    if (!$comp) {
+      print "compressing $layer_ent->{'name'}... ";
+      $layer_ent = BSContar::compress_entry($layer_ent);
+      print "done.\n";
+    }
+    my $layer_data = {
+      'mediaType' => $layer_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_layer_gzip : $BSContar::mt_docker_layer_gzip),
+      'size' => $layer_ent->{'size'},
+      'digest' => $layer_ent->{'blobid'} || BSContar::blobid_entry($layer_ent),
+    };
+    push @layer_data, $layer_data;
+  }
+  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
+  my $mani = {
+    'schemaVersion' => 2,
+    'mediaType' => $mediaType,
+    'config' => $config_data,
+    'layers' => \@layer_data,
+  };
+  my $mani_json = BSContar::create_dist_manifest($mani);
+  my $info = {
+    'mediaType' => $mediaType,
+    'size' => length($mani_json),
+    'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+    'platform' => {'architecture' => $goarch, 'os' => $goos},
+  };
+  $info->{'platform'}->{'variant'} = $govariant if $govariant;
+  return $info;
+}
+
+sub create_container_index_info {
+  my ($infos, $oci) = @_;
+  my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
+  my $mani = {
+    'schemaVersion' => 2,
+    'mediaType' => $mediaType,
+    'manifests' => $infos || [],
+  };
+  my $mani_json = BSContar::create_dist_manifest_list($mani);
+  my $info = {
+    'mediaType' => $mediaType,
+    'size' => length($mani_json),
+    'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+  };
+  return $info;
+}
+
+sub query_repostate {
+  my ($registry, $repository) = @_;
+  my $registryserver = $registry->{pushserver} || $registry->{server};
+  my $pullserver = $registry->{server};
+  $pullserver =~ s/https?:\/\///;
+  $pullserver =~ s/\/?$/\//;
+  $pullserver = '' if $pullserver =~ /docker.io\/$/;
+  $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
+  my ($fh, $tempfile) = tempfile();
+  print "querying state of $repository on $registryserver\n";
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-l', $registryserver, $repository);
+  my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
+  my $repostate;
+  if (!$result) {
+    my $fd;
+    open ($fd, '<', $tempfile) || die("$tempfile: $!\n");
+    $repostate = {};
+    while (<$fd>) {
+      my @s = split(' ', $_);
+      if (@s == 4 && $s[0] =~ /\.sig$/ && $s[3] =~ /^cosigncookie=/) {
+        $repostate->{$s[0]} = $s[3];
+      } elsif (@s >= 3) {
+        $repostate->{$s[0]} = $s[1];
+      }
+    }
+    close($fd);
+  }
+  unlink($tempfile);
+  return $repostate;
 }
 
 =head2 upload_to_registry - upload containers
@@ -354,7 +498,7 @@ sub reconstruct_container {
 =cut
 
 sub upload_to_registry {
-  my ($registry, $containerinfos, $repository, $tags, $projid, $signargs, $pubkey) = @_;
+  my ($registry, $containerinfos, $repository, $tags, $projid, $signargs, $pubkey, $multicontainer, $repostate) = @_;
 
   return unless @{$containerinfos || []} && @{$tags || []};
   
@@ -364,6 +508,58 @@ sub upload_to_registry {
   $pullserver =~ s/\/?$/\//;
   $pullserver = '' if $pullserver =~ /docker.io\/$/;
   $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
+
+  $multicontainer = 0;
+  my $multiarch = @$containerinfos > 1 || $multicontainer ? 1 : 0;
+  $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
+  my $oci;
+  $oci = 1 if grep {($_->{'type'} || '') eq 'helm'} @$containerinfos;
+
+  my $cosign = $registry->{'cosign'};
+  $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
+  my $cosigncookie;
+  if (defined($pubkey) && $cosign) {
+    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+    $gun =~ s/^https?:\/\///;
+    $gun .= "/$repository";
+    my $creator = 'OBS';
+    $cosigncookie = BSConSign::createcosigncookie($pubkey, $gun, $creator);
+  }
+
+  # check if the registry is up-to-date
+  if ($repostate) {
+    my %expected;
+    my $containerdigests = '';
+    my $info;
+    if ($multiarch) {
+      my %platforms;
+      my @infos;
+      for my $containerinfo (@$containerinfos) {
+	$info = create_container_dist_info($containerinfo, $oci, \%platforms);
+	push @infos, { %$info };	# copy so that size is not stringified
+	$containerdigests .= "$info->{'digest'} $info->{'size'}\n";
+	if ($cosigncookie) {
+	  my $sigtag = $info->{'digest'};
+	  $sigtag =~ s/:(.*)/-$1.sig/;
+	  $expected{$sigtag} = "cosigncookie=$cosigncookie";
+	}
+      }
+      $info = create_container_index_info(\@infos, $oci);
+    } else {
+      $info = create_container_dist_info($containerinfos->[0], $oci);
+    }
+    $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
+    $expected{$_} = $info->{'digest'} for @$tags;
+    if ($cosigncookie) {
+      my $sigtag = $info->{'digest'};
+      $sigtag =~ s/:(.*)/-$1.sig/;
+      $expected{$sigtag} = "cosigncookie=$cosigncookie";
+    }
+    if (!grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
+      $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
+      return ($containerdigests, map {"$pullserver$repository:$_"} @$tags);
+    }
+  }
 
   # decompress tar files
   my @tempfiles;
@@ -398,10 +594,9 @@ sub upload_to_registry {
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
   unlink($containerdigestfile);
   my @opts = map {('-t', $_)} @$tags;
-  push @opts, '-m' if @uploadfiles > 1;		# create multi arch container
+  push @opts, '-m' if $multiarch;
+  push @opts, '--oci' if $oci;
   push @opts, '-B', $blobdir if $blobdir;
-  my $cosign = $registry->{'cosign'};
-  $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
   if (defined($pubkey) && $cosign) {
     my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
     $gun =~ s/^https?:\/\///;
