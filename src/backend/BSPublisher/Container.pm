@@ -253,18 +253,18 @@ sub upload_all_containers {
       if (1) {
 	eval { $repostate = query_repostate($registry, $repository) };
       }
-      # now do the upload
+      # now do the uploads
       my $containerdigests = '';
       for my $joinp (sort keys %todo) {
 	my @tags = @{$todo{$joinp}};
 	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
 	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $signargs, $pubkey, $multicontainer, $repostate);
-	add_notary_upload($notary_uploads, $registry, $repository, $digest, \@tags);
 	$containerdigests .= $digest;
 	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
       }
       # all is pushed, now clean the rest
-      delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
+      add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
+      delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate);
     }
 
     # delete repositories of former publish runs that are now empty
@@ -402,7 +402,7 @@ sub create_container_dist_info {
   die("container has no layers\n") unless @{$manifest->{'Layers'} || []};
   for my $layer_file (@{$manifest->{'Layers'}}) {
     my $layer_ent = $tar{$layer_file};
-    die("File $layer_file not included in tar\n") unless $layer_ent;
+    die("file $layer_file not included in tar\n") unless $layer_ent;
     # detect layer compression
     my $comp = BSContar::detect_entry_compression($layer_ent);
     die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
@@ -464,6 +464,7 @@ sub query_repostate {
   my ($fh, $tempfile) = tempfile();
   print "querying state of $repository on $registryserver\n";
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-l', $registryserver, $repository);
+  my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
   my $repostate;
   if (!$result) {
@@ -479,6 +480,7 @@ sub query_repostate {
       }
     }
     close($fd);
+    printf "query took %d seconds, found %d tags\n", time() - $now, scalar(keys %$repostate);
   }
   unlink($tempfile);
   return $repostate;
@@ -613,12 +615,12 @@ sub upload_to_registry {
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
   }
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
-  print "Uploading to registry: @cmd\n";
+  print "uploading to registry: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   my $containerdigests = readstr($containerdigestfile, 1);
   unlink($containerdigestfile);
   unlink($_) for @tempfiles;
-  die("Error while uploading to registry: $result\n") if $result;
+  die("error while uploading to registry: $result\n") if $result;
 
   # return digest and public references
   $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
@@ -626,18 +628,30 @@ sub upload_to_registry {
 }
 
 sub delete_obsolete_tags_from_registry {
-  my ($registry, $repository, $containerdigests) = @_;
+  my ($registry, $repository, $containerdigests, $repostate) = @_;
 
   return if $registry->{'nodelete'};
+  if ($repostate) {
+    my @keep;
+    for (split("\n", $containerdigests)) {
+      next if /^#/ || /^\s*$/;
+      push @keep, "$1-$2.sig" if /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+      next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;       # ignore anonymous images
+      die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
+      push @keep, $4;
+    }
+    my %keep = map {$_ => 1} @keep;
+    return unless grep {!$keep{$_}} keys %$repostate;
+  }
   mkdir_p($uploaddir);
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
   writestr($containerdigestfile, undef, $containerdigests);
   my $registryserver = $registry->{pushserver} || $registry->{server};
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-X', '-F', $containerdigestfile, $registryserver, $repository);
-  print "Deleting obsolete tags: @cmd\n";
+  print "deleting obsolete tags: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   unlink($containerdigestfile);
-  die("Error while deleting tags from registry: $result\n") if $result;
+  die("error while deleting tags from registry: $result\n") if $result;
 }
 
 =head2 add_notary_upload - add notary upload information for a repository
@@ -645,16 +659,11 @@ sub delete_obsolete_tags_from_registry {
 =cut
 
 sub add_notary_upload {
-  my ($notary_uploads, $registry, $repository, $digest, $tags) = @_;
+  my ($notary_uploads, $registry, $repository, $digest) = @_;
 
   return unless $registry->{'notary'};
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
   $gun =~ s/^https?:\/\///;
-  if ($tags) {
-    print "adding notary upload for $gun/$repository: @$tags\n";
-  } else {
-    print "adding empty notary upload for $gun/$repository\n";
-  }
   $notary_uploads->{"$gun/$repository"} ||= {'registry' => $registry, 'digests' => '', 'gun' => "$gun/$repository"};
   $notary_uploads->{"$gun/$repository"}->{'digests'} .= $digest if $digest;
 }
@@ -690,9 +699,9 @@ sub upload_to_notary {
   }
   unlink($pubkeyfile);
   if (%failed_uploads) {
-     warn("Error while uploading to notary:\n");
+     warn("error while uploading to notary:\n");
      warn("failed for $_ $failed_uploads{$_}\n") for sort keys(%failed_uploads);
-     die("Error while uploading to notary\n");
+     die("error while uploading to notary\n");
   }
 }
 
@@ -708,9 +717,9 @@ sub delete_from_notary {
     die("delete_from_notary: digest not empty\n") if $uploaddata->{'digests'};
     my $registry = $uploaddata->{'registry'};
     my @cmd = ("$INC[0]/bs_notar", '--dest-creds', '-', '-D', $registry->{'notary'}, $uploaddata->{'gun'});
-    print "Deleting from notary: @cmd\n";
+    print "deleting from notary: @cmd\n";
     my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
-    die("Error while uploading to notary: $result\n") if $result;
+    die("error while uploading to notary: $result\n") if $result;
   }
 }
 
