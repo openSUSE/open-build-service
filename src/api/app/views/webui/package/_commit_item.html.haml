@@ -30,6 +30,6 @@
           %i.fas.fa-copy.text-gray-500
           Files Changed
     %li.nav-item
-      = link_to(package_show_path(@project, @package, rev: commit['rev']), class: 'nav-link') do
+      = link_to(package_show_path(@project, @package, rev: commit['rev'], expand: 0), class: 'nav-link') do
         %i.fas.fa-folder-open.text-warning
         Browse Source
