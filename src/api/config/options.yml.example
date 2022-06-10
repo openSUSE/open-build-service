@@ -208,6 +208,11 @@ default: &default
   # Default: 365 days (1 year).
   notifications_lifetime: 365
 
+  # Prevent adding the user as a maintainer, in project creation, in this API endpoint:
+  # PUT /source/:project/_meta
+  # Former and default value is `false`: the user is added as a maintainer.
+  prevent_adding_maintainer_in_project_creation_with_api: false
+
 production:
   <<: *default
 

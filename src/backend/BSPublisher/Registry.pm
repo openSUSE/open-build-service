@@ -532,17 +532,18 @@ sub push_containers {
       warn("ignoring tag: $@");
       next;
     }
+    my $containerinfos = $tags->{$tag};
     my $multiarchtag = $multiarch;
-    $multiarchtag = 1 if @{$tags->{$tag}} > 1;
-    $multiarchtag = 0 if @{$tags->{$tag}} == 1 && ($tags->{$tag}->[0]->{'type'} || '') eq 'helm';
-    die("must use multiarch if multiple containers are to be pushed\n") if @{$tags->{$tag}} > 1 && !$multiarchtag;
+    $multiarchtag = 1 if @$containerinfos > 1;
+    $multiarchtag = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
+    die("must use multiarch if multiple containers are to be pushed\n") if @$containerinfos > 1 && !$multiarchtag;
     my %multiplatforms;
     my @multimanifests;
     my @imginfos;
     my $oci;
     # use oci types if we have a helm chart
-    $oci = 1 if grep {($_->{'type'} || '') eq 'helm'} @{$tags->{$tag}};
-    for my $containerinfo (@{$tags->{$tag}}) {
+    $oci = 1 if grep {($_->{'type'} || '') eq 'helm'} @$containerinfos;
+    for my $containerinfo (@$containerinfos) {
       # check if we already processed this container with a different tag
       if ($done{$containerinfo}) {
 	# yes, reuse data

@@ -67,6 +67,7 @@ my $repository;
 my @tarfiles;
 
 my $registry_authenticator;
+my $keepalive;
 
 sub send_layer {
   my ($param) = @_;
@@ -185,6 +186,7 @@ sub manifest_exists {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'keepalive' => $keepalive,
   };
   my $maniret;
   eval { $maniret = BSRPC::rpc($param) };
@@ -261,6 +263,7 @@ sub get_all_tags {
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
     'replyheaders' => \$replyheaders,
+    'keepalive' => $keepalive,
   };
   while (1) {
     undef $replyheaders;
@@ -304,6 +307,7 @@ sub get_manifest_for_tag {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'keepalive' => $keepalive,
   };
   my $mani_json;
   eval { $mani_json = BSRPC::rpc($param); };
@@ -349,6 +353,14 @@ sub list_tag {
   my ($tag) = @_;
 
   my ($mani, $maniid) = get_manifest_for_tag($tag);
+  my $extra = '';
+  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
+    if (@{$mani->{'layers'} || []} == 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dev.cosign.simplesigning.v1+json') {
+      my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
+      my $cookie = $annotations->{'org.open-build-service.cosign.cookie'};
+      $extra = " cosigncookie=$cookie" if $cookie;
+    }
+  }
   if (!$mani) {
     printf "%-20s -\n", $tag;
   } elsif (!$mani->{'mediaType'}) {
@@ -356,9 +368,9 @@ sub list_tag {
   } elsif ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist) {
     printf "%-20s %s %s\n", $tag, $maniid, 'list';
   } elsif ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest) {
-    printf "%-20s %s %s\n", $tag, $maniid, 'image';
+    printf "%-20s %s %s%s\n", $tag, $maniid, 'image', $extra;
   } elsif ($mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
-    printf "%-20s %s %s\n", $tag, $maniid, 'ociimage';
+    printf "%-20s %s %s%s\n", $tag, $maniid, 'ociimage', $extra;
   } elsif ($mani->{'mediaType'} eq $BSContar::mt_oci_index) {
     printf "%-20s %s %s\n", $tag, $maniid, 'ocilist';
   } else {
@@ -511,6 +523,7 @@ if ($list_mode) {
       print "$repo\n";
     }
   } elsif (@ARGV == 2) {
+    $keepalive = {};
     my %tags = map {$_ => 1} @tags;
     $tags{$_} = 1 for tags_from_digestfile();
     %tags = map {$_ => 1} get_all_tags() unless %tags;
@@ -725,9 +738,8 @@ if ($multiarch) {
 
 if ($cosign && %digests_to_sign) {
   my $creator = 'OBS';
-  my $gpgpubkey = BSPGP::unarmor(readstr($pubkeyfile));
-  my $pubkeyid = BSPGP::pk2fingerprint($gpgpubkey);
-  my $cosigncookie = Digest::SHA::sha256_hex("$creator/$pubkeyid/$gun");
+  my $gpgpubkey = readstr($pubkeyfile);
+  my $cosigncookie = BSConSign::createcosigncookie($gpgpubkey, $gun, $creator);
   for my $digest (sort keys %digests_to_sign) {
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
@@ -759,7 +771,7 @@ if ($cosign && %digests_to_sign) {
     manifest_upload($mani_json, $sig_tag, $mediaType);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
       BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
     }
