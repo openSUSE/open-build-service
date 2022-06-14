@@ -4,6 +4,8 @@ class Webui::Users::Tokens::UsersController < Webui::WebuiController
   before_action :set_user, only: :destroy
 
   def index
+    authorize @token
+
     @users = @token.users_shared_among
     @groups = @token.groups_shared_among
   end
