@@ -17,6 +17,7 @@ class Token < ApplicationRecord
 
   include Token::Errors
 
+  # TODO: move to Token::Workflow model
   scope :owned_tokens, ->(user) { where(user: user).where.not(type: ['Token::Rss']) }
   scope :shared_tokens, ->(user) { user.shared_workflow_tokens }
   scope :group_shared_tokens, ->(user) { user.groups.map(&:shared_workflow_tokens).flatten } # TODO: transform to ActiveRecord_Relation
