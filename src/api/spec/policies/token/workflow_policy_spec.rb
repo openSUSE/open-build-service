@@ -34,6 +34,14 @@ RSpec.describe Token::WorkflowPolicy do
         it { is_expected.to permit(user, user_token) }
       end
 
+      context 'when the user belongs to a group which owns the token' do
+        let(:group_token) { create(:workflow_token, user: user) }
+
+        before { group.shared_workflow_tokens << group_token }
+
+        it { is_expected.to permit(other_user, group_token) }
+      end
+
       context 'when the user is not the owner of the token' do
         context 'and the token has not been shared with that user' do
           it { is_expected.not_to permit(other_user, user_token) }
@@ -68,6 +76,14 @@ RSpec.describe Token::WorkflowPolicy do
     context 'when the user has the feature enabled' do
       context 'when the user is the owner of the token' do
         it { is_expected.to permit(user, user_token) }
+      end
+
+      context 'when the user belongs to a group which owns the token' do
+        let(:group_token) { create(:workflow_token, user: user) }
+
+        before { group.shared_workflow_tokens << group_token }
+
+        it { is_expected.to permit(other_user, group_token) }
       end
 
       context 'when the user does not own the token' do
