@@ -20,6 +20,10 @@ class Token::WorkflowPolicy < TokenPolicy
     record.owned_by?(user)
   end
 
+  def index?
+    create?
+  end
+
   def show?
     create?
   end
