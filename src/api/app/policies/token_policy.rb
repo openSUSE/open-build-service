@@ -11,7 +11,9 @@ class TokenPolicy < ApplicationPolicy
     end
 
     def resolve
-      scope.where(user: user).where.not(type: 'Token::Rss').includes(package: :project)
+      # because we cannot use `.or` in scopes that have joins inside
+      # see: https://github.com/rails/rails/issues/5545#issuecomment-4632218
+      Token.where(id: [scope.owned_tokens(user) + scope.shared_tokens(user)])
     end
   end
 
