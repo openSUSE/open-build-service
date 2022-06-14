@@ -17,8 +17,9 @@ class Token < ApplicationRecord
 
   include Token::Errors
 
-  scope :owned_tokens, ->(user) { where(user: user).where.not(type: ['Token::Rss']).includes(package: :project) }
-  scope :shared_tokens, ->(user) { user.shared_workflow_tokens.includes(package: :project) }
+  scope :owned_tokens, ->(user) { where(user: user).where.not(type: ['Token::Rss']) }
+  scope :shared_tokens, ->(user) { user.shared_workflow_tokens }
+  scope :group_shared_tokens, ->(user) { user.groups.map(&:shared_workflow_tokens).flatten } # TODO: transform to ActiveRecord_Relation
 
   OPERATIONS = ['Rebuild', 'Release', 'Service', 'Workflow'].freeze
 
