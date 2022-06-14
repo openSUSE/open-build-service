@@ -24,6 +24,14 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :user
+
+  has_and_belongs_to_many :shared_workflow_tokens,
+                          class_name: 'Token::Workflow',
+                          join_table: :workflow_token_users,
+                          association_foreign_key: :token_id,
+                          dependent: :destroy,
+                          inverse_of: :token_workflow
+
   has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy
 
   has_many :reviews, dependent: :nullify

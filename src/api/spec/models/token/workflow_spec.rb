@@ -1,6 +1,42 @@
 require 'rails_helper'
 
 RSpec.describe Token::Workflow do
+  describe '#workflow_token_users' do
+    let(:token_user) { create(:confirmed_user) }
+
+    context 'asking for workflow tokens' do
+      let(:workflow_token) { create(:workflow_token, user: token_user) }
+
+      before { token_user.shared_workflow_tokens << workflow_token }
+
+      it 'returns the users whom I shared the token' do
+        expect(workflow_token.users_shared_among).to include(token_user)
+      end
+    end
+
+    context 'trying to use rss tokens' do
+      let(:rss_token) { create(:rss_token, user: token_user) }
+
+      it 'returns nothing' do
+        expect { token_user.shared_workflow_tokens << rss_token }.to raise_error(ActiveRecord::AssociationTypeMismatch)
+      end
+    end
+  end
+
+  describe '#workflow_token_groups' do
+    let(:token_group) { create(:group) }
+
+    context 'asking for workflow tokens' do
+      let(:workflow_token) { create(:workflow_token) }
+
+      before { token_group.shared_workflow_tokens << workflow_token }
+
+      it 'returns the groups whom I shared the token' do
+        expect(workflow_token.groups_shared_among).to include(token_group)
+      end
+    end
+  end
+
   describe '#call' do
     let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
     let(:workflow_token) { create(:workflow_token, user: token_user) }

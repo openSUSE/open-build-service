@@ -12,6 +12,12 @@ class Group < ApplicationRecord
   has_many :reviews, dependent: :nullify
   has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
   has_and_belongs_to_many :created_notifications, class_name: 'Notification'
+  has_and_belongs_to_many :shared_workflow_tokens,
+                          class_name: 'Token::Workflow',
+                          join_table: :workflow_token_groups,
+                          association_foreign_key: :token_id,
+                          dependent: :destroy,
+                          inverse_of: :token_workflow
 
   validates :title,
             format: { with: /\A[\w.\-]*\z/,
