@@ -17,7 +17,14 @@ class Token::WorkflowPolicy < TokenPolicy
     # TODO: when trigger_workflow is rolled out, remove the Flipper check
     return false unless Flipper.enabled?(:trigger_workflow, user)
 
-    # TODO: remove the first condition if we migrate the Token.user to Token.users_shared_among
-    record.user == user || record.users_shared_among.include?(user) || record.groups_shared_among.map(&:users).flatten.include?(user)
+    record.owned_by?(user)
+  end
+
+  def show?
+    create?
+  end
+
+  def update?
+    create?
   end
 end

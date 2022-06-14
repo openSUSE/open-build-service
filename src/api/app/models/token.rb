@@ -61,6 +61,10 @@ class Token < ApplicationRecord
   def set_triggered_at
     update(triggered_at: Time.zone.now)
   end
+
+  def owned_by?(some_user)
+    user == some_user
+  end
 end
 
 # == Schema Information
