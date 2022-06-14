@@ -11,7 +11,9 @@ class TokenPolicy < ApplicationPolicy
     end
 
     def resolve
-      scope.where(user: user).where.not(type: 'Token::Rss').includes(package: :project)
+      # because we cannot use `.or` in scopes that have joins inside
+      # see: https://github.com/rails/rails/issues/5545#issuecomment-4632218
+      Token.where(id: [scope.owned_tokens(user) + scope.shared_tokens(user) + scope.group_shared_tokens(user)])
     end
   end
 
@@ -31,7 +33,10 @@ class TokenPolicy < ApplicationPolicy
 
   def create?
     # TODO: when trigger_workflow is rolled out, remove the Flipper check
-    record.user == user && record.type != 'Token::Rss' && Flipper.enabled?(:trigger_workflow, user)
+    return false unless Flipper.enabled?(:trigger_workflow, user)
+    return false unless record.type != 'Token::Rss'
+
+    record.user == user
   end
 
   def destroy?

@@ -12,4 +12,19 @@ class Token::WorkflowPolicy < TokenPolicy
   def trigger_service?
     PackagePolicy.new(user, record.object_to_authorize).update?
   end
+
+  def create?
+    # TODO: when trigger_workflow is rolled out, remove the Flipper check
+    return false unless Flipper.enabled?(:trigger_workflow, user)
+
+    record.owned_by?(user)
+  end
+
+  def show?
+    create?
+  end
+
+  def update?
+    create?
+  end
 end

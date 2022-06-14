@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_20_131205) do
+ActiveRecord::Schema.define(version: 2022_06_10_114201) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
@@ -1108,6 +1108,20 @@ ActiveRecord::Schema.define(version: 2022_05_20_131205) do
     t.integer "token_id", null: false
     t.string "response_url"
     t.index ["token_id"], name: "index_workflow_runs_on_token_id"
+  end
+
+  create_table "workflow_token_groups", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "token_id", null: false
+    t.bigint "group_id", null: false
+    t.index ["group_id"], name: "index_workflow_token_groups_on_group_id"
+    t.index ["token_id"], name: "index_workflow_token_groups_on_token_id"
+  end
+
+  create_table "workflow_token_users", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "token_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["token_id"], name: "index_workflow_token_users_on_token_id"
+    t.index ["user_id"], name: "index_workflow_token_users_on_user_id"
   end
 
   add_foreign_key "attrib_allowed_values", "attrib_types", name: "attrib_allowed_values_ibfk_1"

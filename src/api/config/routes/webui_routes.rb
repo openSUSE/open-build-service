@@ -349,6 +349,8 @@ OBSApi::Application.routes.draw do
 
       resources :tokens, controller: 'webui/users/tokens' do
         resources :workflow_runs, only: [:index, :show], controller: 'webui/workflow_runs'
+        resources :users, only: [:index, :create, :destroy], controller: 'webui/users/tokens/users', constraints: cons
+        resources :groups, only: [:create, :destroy], controller: 'webui/users/tokens/groups', constraints: cons
       end
       resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
     end
