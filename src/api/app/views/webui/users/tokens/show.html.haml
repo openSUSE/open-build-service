@@ -17,16 +17,18 @@
             %span
               = @token.id
 
-        - if session[:show_token]
-          - session[:show_token] = nil # Ensure we're only showing the token once
-          .form-row
-            .col-12.col-md-10.col-lg-9
-              %fieldset.form-group
-                %label.col-form-label.font-weight-bold
-                  Secret:
-                .input-group
-                  = render CopyToClipboardInputComponent.new(input_text: @token.string)
-              %hr
+        .form-row
+          .col-12.col-md-10.col-lg-9
+            %fieldset.form-group
+              %label.col-form-label.font-weight-bold
+                Secret:
+              .d-flex.flex-row
+                #token-reveal
+                  = link_to('Reveal', token_path(@token), remote: true, class: 'btn btn-primary')
+                .input-group#token-secret
+                #token-hide{ style: 'display: none' }
+                  = link_to('Hide', hide_token_path(@token), remote: true, class: 'btn btn-primary')
+            %hr
 
         .form-row
           .col

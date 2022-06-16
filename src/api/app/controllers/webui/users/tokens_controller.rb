@@ -1,5 +1,6 @@
+# rubocop:disable Metrics/ClassLength
 class Webui::Users::TokensController < Webui::WebuiController
-  before_action :set_token, only: [:edit, :update, :destroy, :show]
+  before_action :set_token, only: [:edit, :update, :destroy, :show, :hide]
   before_action :set_parameters, :set_package, only: [:create]
 
   after_action :verify_authorized, except: :index
@@ -52,7 +53,6 @@ class Webui::Users::TokensController < Webui::WebuiController
       format.html do
         if @token.save
           flash[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
-          session[:show_token] = 'true'
           redirect_to token_path(@token)
         else
           flash[:error] = "Failed to create token: #{@token.errors.full_messages.to_sentence}."
@@ -71,6 +71,19 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   def show
     authorize @token
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+
+  def hide
+    authorize @token
+
+    respond_to do |format|
+      format.js
+    end
   end
 
   private
@@ -119,3 +132,4 @@ class Webui::Users::TokensController < Webui::WebuiController
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

@@ -348,6 +348,9 @@ OBSApi::Application.routes.draw do
       post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
 
       resources :tokens, controller: 'webui/users/tokens' do
+        member do
+          get 'hide'
+        end
         resources :workflow_runs, only: [:index, :show], controller: 'webui/workflow_runs'
         resources :users, only: [:index, :create, :destroy], controller: 'webui/users/tokens/users', constraints: cons
         resources :groups, only: [:create, :destroy], controller: 'webui/users/tokens/groups', constraints: cons
