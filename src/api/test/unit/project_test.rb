@@ -281,7 +281,7 @@ class ProjectTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
     orig = @project.render_xml
 
-    xml = <<-END.strip_heredoc
+    xml = <<~END
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
         <description>dummy</description>
@@ -307,7 +307,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test 'not duplicated repos with remote' do
     User.session = users(:Iggy)
-    xml = <<-END.strip_heredoc
+    xml = <<~END
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
         <description>dummy</description>
@@ -603,7 +603,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test 'validate_maintenance_xml_attribute returns an error if User can not modify target project' do
     User.session = users(:tom)
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name="the_project">
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -619,7 +619,7 @@ class ProjectTest < ActiveSupport::TestCase
   test 'validate_maintenance_xml_attribute returns no error if User can modify target project' do
     User.session = users(:king)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name="the_project">
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -635,7 +635,7 @@ class ProjectTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
     project = projects(:home_Iggy)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name="the_project">
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -651,7 +651,7 @@ class ProjectTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
     project = projects(:home_Iggy)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name="the_project">
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -670,7 +670,7 @@ class ProjectTest < ActiveSupport::TestCase
   test 'validate_repository_xml_attribute returns no error if project access is not disabled' do
     User.session = users(:Iggy)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='other_project'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -688,7 +688,7 @@ class ProjectTest < ActiveSupport::TestCase
     flag = project.add_flag('access', 'disable')
     flag.save
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='other_project'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -707,7 +707,7 @@ class ProjectTest < ActiveSupport::TestCase
     flag = project.add_flag('access', 'disable')
     flag.save
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='home:Iggy'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -724,7 +724,7 @@ class ProjectTest < ActiveSupport::TestCase
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -742,7 +742,7 @@ class ProjectTest < ActiveSupport::TestCase
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -760,7 +760,7 @@ class ProjectTest < ActiveSupport::TestCase
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -778,7 +778,7 @@ class ProjectTest < ActiveSupport::TestCase
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -794,7 +794,7 @@ class ProjectTest < ActiveSupport::TestCase
     project = projects(:home_Iggy)
     project.repositories.destroy_all
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>
@@ -817,7 +817,7 @@ class ProjectTest < ActiveSupport::TestCase
     repository.save
     project.repositories << repository
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>

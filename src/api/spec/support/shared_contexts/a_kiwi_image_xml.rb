@@ -1,6 +1,6 @@
 RSpec.shared_context 'a kiwi image xml' do
   let(:kiwi_xml) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <!-- OBS-Profiles: profile1 profile2 inexistent -->
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
@@ -67,7 +67,7 @@ RSpec.shared_context 'a kiwi image xml' do
   end
 
   let(:kiwi_xml_with_obsrepositories) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
         <description type="system">
@@ -113,7 +113,7 @@ RSpec.shared_context 'a kiwi image xml' do
   end
 
   let(:kiwi_xml_with_multiple_descriptions) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
         <description type="system">

@@ -6,35 +6,35 @@ RSpec.describe Kiwi::Image::XmlBuilder do
 
   describe '#build' do
     let(:original_xml) do
-      <<-XML.strip_heredoc
-  <?xml version="1.0" encoding="UTF-8"?>
-  <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
-    <preferences>
-      <type image="docker" boot="grub">
-        <containerconfig name="my_container" tag="latest"/>
-        <oemconfig>test</oemconfig>
-      </type>
-      <bootsplash-theme>gnome</bootsplash-theme>
-      <bootloader-theme>gnome-dark</bootloader-theme>
-      <version>1.2.3</version>
-    </preferences>
-  </image>
+      <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <preferences>
+            <type image="docker" boot="grub">
+              <containerconfig name="my_container" tag="latest"/>
+              <oemconfig>test</oemconfig>
+            </type>
+            <bootsplash-theme>gnome</bootsplash-theme>
+            <bootloader-theme>gnome-dark</bootloader-theme>
+            <version>1.2.3</version>
+          </preferences>
+        </image>
       XML
     end
     let(:expected_xml) do
-      <<-XML.strip_heredoc
-  <?xml version="1.0" encoding="UTF-8"?>
-  <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
-    <preferences>
-      <type image="docker" boot="grub">
-        <containerconfig name="hello" tag="world"/>
-        <oemconfig>test</oemconfig>
-      </type>
-      <bootsplash-theme>gnome</bootsplash-theme>
-      <bootloader-theme>gnome-dark</bootloader-theme>
-      <version>1.2.3</version>
-    </preferences>
-  </image>
+      <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <preferences>
+            <type image="docker" boot="grub">
+              <containerconfig name="hello" tag="world"/>
+              <oemconfig>test</oemconfig>
+            </type>
+            <bootsplash-theme>gnome</bootsplash-theme>
+            <bootloader-theme>gnome-dark</bootloader-theme>
+            <version>1.2.3</version>
+          </preferences>
+        </image>
       XML
     end
 

@@ -21,7 +21,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_set_and_get_1
     login_king
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <request>
         <action type='submit'>
           <source project='home:Iggy' package='TestPack' rev='2'/>

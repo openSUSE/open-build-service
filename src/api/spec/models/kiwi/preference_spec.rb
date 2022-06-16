@@ -11,8 +11,8 @@ RSpec.describe Kiwi::Preference, type: :model do
 
   describe '#containerconfig_xml' do
     let(:expected_xml) do
-      <<-XML.strip_heredoc
-  <containerconfig name="my_container" type_containerconfig_tag="latest"/>
+      <<~XML
+        <containerconfig name="my_container" type_containerconfig_tag="latest"/>
       XML
     end
 

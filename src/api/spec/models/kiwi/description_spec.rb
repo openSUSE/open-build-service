@@ -6,7 +6,7 @@ RSpec.describe Kiwi::Description, type: :model do
   describe '#to_xml' do
     context 'with full description content' do
       let(:expected_xml) do
-        <<-XML.strip_heredoc
+        <<~XML
           <description type="system">
             <author>example_author</author>
             <contact>example_contact</contact>
@@ -22,7 +22,7 @@ RSpec.describe Kiwi::Description, type: :model do
 
     context 'with empty description content' do
       let(:expected_xml) do
-        <<-XML.strip_heredoc
+        <<~XML
           <description type="system">
             <author/>
             <contact/>

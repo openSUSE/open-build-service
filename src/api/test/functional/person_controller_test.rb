@@ -104,7 +104,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_update_watchlist
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <person>
       <login>tom</login>
       <email>tschmidt@example.com</email>
@@ -127,7 +127,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['Apache', 'BaseDistro3', 'home:tom'],
                  User.find_by(login: 'tom').watched_project_names.sort
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <person>
       <login>tom</login>
       <email>tschmidt@example.com</email>
@@ -151,7 +151,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy'],
                  User.find_by(login: 'tom').watched_project_names.sort
 
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <person>
       <login>tom</login>
       <email>tschmidt@example.com</email>
