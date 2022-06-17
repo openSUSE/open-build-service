@@ -1,6 +1,6 @@
 RSpec.shared_context 'a opensuse product' do
   let(:opensuse_product) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
         <products>

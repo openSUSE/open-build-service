@@ -70,7 +70,7 @@ class BsRequestTest < ActiveSupport::TestCase
   end
 
   def test_parse_bigger
-    xml = <<-XML.strip_heredoc
+    xml = <<~XML
       <request id="1027" creator="Iggy">
         <action type="submit">
           <source project="home:Iggy" package="TestPack" rev="1"/>
@@ -101,7 +101,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal 1027, req.number
 
     newxml = req.render_xml
-    expected = <<-XML.strip_heredoc
+    expected = <<~XML
       <request id="1027" creator="Iggy">
         <action type="submit">
           <source project="home:Iggy" package="TestPack" rev="1"/>

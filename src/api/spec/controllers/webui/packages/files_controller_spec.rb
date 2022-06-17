@@ -60,7 +60,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
 
       context 'uploading a file from remote URL' do
         let(:service_content) do
-          <<-XML.strip_heredoc.strip
+          <<~XML.strip
             <services>
               <service name="download_url">
                 <param name="host">raw.github.com</param>

@@ -1,6 +1,6 @@
 RSpec.shared_context 'an invalid kiwi image xml' do
   let(:invalid_kiwi_xml) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
         <description type="system">
@@ -47,7 +47,7 @@ RSpec.shared_context 'an invalid kiwi image xml' do
   end
 
   let(:invalid_kiwi_xml_with_obsrepositories) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
         <description type="system">
@@ -92,7 +92,7 @@ RSpec.shared_context 'an invalid kiwi image xml' do
   end
 
   let(:invalid_kiwi_xml_with_multiple_package_groups) do
-    <<-XML.strip_heredoc
+    <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
       <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
         <description type="system">
