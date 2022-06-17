@@ -26,8 +26,8 @@
                 #token-reveal
                   = link_to('Reveal', token_path(@token), remote: true, class: 'btn btn-primary')
                 .input-group#token-secret
-                #token-hide{ style: 'display: none' }
-                  = link_to('Hide', hide_token_path(@token), remote: true, class: 'btn btn-primary')
+                .d-none#token-hide
+                  = link_to('Hide', hide_token_path(@token), remote: true, class: 'btn btn-primary ml-2')
             %hr
 
         .form-row
