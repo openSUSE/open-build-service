@@ -50,8 +50,4 @@ class TokenPolicy < ApplicationPolicy
   def show?
     record.user == user && !record.type.in?(['Token::Rss'])
   end
-
-  def hide?
-    show?
-  end
 end

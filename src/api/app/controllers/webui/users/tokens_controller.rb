@@ -1,6 +1,5 @@
-# rubocop:disable Metrics/ClassLength
 class Webui::Users::TokensController < Webui::WebuiController
-  before_action :set_token, only: [:edit, :update, :destroy, :show, :hide]
+  before_action :set_token, only: [:edit, :update, :destroy, :show]
   before_action :set_parameters, :set_package, only: [:create]
 
   after_action :verify_authorized, except: :index
@@ -71,19 +70,6 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   def show
     authorize @token
-
-    respond_to do |format|
-      format.html
-      format.js
-    end
-  end
-
-  def hide
-    authorize @token
-
-    respond_to do |format|
-      format.js
-    end
   end
 
   private
@@ -132,4 +118,3 @@ class Webui::Users::TokensController < Webui::WebuiController
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
