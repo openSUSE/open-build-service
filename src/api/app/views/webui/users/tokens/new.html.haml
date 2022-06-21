@@ -13,7 +13,8 @@
               .form-group
                 = f.label(:type, 'Type:', class: 'col-form-label mr-2')
                 .w-100.d-sm-none
-                = f.collection_radio_buttons(:type, type_options, :to_s, :to_s, class: 'custom-control-input', required: true) do |radio|
+                = f.collection_radio_buttons(:type, type_options, :to_s, :to_s,
+                                             checked: 'service', class: 'custom-control-input', include_hidden: false, required: true) do |radio|
                   .custom-control.custom-radio.custom-control-inline
                     = radio.radio_button(class: 'custom-control-input')
                     = radio.label(class: 'custom-control-label')
@@ -50,9 +51,6 @@
 
 - content_for :ready_function do
   :plain
-    // Default type value: 'runservice'
-    $('#token_type_runservice').attr('checked', true);
-
     // Shows/Hide SCM Token input field
     $('input[type=radio]').on('change', function() {
       if (this.value == 'workflow') {
