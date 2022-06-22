@@ -6,7 +6,7 @@
 # - modal_title and confirmation_text: they are optional. Pass them only if you want to overwrite the default texts.
 # - remote: It is an optional parameter. If not provided, it's going to be false by default.
 
-class ConfirmationDialogComponent < ApplicationComponent
+class DeleteConfirmationDialogComponent < ApplicationComponent
   attr_accessor :modal_id, :method, :action, :modal_title, :confirmation_text, :remote
 
   def initialize(modal_id:, method:, options: {})

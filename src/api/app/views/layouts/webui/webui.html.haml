@@ -82,6 +82,6 @@
                                             bs_request: @bs_request,
                                             package: @package,
                                             project: @project)
-          = render ConfirmationDialogComponent.new(modal_id: 'delete-item-from-watchlist-modal', method: :put, options: { remote: true })
+          = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-item-from-watchlist-modal', method: :put, options: { remote: true })
         - else
           = render partial: 'layouts/webui/watchlist'
