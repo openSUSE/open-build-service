@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Token::Rebuild do
   let(:user) { create(:user, login: 'foo') }
-  let(:token) { create(:rebuild_token, user: user) }
+  let(:token) { create(:rebuild_token, executor: user) }
 
   subject { token.call(package: 'bar') }
 

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe WorkflowRunPolicy do
   let(:token_user) { create(:confirmed_user, login: 'foo') }
-  let(:workflow_token) { create(:workflow_token, user: token_user) }
+  let(:workflow_token) { create(:workflow_token, executor: token_user) }
   let!(:workflow_run) { create(:workflow_run, token: workflow_token) }
 
   describe '#resolve' do
@@ -19,7 +19,7 @@ RSpec.describe WorkflowRunPolicy do
     end
 
     context 'when token type is not of type workflow' do
-      let(:release_token) { create(:release_token, user: token_user) }
+      let(:release_token) { create(:release_token, executor: token_user) }
 
       it 'raise a not authorized error' do
         expect { subject.new(User.session, WorkflowRun, { token_id: release_token.id }).resolve }.to raise_error(Pundit::NotAuthorizedError)

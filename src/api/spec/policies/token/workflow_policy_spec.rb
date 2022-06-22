@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Token::WorkflowPolicy do
   let(:user) { create(:confirmed_user) }
-  let(:user_token) { create(:workflow_token, user: user) }
+  let(:user_token) { create(:workflow_token, executor: user) }
   let(:other_user) { group.users.first }
   let(:group) { create(:group_with_user) }
 
@@ -35,7 +35,7 @@ RSpec.describe Token::WorkflowPolicy do
       end
 
       context 'when the user belongs to a group which owns the token' do
-        let(:group_token) { create(:workflow_token, user: user) }
+        let(:group_token) { create(:workflow_token, executor: user) }
 
         before { group.shared_workflow_tokens << group_token }
 
@@ -79,7 +79,7 @@ RSpec.describe Token::WorkflowPolicy do
       end
 
       context 'when the user belongs to a group which owns the token' do
-        let(:group_token) { create(:workflow_token, user: user) }
+        let(:group_token) { create(:workflow_token, executor: user) }
 
         before { group.shared_workflow_tokens << group_token }
 

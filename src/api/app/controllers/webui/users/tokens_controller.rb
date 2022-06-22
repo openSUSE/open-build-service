@@ -44,7 +44,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def create
-    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(user: User.session, package: @package))
+    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session, package: @package))
 
     authorize @token
 

@@ -9,7 +9,7 @@ class TriggerWorkflowController < TriggerController
 
   def create
     authorize @token, :trigger?
-    @token.user.run_as do
+    @token.executor.run_as do
       validation_errors = @token.call(workflow_run: @workflow_run, scm_webhook: @scm_webhook)
 
       unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it

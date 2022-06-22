@@ -96,7 +96,7 @@ RSpec.describe Webui::FeedsController do
       render_views
       before do
         ::Configuration.update(obs_url: 'http://localhost')
-        user.create_rss_token
+        user.create_rss_token(executor: user)
         get :notifications, params: { token: user.rss_token.string, format: 'rss' }
       end
 

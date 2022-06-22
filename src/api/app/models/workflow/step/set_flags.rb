@@ -39,7 +39,7 @@ class Workflow::Step::SetFlags < ::Workflow::Step
   end
 
   def check_access(object)
-    raise Pundit::NotAuthorizedError unless Pundit.policy(token.user, object).update?
+    raise Pundit::NotAuthorizedError unless Pundit.policy(token.executor, object).update?
   end
 
   def validate_flags

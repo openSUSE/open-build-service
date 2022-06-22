@@ -53,7 +53,7 @@ FactoryBot.define do
 
       factory :user_with_service_token do
         after(:create) do |user|
-          create(:service_token, user: user)
+          create(:service_token, executor: user)
         end
       end
       factory :dead_user do

@@ -15,7 +15,7 @@
         Package:
         = token_package_link
     %p.card-text
-      Runs as: #{link_to(@token.user.login, user_path(@token.user))}
+      Runs as: #{link_to(@token.executor.login, user_path(@token.executor))}
     - if @token.triggered_at.present?
       %p.card-text
         Last trigger on #{@token.triggered_at}

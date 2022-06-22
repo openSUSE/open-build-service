@@ -29,7 +29,7 @@ RSpec.describe Triggerable do
   end
 
   describe '#set_project' do
-    let(:token) { Token::Rebuild.create(user: user) }
+    let(:token) { Token::Rebuild.create(executor: user) }
 
     before do
       allow(Project).to receive(:get_by_name).and_return('some:remote:project')
@@ -42,7 +42,7 @@ RSpec.describe Triggerable do
   end
 
   describe '#set_package' do
-    let(:token) { Token::Service.create(user: user) }
+    let(:token) { Token::Service.create(executor: user) }
     let(:package_name) { 'does-not-exist' }
 
     it 'raises when package does not exist' do
@@ -52,7 +52,7 @@ RSpec.describe Triggerable do
     end
 
     context 'project with project-link and token that follows project-links' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
       let(:package_name) { 'does-not-exist' }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
@@ -72,7 +72,7 @@ RSpec.describe Triggerable do
     end
 
     context 'project with remote project-link' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_name) { 'project_with_a_link' }
       let(:package_name) { 'remote_package_trigger' }
 
@@ -88,7 +88,7 @@ RSpec.describe Triggerable do
   end
 
   describe '#set_object_to_authorize' do
-    let(:token) { Token::Service.create(user: user) }
+    let(:token) { Token::Service.create(executor: user) }
     let(:local_package) { create(:package, name: 'local_package', project: project_with_a_link) }
 
     it 'assigns associated package' do
@@ -100,7 +100,7 @@ RSpec.describe Triggerable do
     end
 
     context 'project with project-link' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
       before do
@@ -117,7 +117,7 @@ RSpec.describe Triggerable do
     end
 
     context 'project with project-link and a local package' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
       before do
@@ -135,7 +135,7 @@ RSpec.describe Triggerable do
     end
 
     context 'project with remote project-link' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
       let(:package_name) { 'some-remote-package-that-might-exist' }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
 
@@ -153,7 +153,7 @@ RSpec.describe Triggerable do
     end
 
     context 'project with remote project-link and local package' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
 
       before do
@@ -176,7 +176,7 @@ RSpec.describe Triggerable do
     let(:multibuild_flavor) { 'libfoo2' }
 
     context 'with a token that allows multibuild' do
-      let(:token) { Token::Rebuild.create(user: user) }
+      let(:token) { Token::Rebuild.create(executor: user) }
 
       before do
         fake_controller_instance.instance_variable_set(:@package_name, "#{multibuild_package.name}:#{multibuild_flavor}")
@@ -201,7 +201,7 @@ RSpec.describe Triggerable do
     end
 
     context 'with a token that does not allow multibuild' do
-      let(:token) { Token::Service.create(user: user) }
+      let(:token) { Token::Service.create(executor: user) }
 
       it 'raises not found' do
         stub_params(project_name: project.name, package_name: multibuild_flavor)

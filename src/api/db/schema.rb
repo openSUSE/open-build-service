@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_10_114201) do
+ActiveRecord::Schema.define(version: 2022_06_22_135133) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
@@ -1018,16 +1018,16 @@ ActiveRecord::Schema.define(version: 2022_06_10_114201) do
 
   create_table "tokens", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "string", collation: "utf8mb3_unicode_ci"
-    t.integer "user_id", null: false
+    t.integer "executor_id", null: false
     t.integer "package_id"
     t.string "type", collation: "utf8mb3_unicode_ci"
     t.string "scm_token"
     t.string "description", limit: 64, default: ""
     t.datetime "triggered_at"
+    t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
     t.index ["string"], name: "index_tokens_on_string", unique: true
-    t.index ["user_id"], name: "user_id"
   end
 
   create_table "updateinfo_counters", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1213,7 +1213,7 @@ ActiveRecord::Schema.define(version: 2022_06_10_114201) do
   add_foreign_key "roles_users", "users", name: "roles_users_ibfk_1"
   add_foreign_key "status_checks", "status_reports", column: "status_reports_id"
   add_foreign_key "tokens", "packages", name: "tokens_ibfk_2"
-  add_foreign_key "tokens", "users", name: "tokens_ibfk_1"
+  add_foreign_key "tokens", "users", column: "executor_id", name: "tokens_ibfk_1"
   add_foreign_key "user_registrations", "users", name: "user_registrations_ibfk_1"
   add_foreign_key "watched_projects", "users", name: "watched_projects_ibfk_1"
 end

@@ -23,7 +23,7 @@ class User < ApplicationRecord
 
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
-  has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :user
+  has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :executor, foreign_key: :executor_id
 
   has_and_belongs_to_many :shared_workflow_tokens,
                           class_name: 'Token::Workflow',
@@ -32,7 +32,7 @@ class User < ApplicationRecord
                           dependent: :destroy,
                           inverse_of: :token_workflow
 
-  has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy
+  has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy, foreign_key: :executor_id
 
   has_many :reviews, dependent: :nullify
 

@@ -4,7 +4,7 @@ RSpec.describe Token::RssPolicy do
   let(:user) { create(:user) }
   let(:other_user) { build(:user) }
   let(:user_nobody) { build(:user_nobody) }
-  let(:rss_token_user) { create(:rss_token, user: user) }
+  let(:rss_token_user) { create(:rss_token, executor: user) }
 
   subject { described_class }
 

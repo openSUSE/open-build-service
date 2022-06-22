@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Workflow, type: :model, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
-  let(:token) { create(:workflow_token, user: user) }
+  let(:token) { create(:workflow_token, executor: user) }
   let!(:workflow_run) { create(:workflow_run, token: token) }
 
   subject do

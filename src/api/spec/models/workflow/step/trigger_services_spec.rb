@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Workflow::Step::TriggerServices do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
-  let(:token) { create(:workflow_token, user: user) }
+  let(:token) { create(:workflow_token, executor: user) }
   let(:project) { create(:project, name: 'openSUSE:Factory', maintainer: user) }
   let(:package) { create(:package, name: 'hello_world', project: project) }
 
@@ -28,7 +28,7 @@ RSpec.describe Workflow::Step::TriggerServices do
   describe '#call' do
     context 'user has no permission to trigger the services' do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Oggy') }
-      let!(:token) { create(:workflow_token, user: another_user) }
+      let!(:token) { create(:workflow_token, executor: another_user) }
 
       it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
     end

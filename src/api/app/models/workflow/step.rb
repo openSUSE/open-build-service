@@ -44,7 +44,7 @@ class Workflow::Step
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
       subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
                                                           receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                                          user: @token.user,
+                                                          user: @token.executor,
                                                           channel: 'scm',
                                                           enabled: true,
                                                           token: @token,

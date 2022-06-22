@@ -2,12 +2,12 @@ require 'rails_helper'
 
 RSpec.describe TokenPolicy, type: :policy do
   let(:token_user) { create(:confirmed_user) }
-  let(:user_token) { create(:rebuild_token, user: token_user) }
+  let(:user_token) { create(:rebuild_token, executor: token_user) }
   let(:group) { create(:group_with_user) }
   let(:other_user) { group.users.first }
 
-  let(:workflow_token) { create(:workflow_token, user: token_user) }
-  let(:rss_token) { create(:rss_token, user: token_user) }
+  let(:workflow_token) { create(:workflow_token, executor: token_user) }
+  let(:rss_token) { create(:rss_token, executor: token_user) }
 
   subject { described_class }
 
@@ -33,10 +33,10 @@ RSpec.describe TokenPolicy, type: :policy do
       context 'when the user is associated to the token' do
         let!(:token_user) { create(:confirmed_user) }
         let!(:other_user) { create(:confirmed_user) }
-        let!(:rss_token) { create(:rss_token, user: token_user) }
-        let!(:workflow_token) { create(:workflow_token, user: token_user) }
-        let!(:other_users_workflow_token) { create(:workflow_token, user: other_user) }
-        let!(:shared_workflow_token) { create(:workflow_token, user: other_user) }
+        let!(:rss_token) { create(:rss_token, executor: token_user) }
+        let!(:workflow_token) { create(:workflow_token, executor: token_user) }
+        let!(:other_users_workflow_token) { create(:workflow_token, executor: other_user) }
+        let!(:shared_workflow_token) { create(:workflow_token, executor: other_user) }
 
         subject { described_class.new(token_user, scope) }
 
@@ -62,7 +62,7 @@ RSpec.describe TokenPolicy, type: :policy do
       end
 
       context 'when the group is associated to the token' do
-        let!(:group_shared_workflow_token) { create(:workflow_token, user: other_user, string: 'group token') }
+        let!(:group_shared_workflow_token) { create(:workflow_token, executor: other_user, string: 'group token') }
 
         subject { described_class.new(other_user, scope) }
 

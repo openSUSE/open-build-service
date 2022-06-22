@@ -22,7 +22,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
       supported_token_classes = [Token::Rebuild, Token::Release, Token::Service]
 
       supported_token_classes.each do |token_class|
-        let(:token) { token_class.create(user: token_user) }
+        let(:token) { token_class.create(executor: token_user) }
 
         it 'flashes error when package param is missing' do
           put :update, params: { id: token.id, project: token_project.name }
@@ -42,7 +42,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
 
     context 'rebuild token' do
       context 'when token is valid and associated package exist' do
-        let(:token) { create(:rebuild_token, user: token_user, package: token_package) }
+        let(:token) { create(:rebuild_token, executor: token_user, package: token_package) }
 
         before do
           allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
@@ -53,7 +53,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
       end
 
       context 'when token is valid and package/project provided exist' do
-        let(:token) { create(:rebuild_token, user: token_user, package: nil) }
+        let(:token) { create(:rebuild_token, executor: token_user, package: nil) }
 
         before do
           allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
@@ -70,7 +70,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
       let(:release_target) { create(:release_target, repository: repository, target_repository: target_repository, trigger: 'manual') }
 
       context 'when token is valid and associated package exist' do
-        let(:token) { Token::Release.create(user: token_user, package: token_package) }
+        let(:token) { Token::Release.create(executor: token_user, package: token_package) }
 
         let(:backend_url) do
           "/build/#{target_project.name}/#{target_repository.name}/x86_64/#{token_package.name}" \
@@ -90,7 +90,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
 
       context 'when user has no rights for source' do
         let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
-        let(:token) { Token::Release.create(user: other_user, package: token_package) }
+        let(:token) { Token::Release.create(executor: other_user, package: token_package) }
 
         before do
           login other_user
@@ -107,7 +107,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
       context 'when user has no rights for target' do
         let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
         let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: token_package) }
-        let(:token) { Token::Release.create(user: other_user, package: token_package) }
+        let(:token) { Token::Release.create(executor: other_user, package: token_package) }
 
         before do
           login other_user
@@ -123,7 +123,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
 
       context 'when there are no release targets' do
         let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
-        let(:token) { Token::Release.create(user: other_user, package: token_package) }
+        let(:token) { Token::Release.create(executor: other_user, package: token_package) }
         let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: token_package) }
 
         before do
@@ -145,13 +145,13 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true, type: :controll
 
       context 'when package provides a service' do
         let(:package_with_service) { create(:package_with_service, name: 'package_with_service', project: token_project) }
-        let(:token) { Token::Service.create(user: token_user, package: package_with_service) }
+        let(:token) { Token::Service.create(executor: token_user, package: package_with_service) }
 
         include_examples 'token got triggered'
       end
 
       context 'when package does not provide a service' do
-        let(:token) { Token::Service.create(user: token_user, package: token_package) }
+        let(:token) { Token::Service.create(executor: token_user, package: token_package) }
 
         it 'flashes an error' do
           expect(flash[:error]).to eq('Failed to trigger token: no source service defined!')

@@ -31,10 +31,10 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
 
   describe 'GET #index' do
     before do
-      create(:service_token, user: user)
-      create(:workflow_token, user: user)
-      create(:rss_token, user: user)
-      create(:release_token, user: other_user)
+      create(:service_token, executor: user)
+      create(:workflow_token, executor: user)
+      create(:rss_token, executor: user)
+      create(:release_token, executor: other_user)
 
       get :index
     end
@@ -102,7 +102,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
     subject { put :update, params: update_parameters }
 
     context 'updates a workflow token belonging to the logged-in user' do
-      let(:token) { create(:workflow_token, user: user, scm_token: 'something') }
+      let(:token) { create(:workflow_token, executor: user, scm_token: 'something') }
       let(:update_parameters) { { id: token.id, token: { description: 'My first token', scm_token: 'something_else' } } }
 
       include_examples 'check for flashing a success'
@@ -113,7 +113,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
     end
 
     context 'updates the token string of a token belonging to the logged-in user' do
-      let(:token) { create(:service_token, user: user) }
+      let(:token) { create(:service_token, executor: user) }
       let(:update_parameters) { { id: token.id } }
 
       subject { put :update, params: update_parameters, xhr: true }
@@ -133,7 +133,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
     end
 
     context 'does not update a token belonging to another user' do
-      let(:token) { create(:service_token, user: other_user) }
+      let(:token) { create(:service_token, executor: other_user) }
       let(:update_parameters) { { id: token.id, token: { scm_token: 'something' } } }
 
       include_examples 'check for flashing an error'
@@ -144,7 +144,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
-    let!(:token) { create(:service_token, user: user) }
+    let!(:token) { create(:service_token, executor: user) }
     let(:delete_parameters) { { id: token.id } }
 
     subject { delete :destroy, params: delete_parameters }
@@ -166,7 +166,7 @@ RSpec.describe Webui::Users::TokensController, type: :controller do
     end
 
     context 'token of other user' do
-      let(:token) { create(:service_token, user: other_user) }
+      let(:token) { create(:service_token, executor: other_user) }
 
       include_examples 'check for flashing an error'
 

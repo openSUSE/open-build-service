@@ -30,7 +30,7 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when token is valid' do
-      let!(:token) { Token::Rebuild.create(user: user, package: package) }
+      let!(:token) { Token::Rebuild.create(executor: user, package: package) }
 
       before do
         allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
@@ -48,7 +48,7 @@ RSpec.describe TriggerController, vcr: true do
     let(:release_target) { create(:release_target, repository: repository, target_repository: target_repository, trigger: 'manual') }
 
     context 'for inexistent project' do
-      let(:token) { Token::Release.create(user: user, package: package) }
+      let(:token) { Token::Release.create(executor: user, package: package) }
 
       before do
         post :create, params: { project: 'foo', format: :xml }
@@ -58,7 +58,7 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when token is valid and package exists' do
-      let(:token) { Token::Release.create(user: user, package: package) }
+      let(:token) { Token::Release.create(executor: user, package: package) }
 
       let(:backend_url) do
         "/build/#{target_project.name}/#{target_repository.name}/x86_64/#{package.name}" \
@@ -78,7 +78,7 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'when user has no rights for source' do
       let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
-      let(:token) { Token::Release.create(user: other_user, package: package) }
+      let(:token) { Token::Release.create(executor: other_user, package: package) }
 
       before do
         release_target
@@ -90,7 +90,7 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'when user has no rights for target' do
       let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
-      let(:token) { Token::Release.create(user: other_user, package: package) }
+      let(:token) { Token::Release.create(executor: other_user, package: package) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: package) }
 
       before do
@@ -104,7 +104,7 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'when there are no release targets' do
       let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
-      let(:token) { Token::Release.create(user: other_user, package: package) }
+      let(:token) { Token::Release.create(executor: other_user, package: package) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: package) }
 
       before do
@@ -116,7 +116,7 @@ RSpec.describe TriggerController, vcr: true do
   end
 
   describe '#runservice' do
-    let(:token) { Token::Service.create(user: user, package: package) }
+    let(:token) { Token::Service.create(executor: user, package: package) }
     let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
 
     before do
@@ -128,11 +128,11 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#create' do
     let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
-    let(:service_token) { create(:service_token, user: user) }
+    let(:service_token) { create(:service_token, executor: user) }
     let(:body) { { hello: :world }.to_json }
     let(:project) { user.home_project }
     let(:package) { create(:package_with_service, name: 'apache2', project: project) }
-    let(:token) { Token::Service.create(user: user, package: package) }
+    let(:token) { Token::Service.create(executor: user, package: package) }
     let(:signature) { 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), service_token.string, body) }
 
     shared_examples 'it verifies the signature' do

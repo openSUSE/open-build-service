@@ -27,8 +27,8 @@ class Webui::FeedsController < Webui::WebuiController
     token = Token::Rss.find_by_string(params[:token])
     if token
       @configuration = ::Configuration.first
-      @user = token.user
-      @notifications = token.user.combined_rss_feed_items
+      @user = token.executor
+      @notifications = token.executor.combined_rss_feed_items
       @host = ::Configuration.obs_url
     else
       flash[:error] = 'Unknown Token for RSS feed'

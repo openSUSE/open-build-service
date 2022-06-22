@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Workflow::Step::ConfigureRepositories do
   let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
-  let(:token) { create(:workflow_token, user: user) }
+  let(:token) { create(:workflow_token, executor: user) }
 
   describe '#call' do
     let(:path_project1) { create(:project, name: 'openSUSE:Factory') }
@@ -52,7 +52,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
     context 'when the token user does not have enough permissions' do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
-      let(:token) { create(:workflow_token, user: another_user) }
+      let(:token) { create(:workflow_token, executor: another_user) }
       let(:scm_webhook) do
         ScmWebhook.new(payload: {
                          scm: 'github',

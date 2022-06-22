@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ReportToScmJob, vcr: false do
   let(:user) { create(:confirmed_user, login: 'foolano') }
-  let(:token) { Token::Workflow.create(user: user, scm_token: 'fake_token') }
+  let(:token) { Token::Workflow.create(executor: user, scm_token: 'fake_token') }
   let(:project) { create(:project, name: 'project_1', maintainer: user) }
   let(:package) { create(:package, name: 'package_1', project: project) }
   let(:repository) { create(:repository, name: 'repository_1', project: project) }
