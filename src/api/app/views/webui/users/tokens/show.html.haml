@@ -42,7 +42,7 @@
               %label.font-weight-bold
                 Runs as:
               %span
-                = link_to(@token.user.login, user_path(@token.user))
+                = link_to(@token.executor.login, user_path(@token.executor))
 
         - if @token.type == 'Token::Workflow'
           .form-row

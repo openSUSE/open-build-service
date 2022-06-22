@@ -125,7 +125,7 @@ class Workflow
 
   # TODO: Extract this into a service
   def restore_target_projects
-    token_user_login = token.user.login
+    token_user_login = token.executor.login
 
     # Do not process steps for which there's nothing to do
     processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) }

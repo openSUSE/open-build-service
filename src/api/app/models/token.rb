@@ -1,5 +1,9 @@
 class Token < ApplicationRecord
-  belongs_to :user
+  # We need to ensure ActiveRecord does not try to use the old `user` column before removing it.
+  # Once this change is deployed we can safely drop the column
+  self.ignored_columns = ['user_id']
+
+  belongs_to :executor, class_name: 'User'
   has_many :event_subscriptions, dependent: :destroy
   belongs_to :package, inverse_of: :tokens, optional: true
 
