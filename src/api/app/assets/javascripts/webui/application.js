@@ -56,3 +56,4 @@
 //= require webui/user_profile.js
 //= require webui/long_text.js
 //= require webui/new_watchlist/collapsible_tooltip.js
+//= require webui/delete_confirmation_dialog.js
