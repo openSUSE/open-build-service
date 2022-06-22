@@ -23,10 +23,5 @@
   toggleCollapsibleTooltip();
 
   $(document).ready(function() {
-    $('#delete-item-from-watchlist-modal').on('show.bs.modal', function (event) {
-      var link = $(event.relatedTarget);
-      $(this).find('.modal-title').text(link.data('modal-title'));
-      $(this).find('.confirmation-text').text(link.data('confirmation-text'));
-      $(this).find('form').attr('action', link.data('action'));
-    });
+    setValuesOnDeleteConfirmationDialog('#delete-item-from-watchlist-modal');
   });
