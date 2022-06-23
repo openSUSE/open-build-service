@@ -7,7 +7,7 @@ class Webui::Users::Tokens::UsersController < Webui::WebuiController
     authorize @token
 
     @users = @token.users
-    @groups = @token.groups_shared_among
+    @groups = @token.groups
   end
 
   def create
