@@ -6,21 +6,21 @@ class Webui::Users::Tokens::UsersController < Webui::WebuiController
   def index
     authorize @token
 
-    @users = @token.users_shared_among
+    @users = @token.users
     @groups = @token.groups_shared_among
   end
 
   def create
     authorize @token
 
-    @token.users_shared_among << @user unless @token.users_shared_among.include?(@user)
+    @token.users << @user unless @token.users.include?(@user)
     redirect_to token_users_path(@token), success: "User #{@user.login} now owns the token"
   end
 
   def destroy
     authorize @token
 
-    @token.users_shared_among.delete(@user)
+    @token.users.delete(@user)
     redirect_to token_users_path(@token), success: "User #{@user.login} does not own the token anymore"
   end
 
