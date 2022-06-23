@@ -3,8 +3,7 @@ class Token::Workflow < Token
                                        '#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs').freeze
 
   has_many :workflow_runs, dependent: :destroy, foreign_key: 'token_id', inverse_of: false
-  has_and_belongs_to_many :users_shared_among,
-                          class_name: 'User',
+  has_and_belongs_to_many :users,
                           join_table: :workflow_token_users,
                           foreign_key: :token_id,
                           association_foreign_key: :user_id,
@@ -44,8 +43,8 @@ class Token::Workflow < Token
   end
 
   def owned_by?(some_user)
-    # TODO: remove the first condition if we migrate the Token.user to Token.users_shared_among
-    user == some_user || users_shared_among.include?(some_user) || groups_shared_among.map(&:users).flatten.include?(some_user)
+    # TODO: remove the first condition if we migrate the Token.user to Token.users
+    user == some_user || users.include?(some_user) || groups_shared_among.map(&:users).flatten.include?(some_user)
   end
 
   private
