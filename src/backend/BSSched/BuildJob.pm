@@ -1222,6 +1222,7 @@ sub create {
     }
     $binfo->{'slsaprovenance'} = 1 if $BSConfig::slsaprovenance && grep { $prp =~ /^$_/} @$BSConfig::slsaprovenance;
     if ($binfo->{'slsaprovenance'}) {
+      $binfo->{'slsabuilder'} = $BSConfig::api_url || "obs://".$BSConfig::obsname;
       if ($BSConfig::sourcepublish_downloadurl) {
 	$binfo->{'slsadownloadurl'} = "$BSConfig::sourcepublish_downloadurl/_slsa";
       } elsif ($BSConfig::api_url) {
