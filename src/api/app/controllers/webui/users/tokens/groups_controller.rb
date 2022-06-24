@@ -6,14 +6,14 @@ class Webui::Users::Tokens::GroupsController < Webui::WebuiController
   def create
     authorize @token
 
-    @token.groups_shared_among << @group unless @token.groups_shared_among.include?(@group)
+    @token.groups << @group unless @token.groups.include?(@group)
     redirect_to token_users_path(@token), success: "Group #{@group.title} now owns the token"
   end
 
   def destroy
     authorize @token
 
-    @token.groups_shared_among.destroy(@group)
+    @token.groups.destroy(@group)
     redirect_to token_users_path(@token), success: "Group #{@group.title} does not own the token anymore"
   end
 

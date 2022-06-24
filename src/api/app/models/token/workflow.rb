@@ -9,8 +9,7 @@ class Token::Workflow < Token
                           association_foreign_key: :user_id,
                           dependent: :destroy,
                           inverse_of: :users
-  has_and_belongs_to_many :groups_shared_among,
-                          class_name: 'Group',
+  has_and_belongs_to_many :groups,
                           join_table: :workflow_token_groups,
                           foreign_key: :token_id,
                           association_foreign_key: :group_id,
@@ -44,7 +43,7 @@ class Token::Workflow < Token
 
   def owned_by?(some_user)
     # TODO: remove the first condition if we migrate the Token.user to Token.users
-    user == some_user || users.include?(some_user) || groups_shared_among.map(&:users).flatten.include?(some_user)
+    user == some_user || users.include?(some_user) || groups.map(&:users).flatten.include?(some_user)
   end
 
   private
