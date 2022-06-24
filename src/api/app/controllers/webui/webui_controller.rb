@@ -158,7 +158,7 @@ class Webui::WebuiController < ActionController::Base
 
       raise(ActiveRecord::RecordNotFound, 'Not Found') unless request.xhr?
 
-      render nothing: true, status: :not_found
+      head :not_found
     end
   end
 
