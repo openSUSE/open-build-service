@@ -645,6 +645,7 @@ our $buildinfo = [
 
 	'slsaprovenance',	# internal
 	'slsadownloadurl',	# internal
+	'slsabuilder',   	# internal
 
       [ 'preinstallimage' =>
 	    'project',

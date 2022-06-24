@@ -3286,9 +3286,9 @@ sub generate_slsa_provenance_statement {
     'predicateType' => 'https://slsa.dev/provenance/v0.2',
     'predicate' => {
       'builder' => {
-        'id' => $buildinfo->{'srcserver'}
+        'id' => $buildinfo->{'slsabuilder'}
       },
-      'buildType' => 'https://open-build-server/worker',
+      'buildType' => 'https://open-build-service.org/worker',
       'invocation' => {
         'configSource' => {
           'uri' => $configsourceuri,

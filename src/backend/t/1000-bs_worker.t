@@ -74,6 +74,7 @@ my $buildinfo = {
                 ],
   arch       => 'x86_64',
   slsaprovenance => 1,
+  slsabuilder => "https://my.api",
 };
 
 $Test::Mock::BSRPC::fixtures_map = {
@@ -201,9 +202,9 @@ my $expected_statement = {
   ],
   'predicateType' => 'https://slsa.dev/provenance/v0.2',
   'predicate' => {
-    'buildType' => 'https://open-build-server/worker',
+    'buildType' => 'https://open-build-service.org/worker',
     'builder' => {
-      'id' => 'srcserver',
+      'id' => 'https://my.api',
     },
     'invocation' => {
       'configSource' => {
