@@ -36,5 +36,23 @@ RSpec.describe 'Project::EmbargoHandler' do
 
       it { expect { embargo_handler.call }.to raise_error(BsRequest::Errors::InvalidDate) }
     end
+
+    context 'Embargo has an invalid timezone' do
+      before do
+        allow(attrib_value).to receive(:value).and_return('2022-01-01 01:01:01 invalid_timezone')
+        allow(embargo_handler).to receive(:embargo_date_attribute).and_return(attrib_value)
+      end
+
+      it { expect { embargo_handler.call }.to raise_error(BsRequest::Errors::InvalidDate) }
+    end
+
+    context 'Embargo is valid (with timezone)' do
+      before do
+        allow(attrib_value).to receive(:value).and_return('2022-01-01 01:01:01 CET')
+        allow(embargo_handler).to receive(:embargo_date_attribute).and_return(attrib_value)
+      end
+
+      it { expect { embargo_handler.call }.not_to raise_error }
+    end
   end
 end
