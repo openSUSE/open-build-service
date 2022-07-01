@@ -144,6 +144,26 @@ RSpec.describe Attrib, type: :model do
       }
     end
 
+    describe '#validate_embargo_date_value' do
+      subject { build(:embargo_date_attrib, project: project, values: [attrib_value]) }
+
+      context 'wrong date' do
+        let(:attrib_value) { build(:attrib_value, value: '2022-01-50') }
+
+        it {
+          expect(subject.errors.full_messages).to match_array(["Value '2022-01-50' couldn't be parsed: 'argument out of range'"])
+        }
+      end
+
+      context 'wrong timezone' do
+        let(:attrib_value) { build(:attrib_value, value: '2022-01-01 12:10 wrong_timezone') }
+
+        it {
+          expect(subject.errors.full_messages).to match_array(["Value '2022-01-01 12:10 wrong_timezone' contains a non-valid timezone"])
+        }
+      end
+    end
+
     describe '#validate_issues' do
       let(:issue) { create(:issue_with_tracker) }
       let(:attrib_type) { create(:attrib_type, issue_list: false) }

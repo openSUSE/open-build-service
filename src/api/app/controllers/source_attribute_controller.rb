@@ -68,7 +68,10 @@ class SourceAttributeController < SourceController
 
       attrib.container = @attribute_container
 
-      raise APIError, message: attrib.errors.full_messages.join('\n'), status: 400 unless attrib.valid?
+      unless attrib.valid?
+        render_error(message: attrib.errors.full_messages.join('\n'), status: 400, errorcode: attrib.errors.filter_map(&:type).first&.to_s)
+        return false
+      end
 
       authorize attrib, :create?
     end

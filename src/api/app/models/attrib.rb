@@ -27,6 +27,7 @@ class Attrib < ApplicationRecord
   validates :project, presence: true, if: proc { |attrib| attrib.package_id.nil? }
 
   validate :validate_value_count,
+           :validate_embargo_date_value,
            :validate_issues,
            :validate_allowed_values_for_attrib_type
 
@@ -114,6 +115,37 @@ class Attrib < ApplicationRecord
 
   private
 
+  def check_timezone_identifier(value)
+    # Check for a valid timezone identifier
+    if value =~ /\A\d{4}-\d\d?-\d\d?(\s|T)\d\d?:\d\d?(:\d\d?)?\s(.+)\Z/ &&  # whole string matches 'YYYY-MM-DD HH:MM:SS TZ' and
+       (timezone = Regexp.last_match(3)) !~ /(\+|-)\d\d?(:\d\d?)?/          # timezone part doesn't match '+-HH:MM'
+      begin
+        TZInfo::Timezone.get(timezone)
+      rescue TZInfo::InvalidTimezoneIdentifier
+        errors.add(:base, :invalid_date, message: "Value '#{value}' contains a non-valid timezone")
+        return false
+      end
+    end
+
+    true
+  end
+
+  def parse_value(value)
+    begin
+      parsed_value = Time.zone.parse(value)
+    rescue ArgumentError => e
+      errors.add(:base, :invalid_date, message: "Value '#{value}' couldn't be parsed: '#{e.message}'")
+      return false
+    end
+
+    if parsed_value.nil?
+      errors.add(:base, :invalid_date, message: "Value '#{value}' couldn't be parsed")
+      return false
+    end
+
+    true
+  end
+
   def validate_allowed_values_for_attrib_type
     return unless attrib_type && attrib_type.allowed_values.any?
 
@@ -130,6 +162,15 @@ class Attrib < ApplicationRecord
   def validate_value_count
     value_count = attrib_type.try(:value_count)
     errors.add(:values, "has #{values.length} values, but only #{value_count} are allowed") if value_count && value_count != values.length
+  end
+
+  def validate_embargo_date_value
+    return unless attrib_type && name == 'EmbargoDate'
+
+    value = values[0]&.value
+    return if value.blank?
+
+    parse_value(value) && check_timezone_identifier(value)
   end
 
   def write_container_attributes
