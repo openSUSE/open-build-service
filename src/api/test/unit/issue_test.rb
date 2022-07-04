@@ -70,10 +70,10 @@ class IssueTest < ActiveSupport::TestCase
     end
     cve.issues.create(name: 'CVE-1999-0001')
 
-    stub_request(:head, 'http://cve.mitre.org/data/downloads/allitems.xml.gz')
+    stub_request(:head, 'https://cve.mitre.org/data/downloads/allitems.xml.gz')
       .to_return(status: 200, headers: { 'Last-Modified' => 2.days.ago })
 
-    stub_request(:get, 'http://cve.mitre.org/data/downloads/allitems.xml.gz')
+    stub_request(:get, 'https://cve.mitre.org/data/downloads/allitems.xml.gz')
       .to_return(status: 200, body: load_backend_file('allitems.xml.gz'),
                  headers: { 'Last-Modified' => 2.days.ago })
 
