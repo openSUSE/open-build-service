@@ -14,13 +14,6 @@ Layout/EmptyLinesAroundClassBody:
   Exclude:
     - 'app/models/branch_package/check_for_update.rb'
 
-# Offense count: 12
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_braces
-Layout/FirstHashElementIndentation:
-  EnforcedStyle: special_inside_parentheses
-
 # Offense count: 8
 # Configuration parameters: AutoCorrect.
 Layout/LineContinuationLeadingSpace:
@@ -30,19 +23,6 @@ Layout/LineContinuationLeadingSpace:
     - 'db/migrate/20180516074538_explicitly_set_charset.rb'
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'test/functional/source_controller_test.rb'
-
-# Offense count: 13
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: AutoCorrect, EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/LineContinuationSpacing:
-  Exclude:
-    - 'app/models/full_text_search.rb'
-    - 'app/queries/maintained_packages_by_user_finder.rb'
-    - 'spec/features/webui/requests/submissions_spec.rb'
-    - 'test/functional/kgraft_maintenance_test.rb'
-    - 'test/functional/request_events_test.rb'
-    - 'test/functional/source_services_test.rb'
 
 # Offense count: 8
 # Configuration parameters: AllowedMethods.

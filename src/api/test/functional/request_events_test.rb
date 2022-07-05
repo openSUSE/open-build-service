@@ -115,7 +115,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
       post '/request?cmd=create',
-           params: "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action>"\
+           params: "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action>" \
                    '</request>'
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
