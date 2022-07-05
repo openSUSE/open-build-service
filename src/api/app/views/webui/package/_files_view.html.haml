@@ -23,7 +23,10 @@
       = link_to(new_project_package_files_path(project, package)) do
         %i.fas.fa-plus-circle.text-primary
         Add File
-    = render(partial: 'delete_file_dialog', locals: { project: project, package: package })
+    = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-file-modal',
+                                                   method: :post,
+                                                   options: { modal_title: 'Do you really want to remove this file?' })
+
 - unless files.blank? || spider_bot
   - if revision.present?
     - if is_current_rev
