@@ -309,8 +309,8 @@ class IssueTracker < ApplicationRecord
     return unless enable_fetch
 
     # fixed URL of all entries
-    # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
-    http = Net::HTTP.start('cve.mitre.org')
+    # cveurl = "https://cve.mitre.org/data/downloads/allitems.xml.gz"
+    http = Net::HTTP.start('cve.mitre.org', use_ssl: true)
     header = http.head('/data/downloads/allitems.xml.gz')
     mtime = Time.parse(header['Last-Modified'])
 
