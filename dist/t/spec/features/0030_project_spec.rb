@@ -1,6 +1,6 @@
-require "spec_helper"
+require 'spec_helper'
 
-RSpec.describe "Project", type: :feature do
+RSpec.describe 'Project', type: :feature do
   before(:context) do
     login
   end
@@ -9,16 +9,16 @@ RSpec.describe "Project", type: :feature do
     logout
   end
 
-  it "should be able to create" do
-    within("#left-navigation") do
+  it 'should be able to create' do
+    within('#left-navigation') do
       click_link('Create Your Home Project')
     end
     click_button('Accept')
     expect(page).to have_content("Project 'home:Admin' was created successfully")
   end
 
-  it "should be able to add repositories" do
-    within("#left-navigation") do
+  it 'should be able to add repositories' do
+    within('#left-navigation') do
       click_link('Your Home Project')
     end
     click_link('Repositories')

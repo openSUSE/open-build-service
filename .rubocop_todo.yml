@@ -103,12 +103,6 @@ Style/OpenStructUse:
   Exclude:
     - 'dist/clouduploader.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Style/PerlBackrefs:
-  Exclude:
-    - 'dist/clouduploader.rb'
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantBegin:
@@ -120,17 +114,3 @@ Style/RedundantBegin:
 Style/SlicingWithRange:
   Exclude:
     - 'dist/obs_mirror_project'
-
-# Offense count: 38
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'dist/clouduploader.rb'
-    - 'dist/t/spec/features/0010_authentication_spec.rb'
-    - 'dist/t/spec/features/0020_interconnect_spec.rb'
-    - 'dist/t/spec/features/0030_project_spec.rb'
-    - 'dist/t/spec/features/0040_package_spec.rb'
-    - 'dist/t/spec/spec_helper.rb'
-    - 'dist/t/spec/support/capybara.rb'

@@ -64,13 +64,13 @@ module CloudUploader
       command << @image_filename
 
       Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
-        Signal.trap("TERM") do
+        Signal.trap('TERM') do
           # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
           STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
         end
         while line = stdout_stderr.gets
           STDOUT.write(line)
-          write_result($1) if line =~ /^Created\simage:\s+(ami-\w+)$/
+          write_result(Regexp.last_match(1)) if line =~ /^Created\simage:\s+(ami-\w+)$/
         end
         status = wait_thr.value
         abort unless status.success?
@@ -138,7 +138,7 @@ module CloudUploader
 
     def login
       run_command(['az', 'login', '--service-principal', '-u', @application_id, '-p', @application_key, '--tenant', @subscription, '--debug'],
-                  "Logging in as OBS app")
+                  'Logging in as OBS app')
     end
 
     def create_container
@@ -162,11 +162,11 @@ module CloudUploader
     def blob_delete
       run_command(['az', 'storage', 'blob', 'delete', '--container-name', @container, '--account-name', @storage_account,
                    '-n', @remote_file_name, '--debug'],
-                  "Deleting")
+                  'Deleting')
     end
 
     def logout
-      run_command(['az', 'logout'], "Logging out")
+      run_command(['az', 'logout'], 'Logging out')
     end
 
     def decrypt(encrypted_data)

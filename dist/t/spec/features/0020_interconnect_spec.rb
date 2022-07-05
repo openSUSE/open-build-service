@@ -1,6 +1,6 @@
-require "spec_helper"
+require 'spec_helper'
 
-RSpec.describe "Interconnect", type: :feature do
+RSpec.describe 'Interconnect', type: :feature do
   before(:context) do
     login
   end
@@ -9,8 +9,8 @@ RSpec.describe "Interconnect", type: :feature do
     logout
   end
 
-  it "should be able to create link" do
-    visit "/interconnects/new"
+  it 'should be able to create link' do
+    visit '/interconnects/new'
     within('div[data-interconnect="openSUSE.org"]') do
       click_button('Connect')
     end
@@ -18,7 +18,7 @@ RSpec.describe "Interconnect", type: :feature do
       click_link('openSUSE.org')
     end
 
-    expect(page).to have_content("Standard OBS instance at build.opensuse.org")
-    expect(page).to have_content("https://api.opensuse.org/public")
+    expect(page).to have_content('Standard OBS instance at build.opensuse.org')
+    expect(page).to have_content('https://api.opensuse.org/public')
   end
 end
