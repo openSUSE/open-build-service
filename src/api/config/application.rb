@@ -40,7 +40,7 @@ module OBSApi
     # Enable rails version 6.1 defaults
     config.load_defaults(6.1)
     # FIXME: This is a known isue in RAILS 6.1 https://github.com/rails/rails/issues/40867
-    Rails.application.config.active_record.has_many_inversing = false
+    config.active_record.has_many_inversing = false
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
