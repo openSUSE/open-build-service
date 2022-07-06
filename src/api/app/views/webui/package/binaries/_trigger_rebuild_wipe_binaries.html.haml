@@ -6,7 +6,9 @@
 %li.list-inline-item
   - unless result[:binaries].empty?
     = link_to('#', title: 'Delete binaries',
-      data: { toggle: 'modal', target: '#delete-binaries-modal', arch: result[:arch],
-      action: package_wipe_binaries_path(arch: result[:arch], project: project, package: package, repository: repository) }) do
+      data: { toggle: 'modal',
+              target: '#delete-binaries-modal',
+              confirmation_text: "Please confirm deletion of binaries for #{result[:arch]}",
+              action: package_wipe_binaries_path(arch: result[:arch], project: project, package: package, repository: repository) }) do
       %i.fas.fa-times-circle.text-danger
       Delete binaries

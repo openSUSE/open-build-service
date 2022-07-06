@@ -20,8 +20,9 @@
                                                                     action: package_wipe_binaries_path(project: @project,
                                                                                                        package: @package,
                                                                                                        repository: @repository) })
-
-          = render partial: 'delete_binaries_dialog'
+          = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-binaries-modal',
+                                                         method: :delete,
+                                                         options: { modal_title: 'Do you want to remove these binaries?' })
 
     - @buildresults.each do |result|
       %h5.bg-light.p-2.mb-0
