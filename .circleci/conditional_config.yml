@@ -52,10 +52,16 @@ images:
   - &frontend_features
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
 aliases:
+  - &setup_bundle_directory
+    name: setup bundle directory
+    command: |
+      sudo mkdir -p /usr/lib64/obs-api/
+      sudo chown frontend:users /usr/lib64/obs-api/
+
   - &restore_bundler_cache
     restore_cache:
       name: Restoring Bundle Cache
-      key: bundle-{{ checksum "src/api/Gemfile.lock" }}
+      key: bundle-v2-{{ checksum "src/api/Gemfile.lock" }}
 
   - &install_dependencies
     name: install dependencies
@@ -66,15 +72,18 @@ aliases:
       bundle config build.nokogiri --use-system-libraries
       bundle config build.sassc --disable-march-tune-native
       bundle config build.nio4r --with-cflags='-Wno-return-type'
-      bundle config set --local path 'vendor/bundle'
+      # Let's bundle into the same directory as our production setup.
+      # Where the bundle resides has influence on the load order!
+      bundle config set --local path '/usr/lib64/obs-api/'
+
       bundle install --jobs=4 --retry=3 --local
 
   - &save_bundler_cache
     save_cache:
       name: Saving Bundle Cache
-      key: bundle-{{ checksum "src/api/Gemfile.lock" }}
+      key: bundle-v2-{{ checksum "src/api/Gemfile.lock" }}
       paths:
-        - "src/api/vendor/bundle"
+        - "/usr/lib64/obs-api/"
 
   - &wait_for_database
     name: Wait for DB
@@ -196,6 +205,7 @@ jobs:
       - <<: *frontend_base
     steps:
       - checkout
+      - run: *setup_bundle_directory
       - *restore_bundler_cache
       - *restore_rubocop_cache
       - run: *install_dependencies
@@ -205,9 +215,10 @@ jobs:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
       - persist_to_workspace:
-          root: .
+          root: /
           paths:
             - .
+            - usr/lib64/obs-api/
 
   rspec:
     parallelism: 3
