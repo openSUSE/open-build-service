@@ -1,14 +1,26 @@
 :ruby
   @pagetitle = if @token.description.blank?
-                 'Users of the token'
+                 'Share token'
                else
-                 "Users of the '#{@token.description}' token"
+                 "Share '#{@token.description}' token"
                end
 
 .card.mb-3
   .card-body
+    %h3 Token Sharing
+
+    %p The users and groups you share this token with will have complete access to the token.
+
+    %p
+      They will be able to trigger the token in their SCM/CI integrations as if they were you.
+      But they will also be able to modify, regenerate and even delete the token.
+
+    %p
+      %i.fa.fa-exclamation-triangle.text-warning{ title: 'Warning' }
+      %span Please don't share your token with others if you don't understand what that implies.
+
     #involved-users
-      %h3 Users
+      %h4 Share with Users
       - if @users.present?
         %table.responsive.table.table-sm.table-bordered.table-hover.w-100#user-table
           %thead
@@ -38,7 +50,7 @@
 
   .card-body
     #involved-groups
-      %h3 Groups
+      %h4 Share with Groups
       - if @groups.present?
         %table.responsive.table.table-sm.table-bordered.table-hover.w-100#group-table
           %thead
