@@ -203,7 +203,11 @@ jobs:
       - run: *install_circle_cli
       - run:
           name: Setup application
-          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+          command: |
+            make -C src/api test_rake
+            make -C src/api test_rack
+            cd src/api
+            bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
       - persist_to_workspace:
           root: .
           paths:
