@@ -48,7 +48,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     post '/source/BaseDistro2.0/_attribute',
-         params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> "\
+         params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> " \
                  '</attribute> </attributes>'
     assert_response :success
 

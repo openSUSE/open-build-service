@@ -3,7 +3,7 @@
 # for capybara rspec support
 require 'support/capybara'
 
-SCREENSHOT_DIR = "/tmp/rspec_screens".freeze
+SCREENSHOT_DIR = '/tmp/rspec_screens'.freeze
 
 RSpec.configure do |config|
   config.before(:suite) do
@@ -36,7 +36,7 @@ def take_screenshot(example)
 end
 
 def login
-  visit "/session/new"
+  visit '/session/new'
   within('#loginform') do
     fill_in 'user-login', with: 'Admin'
     fill_in 'user-password', with: 'opensuse'
@@ -47,7 +47,7 @@ end
 
 def logout
   click_link('top-navigation-profile-dropdown')
-  within("#top-navigation-area") do
+  within('#top-navigation-area') do
     click_link('Logout')
   end
   expect(page).to have_no_link('top-navigation-profile-dropdown')

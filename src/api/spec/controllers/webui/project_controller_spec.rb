@@ -880,15 +880,15 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
           let(:statushash) do
             { 'openSUSE_Tumbleweed' => {
-              'i586' => {
-                'c++' => { 'package' => 'c++', 'code' => 'succeeded' },
-                'redis' => { 'package' => 'redis', 'code' => 'failed' }
+                'i586' => {
+                  'c++' => { 'package' => 'c++', 'code' => 'succeeded' },
+                  'redis' => { 'package' => 'redis', 'code' => 'failed' }
+                },
+                'x86_64' => {
+                  'c++' => { 'package' => 'c++', 'code' => 'unresolvable', 'details' => 'nothing provides foo' },
+                  'redis' => { 'package' => 'redis', 'code' => 'building', 'details' => 'building on obs-node-3' }
+                }
               },
-              'x86_64' => {
-                'c++' => { 'package' => 'c++', 'code' => 'unresolvable', 'details' => 'nothing provides foo' },
-                'redis' => { 'package' => 'redis', 'code' => 'building', 'details' => 'building on obs-node-3' }
-              }
-            },
               'openSUSE_42.2' => {
                 's390x' => {
                   'c++' => { 'package' => 'c++', 'code' => 'succeeded' },

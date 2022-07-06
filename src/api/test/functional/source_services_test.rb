@@ -506,7 +506,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     # reset
     put '/source/home:tom/_project/_service',
-        params: '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> '\
+        params: '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> ' \
                 '</services>'
     assert_response :success
 

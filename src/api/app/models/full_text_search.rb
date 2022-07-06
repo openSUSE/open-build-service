@@ -33,11 +33,11 @@ class FullTextSearch
              per_page: options[:per_page] || PER_PAGE,
              without: { project_id: Relationship.forbidden_project_ids } }
 
-    args[:select] = '*, (weight() + '\
-                    "#{LINKED_COUNT_WEIGHT} * linked_count + "\
-                    "#{LINKS_TO_OTHER_WEIGHT} * links_to_other + "\
-                    "#{IS_DEVEL_WEIGHT} * is_devel + "\
-                    "#{ACTIVITY_INDEX_WEIGHT} * (activity_index * POW( 2.3276, (updated_at - #{Time.now.to_i}) / 10000000))) "\
+    args[:select] = '*, (weight() + ' \
+                    "#{LINKED_COUNT_WEIGHT} * linked_count + " \
+                    "#{LINKS_TO_OTHER_WEIGHT} * links_to_other + " \
+                    "#{IS_DEVEL_WEIGHT} * is_devel + " \
+                    "#{ACTIVITY_INDEX_WEIGHT} * (activity_index * POW( 2.3276, (updated_at - #{Time.now.to_i}) / 10000000))) " \
                     'as adjusted_weight'
 
     issue_id = find_issue_id

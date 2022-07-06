@@ -26,7 +26,7 @@ Capybara.automatic_label_click = true
 begin
   hostname = Socket.gethostbyname(Socket.gethostname).first
 rescue SocketError
-  hostname = ""
+  hostname = ''
 end
 ipaddress = Socket.ip_address_list.find { |ai| ai.ipv4? && !ai.ipv4_loopback? }.ip_address
 hostname = ipaddress if hostname.empty?

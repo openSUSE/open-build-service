@@ -23,7 +23,7 @@ class MaintainedPackagesByUserFinder
 
   def packages_maintained_by_the_user
     packages_by_role.where([
-                             '(relationships.user_id = ?) OR '\
+                             '(relationships.user_id = ?) OR ' \
                              '(relationships.user_id is null AND packages.project_id in (?) )', @user.id, involved_projects_ids
                            ])
   end

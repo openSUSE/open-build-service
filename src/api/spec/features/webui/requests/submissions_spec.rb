@@ -19,7 +19,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
         fill_in('To target package:', with: target_package.name)
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
-        expect(page).to have_text("Submit package #{source_project} / #{source_package} "\
+        expect(page).to have_text("Submit package #{source_project} / #{source_package} " \
                                   "to package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
         expect(page).to have_text('In state new')
@@ -34,7 +34,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
         fill_in('To target project:', with: target_project.name)
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
-        expect(page).to have_text("Submit package #{source_project} / #{source_package} "\
+        expect(page).to have_text("Submit package #{source_project} / #{source_package} " \
                                   "to package #{target_project} / #{source_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
         expect(page).to have_text('In state new')
@@ -66,7 +66,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
                                               "#supersede_request_numbers#{bs_request_to_supersede_2.number}", visible: false)
         toggle_checkbox("supersede_request_numbers#{bs_request_to_supersede.number}")
         click_button('Submit')
-        expect(page).to have_text("Submit package #{source_project} / #{source_package} "\
+        expect(page).to have_text("Submit package #{source_project} / #{source_package} " \
                                   "to package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
         expect(page).to have_text('In state new')
@@ -97,7 +97,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
         expect(page).to have_field('To target package:', with: source_package.name)
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
-        expect(page).to have_text("Submit package #{source_project} / #{branched_package_name} "\
+        expect(page).to have_text("Submit package #{source_project} / #{branched_package_name} " \
                                   "to package #{source_project} / #{source_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
         expect(page).to have_text('In state new')

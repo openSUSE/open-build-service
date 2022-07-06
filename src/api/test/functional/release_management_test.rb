@@ -177,24 +177,24 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # our source project is not building
     get '/build/home:Iggy/_result'
     assert_xml_tag parent: {
-      tag: 'result',
-      attributes: { project: 'home:Iggy',
-                    repository: '10.2',
-                    arch: 'i586',
-                    code: 'published',
-                    state: 'published' }
-    },
+                     tag: 'result',
+                     attributes: { project: 'home:Iggy',
+                                   repository: '10.2',
+                                   arch: 'i586',
+                                   code: 'published',
+                                   state: 'published' }
+                   },
                    tag: 'status',
                    attributes: { package: 'TestPack',
                                  code: 'succeeded' }
     assert_xml_tag parent: {
-      tag: 'result',
-      attributes: { project: 'home:Iggy',
-                    repository: '10.2',
-                    arch: 'x86_64',
-                    code: 'published',
-                    state: 'published' }
-    },
+                     tag: 'result',
+                     attributes: { project: 'home:Iggy',
+                                   repository: '10.2',
+                                   arch: 'x86_64',
+                                   code: 'published',
+                                   state: 'published' }
+                   },
                    tag: 'status', attributes: { package: 'TestPack',
                                                 code: 'succeeded' }
 
@@ -226,24 +226,24 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # check build results are copied correctly
     get '/build/IggyHomeCopy/_result'
     assert_xml_tag parent: {
-      tag: 'result',
-      attributes: { project: 'IggyHomeCopy',
-                    repository: '10.2',
-                    arch: 'i586',
-                    code: 'published',
-                    state: 'published' }
-    },
+                     tag: 'result',
+                     attributes: { project: 'IggyHomeCopy',
+                                   repository: '10.2',
+                                   arch: 'i586',
+                                   code: 'published',
+                                   state: 'published' }
+                   },
                    tag: 'status',
                    attributes: { package: 'TestPack', code: 'succeeded' }
 
     assert_xml_tag parent: {
-      tag: 'result',
-      attributes: { project: 'IggyHomeCopy',
-                    repository: '10.2',
-                    arch: 'x86_64',
-                    code: 'published',
-                    state: 'published' }
-    },
+                     tag: 'result',
+                     attributes: { project: 'IggyHomeCopy',
+                                   repository: '10.2',
+                                   arch: 'x86_64',
+                                   code: 'published',
+                                   state: 'published' }
+                   },
                    tag: 'status',
                    attributes: { package: 'TestPack', code: 'succeeded' }
 
