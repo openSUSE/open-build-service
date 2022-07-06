@@ -15,7 +15,14 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define rack_version 2.2.3.1
+%if 0%{?suse_version}
+%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
+%define rack_version %(basename `gem.ruby3.1 which -g rack | sed 's,/lib/rack.rb$$,,'`)
+%define rake_version %(basename `gem.ruby3.1 which -g rake | sed 's,/lib/rake.rb$$,,'`)
+%define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
+%else
+%define __obs_ruby_interpreter /usr/bin/ruby
+%endif
 
 Name:           obs-bundled-gems
 Version:        2.10~pre
@@ -41,11 +48,11 @@ BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 BuildRequires:  python-devel
 %if 0%{?suse_version}
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
 BuildRequires:  ruby3.1-devel
 BuildRequires:  openldap2-devel
+# For comparing package/bundle versions with make test_rack
+BuildRequires:  rubygem(ruby:3.1.0:rack)
 %else
-%define __obs_ruby_interpreter /usr/bin/ruby
 BuildRequires:  ruby-devel
 BuildRequires:  rubygem-bundler
 BuildRequires:  openldap-devel
@@ -73,6 +80,7 @@ Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
 Requires:       rubygem(ruby:3.1.0:rack) = %{rack_version}
+Requires:       rubygem(ruby:3.1.0:rake) = %{rake_version}
 %else
 Requires:       rubygem-bundler
 Requires:       rubygem-rake
@@ -122,6 +130,14 @@ bundle config set --local path %{buildroot}%_libdir/obs-api/
 
 bundle install --local
 popd
+
+%if 0%{?suse_version}
+pushd %{_sourcedir}/open-build-service-*/src/api
+# test that the rack/rake bundle versions are matching the system versions
+make test_rack
+make test_rake
+popd
+%endif
 
 pushd %{_sourcedir}/open-build-service-*/dist
 # run gem clean up script
