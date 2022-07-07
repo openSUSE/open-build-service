@@ -9,10 +9,18 @@
         = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
       - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
-          = link_to('#', data: { toggle: 'modal', target: '#delete-all-binaries-modal' }, title: 'Delete all built binaries') do
+          = link_to('#', title: 'Delete all built binaries', data: { toggle: 'modal',
+                                                                     target: '#delete-all-binaries-modal' }) do
             %i.fas.fa-times-circle.text-danger
             Delete all built binaries
-          = render(partial: 'delete_all_binaries_dialog', locals: { project: @project, package: @package_name, repository: @repository })
+          = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-all-binaries-modal',
+                                                         method: :delete,
+                                                         options: { modal_title: 'Delete all built binaries?',
+                                                                    confirmation_text: 'Please confirm deletion of all built binaries',
+                                                                    action: package_wipe_binaries_path(project: @project,
+                                                                                                       package: @package,
+                                                                                                       repository: @repository) })
+
           = render partial: 'delete_binaries_dialog'
 
     - @buildresults.each do |result|
