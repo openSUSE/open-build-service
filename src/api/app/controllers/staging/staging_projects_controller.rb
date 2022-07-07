@@ -48,7 +48,6 @@ class Staging::StagingProjectsController < Staging::StagingController
 
   def accept
     authorize @staging_project, :accept?
-    authorize @project, :update?
 
     # check general state
     raise StagingProjectNotAcceptable, 'Staging project is not in state acceptable.' unless can_accept?

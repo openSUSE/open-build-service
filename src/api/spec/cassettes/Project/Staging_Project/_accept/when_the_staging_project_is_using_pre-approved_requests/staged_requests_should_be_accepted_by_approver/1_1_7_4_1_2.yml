@@ -39,14 +39,14 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:51 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_83
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_73
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_36">
+        <workflow project="home:tom" managers="group_31">
           <staging_project name="home:tom:Staging:A"/>
         </workflow>
     headers:
@@ -68,28 +68,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="103">
-          <srcmd5>b2986a92cbef7d6cfa4b5c41cfaeaba0</srcmd5>
-          <time>1658762219</time>
-          <user>user_83</user>
+        <revision rev="82">
+          <srcmd5>858fc5aa02396f412c38ebd9715591bf</srcmd5>
+          <time>1658762211</time>
+          <user>user_73</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:51 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=user_83
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=user_73
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -117,16 +117,16 @@ http_interactions:
         <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_83
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_73
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_36">
+        <workflow project="home:tom" managers="group_31">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
         </workflow>
@@ -149,28 +149,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="104">
-          <srcmd5>d3dc403b3bbd9c1401b638e11d486c21</srcmd5>
-          <time>1658762219</time>
-          <user>user_83</user>
+        <revision rev="83">
+          <srcmd5>3a14b8118683a8f6a6e01e0236b83bb2</srcmd5>
+          <time>1658762212</time>
+          <user>user_73</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=user_83
+    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=user_73
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:B">
           <title/>
           <description/>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -198,12 +198,12 @@ http_interactions:
         <project name="home:tom:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=user_83
+    uri: http://backend:5352/source/home:tom/_meta?user=user_73
     body:
       encoding: UTF-8
       string: |
@@ -211,7 +211,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="tom" role="maintainer"/>
-          <group groupid="group_36" role="reviewer"/>
+          <group groupid="group_31" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -240,18 +240,18 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="tom" role="maintainer"/>
-          <group groupid="group_36" role="reviewer"/>
+          <group groupid="group_31" role="reviewer"/>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_meta?user=user_84
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_meta?user=user_74
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom:Staging:A">
-          <title>The Waste Land</title>
-          <description>Aliquam adipisci velit asperiores.</description>
+          <title>A Farewell to Arms</title>
+          <description>Ipsam et in qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -272,21 +272,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom:Staging:A">
-          <title>The Waste Land</title>
-          <description>Aliquam adipisci velit asperiores.</description>
+          <title>A Farewell to Arms</title>
+          <description>Ipsam et in qui.</description>
         </package>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Maxime omnis possimus. Odit qui consequatur. Qui quis vitae.
+      string: Magnam id aperiam. Est alias et. Aut sed placeat.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -310,21 +310,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="65" vrev="65">
-          <srcmd5>67f21c7ddab0e207e94e032f6732e1d4</srcmd5>
+        <revision rev="55" vrev="55">
+          <srcmd5>d10eeff8fc3c83c9fc287cc6dab14c93</srcmd5>
           <version>unknown</version>
-          <time>1658762219</time>
+          <time>1658762212</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptatum est nihil. Distinctio accusamus sint. Accusantium enim id.
+      string: Dolorem consequatur iusto. Itaque totam et. Eveniet sit ea.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -348,15 +348,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="66" vrev="66">
-          <srcmd5>2a22e138fc0ef9d6981816e3997ba427</srcmd5>
+        <revision rev="56" vrev="56">
+          <srcmd5>35cd4c0f18ae2308ff987edb86e32ade</srcmd5>
           <version>unknown</version>
-          <time>1658762219</time>
+          <time>1658762212</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/_meta?user=tom
@@ -364,7 +364,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Mermaids Singing</title>
+          <title>Now Sleeps the Crimson Petal</title>
           <description/>
         </project>
     headers:
@@ -386,15 +386,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '119'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Mermaids Singing</title>
+          <title>Now Sleeps the Crimson Petal</title>
           <description></description>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package_2/_meta?user=tom
@@ -402,8 +402,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package_2" project="target_project">
-          <title>The Sun Also Rises</title>
-          <description>Odit debitis sit excepturi.</description>
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Enim perspiciatis fuga magni.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -424,15 +424,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package_2" project="target_project">
-          <title>The Sun Also Rises</title>
-          <description>Odit debitis sit excepturi.</description>
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Enim perspiciatis fuga magni.</description>
         </package>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=tom
@@ -440,7 +440,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Many Waters</title>
+          <title>To a God Unknown</title>
           <description/>
         </project>
     headers:
@@ -462,15 +462,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Many Waters</title>
+          <title>To a God Unknown</title>
           <description></description>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=tom
@@ -503,14 +503,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="64">
-          <srcmd5>b3df56152978fa66e2e250b475619d6d</srcmd5>
-          <time>1658762219</time>
+        <revision rev="54">
+          <srcmd5>b6a07fca0cbf8c1a08164765aa471f9b</srcmd5>
+          <time>1658762212</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=tom
@@ -518,8 +518,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Death Be Not Proud</title>
-          <description>Recusandae provident earum ex.</description>
+          <title>The Other Side of Silence</title>
+          <description>Mollitia facere eaque optio.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -540,15 +540,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Death Be Not Proud</title>
-          <description>Recusandae provident earum ex.</description>
+          <title>The Other Side of Silence</title>
+          <description>Mollitia facere eaque optio.</description>
         </package>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -580,7 +580,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package_2&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -608,19 +608,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '331'
+      - '330'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="34e57069b586e7ab724b16f19bcd0dcb">
-          <old project="target_project" package="target_package_2" rev="14" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="4f22e8b5f98a753475a38f4b4aa43d26">
+          <old project="target_project" package="target_package_2" rev="9" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
@@ -654,7 +654,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2/_meta?user=tom
@@ -662,8 +662,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package_2" project="home:tom:Staging:A">
-          <title>Death Be Not Proud</title>
-          <description>Recusandae provident earum ex.</description>
+          <title>The Other Side of Silence</title>
+          <description>Mollitia facere eaque optio.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -684,15 +684,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package_2" project="home:tom:Staging:A">
-          <title>Death Be Not Proud</title>
-          <description>Recusandae provident earum ex.</description>
+          <title>The Other Side of Silence</title>
+          <description>Mollitia facere eaque optio.</description>
         </package>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=tom
@@ -727,12 +727,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
           <version>unknown</version>
-          <time>1658762219</time>
+          <time>1658762212</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2/_meta?user=tom
@@ -740,8 +740,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package_2" project="home:tom:Staging:A">
-          <title>Death Be Not Proud</title>
-          <description>Recusandae provident earum ex.</description>
+          <title>The Other Side of Silence</title>
+          <description>Mollitia facere eaque optio.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -762,15 +762,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package_2" project="home:tom:Staging:A">
-          <title>Death Be Not Proud</title>
-          <description>Recusandae provident earum ex.</description>
+          <title>The Other Side of Silence</title>
+          <description>Mollitia facere eaque optio.</description>
         </package>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2
@@ -804,7 +804,7 @@ http_interactions:
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
           <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658762120"/>
         </directory>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?view=info
@@ -838,7 +838,7 @@ http_interactions:
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="source_project" package="source_package"/>
         </sourceinfo>
-  recorded_at: Mon, 25 Jul 2022 15:16:59 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2
@@ -872,7 +872,7 @@ http_interactions:
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
           <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658762120"/>
         </directory>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -911,7 +911,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -950,14 +950,14 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_36">
+        <workflow project="home:tom" managers="group_31">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
         </workflow>
@@ -980,18 +980,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '166'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="105">
-          <srcmd5>d3dc403b3bbd9c1401b638e11d486c21</srcmd5>
-          <time>1658762220</time>
+        <revision rev="84">
+          <srcmd5>3a14b8118683a8f6a6e01e0236b83bb2</srcmd5>
+          <time>1658762212</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
@@ -1001,7 +1001,7 @@ http_interactions:
         <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
           <repository name="staging_repository">
             <arch>x86_64</arch>
           </repository>
@@ -1032,19 +1032,19 @@ http_interactions:
         <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
           <repository name="staging_repository">
             <arch>x86_64</arch>
           </repository>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_83
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_73
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_36">
+        <workflow project="home:tom" managers="group_31">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
         </workflow>
@@ -1067,18 +1067,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="106">
-          <srcmd5>d3dc403b3bbd9c1401b638e11d486c21</srcmd5>
-          <time>1658762220</time>
-          <user>user_83</user>
+        <revision rev="85">
+          <srcmd5>3a14b8118683a8f6a6e01e0236b83bb2</srcmd5>
+          <time>1658762212</time>
+          <user>user_73</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
@@ -1088,7 +1088,7 @@ http_interactions:
         <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
           <build>
             <disable/>
           </build>
@@ -1122,7 +1122,7 @@ http_interactions:
         <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_31" role="maintainer"/>
           <build>
             <disable/>
           </build>
@@ -1130,7 +1130,7 @@ http_interactions:
             <arch>x86_64</arch>
           </repository>
         </project>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -1162,5 +1162,282 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 25 Jul 2022 15:17:00 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package_2?cmd=copy&comment=Request%20for%20package%20target_package_2&expand=1&keeplink=1&noservice=1&opackage=source_package&oproject=source_project&requestid=1&user=autobuild&withacceptinfo=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '369'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10" vrev="10">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1658762212</time>
+          <user>autobuild</user>
+          <comment>Request for package target_package_2</comment>
+          <requestid>1</requestid>
+          <acceptinfo rev="10" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package_2/_meta?user=autobuild
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Enim perspiciatis fuga magni.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Enim perspiciatis fuga magni.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package_2" rev="10" vrev="10" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package_2?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="target_package_2" rev="10" vrev="10" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Mon, 25 Jul 2022 15:16:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package_2" rev="10" vrev="10" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:53 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package_2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="788fdbd3adf5df9d87d5aafb7c165d47">
+          <old project="target_project" package="target_package_2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="target_project" package="target_package_2" rev="10" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:53 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?comment&user=autobuild
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Mon, 25 Jul 2022 15:16:53 GMT
 recorded_with: VCR 6.1.0

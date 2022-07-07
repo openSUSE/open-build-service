@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_1
@@ -68,18 +68,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="225">
+        <revision rev="1">
           <srcmd5>e5041e116aada333f093a54cd9eb647e</srcmd5>
-          <time>1658422033</time>
+          <time>1658762181</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=user_1
@@ -119,7 +119,7 @@ http_interactions:
           <description></description>
           <group groupid="group_1" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_1
@@ -149,18 +149,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="226">
+        <revision rev="2">
           <srcmd5>24931ffd0c813a8a478aa1e474921c59</srcmd5>
-          <time>1658422033</time>
+          <time>1658762181</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=user_1
@@ -200,7 +200,7 @@ http_interactions:
           <description></description>
           <group groupid="group_1" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=user_1
@@ -242,7 +242,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
           <group groupid="group_1" role="reviewer"/>
         </project>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_meta?user=user_2
@@ -250,8 +250,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom:Staging:A">
-          <title>Françoise Sagan</title>
-          <description>Et repellat tempora est.</description>
+          <title>The Little Foxes</title>
+          <description>Quas temporibus aut animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -272,18 +272,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '165'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0icGFja2FnZV93aXRoX2ZpbGUiIHByb2plY3Q9ImhvbWU6dG9tOlN0YWdpbmc6QSI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5FdCByZXBlbGxhdCB0ZW1wb3JhIGVzdC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom:Staging:A">
+          <title>The Little Foxes</title>
+          <description>Quas temporibus aut animi.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Est repellendus fugit. Tempore consequatur iste. Accusamus omnis rerum.
+      string: Beatae tenetur dolorum. Dolorem totam amet. Eos quibusdam incidunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -303,25 +306,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="97" vrev="97">
-          <srcmd5>cc4ea3bb9e9b89cab159438c95d90a7b</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>8ef844511a0660d4b52258ba8446329a</srcmd5>
           <version>unknown</version>
-          <time>1658422033</time>
+          <time>1658762181</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Vel incidunt eligendi. Nemo accusamus maxime. Eius sit consequatur.
+      string: Voluptas in eum. Dicta nobis sequi. Tempora repellat nulla.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -341,19 +344,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="98" vrev="98">
-          <srcmd5>44e458580fe5c46480427a0f515d67ae</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>2b63f6189eb52b329e6fc1e80683bc33</srcmd5>
           <version>unknown</version>
-          <time>1658422033</time>
+          <time>1658762181</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/_meta?user=tom
@@ -361,7 +364,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Wealth of Nations</title>
+          <title>Mr Standfast</title>
           <description/>
         </project>
     headers:
@@ -383,15 +386,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '112'
+      - '103'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Wealth of Nations</title>
+          <title>Mr Standfast</title>
           <description></description>
         </project>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=tom
@@ -399,8 +402,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Ego Dominus Tuus</title>
-          <description>Quis qui harum assumenda.</description>
+          <title>The Waste Land</title>
+          <description>Modi sed iure doloremque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -421,15 +424,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Ego Dominus Tuus</title>
-          <description>Quis qui harum assumenda.</description>
+          <title>The Waste Land</title>
+          <description>Modi sed iure doloremque.</description>
         </package>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=tom
@@ -437,7 +440,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>To a God Unknown</title>
+          <title>Absalom, Absalom!</title>
           <description/>
         </project>
     headers:
@@ -459,15 +462,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>To a God Unknown</title>
+          <title>Absalom, Absalom!</title>
           <description></description>
         </project>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=tom
@@ -496,18 +499,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '165'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="98">
-          <srcmd5>b6a07fca0cbf8c1a08164765aa471f9b</srcmd5>
-          <time>1658422033</time>
+        <revision rev="4">
+          <srcmd5>cb80160a31d216186df1b5b5ab718580</srcmd5>
+          <time>1658762182</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=tom
@@ -515,8 +518,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Oh! To be in England</title>
-          <description>Aut voluptate rem molestiae.</description>
+          <title>The Millstone</title>
+          <description>Eligendi voluptatem in provident.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -537,15 +540,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Oh! To be in England</title>
-          <description>Aut voluptate rem molestiae.</description>
+          <title>The Millstone</title>
+          <description>Eligendi voluptatem in provident.</description>
         </package>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:22 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -577,7 +580,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:22 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -605,17 +608,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '329'
+      - '328'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="f0ade37f19a7eee38b40dd0309766ea1">
-          <old project="target_project" package="target_package" rev="28" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="22bfb82bf1c9f9c9dd66ba87930cd41c">
+          <old project="target_project" package="target_package" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 21 Jul 2022 16:47:13 GMT
+  recorded_at: Mon, 25 Jul 2022 15:16:22 GMT
 recorded_with: VCR 6.1.0
