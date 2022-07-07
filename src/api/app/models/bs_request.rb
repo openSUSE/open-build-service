@@ -919,6 +919,7 @@ class BsRequest < ApplicationRecord
     expand_targets
 
     check_bs_request_actions!
+    check_uniq_actions!
 
     # Autoapproval? Is the creator allowed to accept it?
     permission_check_change_state!(newstate: 'accepted') if accept_at
@@ -1151,16 +1152,20 @@ class BsRequest < ApplicationRecord
       (new_priority == 'moderate' && priority == 'low')
   end
 
-  def check_bs_request_actions!(opts = {})
+  def check_uniq_actions!
     uniq_keys = []
     bs_request_actions.each do |action|
       uniq_keys << action.uniq_key
+    end
+    raise ConflictingActions, 'Conflicting Actions' if uniq_keys.length > uniq_keys.uniq.length
+  end
+
+  def check_bs_request_actions!(opts = {})
+    bs_request_actions.each do |action|
       action.check_action_permission!(opts[:skip_source])
       action.check_for_expand_errors!(!@addrevision.nil?)
       raisepriority(action.minimum_priority)
     end
-
-    raise ConflictingActions, 'Conflicting Actions' if uniq_keys.length > uniq_keys.uniq.length
 
     return unless persisted? && priority_changed?
 
