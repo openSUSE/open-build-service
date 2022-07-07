@@ -41,7 +41,7 @@ module BsRequestAction::Errors
   class BuildNotFinished < APIError; end
 
   class UnknownTargetProject < APIError
-    setup 'unknown_target_project', 400, 'target project does not exist'
+    setup 'unknown_target_project', 400
   end
 
   class UnknownTargetPackage < APIError; end
