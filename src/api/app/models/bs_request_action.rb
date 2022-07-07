@@ -468,7 +468,7 @@ class BsRequestAction < ApplicationRecord
 
       # overwrite target if defined
       tprj = Project.get_by_name(target_project) if target_project
-      raise UnknownTargetProject unless tprj || is_maintenance_release? || is_release?
+      raise UnknownTargetProject, "Package #{pkg.project.name} / #{pkg.name} has no target" unless tprj || is_maintenance_release? || is_release?
 
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]

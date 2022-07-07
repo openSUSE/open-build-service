@@ -133,7 +133,7 @@ Lint/UselessMethodDefinition:
 # Offense count: 845
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:
-  Max: 241
+  Max: 243
 
 # Offense count: 17
 # Configuration parameters: CountBlocks, Max.
