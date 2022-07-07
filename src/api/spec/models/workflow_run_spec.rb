@@ -11,6 +11,7 @@ RSpec.describe WorkflowRun, vcr: true do
 
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
       it { expect(JSON.parse(subject.request_parameters)).to include('api_endpoint' => 'https://api.github.com') }
+      it { expect(subject.status).to eq('success') }
     end
 
     context 'when providing some other keys' do
@@ -18,6 +19,7 @@ RSpec.describe WorkflowRun, vcr: true do
 
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
       it { expect(JSON.parse(subject.request_parameters)).to be_empty }
+      it { expect(subject.status).to eq('success') }
     end
   end
 
@@ -30,6 +32,7 @@ RSpec.describe WorkflowRun, vcr: true do
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
       it { expect(JSON.parse(subject.request_parameters)).to include('api_endpoint' => 'https://api.github.com') }
       it { expect(subject.response_body).to eql('oops it failed') }
+      it { expect(subject.status).to eq('fail') }
 
       it 'marks the workflow run as failed' do
         subject
@@ -43,6 +46,7 @@ RSpec.describe WorkflowRun, vcr: true do
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
       it { expect(JSON.parse(subject.request_parameters)).to be_empty }
       it { expect(subject.response_body).to eql('oops it failed') }
+      it { expect(subject.status).to eq('fail') }
 
       it 'marks the workflow run as failed' do
         subject
