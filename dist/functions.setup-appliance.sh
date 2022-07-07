@@ -687,4 +687,16 @@ function create_sign_cert {
 }
 
 ###############################################################################
+function set_gpg_expiry_date {
+  export GNUPGHOME="$backenddir/gnupg"
+  KEYID=`gpg -k --with-colons --no-tty --batch| awk -F: '/^pub:/ { print $5 }'`
+  EXPIRE=`gpg -k --no-tty $KEYID|grep expires`
 
+  if [ -z "$EXPIRE" ];then
+    echo "Set expire date "
+    echo -en "expire\n30y\nquit\ny\n" | gpg --no-tty --command-fd 0 --expert --edit-key $KEYID
+  fi
+  EXPIRE=`gpg -k --no-tty $KEYID|grep expires`
+  [ -z "$EXPIRE" ] && exit 1
+}
+###############################################################################

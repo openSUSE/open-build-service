@@ -168,6 +168,8 @@ else
   network_failure_warning
 fi
 
+set_gpg_expiry_date
+
 create_sign_cert
 
 exit 0
