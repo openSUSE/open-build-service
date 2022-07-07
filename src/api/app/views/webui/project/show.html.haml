@@ -68,7 +68,11 @@
     = render partial: 'unlock_project_dialog', locals: { project: @project }
   - elsif User.session!.can_modify?(@project)
     = render partial: 'edit_project_dialog', locals: { project: @project }
-    = render partial: 'delete_project_dialog', locals: { project: @project }
+    = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-project-modal',
+                                                   method: :delete,
+                                                   options: { modal_title: 'Do you really want to remove this project?',
+                                                              confirmation_text: "Please confirm deletion of the project '#{@project}'",
+                                                              action: project_destroy_path(project: @project) })
 
 - content_for :ready_function do
   initializeDataTable('#inherited-packages-table');
