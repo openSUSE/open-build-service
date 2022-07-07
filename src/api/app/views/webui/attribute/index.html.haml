@@ -31,8 +31,12 @@
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
                       %i.fas.fa-edit.text-secondary
-                  = link_to('#', title: 'Delete attribute',
-                    data: { toggle: 'modal', target: '#delete-attribute-modal', action: attrib_path(attribute), fullname: attribute.fullname }) do
+                  = link_to('#',
+                            title: 'Delete attribute',
+                            data: { toggle: 'modal',
+                                    target: '#delete-attribute-modal',
+                                    action: attrib_path(attribute),
+                                    confirmation_text: "Please confirm the deletion of the attribute '#{attribute.fullname}'" }) do
                     %i.fas.fa-times-circle.text-danger
     - else
       %p
@@ -44,4 +48,6 @@
           = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add Attribute', class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add Attribute
-    = render(partial: 'delete_dialog')
+    = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-attribute-modal',
+                                                   method: :delete,
+                                                   options: { modal_title: 'Do you want to remove the attribute?' })
