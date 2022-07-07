@@ -654,7 +654,7 @@ sub fakejobfinished {
   local *F;
   # directly go into the finished state
   my $jobstatus = {
-    'code' => 'finished',
+    'code' => $needsign ? 'signing' : 'finished',
     'result' => $code,
   };
   my $myjobsdir = $gctx->{'myjobsdir'};
