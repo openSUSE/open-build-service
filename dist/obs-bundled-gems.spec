@@ -17,8 +17,8 @@
 
 %if 0%{?suse_version}
 %define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
-%define rack_version %(basename `gem.ruby3.1 which -g rack | sed 's,/lib/rack.rb$$,,'`)
-%define rake_version %(basename `gem.ruby3.1 which -g rake | sed 's,/lib/rake.rb$$,,'`)
+%define rack_version %(basename `gem.ruby3.1 which -g rack | sed 's,/lib/rack.rb$,,'`)
+%define rake_version %(basename `gem.ruby3.1 which -g rake | sed 's,/lib/rake.rb$,,'`)
 %define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
 %else
 %define __obs_ruby_interpreter /usr/bin/ruby
