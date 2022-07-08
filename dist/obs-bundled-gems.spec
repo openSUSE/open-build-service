@@ -17,8 +17,8 @@
 
 %if 0%{?suse_version}
 %define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
-%define rack_version %(ruby -r rack -e "puts Rack::RELEASE")
-%define rake_version %(ruby -r rake -e "puts Rake::VERSION")
+%define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
+%define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
 %define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
 %else
 %define __obs_ruby_interpreter /usr/bin/ruby
