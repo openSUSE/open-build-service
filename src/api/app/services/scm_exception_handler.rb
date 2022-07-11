@@ -67,6 +67,5 @@ class SCMExceptionHandler
                                               target_url: target_url
                                             }
                                           })
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,scm=#{scm},exception=#{exception} value=1")
   end
 end
