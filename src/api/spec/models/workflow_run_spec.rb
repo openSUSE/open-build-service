@@ -10,16 +10,32 @@ RSpec.describe WorkflowRun, vcr: true do
       let(:options) { { api_endpoint: 'https://api.github.com' } }
 
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
-      it { expect(JSON.parse(subject.request_parameters)).to include('api_endpoint' => 'https://api.github.com') }
-      it { expect(subject.status).to eq('success') }
+
+      it 'stores the correct parameters in request_parameters' do
+        subject
+        expect(JSON.parse(ScmStatusReport.last.request_parameters)).to include('api_endpoint' => 'https://api.github.com')
+      end
+
+      it 'stores correct status value' do
+        subject
+        expect(ScmStatusReport.last.status).to eq('success')
+      end
     end
 
     context 'when providing some other keys' do
       let(:options) { { non_permitted_key: 'some value' } }
 
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
-      it { expect(JSON.parse(subject.request_parameters)).to be_empty }
-      it { expect(subject.status).to eq('success') }
+
+      it 'stores empty request_parameters' do
+        subject
+        expect(JSON.parse(ScmStatusReport.last.request_parameters)).to be_empty
+      end
+
+      it 'stores correct status value' do
+        subject
+        expect(ScmStatusReport.last.status).to eq('success')
+      end
     end
   end
 
@@ -30,9 +46,17 @@ RSpec.describe WorkflowRun, vcr: true do
       let(:options) { { api_endpoint: 'https://api.github.com' } }
 
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
-      it { expect(JSON.parse(subject.request_parameters)).to include('api_endpoint' => 'https://api.github.com') }
-      it { expect(subject.response_body).to eql('oops it failed') }
-      it { expect(subject.status).to eq('fail') }
+
+      it 'stores the correct parameters in request_parameters' do
+        subject
+        expect(JSON.parse(ScmStatusReport.last.request_parameters)).to include('api_endpoint' => 'https://api.github.com')
+      end
+
+      it 'stores correct values for failure' do
+        subject
+        expect(ScmStatusReport.last.response_body).to eql('oops it failed')
+        expect(ScmStatusReport.last.status).to eq('fail')
+      end
 
       it 'marks the workflow run as failed' do
         subject
@@ -44,9 +68,17 @@ RSpec.describe WorkflowRun, vcr: true do
       let(:options) { { non_permitted_key: 'some value' } }
 
       it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
-      it { expect(JSON.parse(subject.request_parameters)).to be_empty }
-      it { expect(subject.response_body).to eql('oops it failed') }
-      it { expect(subject.status).to eq('fail') }
+
+      it 'stores empty request_parameters' do
+        subject
+        expect(JSON.parse(ScmStatusReport.last.request_parameters)).to be_empty
+      end
+
+      it 'stores correct values for failure' do
+        subject
+        expect(ScmStatusReport.last.response_body).to eql('oops it failed')
+        expect(ScmStatusReport.last.status).to eq('fail')
+      end
 
       it 'marks the workflow run as failed' do
         subject
