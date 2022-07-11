@@ -19,6 +19,7 @@ workflows:
             src/backend/.* run-backend-tests true
             src/api/app/(views|components)/.* run-haml-linter true
             src/api/db/.* run-migrations-tests true
+            src/api/Gemfile.lock run-passenger-tests true
             src/api/app/assets/javascripts/.* run-javascripts-linter true
             src/api/public/apidocs-new/.* run-apidocs-linter true
           base-revision: master
