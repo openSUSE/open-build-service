@@ -72,6 +72,7 @@ RSpec.describe SCMStatusReporter, type: :service do
         end
 
         it { expect { subject }.to change(EventSubscription, :count).by(-1) }
+        it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
 
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
           subject
@@ -84,10 +85,12 @@ RSpec.describe SCMStatusReporter, type: :service do
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_raise(Octokit::AccountSuspended)
-          subject
         end
 
+        it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
+
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
+          subject
           expect(workflow_run.status).to eq('fail')
           expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Sorry. Your account is suspended.')
         end
@@ -97,12 +100,14 @@ RSpec.describe SCMStatusReporter, type: :service do
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_raise(Faraday::ConnectionFailed.new('Network glitch'))
-          subject
         end
 
+        it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
+
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
+          subject
           expect(workflow_run.status).to eq('fail')
-          expect(workflow_run.response_body).to eq('Failed to report back to GitHub: Network glitch')
+          expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Network glitch')
         end
       end
     end

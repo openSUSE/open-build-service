@@ -45,7 +45,10 @@ class SCMStatusReporter < SCMExceptionHandler
   rescue Octokit::Error, Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
   rescue Faraday::ConnectionFailed => e
-    @workflow_run.update_as_failed("Failed to report back to GitHub: #{e.message}")
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_failure("Failed to report back to GitHub: #{e.message}",
+                                            request_context)
+    end
   end
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
