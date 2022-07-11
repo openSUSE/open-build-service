@@ -878,22 +878,26 @@ class BsRequest < ApplicationRecord
     # use approve mechanic in case you want to wait for reviews
     return if approver && state == :review
 
+    return unless accept_at || approver
+
     with_lock do
       if accept_at
-        User.session = User.find_by!(login: creator)
+        auto_accept_user = User.find_by!(login: creator)
       elsif approver
-        User.session = User.find_by!(login: approver)
+        auto_accept_user = User.find_by!(login: approver)
       end
-      raise 'Request lacks definition of owner for auto accept' unless User.session!
+      auto_accept_user.run_as do
+        raise 'Request lacks definition of owner for auto accept' unless User.session!
 
-      begin
-        change_state(newstate: 'accepted', comment: 'Auto accept')
-      rescue BsRequestPermissionCheck::NotExistingTarget
-        change_state(newstate: 'revoked', comment: 'Target disappeared')
-      rescue PostRequestNoPermission
-        change_state(newstate: 'revoked', comment: 'Permission problem')
-      rescue APIError
-        change_state(newstate: 'declined', comment: 'Unhandled error during accept')
+        begin
+          change_state(newstate: 'accepted', comment: 'Auto accept')
+        rescue BsRequestPermissionCheck::NotExistingTarget
+          change_state(newstate: 'revoked', comment: 'Target disappeared')
+        rescue PostRequestNoPermission
+          change_state(newstate: 'revoked', comment: 'Permission problem')
+        rescue APIError
+          change_state(newstate: 'declined', comment: 'Unhandled error during accept')
+        end
       end
     end
   end
