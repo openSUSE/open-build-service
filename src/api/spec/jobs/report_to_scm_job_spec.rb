@@ -19,7 +19,7 @@ RSpec.describe ReportToScmJob, vcr: false do
 
   shared_examples 'not reporting to the SCM' do
     it 'does not call the scm reporter' do
-      expect_any_instance_of(SCMStatusReporter).not_to receive(:call) # rubocop:disable RSpec/AnyInstance
+      expect_any_instance_of(GithubStatusReporter).not_to receive(:call) # rubocop:disable RSpec/AnyInstance
       subject
     end
   end
@@ -27,7 +27,7 @@ RSpec.describe ReportToScmJob, vcr: false do
   shared_examples 'reports to the SCM' do
     it 'does call the scm reporter' do
       allow_any_instance_of(Octokit::Client).to receive(:create_status) # rubocop:disable RSpec/AnyInstance
-      expect_any_instance_of(SCMStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
+      expect_any_instance_of(GithubStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
       subject
     end
   end
@@ -106,7 +106,7 @@ RSpec.describe ReportToScmJob, vcr: false do
       end
 
       it 'does not call the scm reporter' do
-        expect_any_instance_of(SCMStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
+        expect_any_instance_of(GithubStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
         subject
       end
     end
