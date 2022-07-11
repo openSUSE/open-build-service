@@ -10,6 +10,12 @@ FactoryBot.define do
     end
 
     description { Faker::Lorem.paragraph }
+    accept_at { nil }
+    approver { nil }
+    comment { nil }
+    priority { 'moderate' }
+    superseded_by { nil }
+
     commenter do
       creator
     end
