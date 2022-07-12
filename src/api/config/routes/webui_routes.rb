@@ -365,7 +365,7 @@ OBSApi::Application.routes.draw do
     namespace :user do
       get '/signup', to: redirect('/signup')
       get '/register_user', to: redirect('/signup')
-      get '/show/:user', to: redirect('/users/%{user}')
+      get '/show/:user', to: redirect('/users/%{user}'), constraints: cons
       get '/autocomplete', to: redirect('/users/autocomplete')
       get '/tokens', to: redirect('/users/tokens')
     end
