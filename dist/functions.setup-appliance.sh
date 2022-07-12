@@ -680,7 +680,7 @@ function create_sign_cert {
   echo "Starting create_sign_cert"
   if [ -f "$backenddir/obs-default-gpg.asc" -a ! -f "$backenddir/obs-default-gpg.cert" ];then
     echo "Creating new signer cert"
-    GNUPGHOME="$backenddir/gnupg" sign --test-sign $SIGND_BIN -C $backenddir/obs-default-gpg.asc > $backenddir/obs-default-gpg.cert
+    GNUPGHOME="$backenddir/gnupg" sign --test-sign $SIGND_BIN -C $backenddir/obs-default-gpg.asc > $backenddir/obs-default-gpg.cert 2>&1 || { cat $backenddir/obs-default-gpg.cert ; exit 1; }
   else
     echo "Skipping new signer cert"
   fi
