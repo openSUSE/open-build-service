@@ -994,10 +994,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incident_project}?cmd=set_flag&flag=lock&status=disable"
     assert_response :success
 
-    # EmbargoDate is needed for test for releasing packages
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
-    assert_response :success
-
     prepare_request_with_user('maintenance_coord', 'buildservice')
 
     # create some changes, including issue tracker references
@@ -1450,22 +1446,24 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get comments_request_path(request_number: reqid)
     assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'
 
-    #### blocked attempt to release packages
-    # block the release until tomorrow
-    post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
+    # EmbargoDate is needed for test for releasing packages
+    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'invalid_date' })
+
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now + 1.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
+
     # use the special form, no time specified
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
+
     # set it to yesterday, so it works below
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.yesterday.year}-#{Time.now.yesterday.month}-#{Time.now.yesterday.day}</value></attribute></attributes>"
     assert_response :success
