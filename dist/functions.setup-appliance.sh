@@ -695,6 +695,7 @@ function set_gpg_expiry_date {
   if [ -z "$EXPIRE" ];then
     echo "Set expire date "
     echo -en "expire\n30y\nquit\ny\n" | gpg --no-tty --command-fd 0 --expert --edit-key $KEYID
+    gpg --export -a  $KEYID > $backenddir/obs-default-gpg.asc
   fi
   EXPIRE=`gpg -k --no-tty $KEYID|grep expires`
   [ -z "$EXPIRE" ] && exit 1
