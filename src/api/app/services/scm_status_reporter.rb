@@ -26,7 +26,10 @@ class SCMStatusReporter < SCMExceptionHandler
                                          @state,
                                          status_options)
     end
-    @workflow_run.save_scm_report_success(request_context) if @workflow_run.present?
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_success(request_context)
+      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
+    end
   rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
     return if package.blank?
@@ -48,7 +51,7 @@ class SCMStatusReporter < SCMExceptionHandler
                                             request_context)
     end
   ensure
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,scm=#{@event_subscription_payload[:scm]},exception=#{e} value=1") if e.present?
+    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e} value=1") if e.present? && @workflow_run.present?
   end
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
