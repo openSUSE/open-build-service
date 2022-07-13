@@ -9,6 +9,10 @@ parameters:
     type: boolean
     default: false
 
+  run-passenger-tests:
+    type: boolean
+    default: false
+
   run-javascripts-linter:
     type: boolean
     default: false
@@ -204,8 +208,6 @@ jobs:
       - run:
           name: Setup application
           command: |
-            make -C src/api test_rake
-            make -C src/api test_rack
             cd src/api
             bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
       - persist_to_workspace:
@@ -306,6 +308,18 @@ jobs:
             bundle exec rake db:migrate
             bundle exec rake db:seed
             bundle exec rake data:migrate
+
+  passenger_tests:
+    docker:
+      - <<: *frontend_base
+    steps:
+      - attach_workspace:
+         at: .
+      - run:
+          name: Test rake/rack versions
+          command: |
+            make -C src/api test_rake
+            make -C src/api test_rack
 
   spider:
     docker:
@@ -437,6 +451,14 @@ workflows:
     jobs:
       - checkout_code
       - migrations_tests:
+          requires:
+            - checkout_code
+
+  passenger_tests:
+    when: << pipeline.parameters.run-passenger-tests >>
+    jobs:
+      - checkout_code
+      - passenger_tests:
           requires:
             - checkout_code
 
