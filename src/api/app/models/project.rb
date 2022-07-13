@@ -614,7 +614,8 @@ class Project < ApplicationRecord
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       begin
-        options = { user: User.session!.login, comment: @commit_opts[:comment] }
+        options = { comment: @commit_opts[:comment] }
+        options[:user] = @commit_opts[:login] || User.session!.login
         options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
         Backend::Api::Sources::Project.delete(name, options)
       rescue Backend::NotFoundError
