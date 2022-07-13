@@ -251,6 +251,11 @@ class User < ApplicationRecord
     current && current.is_admin?
   end
 
+  # set the user as current session user (should be real user)
+  def self.session=(user)
+    Thread.current[:user] = user
+  end
+
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = User.find_by!(login: admin)
@@ -874,16 +879,12 @@ class User < ApplicationRecord
     end
   end
 
-  # set the user as current session user (should be real user)
-  def self.session=(user)
-    Thread.current[:user] = user
-    Thread.current[:user_id] = user.try(:id)
-  end
+  private
 
   # The currently logged in user (might be nil). It's reset after
   # every request and normally set during authentification
   def self.current
-    Thread.current[:user] || find_by(id: Thread.current[:user_id])
+    Thread.current[:user]
   end
   private_class_method :current
 
@@ -891,8 +892,6 @@ class User < ApplicationRecord
     Thread.current[:nobody] ||= find_nobody!
   end
   private_class_method :nobody
-
-  private
 
   def password_validation
     return if password_digest || deprecated_password
