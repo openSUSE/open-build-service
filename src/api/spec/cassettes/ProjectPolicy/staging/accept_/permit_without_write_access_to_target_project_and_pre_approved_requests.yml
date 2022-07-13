@@ -1,0 +1,630 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>This Side of Paradise</title>
+          <description/>
+          <person userid="Rudi" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>This Side of Paradise</title>
+          <description></description>
+          <person userid="Rudi" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/aaa_base/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="aaa_base" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Ducimus corrupti autem dolores.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="aaa_base" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Ducimus corrupti autem dolores.</description>
+        </package>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/aaa_base/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="aaa_base" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Ducimus corrupti autem dolores.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="aaa_base" project="openSUSE:Factory">
+          <title>Little Hands Clapping</title>
+          <description>Ducimus corrupti autem dolores.</description>
+        </package>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="factory-staging">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3">
+          <srcmd5>f52d2fa228da5a7a62608afca232acfe</srcmd5>
+          <time>1657736651</time>
+          <user>user_9</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="factory-staging">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+          <staging_project name="openSUSE:Factory:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4">
+          <srcmd5>709bb8e6a36709d62f4b7877d2ee542a</srcmd5>
+          <time>1657736651</time>
+          <user>user_9</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>This Side of Paradise</title>
+          <description/>
+          <person userid="Rudi" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>This Side of Paradise</title>
+          <description></description>
+          <person userid="Rudi" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:base/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:base">
+          <title>Such, Such Were the Joys</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:base">
+          <title>Such, Such Were the Joys</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:base/aaa_base/_meta?user=user_11
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="aaa_base" project="devel:base">
+          <title>That Good Night</title>
+          <description>Non laboriosam iste enim.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="aaa_base" project="devel:base">
+          <title>That Good Night</title>
+          <description>Non laboriosam iste enim.</description>
+        </package>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:base/aaa_base/_config
+    body:
+      encoding: UTF-8
+      string: Et dolorum modi. Quae expedita tempora. Unde qui et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>1ed79973ebe0884be8bbc32e96fd5d75</srcmd5>
+          <version>unknown</version>
+          <time>1657736651</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:base/aaa_base/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Unde accusamus ratione. Fugiat dolores debitis. Quis omnis eos.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>46aebe5e25d174fc77706dd3cb0604d2</srcmd5>
+          <version>unknown</version>
+          <time>1657736651</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:base/aaa_base
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="aaa_base" rev="4" vrev="4" srcmd5="46aebe5e25d174fc77706dd3cb0604d2">
+          <entry name="_config" md5="4246d90406d6ba89803f797481576da6" size="52" mtime="1657736651"/>
+          <entry name="somefile.txt" md5="ed841118bfd3cc8e065be989a7f3524c" size="63" mtime="1657736651"/>
+        </directory>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/devel:base/aaa_base?cmd=diff&expand=1&filelimit=10000&opackage=aaa_base&oproject=openSUSE:Factory&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '814'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="09fd72a08571af86b6f08c6bf408e16d">
+          <old project="openSUSE:Factory" package="aaa_base" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="devel:base" package="aaa_base" rev="4" srcmd5="46aebe5e25d174fc77706dd3cb0604d2"/>
+          <files>
+            <file state="added">
+              <new name="_config" md5="4246d90406d6ba89803f797481576da6" size="52"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Et dolorum modi. Quae expedita tempora. Unde qui et.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="somefile.txt" md5="ed841118bfd3cc8e065be989a7f3524c" size="63"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Unde accusamus ratione. Fugiat dolores debitis. Quis omnis eos.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:base/aaa_base?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="aaa_base" rev="4" vrev="4" srcmd5="46aebe5e25d174fc77706dd3cb0604d2">
+          <entry name="_config" md5="4246d90406d6ba89803f797481576da6" size="52" mtime="1657736651"/>
+          <entry name="somefile.txt" md5="ed841118bfd3cc8e065be989a7f3524c" size="63" mtime="1657736651"/>
+        </directory>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:base/aaa_base?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="aaa_base" rev="4" vrev="4" srcmd5="46aebe5e25d174fc77706dd3cb0604d2">
+          <entry name="_config" md5="4246d90406d6ba89803f797481576da6" size="52" mtime="1657736651"/>
+          <entry name="somefile.txt" md5="ed841118bfd3cc8e065be989a7f3524c" size="63" mtime="1657736651"/>
+        </directory>
+  recorded_at: Wed, 13 Jul 2022 18:24:11 GMT
+recorded_with: VCR 6.1.0
