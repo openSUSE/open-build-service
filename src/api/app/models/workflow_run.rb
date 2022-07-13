@@ -50,15 +50,11 @@ class WorkflowRun < ApplicationRecord
     scm_status_reports.create(response_body: message,
                               request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)),
                               status: 'fail') # set ScmStatusReport status
-
-    RabbitmqBus.send_to_bus('metrics', 'scm_status_report,status=fail value=1')
   end
 
   # Stores info from a succesful SCM status report. The default value for 'status' is 'success'.
   def save_scm_report_success(options)
     scm_status_reports.create(request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
-
-    RabbitmqBus.send_to_bus('metrics', 'scm_status_report,status=success value=1')
   end
 
   def payload
