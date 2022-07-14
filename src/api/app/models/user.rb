@@ -590,6 +590,7 @@ class User < ApplicationRecord
   # if context is a package, check permissions in package, then if needed continue with project check
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
+  # rubocop:disable Metrics/PerceivedComplexity
   def has_local_permission?(perm_string, object)
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
@@ -600,8 +601,17 @@ class User < ApplicationRecord
       logger.debug "running local permission check: user #{login}, package #{object.name}, permission '#{perm_string}'"
       # check permission for given package
       parent = object.project
+
+      # Users have permissions to manage packages in their own home project
+      # This is needed since users sometimes remove themselves from the maintainers of their own home project
+      return true if parent.name == home_project_name
     when Project
       logger.debug "running local permission check: user #{login}, project #{object.name}, permission '#{perm_string}'"
+
+      # Users have permissions to manage their own home project
+      # This is needed since users sometimes remove themselves from the maintainers of their own home project
+      return true if object.name == home_project_name
+
       # check permission for given project
       parent = object.parent
     when nil
@@ -625,6 +635,7 @@ class User < ApplicationRecord
 
     false
   end
+  # rubocop:enable Metrics/PerceivedComplexity
 
   def lock!
     self.state = 'locked'
@@ -907,7 +918,6 @@ class User < ApplicationRecord
 
     return true if has_global_permission?('change_project')
     return true if has_local_permission?('change_project', project)
-    return true if project.name == home_project_name # users tend to remove themself, allow to re-add them
 
     false
   end
