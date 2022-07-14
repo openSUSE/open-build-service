@@ -18,7 +18,7 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
   def branch_package(workflow_filters = {})
     create_branched_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event? || scm_webhook.tag_push_event?
 
-    add_branch_request_file(package: target_package)
+    scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
 
     # SCMs don't support statuses for tags, so we don't need to report back in this case
     create_or_update_subscriptions(target_package, workflow_filters) unless scm_webhook.tag_push_event?
@@ -28,6 +28,13 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
 
   def check_source_access
     return if remote_source?
+
+    # we don't have any package records on the frontend level for scmsynced projects, therefore
+    # we can only check on the project level for sourceaccess permission
+    if scm_synced_project?
+      Pundit.authorize(@token.executor, Project.get_by_name(source_project_name), :source_access?)
+      return
+    end
 
     options = { use_source: false, follow_project_links: true, follow_multibuild: true }
 
