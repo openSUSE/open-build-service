@@ -15,7 +15,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   def link_package(workflow_filters = {})
     create_target_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event? || scm_webhook.tag_push_event?
 
-    add_branch_request_file(package: target_package)
+    scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
 
     # SCMs don't support statuses for tags, so we don't need to report back in this case
     create_or_update_subscriptions(target_package, workflow_filters) unless scm_webhook.tag_push_event?
@@ -33,6 +33,8 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
 
   def create_target_package
     create_project_and_package
+    return if scm_synced?
+
     create_special_package
     create_link
   end
