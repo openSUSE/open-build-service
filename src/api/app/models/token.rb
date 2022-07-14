@@ -1,5 +1,5 @@
 class Token < ApplicationRecord
-  belongs_to :user
+  belongs_to :executor, class_name: 'User'
   has_many :event_subscriptions, dependent: :destroy
   belongs_to :package, inverse_of: :tokens, optional: true
 
@@ -18,7 +18,7 @@ class Token < ApplicationRecord
   include Token::Errors
 
   # TODO: move to Token::Workflow model
-  scope :owned_tokens, ->(user) { where(user: user).where.not(type: ['Token::Rss']) }
+  scope :owned_tokens, ->(user) { where(executor: user).where.not(type: ['Token::Rss']) }
   scope :shared_tokens, ->(user) { user.shared_workflow_tokens }
   scope :group_shared_tokens, ->(user) { user.groups.map(&:shared_workflow_tokens).flatten } # TODO: transform to ActiveRecord_Relation
 
@@ -63,7 +63,7 @@ class Token < ApplicationRecord
   end
 
   def owned_by?(some_user)
-    user == some_user
+    executor == some_user
   end
 end
 
@@ -77,18 +77,18 @@ end
 #  string       :string(255)      indexed
 #  triggered_at :datetime
 #  type         :string(255)
+#  executor_id  :integer          not null, indexed
 #  package_id   :integer          indexed
-#  user_id      :integer          not null, indexed
 #
 # Indexes
 #
 #  index_tokens_on_scm_token  (scm_token)
 #  index_tokens_on_string     (string) UNIQUE
 #  package_id                 (package_id)
-#  user_id                    (user_id)
+#  user_id                    (executor_id)
 #
 # Foreign Keys
 #
-#  tokens_ibfk_1  (user_id => users.id)
+#  tokens_ibfk_1  (executor_id => users.id)
 #  tokens_ibfk_2  (package_id => packages.id)
 #

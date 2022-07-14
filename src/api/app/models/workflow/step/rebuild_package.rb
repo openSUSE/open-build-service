@@ -18,7 +18,7 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
     set_object_to_authorize
     set_multibuild_flavor
 
-    Pundit.authorize(@token.user, @token, :rebuild?)
+    Pundit.authorize(@token.executor, @token, :rebuild?)
     rebuild_package
   end
 

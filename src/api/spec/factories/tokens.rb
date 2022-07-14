@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :token do
     string { Faker::Lorem.characters(number: 32) }
-    user
+    executor { create(:confirmed_user) }
 
     factory :service_token, class: 'Token::Service' do
       package

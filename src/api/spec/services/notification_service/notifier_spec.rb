@@ -28,8 +28,8 @@ RSpec.describe NotificationService::Notifier do
         create_relationship_kim
         create_comment_for_project
 
-        user_bob.create_rss_token
-        user_kim.create_rss_token
+        create(:rss_token, executor: user_bob)
+        create(:rss_token, executor: user_kim)
 
         subject
       end

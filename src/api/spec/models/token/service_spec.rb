@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Token::Service do
   let(:user) { create(:user, login: 'foo') }
-  let(:token) { create(:service_token, user: user) }
+  let(:token) { create(:service_token, executor: user) }
 
   subject { token.call(package: 'bar') }
 

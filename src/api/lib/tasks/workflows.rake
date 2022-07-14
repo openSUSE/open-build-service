@@ -18,7 +18,7 @@ namespace :workflows do
     User.session = admin
     project = find_or_create_project(admin.home_project_name, admin)
 
-    workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token, user: admin, description: 'Testing token')
+    workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token, executor: admin, description: 'Testing token')
 
     # GitHub
     create(:workflow_run_github_running, token: workflow_token)

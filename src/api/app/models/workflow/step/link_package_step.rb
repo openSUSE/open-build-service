@@ -44,7 +44,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
 
     if target_project.nil?
       project = Project.new(name: target_project_name)
-      Pundit.authorize(@token.user, project, :create?)
+      Pundit.authorize(@token.executor, project, :create?)
 
       project.save!
       project.commit_user = User.session
@@ -52,7 +52,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
       project.store
     end
 
-    Pundit.authorize(@token.user, target_project, :update?)
+    Pundit.authorize(@token.executor, target_project, :update?)
     target_project.packages.create(name: target_package_name)
   end
 
@@ -82,7 +82,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   def create_link
     Backend::Api::Sources::Package.write_link(target_project_name,
                                               target_package_name,
-                                              @token.user,
+                                              @token.executor,
                                               link_xml(project: source_project_name, package: source_package_name))
 
     target_package

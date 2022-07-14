@@ -28,7 +28,7 @@ class TriggerController < ApplicationController
   def create
     authorize @token, :trigger?
 
-    @token.user.run_as do
+    @token.executor.run_as do
       opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch] }
       opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
       @token.call(opts)
@@ -59,7 +59,7 @@ class TriggerController < ApplicationController
   end
 
   def pundit_user
-    @token.user
+    @token.executor
   end
 
   def set_project_name

@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Webui::WorkflowRunsController, type: :controller do
   describe 'GET #index' do
     let(:token_user) { create(:confirmed_user) }
-    let(:workflow_token) { create(:workflow_token, user: token_user) }
+    let(:workflow_token) { create(:workflow_token, executor: token_user) }
     let!(:workflow_run) { create(:workflow_run, token: workflow_token) }
 
     before do

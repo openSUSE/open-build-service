@@ -28,7 +28,7 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def update?
-    record.user == user && Flipper.enabled?(:trigger_workflow, user)
+    record.executor == user && Flipper.enabled?(:trigger_workflow, user)
   end
 
   def create?
@@ -36,7 +36,7 @@ class TokenPolicy < ApplicationPolicy
     return false unless Flipper.enabled?(:trigger_workflow, user)
     return false unless record.type != 'Token::Rss'
 
-    record.user == user
+    record.executor == user
   end
 
   def destroy?
@@ -44,10 +44,10 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def webui_trigger?
-    record.user == user && !record.type.in?(['Token::Workflow', 'Token::Rss'])
+    record.executor == user && !record.type.in?(['Token::Workflow', 'Token::Rss'])
   end
 
   def show?
-    record.user == user && !record.type.in?(['Token::Rss'])
+    record.executor == user && !record.type.in?(['Token::Rss'])
   end
 end

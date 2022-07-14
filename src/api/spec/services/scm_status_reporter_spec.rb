@@ -45,7 +45,7 @@ RSpec.describe SCMStatusReporter, type: :service do
       let!(:user) { create(:confirmed_user, :with_home, login: 'jane_doe') }
       let!(:package) { create(:package, name: 'bye', project: user.home_project) }
 
-      let(:workflow_token) { create(:workflow_token, user: user) }
+      let(:workflow_token) { create(:workflow_token, executor: user) }
       let(:token) { workflow_token.scm_token }
       let(:workflow_run) { create(:workflow_run, token: workflow_token, request_headers: {}, request_payload: {}) }
 

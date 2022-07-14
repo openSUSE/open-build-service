@@ -37,7 +37,7 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
       raise BranchPackage::Errors::CanNotBranchPackageNotFound, "Package #{source_project_name}/#{source_package_name} not found, it could not be branched."
     end
 
-    Pundit.authorize(@token.user, src_package, :create_branch?)
+    Pundit.authorize(@token.executor, src_package, :create_branch?)
   end
 
   def create_branched_package
@@ -57,7 +57,7 @@ class Workflow::Step::BranchPackageStep < ::Workflow::Step
     Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                 targetproject: target_project_name,
                                 targetpackage: target_package_name,
-                                user: @token.user.login)
+                                user: @token.executor.login)
 
     target_package
   end

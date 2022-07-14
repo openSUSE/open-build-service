@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Workflows::ArtifactsCollector, type: :service do
   let(:user) { create(:confirmed_user) }
-  let(:token) { create(:workflow_token, user: user) }
+  let(:token) { create(:workflow_token, executor: user) }
   let(:workflow_run) { create(:workflow_run, token: token) }
 
   subject { described_class.new(workflow_run_id: workflow_run.id, step: step) }

@@ -12,7 +12,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     return unless valid?
 
     target_project = Project.get_by_name(target_project_name)
-    Pundit.authorize(@token.user, target_project, :update?)
+    Pundit.authorize(@token.executor, target_project, :update?)
 
     step_instructions[:repositories].each do |repository_instructions|
       repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
@@ -31,7 +31,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
 
     # We have to store the changes on the backend
     target_project.store(comment: "Added the following repositories to the project: #{step_instructions[:repositories].pluck(:name).compact.to_sentence}",
-                         login: @token.user.login)
+                         login: @token.executor.login)
   end
 
   private

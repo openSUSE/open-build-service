@@ -96,7 +96,7 @@ RSpec.describe Person::TokenController, vcr: false do
   end
 
   describe '#delete' do
-    let!(:token) { create(:service_token, user: user) }
+    let!(:token) { create(:service_token, executor: user) }
 
     context 'requesting deletion of an existent token as an authorized user' do
       subject { delete :delete, params: { login: user.login, id: token.id }, format: :xml }

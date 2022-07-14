@@ -10,7 +10,7 @@ RSpec.describe Token::Release, vcr: true do
   let(:repository) { create(:repository, name: 'package_test_repository', architectures: ['x86_64'], project: project_staging) }
   let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
 
-  let(:token) { create(:release_token, package: package, user: user) }
+  let(:token) { create(:release_token, package: package, executor: user) }
 
   subject { token.call(package: package) }
 
