@@ -8,11 +8,19 @@ class ReportToScmJob < CreateJob
     return false unless perform_job?(event_id)
 
     matched_event_subscription.each do |event_subscription|
-      SCMStatusReporter.new(@event.payload,
-                            event_subscription.payload,
-                            event_subscription.token.scm_token,
-                            event_subscription.eventtype,
-                            event_subscription.workflow_run).call
+      if event_subscription.payload['scm'] == 'github'
+        GithubStatusReporter.new(@event.payload,
+                                 event_subscription.payload,
+                                 event_subscription.token.scm_token,
+                                 event_subscription.eventtype,
+                                 event_subscription.workflow_run).call
+      else
+        GitlabStatusReporter.new(@event.payload,
+                                 event_subscription.payload,
+                                 event_subscription.token.scm_token,
+                                 event_subscription.eventtype,
+                                 event_subscription.workflow_run).call
+      end
     end
     true
   end
