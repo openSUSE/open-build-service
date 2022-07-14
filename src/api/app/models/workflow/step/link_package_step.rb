@@ -13,7 +13,7 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
   private
 
   def link_package(workflow_filters = {})
-    create_target_package if scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event? || scm_webhook.tag_push_event?
+    create_target_package if webhook_event_for_linking_or_branching?
 
     scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
 
