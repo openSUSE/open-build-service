@@ -1,31 +1,49 @@
-class SCMStatusReporter < SCMExceptionHandler
-  attr_accessor :state
+class SCMStatusReporter
+  attr_accessor :event_payload, :event_subscription_payload, :state, :initial_report
 
-  def initialize(event_payload, event_subscription_payload, scm_token, event_type = nil, workflow_run = nil)
-    super(event_payload, event_subscription_payload, scm_token, workflow_run)
+  def initialize(event_payload, event_subscription_payload, scm_token, workflow_run = nil, event_type = nil, initial_report: false)
+    @event_payload = event_payload.deep_symbolize_keys
+    @event_subscription_payload = event_subscription_payload.deep_symbolize_keys
+    @scm_token = scm_token
+    @workflow_run = workflow_run
+    @initial_report = initial_report
 
-    @state = event_type.nil? ? 'pending' : scm_final_state(event_type)
+    @state = if @initial_report
+               event_type.nil? ? 'pending' : 'success'
+             else # reports done by the report_to_scm_job
+               event_type.nil? ? 'pending' : scm_final_state(event_type)
+             end
   end
 
   def call
-    # Should use either GithubStatusReporter or GitlabStatusReporter
-    raise AbstractMethodCalled
+    if github?
+      GithubStatusReporter.new(@event_payload,
+                               @event_subscription_payload,
+                               @scm_token,
+                               @state,
+                               @workflow_run,
+                               initial_report: @initial_report).call
+    else
+      GitlabStatusReporter.new(@event_payload,
+                               @event_subscription_payload,
+                               @scm_token,
+                               @state,
+                               @workflow_run,
+                               initial_report: @initial_report).call
+    end
+  end
+
+  def github?
+    @event_subscription_payload[:scm] == 'github'
   end
 
   private
 
-  def status_options
-    { context: "OBS: #{@event_payload[:package]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
-      target_url: Rails.application.routes.url_helpers.package_show_url(@event_payload[:project], @event_payload[:package], host: Configuration.obs_url) }
-  end
-
-  def request_context
-    {
-      api_endpoint: @event_subscription_payload[:api_endpoint],
-      target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
-      commit_sha: @event_subscription_payload[:commit_sha],
-      state: @state,
-      status_options: status_options
-    }
+  def scm_final_state(event_type)
+    if github?
+      GithubStatusReporter.scm_final_state(event_type)
+    else
+      GitlabStatusReporter.scm_final_state(event_type)
+    end
   end
 end
