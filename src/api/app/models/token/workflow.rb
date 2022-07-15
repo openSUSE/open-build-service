@@ -31,9 +31,9 @@ class Token::Workflow < Token
     return validation_errors unless validation_errors.none?
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
-    ScmInitialStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run).call
+    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, initial_report: true).call
     @workflows.each(&:call)
-    ScmInitialStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success').call
+    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
 
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
