@@ -30,7 +30,7 @@ class Token::Workflow < Token
 
     return validation_errors unless validation_errors.none?
 
-    # This is just an initial generic report to give a feedback asap. Initial status pending
+    # This is just an initial generic report to give a feedback asap. Initial status 'pending'.
     SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, initial_report: true).call
     @workflows.each(&:call)
     SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
