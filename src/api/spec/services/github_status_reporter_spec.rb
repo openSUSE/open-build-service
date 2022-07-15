@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe GithubStatusReporter, type: :service do
-  let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, event_type) }
+  let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: initial_report) }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -9,6 +9,9 @@ RSpec.describe GithubStatusReporter, type: :service do
       let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
+      let(:state) { 'pending' }
+      let(:workflow_run) { nil }
+      let(:initial_report) { false }
 
       subject { scm_status_reporter }
 
@@ -20,6 +23,9 @@ RSpec.describe GithubStatusReporter, type: :service do
       let(:event_subscription_payload) { { scm: 'github' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
+      let(:state) { 'failure' }
+      let(:workflow_run) { nil }
+      let(:initial_report) { false }
 
       subject { scm_status_reporter }
 
@@ -29,7 +35,7 @@ RSpec.describe GithubStatusReporter, type: :service do
 
   describe '#call' do
     context 'when sending a report back to SCM fails' do
-      let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, event_type, workflow_run) }
+      let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: false) }
 
       let!(:user) { create(:confirmed_user, :with_home, login: 'jane_doe') }
       let!(:package) { create(:package, name: 'bye', project: user.home_project) }
@@ -43,8 +49,8 @@ RSpec.describe GithubStatusReporter, type: :service do
       end
 
       let(:event_subscription_payload) { { scm: 'github' } }
-
       let(:event_type) { 'Event::BuildSuccess' }
+      let(:state) { 'success' }
 
       let!(:event_subscription) do
         EventSubscription.create(channel: 'scm', package: package, eventtype: event_type, receiver_role: 'reader', token: workflow_token, workflow_run: workflow_run)
@@ -112,6 +118,8 @@ RSpec.describe GithubStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
       let(:state) { 'pending' }
+      let(:workflow_run) { nil }
+      let(:initial_report) { false }
       let(:status_options) do
         {
           context: 'OBS: hello_world - openSUSE_Tumbleweed/x86_64',

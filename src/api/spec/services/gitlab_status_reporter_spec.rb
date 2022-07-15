@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe GitlabStatusReporter, type: :service do
-  let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, event_type) }
+  let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: initial_report) }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -9,6 +9,9 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
+      let(:workflow_run) { nil }
+      let(:state) { 'pending' }
+      let(:initial_report) { false }
 
       subject { scm_status_reporter }
 
@@ -20,6 +23,9 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:event_subscription_payload) { { scm: 'gitlab' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
+      let(:workflow_run) { nil }
+      let(:state) { 'failed' }
+      let(:initial_report) { false }
 
       subject { scm_status_reporter }
 
@@ -39,6 +45,8 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
       let(:state) { 'pending' }
+      let(:workflow_run) { nil }
+      let(:initial_report) { false }
       let(:status_options) do
         {
           context: 'OBS: hello_world - openSUSE_Tumbleweed/x86_64',
