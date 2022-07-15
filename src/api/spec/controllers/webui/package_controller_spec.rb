@@ -1128,7 +1128,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         login(user)
-        get :edit, params: { project: admins_home_project, package: package_from_admin }, format: :js
+        get :edit, params: { project: admins_home_project, package: package_from_admin }
       end
 
       it { expect(response).to redirect_to(root_path) }
@@ -1183,8 +1183,7 @@ RSpec.describe Webui::PackageController, vcr: true do
               project: admins_home_project,
               package_details: package_params,
               package: package_from_admin.name
-            },
-            format: :js
+            }
     end
 
     it { expect(response).to redirect_to(root_path) }

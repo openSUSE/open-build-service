@@ -624,7 +624,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with a user that can't create attributes" do
       before do
-        post :edit_comment, params: { project: user.home_project, package: package, text: text, last_comment: 'Last comment', format: 'js' }
+        post :edit_comment, params: { project: user.home_project, package: package, text: text, last_comment: 'Last comment' }
       end
 
       it { expect(response).to redirect_to(new_session_path) }

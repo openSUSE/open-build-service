@@ -425,7 +425,7 @@ RSpec.describe Webui::UsersController do
 
       it 'shows an error message' do
         expect(controller).to set_flash[:error]
-        expect(flash[:error]).to eq('Please login to access the requested page.')
+        expect(flash[:error]).to eq('Please login to access the resource')
       end
     end
   end

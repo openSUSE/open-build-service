@@ -9,6 +9,7 @@ class Webui::WebuiController < ActionController::Base
   include Pundit::Authorization
   include FlipperFeature
   include Webui::RescueHandler
+  include RescueAuthorizationHandler
   include SetCurrentRequestDetails
   include Webui::ElisionsHelper
   protect_from_forgery
@@ -48,23 +49,9 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_login
-    if CONFIG['kerberos_mode']
-      kerberos_auth
-    else
-      unless User.session
-        render(text: 'Please login') && (return false) if request.xhr?
+    return kerberos_auth if CONFIG['kerberos_mode']
 
-        flash[:error] = 'Please login to access the requested page.'
-        mode = CONFIG['proxy_auth_mode'] || :off
-        if mode == :off
-          redirect_to new_session_path
-        else
-          redirect_to root_path
-        end
-        return false
-      end
-      true
-    end
+    raise Pundit::NotAuthorizedError, reason: ApplicationPolicy::ANONYMOUS_USER unless User.session
   end
 
   def required_parameters(*parameters)
