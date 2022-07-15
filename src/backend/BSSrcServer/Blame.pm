@@ -289,6 +289,8 @@ sub doblame_link {
 sub doblame {
   my ($bc, $rev, $ti, $files, $linkinfo, $blame) = @_;
 
+  return unless grep {defined($_) && !$$_} @$blame;	# nothing left to do?
+
   my @todo = ( [ $rev, $ti, $files, $linkinfo, $blame ] );
 
   my $revno = $rev->{'rev'};
@@ -296,14 +298,47 @@ sub doblame {
   $revno++ if $bc->{'expand'};
 
   # go through local commits
-  while ($revno > 1) {
-    $revno--;
-    my ($orev, $ofiles, $olinkinfo) = get_commit($bc, $rev->{'project'}, $rev->{'package'}, $revno);
-    next unless $orev;
-    my $oblame = propblame($bc, $blame, $rev, $files, $orev, $ofiles);
-    last unless @$oblame;	# stop if nothing left to blame
-    ($rev, $ti, $files, $linkinfo, $blame) = ($orev, $orev->{'time'}, $ofiles, $olinkinfo, $oblame);
-    unshift @todo, [ $rev, $ti, $files, $linkinfo, $blame ];
+  my $filename = $bc->{'filename'};
+  my $revsuf = $bc->{'meta'} ? 'mrev' : 'rev';
+  if (!$bc->{'expand'} && !$bc->{'service'} && -s "$projectsdir/$rev->{'project'}.pkg/$rev->{'package'}.$revsuf") {
+    my $lastsrcmd5 = '';
+    my $lastfilemd5 = '';
+    my @revs = BSFileDB::fdb_getall("$projectsdir/$rev->{'project'}.pkg/$rev->{'package'}.$revsuf", $srcrevlay);
+    $bc->{'historycache'}->{"$rev->{'project'}/$rev->{'package'}"} = [ @revs ] unless $bc->{'meta'};
+    @revs = reverse(@revs);
+    shift @revs while @revs && $revs[0]->{'rev'} >= $revno;
+    for my $cachedrev (@revs) {
+      my $orev = { %$cachedrev, 'project' => $rev->{'project'}, 'package' => $rev->{'package'} };
+      if ($cachedrev->{'srcmd5'} eq $lastsrcmd5) {
+	$todo[0]->[0] = $orev;
+	$todo[0]->[1] = $orev->{'time'};
+	next;
+      }
+      $lastsrcmd5 = $cachedrev->{'srcmd5'};
+      my $ofiles = BSRevision::lsrev($orev);
+      last if !$ofiles->{$filename} || $ofiles->{$filename} eq $BSSrcrep::emptysrcmd5;
+      if ($ofiles->{$filename} eq $lastfilemd5) {
+	$todo[0]->[0] = $orev;
+	$todo[0]->[1] = $orev->{'time'};
+	next;
+      }
+      $lastfilemd5 = $ofiles->{$bc->{'filename'}};
+      my $olinkinfo = {};
+      my $oblame = propblame($bc, $blame, $rev, $files, $orev, $ofiles);
+      last unless @$oblame;	# stop if nothing left to blame
+      ($rev, $ti, $files, $linkinfo, $blame) = ($orev, $orev->{'time'}, $ofiles, $olinkinfo, $oblame);
+      unshift @todo, [ $rev, $ti, $files, $linkinfo, $blame ];
+    }
+  } else {
+    while ($revno > 1) {
+      $revno--;
+      my ($orev, $ofiles, $olinkinfo) = get_commit($bc, $rev->{'project'}, $rev->{'package'}, $revno);
+      next unless $orev;
+      my $oblame = propblame($bc, $blame, $rev, $files, $orev, $ofiles);
+      last unless @$oblame;	# stop if nothing left to blame
+      ($rev, $ti, $files, $linkinfo, $blame) = ($orev, $orev->{'time'}, $ofiles, $olinkinfo, $oblame);
+      unshift @todo, [ $rev, $ti, $files, $linkinfo, $blame ];
+    }
   }
 
   for my $todo (@todo) {
@@ -328,8 +363,8 @@ sub blame {
   my ($rev, $filename, $expand, $meta) = @_;
 
   my $service;
-  $expand = undef if $meta;
-  $service = 1 if !$expand && !$meta && $filename =~ /^_service:/;
+  $expand = undef if $meta || $rev->{'package'} eq '_project';
+  $service = 1 if !$expand && !$meta && $rev->{'package'} ne '_project' && $filename =~ /^_service:/;
 
   my $bc = {
     'filename' => $filename,
