@@ -105,12 +105,9 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/:filename
   def source_file
-    file = params[:filename]
-
     check_package_access(params[:project], params[:package])
 
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}/#{CGI.escape(file)}"
-
+    path = Package.source_path(params[:project], params[:package], params[:filename])
     path += build_query_from_hash(params, [:rev, :limit, :expand])
     volley_backend_path(path) unless forward_from_backend(path)
   end
