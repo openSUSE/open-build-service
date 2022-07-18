@@ -43,7 +43,7 @@ RSpec.describe 'Attributes', type: :feature, js: true do
         click_link('Add Attribute')
         find('select#attrib_attrib_type_id').select('OBS:VeryImportantProject')
         click_button('Add')
-        expect(page).to have_content('Sorry, you are not authorized to create this Attrib.')
+        expect(page).to have_content('Sorry, you are not authorized to create this attrib.')
       end
     end
   end

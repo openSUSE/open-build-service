@@ -154,7 +154,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
                                        }
         end
 
-        it { expect(response.body).to eq('{"error":"Sorry, you are not authorized to create this Download repository."}') }
+        it { expect(response.body).to eq('{"error":"Sorry, you are not authorized to create this download repository."}') }
       end
     end
 

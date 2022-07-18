@@ -902,7 +902,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', params: format(req_template, approver: 'fred')
     assert_response 403
     assert_xml_tag(tag: 'status', attributes: { code: 'create_bs_request_not_authorized' })
-    assert_xml_tag(tag: 'summary', content: 'Sorry, you are not authorized to create this Bs request.')
+    assert_xml_tag(tag: 'summary', content: 'Sorry, you are not authorized to create this bs request.')
 
     # request creation succeeds because we are "Iggy"
     post '/request?cmd=create', params: format(req_template, approver: 'Iggy')

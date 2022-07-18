@@ -33,7 +33,7 @@ RSpec.describe Webui::Packages::BranchesController, vcr: true do
 
     it 'shows an error if user has no permissions for source project' do
       post :create, params: { linked_project: source_project, linked_package: source_package, target_project: 'home:admin:nope' }
-      expect(flash[:error]).to eq('Sorry, you are not authorized to create this Project.')
+      expect(flash[:error]).to eq('Sorry, you are not authorized to create this project.')
       expect(response).to redirect_to(root_path)
     end
 

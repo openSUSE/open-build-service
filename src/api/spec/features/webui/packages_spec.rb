@@ -369,7 +369,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
         login other_user
         visit new_package_path(project: global_project)
 
-        expect(page).to have_text('Sorry, you are not authorized to create this Package')
+        expect(page).to have_text('Sorry, you are not authorized to create this package')
         expect(page).to have_current_path(root_path, ignore_query: true)
       end
 

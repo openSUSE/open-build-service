@@ -45,7 +45,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Download repository.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this download repository.') }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
     end
 
@@ -85,7 +85,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to delete this Download repository.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to delete this download repository.') }
       it { expect(DownloadRepository.where(id: dod_repository.id)).to exist }
     end
 
@@ -127,7 +127,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Download repository.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this download repository.') }
 
       it 'updates the DownloadRepository' do
         expect(dod_repository.url).to eq('http://suse.com')

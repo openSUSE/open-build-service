@@ -44,7 +44,7 @@ module RescueAuthorizationHandler
       when :anonymous_user
         'Please login to access the resource'
       else
-        "Sorry, you are not authorized to #{action_for_exception(exception)} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize}."
+        "Sorry, you are not authorized to #{action_for_exception(exception)} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize(capitalize: false)}."
       end
     end
 

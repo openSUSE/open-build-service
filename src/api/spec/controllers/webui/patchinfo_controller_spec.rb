@@ -71,7 +71,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:redirect) }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Project.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this project.') }
     end
 
     context 'when it fails to create the patchinfo package' do
