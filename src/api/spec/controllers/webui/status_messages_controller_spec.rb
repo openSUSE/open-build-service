@@ -5,20 +5,11 @@ RSpec.describe Webui::StatusMessagesController do
   let(:admin_user) { create(:admin_user) }
 
   describe 'GET new' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :new }
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
   end
 
   describe 'POST create' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :post }
-      let(:action) { :create }
-      let(:opts) do
-        { params: { status_message: { message: 'Some message' } } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     it 'create a status message' do
       login(admin_user)
@@ -91,13 +82,7 @@ RSpec.describe Webui::StatusMessagesController do
   describe 'DELETE destroy' do
     let!(:message) { create(:status_message, user: admin_user) }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :delete }
-      let(:action) { :destroy }
-      let(:opts) do
-        { params: { id: message.id } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'as an admin' do
       before do
@@ -125,13 +110,7 @@ RSpec.describe Webui::StatusMessagesController do
   describe 'POST acknowledge' do
     let(:message) { create(:status_message, user: admin_user) }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :post }
-      let(:action) { :acknowledge }
-      let(:opts) do
-        { params: { id: message.id } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'when the status message is not yet acknowledged' do
       before do

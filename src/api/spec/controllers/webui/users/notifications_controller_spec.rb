@@ -23,11 +23,6 @@ RSpec.describe Webui::Users::NotificationsController do
     let(:user_to_log_in) { user }
     let(:default_params) { { user_login: username } }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :index }
-    end
-
     subject do
       login user_to_log_in
       get :index, params: params
@@ -174,10 +169,7 @@ RSpec.describe Webui::Users::NotificationsController do
   end
 
   describe 'PUT #update' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :index }
-    end
+    it { is_expected.to use_after_action(:verify_policy_scoped) }
 
     context 'when a user marks one of their unread notifications as read' do
       subject! do

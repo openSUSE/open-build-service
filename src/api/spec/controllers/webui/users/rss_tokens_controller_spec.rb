@@ -4,10 +4,7 @@ RSpec.describe Webui::Users::RssTokensController do
   describe 'POST #create' do
     let(:user) { create(:confirmed_user) }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :post }
-      let(:action) { :create }
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'with a user with an existent token' do
       let!(:last_token) { user.create_rss_token.string }

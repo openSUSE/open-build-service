@@ -14,13 +14,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       ActiveJob::Base.queue_adapter = :inline
     end
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :post }
-      let(:action) { :create }
-      let(:opts) do
-        { params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'a staging_project' do
       before do
@@ -154,13 +148,7 @@ RSpec.describe Webui::Staging::ProjectsController do
   end
 
   describe 'DELETE #destroy' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :delete }
-      let(:action) { :destroy }
-      let(:opts) do
-        { params: { workflow_project: staging_workflow.project, project_name: project.name } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'non existent staging project' do
       before do
@@ -225,13 +213,7 @@ RSpec.describe Webui::Staging::ProjectsController do
   end
 
   describe 'GET #preview_copy' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :preview_copy }
-      let(:opts) do
-        { params: { workflow_project: staging_workflow.project, project_name: project.name } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
   end
 
   describe 'POST #copy' do
@@ -253,13 +235,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       ActiveJob::Base.queue_adapter = :inline
     end
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :post }
-      let(:action) { :copy }
-      let(:opts) do
-        { params: params }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     it 'queues a StagingProjectCopyJob job' do
       login(user)

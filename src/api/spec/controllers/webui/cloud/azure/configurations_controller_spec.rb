@@ -1,17 +1,10 @@
 require 'rails_helper'
 
-# WARNING: Some tests require real backend answers, so make sure you uncomment
-# this line and start a test backend.
-# CONFIG['global_write_through'] = true
-
 RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
 
   describe 'GET #show' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :show }
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'without Azure configuration' do
       before do
@@ -39,13 +32,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
   describe 'PUT #update' do
     let!(:azure_configuration) { create(:azure_configuration, user: user) }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :put }
-      let(:action) { :update }
-      let(:opts) do
-        { params: { cloud_azure_configuration: { application_id: 'random_string', application_key: 'random_string_2' } } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'with valid parameters' do
       before do
@@ -71,10 +58,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
   describe 'DELETE #destroy' do
     let(:azure_configuration) { create(:azure_configuration, user: user) }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :delete }
-      let(:action) { :destroy }
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'for logged in user' do
       before do
