@@ -1107,9 +1107,8 @@ class SourceController < ApplicationController
     project_name = params[:project]
 
     @project = Project.find_by_name(project_name)
-    unless (@project && User.current.can_modify_project?(@project)) || User.current.can_create_project?(project_name)
-      raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
-    end
+    raise CmdExecutionNoPermission, "no permission to execute command 'copy'" unless (@project && User.session!.can_modify?(@project)) ||
+                                                                                     (@project.nil? && User.session!.can_create_project?(project_name))
     oprj = Project.get_by_name(params[:oproject], {includeallpackages: 1})
     if params.has_key?(:makeolder)
       unless User.current.can_modify_project?(oprj)
