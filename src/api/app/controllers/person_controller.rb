@@ -16,6 +16,8 @@ class PersonController < ApplicationController
   def show
     @list = if params[:prefix]
               User.where('login LIKE ?', params[:prefix] + '%')
+            elsif params[:confirmed]
+              User.confirmed
             else
               User.not_deleted
             end

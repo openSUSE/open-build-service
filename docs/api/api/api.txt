@@ -126,6 +126,15 @@ XmlResult: status
 <groupid> Id of group
 
 
+GET /person
+
+  List all user accounts
+
+  confirmed: list only active users
+
+XmlResult: collection
+
+
 GET /person/<userid>
 
   Read user data.

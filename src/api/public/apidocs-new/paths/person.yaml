@@ -12,6 +12,14 @@ get:
       required: false
       description: A prefix to filter the people to look for
       example: 'Adm'
+    - in: query
+      name: confirmed
+      schema:
+        type: string
+      required: false
+      description: List only active users. This parameter is interpreted as `true` if present, `false` otherwise.
+      example: 1
+
   responses:
     '200':
       description: >
