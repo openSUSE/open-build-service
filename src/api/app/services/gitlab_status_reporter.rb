@@ -22,7 +22,7 @@ class GitlabStatusReporter < SCMExceptionHandler
     end
   rescue Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e} value=1") if @workflow_run.present?
+    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if @workflow_run.present?
   end
 
   def self.scm_final_state(event_type)
