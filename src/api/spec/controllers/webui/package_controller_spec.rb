@@ -264,7 +264,8 @@ RSpec.describe Webui::PackageController, vcr: true do
   end
 
   describe 'GET #revisions' do
-    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: source_project) }
+    let(:project) { create(:project, maintainer: user, name: 'some_dev_project123') }
+    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: project) }
     let(:elided_package_name) { 'package_w...revision' }
 
     before do
@@ -275,16 +276,16 @@ RSpec.describe Webui::PackageController, vcr: true do
       before do
         package.add_flag('sourceaccess', 'disable')
         package.save
-        get :revisions, params: { project: source_project, package: package }
+        get :revisions, params: { project: project, package: package }
       end
 
       it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{elided_package_name}\"") }
-      it { expect(response).to redirect_to(project_show_path(project: source_project.name)) }
+      it { expect(response).to redirect_to(project_show_path(project: project.name)) }
     end
 
     context 'with source access' do
       before do
-        get :revisions, params: { project: source_project, package: package }
+        get :revisions, params: { project: project, package: package }
       end
 
       after do
@@ -293,7 +294,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it 'sets the project' do
-        expect(assigns(:project)).to eq(source_project)
+        expect(assigns(:project)).to eq(project)
       end
 
       it 'sets the package' do
@@ -301,11 +302,11 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       context 'when not passing the rev parameter' do
-        let(:package_with_revisions) { create(:package_with_revisions, name: "package_with_#{revision_count}_revisions", revision_count: revision_count, project: source_project) }
+        let(:package_with_revisions) { create(:package_with_revisions, name: "package_with_#{revision_count}_revisions", revision_count: revision_count, project: project) }
         let(:revision_count) { 25 }
 
         before do
-          get :revisions, params: { project: source_project, package: package_with_revisions }
+          get :revisions, params: { project: project, package: package_with_revisions }
         end
 
         after do
@@ -319,7 +320,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         context 'and passing the show_all parameter' do
           before do
-            get :revisions, params: { project: source_project, package: package_with_revisions, show_all: 1 }
+            get :revisions, params: { project: project, package: package_with_revisions, show_all: 1 }
           end
 
           it 'returns revisions without pagination' do
@@ -329,7 +330,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         context 'and passing the page parameter' do
           before do
-            get :revisions, params: { project: source_project, package: package_with_revisions, page: 2 }
+            get :revisions, params: { project: project, package: package_with_revisions, page: 2 }
           end
 
           it "returns the paginated revisions for the page parameter's value" do
@@ -340,7 +341,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'when passing the rev parameter' do
         before do
-          get :revisions, params: { project: source_project, package: package, rev: param_rev }
+          get :revisions, params: { project: project, package: package, rev: param_rev }
         end
 
         let(:param_rev) { 23 }
@@ -351,7 +352,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         context 'and passing the show_all parameter' do
           before do
-            get :revisions, params: { project: source_project, package: package, rev: param_rev, show_all: 1 }
+            get :revisions, params: { project: project, package: package, rev: param_rev, show_all: 1 }
           end
 
           it "returns revisions up to rev parameter's value without pagination" do
@@ -361,7 +362,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         context 'and passing the page parameter' do
           before do
-            get :revisions, params: { project: source_project, package: package, rev: param_rev, page: 2 }
+            get :revisions, params: { project: project, package: package, rev: param_rev, page: 2 }
           end
 
           it "returns the paginated revisions for the page parameter's value" do
