@@ -171,9 +171,10 @@ class BranchPackage
         Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session!.login, ret.to_xml)
       else
         opackage = p[:package]
-        opackage = p[:package].name if p[:package].is_a?(Package)
         oproject = p[:link_target_project]
+        scmsync_active = oproject.try(:scmsync).present? || opackage.try(:scmsync).present?
         oproject = p[:link_target_project].name if p[:link_target_project].is_a?(Project)
+        opackage = p[:package].name if p[:package].is_a?(Package)
 
         # branch sources in backend
         opts = {}
@@ -185,7 +186,7 @@ class BranchPackage
            p[:package].project != p[:link_target_project]
           opts[:extendvrev] = '1'
         end
-        tpkg.branch_from(oproject, opackage, opts)
+        tpkg.branch_from(oproject, opackage, opts) unless scmsync_active
 
         response = if response
                      # multiple package transfers, just tell the target project

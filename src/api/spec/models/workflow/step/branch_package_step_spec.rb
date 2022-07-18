@@ -348,6 +348,56 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it_behaves_like 'failed without branch permissions'
         it_behaves_like 'fails with insufficient write permission on target project'
       end
+
+      context 'when scmsync is active' do
+        let(:project) { create(:project, name: 'foo_scm_synced_project', maintainer: user) }
+        let(:package) { create(:package_with_file, name: 'bar_scm_synced_package', project: project) }
+        let(:action) { 'opened' }
+        let(:octokit_client) { instance_double(Octokit::Client) }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name
+          }
+        end
+        let(:workflow_filters) do
+          { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
+        end
+        let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+        end
+
+        context 'on project level' do
+          before do
+            project.update(scmsync: scmsync_url)
+          end
+
+          it { expect(subject.call.scmsync).to eq(scmsync_url + '?subdir=' + package.name + '#' + long_commit_sha) }
+          it { expect { subject.call }.to(change(Package, :count).by(1)) }
+          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+        end
+
+        context 'on package level' do
+          before do
+            package.update(scmsync: scmsync_url)
+          end
+
+          it { expect(subject.call.scmsync).to eq(scmsync_url + '#' + long_commit_sha) }
+          it { expect { subject.call }.to(change(Package, :count).by(1)) }
+          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+        end
+      end
     end
 
     context 'when the SCM is GitLab' do
