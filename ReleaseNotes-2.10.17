@@ -1,0 +1,22 @@
+#
+# Open Build Service 2.10.17
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Bugfixes
+========
+
+Frontend:
+ * Bug fix session leaking during BsRequest auto accept
+    - See https://github.com/openSUSE/open-build-service/pull/12821
+ * Update rails to 5.2.8.1
+    - CVE-2022-32224 Possible RCE escalation bug with Serialized Columns in Active Record
+
