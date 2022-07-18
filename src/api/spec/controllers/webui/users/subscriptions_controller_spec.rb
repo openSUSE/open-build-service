@@ -2,10 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Webui::Users::SubscriptionsController do
   describe 'GET #index' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :index }
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'for logged in user' do
       let!(:user) { create(:confirmed_user) }
@@ -25,11 +22,7 @@ RSpec.describe Webui::Users::SubscriptionsController do
 
     let(:params) { { subscriptions: subscription_params } }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :put }
-      let(:action) { :update }
-      let(:opts) { { params: params } }
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'for logged in user' do
       before do

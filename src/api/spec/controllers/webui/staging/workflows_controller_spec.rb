@@ -8,13 +8,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   let(:staging_workflow) { create(:staging_workflow, project: project, managers_group: managers_group) }
 
   describe 'GET #new' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :new }
-      let(:opts) do
-        { params: { project: project.name } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'non existent staging_workflow for project' do
       before do
@@ -40,13 +34,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'POST #create' do
-    it_behaves_like 'require logged in user' do
-      let(:method) { :post }
-      let(:action) { :create }
-      let(:opts) do
-        { params: { project: project.name } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'a staging_workflow and staging_projects' do
       before do
@@ -107,6 +95,8 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'GET #show' do
+    it { is_expected.to use_after_action(:verify_authorized) }
+
     context 'with an existent staging_workflow for project' do
       before do
         staging_workflow
@@ -122,13 +112,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   describe 'GET #edit' do
     before { staging_workflow }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :get }
-      let(:action) { :edit }
-      let(:opts) do
-        { params: { workflow_project: project } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'with an existent staging_workflow for project' do
       before do
@@ -145,13 +129,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
   describe 'DELETE #destroy' do
     let!(:staging_workflow) { create(:staging_workflow, project: project) }
 
-    it_behaves_like 'require logged in user' do
-      let(:method) { :delete }
-      let(:action) { :destroy }
-      let(:opts) do
-        { params: { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids }, format: :js } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'a staging workflow and staging projects' do
       before do
@@ -199,17 +177,11 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'PUT #update' do
-    subject { staging_workflow.reload }
-
-    it_behaves_like 'require logged in user' do
-      let(:method) { :put }
-      let(:action) { :update }
-      let(:opts) do
-        { params: { workflow_project: staging_workflow.project, managers_title: other_managers_group.title } }
-      end
-    end
+    it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'without any problem' do
+      subject { staging_workflow.reload }
+
       before do
         login(user)
         put :update, params: { workflow_project: staging_workflow.project, managers_title: other_managers_group.title }
@@ -228,6 +200,8 @@ RSpec.describe Webui::Staging::WorkflowsController do
     end
 
     context 'with a failing save for staging workflow' do
+      subject { staging_workflow.reload }
+
       before do
         login(user)
         allow_any_instance_of(Staging::Workflow).to receive(:save).and_return(false)
