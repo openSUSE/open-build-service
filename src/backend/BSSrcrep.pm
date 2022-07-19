@@ -115,13 +115,17 @@ sub filesha256 {
 # small helper to build cpio requests
 sub cpiofile {
   my ($projid, $packid, $filename, $md5, $forcehandle) = @_;
-  if ($forcehandle || $filename =~ /\.obscpio$/s) {
+  if ($forcehandle) {
     my $fd = gensym;
     if (!fileopen($projid, $packid, $filename, $md5, $fd)) {
       return {'name' => $filename, 'error' => "fileopen $md5: $!"};
     } else {
       return {'name' => $filename, 'filename' => $fd};
     }
+  }
+  if ($filename =~ /\.obscpio$/s) {
+    return {'name' => $filename, 'error' => "fileopen $md5: $!"} unless -e "$srcrep/$packid/$md5-$filename";
+    return {'name' => $filename, 'filename' => sub { my $fd = gensym; return fileopen($projid, $packid, $filename, $md5, $fd) ? $fd : undef}};
   }
   return {'name' => $filename, 'filename' => filepath($projid, $packid, $filename, $md5)};
 }
