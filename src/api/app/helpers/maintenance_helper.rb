@@ -169,7 +169,7 @@ module MaintenanceHelper
         cp_params[:freezelink] = 1
       end
     end
-    cp_path = "/source/#{CGI.escape(target_project.name)}/#{CGI.escape(target_package_name)}"
+    cp_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
                                                                      :opackage, :comment, :requestid,
                                                                      :expand, :withvrev, :noservice,
