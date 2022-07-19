@@ -79,8 +79,14 @@ sub openentfile {
   my ($ent, $file, $s, $follow) = @_;
   my $name = $ent->{'name'};
   my $fd;
-  if (ref($file)) {
-    $fd = $file;
+  my $type = ref($file);
+  if ($type) {
+    if ($type eq 'CODE') {
+      $fd = $file->();
+      die("$name: open: $!\n") unless $fd;
+    } else {
+      $fd = $file;
+    }
   } else {
     @$s = lstat($file);
     return (undef, "$name: $file: $!\n") unless @$s;

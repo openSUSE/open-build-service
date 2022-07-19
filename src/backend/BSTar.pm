@@ -179,8 +179,14 @@ sub writetar {
     my $f;
     if (exists $ent->{'file'}) {
       my $file = $ent->{'file'};
-      if (ref($file)) {
-        $f = $file;
+      my $type = ref($file);
+      if ($type) {
+        if ($type eq 'CODE') {
+	  $f = $file->();
+	  die("$file: open: $!\n") unless $f;
+	} else {
+          $f = $file;
+	}
       } else {
         @s = lstat($file);
         die("$file: $!\n") unless @s;
