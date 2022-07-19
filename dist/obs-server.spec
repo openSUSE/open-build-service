@@ -426,6 +426,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 pushd src/api
 # configure to the bundled gems
 bundle --local --path %_libdir/obs-api/
+rm -rf vendor/cache/*
 popd
 
 #
