@@ -311,7 +311,7 @@ class Project < ApplicationRecord
     def source_path(project, file = nil, opts = {})
       path = "/source/#{project}"
       path = Addressable::URI.escape(path)
-      path += "/#{CGI.escape(file)}" if file.present?
+      path += "/#{ERB::Util.url_encode(file)}" if file.present?
       path += '?' + opts.to_query if opts.present?
       path
     end
