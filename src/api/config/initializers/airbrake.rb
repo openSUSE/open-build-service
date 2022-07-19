@@ -100,7 +100,8 @@ def ignore_by_class?(notice)
   exceptions_to_ignore = ['ActiveRecord::RecordNotFound', 'ActionController::InvalidAuthenticityToken',
                           'CGI::Session::CookieStore::TamperedWithCookie', 'ActionController::UnknownAction',
                           'AbstractController::ActionNotFound', 'ActionView::MissingTemplate',
-                          'Timeout::Error', 'Net::HTTPBadResponse', 'RoutesHelper::WebuiMatcher::InvalidRequestFormat',
+                          'Timeout::Error', 'Net::HTTPBadResponse',
+                          'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'ActionDispatch::Http::MimeNegotiation::InvalidType',
                           'ActionController::UnknownFormat', 'Backend::NotFoundError']
 
   (notice[:errors].pluck(:type) & exceptions_to_ignore).any?
