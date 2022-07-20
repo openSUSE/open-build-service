@@ -25,6 +25,10 @@
             %i.far.fa-envelope{ title: "Send email to #{type}" }
         - if user_is_maintainer
           = link_to('#', class: "remove-#{type}",
-            data: { toggle: 'modal', target: '#delete-role-modal',
-            action: user_or_groups_roles_delete_path(project, type, record, package), type: type, object: record.to_s }) do
+            data: { toggle: 'modal',
+                    target: '#delete-role-modal',
+                    modal_title: "Delete all roles of '#{type}'",
+                    confirmation_text: "Please confirm deletion of all roles of the '#{record}' #{type}.",
+                    action: user_or_groups_roles_delete_path(project, type, record, package),
+                    object: record.to_s }) do
             %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }

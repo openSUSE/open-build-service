@@ -35,7 +35,7 @@
       = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user') do
         %i.fas.fa-plus-circle.text-primary
         Add User
-      = render(partial: 'webui/shared/user_or_groups_roles/delete_dialog')
+      = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-role-modal', method: :post)
 
   %hr
 
