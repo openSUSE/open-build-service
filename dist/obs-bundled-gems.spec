@@ -15,8 +15,8 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define rack_version 2.2.3.1
-%define rake_version 13.0.1
+%define rack_version 2.2.4
+%define rake_version 13.0.6
 
 Name:           obs-bundled-gems
 Version:        2.10~pre
@@ -27,8 +27,6 @@ Summary:        The Open Build Service -- Bundled Gems
 License:        GPL-2.0-only OR GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
-Source0:        Gemfile
-Source1:        Gemfile.lock
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  cyrus-sasl-devel
@@ -38,6 +36,7 @@ BuildRequires:  glibc-devel
 BuildRequires:  libtool
 BuildRequires:  libxml2-devel
 BuildRequires:  libxslt-devel
+BuildRequires:  libffi-devel
 BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
@@ -89,21 +88,20 @@ echo > README <<EOF
 This package is just a meta package containing requires
 EOF
 
-cp %{S:0} %{S:1} .
-
-# copy gem files into cache
-mkdir -p vendor/cache
-cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
-
 %build
 # emtpy since bundle does not decouple compile and install
 
 %install
 # all operations here since bundle does not decouple compile and install
+pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
+bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
+bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+bundle config force_ruby_platform true
 
 bundle --local --path %{buildroot}%_libdir/obs-api/
+popd
 
 # Make sure rake and rack in Gemfile.lock match the versions from the
 # rubygem-rack and ruby2.7 packages
