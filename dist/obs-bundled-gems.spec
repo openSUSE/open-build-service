@@ -16,7 +16,7 @@
 #
 
 %define rack_version 2.2.4
-%define rake_version 13.0.1
+%define rake_version 13.0.6
 
 Name:           obs-bundled-gems
 Version:        2.10~pre
