@@ -24,6 +24,10 @@ class BsRequestActionSetBugowner < BsRequestAction
     errors.add(:person_name, 'Either person or group needs to be set')
   end
 
+  def uniq_key
+    "setbugowner/#{target_project}/#{target_package}"
+  end
+
   def execute_accept(_opts)
     object = Project.find_by_name!(target_project)
     bugowner = Role.find_by_title!('bugowner')

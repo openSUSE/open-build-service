@@ -412,6 +412,7 @@ class BsRequest < ApplicationRecord
           builder.comment!(description) if description.present?
         end
       end
+
       if opts[:withfullhistory]
         history_elements.each do |history|
           # we do ignore the review history here on purpose to stay compatible
@@ -922,6 +923,7 @@ class BsRequest < ApplicationRecord
     expand_targets
 
     check_bs_request_actions!
+    check_uniq_actions!
 
     # Autoapproval? Is the creator allowed to accept it?
     permission_check_change_state!(newstate: 'accepted') if accept_at
@@ -1152,6 +1154,14 @@ class BsRequest < ApplicationRecord
     new_priority == 'critical' ||
       (new_priority == 'important' && priority.in?(['moderate', 'low'])) ||
       (new_priority == 'moderate' && priority == 'low')
+  end
+
+  def check_uniq_actions!
+    uniq_keys = []
+    bs_request_actions.each do |action|
+      uniq_keys << action.uniq_key
+    end
+    raise ConflictingActions, 'Conflicting Actions' if uniq_keys.length > uniq_keys.uniq.length
   end
 
   def check_bs_request_actions!(opts = {})

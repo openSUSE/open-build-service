@@ -46,25 +46,15 @@ RSpec.describe BsRequestAction do
 
     it { expect(bs_request_action).to be_valid }
 
-    it 'validates uniqueness of type among bs requests, target_project and target_package' do
-      duplicated_bs_request_action = build(:bs_request_action, action_attributes.merge(bs_request: bs_request))
-      expect(duplicated_bs_request_action).not_to be_valid
-      expect(duplicated_bs_request_action.errors.full_messages.to_sentence).to eq('Type has already been taken')
+    it 'validates uniqueness for same type' do
+      bs_request.bs_request_actions << bs_request.bs_request_actions.first.dup
+      expect { bs_request.send(:check_uniq_actions!) }.to raise_error(BsRequest::Errors::ConflictingActions)
     end
 
-    RSpec.shared_examples 'it skips validation for type' do |type|
-      context "type '#{type}'" do
-        it 'allows multiple bs request actions' do
-          expect(build(:bs_request_action, action_attributes.merge(type: type,
-                                                                   person_name: user.login,
-                                                                   role: Role.find_by_title!('maintainer'),
-                                                                   bs_request: bs_request))).to be_valid
-        end
-      end
+    it 'does not validate uniqueness for different types' do
+      bs_request.bs_request_actions << build(:bs_request_action_add_bugowner_role)
+      expect { bs_request.send(:check_uniq_actions!) }.not_to raise_error(BsRequest::Errors::ConflictingActions)
     end
-
-    it_behaves_like 'it skips validation for type', 'add_role'
-    it_behaves_like 'it skips validation for type', 'maintenance_incident'
   end
 
   it { is_expected.to belong_to(:bs_request).touch(true).optional }

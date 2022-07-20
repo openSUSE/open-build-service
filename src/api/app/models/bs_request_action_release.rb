@@ -30,6 +30,10 @@ class BsRequestActionRelease < BsRequestAction
   end
   # rubocop:enable Naming/PredicateName
 
+  def uniq_key
+    "#{target_project}/#{target_package}"
+  end
+
   def execute_accept(opts)
     pkg = Package.get_by_project_and_name(source_project, source_package)
 

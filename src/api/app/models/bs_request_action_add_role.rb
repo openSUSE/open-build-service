@@ -25,6 +25,10 @@ class BsRequestActionAddRole < BsRequestAction
     errors.add(:person_name, 'Either person or group needs to be set')
   end
 
+  def uniq_key
+    "add_role/#{target_project}/#{target_package}/#{person_name}/#{role}"
+  end
+
   def execute_accept(_opts)
     object = Project.find_by_name(target_project)
     object = object.packages.find_by_name(target_package) if target_package

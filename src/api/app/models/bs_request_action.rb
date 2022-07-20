@@ -30,12 +30,6 @@ class BsRequestAction < ApplicationRecord
   validates :sourceupdate, inclusion: { in: VALID_SOURCEUPDATE_OPTIONS, allow_nil: true }
   validate :check_sanity
   validates :type, presence: true
-  validates :type, uniqueness: {
-    scope: [:target_project, :target_package, :target_repository, :bs_request_id],
-    case_sensitive: false,
-    conditions: -> { where.not(type: ['add_role', 'maintenance_incident']) }
-  }
-
   before_validation :set_target_associations
   after_create :cache_diffs
 
@@ -822,6 +816,10 @@ class BsRequestAction < ApplicationRecord
     return if sourceupdate || [:submit, :maintenance_incident].exclude?(action_type)
 
     update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
+  end
+
+  def uniq_key
+    ' '
   end
 
   private
