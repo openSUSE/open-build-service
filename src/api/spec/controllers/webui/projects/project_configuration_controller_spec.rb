@@ -65,7 +65,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         post :update, params: { project_name: another_project.name, config: 'save config' }
       end
 
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Project.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this project.') }
       it { expect(response.status).to eq(302) }
       it { expect(response).to redirect_to(root_path) }
     end

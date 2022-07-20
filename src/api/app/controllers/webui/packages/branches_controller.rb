@@ -84,7 +84,7 @@ module Webui
         flash[:notice] = 'You have already branched this package'
         redirect_to(package_show_path(project: e.project, package: e.package))
       rescue CreateProjectNoPermission
-        flash[:error] = 'Sorry, you are not authorized to create this Project.'
+        flash[:error] = 'Sorry, you are not authorized to create this project.'
         redirect_back(fallback_location: root_path)
       rescue ArgumentError, Package::UnknownObjectError, Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid => e
         flash[:error] = "Failed to branch: #{e.message}"

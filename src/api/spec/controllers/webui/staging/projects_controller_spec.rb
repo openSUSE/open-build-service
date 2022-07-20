@@ -83,7 +83,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       end
 
       it { expect(Project.where(name: 'Apache')).not_to exist }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Project.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this project.') }
       it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
     end
 

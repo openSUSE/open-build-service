@@ -95,7 +95,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       it 'does not allow other users than the owner to delete a package' do
         post :remove, params: { project: target_project, package: target_package }
 
-        expect(flash[:error]).to eq('Sorry, you are not authorized to delete this Package.')
+        expect(flash[:error]).to eq('Sorry, you are not authorized to delete this package.')
         expect(target_project.packages).not_to be_empty
       end
 
@@ -258,7 +258,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         remove_file_post
       end
 
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Package.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this package.') }
       it { expect(Package.where(name: 'my_package')).to exist }
     end
   end
@@ -413,7 +413,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(a_request(:post, post_url)).not_to have_been_made }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Package.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this package.') }
       it { is_expected.to redirect_to(root_path) }
     end
   end
@@ -1103,7 +1103,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         let(:my_user) { create(:confirmed_user, login: 'another_user') }
 
         it { expect(response).to redirect_to(root_path) }
-        it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Package.') }
+        it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this package.') }
       end
     end
   end
@@ -1128,7 +1128,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         login(user)
-        get :edit, params: { project: admins_home_project, package: package_from_admin }, format: :js
+        get :edit, params: { project: admins_home_project, package: package_from_admin }
       end
 
       it { expect(response).to redirect_to(root_path) }
@@ -1183,8 +1183,7 @@ RSpec.describe Webui::PackageController, vcr: true do
               project: admins_home_project,
               package_details: package_params,
               package: package_from_admin.name
-            },
-            format: :js
+            }
     end
 
     it { expect(response).to redirect_to(root_path) }

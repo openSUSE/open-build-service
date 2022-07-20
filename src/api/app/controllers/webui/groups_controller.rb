@@ -4,20 +4,20 @@ class Webui::GroupsController < Webui::WebuiController
   after_action :verify_authorized, except: [:show, :autocomplete]
 
   def index
-    authorize Group, :index?
+    authorize Group.new, :index?
     @groups = Group.all.includes(:users)
   end
 
   def show; end
 
   def new
-    authorize Group, :create?
+    authorize Group.new, :create?
   end
 
   def create
-    authorize Group, :create?
-
     group = Group.new(title: group_params[:title])
+    authorize group, :create?
+
     if group.save && group.replace_members(group_params[:members])
       flash[:success] = "Group '#{group}' successfully created."
       redirect_to controller: :groups, action: :index

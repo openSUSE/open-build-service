@@ -46,29 +46,5 @@ module RescueHandler
     rescue_from Backend::NotFoundError, ActiveRecord::RecordNotFound do |exception|
       render_error message: exception.message, status: 404, errorcode: 'not_found'
     end
-
-    rescue_from Pundit::NotAuthorizedError do |exception|
-      message = 'You are not authorized to perform this action.'
-
-      pundit_action =
-        case exception.try(:query).to_s
-        when 'index?' then 'list'
-        when 'show?' then 'view'
-        when 'create?', 'new?' then 'create'
-        when 'update?' then 'update'
-        when 'edit?' then 'edit'
-        when 'destroy?' then 'delete'
-        when 'create_branch?' then 'create_branch'
-        when 'accept?' then 'accept'
-        when 'trigger?' then 'trigger'
-        else exception.try(:query)
-        end
-
-      message = "You are not authorized to #{pundit_action} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize}." if pundit_action && exception.record
-
-      render_error status: 403,
-                   errorcode: "#{pundit_action}_#{ActiveSupport::Inflector.underscore(exception.record.class.to_s)}_not_authorized",
-                   message: message
-    end
   end
 end

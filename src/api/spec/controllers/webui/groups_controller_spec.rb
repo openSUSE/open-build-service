@@ -61,7 +61,7 @@ RSpec.describe Webui::GroupsController do
       it 'does not allow to create a group' do
         post :create, params: { group: { title: group.title, members: users_to_add.map(&:login).join(',') } }
 
-        expect(flash[:error]).to eq('Sorry, you are not authorized to create this Class.')
+        expect(flash[:error]).to eq('Sorry, you are not authorized to create this group.')
       end
     end
 

@@ -84,7 +84,7 @@ RSpec.describe Webui::WebuiController do
     it 'redirects to main page for new users' do
       get :show, params: { id: 1 }
       expect(response).to redirect_to(new_session_path)
-      expect(flash[:error]).to eq('Please login to access the requested page.')
+      expect(flash[:error]).to eq('Please login to access the resource')
     end
 
     it 'does not redirect for a confirmed user' do
