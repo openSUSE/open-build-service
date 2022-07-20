@@ -1,6 +1,7 @@
 ENABLED_FEATURE_TOGGLES = [
   { name: :trigger_workflow, description: 'Better SCM and CI integration with OBS workflows' },
-  { name: :new_watchlist, description: 'New implementation of watchlist including projects, packages and requests' }
+  { name: :new_watchlist, description: 'New implementation of watchlist including projects, packages and requests' },
+  { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' }
 ].freeze
 
 Flipper.configure do
