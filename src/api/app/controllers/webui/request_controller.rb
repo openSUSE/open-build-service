@@ -1,10 +1,12 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action]
+  # TODO: remove the beta_show action when the request_show_redesign feature is finished.
+  before_action :require_login, except: [:show, :beta_show, :sourcediff, :diff, :request_action]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action]
+  # TODO: remove the beta_show action when the request_show_redesign feature is finished.
+  before_action :require_request, only: [:changerequest, :show, :beta_show, :request_action]
   before_action :set_superseded_request, only: [:show, :request_action]
   before_action :check_ajax, only: :sourcediff
 
@@ -139,6 +141,15 @@ class Webui::RequestController < Webui::WebuiController
       format.html
       format.js { render_request_update }
     end
+  end
+
+  def beta_show
+    # TODO: Remove this once request_show_redesign is rolled out
+    raise NotFoundError unless Flipper.enabled?(:request_show_redesign, User.session)
+
+    @diff_limit = params[:full_diff] ? 0 : nil
+    @diff_to_superseded_id = params[:diff_to_superseded]
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
   end
 
   def request_action

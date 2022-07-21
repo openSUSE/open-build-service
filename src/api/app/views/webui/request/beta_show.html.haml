@@ -1,0 +1,33 @@
+:ruby
+  @pagetitle = "Request #{@bs_request.number}"
+  @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
+
+.card
+  .card-body
+    %h3
+      = @pagetitle
+      %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+        = @bs_request.state
+
+    %ul.nav.nav-tabs.scrollable-tabs.pl-0#request-tabs{ role: 'tablist' }
+      %li.nav-item
+        = link_to('Overview', '#overview', class: 'nav-link scrollable-tab-link text-nowrap active', 'aria-controls': 'overview',
+                  'aria-selected': 'true', 'data-toggle': 'tab', role: 'tab')
+      %li.nav-item
+        = link_to('Build Results', '#build-results', class: 'nav-link scrollable-tab-link text-nowrap', 'aria-controls': 'build-results',
+                  'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+      %li.nav-item
+        = link_to('Changes', '#changes', class: 'nav-link scrollable-tab-link text-nowrap', 'aria-controls': 'changes', 'aria-selected': 'false',
+                  'data-toggle': 'tab', role: 'tab')
+      %li.nav-item
+        = link_to('Mentioned Issues', '#mentioned-issues', class: 'nav-link scrollable-tab-link text-nowrap', 'aria-controls': 'mentioned-issues',
+                  'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+    .tab-content#request-tabs-content
+      .tab-pane.fade.show.p-2.active#overview{ 'aria-labelledby': 'overview-tab', role: 'tabpanel' }
+        = render partial: 'webui/request/beta_show_tabs/overview'
+      .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
+        = render partial: 'webui/request/beta_show_tabs/build_results'
+      .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
+        = render partial: 'webui/request/beta_show_tabs/changes'
+      .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
+        = render partial: 'webui/request/beta_show_tabs/mentioned_issues'
