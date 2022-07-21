@@ -30,36 +30,38 @@ use strict;
 sub pkdecodetaglenoff {
   my ($pkg) = @_;
   my $tag = unpack('C', $pkg);
-  die("not a pgp packet\n") unless $tag & 128; 
+  die("not a pgp packet\n") unless $tag & 128;
   my $len;
-  my $off = 1; 
+  my $off = 1;
   if ($tag & 64) {
     # new packet format
-    $tag &= 63;  
-    $len = unpack('C', substr($pkg, 1)); 
+    $tag &= 63;
+    $len = unpack('C', substr($pkg, 1));
     if ($len < 192) {
-      $off = 2; 
-    } elsif ($len != 255) {
-      $len = (($len - 192) << 8) + unpack('C', substr($pkg, 2)) + 192; 
-      $off = 3; 
+      $off = 2;
+    } elsif ($len >= 192 && $len < 224) {
+      $len = (($len - 192) << 8) + unpack('C', substr($pkg, 2)) + 192;
+      $off = 3;
+    } elsif ($len == 255) {
+      $len = unpack('N', substr($pkg, 2));
+      $off = 6;
     } else {
-      $len = unpack('N', substr($pkg, 2)); 
-      $off = 5; 
-    }    
+      die("can't deal with partial body lengths\n");
+    }
   } else {
     # old packet format
-    if (($tag & 3) == 0) { 
-      $len = unpack('C', substr($pkg, 1)); 
-      $off = 2; 
-    } elsif (($tag & 3) == 1) { 
-      $len = unpack('n', substr($pkg, 1)); 
-      $off = 3; 
-    } elsif (($tag & 3) == 1) { 
-      $len = unpack('N', substr($pkg, 1)); 
-      $off = 6; 
+    if (($tag & 3) == 0) {
+      $len = unpack('C', substr($pkg, 1));
+      $off = 2;
+    } elsif (($tag & 3) == 1) {
+      $len = unpack('n', substr($pkg, 1));
+      $off = 3;
+    } elsif (($tag & 3) == 2) {
+      $len = unpack('N', substr($pkg, 1));
+      $off = 5;
     } else {
       die("cannot deal with unspecified packet length\n");
-    }    
+    }
     $tag = ($tag & 60) >> 2;
   }
   die("truncated pgp packet\n") if length($pkg) < $off + $len;
@@ -170,6 +172,7 @@ sub pk2keydata {
     die("bad curve len\n") if $clen == 0 || $clen == 255;
     $curve = unpack('H*', substr($pack, 1, $clen));
     $curve = 'ed25519' if $curve eq '2b06010401da470f01';
+    $curve = 'ed448' if $curve eq '2b6571';
     $pack = substr($pack, 1 + $clen);
   }
   my @mpis;
