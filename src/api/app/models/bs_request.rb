@@ -107,18 +107,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def self.find_by_number!(number)
-    # overload for propper error reporting
-    r = BsRequest.find_by_number(number)
-    unless r
-      # the external visible request id is stored in number row.
-      # the database id must not be exposed to the outside
-      raise NotFoundError, "Couldn't find request with id '#{number}'"
-    end
-
-    r
-  end
-
   def self.list(opts)
     # All types means don't pass 'type'
     opts.delete(:types) if [opts[:types]].flatten.include?('all')
