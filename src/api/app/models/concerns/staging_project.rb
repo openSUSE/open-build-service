@@ -16,6 +16,31 @@ module StagingProject
 
   HISTORY_EVENT_TYPES = [:staging_project_created, :staged_request, :unstaged_request].freeze
 
+  def accept
+    # Disabling build for all repositories and architectures.
+    build_flag = flags.find_or_initialize_by(flag: 'build', repo: nil, architecture_id: nil)
+    build_flag.update(status: 'disable')
+
+    # Remove all the build flags enabled by the user.
+    flags.where(flag: 'build', status: 'enable').destroy_all
+
+    # Tell the backend
+    commit_opts[:login] = User.session!
+    store
+
+    # Accept reviews/requests
+    staged_requests.each do |staged_request|
+      staged_request.change_review_state(:accepted, by_project: name, comment: "Staging Project #{name} got accepted.") if staged_request.reviews.exists?(by_project: name)
+      staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{name} got accepted.") unless staged_request.approver
+    end
+
+    # Reset history
+    project_log_entries.staging_history.delete_all
+    clear_memoized_data
+
+    true
+  end
+
   def copy(new_project_name)
     transaction do
       new_project = deep_clone(include: [:flags], skip_missing_associations: true)
