@@ -172,6 +172,7 @@ sub pk2keydata {
     die("bad curve len\n") if $clen == 0 || $clen == 255;
     $curve = unpack('H*', substr($pack, 1, $clen));
     $curve = 'ed25519' if $curve eq '2b06010401da470f01';
+    $curve = 'ed448' if $curve eq '2b6571';
     $pack = substr($pack, 1 + $clen);
   }
   my @mpis;
