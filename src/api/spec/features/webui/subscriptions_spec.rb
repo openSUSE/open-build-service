@@ -45,14 +45,16 @@ RSpec.describe 'Subscriptions', type: :feature, js: true do
     let(:user) { create(:confirmed_user, login: 'Tom') }
     let!(:group) { create(:group_with_user, title: 'test', user: user) }
 
-    it "disable a group's notifications for the email channel" do
+    it "disable a group's notifications for email and web channels" do
       login user
       visit my_subscriptions_path
 
+      find("label[for='groups_#{group}_web']").click
       find("label[for='groups_#{group}_email']").click
 
       visit my_subscriptions_path
 
+      expect(find_field("groups_#{group}_web", visible: false)).not_to be_checked
       expect(find_field("groups_#{group}_email", visible: false)).not_to be_checked
     end
   end
