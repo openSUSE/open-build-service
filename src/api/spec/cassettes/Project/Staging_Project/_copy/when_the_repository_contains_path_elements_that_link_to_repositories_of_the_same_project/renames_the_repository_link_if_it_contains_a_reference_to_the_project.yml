@@ -30,24 +30,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_103
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_38">
+        <workflow project="home:tom" managers="group_46">
           <staging_project name="home:tom:Staging:A"/>
         </workflow>
     headers:
@@ -73,25 +72,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="706">
-          <srcmd5>d4f91ca16eeb0e66406ec8d50f7a1a84</srcmd5>
-          <time>1552905494</time>
-          <user>_nobody_</user>
+        <revision rev="345">
+          <srcmd5>0533b72d3c03801dce3591df9ce42ad5</srcmd5>
+          <time>1658422069</time>
+          <user>user_103</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=user_103
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_38" role="maintainer"/>
+          <group groupid="group_46" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +110,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_38" role="maintainer" />
+          <group groupid="group_46" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_103
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_38">
+        <workflow project="home:tom" managers="group_46">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
         </workflow>
@@ -156,25 +153,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="707">
-          <srcmd5>efa9f8d9f557caca90de3461b2503017</srcmd5>
-          <time>1552905494</time>
-          <user>_nobody_</user>
+        <revision rev="346">
+          <srcmd5>bb6347f26343ee7f993573e110d3778d</srcmd5>
+          <time>1658422069</time>
+          <user>user_103</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=user_103
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:B">
           <title/>
           <description/>
-          <group groupid="group_38" role="maintainer"/>
+          <group groupid="group_46" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,20 +191,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="group_38" role="maintainer" />
+          <group groupid="group_46" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/_meta?user=user_103
     body:
       encoding: UTF-8
       string: |
@@ -216,7 +211,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="tom" role="maintainer"/>
-          <group groupid="group_38" role="reviewer"/>
+          <group groupid="group_46" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -237,25 +232,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
-          <group groupid="group_38" role="reviewer" />
+          <person userid="tom" role="maintainer"/>
+          <group groupid="group_46" role="reviewer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_103
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_38">
+        <workflow project="home:tom" managers="group_46">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
           <staging_project name="home:tom:Staging:XYZ"/>
@@ -283,15 +277,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="708">
-          <srcmd5>f3a7be969a24cd003e2d208c6669a307</srcmd5>
-          <time>1552905495</time>
-          <user>_nobody_</user>
+        <revision rev="347">
+          <srcmd5>323347045864b7878e4de56def32af71</srcmd5>
+          <time>1658422069</time>
+          <user>user_103</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:XYZ/_config?user=factory%20bot
@@ -323,8 +316,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:Staging:XYZ/_config
@@ -354,18 +346,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: 'Prefer: foo'
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:XYZ/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/_meta?user=user_104
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:XYZ">
-          <title>A Darkling Plain</title>
+          <title>Dying of the Light</title>
           <description/>
-          <group groupid="group_38" role="maintainer"/>
+          <group groupid="group_46" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -386,26 +377,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:XYZ">
-          <title>A Darkling Plain</title>
+          <title>Dying of the Light</title>
           <description></description>
-          <group groupid="group_38" role="maintainer" />
+          <group groupid="group_46" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_30/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_with_file/_meta?user=user_105
     body:
       encoding: UTF-8
       string: |
-        <package name="package_30" project="home:tom:Staging:XYZ">
-          <title>The Proper Study</title>
-          <description>Repudiandae qui non modi.</description>
+        <package name="package_with_file" project="home:tom:Staging:XYZ">
+          <title>In Death Ground</title>
+          <description>Nesciunt accusamus ullam quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -426,26 +416,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_30" project="home:tom:Staging:XYZ">
-          <title>The Proper Study</title>
-          <description>Repudiandae qui non modi.</description>
+        <package name="package_with_file" project="home:tom:Staging:XYZ">
+          <title>In Death Ground</title>
+          <description>Nesciunt accusamus ullam quia.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_30/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_with_file/_config
     body:
       encoding: UTF-8
-      string: |
-        <package name="package_30" project="home:tom:Staging:XYZ">
-          <title>The Proper Study</title>
-          <description>Repudiandae qui non modi.</description>
-        </package>
+      string: Quisquam est ab. Soluta error rerum. Recusandae eius voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -465,61 +450,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_30" project="home:tom:Staging:XYZ">
-          <title>The Proper Study</title>
-          <description>Repudiandae qui non modi.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_30/_config
-    body:
-      encoding: UTF-8
-      string: Labore sint repellat. Cupiditate minima dolorem. Sed id voluptate.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>9928035de495eb92b13781122bfea6f8</srcmd5>
+        <revision rev="15" vrev="15">
+          <srcmd5>628aa7a7ee975d3d197619fe995d911c</srcmd5>
           <version>unknown</version>
-          <time>1552905495</time>
+          <time>1658422069</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_30/somefile.txt
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Beatae veritatis praesentium. Corporis totam fugiat. Aliquid ipsum aut.
+      string: Eius voluptatem nam. Possimus magni labore. Nobis ea maiores.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -539,61 +488,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>5793c3b1e55c698b2bd48a90e1ce538a</srcmd5>
+        <revision rev="16" vrev="16">
+          <srcmd5>f6b7fead9b03325fae4f58e60086c2e8</srcmd5>
           <version>unknown</version>
-          <time>1552905495</time>
+          <time>1658422069</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_27/_meta?user=user_27
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_27">
-          <title/>
-          <description/>
-          <person userid="user_27" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '137'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_27">
-          <title></title>
-          <description></description>
-          <person userid="user_27" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_24/_meta?user=tom
@@ -601,7 +508,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_24">
-          <title>The World, the Flesh and the Devil</title>
+          <title>I Sing the Body Electric</title>
           <description/>
         </project>
     headers:
@@ -623,16 +530,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '121'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="project_24">
-          <title>The World, the Flesh and the Devil</title>
+          <title>I Sing the Body Electric</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_25/_meta?user=tom
@@ -640,7 +546,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_25">
-          <title>Nectar in a Sieve</title>
+          <title>As I Lay Dying</title>
           <description/>
         </project>
     headers:
@@ -662,16 +568,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '101'
     body:
       encoding: UTF-8
       string: |
         <project name="project_25">
-          <title>Nectar in a Sieve</title>
+          <title>As I Lay Dying</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_26/_meta?user=tom
@@ -679,7 +584,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_26">
-          <title>Tender Is the Night</title>
+          <title>The Last Enemy</title>
           <description/>
         </project>
     headers:
@@ -701,23 +606,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '101'
     body:
       encoding: UTF-8
       string: |
         <project name="project_26">
-          <title>Tender Is the Night</title>
+          <title>The Last Enemy</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_38">
+        <workflow project="home:tom" managers="group_46">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
           <staging_project name="home:tom:Staging:XYZ"/>
@@ -746,22 +650,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="709">
-          <srcmd5>1adecba8089b302ee91d7ab49a8c412c</srcmd5>
-          <time>1552905495</time>
+        <revision rev="348">
+          <srcmd5>c5915ac22cb91c8553a1979d1b081cdb</srcmd5>
+          <time>1658422070</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:15 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_38">
+        <workflow project="home:tom" managers="group_46">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
           <staging_project name="home:tom:Staging:XYZ"/>
@@ -790,15 +693,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="710">
-          <srcmd5>1adecba8089b302ee91d7ab49a8c412c</srcmd5>
-          <time>1552905496</time>
+        <revision rev="349">
+          <srcmd5>c5915ac22cb91c8553a1979d1b081cdb</srcmd5>
+          <time>1658422070</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:16 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:new_project/_meta?user=tom
@@ -806,11 +708,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="home:tom:new_project">
-          <title>A Darkling Plain</title>
+          <title>Dying of the Light</title>
           <description/>
-          <person userid="user_27" role="maintainer"/>
-          <group groupid="group_38" role="maintainer"/>
-          <group groupid="group_39" role="maintainer"/>
+          <person userid="user_106" role="maintainer"/>
+          <group groupid="group_46" role="maintainer"/>
+          <group groupid="group_47" role="maintainer"/>
           <sourceaccess>
             <disable/>
           </sourceaccess>
@@ -845,33 +747,32 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '821'
+      - '815'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:new_project">
-          <title>A Darkling Plain</title>
+          <title>Dying of the Light</title>
           <description></description>
-          <person userid="user_27" role="maintainer" />
-          <group groupid="group_38" role="maintainer" />
-          <group groupid="group_39" role="maintainer" />
+          <person userid="user_106" role="maintainer"/>
+          <group groupid="group_46" role="maintainer"/>
+          <group groupid="group_47" role="maintainer"/>
           <sourceaccess>
-            <disable />
+            <disable/>
           </sourceaccess>
           <repository name="staging_repository">
-            <download arch="x86_64" repotype="rpmmd" url="http://suse.com" />
-            <path project="project_24" repository="repository_22" />
-            <path project="project_25" repository="repository_23" />
-            <path project="project_26" repository="repository_24" />
-            <path project="home:tom:new_project" repository="home_tom_new_project_sles_12" />
+            <download arch="x86_64" repotype="rpmmd" url="http://suse.com"/>
+            <path project="project_24" repository="repository_22"/>
+            <path project="project_25" repository="repository_23"/>
+            <path project="project_26" repository="repository_24"/>
+            <path project="home:tom:new_project" repository="home_tom_new_project_sles_12"/>
             <arch>x86_64</arch>
           </repository>
           <repository name="home_tom_new_project_sles_12">
             <arch>x86_64</arch>
           </repository>
         </project>
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:16 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:new_project/_config?comment=Copying%20project%20home:tom:Staging:XYZ&user=tom
@@ -903,8 +804,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:16 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:new_project/_config
@@ -934,6 +834,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: 'Prefer: foo'
-    http_version: 
-  recorded_at: Mon, 18 Mar 2019 10:38:16 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Thu, 21 Jul 2022 16:47:50 GMT
+recorded_with: VCR 6.1.0
