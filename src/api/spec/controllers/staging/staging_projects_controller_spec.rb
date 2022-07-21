@@ -288,7 +288,7 @@ RSpec.describe Staging::StagingProjectsController do
       end
 
       it { is_expected.to have_http_status(:bad_request) }
-      it { expect(response.body).to match('Staging project is not in state acceptable.') }
+      it { expect(response.body).to match('Staging Project is not acceptable: empty is not an acceptable state') }
 
       context 'with force parameter' do
         subject! do
@@ -297,6 +297,7 @@ RSpec.describe Staging::StagingProjectsController do
 
         it 'still fails' do
           expect(subject).to have_http_status(:bad_request)
+          expect(response.body).to match('Staging Project is not acceptable: is not in state building, failed or testing')
         end
       end
     end
@@ -340,7 +341,7 @@ RSpec.describe Staging::StagingProjectsController do
 
         it 'returns correct error' do
           subject
-          expect(response.body).to match('Staging project is not in state acceptable.')
+          expect(response.body).to match('Staging Project is not acceptable: testing is not an acceptable state')
         end
       end
     end

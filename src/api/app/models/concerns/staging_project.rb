@@ -15,6 +15,7 @@ module StagingProject
   end
 
   HISTORY_EVENT_TYPES = [:staging_project_created, :staged_request, :unstaged_request].freeze
+  FORCEABLE_STATES = [:building, :failed, :testing].freeze
 
   def accept
     # Disabling build for all repositories and architectures.
@@ -170,14 +171,6 @@ module StagingProject
 
     project_log_entry.datetime = Time.now
     project_log_entry.save!
-  end
-
-  def force_acceptable?
-    return false if overall_state.in?([:empty, :unacceptable, :accepting])
-
-    # won't force accept missing reviews, but we can skip
-    # building, testing and failing projects
-    missing_reviews.empty?
   end
 
   private

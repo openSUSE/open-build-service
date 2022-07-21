@@ -52,7 +52,7 @@ module RescueAuthorizationHandler
       when :anonymous_user
         'Please login to access the resource'
       when :request_state_change
-        "Request #{exception.record.number} is not acceptable"
+        "Request #{exception.record.number} would not be acceptable by you"
       else
         "Sorry, you are not authorized to #{action_for_exception(exception)} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize(capitalize: false)}."
       end
