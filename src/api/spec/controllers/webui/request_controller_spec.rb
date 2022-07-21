@@ -48,15 +48,6 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
     end
 
-    context 'if request does not exist' do
-      before do
-        get :show, params: { number: '200000' }
-      end
-
-      it { expect(flash[:error]).to eq("Can't find request 200000") }
-      it { expect(response).to redirect_to(root_url) }
-    end
-
     context 'when there are package maintainers' do
       # The hint will only be shown, when the target package has at least one
       # maintainer. So we'll gonna add a maintainer to the target package.
@@ -313,17 +304,6 @@ RSpec.describe Webui::RequestController, vcr: true do
                                          description: 'blah blah blah' }
         end.to change(BsRequest, :count).by(1)
         expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
-      end
-    end
-
-    context 'with invalid parameters' do
-      before do
-        login(receiver)
-        post :changerequest, params: { number: 1899, accepted: 'accepted' }
-      end
-
-      it 'without request' do
-        expect(flash[:error]).to eq('Can\'t find request 1899')
       end
     end
 

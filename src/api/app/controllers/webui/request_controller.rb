@@ -288,12 +288,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def require_request
-    required_parameters :number
-    @bs_request = BsRequest.find_by_number(params[:number])
-    return if @bs_request
-
-    flash[:error] = "Can't find request #{params[:number]}"
-    redirect_back(fallback_location: root_url) && return
+    @bs_request = BsRequest.find_by!(number: params[:number])
   end
 
   def target_package_maintainers
