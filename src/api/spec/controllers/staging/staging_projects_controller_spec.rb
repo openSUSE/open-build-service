@@ -325,37 +325,12 @@ RSpec.describe Staging::StagingProjectsController do
         )
       end
 
-      before do
-        allow(StagingProjectAcceptJob).to receive(:perform_later)
-      end
-
       subject do
         post :accept, params: params, format: :xml
       end
 
       context 'with nothing missing' do
         it { is_expected.to have_http_status(:success) }
-
-        it "starts the 'accept' job for the staging projects" do
-          subject
-          expect(StagingProjectAcceptJob).to have_received(:perform_later).with(project_id: staging_project.id, user_login: user.login)
-        end
-
-        it 'build flags should be disabled' do
-          subject
-          expect(build_flag_disabled).to be_truthy
-        end
-
-        context 'as staging owner' do
-          before do
-            login staging_owner
-          end
-
-          it "can't accept" do
-            expect(subject).to have_http_status(:forbidden)
-            expect(build_flag_disabled).to be_falsey
-          end
-        end
       end
 
       context 'with missing check' do
