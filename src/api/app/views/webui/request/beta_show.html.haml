@@ -3,13 +3,13 @@
   @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
 
 .card
-  .card-body
-    %h3
-      = @pagetitle
-      %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
-        = @bs_request.state
-
-    %ul.nav.nav-tabs.scrollable-tabs.pl-0#request-tabs{ role: 'tablist' }
+  .card-body.p-0
+    .card-title.px-4.pt-4
+      %h3
+        = @pagetitle
+        %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+          = @bs_request.state
+    %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
         = link_to('Overview', '#overview', class: 'nav-link text-nowrap active', 'aria-controls': 'overview',
                   'aria-selected': 'true', 'data-toggle': 'tab', role: 'tab')
@@ -22,7 +22,7 @@
       %li.nav-item.scrollable-tab-link
         = link_to('Mentioned Issues', '#mentioned-issues', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
                   'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
-    .tab-content#request-tabs-content
+    .tab-content.p-4#request-tabs-content
       .tab-pane.fade.show.p-2.active#overview{ 'aria-labelledby': 'overview-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/overview'
       .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
