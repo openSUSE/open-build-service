@@ -1,5 +1,6 @@
 // Scrollable tabs
 
+// When the scrollable tabs are formed  by div and many a.
 .scrollable-tabs {
   overflow: auto;
   white-space: nowrap;
@@ -10,6 +11,25 @@
     padding: 0.5rem 1rem;
     text-align: center;
     &.active {
+      font-weight: 600;
+      border: 1px solid;
+      border-color: $gray-300;
+      border-bottom-color: $white;
+      background-color: $white;
+    }
+  }
+}
+
+// When the scrollable tabs are formed  by ul and many li.
+ul.scrollable-tabs {
+  display: block;
+  overflow-y: hidden;
+
+  li.scrollable-tab-link {
+    display: inline-block;
+    padding: 0.5rem 0 0 0;
+    text-align: center;
+    & > a.active {
       font-weight: 600;
       border: 1px solid;
       border-color: $gray-300;
