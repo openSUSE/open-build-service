@@ -111,7 +111,7 @@ gem 'rexml'
 gem 'matrix', '~> 0.4'
 
 # until we have a fix for https://github.com/rubygems/rubygems/pull/5529
-gem 'strscan', '3.0.1'
+gem 'strscan', '3.0.4'
 
 group :development, :production do
   # to have the delayed job daemon

@@ -449,7 +449,7 @@ GEM
       sprockets (>= 3.0.0)
     strong_migrations (1.4.0)
       activerecord (>= 5.2)
-    strscan (3.0.1)
+    strscan (3.0.4)
     sync (0.5.0)
     sysexits (1.2.0)
     temple (0.9.1)
@@ -596,7 +596,7 @@ DEPENDENCIES
   single_test
   sprockets-rails
   strong_migrations
-  strscan (= 3.0.1)
+  strscan (= 3.0.4)
   test-unit
   thinking-sphinx
   timecop
