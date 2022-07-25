@@ -37,7 +37,6 @@ module StagingProject
 
     # Reset history
     project_log_entries.staging_history.delete_all
-    clear_memoized_data
 
     true
   end
@@ -174,14 +173,6 @@ module StagingProject
   end
 
   private
-
-  def clear_memoized_data
-    @broken_packages = []
-    @building_repositories = []
-    @requests_to_review = nil
-    @problems = nil
-    @overall_state = nil
-  end
 
   def state
     # FIXME: We should use a better way to check if we are in :accepting state. Could be a state machine or storing the state locally.
