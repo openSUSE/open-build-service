@@ -2335,7 +2335,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_match(/review state change for group test_group is not permitted for Iggy/, @response.body)
     post '/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group'
     assert_response 404
-    assert_match(/Couldn't find request with id '987654321'/, @response.body)
+    assert_match(/Couldn't find BsRequest/, @response.body)
 
     # Only partly matching by_ arguments
     login_adrian

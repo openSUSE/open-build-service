@@ -278,7 +278,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: 'INVALID/PROJECT'
         click_button('Accept')
-        expect(page).to have_css('#flash', text: 'Unable add review to')
+        expect(page).to have_css('#flash', text: 'Unable to add review to request')
       end
     end
 

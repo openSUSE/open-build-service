@@ -54,6 +54,8 @@ module Webui
                                  superseded_by: @bs_request.number)
         rescue APIError => e
           supersede_errors << e.message.to_s
+        rescue ActiveRecord::RecordNotFound
+          supersede_errors << "Couldn't find request with id '#{request_number}'"
         end
 
         return if supersede_errors.empty?
