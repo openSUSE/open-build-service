@@ -33,6 +33,14 @@ module Webui::UserHelper
     )
   end
 
+  def realname_with_login(user)
+    if user.realname.present?
+      "#{user.realname} (#{user.login})"
+    else
+      user.login
+    end
+  end
+
   def user_with_realname_and_icon(user, opts = {})
     defaults = { short: false, no_icon: false }
     opts = defaults.merge(opts)
@@ -41,12 +49,10 @@ module Webui::UserHelper
     return '' unless user
 
     Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do
-      realname = user.realname
-
-      printed_name = if opts[:short] || realname.empty?
+      printed_name = if opts[:short]
                        user.login
                      else
-                       "#{realname} (#{user.login})"
+                       realname_with_login(user)
                      end
 
       if opts[:no_icon]
