@@ -1,0 +1,569 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Where Angels Fear to Tread</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Where Angels Fear to Tread</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Specimen Days</title>
+          <description>Cum natus qui provident.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Specimen Days</title>
+          <description>Cum natus qui provident.</description>
+        </package>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_config
+    body:
+      encoding: UTF-8
+      string: Omnis qui minus. Mollitia corrupti dolorem. Quo soluta libero.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>9df555568356a4ba4517e1705564d17b</srcmd5>
+          <version>unknown</version>
+          <time>1658836184</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: "# This will be replaced"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>9df555568356a4ba4517e1705564d17b</srcmd5>
+          <version>unknown</version>
+          <time>1658836184</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Jesting Pilate</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Jesting Pilate</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16">
+          <srcmd5>1f3a95bdcd545248eba9eb2732cce683</srcmd5>
+          <time>1658836184</time>
+          <user>user_3</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Lathe of Heaven</title>
+          <description>Ut sequi dolores velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Lathe of Heaven</title>
+          <description>Ut sequi dolores velit.</description>
+        </package>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_config
+    body:
+      encoding: UTF-8
+      string: Soluta voluptatem est. Velit odio aut. Soluta fugiat nostrum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>2f8cba61bcfa7eaae11ab65302d2a516</srcmd5>
+          <version>unknown</version>
+          <time>1658836184</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: "# This is the new text"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>2f8cba61bcfa7eaae11ab65302d2a516</srcmd5>
+          <version>unknown</version>
+          <time>1658836184</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="12" vrev="12" srcmd5="2f8cba61bcfa7eaae11ab65302d2a516">
+          <entry name="_config" md5="cf9b23c1e23c044aa48fd2af9cac0ce0" size="61" mtime="1658836184"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1658835780"/>
+        </directory>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1106'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="c9d051727e611167e8d753be829a669b">
+          <old project="target_project" package="target_package" rev="12" srcmd5="9df555568356a4ba4517e1705564d17b"/>
+          <new project="source_project" package="source_package" rev="12" srcmd5="2f8cba61bcfa7eaae11ab65302d2a516"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="d424b88c51098bbbde14185e47ad2710" size="62"/>
+              <new name="_config" md5="cf9b23c1e23c044aa48fd2af9cac0ce0" size="61"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Omnis qui minus. Mollitia corrupti dolorem. Quo soluta libero.
+        \ No newline at end of file
+        +Soluta voluptatem est. Velit odio aut. Soluta fugiat nostrum.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <new name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -# This will be replaced
+        \ No newline at end of file
+        +# This is the new text
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="12" vrev="12" srcmd5="2f8cba61bcfa7eaae11ab65302d2a516">
+          <entry name="_config" md5="cf9b23c1e23c044aa48fd2af9cac0ce0" size="61" mtime="1658836184"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1658835780"/>
+        </directory>
+  recorded_at: Tue, 26 Jul 2022 11:49:44 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1106'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="c9d051727e611167e8d753be829a669b">
+          <old project="target_project" package="target_package" rev="12" srcmd5="9df555568356a4ba4517e1705564d17b"/>
+          <new project="source_project" package="source_package" rev="12" srcmd5="2f8cba61bcfa7eaae11ab65302d2a516"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="d424b88c51098bbbde14185e47ad2710" size="62"/>
+              <new name="_config" md5="cf9b23c1e23c044aa48fd2af9cac0ce0" size="61"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Omnis qui minus. Mollitia corrupti dolorem. Quo soluta libero.
+        \ No newline at end of file
+        +Soluta voluptatem est. Velit odio aut. Soluta fugiat nostrum.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <new name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -# This will be replaced
+        \ No newline at end of file
+        +# This is the new text
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 26 Jul 2022 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="12" vrev="12" srcmd5="9df555568356a4ba4517e1705564d17b">
+          <entry name="_config" md5="d424b88c51098bbbde14185e47ad2710" size="62" mtime="1658836184"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1658835780"/>
+        </directory>
+  recorded_at: Tue, 26 Jul 2022 11:49:45 GMT
+recorded_with: VCR 6.1.0

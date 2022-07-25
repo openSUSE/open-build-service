@@ -16,7 +16,7 @@
       %li.nav-item.scrollable-tab-link
         = link_to('Build Results', '#build-results', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
                   'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
-      %li.nav-item.scrollable-tab-link
+      %li.nav-item.scrollable-tab-link#changes-item{ 'data-request-number': @bs_request.number, 'data-request-action-id': @actions.first[:id] }
         = link_to('Changes', '#changes', class: 'nav-link text-nowrap', 'aria-controls': 'changes', 'aria-selected': 'false',
                   'data-toggle': 'tab', role: 'tab')
       %li.nav-item.scrollable-tab-link

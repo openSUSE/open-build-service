@@ -2,12 +2,12 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   # TODO: remove the beta_show action when the request_show_redesign feature is finished.
-  before_action :require_login, except: [:show, :beta_show, :sourcediff, :diff, :request_action]
+  before_action :require_login, except: [:show, :beta_show, :sourcediff, :diff, :request_action, :request_action_changes]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   # TODO: remove the beta_show action when the request_show_redesign feature is finished.
-  before_action :require_request, only: [:changerequest, :show, :beta_show, :request_action]
-  before_action :set_superseded_request, only: [:show, :request_action]
+  before_action :require_request, only: [:changerequest, :show, :beta_show, :request_action, :request_action_changes]
+  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
   after_action :verify_authorized, only: [:create]
@@ -155,6 +155,7 @@ class Webui::RequestController < Webui::WebuiController
     @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
   end
 
+  # TODO: Remove this once request_show_redesign is rolled out
   def request_action
     @diff_limit = params[:full_diff] ? 0 : nil
     @index = params[:index].to_i
@@ -162,6 +163,26 @@ class Webui::RequestController < Webui::WebuiController
                                          action_id: params['id'].to_i, cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    @diff_to_superseded_id = params[:diff_to_superseded]
+    @refresh = @action[:diff_not_cached]
+
+    if @refresh
+      bs_request_action = BsRequestAction.find(@action[:id])
+      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def request_action_changes
+    @diff_limit = params[:full_diff] ? 0 : nil
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
+                                         action_id: params['id'].to_i, cacheonly: 1)
+    @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     @diff_to_superseded_id = params[:diff_to_superseded]
     @refresh = @action[:diff_not_cached]

@@ -112,6 +112,7 @@ function requestAddAutocomplete(autocompleteElement) { // jshint ignore:line
 }
 
 $(document).ready(function(){
+  // TODO: Remove the enclosing code when the request_show_redesign feature is finished - START
   var element = $('.bs-request-actions li:first-child a:first-child');
   if (element.length !== 0){
     loadDiffs($(element));
@@ -133,8 +134,13 @@ $(document).ready(function(){
       });
     }
   });
+  // TODO: Remove the enclosing code when the request_show_redesign feature is finished - END
+  $('#changes-item').on('shown.bs.tab', function () {
+    loadChanges();
+  });
 });
 
+// TODO: Remove the following method when the request_show_redesign feature is finished
 function reloadRequestAction(index){ // jshint ignore:line
   var element = $('.request-tab[data-index=' + index + ']');
   $('.tab-pane.sourcediff.active').html('');
@@ -143,6 +149,7 @@ function reloadRequestAction(index){ // jshint ignore:line
   }
 }
 
+// TODO: Remove the following method when the request_show_redesign feature is finished
 function loadDiffs(element){
   $('.loading-diff').removeClass('invisible');
   var index = element.data('index');
@@ -158,6 +165,20 @@ function loadDiffs(element){
   $.ajax({
     url: url,
     success: function(){
+      $('.loading-diff').addClass('invisible');
+    }
+  });
+}
+
+function loadChanges() {
+  $('.loading-diff').removeClass('invisible');
+  var element = $('#changes-item');
+  // Always retrieve the changes of the first request action, by now
+  // TODO: request-action-id should be retrieved from the select component, when it is introduced
+  var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
+  $.ajax({
+    url: url,
+    success: function() {
       $('.loading-diff').addClass('invisible');
     }
   });
