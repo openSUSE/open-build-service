@@ -795,7 +795,7 @@ RSpec/MessageSpies:
 # Offense count: 1593
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
-  Max: 27
+  Max: 28
 
 # Offense count: 12
 # This cop supports unsafe autocorrection (--autocorrect-all).

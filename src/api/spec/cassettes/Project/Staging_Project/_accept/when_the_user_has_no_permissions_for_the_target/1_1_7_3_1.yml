@@ -2,14 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user">
+        <project name="home:tom">
           <title/>
           <description/>
-          <person userid="permitted_user" role="maintainer"/>
+          <person userid="tom" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -30,25 +30,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '128'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user">
+        <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="permitted_user" role="maintainer"/>
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:02 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_65
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="group_1">
-          <staging_project name="home:permitted_user:Staging:A"/>
+        <workflow project="home:tom" managers="group_26">
+          <staging_project name="home:tom:Staging:A"/>
         </workflow>
     headers:
       Accept-Encoding:
@@ -69,29 +68,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '171'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="103">
-          <srcmd5>437960873390f6d51b29cac67e3b5453</srcmd5>
-          <time>1588185242</time>
-          <user>permitted_user</user>
+        <revision rev="292">
+          <srcmd5>f472b730ea06cc771fc8864e0967704b</srcmd5>
+          <time>1658422058</time>
+          <user>user_65</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:02 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=user_65
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user:Staging:A">
+        <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_1" role="maintainer"/>
+          <group groupid="group_26" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,26 +110,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '143'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user:Staging:A">
+        <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_1" role="maintainer"/>
+          <group groupid="group_26" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:02 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_65
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="group_1">
-          <staging_project name="home:permitted_user:Staging:A"/>
-          <staging_project name="home:permitted_user:Staging:B"/>
+        <workflow project="home:tom" managers="group_26">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
         </workflow>
     headers:
       Accept-Encoding:
@@ -152,29 +149,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '171'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="104">
-          <srcmd5>1cb65454e99e97791176705d1691a126</srcmd5>
-          <time>1588185242</time>
-          <user>permitted_user</user>
+        <revision rev="293">
+          <srcmd5>66ca9a1c412076cae43ea2451e893738</srcmd5>
+          <time>1658422058</time>
+          <user>user_65</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:02 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=user_65
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user:Staging:B">
+        <project name="home:tom:Staging:B">
           <title/>
           <description/>
-          <group groupid="group_1" role="maintainer"/>
+          <group groupid="group_26" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,28 +191,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '143'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user:Staging:B">
+        <project name="home:tom:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="group_1" role="maintainer"/>
+          <group groupid="group_26" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:02 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:tom/_meta?user=user_65
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user">
+        <project name="home:tom">
           <title/>
           <description/>
-          <person userid="permitted_user" role="maintainer"/>
-          <group groupid="group_1" role="reviewer"/>
+          <person userid="tom" role="maintainer"/>
+          <group groupid="group_26" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -237,66 +232,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '195'
+      - '174'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user">
+        <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="permitted_user" role="maintainer"/>
-          <group groupid="group_1" role="reviewer"/>
+          <person userid="tom" role="maintainer"/>
+          <group groupid="group_26" role="reviewer"/>
         </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:02 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_meta?user=user_66
     body:
       encoding: UTF-8
       string: |
-        <project name="target_project">
-          <title>His Dark Materials</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '109'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>His Dark Materials</title>
-          <description></description>
-        </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=permitted_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Clouds of Witness</title>
-          <description>Error commodi aut sit.</description>
+        <package name="package_with_file" project="home:tom:Staging:A">
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Reiciendis iusto amet omnis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -317,24 +272,99 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '179'
     body:
       encoding: UTF-8
       string: |
-        <package name="target_package" project="target_project">
-          <title>Clouds of Witness</title>
-          <description>Error commodi aut sit.</description>
+        <package name="package_with_file" project="home:tom:Staging:A">
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Reiciendis iusto amet omnis.</description>
         </package>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Odio doloremque voluptatem. Aut deserunt incidunt. Sed earum placeat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <project name="source_project">
-          <title>No Country for Old Men</title>
+        <revision rev="143" vrev="143">
+          <srcmd5>893c2e98fab629576cadd14378b9c171</srcmd5>
+          <version>unknown</version>
+          <time>1658422058</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Iste laboriosam incidunt. Harum dolor necessitatibus. Magnam id fugiat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="144" vrev="144">
+          <srcmd5>7c1719831ffd7c2b95f33bb40d7c33a8</srcmd5>
+          <version>unknown</version>
+          <time>1658422058</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>O Pioneers!</title>
           <description/>
         </project>
     headers:
@@ -356,19 +386,94 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>O Pioneers!</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package_2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>The Road Less Traveled</title>
+          <description>Tempora consequatur est eum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>The Road Less Traveled</title>
+          <description>Tempora consequatur est eum.</description>
+        </package>
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>No Country for Old Men</title>
+          <title>Mother Night</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Mother Night</title>
           <description></description>
         </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=permitted_user
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=tom
     body:
       encoding: UTF-8
       string: |
@@ -394,28 +499,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '167'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="53">
-          <srcmd5>40f80ff216e8ec1507921cfb67af7aa9</srcmd5>
-          <time>1588185243</time>
-          <user>permitted_user</user>
+        <revision rev="144">
+          <srcmd5>be26a71d822153274e81edb71c06fca9</srcmd5>
+          <time>1658422058</time>
+          <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Cover Her Face</title>
-          <description>Amet excepturi temporibus sit.</description>
+          <title>Time To Murder And Create</title>
+          <description>Aut eveniet ipsum rem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -436,16 +540,87 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Cover Her Face</title>
-          <description>Amet excepturi temporibus sit.</description>
+          <title>Time To Murder And Create</title>
+          <description>Aut eveniet ipsum rem.</description>
         </package>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package_2&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '331'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="7155e225942a839c793fb9287cc86a7a">
+          <old project="target_project" package="target_package_2" rev="51" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
@@ -479,17 +654,16 @@ http_interactions:
       string: |
         <collection>
         </collection>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=staging-hero
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Cover Her Face</title>
-          <description>Amet excepturi temporibus sit.</description>
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Time To Murder And Create</title>
+          <description>Aut eveniet ipsum rem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -510,19 +684,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Cover Her Face</title>
-          <description>Amet excepturi temporibus sit.</description>
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Time To Murder And Create</title>
+          <description>Aut eveniet ipsum rem.</description>
         </package>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=staging-hero
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -547,29 +720,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '214'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="12" vrev="12">
+        <revision rev="1" vrev="1">
           <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
           <version>unknown</version>
-          <time>1588185243</time>
-          <user>staging-hero</user>
+          <time>1658422059</time>
+          <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=staging-hero
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Cover Her Face</title>
-          <description>Amet excepturi temporibus sit.</description>
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Time To Murder And Create</title>
+          <description>Aut eveniet ipsum rem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -590,19 +762,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Cover Her Face</title>
-          <description>Amet excepturi temporibus sit.</description>
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Time To Murder And Create</title>
+          <description>Aut eveniet ipsum rem.</description>
         </package>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2
     body:
       encoding: US-ASCII
       string: ''
@@ -629,15 +800,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="12" vrev="12" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+        <directory name="target_package_2" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
-          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1588184792"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658419299"/>
         </directory>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?view=info
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -664,15 +834,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="target_package" rev="12" vrev="12" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="target_package_2" rev="1" vrev="1" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="source_project" package="source_package"/>
         </sourceinfo>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2
     body:
       encoding: US-ASCII
       string: ''
@@ -699,15 +868,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="12" vrev="12" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+        <directory name="target_package_2" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
-          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1588184792"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658419299"/>
         </directory>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -727,27 +895,26 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '330'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '349'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c7ee8b1549098da60797ca260e99400b">
-          <old project="home:permitted_user:Staging:A" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:permitted_user:Staging:A" package="target_package" rev="12" srcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+        <sourcediff key="a38f4b4e228bc555381cec0d7cc141f9">
+          <old project="home:tom:Staging:A" package="target_package_2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:Staging:A" package="target_package_2" rev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -768,7 +935,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '395'
+      - '386'
       Cache-Control:
       - no-cache
       Connection:
@@ -776,24 +943,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="852124a25d67d16792e7f9ce3ef195fb">
+        <sourcediff key="7dc9dd01ab22419fb02e1d6b3a4624fc">
           <old project="source_project" package="source_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:permitted_user:Staging:A" package="target_package" rev="7eae9f6b12a2579550692e1b40dfc7d6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6"/>
+          <new project="home:tom:Staging:A" package="target_package_2" rev="7eae9f6b12a2579550692e1b40dfc7d6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=staging-hero
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="group_1">
-          <staging_project name="home:permitted_user:Staging:A"/>
-          <staging_project name="home:permitted_user:Staging:B"/>
+        <workflow project="home:tom" managers="group_26">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
         </workflow>
     headers:
       Accept-Encoding:
@@ -814,30 +980,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '167'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="105">
-          <srcmd5>1cb65454e99e97791176705d1691a126</srcmd5>
-          <time>1588185243</time>
-          <user>staging-hero</user>
+        <revision rev="294">
+          <srcmd5>66ca9a1c412076cae43ea2451e893738</srcmd5>
+          <time>1658422059</time>
+          <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=staging-hero
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user:Staging:A">
+        <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <person userid="staging-hero" role="maintainer"/>
-          <group groupid="group_1" role="maintainer"/>
+          <group groupid="group_26" role="maintainer"/>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
         </project>
     headers:
       Accept-Encoding:
@@ -858,18 +1025,112 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '224'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:permitted_user:Staging:A">
+        <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <person userid="staging-hero" role="maintainer"/>
-          <group groupid="group_1" role="maintainer"/>
+          <group groupid="group_26" role="maintainer"/>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
         </project>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:03 GMT
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_65
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_26">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="295">
+          <srcmd5>66ca9a1c412076cae43ea2451e893738</srcmd5>
+          <time>1658422059</time>
+          <user>user_65</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_26" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '260'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_26" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -901,72 +1162,5 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:04 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/source_project/source_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '89'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:04 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:permitted_user:Staging:A/_result?code=unresolvable
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-    http_version: null
-  recorded_at: Wed, 29 Apr 2020 18:34:04 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Thu, 21 Jul 2022 16:47:39 GMT
+recorded_with: VCR 6.1.0
