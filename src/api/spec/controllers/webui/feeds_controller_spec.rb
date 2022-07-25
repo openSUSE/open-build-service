@@ -32,13 +32,6 @@ RSpec.describe Webui::FeedsController do
       get :commits, params: { project: project, format: 'atom', starting_at: '2015-02-09', ending_at: '2015-02-10' }
       expect(assigns(:commits)).to eq([old_commit])
     end
-
-    it 'honors sourceaccess flag' do
-      create(:sourceaccess_flag, project: project)
-
-      get :commits, params: { project: project, format: 'atom' }
-      expect(response).to have_http_status(:redirect)
-    end
   end
 
   describe 'GET news' do
