@@ -29,6 +29,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Viewing user roles' do
+      skip_on_mobile
+
       expect(page).to have_text('User Roles')
       expect(find_field('user_maintainer_user_tab_user', visible: false)).to be_checked
       expect(find_field('user_bugowner_user_tab_user', visible: false)).to be_checked
@@ -39,7 +41,9 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add non existent user' do
-      click_link('Add User')
+      add_user_link = page.find('a', text: 'Add User')
+      page.scroll_to(add_user_link)
+      add_user_link.click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -51,7 +55,9 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add an existing user' do
-      click_link('Add User')
+      add_user_link = page.find('a', text: 'Add User')
+      page.scroll_to(add_user_link)
+      add_user_link.click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -67,7 +73,9 @@ RSpec.shared_examples 'bootstrap user tab' do
       end
 
       # Adding a user twice...
-      click_link('Add User')
+      add_user_link = page.find('a', text: 'Add User')
+      page.scroll_to(add_user_link)
+      add_user_link.click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -84,6 +92,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Remove user from package / project' do
+      skip_on_mobile
+
       find('td', text: "#{reader.realname} (reader_user)").ancestor('tr').find('.remove-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
       click_button('Delete')
@@ -93,6 +103,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add role to user' do
+      skip_on_mobile
+
       toggle_checkbox('user_reviewer_user_tab_user')
 
       visit project_path # project_users_path
@@ -101,6 +113,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Remove role from user' do
+      skip_on_mobile
+
       toggle_checkbox('user_bugowner_user_tab_user')
 
       visit project_path
@@ -128,6 +142,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Viewing group roles' do
+      skip_on_mobile
+
       expect(page).to have_text('Group Roles')
       expect(find_field('group_maintainer_existing_group', visible: false)).to be_checked
       expect(find_field('group_bugowner_existing_group', visible: false)).to be_checked
@@ -138,7 +154,9 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add non existent group' do
-      click_link('Add Group')
+      add_group_link = page.find('a', text: 'Add Group')
+      page.scroll_to(add_group_link)
+      add_group_link.click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -150,7 +168,9 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add an existing group' do
-      click_link('Add Group')
+      add_group_link = page.find('a', text: 'Add Group')
+      page.scroll_to(add_group_link)
+      add_group_link.click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -165,7 +185,9 @@ RSpec.shared_examples 'bootstrap user tab' do
       end
 
       # Adding a group twice...
-      click_link('Add Group')
+      add_group_link = page.find('a', text: 'Add Group')
+      page.scroll_to(add_group_link)
+      add_group_link.click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -182,6 +204,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add role to group' do
+      skip_on_mobile
+
       toggle_checkbox('group_reviewer_existing_group')
 
       visit project_path
@@ -190,6 +214,8 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Remove role from group' do
+      skip_on_mobile
+
       toggle_checkbox('group_bugowner_existing_group')
 
       visit project_path
