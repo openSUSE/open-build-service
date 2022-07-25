@@ -38,6 +38,9 @@ class Webui::WatchedItemsController < Webui::WebuiController
   end
 
   def check_user_belongs_feature_flag
-    raise NotFoundError unless Flipper.enabled?(:new_watchlist, User.session)
+    return if Flipper.enabled?(:new_watchlist, User.session)
+
+    flash[:error] = 'This page is not accessible unless you enabled the "New watchlist" beta feature in the beta program.'
+    redirect_back(fallback_location: root_path)
   end
 end

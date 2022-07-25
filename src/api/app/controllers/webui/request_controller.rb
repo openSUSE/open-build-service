@@ -145,7 +145,10 @@ class Webui::RequestController < Webui::WebuiController
 
   def beta_show
     # TODO: Remove this once request_show_redesign is rolled out
-    raise NotFoundError unless Flipper.enabled?(:request_show_redesign, User.session)
+    unless Flipper.enabled?(:request_show_redesign, User.session)
+      flash[:error] = 'This page is not accessible unless you enabled the "Request show redesign" beta feature in the beta program.'
+      redirect_back(fallback_location: root_path)
+    end
 
     @diff_limit = params[:full_diff] ? 0 : nil
     @diff_to_superseded_id = params[:diff_to_superseded]

@@ -64,8 +64,9 @@ RSpec.describe Webui::WatchedItemsController, type: :controller do
 
         subject { put :toggle_watched_item, params: { package_name: package, project_name: package.project } }
 
-        it 'raises an exception' do
-          expect { subject }.to raise_error(NotFoundError)
+        it 'redirects and assigns flash error' do
+          expect(subject).to redirect_to(root_url)
+          expect(subject.request.flash[:error]).to eq('This page is not accessible unless you enabled the "New watchlist" beta feature in the beta program.')
         end
       end
     end
