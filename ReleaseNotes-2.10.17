@@ -19,4 +19,6 @@ Frontend:
     - See https://github.com/openSUSE/open-build-service/pull/12821
  * Update rails to 5.2.8.1
     - CVE-2022-32224 Possible RCE escalation bug with Serialized Columns in Active Record
+ * Update tzinfo from 1.2.9 to 1.2.10
+    - CVE-2022-31163 TZInfo relative path traversal vulnerability allows loading of arbitrary files
 
