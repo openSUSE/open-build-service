@@ -476,7 +476,7 @@ GEM
       middleware (>= 0.1.0)
       riddle (~> 2.3)
     thor (1.2.1)
-    tilt (2.0.10)
+    tilt (2.0.11)
     timecop (0.9.5)
     timeout (0.3.0)
     tins (1.31.1)
