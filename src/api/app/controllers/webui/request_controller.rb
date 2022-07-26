@@ -40,27 +40,17 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_reviewer
-    begin
-      opts = {}
-      case params[:review_type]
-      when 'review-user'
-        opts[:by_user] = params[:review_user]
-      when 'review-group'
-        opts[:by_group] = params[:review_group]
-      when 'review-project'
-        opts[:by_project] = params[:review_project]
-      when 'review-package'
-        opts[:by_project] = params[:review_project]
-        opts[:by_package] = params[:review_package]
+    request = BsRequest.find_by_number(params[:number])
+    if request.nil?
+      flash[:error] = "Unable to add review to request with id '#{params[:number]}': the request was not found."
+    else
+      begin
+        request.addreview(addreview_opts)
+      rescue BsRequestPermissionCheck::AddReviewNotPermitted
+        flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
+      rescue ActiveRecord::RecordInvalid, APIError => e
+        flash[:error] = "Unable to add review to request with id '#{params[:number]}': #{e.message}"
       end
-      opts[:comment] = params[:review_comment] if params[:review_comment]
-
-      request = BsRequest.find_by_number!(params[:number])
-      request.addreview(opts)
-    rescue BsRequestPermissionCheck::AddReviewNotPermitted
-      flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, APIError => e
-      flash[:error] = "Unable to add review to request with id '#{params[:number]}': #{e.message}"
     end
     redirect_to controller: :request, action: 'show', number: params[:number]
   end
@@ -264,6 +254,24 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def addreview_opts
+    opts = {}
+    case params[:review_type]
+    when 'review-user'
+      opts[:by_user] = params[:review_user]
+    when 'review-group'
+      opts[:by_group] = params[:review_group]
+    when 'review-project'
+      opts[:by_project] = params[:review_project]
+    when 'review-package'
+      opts[:by_project] = params[:review_project]
+      opts[:by_package] = params[:review_package]
+    end
+    opts[:comment] = params[:review_comment] if params[:review_comment]
+
+    opts
+  end
 
   def any_project_maintained_by_current_user?
     projects = @bs_request.bs_request_actions.select(:target_project).distinct.pluck(:target_project)
