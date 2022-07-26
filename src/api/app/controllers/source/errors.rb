@@ -94,4 +94,8 @@ module Source::Errors
   class NotLocked < APIError; end
 
   class InvalidFlag < APIError; end
+
+  class ScmsyncReadOnly < APIError
+    setup 403
+  end
 end
