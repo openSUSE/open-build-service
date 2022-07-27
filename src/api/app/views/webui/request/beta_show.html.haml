@@ -2,6 +2,10 @@
   @pagetitle = "Request #{@bs_request.number}"
   @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
 
+- if @can_add_reviews
+  = render partial: 'actions'
+  = render partial: 'add_reviewer_dialog'
+
 .card
   .card-body.p-0
     .card-title.px-4.pt-4
