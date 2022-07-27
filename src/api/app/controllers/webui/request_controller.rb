@@ -140,6 +140,12 @@ class Webui::RequestController < Webui::WebuiController
       redirect_back(fallback_location: root_path)
     end
 
+    @is_author = @bs_request.creator == User.possibly_nobody.login
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+    reviews = @bs_request.reviews.where(state: 'new')
+    @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
+    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
     @diff_limit = params[:full_diff] ? 0 : nil
     @diff_to_superseded_id = params[:diff_to_superseded]
     @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
