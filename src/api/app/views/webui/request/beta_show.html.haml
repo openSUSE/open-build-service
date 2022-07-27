@@ -4,11 +4,16 @@
 
 .card
   .card-body.p-0
-    .card-title.px-4.pt-4
-      %h3
-        = @pagetitle
-        %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
-          = @bs_request.state
+    .card-title.px-4.pt-4.mb-0
+      .d-md-flex
+        %h3.mr-md-4
+          = @pagetitle
+          %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+            = @bs_request.state
+        %span.font-italic.align-self-md-center
+          Created by
+          = user_with_realname_and_icon(@bs_request.creator)
+          = fuzzy_time(@bs_request.created_at)
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
         = link_to('Overview', '#overview', class: 'nav-link text-nowrap active', 'aria-controls': 'overview',
