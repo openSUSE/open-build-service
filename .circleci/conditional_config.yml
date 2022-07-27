@@ -96,28 +96,21 @@ aliases:
     name: Setup application
     command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
 
-  - &store_minitest_artifacts
-    store_artifacts:
-      path: ./src/api/log/
-      destination: minitest
+  - &compress_log_artifacts
+    name: Compress Log Artifacts
+    command: |
+      cd src/api/log
+      for i in *.log; do xz -T 0 -v $i; done
 
-  - &store_minitest_test_results
-    store_test_results:
-      path: /home/frontend/minitest
-
-  - &store_rspec_artifacts
-    store_artifacts:
-      path: ./src/api/log
-      destination: rspec
-
-  - &store_rspec_test_results
-    store_test_results:
-      path: /home/frontend/rspec
-
-  - &store_capybara_artifacts
-    store_artifacts:
-      path: ./src/api/tmp/capybara
-      destination: capybara
+  - &compress_capybara_artifacts
+    name: Compress Capybara Artifacts
+    command: |
+      # The directory might not exist if nothing failed...
+      mkdir -p src/api/tmp/capybara
+      cd src/api/tmp/capybara
+      export NUMBER_OF_FAILED_TESTS=`ls -1|wc -l`
+      # Only compress if there are more than 20 tests failed...
+      if test $NUMBER_OF_FAILED_TESTS -gt 40; then mkdir capybara; mv  -v *.png *.html capybara; tar cvJf capybara.tar.xz capybara; rm -rf capybara; fi
 
   - &install_circle_cli
     name: Install CircleCI command line
@@ -251,8 +244,12 @@ jobs:
           root: .
           paths:
             - src/api/coverage_results
-      - <<: *store_rspec_artifacts
-      - <<: *store_rspec_test_results
+      - store_test_results:
+          path: /home/frontend/rspec
+      - run: *compress_log_artifacts
+      - store_artifacts:
+          path: ./src/api/log
+          destination: log
 
   minitest:
     parallelism: 2
@@ -287,8 +284,12 @@ jobs:
           root: .
           paths:
             - src/api/coverage_results
-      - <<: *store_minitest_test_results
-      - <<: *store_minitest_artifacts
+      - store_test_results:
+          path: /home/frontend/minitest
+      - run: *compress_log_artifacts
+      - store_artifacts:
+          path: ./src/api/log/
+          destination: log
 
   migrations_tests:
     docker:
@@ -336,7 +337,10 @@ jobs:
           command: |
             cd src/api
             bundle exec rake test:spider
-      - <<: *store_minitest_artifacts
+      - run: *compress_log_artifacts
+      - store_artifacts:
+          path: ./src/api/log/
+          destination: log
 
   backend_test:
     docker:
@@ -361,12 +365,13 @@ jobs:
             cd src/api
             export COVERALLS_REPO_TOKEN=HWLJwfiFsKPGEOzfgllO3pP3rqV540Qt3
             bundle exec rake ci:simplecov_ci_merge
+      - run:
+          name: Compress coverage results
+          command: |
+            cd src/api
+            tar cvJf coverage_results.tar.xz coverage/codecov-result.json coverage_results/*
       - store_artifacts:
-          path: src/api/coverage
-          destination: coverage
-      - store_artifacts:
-          path: src/api/coverage_results
-          destination: raw_coverage
+          path: src/api/coverage_results.tar.xz
 
   feature:
     parallelism: 2
@@ -397,12 +402,16 @@ jobs:
           root: .
           paths:
             - src/api/coverage_results
-      - store_artifacts:
-          path: ./src/api/log
-          destination: feature
-      - <<: *store_capybara_artifacts
       - store_test_results:
           path: /home/frontend/feature
+      - run: *compress_log_artifacts
+      - store_artifacts:
+          path: ./src/api/log
+          destination: log
+      - run: *compress_capybara_artifacts
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
 
   next_rails-rspec:
     docker:
@@ -419,9 +428,16 @@ jobs:
       - run:
           name: Run specs
           command: cd src/api && bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
-      - <<: *store_rspec_artifacts
-      - <<: *store_rspec_test_results
-      - <<: *store_capybara_artifacts
+      - store_test_results:
+          path: /home/frontend/rspec
+      - run: *compress_log_artifacts
+      - store_artifacts:
+          path: ./src/api/log
+          destination: log
+      - run: *compress_capybara_artifacts
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
 
   next_rails-minitest:
     docker:
@@ -440,8 +456,12 @@ jobs:
           environment:
             TESTOPTS: "--ci-dir=/home/frontend/minitest"
           command: cd src/api && bundle exec rake test:api:group1 test:api:group2
-      - <<: *store_minitest_test_results
-      - <<: *store_minitest_artifacts
+      - store_test_results:
+          path: /home/frontend/minitest
+      - run: *compress_log_artifacts
+      - store_artifacts:
+          path: ./src/api/log/
+          destination: log
 
 workflows:
   version: 2
