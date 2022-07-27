@@ -96,7 +96,7 @@ RSpec.shared_examples 'bootstrap user tab' do
 
       find('td', text: "#{reader.realname} (reader_user)").ancestor('tr').find('.remove-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
-      click_button('Delete')
+      click_button('Remove')
 
       expect(page).to have_text('Removed user reader_user')
       expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
