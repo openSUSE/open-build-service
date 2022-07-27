@@ -39,7 +39,9 @@ module Webui
         rescue Backend::Error => e
           errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
         rescue APIError, StandardError => e
-          errors << e.message
+          message = e.default_message if e.class.to_s == e.message
+          message = e.message if message.blank?
+          errors << message
         end
 
         if errors.empty?

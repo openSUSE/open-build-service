@@ -34,4 +34,8 @@ module Package::Errors
   class IllegalFileName < APIError; setup 'invalid_file_name_error'; end
 
   class PutFileNoPermission < APIError; setup 403; end
+
+  class ScmsyncReadOnly < APIError
+    setup 'scmsync_read_only', 403, 'Can not change files in SCM bridged packages'
+  end
 end

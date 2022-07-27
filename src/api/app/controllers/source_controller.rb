@@ -333,8 +333,19 @@ class SourceController < ApplicationController
     else
       # we need a local package here in any case for modifications
       @pack = Package.get_by_project_and_name(@project_name, @package_name)
+      # no modification or deletion of scmsynced projects and packages allowed
+      check_for_scmsynced_package_and_project(project: @prj, package: @pack)
       @allowed = permissions.package_change?(@pack)
     end
+  end
+
+  def check_for_scmsynced_package_and_project(project:, package:)
+    return unless package.try(:scmsync).present? || project.try(:scmsync).present?
+
+    scmsync_url = project.try(:scmsync)
+    scmsync_url ||= package.try(:scmsync)
+
+    raise ScmsyncReadOnly, "Can not change files in SCM bridged packages and projects: #{scmsync_url}"
   end
 
   # PUT /source/:project/:package/:filename

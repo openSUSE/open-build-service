@@ -1,6 +1,7 @@
 # Class to read and write the "_services" file on the Backend
 class Service
   include ActiveModel::Model
+  include Package::Errors
   class InvalidParameter < APIError; end
 
   attr_accessor :package
@@ -82,6 +83,8 @@ class Service
   end
 
   def save
+    raise ScmsyncReadOnly if package.scmsync.present?
+
     if document.xpath('//services/service').empty?
       begin
         Backend::Api::Sources::Package.delete_file(project.name, package.name, '_service')
