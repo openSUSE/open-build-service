@@ -1493,9 +1493,16 @@ our $person = [
       [ 'globalrole' ],
 	'ignore_auth_services',
       [ 'watchlist' =>
-	 [[ 'project' =>
-		'name',
-	 ]],
+		[[ 'project' =>
+			'name',
+		]],
+		[[ 'package' =>
+			'name',
+			'project'
+		]],
+		[[ 'request' =>
+			'number'
+		]],
       ],
 ];
 
