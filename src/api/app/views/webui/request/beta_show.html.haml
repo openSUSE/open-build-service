@@ -14,6 +14,9 @@
           = @pagetitle
           %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
             = @bs_request.state
+            - if @bs_request.superseded_by.present?
+              by
+              = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
         %span.font-italic.align-self-md-center
           Created by
           = user_with_realname_and_icon(@bs_request.creator)
