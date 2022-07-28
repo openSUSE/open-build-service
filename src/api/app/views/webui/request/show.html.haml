@@ -64,6 +64,6 @@
       .card-body
         = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
 
-- if User.session
+- if @can_add_reviews
   = render partial: 'webui/request/add_reviewer_dialog'
 = render partial: 'webui/request/show_package_maintainers', locals: { package_maintainers: @package_maintainers }
