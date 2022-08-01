@@ -26,6 +26,12 @@ RSpec.describe WorkflowRunPolicy do
       end
     end
 
+    context 'when the token does not exist' do
+      it 'does not crash and raises a not authorized error' do
+        expect { subject.new(User.session, WorkflowRun, { token_id: nil }).resolve }.to raise_error(Pundit::NotAuthorizedError)
+      end
+    end
+
     context 'when the user does not have permission' do
       before do
         User.session = create(:confirmed_user, login: 'bar')
