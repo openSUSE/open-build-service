@@ -88,7 +88,8 @@ def ignore_by_backend_400_message?(message)
                         '<summary>could not apply patch', '<summary>illegal characters</summary>',
                         '<summary>repoid is empty</summary>', '<summary>packid is empty</summary>',
                         '<summary>bad private key</summary>', '<summary>pubkey is already expired</summary>',
-                        '<summary>not a RSA pubkey</summary>', ' <summary>self-sig does not expire</summary>'].freeze
+                        '<summary>not a RSA pubkey</summary>', ' <summary>self-sig does not expire</summary>',
+                        '<summary>excess hash entries: '].freeze
   messages_to_ignore.each do |ignored_error_message|
     return true if message.include?(ignored_error_message)
   end
