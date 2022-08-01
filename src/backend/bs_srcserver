@@ -6201,16 +6201,47 @@ sub lastevents {
 }
 
 sub prunelastevents {
-  my ($size) = @_;
+  my ($sizemin, $sizemax, $cutmin, $cutmax) = @_;
   local *F;
   BSUtil::lockopen(\*F, '+>>', "$eventdir/lastevents");
-  my $events = readstr("$eventdir/lastevents");
-  if (length($events) >= $size * 2) {
-    $events = substr($events, -$size);
-    $events =~ s/^[^\n]*\n//s;
-    writestr("$eventdir/.lastevents", "$eventdir/lastevents", $events) if $events;
+  defined(sysseek(\*F, 0, 0)) || die("sysseek: $!\n");
+  my $events = '';
+
+  # read first 32 bytes to get (number, time)
+  my $l = sysread(\*F, $events, 32);
+  my @s = split('\|', $events, 3);
+  if (@s > 2 && $s[1] && $s[1] > $cutmax) {
+    close(F);
+    return;
   }
-  close F;
+
+  # read rest of the file in 8k blocks
+  sysread(\*F, $events, 8192 - 32, length($events));
+  1 while sysread(\*F, $events, 8192, length($events));
+
+  if (length($events) < $sizemax) {
+    close(F);
+    return;
+  }
+
+  # fast pruning by size
+  my $pi = index($events, "\n", length($events) - $sizemin);
+  if ($pi >= 0) {
+    my @s = split('\|', substr($events, $pi + 1, 32), 3);
+    substr($events, 0, $pi + 1, '') if @s > 2 && $s[1] && $s[1] <= $cutmin;
+  }
+
+  # prune to sizemin or cutmin
+  while (length($events) >= $sizemin) {
+    my @s = split('\|', substr($events, 0, 32), 3);
+    last if @s > 2 && $s[1] && $s[1] > $cutmin;
+    my $i = index($events, "\n");
+    last unless $i >= 0;
+    substr($events, 0, $i + 1, '');
+  }
+
+  writestr("$eventdir/.lastevents", "$eventdir/lastevents", $events) if $events;
+  close(F);
 }
 
 #
@@ -6225,18 +6256,20 @@ sub addevent {
   # XXX: maybe better to add a "noaccess" marker to the event
   # and filter in the request
   if (defined($ev->{'project'})) {
-    my $access = 1;
     my $proj = BSRevision::readproj_local($ev->{'project'}, 1);
-    if ($proj && $proj->{'access'}) {
-      $access = BSUtil::enabled('', $proj->{'access'}, $access, '');
-    }
+    my $access = 1;
+    $access = BSUtil::enabled('', $proj->{'access'}, $access, '') if $proj && $proj->{'access'};
     # XXX: may also check packages in the future
     return unless $access;
   }
-  $ev->{'time'} = time();
+  my $now = time();
+  $ev->{'time'} = $now;
   mkdir_p($eventdir);
-  my $size = 262144;	#keep at least 256k of data
-  prunelastevents($size) if -s "$eventdir/lastevents" && -s _ >= $size * 2;
+  my $sizemin = 262144;		# keep at least 256k of data
+  my $sizemax = $sizemin * 2;	# start pruning at this size
+  my $timemin = 1800;		# keep at least 1/2 hour
+  my $timemax = 3600;		# start pruning if first entry is older than 1 hour
+  prunelastevents($sizemin, $sizemax, $now - $timemin, $now - $timemax) if -s "$eventdir/lastevents" && -s _ >= $sizemax;
   BSFileDB::fdb_add_i("$eventdir/lastevents", $eventlay, $ev);
 }
 
