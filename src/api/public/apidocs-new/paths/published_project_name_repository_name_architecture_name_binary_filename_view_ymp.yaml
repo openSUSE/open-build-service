@@ -10,7 +10,12 @@ get:
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/repository_name.yaml'
-    - $ref: '../components/parameters/architecture_name.yaml'
+    - in: path
+      name: architecture_name
+      schema:
+        type: string
+      description: Architecture name
+      example: x86_64
     - $ref: '../components/parameters/binary_filename.yaml'
   responses:
     '200':
