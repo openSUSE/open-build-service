@@ -11,6 +11,18 @@ OBSApi::Application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
+  # Eager load STI variants, otherwise Rails do not load the STI subclasses in
+  # development environment and we face "uninitalized constant Something" errors.
+  sti_classes_to_eager_load = Dir["app/models/bs_request/**/*.rb",
+                                  "app/models/event/**.rb",
+                                  "app/models/history_element/**.rb",
+                                  "app/models/owner_search/**.rb",
+                                  "app/models/token/**.rb"]
+  config.eager_load_paths += sti_classes_to_eager_load
+  ActiveSupport::Reloader.to_prepare do
+    sti_classes_to_eager_load.each { |f| require_dependency("#{Dir.pwd}/#{f}") }
+  end
+
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
   config.action_mailer.delivery_method = :test
   config.action_mailer.raise_delivery_errors = true
