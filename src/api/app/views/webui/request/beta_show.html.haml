@@ -19,7 +19,7 @@
               = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
         %span.font-italic.align-self-md-center
           Created by
-          = user_with_realname_and_icon(@bs_request.creator)
+          = user_with_realname_and_icon(@bs_request.creator, short: true)
           = fuzzy_time(@bs_request.created_at)
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
