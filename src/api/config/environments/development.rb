@@ -17,6 +17,7 @@ OBSApi::Application.configure do
                                   "app/models/event/**.rb",
                                   "app/models/history_element/**.rb",
                                   "app/models/owner_search/**.rb",
+                                  "app/models/token.rb",
                                   "app/models/token/**.rb"]
   config.eager_load_paths += sti_classes_to_eager_load
   ActiveSupport::Reloader.to_prepare do
