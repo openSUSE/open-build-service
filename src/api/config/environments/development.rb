@@ -11,12 +11,12 @@ OBSApi::Application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
-  # Eager load STI variants, otherwise Rails do not load the STI subclasses in
-  # development environment and we face "uninitalized constant Something" errors.
-  sti_classes_to_eager_load = Dir["app/models/bs_request/**/*.rb",
-                                  "app/models/event/**.rb",
+  # Eager load sub-classes we use in associations
+  # (ack class_name app/models |ack ::)
+  # so we don't face "uninitalized constant Something" errors.
+  sti_classes_to_eager_load = Dir["app/models/status/**.rb",
                                   "app/models/history_element/**.rb",
-                                  "app/models/owner_search/**.rb",
+                                  "app/models/token.rb",
                                   "app/models/token/**.rb"]
   config.eager_load_paths += sti_classes_to_eager_load
   ActiveSupport::Reloader.to_prepare do
