@@ -493,7 +493,7 @@ GEM
       method_source (~> 1.0)
     voight_kampff (1.1.4)
       rack (>= 1.4, < 3.0)
-    webmock (3.14.0)
+    webmock (3.16.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
