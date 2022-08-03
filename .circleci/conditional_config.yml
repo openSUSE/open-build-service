@@ -143,6 +143,25 @@ jobs:
       - run: echo "run-dist-linter is << pipeline.parameters.run-dist-linter >>"
       - run: echo "run-haml-linter is << pipeline.parameters.run-haml-linter >>"
 
+  checkout_code:
+    docker:
+      - <<: *frontend_base
+    steps:
+      - checkout
+      - *restore_bundler_cache
+      - *restore_rubocop_cache
+      - run: *install_dependencies
+      - *save_bundler_cache
+      - run: *install_circle_cli
+      - run:
+          name: Setup application
+          command: |
+            cd src/api
+            bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   linters:
     docker:
       - <<: *frontend_base
@@ -187,26 +206,6 @@ jobs:
                 command: |
                   cd src/api
                   bundle exec rake dev:lint:apidocs
-
-  checkout_code:
-    docker:
-      - <<: *frontend_base
-    steps:
-      - checkout
-      - *restore_bundler_cache
-      - *restore_rubocop_cache
-      - run: *install_dependencies
-      - *save_bundler_cache
-      - run: *install_circle_cli
-      - run:
-          name: Setup application
-          command: |
-            cd src/api
-            bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
 
   rspec:
     parallelism: 3
