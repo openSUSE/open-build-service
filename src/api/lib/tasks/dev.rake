@@ -10,6 +10,7 @@ namespace :dev do
     database_yml = YAML.load_file('config/database.yml') || {}
     database_yml['test']['host'] = 'db'
     database_yml['development']['host'] = 'db'
+    database_yml['production']['host'] = 'db'
     File.write('config/database.yml', YAML.dump(database_yml))
 
     puts 'Setting up the application configuration...'

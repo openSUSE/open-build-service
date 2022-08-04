@@ -55,6 +55,7 @@ images:
 
   - &frontend_features
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
+
 aliases:
   - &restore_bundler_cache
     restore_cache:
@@ -143,6 +144,25 @@ jobs:
       - run: echo "run-dist-linter is << pipeline.parameters.run-dist-linter >>"
       - run: echo "run-haml-linter is << pipeline.parameters.run-haml-linter >>"
 
+  checkout_code:
+    docker:
+      - <<: *frontend_base
+    steps:
+      - checkout
+      - *restore_bundler_cache
+      - *restore_rubocop_cache
+      - run: *install_dependencies
+      - *save_bundler_cache
+      - run: *install_circle_cli
+      - run:
+          name: Setup application
+          command: |
+            cd src/api
+            bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   linters:
     docker:
       - <<: *frontend_base
@@ -188,26 +208,6 @@ jobs:
                   cd src/api
                   bundle exec rake dev:lint:apidocs
 
-  checkout_code:
-    docker:
-      - <<: *frontend_base
-    steps:
-      - checkout
-      - *restore_bundler_cache
-      - *restore_rubocop_cache
-      - run: *install_dependencies
-      - *save_bundler_cache
-      - run: *install_circle_cli
-      - run:
-          name: Setup application
-          command: |
-            cd src/api
-            bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
-
   rspec:
     parallelism: 3
     docker:
@@ -231,7 +231,7 @@ jobs:
             # run DB tests at the end of node 0
             # see https://github.com/openSUSE/open-build-service/issues/4959
             if test "$CIRCLE_NODE_INDEX" = 0; then
-              echo "Running migration tests"
+              echo "Running data migration tests"
               # simulating parallel tests - otherwise one rspec call overwrites the previous
               export TEST_ENV_NUMBER=2
               export PARALLEL_TEST_GROUPS="RSpec"
@@ -323,6 +323,7 @@ jobs:
             make -C src/api test_rack
 
   spider:
+    parallelism: 2
     docker:
       - <<: *frontend_minitest
       - <<: *mariadb
@@ -336,7 +337,18 @@ jobs:
           name: Run spider
           command: |
             cd src/api
-            bundle exec rake test:spider
+            case $CIRCLE_NODE_INDEX in
+              0)
+                bundle exec rails test test/functional/webui/spider_test.rb -n test_spider_anonymously
+                echo "Test loading the application in production"
+                bundle exec rake secret > config/secret.key
+                DISABLE_DATABASE_ENVIRONMENT_CHECK=1 RAILS_ENV=production bundle exec rake db:setup zeitwerk:check
+                rm config/secret.key
+                ;;
+              1)
+                bundle exec rails test test/functional/webui/spider_test.rb -n test_spider_as_admin
+                ;;
+            esac
       - run: *compress_log_artifacts
       - store_artifacts:
           path: ./src/api/log/
