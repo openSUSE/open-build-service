@@ -86,7 +86,7 @@ sub pubkey2sslcert {
     $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C', $pubkeyfile);
   };
   if ($@) {
-    die("Need an RSA key for openssl signing, please create a new key for $projid\n") if $@ =~ /not an RSA private key/i;
+    die("Need an RSA key for openssl signing, please create a new key for $projid\n") if $@ =~ /not an? RSA (?:private key|pubkey)/i;
     die($@);
   }
   return $cert;

@@ -321,9 +321,12 @@ sub server {
     my $tout = $timeout || 5;	# reap every 5 seconds
     if ($conf->{'periodic'}) {
       my $due = $periodic_next - time();
+      my $periodic_interval = $conf->{'periodic_interval'} || 3;
       if ($due <= 0) {
 	$conf->{'periodic'}->($conf, $server);
-        my $periodic_interval = $conf->{'periodic_interval'} || 3;
+	$periodic_next += $periodic_interval - $due;
+	$due = $periodic_interval;
+      } elsif ($due > $periodic_interval) {		# deal with clock jumps
 	$periodic_next += $periodic_interval - $due;
 	$due = $periodic_interval;
       }
