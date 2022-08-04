@@ -420,3 +420,10 @@ RSpec/Rails/AvoidSetupHook:
 
 Bundler/OrderedGems:
   Enabled: false
+
+##################### View Component ###########################
+
+ViewComponent:
+  # Custom cops under the RuboCop::Cop::ViewComponent module (lib/rubocop/cop/view_component) will run only for view components, which are always under app/components/
+  Include:
+    - "app/components/**/*.rb"
