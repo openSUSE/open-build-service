@@ -3,7 +3,7 @@
 # It is used in the beta view of the request show page, under the Overview tab,
 # It merges the BsRequestCommentComponent and the BsRequestHistoryElement to
 # create a merged timeline.
-class BsRequestActivityTimeline < ApplicationComponent
+class BsRequestActivityTimelineComponent < ApplicationComponent
   attr_reader :bs_request, :creator, :timeline
 
   def initialize(bs_request:)
