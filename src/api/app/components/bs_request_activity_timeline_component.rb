@@ -2,7 +2,7 @@
 #
 # It is used in the beta view of the request show page, under the Overview tab,
 # It merges the BsRequestCommentComponent and the BsRequestHistoryElement to
-# create a merged timeline.
+# provide a merged timeline of events.
 class BsRequestActivityTimelineComponent < ApplicationComponent
   attr_reader :bs_request, :creator, :timeline
 
