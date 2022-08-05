@@ -13,18 +13,9 @@ module RuboCop
         #
         # @param [RuboCop::AST::ClassNode]
         def on_class(node)
-          return unless view_component?(node)
-
           params(node).each do |param|
             add_offense(param)
           end
-        end
-
-        private
-
-        # We can safely assume a class node is a view component if its name ends with Component
-        def view_component?(node)
-          node.identifier.short_name.to_s.end_with?('Component')
         end
       end
     end

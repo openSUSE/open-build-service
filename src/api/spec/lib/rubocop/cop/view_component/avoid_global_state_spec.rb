@@ -2,9 +2,13 @@ require 'rails_helper'
 require './lib/rubocop/cop/view_component/avoid_global_state'
 
 RSpec.describe RuboCop::Cop::ViewComponent::AvoidGlobalState, :config do
+  let(:config) do
+    RuboCop::Config.new({ 'ViewComponent' => { 'Include' => ['app/components/**/*.rb'] } }, '/some/.rubocop.yml')
+  end
+
   context 'when a view component uses params' do
     it 'registers an offense' do
-      expect_offense(<<~RUBY)
+      expect_offense(<<~RUBY, 'app/components/my_component.rb')
         class MyComponent < ApplicationComponent
           def initialize
             @abc = params[:abc]
@@ -17,7 +21,7 @@ RSpec.describe RuboCop::Cop::ViewComponent::AvoidGlobalState, :config do
 
   context 'when a view component does not use params' do
     it 'does not register an offense' do
-      expect_no_offenses(<<~RUBY)
+      expect_no_offenses(<<~RUBY, 'app/components/my_component.rb')
         class MyComponent < ApplicationComponent
           def initialize
             @abc = 'abc'
@@ -29,7 +33,7 @@ RSpec.describe RuboCop::Cop::ViewComponent::AvoidGlobalState, :config do
 
   context 'when a class which is not a view component uses params' do
     it 'does not register an offense' do
-      expect_no_offenses(<<~RUBY)
+      expect_no_offenses(<<~RUBY, 'app/controllers/clients_controller.rb')
         class ClientsController < ApplicationController
           def show
             @client = Client.find(params[:id])
