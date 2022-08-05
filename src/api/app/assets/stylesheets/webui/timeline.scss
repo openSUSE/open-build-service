@@ -1,0 +1,15 @@
+// This stylesheet defines styles for use in the comments and request history merged timeline
+.timeline-item {
+    position: relative;
+}
+
+.timeline-item:before {
+    content: "";
+    display: block;
+    width: 2px;
+    background-color: #aeaeae;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 11px;
+}

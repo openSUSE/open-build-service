@@ -36,7 +36,7 @@
                   'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.show.p-2.active#overview{ 'aria-labelledby': 'overview-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/overview'
+        = render partial: 'webui/request/beta_show_tabs/overview', locals: { bs_request: @bs_request }
       .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/build_results'
       .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
