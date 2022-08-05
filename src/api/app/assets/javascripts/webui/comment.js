@@ -21,14 +21,16 @@ function validateForm(e) {
 
 $(document).ready(function(){
   // Disable submit button if textarea is empty and enable otherwise
-  $('.comments-list').on('keyup', '.comment-field', function(e) {
+  $('.comments-list,.comment_new,.timeline').on('keyup', '.comment-field', function(e) {
     validateForm(e);
   });
 
-  $('.comments-list').on('keyup click', '.comment-field', function() {
+  $('.comments-list,.comment_new,.timeline').on('keyup click', '.comment-field', function() {
     resizeTextarea(this);
   });
 
+  // This is being used by the legacy request view comment form to capture the rendered template
+  // from the controller and replace the whole .comments-list with it
   $('.comments-list').on('ajax:complete', '.post-comment-form', function(_, data) {
     var $commentsList = $(this).closest('.comments-list');
 
@@ -36,12 +38,30 @@ $(document).ready(function(){
     updateCommentCounter($commentsList.data('comment-counter'), 1);
   });
 
+  // This is being used to render only the comment thread for a reply by the beta request show view
+  $('.timeline').on('ajax:complete', '.post-comment-form', function(_, data) {
+    $(this).closest('.comments-thread').html(data.responseText);
+  });
+
+  // This is being used to render a new root comment by the beta request show view
+  $('.comment_new').on('ajax:complete', '.post-comment-form', function(_, data) {
+    $(this).closest('.comment_new').prev().append(data.responseText);
+    $(this).trigger("reset");
+  });
+
+  // This is being used to update the comment with the updated content after an edit from the legacy request view
   $('.comments-list').on('ajax:complete', '.put-comment-form', function(_, data) {
     var $commentsList = $(this).closest('.comments-list');
 
     $commentsList.html(data.responseText);
   });
 
+  // This is being used to update the comment with the updated content after an edit from the beta request show view
+  $('.timeline').on('ajax:complete', '.put-comment-form', function(_, data) {
+    $(this).closest('.comments-thread').html(data.responseText);
+  });
+
+  // This is used to delete a comment from the legacy request view
   $('.comments-list').on('ajax:complete', '.delete-comment-form', function(_, data) {
     var $this = $(this),
         $commentsList = $this.closest('.comments-list'),
@@ -51,6 +71,19 @@ $(document).ready(function(){
     // We have to wait until the modal is hidden to properly remove the dialog UI
     $form.on('hidden.bs.modal', function () {
       updateCommentCounter($commentsList.data('comment-counter'), -1);
+      $commentsList.html(data.responseText);
+    });
+  });
+
+  // This is used to delete comments from the beta request show view, we are not gonna get an updated comment thread like
+  $('.timeline').on('ajax:complete', '.delete-comment-form', function(_, data) {
+    var $this = $(this),
+        $commentsList = $this.closest('.comments-thread'),
+        $form = $('#delete-comment-modal-' + $this.data('commentId'));
+
+    $form.modal('hide');
+    // We have to wait until the modal is hidden to properly remove the dialog UI
+    $form.on('hidden.bs.modal', function () {
       $commentsList.html(data.responseText);
     });
   });
@@ -71,7 +104,9 @@ $(document).ready(function(){
     $(e.target).closest('.collapse').collapse('hide');
   });
 
-  $('.comments-list').on('click', '.preview-comment-tab:not(.active)', function (e) {
+  // This is used to preview comments from the beta request show view: inside timeline thread (.timeline) and outside timeline (body)
+  // and also from the legacy request view (.comments-list): inside and outside the thread.
+  $('.comments-list, .timeline, body').on('click', '.preview-comment-tab:not(.active)', function (e) {
       var commentContainer = $(e.target).closest('[class*="-comment-form"]');
       var commentBody = commentContainer.find('.comment-field').val();
       var commentPreview = commentContainer.find('.comment-preview');

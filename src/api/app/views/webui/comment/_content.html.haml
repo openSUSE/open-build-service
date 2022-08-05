@@ -16,4 +16,3 @@
 - if level > 3
   - comment.children.includes(:user).each do |children|
     = render partial: 'webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
-

@@ -45,6 +45,10 @@ class Comment < ApplicationRecord
                                           when: updated_at.strftime('%Y-%m-%dT%H:%M:%S') })
   end
 
+  def unused_parent?
+    parent && parent.user.is_nobody? && parent.children.length.zero?
+  end
+
   private
 
   def create_event
@@ -59,7 +63,7 @@ class Comment < ApplicationRecord
   end
 
   def delete_parent_if_unused
-    parent.destroy if parent && parent.user.is_nobody? && parent.children.length.zero?
+    parent.destroy if unused_parent?
   end
 
   # build an array of users, commenting or being mentioned on the commentable of this comment

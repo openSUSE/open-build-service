@@ -105,6 +105,136 @@ RSpec.describe Webui::CommentsController, type: :controller do
       it { expect(flash[:success]).to eq('Comment deleted successfully.') }
       it { expect(Comment.where(id: other_comment.id)).to eq([]) }
     end
+
+    context 'whith the request_show_redesign beta flag active' do
+      render_views
+
+      before { Flipper.enable(:request_show_redesign, admin) }
+
+      let!(:root_comment) { create(:comment_request, body: 'This is a root comment') }
+
+      context 'deleting a root comment' do
+        context 'with no replies' do
+          before do
+            login admin
+            delete :destroy, params: { id: root_comment.id }
+          end
+
+          it 'removes the comment thread from the view' do
+            expect(response.body).to be_empty
+          end
+        end
+
+        context 'and having a reply' do
+          let(:commentable) { root_comment.commentable }
+          let!(:root_reply) { create(:comment_request, commentable: commentable, body: 'This is a reply', parent_id: root_comment.id) }
+
+          before do
+            login admin
+            delete :destroy, params: { id: root_comment.id }
+          end
+
+          it 'renders This comment has been deleted' do
+            expect(response.body).to have_text('This comment has been deleted')
+          end
+
+          it 'renders the replies below' do
+            expect(response.body).not_to have_text('This is a root comment')
+            expect(response.body).to have_text('This is a reply')
+          end
+        end
+      end
+
+      context 'deleting a reply' do
+        context 'with no replies' do
+          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: root_comment.id) }
+
+          before do
+            login admin
+            delete :destroy, params: { id: leaf.id }
+          end
+
+          it 'renders the updated thread without the reply' do
+            expect(response.body).to have_text('This is a root comment')
+          end
+
+          it 'removes the reply from the view' do
+            expect(response.body).not_to have_text('This is a leaf')
+          end
+        end
+
+        context 'with replies' do
+          let(:reply) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a reply comment', parent_id: root_comment.id) }
+          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: reply.id) }
+
+          before do
+            login admin
+            delete :destroy, params: { id: reply.id }
+          end
+
+          it 'renders the updated thread back' do
+            expect(response.body).to have_text('This is a root comment')
+          end
+
+          it 'renders This comment has been deleted' do
+            expect(response.body).to have_text('This comment has been deleted')
+          end
+
+          it 'renders the replies below' do
+            expect(response.body).to have_text('This is a leaf comment')
+          end
+        end
+
+        context 'with a deleted parent that is the root comment' do
+          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: root_comment.id) }
+
+          before do
+            root_comment.blank_or_destroy
+
+            login admin
+            delete :destroy, params: { id: leaf.id }
+          end
+
+          it 'removes the leaf' do
+            expect(response.body).not_to have_text('This is a leaf comment')
+          end
+
+          it 'removes the root comment' do
+            expect(response.body).not_to have_text('This is a root comment')
+            expect(response.body).not_to have_text('This comment has been deleted')
+          end
+        end
+
+        context 'with all parents deleted' do
+          let!(:reply) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a reply comment', parent_id: root_comment.id) }
+          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: reply.id) }
+
+          before do
+            root_comment.blank_or_destroy
+            reply.blank_or_destroy
+
+            login admin
+            delete :destroy, params: { id: leaf.id }
+          end
+
+          it 'removes the root comment' do
+            expect(response.body).not_to have_text('This is a root comment')
+          end
+
+          it 'removes the reply comment' do
+            expect(response.body).not_to have_text('This is a reply comment')
+          end
+
+          it 'removes the leaf comment' do
+            expect(response.body).not_to have_text('This is a leaf comment')
+          end
+
+          it 'does not render the deleted comments' do
+            expect(response.body).not_to have_text('This comment has been deleted')
+          end
+        end
+      end
+    end
   end
 
   describe 'POST #preview' do
