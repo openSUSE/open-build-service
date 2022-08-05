@@ -9,18 +9,18 @@
 .card
   .card-body.p-0
     .card-title.px-4.pt-4.mb-0
-      .d-md-flex
-        %h3.mr-md-4
-          = @pagetitle
-          %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
-            = @bs_request.state
-            - if @bs_request.superseded_by.present?
-              by
-              = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
-        %span.font-italic.align-self-md-center
-          Created by
-          = user_with_realname_and_icon(@bs_request.creator)
-          = fuzzy_time(@bs_request.created_at)
+      %h3.mr-md-4
+        Request #{@bs_request.number}
+        %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+          = @bs_request.state
+          - if @bs_request.superseded_by.present?
+            by
+            = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
+    %p.font-italic.px-4
+      Created by
+      = user_with_realname_and_icon(@bs_request.creator)
+      = fuzzy_time(@bs_request.created_at)
+    %p.px-4= request_action_header(@actions.first, @bs_request.creator) # TODO: adapt when handling requests with multiple actions
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
         = link_to('Overview', '#overview', class: 'nav-link text-nowrap active', 'aria-controls': 'overview',
