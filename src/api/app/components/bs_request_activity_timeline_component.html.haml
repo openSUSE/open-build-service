@@ -14,8 +14,6 @@
           - bs_request.superseding.each do |superseded_request|
             = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
 
-      = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
-
   - timeline.each do |comment_or_history_element|
     .timeline-item
       - if comment_or_history_element.is_a?(Comment)

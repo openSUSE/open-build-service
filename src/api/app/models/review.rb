@@ -57,7 +57,11 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_groups, ->(group_ids) { where(group_id: group_ids, state: :new).select(:bs_request_id) }
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
+  scope :opened, -> { where(state: :new) }
+  scope :accepted, -> { where(state: :accepted) }
   scope :declined, -> { where(state: :declined) }
+  scope :for_staging_projects, -> { includes(:project).where.not(projects: { staging_workflow_id: nil }) }
+  scope :for_non_staging_projects, -> { includes(:project).where(projects: { staging_workflow_id: nil }) }
 
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
@@ -271,6 +275,22 @@ class Review < ApplicationRecord
   # Make sure this is always set, also for old records
   def changed_state_at
     self[:changed_state_at] || self[:updated_at]
+  end
+
+  def for_user?
+    by_user?
+  end
+
+  def for_group?
+    by_group?
+  end
+
+  def for_project?
+    by_project? && !by_package?
+  end
+
+  def for_package?
+    by_project? && by_package?
   end
 
   private

@@ -35,6 +35,10 @@
       Created by
       = user_with_realname_and_icon(@bs_request.creator)
       = fuzzy_time(@bs_request.created_at)
+      - if @bs_request.superseding.present?
+        = '. Supersedes'
+        - @bs_request.superseding.each do |supersed|
+          = link_to "##{supersed['number']}", number: supersed['number']
     %p.px-4= request_action_header(@actions.first, @bs_request.creator) # TODO: adapt when handling requests with multiple actions
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
@@ -51,7 +55,11 @@
                   'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.show.p-2.active#overview{ 'aria-labelledby': 'overview-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/overview', locals: { bs_request: @bs_request }
+        = render partial: 'webui/request/beta_show_tabs/overview', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
+                                                                             open_reviews: @open_reviews,
+                                                                             accepted_reviews: @accepted_reviews,
+                                                                             declined_reviews: @declined_reviews,
+                                                                             open_reviews_for_staging_projects: @open_reviews_for_staging_projects }
       .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @actions.first[:sprj], package: @actions.first[:spkg] }
       .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }

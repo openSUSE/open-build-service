@@ -1,0 +1,11 @@
+%ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
+  - avatar_objects.each do |avatar_object|
+    %li.list-inline-item
+      = helpers.image_tag_for(avatar_object, size: 23, custom_class: 'rounded-circle bg-light border border-gray-400')
+
+  - if avatar_objects.empty? && @review.for_package?
+    %li.list-inline-item
+      %i.fa.fa-archive.text-warning.rounded-circle.bg-light.border.border-gray-400.simulated-avatar
+  - elsif avatar_objects.empty? && @review.for_project?
+    %li.list-inline-item
+      %i.fa.fa-cubes.text-secondary.rounded-circle.bg-light.border.border-gray-400.simulated-avatar
