@@ -8,8 +8,13 @@
     .row
       .col-md-4.order-md-2.order-sm-1.mb-4#side-links
         - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
-          %h4
-            Reviews
+          .d-flex.justify-content-between
+            %h4
+              Reviews
+            = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
+                                                    can_add_reviews: can_add_reviews,
+                                                    my_open_reviews: my_open_reviews)
+          = render AddReviewCollapsibleComponent.new
           .mb-4
             = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
             = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
@@ -21,10 +26,13 @@
             - staging_project = review.project
             Is staged in
             = link_to(review.by_project, staging_workflow_staging_project_path(staging_project.staging_workflow.project, staging_project.name))
-
       .col-md-8.order-md-1.order-sm-2
         %h4.list-group.mb-4 Comments & Request History
         .timeline{ data: { comment_counter: local_assigns[:comment_counter_id] } }
           = render BsRequestActivityTimelineComponent.new(bs_request: bs_request)
         .comment_new.mt-3
           = render partial: 'webui/comment/new', locals: { commentable: bs_request }
+        %hr
+        = render RequestDecisionComponent.new(bs_request: bs_request, actions: actions,
+                                              is_target_maintainer: is_target_maintainer,
+                                              is_author: is_author)
