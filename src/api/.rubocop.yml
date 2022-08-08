@@ -58,7 +58,7 @@ Style/MethodCallWithArgsParentheses:
   # list is the list of offending functions when introducing. Removing functions
   # from here leads to autocorrecting calls, if you call a new DSL function, add
   # it here
-  IgnoredMethods:
+  AllowedMethods:
     - abort
     - add_column
     - add_element
