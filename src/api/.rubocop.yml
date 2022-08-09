@@ -3,6 +3,8 @@ require:
   - rubocop-rspec
   - rubocop-performance
   - ./lib/rubocop/cop/view_component/avoid_global_state.rb
+  - ./lib/rubocop/cop/view_component/file_name.rb
+  - ./lib/rubocop/cop/view_component/class_name.rb
 
 inherit_from: .rubocop_todo.yml
 

@@ -45,6 +45,8 @@ linters:
       - Style/IfUnlessModifier
       - Style/Next
       - Style/WhileUntilModifier
+      # This cop doesn't apply to HAML templates
+      - ViewComponent/FileName
 
 exclude:
 - 'vendor/bundle/**/*'
