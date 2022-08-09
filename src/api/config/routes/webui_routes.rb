@@ -289,8 +289,6 @@ OBSApi::Application.routes.draw do
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
       get 'request/show/:number' => :show, as: 'request_show', constraints: cons
-      # Remove this route when the request_show_redesign feature is finished.
-      get 'request/beta/show/:number' => :beta_show, as: 'request_beta_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff

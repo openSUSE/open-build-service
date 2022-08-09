@@ -1,12 +1,10 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  # TODO: remove the beta_show action when the request_show_redesign feature is finished.
-  before_action :require_login, except: [:show, :beta_show, :sourcediff, :diff, :request_action, :request_action_changes]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  # TODO: remove the beta_show action when the request_show_redesign feature is finished.
-  before_action :require_request, only: [:changerequest, :show, :beta_show, :request_action, :request_action_changes]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes]
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
@@ -93,62 +91,60 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    @diff_limit = params[:full_diff] ? 0 : nil
-    @diff_to_superseded_id = params[:diff_to_superseded]
-    @is_author = @bs_request.creator == User.possibly_nobody.login
+    # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
+    if Flipper.enabled?(:request_show_redesign, User.session)
+      @is_author = @bs_request.creator == User.possibly_nobody.login
+      @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+      reviews = @bs_request.reviews.where(state: 'new')
+      @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
+      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
 
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-    @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
+      @diff_limit = params[:full_diff] ? 0 : nil
+      @diff_to_superseded_id = params[:diff_to_superseded]
+      @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
 
-    @history = @bs_request.history_elements.includes(:user)
+      # TODO: Remove this `render` line once request_show_redesign is rolled out
+      render :beta_show
+    else
+      @diff_limit = params[:full_diff] ? 0 : nil
+      @diff_to_superseded_id = params[:diff_to_superseded]
+      @is_author = @bs_request.creator == User.possibly_nobody.login
 
-    # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
+      @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+      @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
 
-    # search for a project, where the user is not a package maintainer but a project maintainer and show
-    # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
-    @comments = @bs_request.comments
-    @comment = Comment.new
+      @history = @bs_request.history_elements.includes(:user)
 
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
+      # retrieve a list of all package maintainers that are assigned to at least one target package
+      @package_maintainers = target_package_maintainers
+
+      # search for a project, where the user is not a package maintainer but a project maintainer and show
+      # a hint if that package has some package maintainers (issue#1970)
+      @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+      @comments = @bs_request.comments
+      @comment = Comment.new
+
+      if User.session && params[:notification_id]
+        @current_notification = Notification.find(params[:notification_id])
+        authorize @current_notification, :update?, policy_class: NotificationPolicy
+      end
+
+      @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
+      @action = @actions.first
+      @active = @action[:name]
+      # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
+      @not_full_diff = BsRequest.truncated_diffs?(@actions)
+
+      reviews = @bs_request.reviews.where(state: 'new')
+      user = User.session # might be nil
+      @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
+      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
+      respond_to do |format|
+        format.html
+        format.js { render_request_update }
+      end
     end
-
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
-    @action = @actions.first
-    @active = @action[:name]
-    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-    @not_full_diff = BsRequest.truncated_diffs?(@actions)
-
-    reviews = @bs_request.reviews.where(state: 'new')
-    user = User.session # might be nil
-    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
-    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
-    respond_to do |format|
-      format.html
-      format.js { render_request_update }
-    end
-  end
-
-  def beta_show
-    # TODO: Remove this once request_show_redesign is rolled out
-    unless Flipper.enabled?(:request_show_redesign, User.session)
-      flash[:error] = 'This page is not accessible unless you enabled the "Request show redesign" beta feature in the beta program.'
-      redirect_back(fallback_location: root_path)
-    end
-
-    @is_author = @bs_request.creator == User.possibly_nobody.login
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-    reviews = @bs_request.reviews.where(state: 'new')
-    @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
-    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
-    @diff_limit = params[:full_diff] ? 0 : nil
-    @diff_to_superseded_id = params[:diff_to_superseded]
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
   end
 
   # TODO: Remove this once request_show_redesign is rolled out
