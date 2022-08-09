@@ -1,7 +1,8 @@
 ENABLED_FEATURE_TOGGLES = [
   { name: :trigger_workflow, description: 'Better SCM and CI integration with OBS workflows' },
-  { name: :new_watchlist, description: 'New implementation of watchlist including projects, packages and requests' },
-  { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' }
+  { name: :new_watchlist, description: 'New implementation of watchlist including projects, packages and requests' }
+  # TODO: enable when the feature is usable for beta users. Uncomment the following line, and add a comma to the previous line
+  # { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' }
 ].freeze
 
 Flipper.configure do
