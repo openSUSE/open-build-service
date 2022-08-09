@@ -7,7 +7,7 @@
       = link_to(helpers.realname_with_login(element.user), user_path(element.user))
       - if element.instance_of?(HistoryElement::RequestSuperseded)
         superseded this request with
-        = link_to("request ##{element.description_extension}", request_beta_show_path(element.description_extension))
+        = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
       - else
         = element.user_action
       = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
