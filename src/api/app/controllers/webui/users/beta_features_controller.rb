@@ -4,8 +4,8 @@ class Webui::Users::BetaFeaturesController < Webui::WebuiController
   def index
     @disabled_beta_features = policy_scope(DisabledBetaFeature).pluck(:name)
     @user = User.session!
-    @beta_features = ENABLED_FEATURE_TOGGLES.reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle[:name].to_s) }
-                                            .sort_by { |feature_toggle| feature_toggle[:name] }
+    @beta_features = FEATURE_TOGGLES.reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle[:name].to_s) }
+                                    .sort_by { |feature_toggle| feature_toggle[:name] }
   end
 
   def update
@@ -34,7 +34,7 @@ class Webui::Users::BetaFeaturesController < Webui::WebuiController
   private
 
   def feature_params
-    params.require(:feature).permit(ENABLED_FEATURE_TOGGLES.pluck(:name))
+    params.require(:feature).permit(FEATURE_TOGGLES.pluck(:name))
   end
 
   # Rolled-out and fully-enabled beta feature cannot be switched, so we do not display them to users

@@ -6,10 +6,10 @@ RSpec.describe 'User beta features', type: :feature, js: true do
   let(:enabled_beta_feature) { 'fully_enabled' }
 
   before do
-    stub_const('ENABLED_FEATURE_TOGGLES', [{ name: beta_feature, description: 'A new cool design' },
-                                           { name: 'new_feature_123', description: 'New feature for you' },
-                                           { name: rolled_out_beta_feature, description: 'This is available to all' },
-                                           { name: enabled_beta_feature, description: 'Fully enabled' }])
+    stub_const('FEATURE_TOGGLES', [{ name: beta_feature, description: 'A new cool design' },
+                                   { name: 'new_feature_123', description: 'New feature for you' },
+                                   { name: rolled_out_beta_feature, description: 'This is available to all' },
+                                   { name: enabled_beta_feature, description: 'Fully enabled' }])
     Flipper.register(beta_feature) unless Flipper.group_exists?(beta_feature) # registering group for beta_feature
     Flipper[beta_feature].enable_group(beta_feature) # enabling beta feature only for its group
     Flipper[rolled_out_beta_feature].enable_group(:rollout)
