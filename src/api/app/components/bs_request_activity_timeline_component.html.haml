@@ -12,7 +12,7 @@
         - if bs_request.superseding.any?
           superseding
           - bs_request.superseding.each do |superseded_request|
-            = link_to("request ##{superseded_request.number}", request_beta_show_path(superseded_request.number, anchor: 'overview'))
+            = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
 
       = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
 
