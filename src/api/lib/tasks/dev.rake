@@ -265,7 +265,7 @@ namespace :dev do
       puts 'Enable feature toggles for their group'
       Rake::Task['flipper:enable_features_for_group'].invoke
 
-      iggy = create(:confirmed_user, login: 'Iggy')
+      iggy = create(:staff_user, login: 'Iggy')
       admin = User.get_default_admin
       User.session = admin
 
