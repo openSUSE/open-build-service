@@ -6,6 +6,21 @@
   = render partial: 'actions'
   = render partial: 'add_reviewer_dialog'
 
+.alert.alert-info{ role: 'alert' }
+  As part of the
+  = succeed ',' do
+    = link_to('beta program', my_beta_features_path)
+  we are currently working on a redesign of this page to help you in your daily work.
+  Certain features are missing like multi-actions requests, but they will be implemented in the future.
+  Give us feedback on this redesign at GitHub by
+  = link_to('opening an issue', 'https://github.com/openSUSE/open-build-service/issues/new/choose')
+  or talk to us on IRC in the
+  %i #opensuse-buildservice
+  on
+  %i Libera.Chat
+  \-
+  %i The OBS team
+
 .card
   .card-body.p-0
     .card-title.px-4.pt-4.mb-0
@@ -38,7 +53,7 @@
       .tab-pane.fade.show.p-2.active#overview{ 'aria-labelledby': 'overview-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/overview', locals: { bs_request: @bs_request }
       .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/build_results'
+        = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @actions.first[:sprj], package: @actions.first[:spkg] }
       .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/changes'
       .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
