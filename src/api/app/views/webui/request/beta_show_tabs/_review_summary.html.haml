@@ -1,0 +1,28 @@
+-# FIXME: We don't render anything when the project got deleted because this nullifies the association. It should point to
+  `Project.deleted_instance` or maybe the project got created with the same name again in the meanwhile?
+- unless (review.for_project? || review.for_package?) && review.project.nil?
+  .d-flex.flex-row.pt-1
+    .pl-3
+      - if review.accepted?
+        %i.fas.fa-sm.fa-check.text-primary.align-middle.pr-1
+      - if review.declined?
+        %i.fas.fa-times.text-danger.align-middle.pr-2
+      - if review.new?
+        %i.fas.fa-2xs.fa-circle.text-warning.align-middle.pr-2
+
+    = render BsRequestOverviewAvatarsComponent.new(review)
+
+    .pl-1
+      - if review.for_user?
+        = user_with_realname_and_icon(review.by_user, short: true, no_icon: true)
+      - elsif review.for_group?
+        = link_to(review.by_group, group_path(Group.find_by(title: review.by_group)))
+      - elsif review.for_package?
+        = link_to("#{review.by_project} / #{review.by_package}", package_users_path(project: review.by_project,
+          package: review.by_package))
+      - elsif review.for_project?
+        = link_to(review.by_project, project_users_path(project: review.by_project))
+
+      - if (review.accepted? || review.declined?) && !review.for_user?
+        by
+        = link_to(review.reviewer, user_path(User.find_by(login: review.reviewer)))

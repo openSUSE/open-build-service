@@ -103,6 +103,10 @@ class Webui::RequestController < Webui::WebuiController
       @diff_to_superseded_id = params[:diff_to_superseded]
       @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
 
+      @open_reviews = @bs_request.reviews.opened.for_non_staging_projects
+      @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
+      @declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
+      @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
       # TODO: Remove this `render` line once request_show_redesign is rolled out
       render :beta_show
     else

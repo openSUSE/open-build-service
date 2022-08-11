@@ -1,6 +1,30 @@
-%h4.list-group.mb-4 Comments & Request History
-.comments-list{ data: { comment_counter: local_assigns[:comment_counter_id] } }
-  = render BsRequestActivityTimelineComponent.new(bs_request: bs_request)
+.row
+  .col-md-12#overview
+    .mb-4#description-text
+      - if bs_request.description.present?
+        = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
+      - else
+        %i No description set
+    .row
+      .col-md-4.order-md-2.order-sm-1.mb-4#side-links
+        - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
+          %h4
+            Reviews
+          .mb-4
+            = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
+            = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
+            = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
 
-  .comment_new.mt-3
-    = render partial: 'webui/comment/new', locals: { commentable: bs_request }
+        - open_reviews_for_staging_projects.each do |review|
+          .pl-3
+            %i.fas.fa-info-circle.text-info
+            - staging_project = review.project
+            Is staged in
+            = link_to(review.by_project, staging_workflow_staging_project_path(staging_project.staging_workflow.project, staging_project.name))
+
+      .col-md-8.order-md-1.order-sm-2
+        %h4.list-group.mb-4 Comments & Request History
+        .comments-list{ data: { comment_counter: local_assigns[:comment_counter_id] } }
+          = render BsRequestActivityTimelineComponent.new(bs_request: bs_request)
+        .comment_new.mt-3
+          = render partial: 'webui/comment/new', locals: { commentable: bs_request }
