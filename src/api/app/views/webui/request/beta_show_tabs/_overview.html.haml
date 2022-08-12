@@ -24,7 +24,7 @@
 
       .col-md-8.order-md-1.order-sm-2
         %h4.list-group.mb-4 Comments & Request History
-        .comments-list{ data: { comment_counter: local_assigns[:comment_counter_id] } }
+        .timeline{ data: { comment_counter: local_assigns[:comment_counter_id] } }
           = render BsRequestActivityTimelineComponent.new(bs_request: bs_request)
         .comment_new.mt-3
           = render partial: 'webui/comment/new', locals: { commentable: bs_request }

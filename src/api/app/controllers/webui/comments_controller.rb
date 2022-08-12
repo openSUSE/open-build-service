@@ -14,9 +14,23 @@ class Webui::CommentsController < Webui::WebuiController
                flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
                :unprocessable_entity
              end
-    render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+
+    if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+      render(partial: 'webui/comment/beta/comments_thread',
+             locals: { comment: comment.root, commentable: @commentable, level: 1 },
+             status: status)
+    else
+      render(partial: 'webui/comment/comment_list',
+             locals: { commentable: @commentable },
+             status: status,
+             root_comment: comment.root)
+    end
   end
 
+  # TODO: Once we ship this and we remove the flipper check, this methods will
+  # get simpler, so I'll just shut rubocop up for now.
+  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   def destroy
     comment = Comment.find(params[:id])
     authorize comment, :destroy?
@@ -29,8 +43,27 @@ class Webui::CommentsController < Webui::WebuiController
                flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
                :unprocessable_entity
              end
-    render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+
+    if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+      # if we're a root comment with no replies there is no need to re-render anything
+      return head(:ok) if comment.root? && comment.leaf?
+
+      # If we're a reply of an already deleted parent comment, we don't re-render anything
+      return head(:ok) if comment.root == comment.parent && comment.unused_parent?
+
+      # If all ancestors are already deleted we don't re-render anything
+      return head(:ok) if !comment.root? && comment.ancestors.all?(&:destroyed?)
+
+      # if we're a reply or a comment with replies we should re-render the updated thread
+      render(partial: 'webui/comment/beta/comments_thread',
+             locals: { comment: comment.root, commentable: @commentable, level: 1 },
+             status: status)
+    else
+      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+    end
   end
+  # rubocop:enable Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def update
     comment = Comment.find(params[:id])
@@ -47,9 +80,15 @@ class Webui::CommentsController < Webui::WebuiController
 
     respond_to do |format|
       format.html do
-        render(partial: 'webui/comment/comment_list',
-               locals: { commentable: comment.commentable },
-               status: status)
+        if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+          render(partial: 'webui/comment/beta/comments_thread',
+                 locals: { comment: comment.root, commentable: comment.commentable, level: 1 },
+                 status: status)
+        else
+          render(partial: 'webui/comment/comment_list',
+                 locals: { commentable: comment.commentable },
+                 status: status)
+        end
       end
     end
   end
