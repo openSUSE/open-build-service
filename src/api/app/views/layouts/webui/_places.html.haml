@@ -39,8 +39,8 @@
           %span.nav-item-name Configuration
     - if User.admin_session? || User.possibly_nobody.is_staff?
       %li.nav-item
-        = link_to("#{root_path}/flipper", class: 'nav-link', title: 'Feature Toggles') do
-          %i.fas.fa-cogs.mr-2
+        = link_to("#{root_url}/flipper", class: 'nav-link', title: 'Feature Toggles') do
+          %i.fas.fa-toggle-on.mr-2
           %span.nav-item-name Feature Toggles
     - if navigation != :left
       %li.nav-item
