@@ -290,7 +290,7 @@ GEM
       digest
       net-protocol
       timeout
-    next_rails (1.1.0)
+    next_rails (1.2.0)
       colorize (>= 0.8.1)
     nio4r (2.5.8)
     nokogiri (1.13.8)
