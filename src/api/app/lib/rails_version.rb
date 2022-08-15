@@ -8,7 +8,10 @@
 # Methods of this module must match whatever Rails version is defined in Gemfile.next.lock.
 # Matching on major and minor versions should be enough for most migrations.
 module RailsVersion
-  def self.is_6_1?
-    Rails::VERSION::MAJOR == 6 && Rails::VERSION::MINOR == 1
+  # rubocop:disable Style/NumericPredicate
+  # Normally using `#zero?` would be better, but not here so we disable this RuboCop cop.
+  def self.is_7_0?
+    Rails::VERSION::MAJOR == 7 && Rails::VERSION::MINOR == 0
   end
+  # rubocop:enable Style/NumericPredicate
 end
