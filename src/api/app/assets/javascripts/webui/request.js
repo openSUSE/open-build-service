@@ -138,6 +138,10 @@ $(document).ready(function(){
   $('#changes-item').on('shown.bs.tab', function () {
     loadChanges();
   });
+
+  var shiftWindow = function() { scrollBy(0, -57) };
+  if (location.hash) shiftWindow();
+  window.addEventListener("hashchange", shiftWindow);
 });
 
 // TODO: Remove the following method when the request_show_redesign feature is finished
