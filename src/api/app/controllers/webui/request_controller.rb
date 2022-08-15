@@ -102,6 +102,7 @@ class Webui::RequestController < Webui::WebuiController
       @diff_limit = params[:full_diff] ? 0 : nil
       @diff_to_superseded_id = params[:diff_to_superseded]
       @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
+      @action = @actions.first
 
       @open_reviews = @bs_request.reviews.opened.for_non_staging_projects
       @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
