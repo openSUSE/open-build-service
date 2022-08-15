@@ -1,5 +1,5 @@
 .row
-  .col-md-12#conversation
+  .col-md-12
     .mb-4#description-text
       - if bs_request.description.present?
         = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
