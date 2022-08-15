@@ -42,7 +42,7 @@
     %p.px-4= request_action_header(@actions.first, @bs_request.creator) # TODO: adapt when handling requests with multiple actions
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
-        = link_to('Overview', '#overview', class: 'nav-link text-nowrap active', 'aria-controls': 'overview',
+        = link_to('Conversation', '#conversation', class: 'nav-link text-nowrap active', 'aria-controls': 'conversation',
                   'aria-selected': 'true', 'data-toggle': 'tab', role: 'tab')
       - if @actions.first[:sprj] || @actions.first[:spkg]
         %li.nav-item.scrollable-tab-link
@@ -55,12 +55,13 @@
         = link_to('Mentioned Issues', '#mentioned-issues', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
                   'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
     .tab-content.p-4#request-tabs-content
-      .tab-pane.fade.show.p-2.active#overview{ 'aria-labelledby': 'overview-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/overview', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
-                                                                             open_reviews: @open_reviews,
-                                                                             accepted_reviews: @accepted_reviews,
-                                                                             declined_reviews: @declined_reviews,
-                                                                             open_reviews_for_staging_projects: @open_reviews_for_staging_projects }
+      .tab-pane.fade.show.p-2.active#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
+        = render partial: 'webui/request/beta_show_tabs/conversation',
+                 locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
+                           open_reviews: @open_reviews,
+                           accepted_reviews: @accepted_reviews,
+                           declined_reviews: @declined_reviews,
+                           open_reviews_for_staging_projects: @open_reviews_for_staging_projects }
       - if @actions.first[:sprj] || @actions.first[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @actions.first[:sprj], package: @actions.first[:spkg] }
