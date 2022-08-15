@@ -29,6 +29,8 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link =~ %r{/package/binary/}
     # apidocs is not configured in test environment
     return true if link.end_with?('/apidocs/index')
+    # no need to visit flipper
+    return true if link.end_with?('/flipper')
   end
 
   def getlinks(baseuri, body)
@@ -39,6 +41,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
     baseuri = URI.parse(baseuri)
 
+    links_added = 0
     body.traverse do |tag|
       next unless tag.element?
       next unless tag.name == 'a'
@@ -63,8 +66,10 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next if @pages_visited.key?(link)
       next if @pages_to_visit.key?(link)
 
+      links_added += 1
       @pages_to_visit[link] = [baseuri.to_s, tag.content]
     end
+    puts "Added #{links_added} more links to the pages to visit..." if links_added.positive?
   end
 
   def raiseit(message, url)
@@ -91,7 +96,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-        # puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length + @pages_to_visit.length}"
+        puts "(#{@pages_to_visit.length} of #{@pages_visited.keys.length + @pages_to_visit.length}) Crawling #{theone}"
         page.visit(theone)
         if page.status_code != 200
           raiseit("Status code #{page.status_code}", theone)
