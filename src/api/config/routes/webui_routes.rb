@@ -8,7 +8,7 @@ OBSApi::Application.routes.draw do
       mount Flipper::UI.app(Flipper) => '/flipper'
     end
 
-    resources :status_messages, only: [:new, :create, :destroy], controller: 'webui/status_messages'
+    resources :status_messages, only: [:new, :create, :edit, :update, :destroy], controller: 'webui/status_messages'
 
     controller 'webui/feeds' do
       get 'main/news' => :news, constraints: ->(req) { req.format == :rss }, as: :news_feed
