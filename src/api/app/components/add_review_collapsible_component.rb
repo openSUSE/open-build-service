@@ -1,0 +1,2 @@
+class AddReviewCollapsibleComponent < ApplicationComponent
+end
