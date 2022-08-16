@@ -849,6 +849,17 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal expected, actual
   end
 
+  # FIXME: check emit events for projects maintainers
+  test 'check repositories emits events if a linking repository exists' do
+    User.session = users(:Iggy)
+
+    path = path_elements(:record_0)
+    repository = @project.repositories.first
+    repository.links << path
+
+    @project.check_linking_repositories(repository)
+  end
+
   test 'check repositories returns an error if a linking target repository exists' do
     User.session = users(:Iggy)
 
@@ -862,6 +873,17 @@ class ProjectTest < ActiveSupport::TestCase
     actual = Project.check_repositories(@project.repositories)
 
     assert_equal expected, actual
+  end
+
+  # FIXME: check emit events for projects maintainers
+  test 'check repositories emits events if a linking target repository exists' do
+    User.session = users(:Iggy)
+
+    release_target = release_targets(:release_targets_913785863)
+    repository = @project.repositories.first
+    repository.targetlinks << release_target
+
+    @project.check_linking_repositories(repository)
   end
 
   test 'linked_packages returns all packages from projects inherited by one level' do
