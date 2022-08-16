@@ -19,6 +19,22 @@ class Webui::StatusMessagesController < Webui::WebuiController
     redirect_to(controller: 'main', action: 'index')
   end
 
+  def edit
+    @status_message = authorize StatusMessage.find(params[:id])
+  end
+
+  def update
+    status_message = authorize StatusMessage.find(params[:id])
+
+    if status_message.update(status_message_params)
+      flash[:success] = 'Status message was successfully updated.'
+    else
+      flash[:error] = "Could not update status message: #{status_message.errors.full_messages.to_sentence}"
+    end
+
+    redirect_to(controller: 'main', action: 'index')
+  end
+
   def destroy
     status_message = authorize StatusMessage.find(params[:id])
 

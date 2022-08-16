@@ -17,7 +17,7 @@ RSpec.describe Webui::StatusMessagePolicy do
     it { is_expected.to permit(admin_user, status_message) }
   end
 
-  permissions :new?, :create?, :destroy? do
+  permissions :new?, :create?, :edit?, :update?, :destroy? do
     it { is_expected.not_to permit(user, status_message) }
     it { is_expected.to permit(staff_user, status_message) }
     it { is_expected.to permit(admin_user, status_message) }
