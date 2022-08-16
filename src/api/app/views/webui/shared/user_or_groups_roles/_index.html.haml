@@ -28,6 +28,9 @@
                  locals: { records: users, roles: roles, type: 'user',
                            user_is_maintainer: user_is_maintainer,
                            project: project, package: package }
+  - else
+    %p
+      %i There are no users...
 
   - if user_is_maintainer
     .pt-4
@@ -54,6 +57,10 @@
                  locals: { records: groups, roles: roles, type: 'group',
                            user_is_maintainer: user_is_maintainer,
                            project: project, package: package }
+  - else
+    %p
+      %i There are no groups...
+
   - if user_is_maintainer
     .pt-4
       = render(partial: 'webui/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })
