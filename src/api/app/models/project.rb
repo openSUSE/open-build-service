@@ -1426,12 +1426,13 @@ class Project < ApplicationRecord
   def check_linking_repositories(repository)
     linking_repositories = repository.linking_repositories
     linking_repositories += repository.linking_target_repositories
-    if linking_repositories.present?
-      # send notification to mantainers where the repo is removed
-      linking_repositories.each do |repo|
-        # FIXME: emit events for projects maintainers
-        repo.project.maintainers
-      end
+
+    return if linking_repositories.empty?
+
+    # send notification to mantainers where the repo is removed
+    linking_repositories.each do |repo|
+      # FIXME: emit events for projects maintainers
+      repo.project.maintainers
     end
   end
 
