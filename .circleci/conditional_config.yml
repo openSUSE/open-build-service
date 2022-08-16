@@ -434,6 +434,7 @@ jobs:
     steps:
       - attach_workspace:
          at: .
+      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *create_test_db
       - run: *wait_for_database
@@ -460,6 +461,7 @@ jobs:
     steps:
       - attach_workspace:
          at: .
+      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
       - run: *bootstrap_old_test_suite
