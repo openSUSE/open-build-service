@@ -8,6 +8,7 @@ class MeasurementsJob < ApplicationJob
     RabbitmqBus.send_to_bus('metrics', "user #{measurements_to_fields(users_measurements)}")
     notifications_measurements
     subscription_measurements
+    beta_features_measurements
   end
 
   private
@@ -74,6 +75,12 @@ class MeasurementsJob < ApplicationJob
 
     Notification.group(:notifiable_type).count.each do |type|
       RabbitmqBus.send_to_bus('metrics', "notification_count,notifiable=#{type.first} value=#{type.second}")
+    end
+  end
+
+  def beta_features_measurements
+    ENABLED_FEATURE_TOGGLES.pluck(:name).each do |feature_name|
+      RabbitmqBus.send_to_bus('metrics', "beta_feature_count,feature=#{feature_name},status=disabled value=#{DisabledBetaFeature.where(name: feature_name).count}")
     end
   end
 end
