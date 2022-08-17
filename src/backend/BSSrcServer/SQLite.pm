@@ -121,9 +121,23 @@ CREATE TABLE IF NOT EXISTS linkinfo(
 )
 EOS
   }
+  if (!$t{'scmsync'}) {
+    dbdo($h, <<'EOS');
+CREATE TABLE IF NOT EXISTS scmsync(
+  project TEXT,
+  package TEXT,
+  scmsync_repo TEXT,
+  scmsync_branch TEXT,
+  UNIQUE(project,package)
+)
+EOS
+  }
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_sourceproject_sourcepackage on linkinfo(sourceproject,sourcepackage)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_project_package on linkinfo(project,package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_package on linkinfo(package)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_project_package on scmsync(project,package)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_repo on scmsync(scmsync_repo)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_branch on scmsync(scmsync_repo,scmsync_branch)');
 }
 
 sub asyncmode {
@@ -137,6 +151,7 @@ my %tables = (
   'pattern' => { map {$_ => 1} qw {package name summary description type} },
   'repoinfo' => { map {$_ => 1} qw {project} },
   'linkinfo'=> { map {$_ => 1} qw {project package rev} },
+  'scmsync'=> { map {$_ => 1} qw {project package} },
 );
 
 ###########################################################################
@@ -456,7 +471,7 @@ sub getlinkers {
 sub opendb {
   my ($dbpath, $table) = @_;
   die("unsupported table: $table\n") unless $tables{$table};
-  my $dbname = $table eq 'linkinfo' ? 'source' : 'published';
+  my $dbname = ($table eq 'linkinfo' || $table eq 'scmsync') ? 'source' : 'published';
   my $db = { 'dir' => $dbpath, 'table' => $table, 'sqlite_cols' => $tables{$table}, 'sqlite_dbname' => $dbname };
   $db->{'key2package'} = {} if $table eq 'binary';
   return bless $db;
