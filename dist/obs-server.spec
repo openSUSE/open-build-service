@@ -153,6 +153,7 @@ BuildRequires:  perl-DBD-SQLite
 BuildRequires:  perl-Diff-LibXDiff
 BuildRequires:  perl-File-Sync >= 0.10
 BuildRequires:  perl-JSON-XS
+BuildRequires:  perl-URI
 BuildRequires:  perl-Net-SSLeay
 BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
@@ -225,6 +226,7 @@ Requires:       user(obsservicerun)
 Requires:       zstd
 # needed for optional sqlite databases, which are default for new installations
 Requires:     perl-DBD-SQLite
+Requires:     perl-URI
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9

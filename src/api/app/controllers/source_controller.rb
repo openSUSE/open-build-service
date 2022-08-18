@@ -11,12 +11,14 @@ class SourceController < ApplicationController
   validate_action packagelist: { method: :get, response: :directory }
   validate_action filelist: { method: :get, response: :directory }
 
-  skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos]
-  skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos]
+  skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
+  skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
 
   before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public,
                                                       :global_command_orderkiwirepos, :global_command_branch,
-                                                      :global_command_createmaintenanceincident]
+                                                      :global_command_triggerscmsync, :global_command_createmaintenanceincident]
+
+  before_action :require_scmsync_host_check, only: [:global_command_triggerscmsync]
 
   # GET /source
   #########
@@ -436,6 +438,11 @@ class SourceController < ApplicationController
   # POST /source?cmd=orderkiwirepos
   def global_command_orderkiwirepos
     pass_to_backend
+  end
+
+  # POST /source?cmd=triggerscmsync
+  def global_command_triggerscmsync
+    pass_to_backend('/source' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch]))
   end
 
   private

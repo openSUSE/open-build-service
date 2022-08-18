@@ -1,4 +1,9 @@
 class BuildController < ApplicationController
+  skip_before_action :extract_user, only: [:scmresult]
+  skip_before_action :require_login, only: [:scmresult]
+
+  before_action :require_scmsync_host_check, only: [:scmresult]
+
   def index
     # for read access and visibility permission check
     if params[:package] && ['_repository', '_jobhistory'].exclude?(params[:package])
@@ -155,6 +160,11 @@ class BuildController < ApplicationController
     # for permission check
     Project.get_by_name(params[:project])
 
+    pass_to_backend
+  end
+
+  def scmresult
+    # permission handling is done in the scm bridge
     pass_to_backend
   end
 

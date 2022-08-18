@@ -263,6 +263,7 @@ OBSApi::Application.routes.draw do
     post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
     post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
     post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
+    post 'public/source' => :global_command_triggerscmsync,     constraints: ->(req) { req.params[:cmd] == 'triggerscmsync' }
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
@@ -373,6 +374,7 @@ OBSApi::Application.routes.draw do
   match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', via: [:get, :post], constraints: cons
   match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/_result' => 'build#scmresult', constraints: cons
   get 'build/:project/_result' => 'build#result', constraints: cons
   match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
