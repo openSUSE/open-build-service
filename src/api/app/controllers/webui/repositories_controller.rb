@@ -75,7 +75,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     authorize @project, :update?
     repository = @project.repositories.find_by(name: params[:target])
 
-    @project.check_linking_repositories([repository])
+    @project.check_linking_repositories(repository)
     result = repository && @project.repositories.delete(repository)
     if @project.valid? && result
       @project.store(comment: "Removed #{repository.name} repository")
