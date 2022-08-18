@@ -28,3 +28,11 @@ get:
       $ref: '../components/responses/unauthorized.yaml'
   tags:
     - Search
+
+post:
+  deprecated: true
+  summary: Search for published patterns.
+  description: |
+    This endpoint is exactly the same as `GET /search/published/pattern/id`, please use that one.
+  tags:
+    - Search

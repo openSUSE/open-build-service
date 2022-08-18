@@ -98,3 +98,11 @@ get:
                 summary: 'Project not found: bla'
   tags:
     - Search
+
+post:
+  deprecated: true
+  summary: Search for the default responsible person or group (the owner).
+  description: |
+    This endpoint is exactly the same as `GET /search/owner`, please use that one.
+  tags:
+    - Search
