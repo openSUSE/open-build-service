@@ -267,6 +267,9 @@ POST /source
   orderkiwirepos: sort the repositories inside of a kiwi file according to path relationships
   createmaintenanceincident: create mainatenance incident projects based on attribute search
 
+##### to be used only by the scm bridge
+#  triggerscmsync: trigger source update of all scm referenced projects and packages.
+
 Parameters:
 
   linkrev: linked revision, optional (for linkrev=base)
@@ -275,6 +278,9 @@ Parameters:
   request: branch by request, branch all packages in actions of request for superseding it
   noaccess: the new created project will be read protected
   target_project: project which will get used or created
+##### to be used only by the scm bridge
+#  scmrepository: normalized scm url
+#  scmbranch: scm branch or tag name
 
 
 GET /source/<project>/_meta
@@ -1145,6 +1151,28 @@ GET /build/
   List all repositories
 
 XmlResult: directory
+
+#=== SCM Status
+#
+#GET /build/_result
+#
+#  Return build results for the packages, architectures and repositories
+#  specified by the parameters. This is the special route for scmsync content,
+#  when project and package names are unknown
+#
+#  scmrepository and scmbranch parameter are required
+#
+#  This is only supposed to be used by the scm bridge
+#
+#Parameters:
+#
+#  scmrepository: Normalized repository URL
+#  scmbranch: Branch name
+#  lastbuild: bool, show last build result (avoiding current building job state)
+#  locallink: bool, include build results from packages with project local links
+#  multibuild: bool, include build results from _multibuild definitions
+#
+#XmlResult: buildresult
 
 
 GET /build/<project>

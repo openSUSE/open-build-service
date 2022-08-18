@@ -79,6 +79,7 @@ use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
 use BSSrcServer::LinkinfoDB;
+use BSSrcServer::ScmsyncDB;
 use BSSrcServer::Modulemd;
 use BSSrcServer::Scmsync;
 
@@ -342,6 +343,29 @@ sub notify_all_repservers {
     };
     print "warning: $reposerver: $@" if $@;
   }
+}
+
+sub triggerscmsync {
+  my ($cgi) = @_;
+  my $scmrepo = $cgi->{'scmrepository'};
+  my $scmbranch = $cgi->{'scmbranch'};
+
+  return '<status code="fail" details="scmsync tracking is not enabled" />\n' unless $BSConfig::source_db_sqlite;
+
+  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
+    my $scmsync;
+    if (@$ref[1] eq '_project') {
+      my $proj = BSRevision::readproj_local(@$ref[0]);
+      die("@$ref[0] is a remote project\n") if $proj->{'remoteurl'};
+      $scmsync = $proj->{'scmsync'};
+    } else {
+      my $pack = BSRevision::readpack_local(@$ref[0], @$ref[1], 1);
+      $scmsync = $pack->{'scmsync'} if $pack;
+    }
+    next unless $scmsync;
+    BSSrcServer::Service::runservice_obsscm($cgi, @$ref[0], @$ref[1], $scmsync);
+  }
+  return $BSStdServer::return_ok;
 }
 
 sub triggerservicerun {
@@ -2108,11 +2132,16 @@ sub putproject {
     }
   }
 
-  if ($proj->{'scmsync'} && $proj->{'scmsync'} ne (($oldproj || {})->{'scmsync'} || '')) {
-    # scmsync changed, trigger a service run
-    print "scmsync changed: trigger $projid\n";
-    eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, '_project', $proj ->{'scmsync'}) };
-    warn($@) if $@;
+  if ($proj->{'scmsync'}) {
+    if ($proj->{'scmsync'} ne (($oldproj || {})->{'scmsync'} || '')) {
+      # scmsync changed, trigger a service run
+      print "scmsync changed: trigger $projid\n";
+      BSSrcServer::ScmsyncDB::storescmsync($projid, '_project', $proj->{'scmsync'});
+      eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, '_project', $proj ->{'scmsync'}) };
+      warn($@) if $@;
+    }
+  } elsif (($oldproj || {})->{'scmsync'}) {
+    BSSrcServer::ScmsyncDB::deletescmsync($projid, '_project');
   }
 
   $proj = BSRevision::readproj_local($projid);
@@ -2131,6 +2160,7 @@ sub delproject {
 
   unlink("$projectsdir/$projid.conf");
   unlink("$projectsdir/$projid.xml");
+  BSSrcServer::ScmsyncDB::deletescmsync($projid, '_project');
   notify_repservers('project', $projid);
 
   notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
@@ -2261,11 +2291,16 @@ sub putpackage {
   if (!BSUtil::identical($oldpack, $pack, \%except)) {
     notify_repservers('package', $projid, $packid);
   }
-  if ($pack->{'scmsync'} && $pack->{'scmsync'} ne (($oldpack || {})->{'scmsync'} || '')) {
-    # scmsync changed, trigger a service run
-    print "scmsync changed: trigger $projid/$packid\n";
-    eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}) };
-    warn($@) if $@;
+  if ($pack->{'scmsync'}) {
+    if ($pack->{'scmsync'} ne (($oldpack || {})->{'scmsync'} || '')) {
+      # scmsync changed, trigger a service run
+      BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $pack->{'scmsync'});
+      print "scmsync changed: trigger $projid/$packid\n";
+      eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}) };
+      warn($@) if $@;
+    }
+  } elsif (($oldpack || {})->{'scmsync'}) {
+    BSSrcServer::ScmsyncDB::deletescmsync($projid, $packid);
   }
   $pack = BSRevision::readpack_local($projid, $packid);
   return ($pack, $BSXML::pack);
@@ -2289,6 +2324,8 @@ sub delpackage {
   # now do the real delete of the package
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev", "$projectsdir/$projid.pkg/$packid.rev.del");
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev", "$projectsdir/$projid.pkg/$packid.mrev.del");
+
+  BSSrcServer::ScmsyncDB::deletescmsync($projid, $packid);
 
   # get rid of the generated product packages as well
   if ($packid eq '_product') {
@@ -3426,6 +3463,7 @@ sub moveproject {
 
   # move entries in linkinfo database
   BSRevision::movelinkinfos($projid, $oprojid, BSSrcServer::LinkinfoDB::getlinkpackages($oprojid));
+  BSSrcServer::ScmsyncDB::movescmsync($projid, $oprojid);
 
   # move in the backend as well
   my @args;
@@ -4252,6 +4290,58 @@ sub getresult {
     }
   }
   return ($ps, $BSXML::resultlist);
+}
+
+sub getscmresult {
+  my ($cgi) = @_;
+
+  my $scmrepo = $cgi->{'scmrepository'};
+  my $scmbranch = $cgi->{'scmbranch'};
+
+  my $results = [];
+
+  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
+    my $projid = @$ref[0];
+
+    my $packids;
+    $packids = [@$ref[1]] unless @$ref[1] eq '_project';
+
+    my $proj = checkprojrepoarch($projid, undef, undef, 1);
+
+    if ($cgi->{'multibuild'} && @$packids[0] ne '_project' && !$BSStdServer::isajax) {
+      $packids = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$packids}) ];
+    }
+
+    if ($packids ne '_project') {
+      my %knownpackids = map {$_ => 1} findpackages($projid, $proj, 1);
+      for (@{$packids}) {
+        die("404 unknown package '$_'\n") if !$knownpackids{$_};
+      }
+    }
+    my @prpas;
+    for my $repo (@{$proj->{'repository'} || []}) {
+      my @archs = @{$repo->{'arch'} || []};
+      push @prpas, map {"$projid/$repo->{'name'}/$_"} @archs;
+    }
+
+    my $ps = {};
+    my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+    my @args;
+    push @args, 'lastbuild' if $cgi->{'lastbuild'};
+    push @args, map {"prpa=$_"} @prpas;
+    push @args, map {"package=$_"} @{$packids || []};
+    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+    eval {
+      $ps = BSWatcher::rpc("$reposerver/_result", $BSXML::resultlist, @args);
+    };
+    if ($@) {
+      print "warning: $reposerver: $@";
+      $ps = {};
+    }
+
+    push @$results, @{$ps->{'result'}};
+  }
+  return ({'result' => $results}, $BSXML::resultlist);
 }
 
 sub docommand {
@@ -7400,6 +7490,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   'POST:/source cmd=orderkiwirepos' => \&orderkiwirepos,
+  'POST:/source cmd=triggerscmsync scmrepository:? scmbranch:?' => \&triggerscmsync,
   'POST:/source cmd: *:*' => \&unknowncmd,
 
   # /source name space: manage project and package data
@@ -7534,6 +7625,7 @@ my $dispatches = [
   '/build/_workerstatus scheduleronly:bool? daemonsonly:bool? arch*' => \&getworkerstatus,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
   '/build/_dispatchprios' => \&getdispatchprios,
+  '/build/_result lastbuild:bool? scmrepository:? scmbranch:? code:? lastbuild:bool? multibuild:bool? locallink:bool?' => \&getscmresult,
   '/build/$project/_availablebinaries url:* path:prp* arch*' => \&getavailablebinaries,
   'POST:/build/$project cmd: repository* arch* package* code:* lastbuild:bool? wipe:* comment:? sysrq:?' => \&docommand,
   '/build/$project' => \&getrepositorylist,

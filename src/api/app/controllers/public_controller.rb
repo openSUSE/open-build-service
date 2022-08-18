@@ -10,6 +10,10 @@ class PublicController < ApplicationController
   def build
     required_parameters :project
 
+    if params[:project] == '_result'
+      pass_to_backend('/build' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch, :multibuild, :code]))
+      return
+    end
     # project visible/known ?
     Project.get_by_name(params[:project])
 
