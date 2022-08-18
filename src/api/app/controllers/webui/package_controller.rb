@@ -640,7 +640,20 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def update_link
+    Backend::Api::Sources::Package.write_link(@package.project.name,
+                                              @package.name,
+                                              User.session,
+                                              link_xml(project: @linkinfo[:package].project.name,
+                                                       package: @linkinfo[:package].name))
+  end
+
   private
+
+  def link_xml(opts = {})
+    # "<link package=\"foo\" project=\"bar\" />"
+    Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
+  end
 
   def package_params
     params.require(:package).permit(:name, :title, :description)

@@ -86,6 +86,7 @@ OBSApi::Application.routes.draw do
         post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
         get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
         get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
+        put 'package/update_link/:project/:package' => :update_link, constraints: cons, as: 'package_update_link'
         defaults format: 'js' do
           get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons, as: 'package_update_build_log'
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
