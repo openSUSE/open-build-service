@@ -80,6 +80,8 @@ sub getscmsyncpackages {
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
   my $h = $db->{'sqlite'} || BSSrcServer::SQLite::connectdb($db);
 
+  $scmsync_repo   =~ s/\.git$//;
+
   my $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE scmsync_repo = ? AND scmsync_branch = ?', [$scmsync_repo], [$scmsync_branch]);
   my ($project, $package);
   $sh->bind_columns(\$project, \$package);
