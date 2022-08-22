@@ -79,95 +79,53 @@ properties:
   review:
     type: array
     items:
-      anyOf:
-        - type: object
-          properties:
-            state:
-              type: string
-              example: accepted
-              xml:
-                attribute: true
-            when:
-              type: string
-              example: '2021-01-15T15:49:32'
-              xml:
-                attribute: true
-            who:
-              type: string
-              example: obs-maintainer
-              xml:
-                attribute: true
-            by_user:
-              type: string
-              example: obs-maintainer
-              xml:
-                attribute: true
-        - type: object
-          properties:
-            state:
-              type: string
-              example: accepted
-              xml:
-                attribute: true
-            when:
-              type: string
-              example: '2021-01-15T15:49:32'
-              xml:
-                attribute: true
-            who:
-              type: string
-              example: obs-maintainer
-              xml:
-                attribute: true
-            by_group:
-              type: string
-              example: obs-group
-              xml:
-                attribute: true
-        - type: object
-          properties:
-            state:
-              type: string
-              example: accepted
-              xml:
-                attribute: true
-            when:
-              type: string
-              example: '2021-01-15T15:49:32'
-              xml:
-                attribute: true
-            who:
-              type: string
-              example: obs-maintainer
-              xml:
-                attribute: true
-            by_project:
-              type: string
-              example: OBS:Unstable
-              xml:
-                attribute: true
-        - type: object
-          properties:
-            state:
-              type: string
-              example: accepted
-              xml:
-                attribute: true
-            when:
-              type: string
-              example: '2021-01-15T15:49:32'
-              xml:
-                attribute: true
-            who:
-              type: string
-              example: obs-maintainer
-              xml:
-                attribute: true
-            by_package:
-              type: string
-              example: obs-server
-              xml:
-                attribute: true
+      type: object
+      properties:
+        state:
+          type: string
+          xml:
+            attribute: true
+        when:
+          type: string
+          xml:
+            attribute: true
+        who:
+          type: string
+          xml:
+            attribute: true
+        by_user:
+          type: string
+          xml:
+            attribute: true
+        by_group:
+          type: string
+          xml:
+            attribute: true
+        by_project:
+          type: string
+          xml:
+            attribute: true
+        by_package:
+          type: string
+          xml:
+            attribute: true
+    example:
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_user: obs-maintainer
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_group: obs-group
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_project: OBS:Unstable
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_package: obs-server
   history:
     type: array
     items:
