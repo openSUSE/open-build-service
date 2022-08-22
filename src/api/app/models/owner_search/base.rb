@@ -20,6 +20,8 @@ module OwnerSearch
       self.attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
 
       self.limit = (params[:limit] || 1).to_i
+
+      raise InvalidLimitError, "The limit (#{limit}) must be either a positive number, 0 or -1." unless limit >= -1
     end
 
     attr_accessor :params, :attribute, :limit
