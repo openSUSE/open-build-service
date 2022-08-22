@@ -43,7 +43,9 @@
   %hr
 
   %h3 Group Roles
+  -# haml-lint:disable InstanceVariables
   - if @groups.present?
+    -# haml-lint:enable InstanceVariables
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#group-table
       %thead
         %tr

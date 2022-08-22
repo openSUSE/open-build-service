@@ -26,10 +26,14 @@
   %ul.nav.float-right
     - if commit['rev'] != '1'
       %li.nav-item
+        -# haml-lint:disable InstanceVariables
         = link_to(package_rdiff_path(@project, @package, rev: commit['rev'], linkrev: 'base'), class: 'nav-link') do
+          -# haml-lint:enable InstanceVariables
           %i.fas.fa-copy.text-gray-500
           Files Changed
     %li.nav-item
+      -# haml-lint:disable InstanceVariables
       = link_to(package_show_path(@project, @package, rev: commit['rev']), class: 'nav-link') do
+        -# haml-lint:enable InstanceVariables
         %i.fas.fa-folder-open.text-warning
         Browse Source

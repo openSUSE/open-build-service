@@ -3,7 +3,9 @@
     %h5.card-header#image-name
       Preferences
     .card-body
+      -# haml-lint:disable InstanceVariables
       - @image.preferences.each do |preference|
+        -# haml-lint:enable InstanceVariables
         %h6= preference.profile
         %ul.list-inline
           %li.list-inline-item

@@ -2,7 +2,9 @@
   = tab_link('Overview', package_show_path(project, package), false, 'scrollable-tab-link')
   - if package.name == 'patchinfo'
     = tab_link('Details', show_patchinfo_path(project, package), false, 'scrollable-tab-link')
+  -# haml-lint:disable InstanceVariables
   - unless @spider_bot
+    -# haml-lint:enable InstanceVariables
     = tab_link('Repositories', repositories_path(project, package), false, 'scrollable-tab-link')
     = tab_link('Revisions', package_view_revisions_path(project, package), false, 'scrollable-tab-link')
     = tab_link('Requests', package_requests_path(project, package), false, 'scrollable-tab-link')
