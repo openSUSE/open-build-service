@@ -2,7 +2,7 @@
 - content_for(:content_for_head, javascript_include_tag('webui/cm2/codemirror-file'))
 
 .card.mb-3
-  = render partial: 'tabs', locals: { project: @project, package: @package }
+  = render partial: 'tabs', locals: { project: @project, package: @package, spider_bot: @spider_bot }
   .card-body
     %h3.text-word-break-all
       File #{@filename} of Package #{@package}

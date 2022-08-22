@@ -1,7 +1,7 @@
 - @pagetitle = "Edit Patchinfo for #{@project}"
 
 .card
-  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package, spider_bot: @spider_bot }
   .card-body
     %h3= @pagetitle
 

@@ -4,7 +4,7 @@
   @metarobots = 'noindex'
 
 .card
-  = render(partial: 'webui/project/tabs', locals: { project: @project })
+  = render(partial: 'webui/project/tabs', locals: { project: @project, spider_bot: @spider_bot })
 
   .card-body
     %h3= @pagetitle

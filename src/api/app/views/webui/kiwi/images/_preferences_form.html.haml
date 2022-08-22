@@ -9,7 +9,7 @@
           Kiwi Image name cannot be empty!
       .modal-body
         .dialog
-          - @image.preferences.each do |preference|
+          - image.preferences.each do |preference|
             = f.fields_for(:preferences, preference) do |preference_fields|
               %h4= preference.profile
               = preference_fields.label :version do

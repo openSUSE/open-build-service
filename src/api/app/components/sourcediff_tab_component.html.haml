@@ -39,7 +39,8 @@
                                                                                           file: sourcediff['files'][filename],
                                                                                           index: file_index,
                                                                                           last: sourcediff['filenames'].last == filename,
-                                                                                          package: @action[:spkg] }
+                                                                                          package: @action[:spkg],
+                                                                                          linkinfo: @linkinfo }
             - else
               .mb-2
                 %p.lead

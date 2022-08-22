@@ -4,7 +4,7 @@
   .col
     .card
       -# We display the project tabs since we're creating a package in the context of the project `@project`
-      = render partial: 'webui/project/tabs', locals: { project: @project }
+      = render partial: 'webui/project/tabs', locals: { project: @project, spider_bot: @spider_bot }
       .card-body
         .row
           .col-12

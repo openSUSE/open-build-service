@@ -3,7 +3,7 @@
 .row
   .col-xl-10
     .card.mb-3
-      = render(partial: 'webui/project/tabs', locals: { project: @staging_project })
+      = render(partial: 'webui/project/tabs', locals: { project: @staging_project, spider_bot: @spider_bot })
       .card-body
         %h3= @pagetitle
         %p The following data will be copied:

@@ -1,7 +1,7 @@
 - @pagetitle = "Dependency information about #{@filename}"
 
 .card
-  = render partial: 'tabs', locals: { package: @package, project: @project }
+  = render partial: 'tabs', locals: { package: @package, project: @project, spider_bot: @spider_bot }
 
   .card-body
     %h3 Dependency of #{@filename}

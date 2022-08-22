@@ -14,7 +14,7 @@
     %ul
       %li= link_to('Projects', projects_path)
       %li= link_to('Search', search_path, class: 'search-link')
-      - unless @spider_bot
+      - unless spider_bot
         %li= link_to('Status Monitor', monitor_path)
   %div
     %strong.text-uppercase Help

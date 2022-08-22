@@ -10,7 +10,7 @@
                                                           release_targets: @release_targets }
 
 .card.mb-3
-  = render partial: 'tabs', locals: { project: @project }
+  = render partial: 'tabs', locals: { project: @project, spider_bot: @spider_bot }
   .card-body
     .row
       .col-md-8

@@ -6,7 +6,7 @@
       = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
   .list-group
-    - @latest_updates.each do |update|
+    - latest_updates.each do |update|
       .list-group-item.list-group-item-integrated.border-left-0.border-right-0
         .row
           .col-1

@@ -11,7 +11,8 @@
                                                       flags: @flags,
                                                       architectures: @architectures,
                                                       user_can_modify: @user_can_modify,
-                                                      pagetitle: @pagetitle }
+                                                      pagetitle: @pagetitle,
+                                                      spider_bot: @spider_bot }
 - else
   - @pagetitle = "Repositories for #{@project}"
   = render partial: 'project_repositories', locals: { project: @project,
@@ -22,4 +23,5 @@
                                                       available_architectures: @available_architectures,
                                                       repositories: @repositories,
                                                       configuration: @configuration,
-                                                      pagetitle: @pagetitle }
+                                                      pagetitle: @pagetitle,
+                                                      spider_bot: @spider_bot }

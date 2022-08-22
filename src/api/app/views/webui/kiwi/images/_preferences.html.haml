@@ -3,7 +3,7 @@
     %h5.card-header#image-name
       Preferences
     .card-body
-      - @image.preferences.each do |preference|
+      - image.preferences.each do |preference|
         %h6= preference.profile
         %ul.list-inline
           %li.list-inline-item
@@ -23,4 +23,4 @@
         = link_to('#', data: { target: '#preferences-edit', toggle: 'modal' }) do
           %i.fas.fa-edit.text-secondary
           Edit Preferences
-        = render partial: 'preferences_form', locals: { f: f }
+        = render partial: 'preferences_form', locals: { f: f, image: image }

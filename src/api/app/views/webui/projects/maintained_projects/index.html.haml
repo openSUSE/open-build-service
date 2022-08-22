@@ -4,7 +4,7 @@
   data_source = project_maintained_projects_path(@project, :json)
 
 .card
-  = render partial: 'webui/project/tabs', locals: { project: @project }
+  = render partial: 'webui/project/tabs', locals: { project: @project, spider_bot: @spider_bot }
   .card-body
     %h3 Maintained Projects
 

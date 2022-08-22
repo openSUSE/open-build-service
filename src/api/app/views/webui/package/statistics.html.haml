@@ -2,7 +2,7 @@
 - @metarobots = 'noindex' # files change too often
 
 .card.mb-3
-  = render partial: 'tabs', locals: { project: @project, package: @package }
+  = render partial: 'tabs', locals: { project: @project, package: @package, spider_bot: @spider_bot }
   .card-body
     - if @statistics
       .row
