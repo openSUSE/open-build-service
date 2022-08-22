@@ -1,0 +1,9 @@
+in: query
+name: withhistory
+schema:
+  type: string
+description: |
+  Include the request history.
+
+  Without a value or with the value `0` means without the request history. A value `1` means with the request history.
+example: 1

@@ -109,6 +109,21 @@ properties:
           type: string
           xml:
             attribute: true
+        comment:
+          type: string
+        history:
+          type: object
+          properties:
+            when:
+              type: string
+              xml:
+                attribute: true
+            who:
+              type: string
+              xml:
+                attribute: true
+            description:
+              type: string
     example:
       - state: accepted
         when: '2021-01-15T15:49:32'
