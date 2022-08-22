@@ -1,10 +1,10 @@
 get:
-  summary: List projects that match a XPath condition.
+  summary: List project objects that match a XPath condition.
   description: |
-    Return a collection of project names that match a XPath condition.
+    Return a collection of projects objects that match a XPath condition.
 
-    This operation is the same as the one defined with [GET /search/project](#/Search/get_search_project) with the exception of the results returned.
-    While the former operation returns a list of project objects, this one return a list of project names. See example values of a succeeded request below.
+    This operation is the same as the one defined with [GET /search/project/id](#/Search/get_search_project_id) with the exception of the results returned.
+    While the former operation returns a list of project names, this one return a list of project objects. See example values of a succeeded request below.
   security:
     - basic_authentication: []
   parameters:
@@ -64,8 +64,15 @@ get:
               value:
                 matches: 2
                 project:
-                  - name: home:Admin
-                  - name: openSUSE.org
+                  - name: home:Iggy
+                    title:
+                    description:
+                    person:
+                      userid: Iggy
+                      role: maintainer
+                  - name: home:Iggy:branches:home:Admin
+                    title: East of Eden
+                    description:
     '400':
       description: Bad Request
       content:
@@ -82,8 +89,8 @@ get:
 
 post:
   deprecated: true
-  summary: List projects that match a XPath condition.
+  summary: List project objects that match a XPath condition.
   description: |
-    This endpoint is exactly the same as `GET /search/project/id`, please use that one.
+    This endpoint is exactly the same as `GET /search/project`, please use that one.
   tags:
     - Search
