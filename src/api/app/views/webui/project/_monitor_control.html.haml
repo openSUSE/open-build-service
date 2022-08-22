@@ -64,9 +64,7 @@
         %h5.modal-title
           Build status legend
       .modal-body
-        -# haml-lint:disable InstanceVariables
-        - @legend.each do |status, description|
-          -# haml-lint:enable InstanceVariables
+        - legend.each do |status, description|
           %p
             %strong
               #{status}:
