@@ -13,7 +13,7 @@
           .list-group-item{ id: "commit_item_#{revision}" }
             - commit = @package.commit(revision)
             - if commit
-              = render(partial: 'commit_item', locals: { revision: revision, commit: commit })
+              = render(partial: 'commit_item', locals: { project: @project, package: @package, revision: revision, commit: commit })
             - else
               %i Revision #{revision} not found
       - unless params['show_all']
