@@ -28,3 +28,11 @@ get:
       $ref: '../components/responses/unauthorized.yaml'
   tags:
     - Search
+
+post:
+  deprecated: true
+  summary: Search for currently available repositories in the publish area.
+  description: |
+    This endpoint is exactly the same as `GET /search/published/repoinfo/id`, please use that one.
+  tags:
+    - Search

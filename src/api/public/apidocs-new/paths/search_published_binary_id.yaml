@@ -41,3 +41,11 @@ get:
               summary: Not Found
   tags:
     - Search
+
+post:
+  deprecated: true
+  summary: Search for currently available binaries in the publish area.
+  description: |
+    This endpoint is exactly the same as `GET /search/published/binary/id`, please use that one.
+  tags:
+    - Search
