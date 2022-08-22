@@ -34,10 +34,6 @@ get:
             - `group/@role`: name of the role which a group could be related with this package.
           - `attribute/@name`: name of an attribute of the package.
           - `project/attribute/@name`: name of an attribute of the project of the package.
-
-        These functions can also be used with predicates: `boolean`, `contains`, `not`, `starts_with`, `ends_with`.
-
-        More than one predicate can be combined with the following operators: `eq`, `and`, `or`, `neq`, `gt`, `lt`, `gteq`, `lteq`.
       examples:
         all:
           summary: All

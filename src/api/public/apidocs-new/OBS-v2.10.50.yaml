@@ -18,6 +18,30 @@ tags:
   - name: Published Binaries
   - name: Requests
   - name: Search
+    description: |
+      All endpoints besides the owner search listed in the search group use Xpath expressions. The `match` query parameter is used
+      to pass the Xpath predicate. The individual endpoints refer to different objects like Packages, Projects, Issues and more...
+      Please refer to the documentation of the individual search endpoints to know which attributes can be accessed through the predicate,
+      and which extra query parameters are supported or might be required in order to run the search.
+
+
+      These functions can be used with the predicates: `boolean`, `contains`, `not`, `starts_with`, `ends_with`.
+
+      _Example_:
+
+      For a list of all projects where the name starts with "OBS:".
+
+      `/search/project?match=starts_with(@name,'OBS:')`
+
+
+      More than one predicate can be combined with the following operators: `eq`, `and`, `or`, `neq`, `gt`, `lt`, `gteq`, `lteq`.
+
+      _Example_:
+
+      To receive details about the package "obs-server" that is part of the project "OBS:Server:Unstable".
+
+      `/search/package?match=@name='obs-server'+and+@project='OBS:Server:Unstable'`
+
   - name: Sources
   - name: Sources - Projects
   - name: Trigger
