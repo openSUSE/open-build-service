@@ -14,7 +14,9 @@
     %ul
       %li= link_to('Projects', projects_path)
       %li= link_to('Search', search_path, class: 'search-link')
+      -# haml-lint:disable InstanceVariables
       - unless @spider_bot
+        -# haml-lint:enable InstanceVariables
         %li= link_to('Status Monitor', monitor_path)
   %div
     %strong.text-uppercase Help

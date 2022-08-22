@@ -1,6 +1,8 @@
 .bg-light.scrollable-tabs
   = tab_link('Overview', [project_show_path(project), keys_and_certificates_path(project)], false, 'scrollable-tab-link')
+  -# haml-lint:disable InstanceVariables
   - unless @spider_bot
+    -# haml-lint:enable InstanceVariables
     - if project.is_maintenance?
       = tab_link('Incidents', project_maintenance_incidents_path(project), false, 'scrollable-tab-link')
       = tab_link('Maintained Projects', project_maintained_projects_path(project), false, 'scrollable-tab-link')

@@ -29,5 +29,7 @@
   = check_box_tag(:disable_publishing, 1, false, class: 'custom-control-input')
   = label_tag(:disable_publishing, 'Disable build results publishing', class: 'custom-control-label')
 
+-# haml-lint:disable InstanceVariables
 - if @show_restore_message
+  -# haml-lint:enable InstanceVariables
   = hidden_field_tag(:restore_option_provided, true)
