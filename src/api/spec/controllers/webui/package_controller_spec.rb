@@ -1040,7 +1040,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { is_expected.to have_http_status(:success) }
-      it { is_expected.to render_template('webui/package/_rpmlint_log') }
+      it { is_expected.to render_template('webui/package/rpmlint_log') }
     end
   end
 

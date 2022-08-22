@@ -1,0 +1,7 @@
+- @pagetitle = 'Rpmlint Log'
+
+- if @log
+  - @log.lines.each do |line|
+    = colorize_line(line)
+- else
+  No rpmlint log
