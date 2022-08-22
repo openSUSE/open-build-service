@@ -89,6 +89,8 @@ class InvalidParameterError < APIError; end
 
 class InvalidProjectNameError < APIError; end
 
+class InvalidLimitError < APIError; end
+
 class UnknownCommandError < APIError; end
 
 class NotMissingError < APIError; end
