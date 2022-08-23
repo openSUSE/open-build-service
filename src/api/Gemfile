@@ -217,6 +217,8 @@ group :assets do
   gem 'uglifier'
   # to use sass in the asset pipeline
   gem 'sassc-rails'
+  # asset packaging system that concatenates and serves JavaScript, CoffeeScript, CSS, Sass, and SCSS
+  gem 'sprockets-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
   # assets for jQuery and jQuery-ujs
