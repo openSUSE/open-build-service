@@ -1,0 +1,15 @@
+get:
+  deprecated: true
+  summary: List packages that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/package/id`, please use that one.
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List packages that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/package/id`, please use that one.
+  tags:
+    - Search
