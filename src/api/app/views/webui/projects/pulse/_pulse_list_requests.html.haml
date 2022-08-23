@@ -1,7 +1,5 @@
 .row
-  -# haml-lint:disable InstanceVariables
-  - @requests.take(30).each do |request|
-    -# haml-lint:enable InstanceVariables
+  - requests.take(30).each do |request|
     %dt.col-12.col-md-2.col-lg-1
       %span{ class: "badge progress-state-#{request.state} text-light" }
         = request.state.to_s
