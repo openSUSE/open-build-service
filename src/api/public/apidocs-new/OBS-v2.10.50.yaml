@@ -199,6 +199,12 @@ paths:
 
   /search:
     $ref: 'paths/search.yaml'
+  /search/channel:
+    $ref: 'paths/search_channel.yaml'
+  /search/channel/binary:
+    $ref: 'paths/search_channel_binary.yaml'
+  /search/channel/binary/id:
+    $ref: 'paths/search_channel_binary_id.yaml'
   /search/issue:
     $ref: 'paths/search_issue.yaml'
   /search/missing_owner:
