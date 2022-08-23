@@ -18,5 +18,18 @@ properties:
   url:
     type: string
     example: 'https://features.opensuse.org/12345'
+  state:
+    type: string
+  summary:
+    type: string
+  owner:
+    type: object
+    properties:
+      login:
+        type: string
+      email:
+        type: string
+      realname:
+        type: string
 xml:
   name: issue
