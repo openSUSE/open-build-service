@@ -431,6 +431,7 @@ jobs:
       - <<: *mariadb
     environment:
       BUNDLE_GEMFILE: Gemfile.next
+      BUNDLE_CACHE_PATH: vendor/cache.next
     steps:
       - attach_workspace:
          at: .
@@ -458,6 +459,7 @@ jobs:
       - <<: *mariadb
     environment:
       BUNDLE_GEMFILE: Gemfile.next
+      BUNDLE_CACHE_PATH: vendor/cache.next
     steps:
       - attach_workspace:
          at: .
