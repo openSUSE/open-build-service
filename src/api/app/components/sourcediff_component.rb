@@ -1,16 +1,17 @@
 class SourcediffComponent < ApplicationComponent
-  attr_accessor :bs_request, :action, :index, :refresh
+  attr_accessor :bs_request, :action, :index, :refresh, :linkinfo
 
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:, index:, refresh:)
+  def initialize(bs_request:, action:, index:, refresh:, linkinfo: nil)
     super
 
     @bs_request = bs_request
     @action = action
     @index = index
     @refresh = refresh
+    @linkinfo = linkinfo
   end
 
   def file_view_path(filename, sourcediff)
