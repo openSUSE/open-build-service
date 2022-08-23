@@ -1,0 +1,97 @@
+get:
+  summary: List packages that match a XPath condition.
+  description: |
+    Return a collection of package names that match a XPath condition.
+
+    This operation is the same as the one defined with [GET /search/package](#/Search/get_search_package) with the exception of the results returned.
+    While the former operation returns a list of package objects, this one return a list of package names. See example values of a succeeded request below.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      description: |
+        Expression based in XPath.
+
+        Not providing a value or providing a value of `*` will return all packages.
+
+        Available predicates are:
+          - Package fields: `@name`, `title`, `description`, and `kind`.
+          - `@project`: name of the project of the package.
+          - Devel package fields:
+            - `devel/@project`: name of the devel project of the package.
+            - `devel/@package`: name of the devel package of the package.
+          - Issue fields: `issue/@state`, `issue/@name`, `issue/@tracker`, and `issue/@change`.
+          - Issue owner fields: `issue/owner/@email`, and `issue/owner/@login`.
+          - Fields of attributes of an issue: `attribute_issue/@state`, `attribute_issue/@name`, and `attribute_issue/@tracker`.
+          - Fields of owners of an attribute of an issue: `attribute_issue/owner/@email` and `attribute_issue/owner/@login`.
+          - Users and groups:
+            - `person/@userid`: login of a user related to this package.
+            - `person/@role`: name of the role which a user could be related with this package.
+            - `group/@groupid`: name (title) of a group related to this package.
+            - `group/@role`: name of the role which a group could be related with this package.
+          - `attribute/@name`: name of an attribute of the package.
+          - `project/attribute/@name`: name of an attribute of the project of the package.
+
+        These functions can also be used with predicates: `boolean`, `contains`, `not`, `starts_with`, `ends_with`.
+
+        More than one predicate can be combined with the following operators: `eq`, `and`, `or`, `neq`, `gt`, `lt`, `gteq`, `lteq`.
+      examples:
+        all:
+          summary: All
+          value: '*'
+        project_name_and_package_name:
+          summary: Project name and package name
+          value: "@project='my:project:name' and @name='my_package_name'"
+        function_contains:
+          summary: Function contains
+          value: contains(description,'editor')
+        combination:
+          summary: User and role
+          value: person/@userid='iggy' and person/@role='reviewer'
+    - $ref: '../components/parameters/search_limit.yaml'
+    - $ref: '../components/parameters/search_offset.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/search/collection_packages.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            two_results:
+              summary: Two matching results
+              value:
+                matches: 2
+                package:
+                  - project: home:Admin
+                    name: ruby
+                  - project: home:Admin:branch:home:Admin
+                    name: ruby
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate 'foo' for 'packages'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List packages that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/package/id`, please use that one.
+  tags:
+    - Search
