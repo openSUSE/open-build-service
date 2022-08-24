@@ -1,4 +1,3 @@
--# haml-lint:disable InstanceVariables
 %p.d-flex
   = link_to('#', class: 'start_refresh d-none live-link-action btn-info') do
     %i.far.fa-play-circle
@@ -8,26 +7,26 @@
     Stop refresh
 
   - if User.session
-    = link_to(raw_logfile_path(package: @package_name, project: @project, arch: @arch, repository: @repo),
+    = link_to(raw_logfile_path(package: package_name, project: project, arch: arch, repository: repo),
               target: :_blank,
               rel: 'noopener',
               class: 'live-link-action btn-secondary') do
       %i.fas.fa-download
       Download logfile
   - else
-    = link_to(public_build_path(package: @package_name, project: @project, arch: @arch, repository: @repo, filename: '_log'),
+    = link_to(public_build_path(package: package_name, project: project, arch: arch, repository: repo, filename: '_log'),
               target: :_blank,
               rel: 'noopener',
               class: 'live-link-action btn-secondary') do
       %i.fas.fa-download
       Download logfile
-  - if @can_modify
-    = link_to(package_trigger_rebuild_path(project: @project, package: @package_name, arch: @arch, repository: @repo),
+  - if can_modify
+    = link_to(package_trigger_rebuild_path(project: project, package: package_name, arch: arch, repository: repo),
               class: 'link_trigger_rebuild live-link-action btn-warning d-none',
               method: :post) do
       %i.fas.fa-redo
       Trigger Rebuild
-    = link_to(package_abort_build_path(project: @project, package: @package_name, arch: @arch, repository: @repo),
+    = link_to(package_abort_build_path(project: project, package: package_name, arch: arch, repository: repo),
               class: 'link_abort_build live-link-action btn-danger d-none') do
       %i.far.fa-times-circle
       Abort Build
@@ -36,4 +35,3 @@
             title: 'Request permission for browser notifications') do
     %i.far.fa-bell
     Request Browser Notifications
--# haml-lint:enable InstanceVariables

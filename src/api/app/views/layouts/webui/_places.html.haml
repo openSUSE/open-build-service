@@ -52,9 +52,7 @@
       = link_to(projects_path, class: 'nav-link', title: 'All Projects') do
         %i.fas.fa-list.fa-lg.mr-2
         %span.nav-item-name All Projects
-    -# haml-lint:disable InstanceVariables
-    - unless @spider_bot
-      -# haml-lint:enable InstanceVariables
+    - unless spider_bot
       %li.nav-item
         = link_to(monitor_path, class: 'nav-link', title: 'Status Monitor') do
           %i.fas.fa-heartbeat.fa-lg.mr-2

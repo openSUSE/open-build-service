@@ -1,7 +1,7 @@
 - diff_content = file.dig('diff', '_content')
 .position-relative
   = render partial: 'webui/package/revision_diff_detail_buttons',
-  locals: { file_view_path: file_view_path, filename: filename, index: index, last: last, has_content: diff_content.present? }
+  locals: { file_view_path: file_view_path, filename: filename, index: index, last: last, has_content: diff_content.present?, linkinfo: linkinfo }
   - if diff_content.present?
     %details.card.details-with-coderay{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}", data: { package: package } }
       %summary.card-header.py-3
