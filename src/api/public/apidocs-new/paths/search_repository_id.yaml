@@ -1,0 +1,75 @@
+get:
+  summary: List repositories that match a XPath condition.
+  description: Return a collection of repository names that match a XPath condition.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      description: |
+        Expression based in XPath.
+
+        Not providing a value or providing a value of `*` will return all projects.
+
+        Available predicates are:
+          - `@name`: name of the repository.
+          - `@project`: name of the project of the repository.
+          - Path fields: `path/@project` and `path/@repository`.
+          - Target product fields: `targetproduct/@project`, `targetproduct/@arch`, `targetproduct/@name`,
+            `targetproduct/@baseversion`, `targetproduct/@patchlevel`, and `targetproduct/@version`.
+      examples:
+        all:
+          summary: All
+          value: '*'
+        name:
+          summary: Project name
+          value: "@project='home:Admin'"
+        function_contains:
+          summary: Funcion contains
+          value: contains(@name,'Tumb')
+    - $ref: '../components/parameters/search_limit.yaml'
+    - $ref: '../components/parameters/search_offset.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/search/collection_repositories.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            two_results:
+              summary: Two matching results
+              value:
+                matches: 2
+                repository:
+                  - name: openSUSE_Tumbleweed
+                    project: home:Admin
+                  - name: snapshot
+                    project: openSUSE.org
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate 'foo' for 'repositories'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List repositories that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/repository/id`, please use that one.
+  tags:
+    - Search

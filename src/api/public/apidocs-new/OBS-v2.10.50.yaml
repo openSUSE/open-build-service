@@ -221,6 +221,8 @@ paths:
     $ref: 'paths/search_published_pattern_id.yaml'
   /search/published/repoinfo/id:
     $ref: 'paths/search_published_repoinfo_id.yaml'
+  /search/repository/id:
+    $ref: 'paths/search_repository_id.yaml'
 
   /service:
     $ref: 'paths/service.yaml'

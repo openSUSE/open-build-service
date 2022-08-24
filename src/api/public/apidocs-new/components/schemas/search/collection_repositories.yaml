@@ -1,0 +1,21 @@
+type: object
+properties:
+  matches:
+    type: integer
+    xml:
+      attribute: true
+  repository:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        project:
+          type: string
+          xml:
+            attribute: true
+xml:
+  name: collection
