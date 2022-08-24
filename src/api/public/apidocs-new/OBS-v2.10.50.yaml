@@ -199,6 +199,8 @@ paths:
 
   /search:
     $ref: 'paths/search.yaml'
+  /search/issue:
+    $ref: 'paths/search_issue.yaml'
   /search/missing_owner:
     $ref: 'paths/search_missing_owner.yaml'
   /search/owner:
