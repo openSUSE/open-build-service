@@ -1,0 +1,66 @@
+type: object
+properties:
+  matches:
+    type: integer
+    xml:
+      attribute: true
+  binary:
+    type: array
+    items:
+      type: object
+      properties:
+        project:
+          type: string
+          xml:
+            attribute: true
+        repository:
+          type: string
+          xml:
+            attribute: true
+        name:
+          type: string
+          xml:
+            attribute: true
+        version:
+          type: string
+          xml:
+            attribute: true
+        release:
+          type: string
+          xml:
+            attribute: true
+        arch:
+          type: string
+          xml:
+            attribute: true
+        operation:
+          type: string
+        publish:
+          type: object
+          properties:
+            package:
+              type: string
+              xml:
+                attribute: true
+            time:
+              type: string
+              xml:
+                attribute: true
+        build:
+          type: object
+          properties:
+            time:
+              type: string
+              xml:
+                attribute: true
+        obsolete:
+          type: object
+          properties:
+            time:
+              type: string
+              xml:
+                attribute: true
+        disturl:
+          type: string
+xml:
+  name: collection
