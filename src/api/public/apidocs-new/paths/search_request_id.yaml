@@ -1,0 +1,87 @@
+get:
+  summary: List request numbers that match a XPath condition.
+  description: |
+    Return a collection of request numbers that match a XPath condition.
+
+    This operation is the same as the one defined with [GET /search/request](#/Search/get_search_request) with the exception of the results returned.
+    While the former operation returns a list of request objects, this one return a list of request numbers. See example values of a succeeded request below.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      description: |
+        Expression based in XPath.
+
+        Not providing a value or providing a value of `*` will return all requests.
+
+        Available predicates are:
+          - Request fields: `@id` and `@creator`.
+          - State fields: `state/@name`, `state/@who`, and `state/@when`.
+          - Target fields: `target/@project` and `target/@package`.
+          - Source fields: `source/@project` and `source/@package`.
+          - Actions fields: `action/@type`, `action/grouped/@id`, `action/target/@project`, `action/target/@package`, `action/source/@project`, and `action/source/@package`.
+          - Reviews fields:
+            - General: `review/@when`, `review/@state`.
+            - Review by: `review/@by_user`, `review/@by_group`, `review/@by_project`, and `review/@by_package`.
+            - History: `review/history/@when`.
+          - History fields: `history/@when` and `history/@who`.
+      examples:
+        all:
+          summary: All
+          value: '*'
+        id:
+          summary: Request number
+          value: '@id=123456'
+        function_contains:
+          summary: Function contains
+          value: contains(@creator,'Igg')
+        combination:
+          summary: State name and date
+          value: /search/request?match=state/@name='review' and starts_with(state/@when,'2022-08-22')
+    - $ref: '../components/parameters/search_limit.yaml'
+    - $ref: '../components/parameters/search_offset.yaml'
+    - $ref: '../components/parameters/request_withhistory.yaml'
+    - $ref: '../components/parameters/request_withfullhistory.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/request/collection.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            two_results:
+              summary: Two matching results
+              value:
+                matches: 2
+                request:
+                  - id: 2
+                  - id: 4
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate 'foo' for 'requests'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List request numbers that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/request/id`, please use that one.
+  tags:
+    - Search
