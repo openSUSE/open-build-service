@@ -209,6 +209,8 @@ paths:
     $ref: 'paths/search_package_id.yaml'
   /search/package_id:
     $ref: 'paths/search_package__id.yaml'
+  /search/person:
+    $ref: 'paths/search_person.yaml'
   /search/project:
     $ref: 'paths/search_project.yaml'
   /search/project/id:
