@@ -8,8 +8,6 @@ class Webui::SearchController < Webui::WebuiController
   end
 
   def owner
-    Backend::Test.start if Rails.env.test?
-
     # If the search is too short, return
     return if @search_text.blank?
 
