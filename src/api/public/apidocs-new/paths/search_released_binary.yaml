@@ -1,0 +1,135 @@
+get:
+  summary: List released binaries that match a XPath condition.
+  description: |
+    Return a collection of released binaries that match a XPath condition.
+
+    Released binaries are binaries published via the release mechanism. Binaries which got removed are also included.
+
+    This operation is the same as the one defined with [GET /search/released/binary/id](#/Search/get_search_released_binary_id) with the exception of the results returned.
+    While the former operation returns a list of released binaries without details, this one return a list of detailed released binaries. See example values of a succeeded request below.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      required: yes
+      description: |
+        Expression based in XPath.
+
+        Providing a value of `*` will return all released binaries.
+
+        Available predicates are:
+          - Released binary fields: `@name`, `disturl`, `@version`, `@release`, `@arch`, `@medium`, `binaryid`, `cpeid`, `supportstatus`, and `operation`.
+          - Update info fields: `updateinfo/@id` and `updateinfo/@version`.
+          - Build fields: `build/@time` and `build/@binaryid`.
+          - Other fields: `modify/@time` and `obsolete/@time`.
+          - Repository fields: `repository/@project` and `repository/@name`.
+          - Publish fields: `publish/@time`, `publish/@package` and `publish/@flavor`.
+          - "Update for" fields: `updatefor/@project`, `updatefor/@arch`, `updatefor/@product`, `updatefor/@baseversion`, `updatefor/@patchlevel`, and `updatefor/@version`.
+          - Product fields: `product/@project`, `product/@version`, `product/@release`, `product/@baseversion`, `product/@patchlevel`, `product/@name`, `product/@arch`, and `product/@medium`.
+      examples:
+        all:
+          summary: All
+          value: '*'
+        example1:
+          summary: Latest version of given binary in all products
+          description: Find the latest version of a given `glibc-devel` binary in all products, skipping old and revoked versions.
+          value: "@name='glibc-devel'+and+obsolete[not(@time)]"
+        example2:
+          summary: Specific version by given updateinfo id
+          description: Find a specific version by given updateinfo id. This ID is visible in the update tools to the end user.
+          value: updateinfo/@id='OBS-2014-42'
+        example3:
+          summary: Specific version by given disturl
+          description: Find a specific version by given disturl. Used to find all affected products by a certain build of a binary.
+          value: disturl='obs://...'
+        example4:
+          summary: First release of a specific package version
+          value: "@name='kernel-default'+and+@version='1.0'+and+@release='1'+and+@arch='i586'+and+supportstatus='l3'+and+operation='added'"
+        example5:
+          summary: All binaries of a given repository
+          value: repository/@project='BaseDistro3'+and+repository/@name='BaseDistro3_repo'
+        example6:
+          summary: All binaries part of a product release
+          value: product/@project='openSUSE'+and+product/@name='openSUSE'+and+(product/@arch='x86_64'+or+not(product/@arch))
+        example7:
+          summary: All binaries part of the update repositories of a product
+          value: updatefor/@project='openSUSE'+and+updatefor/@product='openSUSE'+and+(updatefor/@arch='x86_64'+or+not(updatefor/@arch))
+        example8:
+          summary: All binaries part of the update repositories of a versioned product
+          value: updatefor/@project='openSUSE'+and+updatefor/@product='openSUSE'+and+updatefor/@version='13.2'
+        example9:
+          summary: All binaries part of the update repositories of a versioned product (enterprise style)
+          value: updatefor/@project='openSUSE'+and+updatefor/@product='openSUSE'+and+updatefor/@baseversion='12'+and+updatefor/@patchlevel='1'
+    - $ref: '../components/parameters/search_limit.yaml'
+    - $ref: '../components/parameters/search_offset.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/search/collection_released_binaries.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            two_results:
+              summary: Two matching results
+              value:
+                matches: 2
+                binary:
+                  - project: home:user_1
+                    repository: openSUSE_Tumbleweed
+                    name: cowsay
+                    version: 3.03
+                    release: 5.7
+                    arch: noarch
+                    operation: added
+                    publish:
+                      package: cowsay
+                      time: '2017-11-22 01:26:25 UTC'
+                    build:
+                      time: '2014-11-22 01:26:25 UTC'
+                    obsolete:
+                      time: '2018-11-22 01:26:25 UTC'
+                    disturl: obs://openSUSE_TEST/home:user_1/openSUSE_Tumbleweed/60a1a1850b9fd0d3b30f3eefa195579b-cowsay
+                  - project: home:user_2:branches:openSUSE.org:Cloud:OpenStack:Pike:venv
+                    repository: SLE_12_SP3
+                    name: pyhon-Babel
+                    version: 2.3.4
+                    release: 3.1
+                    arch: src
+                    operation: added
+                    publish:
+                      package: python-Babel
+                      time: '2018-02-08 12:56:52 UTC'
+                    build:
+                      time: '2018-01-08 12:56:52 UTC'
+                    obsolete:
+                      time: '2018-02-28 12:56:52 UTC'
+                    disturl: obs://openSUSE_TEST/home:user_2:branches:openSUSE.org:Cloud:OpenStack:Pike:venv/SLE_12_SP3/783d831d5cd44b08db0ca95ebe06c6cc-python-Babel
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate 'foo' for 'released_binaries'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List released binaries that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/released/binary`, please use that one.
+  tags:
+    - Search
