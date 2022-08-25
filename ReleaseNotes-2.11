@@ -84,3 +84,5 @@ Breaking API changes:
    previous release, and are now removed:
    - GET /statistics/highest_rated?limit=<limit>
    - GET /statistics/rating/<project>/<package>
+ * The API endpoints '/search/*' with the HTTP method POST are deprecated
+   since they are exactly the same as their GET counterparts.
