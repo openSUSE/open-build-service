@@ -32,7 +32,7 @@ get:
             code: not_found
             summary: Couldn't find AttribNamespace
   tags:
-    - Attribute Namespaces
+    - Attributes
 
 delete:
   summary: Delete an attribute namespace and all attributes below.
