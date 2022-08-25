@@ -9,6 +9,7 @@ Backend:
 - docs/**/*
 - '**/*.md'
 - src/api/public/apidocs-new/**/*
+- ReleaseNotes-*
 
 "Test Suite / CI :syringe:":
 - .circleci/**/*
