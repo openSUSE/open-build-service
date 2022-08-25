@@ -8,6 +8,7 @@ get:
       name: match
       schema:
         type: string
+      required: yes
       description: |
         Expression based in XPath.
 

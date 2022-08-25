@@ -12,10 +12,11 @@ get:
       name: match
       schema:
         type: string
+      required: yes
       description: |
         Expression based in XPath.
 
-        Not providing a value or providing a value of `*` will return all projects.
+        Providing a value of `*` will return all projects.
 
         Available predicates are:
           - Project fields: `@name`, `@kind`, `title`, `description`, `url`, and `remoteurl`.

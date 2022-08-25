@@ -12,10 +12,11 @@ get:
       name: match
       schema:
         type: string
+      required: yes
       description: |
         Expression based in XPath.
 
-        Not providing a value or providing a value of `*` will return all packages.
+        Providing a value of `*` will return all packages.
 
         Available predicates are:
           - Package fields: `@name`, `title`, `description`, and `kind`.
