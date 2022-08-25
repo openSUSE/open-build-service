@@ -1,8 +1,13 @@
 get:
-  summary: Search for the default responsible person or group (the owner).
+  summary: Search for the users or groups who are the owners of a project or package.
   description: |
-    Search for the default responsible person or group (the owner) by a user, group
-    or binary name.
+    The owners are users/groups with the maintainer or bugowner roles in the given project/package.
+
+    By default the owner search will get results from projects (and their sub-projects) that have the
+    OBS:OwnerRootProject attribute.
+
+    You can search for the package name, a user login, a group title or a binary package name.
+    If you don't want to search the default projects, you can provide another project to search in.
   security:
     - basic_authentication: []
   parameters:
@@ -16,22 +21,19 @@ get:
       schema:
         type: string
       description: |
-        The name of a build binary. Either the `binary`, `user` or `group`
-        parameter must be provided.
+        The name of a binary package whose owners you want to search.
     - in: query
       name: user
       schema:
         type: string
       description: |
-        The login of a user. Either the `binary`, `user` or `group`
-        parameter must be provided.
+        Search what this user is owner of.
     - in: query
       name: group
       schema:
         type: string
       description: |
-        The title of a group. Either the `binary`, `user` or `group`
-        parameter must be provided.
+        The title of a group. Search what this group is owner of.
     - in: query
       name: limit
       schema:
@@ -49,12 +51,14 @@ get:
         - false
         - 1
         - 0
-      description: Include/exclude devel package definitions in the result.
+      description: Include/exclude devel packages in the result.
     - in: query
       name: project
       schema:
         type: string
-      description: Only return results for a given project.
+      description: |
+        By default the owner search will get results from projects (and their sub-projects) that have the OBS:OwnerRootProject attribute.
+        Use this parameter to overwrite the default and search in this project (and it's sub-projects).
     - in: query
       name: filter
       schema:
@@ -87,7 +91,7 @@ get:
           example:
             code: no_binary
             summary: |
-              The search needs at least a 'binary' or 'user' parameter
+              The search needs at least a 'binary', 'package' or 'user' parameter
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
@@ -106,7 +110,7 @@ get:
 
 post:
   deprecated: true
-  summary: Search for the default responsible person or group (the owner).
+  summary: Search for the users or groups who are the owners of a project or package.
   description: |
     This endpoint is exactly the same as `GET /search/owner`, please use that one.
   tags:
