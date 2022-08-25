@@ -7,6 +7,11 @@ get:
     - basic_authentication: []
   parameters:
     - in: query
+      name: package
+      schema:
+        type: string
+      description: The name of the package whose owners you want to search.
+    - in: query
       name: binary
       schema:
         type: string
