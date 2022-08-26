@@ -48,21 +48,32 @@ class Staging::StagingProjectsController < Staging::StagingController
 
   def accept
     authorize @staging_project, :accept?
-    authorize @project, :update?
 
-    # check general state
-    raise StagingProjectNotAcceptable, 'Staging project is not in state acceptable.' unless can_accept?
-
-    StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
-    render_ok
+    if acceptable?(force: params[:force].present?)
+      StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
+      render_ok
+    else
+      render_error(
+        status: 400,
+        errorcode: 'staging_project_not_in_acceptable_state',
+        message: "Staging Project is not acceptable: #{@acceptable_error}"
+      )
+    end
   end
 
   private
 
-  def can_accept?
-    return true if @staging_project.overall_state == :acceptable
+  def acceptable?(force: false)
+    @acceptable_error = 'has reviews open' unless @staging_project.missing_reviews.empty?
 
-    params[:force].present? && @staging_project.force_acceptable?
+    if force
+      unless @staging_project.overall_state.in?(StagingProject::FORCEABLE_STATES)
+        @acceptable_error = "is not in state #{StagingProject::FORCEABLE_STATES.to_sentence(last_word_connector: ' or ')}"
+      end
+    else
+      @acceptable_error = "#{@staging_project.overall_state} is not an acceptable state" unless @staging_project.overall_state == :acceptable
+    end
+    @acceptable_error.blank?
   end
 
   def set_options

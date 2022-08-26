@@ -15,6 +15,7 @@ module StagingProject
   end
 
   HISTORY_EVENT_TYPES = [:staging_project_created, :staged_request, :unstaged_request].freeze
+  FORCEABLE_STATES = [:building, :failed, :testing].freeze
 
   def accept
     # Disabling build for all repositories and architectures.
@@ -36,7 +37,6 @@ module StagingProject
 
     # Reset history
     project_log_entries.staging_history.delete_all
-    clear_memoized_data
 
     true
   end
@@ -172,23 +172,7 @@ module StagingProject
     project_log_entry.save!
   end
 
-  def force_acceptable?
-    return false if overall_state.in?([:empty, :unacceptable, :accepting])
-
-    # won't force accept missing reviews, but we can skip
-    # building, testing and failing projects
-    missing_reviews.empty?
-  end
-
   private
-
-  def clear_memoized_data
-    @broken_packages = []
-    @building_repositories = []
-    @requests_to_review = nil
-    @problems = nil
-    @overall_state = nil
-  end
 
   def state
     # FIXME: We should use a better way to check if we are in :accepting state. Could be a state machine or storing the state locally.

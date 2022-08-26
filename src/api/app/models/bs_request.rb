@@ -495,6 +495,15 @@ class BsRequest < ApplicationRecord
     check_bs_request_actions!(skip_source: true)
   end
 
+  def permission_check_change_state(opts)
+    begin
+      permission_check_change_state!(opts)
+    rescue PostRequestNoPermission
+      return false
+    end
+    true
+  end
+
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
     incident_project = nil # .where(type: 'maintenance_incident')

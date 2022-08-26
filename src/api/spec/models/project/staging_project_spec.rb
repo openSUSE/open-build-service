@@ -346,8 +346,6 @@ RSpec.describe Project, vcr: true do
         context 'staging project should be accepted' do
           before do
             subject
-            # Ensure we test the current state.
-            staging_project.send(:clear_memoized_data)
           end
 
           it { expect(staging_project.reload.overall_state).to eq(:empty) }
@@ -384,6 +382,41 @@ RSpec.describe Project, vcr: true do
 
       context 'when the user has no permissions for the target' do
         it { expect { subject }.to raise_error PostRequestNoPermission }
+      end
+
+      context 'when the staging project is using pre-approved requests' do
+        let(:approver) do
+          approver = create(:confirmed_user, login: 'autobuild')
+          create(:relationship, project: target_project, user: approver)
+          approver
+        end
+        let(:staged_request_with_by_project_review) do
+          create(
+            :bs_request_with_submit_action,
+            creator: requester,
+            description: "Request for package #{target_package_2}",
+            target_package: target_package_2,
+            source_package: source_package,
+            staging_project: staging_project,
+            review_by_project: staging_project.name,
+            staging_owner: user,
+            approver: approver.login
+          )
+        end
+
+        context 'staged requests should be accepted by approver', :perform_active_job do
+          before do
+            subject
+            source_project
+          end
+
+          it { expect(staging_project.reload.overall_state).to eq(:empty) }
+          it { expect(staging_project.reload.packages).to contain_exactly(package) }
+          it { expect(staged_request_with_by_project_review.reload.state).to eq(:accepted) }
+          it { expect(staged_request_with_by_project_review.reviews.where.not(state: 'accepted')).not_to exist }
+          it { expect(staged_request_with_by_project_review.history_elements.find_by(type: 'HistoryElement::RequestAllReviewsApproved').user).to eq(user) }
+          it { expect(staged_request_with_by_project_review.history_elements.find_by(type: 'HistoryElement::RequestAccepted').user).to eq(approver) }
+        end
       end
     end
   end

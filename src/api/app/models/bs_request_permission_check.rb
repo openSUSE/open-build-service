@@ -135,7 +135,7 @@ class BsRequestPermissionCheck
       if accept_check
         cannot_accept_request = target_package&.find_attribute('OBS', 'CreatorCannotAcceptOwnRequests').present?
         cannot_accept_request ||= target_project&.find_attribute('OBS', 'CreatorCannotAcceptOwnRequests').present?
-        raise BsRequest::Errors::CreatorCannotAcceptOwnRequests if cannot_accept_request && User.session!.login == req.creator
+        raise BsRequest::Errors::CreatorCannotAcceptOwnRequests if cannot_accept_request && accept_user.login == req.creator
       end
 
       # abort immediatly if we want to write and can't
@@ -153,12 +153,17 @@ class BsRequestPermissionCheck
     extra_permissions_check_changestate unless permission_granted || opts[:cmd] == 'approve'
   end
 
-  attr_accessor :opts, :req
+  attr_accessor :opts, :req, :accept_user
 
   # check if the request can change state - or throw an APIError if not
   def initialize(request, options)
     self.req = request
     self.opts = options
+    self.accept_user = if request.approver
+                         User.find_by!(login: request.approver)
+                       else
+                         User.session!
+                       end
 
     @write_permission_in_source = false
     @write_permission_in_target = false
@@ -201,10 +206,10 @@ class BsRequestPermissionCheck
 
     # the target project may link to another project where we need to check modification permissions
     originpkg = Package.get_by_project_and_name(action.target_project, action.target_package)
-    return if User.session!.can_modify?(originpkg, true)
+    return if accept_user.can_modify?(originpkg, true)
 
     raise PostRequestNoPermission, 'Package target can not get initialized using makeoriginolder.' \
-                                   "No permission in project #{originpkg.project.name}"
+                                   "No permission in project #{originpkg.project.name} for user #{accept_user.login} with request #{action.bs_request.number}"
   end
 
   def check_action_target(action)
@@ -354,13 +359,13 @@ class BsRequestPermissionCheck
     ignore_lock = (new_state == 'declined') || \
                   (opts[:force] && action.action_type == :set_bugowner)
     if @target_package
-      if User.session!.can_modify?(@target_package, ignore_lock)
+      if accept_user.can_modify?(@target_package, ignore_lock)
         @write_permission_in_target = true
         @write_permission_in_this_action = true
       end
     else
-      @write_permission_in_target = true if @target_project && PackagePolicy.new(User.session!, Package.new(project: @target_project), true).create?
-      @write_permission_in_this_action = true if @target_project && PackagePolicy.new(User.session!, Package.new(project: @target_project), ignore_lock).create?
+      @write_permission_in_target = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), true).create?
+      @write_permission_in_this_action = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), ignore_lock).create?
     end
   end
 end
