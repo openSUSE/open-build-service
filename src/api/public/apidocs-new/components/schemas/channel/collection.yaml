@@ -1,0 +1,13 @@
+type: object
+properties:
+  matches:
+    type: string
+    example: 1
+    xml:
+      attribute: true
+  channel:
+    type: array
+    items:
+      $ref: './channel.yaml'
+xml:
+  name: 'collection'

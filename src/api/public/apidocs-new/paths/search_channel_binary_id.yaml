@@ -1,0 +1,79 @@
+get:
+  summary: List channel objects that match a XPath condition.
+  description: |
+    Return a collection of channel objects that match a XPath condition.
+
+    This operation is the same as the one defined with `GET /search/channel/binary` with the exception of the results returned.
+    While the former operation returns a list of channel objects with release information, this one only returns a list of channel
+    objects with the channel definition related to the binary.
+    See example values of a succeeded request below.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      description: |
+        Expression based in XPath.
+
+        Not providing a value or providing a value of `*` will return all released binaries.
+
+        Available predicates are:
+          - General fields: `@name`, `@binaryarch`, `@package`, `@project` and `@supportstatus`
+          - Target fields: `target/disabled`
+          - Updatefor fields: `updatefor/@product` and `updatefor/@product`
+      examples:
+        all:
+          summary: All
+          value: '*'
+        package:
+          summary: Name of the package that contains the `_channel` xml
+          value: '@name=Mesa-debuginfo'
+        function_contains:
+          summary: Function contains
+          value: starts_with(@project,'open')
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/channel/collection.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            one_result:
+              summary: One matching result
+              value:
+                matches: 1
+                channel:
+                  - project: openSUSE:Channels
+                    package: openSUSE:Leap_15_2_x86
+                    binary:
+                      name: Mesa
+                      project: openSUSE:Leap:15.2:Update
+                      package: Mesa
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate 'foo' for 'channel_binaries'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List channel objects that match a XPath condition.
+  description: |
+    This endpoint is exactly the same as `GET /search/channel/binary/id`, please use that one.
+  tags:
+    - Search

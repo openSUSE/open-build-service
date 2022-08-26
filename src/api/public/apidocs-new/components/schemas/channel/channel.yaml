@@ -1,0 +1,65 @@
+type: object
+properties:
+  project:
+    type: string
+    xml:
+      attribute: true
+  package:
+    type: string
+    xml:
+      attribute: true
+  binary:
+    type: object
+    properties:
+      name:
+        type: string
+        xml:
+          attribute: true
+      project:
+        type: string
+        xml:
+          attribute: true
+      package:
+        type: string
+        xml:
+          attribute: true
+      supportstatus:
+        type: string
+        xml:
+          attribute: true
+  target:
+    type: object
+    properties:
+      project:
+        type: string
+        xml:
+          attribute: true
+      repository:
+        type: string
+        xml:
+          attribute: true
+      updatefor:
+        type: object
+        properties:
+          project:
+            type: string
+            xml:
+              attribute: true
+          product:
+            type: string
+            xml:
+              attribute: true
+          baseversion:
+            type: string
+            xml:
+              attribute: true
+          version:
+            type: string
+            xml:
+              attribute: true
+          patchlevel:
+            type: string
+            xml:
+              attribute: true
+xml:
+  name: channel
