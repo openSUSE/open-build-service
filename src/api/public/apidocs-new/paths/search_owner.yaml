@@ -82,6 +82,69 @@ get:
         application/xml; charset=utf-8:
           schema:
             $ref: '../components/schemas/owner_collection.yaml'
+          examples:
+            only package:
+              summary: Search by package name
+              description: Search by package name 'aaa_base' only.
+              value:
+                owner:
+                  - rootproject: ''
+                    project: Base:System
+                    package: aaa_base
+                    person:
+                      name: user_1
+                      role: maintainer
+                  - rootproject: ''
+                    project: Base:System
+                    person:
+                      name: user_1
+                      role: maintainer
+                    group:
+                      name: factory-maintainers
+                      role: maintainer
+                  - rootproject: ''
+                    project: Base
+                    person:
+                      name: user_2
+                      role: maintainer
+            only project:
+              summary: Search by project name
+              description: Search by project name 'openSUSE:Factory' only.
+              value:
+                owner:
+                  - rootproject: ''
+                    project: openSUSE:Factory
+                    person:
+                      name: user_1
+                      role: maintainer
+                    group:
+                      name: factory-maintainers
+                      role: maintainer
+                  - rootproject: ''
+                    project: openSUSE
+                    group:
+                      name: factory-maintainers
+                      role: maintainer
+            only binary:
+              summary: Search by binary name
+              description: Search by binary name 'aaa_base' only.
+              value:
+                owner:
+                  rootproject: 'openSUSE'
+                  project: Base:System
+                  package: aaa_base
+                  person:
+                    - name: user_1
+                      role: maintainer
+                    - name: user_2
+                      role: maintainer
+            group and project:
+              summary: Search by group and project
+              description: Search by group title 'factory-maintainers' and project name 'openSUSE:Leap:42.3'.
+              value:
+                owner:
+                  rootproject: 'openSUSE:Leap:42.3'
+                  project: openSUSE:Leap:42.3
     '400':
       description: Bad request
       content:
