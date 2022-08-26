@@ -151,10 +151,20 @@ get:
         application/xml; charset=utf-8:
           schema:
             $ref: '../components/schemas/api_response.yaml'
-          example:
-            code: no_binary
-            summary: |
-              The search needs at least a 'binary', 'package' or 'user' parameter
+          examples:
+            without expected parameters:
+              summary: Without the expected parameters
+              description: One or a combination of the parameters package, user, group, binay and project is required.
+              value:
+                code: no_binary
+                summary: |
+                  The search needs at least a 'binary', 'package' or 'user' parameter
+            search root not set:
+              summary: Search root is not set
+              description: At least one of the projects in your instance should contain the OBS:OwnerRootProject attribute.
+              value:
+                summary: |
+                  The attribute OBS:OwnerRootProject is not set to define default projects.
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
@@ -168,6 +178,10 @@ get:
               value:
                 code: unknown_project
                 summary: 'Project not found: bla'
+            Group Not Found:
+              value:
+                code: not_found
+                summary: Couldn't find Group 'fake'
   tags:
     - Search
 
