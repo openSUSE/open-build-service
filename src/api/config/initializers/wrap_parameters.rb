@@ -8,11 +8,13 @@ require 'active_support/core_ext/hash/indifferent_access'
 require 'api_error'
 
 # Disable all default rails parameter parsing
+# Context: https://github.com/rails/rails/blob/39413de44c0e2c0dd2d964be5985b03d8f968a7b/guides/source/3_1_release_notes.md#configinitializerswrap_parametersrb
 ActiveSupport.on_load(:action_controller) do
   wrap_parameters(false) if respond_to?(:wrap_parameters)
 end
 
 # Disable root element in JSON by default.
+# Context: https://github.com/rails/rails/blob/39413de44c0e2c0dd2d964be5985b03d8f968a7b/guides/source/3_1_release_notes.md#configinitializerswrap_parametersrb
 ActiveSupport.on_load(:active_record) do
   self.include_root_in_json = false
 end
