@@ -15,7 +15,7 @@ module StagingProject
   end
 
   HISTORY_EVENT_TYPES = [:staging_project_created, :staged_request, :unstaged_request].freeze
-  FORCEABLE_STATES = [:building, :failed, :testing].freeze
+  FORCEABLE_STATES = [:building, :failed, :testing, :acceptable].freeze
 
   def accept
     # Disabling build for all repositories and architectures.

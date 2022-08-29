@@ -297,7 +297,7 @@ RSpec.describe Staging::StagingProjectsController do
 
         it 'still fails' do
           expect(subject).to have_http_status(:bad_request)
-          expect(response.body).to match('Staging Project is not acceptable: is not in state building, failed or testing')
+          expect(response.body).to match('Staging Project is not acceptable: is not in state')
         end
       end
     end
