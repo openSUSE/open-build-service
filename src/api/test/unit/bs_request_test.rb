@@ -8,6 +8,7 @@ class BsRequestTest < ActiveSupport::TestCase
   end
 
   test 'if create works' do
+    Backend::Test.start
     xml = '<request>
               <action type="submit">
                 <source project="BaseDistro" package="pack2" rev="1"/>

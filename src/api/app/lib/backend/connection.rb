@@ -10,7 +10,6 @@ module Backend
     end
 
     def self.get(path, in_headers = {})
-      Backend::Test.start
       start_time = Time.now
       Rails.logger.debug { "[backend] GET: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
@@ -43,7 +42,6 @@ module Backend
     end
 
     def self.delete(path, in_headers = {})
-      Backend::Test.start
       start_time = Time.now
       Rails.logger.debug { "[backend] DELETE: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
@@ -78,7 +76,6 @@ module Backend
     #### private
 
     def self.put_or_post(method, path, data, in_headers)
-      Backend::Test.start
       start_time = Time.now
       Rails.logger.debug { "[backend] #{method}: #{path}" }
       timeout = in_headers.delete('Timeout')

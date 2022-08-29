@@ -114,7 +114,6 @@ class ApplicationController < ActionController::Base
 
   def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
-    Backend::Test.start
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 

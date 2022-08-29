@@ -103,8 +103,6 @@ class SearchController < ApplicationController
   end
 
   def owner
-    Backend::Test.start if Rails.env.test?
-
     if params[:binary].present?
       owners = OwnerSearch::Assignee.new(params).for(params[:binary])
     elsif (obj = owner_group_or_user)
