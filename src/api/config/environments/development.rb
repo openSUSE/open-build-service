@@ -11,6 +11,9 @@ OBSApi::Application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
+  # Server timing middleware (https://github.com/rails/rails/pull/36289)
+  config.server_timing = true
+
   # Eager load sub-classes we use in associations
   # (ack class_name app/models |ack ::)
   # so we don't face "uninitalized constant Something" errors.

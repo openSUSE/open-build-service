@@ -9,6 +9,8 @@ source 'https://rubygems.org'
 
 # Start the Rails application using src/api/Gemfile.next with `next rails s`
 if next?
+  # TODO: The DB schema is always regenerated, so we need to tackle this just before using Rails 7.0
+  # https://guides.rubyonrails.org/upgrading_ruby_on_rails.html#rails-version-is-now-included-in-the-active-record-schema-dump
   gem 'rails', '~> 7.0'
 else
   gem 'rails', '~> 6.1'
