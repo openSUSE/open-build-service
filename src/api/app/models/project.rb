@@ -1423,6 +1423,19 @@ class Project < ApplicationRecord
     { project: name }
   end
 
+  def check_linking_repositories(repository)
+    linking_repositories = repository.linking_repositories
+    linking_repositories += repository.linking_target_repositories
+
+    return if linking_repositories.empty?
+
+    # send notification to mantainers where the repo is removed
+    linking_repositories.each do |repo|
+      # FIXME: emit events for projects maintainers
+      repo.project.maintainers
+    end
+  end
+
   private
 
   def bsrequest_repos_map(project)
