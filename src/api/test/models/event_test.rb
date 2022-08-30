@@ -12,20 +12,6 @@ class EventTest < ActionDispatch::IntegrationTest
     Backend::Test.start
   end
 
-  test 'find nothing' do
-    assert_nil Event::Factory.new_from_type('NOT_EXISTANT', {})
-  end
-
-  test 'find event' do
-    e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
-                                     'project' => 'kde4',
-                                     'package' => 'kdelibs',
-                                     'sender' => 'tom')
-    assert_equal 'Event::CreatePackage', e.class.name
-    assert_equal 'kdelibs', e.payload['package']
-    assert_equal [], e.receiver_roles
-  end
-
   def users_for_event(e)
     users = EventSubscription::FindForEvent.new(e).subscriptions.map(&:subscriber)
     User.where(id: users).pluck(:login).sort
