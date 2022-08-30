@@ -52,7 +52,7 @@ case "$1" in
 		}
 
 		# configure sshd if wanted
-		if [ ! -e /root/.ssh/authorized_keys ]; then
+		if [ ! -s /root/.ssh/authorized_keys ]; then
 			if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
 				echo "Enabling sshd as requested"
 				[ -e /root/.ssh ] || mkdir /root/.ssh
