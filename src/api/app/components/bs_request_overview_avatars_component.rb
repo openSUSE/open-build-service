@@ -13,12 +13,24 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
     @avatar_objects ||= if @review.for_user?
                           [@review.user]
                         elsif @review.for_group?
-                          [@review.group.users, @review.group].flatten
+                          group_avatar_objects
                         elsif @review.for_package?
-                          @review.package.project.users
+                          package_avatar_objects
                         elsif @review.for_project?
-                          @review.project.users
+                          project_avatar_objects
                         end
+  end
+
+  def group_avatar_objects
+    [@review.group.users, @review.group].flatten
+  end
+
+  def package_avatar_objects
+    [@review.package&.project&.users].flatten.compact
+  end
+
+  def project_avatar_objects
+    [@review.project&.users].flatten.compact
   end
 
   def avatars_to_display
