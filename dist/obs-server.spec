@@ -479,7 +479,7 @@ EOF
 
 pushd src/api
 bundle --local --path %_libdir/obs-api/
-rm -rf vendor/cache/*
+rm -rf vendor/cache/* vendor/cache.next/*
 popd
 
 #

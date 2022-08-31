@@ -1,3 +1,5 @@
+require 'api_error'
+
 module Token::Errors
   extend ActiveSupport::Concern
 

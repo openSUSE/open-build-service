@@ -431,9 +431,11 @@ jobs:
       - <<: *mariadb
     environment:
       BUNDLE_GEMFILE: Gemfile.next
+      BUNDLE_CACHE_PATH: vendor/cache.next
     steps:
       - attach_workspace:
          at: .
+      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *create_test_db
       - run: *wait_for_database
@@ -457,9 +459,11 @@ jobs:
       - <<: *mariadb
     environment:
       BUNDLE_GEMFILE: Gemfile.next
+      BUNDLE_CACHE_PATH: vendor/cache.next
     steps:
       - attach_workspace:
          at: .
+      - run: *install_dependencies
       - run: *init_git_submodule
       - run: *wait_for_database
       - run: *bootstrap_old_test_suite
