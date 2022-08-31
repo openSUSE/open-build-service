@@ -21,6 +21,57 @@
   }
 }
 
+.comment-bubble {
+  $comment-bubble-outline: $gray-400;
+  @extend .rounded;
+  @extend .p-3;
+  @extend .mb-2;
+  border: 1px solid $comment-bubble-outline;
+  position: relative;
+  min-width: 20%;
+
+  // Arrow on the top left of the comment bubble
+  $comment-bubble-arrow-top-position: 0;
+  $comment-bubble-arrow-left-position: 14px;
+  $comment-bubble-arrow-size: 16px;
+  // This creates two triangles.
+  // `::before` creates a triangle which matches the color of the comment bubble's outline.
+  //
+  // `::after` creates a triangle which matches the color of Bootstrap's card background color.
+  // It is displayed on top of the one created by `::before` with a small offset.
+  //
+  // Together, they produce a single comment bubble arrow... Magic!
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: $comment-bubble-arrow-top-position;
+    left: $comment-bubble-arrow-left-position;
+    width: 0;
+    height: 0;
+    border: $comment-bubble-arrow-size solid transparent;
+    border-bottom-color: $gray-400;
+    border-top: 0;
+    border-left: 0;
+    margin-left: -($comment-bubble-arrow-size / 2);
+    margin-top: -$comment-bubble-arrow-size;
+  }
+  &::after {
+    top: $comment-bubble-arrow-top-position + 2px;
+    left: $comment-bubble-arrow-left-position + 1px;
+    z-index: 1;
+    border-bottom-color: $card-bg;
+  }
+
+  .dropdown {
+    top: -10px;
+    left: 5px;
+  }
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
 .comment-preview {
   min-height: 6.9rem;
 }

@@ -25,4 +25,13 @@ class BsRequestHistoryElementComponent < ApplicationComponent
       tag.i(nil, class: 'fas fa-code-commit text-dark')
     end
   end
+
+  # While all history elements possibly have a comment, not all of them are from an actual human...
+  def element_with_comment_from_human?
+    ['RequestReviewAdded', 'ReviewAccepted', 'ReviewDeclined', 'RequestAccepted', 'RequestDeclined'].include?(@element.type.demodulize)
+  end
+
+  def css_for_comment
+    element_with_comment_from_human? ? 'comment-bubble' : ''
+  end
 end
