@@ -25,10 +25,6 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
     [@review.group.users, @review.group].flatten
   end
 
-  def package_avatar_objects
-    [@review.package&.project&.users].flatten.compact
-  end
-
   def project_avatar_objects
     [@review.project&.users].flatten.compact
   end
@@ -39,5 +35,14 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
 
   def number_of_hidden_avatars
     [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
+  end
+
+  def package_avatar_objects
+    reviewers = (@review.package.maintainers + @review.package.reviewers).compact.uniq if @review.package&.users.present?
+    # if the package explicitly has maintainer or reviewer assigned return them, otherwise
+    # check the related project for responsible user
+    return reviewers.uniq if reviewers.present?
+
+    (@review.package&.project&.maintainers + @review.package&.project&.reviewers).compact.uniq
   end
 end
