@@ -26,7 +26,13 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
   end
 
   def package_avatar_objects
-    [@review.package&.project&.users].flatten.compact
+    relationships = Relationship.includes(:user, :group)
+    # if the package explicitly has maintainer or reviewer assigned return them
+    reviewers = relationships.for_package(@review.package).user_with_maintainer_role
+    # otherwise, check the related project for responsible user
+    reviewers = relationships.for_project(@review.package.project).user_with_maintainer_role if
+      reviewers.empty?
+    reviewers
   end
 
   def project_avatar_objects
