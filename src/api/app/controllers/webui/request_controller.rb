@@ -108,6 +108,12 @@ class Webui::RequestController < Webui::WebuiController
       @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
       @declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
       @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
+
+      if User.session && params[:notification_id]
+        @current_notification = Notification.find(params[:notification_id])
+        authorize @current_notification, :update?, policy_class: NotificationPolicy
+      end
+
       # TODO: Remove this `render` line once request_show_redesign is rolled out
       render :beta_show
     else
