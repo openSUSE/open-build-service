@@ -81,13 +81,6 @@ module HasRelationships
     (direct_users + users_in_groups).uniq
   end
 
-  def reviewers
-    direct_users = relationships.with_users_and_roles_query.reviewers.pluck('users.login').map! { |user| User.find_by_login!(user) }
-    users_in_groups = relationships.with_groups_and_roles_query.reviewers.pluck('groups.title')
-                                   .map! { |title| Group.find_by_title!(title).users }.flatten
-    (direct_users + users_in_groups).uniq
-  end
-
   def remove_all_persons
     check_write_access!
     relationships.users.delete_all

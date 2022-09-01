@@ -38,11 +38,13 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
   end
 
   def package_avatar_objects
-    reviewers = (@review.package.maintainers + @review.package.reviewers).compact.uniq if @review.package&.users.present?
+    relationships = @review.package&.relationships.for_maintainer_and_reviewer_roles.includes(:user, :group)
+    reviewers = relationships.map { |relation | relation.user_id.present? ? relation.user : relation.group.users }.flatten.uniq!
     # if the package explicitly has maintainer or reviewer assigned return them, otherwise
     # check the related project for responsible user
-    return reviewers.uniq if reviewers.present?
+    return reviewers if reviewers.present?
 
-    (@review.package&.project&.maintainers + @review.package&.project&.reviewers).compact.uniq
+    relationships = @review.package&.project&.relationships.for_maintainer_and_reviewer_roles.includes(:user, :group)
+    relationships.map { |relation | relation.user_id.present? ? relation.user : relation.group.users }.flatten.uniq!
   end
 end

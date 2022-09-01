@@ -53,8 +53,8 @@ class Relationship < ApplicationRecord
     where(role_id: Role.hashed['maintainer'])
   }
 
-  scope :reviewers, lambda {
-    where(role_id: Role.hashed['reviewer'])
+  scope :for_maintainer_and_reviewer_roles, lambda {
+    where(role_id: [Role.hashed['maintainer'].id, Role.hashed['reviewer'].id])
   }
 
   scope :bugowners, lambda {
