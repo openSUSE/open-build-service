@@ -30,6 +30,10 @@ class BsRequestActionChangeDevel < BsRequestAction
     "changedevel/#{target_project}/#{target_package}"
   end
 
+  def name
+    uniq_key.gsub('changedevel/', 'Change Devel ')
+  end
+
   #### Alias of methods
 end
 

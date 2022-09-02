@@ -822,6 +822,10 @@ class BsRequestAction < ApplicationRecord
     ' '
   end
 
+  def name
+    raise AbstractMethodCalled
+  end
+
   private
 
   def cache_diffs

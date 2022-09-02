@@ -148,6 +148,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     pi['rating']
   end
 
+  def name
+    "Release #{uniq_key}"
+  end
+
   private
 
   def sanity_check!

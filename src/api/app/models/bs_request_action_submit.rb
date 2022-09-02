@@ -138,6 +138,10 @@ class BsRequestActionSubmit < BsRequestAction
     raise PostRequestNoPermission, msg
   end
 
+  def name
+    "Submit #{uniq_key}"
+  end
+
   #### Alias of methods
 end
 

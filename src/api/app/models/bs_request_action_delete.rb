@@ -70,6 +70,16 @@ class BsRequestActionDelete < BsRequestAction
     end
   end
 
+  def name
+    if target_package
+      "Delete #{target_package}"
+    elsif target_repository
+      "Delete #{target_repository}"
+    else
+      "Delete #{target_project}"
+    end
+  end
+
   private
 
   def remove_repository(opts)

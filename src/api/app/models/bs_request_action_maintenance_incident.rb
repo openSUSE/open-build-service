@@ -108,6 +108,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     super(ignore_build_state, ignore_delegate)
   end
 
+  def name
+    "Incident #{uniq_key}"
+  end
+
   private
 
   def _merge_pkg_into_maintenance_incident(incident_project)

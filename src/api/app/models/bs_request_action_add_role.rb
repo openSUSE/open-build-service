@@ -51,6 +51,10 @@ class BsRequestActionAddRole < BsRequestAction
     node.group(name: group_name, role: role)
   end
 
+  def name
+    uniq_key.gsub('add_role/', 'Add Role ')
+  end
+
   #### Alias of methods
 end
 
