@@ -1,11 +1,11 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes]
-  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
+  before_action :require_request, only: [:changerequest, :show, :request_action]
+  before_action :set_superseded_request, only: [:show, :request_action]
   before_action :check_ajax, only: :sourcediff
 
   after_action :verify_authorized, only: [:create]
@@ -101,13 +101,25 @@ class Webui::RequestController < Webui::WebuiController
 
       @diff_limit = params[:full_diff] ? 0 : nil
       @diff_to_superseded_id = params[:diff_to_superseded]
-      @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
-      @action = @actions.first
+
+      # Handling request actions
+      action_id = params[:action_id] || @bs_request.bs_request_actions.first.id
+      @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
+                                          diffs: true, action_id: action_id.to_i, cacheonly: 1).first
+      @active_action = @bs_request.bs_request_actions.find(action_id)
 
       @open_reviews = @bs_request.reviews.opened.for_non_staging_projects
       @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
       @declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
       @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
+      @not_full_diff = BsRequest.truncated_diffs?([@action])
+      @refresh = @action[:diff_not_cached]
+
+      if @refresh
+        bs_request_action = BsRequestAction.find(@action[:id])
+        job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+        BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+      end
 
       if User.session && params[:notification_id]
         @current_notification = Notification.find(params[:notification_id])
@@ -166,26 +178,6 @@ class Webui::RequestController < Webui::WebuiController
                                          action_id: params['id'].to_i, cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
-    @not_full_diff = BsRequest.truncated_diffs?(@actions)
-    @diff_to_superseded_id = params[:diff_to_superseded]
-    @refresh = @action[:diff_not_cached]
-
-    if @refresh
-      bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
-      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
-    end
-
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def request_action_changes
-    @diff_limit = params[:full_diff] ? 0 : nil
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
-                                         action_id: params['id'].to_i, cacheonly: 1)
-    @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     @diff_to_superseded_id = params[:diff_to_superseded]
     @refresh = @action[:diff_not_cached]

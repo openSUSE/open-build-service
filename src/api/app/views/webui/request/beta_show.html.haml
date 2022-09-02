@@ -1,6 +1,6 @@
 :ruby
   @pagetitle = "Request #{@bs_request.number}"
-  @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
+  @pagetitle += ": #{@action[:name]}"
   actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
 - if @can_add_reviews
@@ -26,7 +26,7 @@
 
 .card
   .card-body.p-0
-    .card-title.px-4.pt-4.mb-0
+    .card-title.p-4.mb-0
       %h3
         Request #{@bs_request.number}
         %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
@@ -34,25 +34,28 @@
           - if @bs_request.superseded_by.present?
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
-    %p.font-italic.px-4
-      Created by
-      = user_with_realname_and_icon(@bs_request.creator)
-      = fuzzy_time(@bs_request.created_at)
-      - if @bs_request.superseding.present?
-        = '. Supersedes'
-        - @bs_request.superseding.each do |supersed|
-          = link_to "##{supersed['number']}", number: supersed['number']
-    %p.px-4= request_action_header(@actions.first, @bs_request.creator) # TODO: adapt when handling requests with multiple actions
+      %p.font-italic
+        Created by
+        = user_with_realname_and_icon(@bs_request.creator)
+        = fuzzy_time(@bs_request.created_at)
+        - if @bs_request.superseding.present?
+          = '. Supersedes'
+          - @bs_request.superseding.each do |supersed|
+            = link_to "##{supersed['number']}", number: supersed['number']
+
+        = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
+                                                        diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
       %li.nav-item.scrollable-tab-link
         = link_to('Conversation', '#conversation', class: 'nav-link text-nowrap active', 'aria-controls': 'conversation',
                   'aria-selected': 'true', 'data-toggle': 'tab', role: 'tab')
-      - if @actions.first[:sprj] || @actions.first[:spkg]
+      - if @action[:sprj] || @action[:spkg]
         %li.nav-item.scrollable-tab-link
           = link_to('Build Results', '#build-results', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link#changes-item{ 'data-request-number': @bs_request.number, 'data-request-action-id': @actions.first[:id] }
+        %li.nav-item.scrollable-tab-link#changes-item{ 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
           = link_to('Changes', '#changes', class: 'nav-link text-nowrap', 'aria-controls': 'changes', 'aria-selected': 'false',
                     'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
@@ -70,12 +73,12 @@
                                                                              actions: @actions,
                                                                              is_target_maintainer: @is_target_maintainer,
                                                                              is_author: @is_author }
-      - if @actions.first[:sprj] || @actions.first[:spkg]
+      - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @actions.first[:sprj], package: @actions.first[:spkg] }
+          = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @action[:sprj], package: @action[:spkg] }
       - if @action[:type].in?(actions_for_diff)
         .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/changes'
-      - if @action[:type].in?(actions_for_diff)
+          = render partial: 'webui/request/beta_show_tabs/changes', locals: { bs_request: @bs_request, action: @action, refresh: @refresh }
         .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/mentioned_issues'
+    .selected-tab{ 'data-selected': @active_tab }

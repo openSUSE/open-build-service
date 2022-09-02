@@ -823,7 +823,15 @@ class BsRequestAction < ApplicationRecord
   end
 
   def name
-    raise AbstractMethodCalled
+    uniq_key
+  end
+
+  def commit_details
+    package = Package.find_by_project_and_name(source_project, source_package)
+
+    return nil if package.nil? && source_rev.nil?
+
+    package.commit(source_rev) || package.commit
   end
 
   private

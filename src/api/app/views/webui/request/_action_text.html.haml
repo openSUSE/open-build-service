@@ -1,0 +1,10 @@
+- if (details = action.commit_details)
+  %p.mt-0.mb-0.font-weight-normal
+    = details['comment']&.truncate(50) || action.name
+    %span.float-right.ml-5
+      = details['rev']
+  %p.mb-0.mt-0.text-muted.font-weight-light.small
+    = details['user']
+    #{ApplicationController.helpers.time_ago_in_words(details['time'].to_i)} ago
+- else
+  %p Commit information is missing
