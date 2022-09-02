@@ -135,9 +135,6 @@ $(document).ready(function(){
     }
   });
   // TODO: Remove the enclosing code when the request_show_redesign feature is finished - END
-  $('#changes-item').on('shown.bs.tab', function () {
-    loadChanges();
-  });
 });
 
 // TODO: Remove the following method when the request_show_redesign feature is finished
@@ -165,20 +162,6 @@ function loadDiffs(element){
   $.ajax({
     url: url,
     success: function(){
-      $('.loading-diff').addClass('invisible');
-    }
-  });
-}
-
-function loadChanges() {
-  $('.loading-diff').removeClass('invisible');
-  var element = $('#changes-item');
-  // Always retrieve the changes of the first request action, by now
-  // TODO: request-action-id should be retrieved from the select component, when it is introduced
-  var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
-  $.ajax({
-    url: url,
-    success: function() {
       $('.loading-diff').addClass('invisible');
     }
   });
