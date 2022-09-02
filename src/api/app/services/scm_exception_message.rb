@@ -49,6 +49,8 @@ class ScmExceptionMessage
   }.freeze
 
   GITLAB_EXCEPTIONS = {
+    Gitlab::Error::BadGateway =>
+      'Bad gateway. Please try again later.',
     Gitlab::Error::Conflict =>
       'The request could not be completed due to a conflict with the current state of the target resource.',
     Gitlab::Error::Forbidden =>
