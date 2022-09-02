@@ -66,12 +66,6 @@ Style/ClassAndModuleChildren:
   Exclude:
     - 'docs/dev/controller_template_example.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Style/EachForSimpleLoop:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 14
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
