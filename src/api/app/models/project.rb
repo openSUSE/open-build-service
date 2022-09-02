@@ -1240,6 +1240,16 @@ class Project < ApplicationRecord
     { reviews: reviews, targets: targets, incidents: incidents, maintenance_release: maintenance_release }
   end
 
+  def open_incoming_requests
+    ids = open_requests.values.sum
+    BsRequest.includes(:bs_request_actions).where(id: ids).where(bs_request_actions: {target_project: name})
+  end
+
+  def open_outgoing_requests
+    ids = open_requests.values.sum
+    BsRequest.includes(:bs_request_actions).where(id: ids).where.not(bs_request_actions: {target_project: name})
+  end
+
   # for the clockworkd - called delayed
   def update_packages_if_dirty
     PackagesFinder.new(packages).dirty_backend_packages.each(&:update_if_dirty)

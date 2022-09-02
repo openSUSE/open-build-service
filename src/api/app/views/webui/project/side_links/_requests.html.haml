@@ -9,4 +9,7 @@
            end
   %i.fa.fa-info-circle.text-info
   = link_to(path) do
-    = pluralize(requests.size, 'open request')
+    = pluralize(project.open_incoming_requests.size, 'open incoming request')
+  %i.fa.fa-info-circle.text-info
+  = link_to(path) do
+    = pluralize(project.open_outgoing_requests.size, 'open outging request')
