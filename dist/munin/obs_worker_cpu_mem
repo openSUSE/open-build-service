@@ -121,12 +121,12 @@ HZ=${HZ:-100}
 
 extinfo=""
 
-if egrep -q '^cpu +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' /proc/stat; then
+if grep -E -q '^cpu +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' /proc/stat; then
 	extinfo="iowait irq softirq"
-	if egrep -q '^cpu +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' /proc/stat; then
+	if grep -E -q '^cpu +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' /proc/stat; then
 		extextinfo="steal"
 	fi
-	if egrep -q '^cpu +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' /proc/stat; then
+	if grep -E -q '^cpu +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+ +[0-9]+' /proc/stat; then
 		extextextinfo="guest"
 	fi
 
@@ -134,7 +134,7 @@ fi
 
 if [ "$1" = "config" ]; then
 
-	NCPU=$(egrep '^cpu[0-9]+ ' /proc/stat | wc -l)
+	NCPU=$(grep -E '^cpu[0-9]+ ' /proc/stat | wc -l)
 	if [ "$scaleto100" = "yes" ]; then
 		graphlimit=100
 	else

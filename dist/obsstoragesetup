@@ -350,7 +350,7 @@ case "$1" in
 			echo "Found XEN virtualization"
 			RUN_VIRT=1
 		else
-			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && modprobe kvm; then
+			if grep ^flags /proc/cpuinfo | grep -E -q " (svm|vmx) " && modprobe kvm; then
 				echo "Found KVM virtualization"
 				RUN_VIRT=1
 		                # support virtio
@@ -399,7 +399,7 @@ case "$1" in
 				OBS_INSTANCE_MEMORY=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
 				echo "OBS_INSTANCE_MEMORY=\"$OBS_INSTANCE_MEMORY\"" >> /etc/buildhost.config
                         fi
-			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
+			if grep ^flags /proc/cpuinfo | grep -E -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
                                 # try to use hugetlb on kvm
 				mkdir -p /dev/hugetlbfs # systemd may have mounted it already
 			        HUGETLBINSTANCEMEM=$(( ($OBS_INSTANCE_MEMORY * 512) / 1024 )) # 2M page sizes
