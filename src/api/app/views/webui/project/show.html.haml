@@ -26,7 +26,9 @@
                                                   requests: @requests,
                                                   package: @package,
                                                   linking_projects: @linking_projects,
-                                                  project_maintenance_project: @project_maintenance_project }
+                                                  project_maintenance_project: @project_maintenance_project,
+                                                  incoming_requests_size: @incoming_requests_size,
+                                                  outgoing_requests_size: @outgoing_requests_size }
 .overview
   .build-results
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name }

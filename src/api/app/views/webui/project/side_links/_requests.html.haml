@@ -10,3 +10,14 @@
   %i.fa.fa-info-circle.text-info
   = link_to(path) do
     = pluralize(requests.size, 'open request')
+
+  %small
+    (
+    %span{ title: 'incoming' }
+      %i.fa.fa-arrow-down
+      #{incoming_requests_size}
+    %span /
+    %span{ title: 'outgoing' }
+      %i.fa.fa-arrow-up
+      #{outgoing_requests_size}
+    )
