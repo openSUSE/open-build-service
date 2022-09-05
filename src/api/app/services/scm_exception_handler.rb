@@ -29,7 +29,8 @@ class SCMExceptionHandler
     log_to_workflow_run(exception, 'GitHub') if @workflow_run.present?
   end
 
-  rescue_from Gitlab::Error::Conflict,
+  rescue_from Gitlab::Error::BadGateway,
+              Gitlab::Error::Conflict,
               Gitlab::Error::Forbidden,
               Gitlab::Error::InternalServerError,
               Gitlab::Error::MissingCredentials,
