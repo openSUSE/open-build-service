@@ -2134,7 +2134,7 @@ sub publish {
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
-	} elsif ($bin =~ /(.*)\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256(?:\.asc)?)?$/) {
+	} elsif ($bin =~ /(.*)\.raw(?:\.install)?(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = $bin;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
@@ -2160,6 +2160,15 @@ sub publish {
 	    BSPublisher::Helm::readhelminfo($r, "$1.helminfo");
 	    $p = $bin;
           };
+	} elsif ($bin =~ /\.(manifest|efi|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s|)(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha[0-9]*)?$/) {
+	  # split dm-verity/EFI artifacts from mkosi, or image manifest file
+	  $p = "$arch/$bin";
+	} elsif ($bin =~ /^SHA[0-9]*SUMS(?:\.gpg)?$/) {
+	  # list of hashes (possibly signed) from mkosi
+	  $p = "$arch/$bin";
+	} elsif ($bin =~ /^mkosi\./) {
+	  # mkosi recipe file
+	  $p = "$bin";
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");
