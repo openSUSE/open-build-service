@@ -33,6 +33,6 @@
     .comment_new.mt-3
       = render partial: 'webui/comment/new', locals: { commentable: bs_request }
     %hr
-    = render RequestDecisionComponent.new(bs_request: bs_request, actions: actions,
+    = render RequestDecisionComponent.new(bs_request: bs_request, action: action,
                                           is_target_maintainer: is_target_maintainer,
                                           is_author: is_author)
