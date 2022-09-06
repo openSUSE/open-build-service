@@ -293,6 +293,11 @@ class Review < ApplicationRecord
     by_project? && by_package?
   end
 
+  def maintainers_and_reviewers_for_package
+    relationships = package&.relationships&.for_maintainer_and_reviewer_roles&.includes(:user, :group) || []
+    relationships.map { |relation| relation.user_id.present? ? relation.user : relation.group.users }.flatten.uniq
+  end
+
   private
 
   def matches_maintainers?(user)
