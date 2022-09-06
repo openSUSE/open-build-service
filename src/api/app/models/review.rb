@@ -298,6 +298,11 @@ class Review < ApplicationRecord
     relationships.map { |relation| relation.user_id.present? ? relation.user : relation.group.users }.flatten.uniq
   end
 
+  def maintainers_and_reviewers_for_project
+    relationships = package&.project&.relationships&.for_maintainer_and_reviewer_roles&.includes(:user, :group) || []
+    relationships.map { |relation| relation.user_id.present? ? relation.user : relation.group.users }.flatten.uniq
+  end
+
   private
 
   def matches_maintainers?(user)
