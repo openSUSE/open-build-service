@@ -94,7 +94,7 @@ if true; then
         do
             ( pushd tmp &&
                 (
-                    if [ x$(echo $f | egrep "_[0-9]") != x"" ]; then
+                    if [ x$(echo $f | grep -E "_[0-9]") != x"" ]; then
                         pkgname=${f%%-[0-9].[*-[0-9]*-[0-9]*.*}
                     else
                         pkgname=${f%%-[0-9]*-[0-9]*.*}
