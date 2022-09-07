@@ -30,6 +30,7 @@ eval { require Diff::LibXDiff };
 use strict;
 
 use BSUtil;
+use BSZip;
 
 my $havelibxdiff;
 $havelibxdiff = 1 if defined(&Diff::LibXDiff::diff);
@@ -351,7 +352,6 @@ sub listextractcpio {
     $name = substr($name, 0, $nsize);
     $name =~ s/\0.*//s;
     my $type = $mode & 0xf000;
-    my $info = '';
     if ($type == 0x1000) {
       $type = 'p';
     } elsif ($type == 0x2000) {
@@ -362,7 +362,6 @@ sub listextractcpio {
       $type = 'b';
     } elsif ($type == 0x8000) {
       $type = '-';
-      $info = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
     } elsif ($type == 0xa000) {
       $type = 'l';
     } elsif ($type == 0xc000) {
@@ -370,38 +369,46 @@ sub listextractcpio {
     } else {
       $type = '?';
     }
-    last if !$fsize && $name eq 'TRAILER!!!';
+    last if (!$fsize || $fsize == 4) && $name eq 'TRAILER!!!';
     push @c, {'type' => $type, 'name' => $name, 'size' => $fsize, 'mode' => cpiomode($mode)};
-    my $x = shift @$cp if $cp;
-    die if $cp && !$x;
-    undef $x if $x && !$x->{'extract'};
-    die("ridiculous long symlink\n") if $type eq 'l' && $fsize > 8192;
+    my $x;
+    if ($cp) {
+      $x = shift @$cp;
+      die unless $x;
+      undef $x if !$x->{'extract'};
+    }
+    die("bad extract file type\n") if $x && $type ne '-';
     my $fsizepad = 0;
     $fsizepad = 4 - ($fsize & 3) if $fsize & 3;
     my $md5 = $type eq '-' ? 'd41d8cd98f00b204e9800998ecf8427e' : undef;
+    my $info = $type eq '-' ? 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' : '';
     my $tomem = $x && exists($x->{'content'});
     if ($x && !$tomem) {
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
     }
     if ($fsize > 0) {
-      my $ctx = Digest::MD5->new;
-      my $ctx256 = Digest::SHA->new(256);
-      while ($fsize > 0) {
-        my $chunk = $fsize > 16384 ? 16384 : $fsize;
-	my $data;
-	die("cpio read error body\n") unless (read(F, $data, $chunk) || 0) == $chunk;
-	$ctx->add($data);
-	$ctx256->add($data);
-	$info .= $data if $type eq 'l';
-	if ($tomem) {
-	  $x->{'content'} .= $data;
-	} elsif ($x) {
-	  print G $data;
+      if ($type eq 'l') {
+        die("ridiculous long symlink\n") if $fsize > 8192;
+        die("cpio read error symlink body\n") unless (read(F, $info, $fsize) || 0) == $fsize;
+      } else {
+        my $ctx = Digest::MD5->new;
+        my $ctx256 = Digest::SHA->new(256);
+        while ($fsize > 0) {
+	  my $chunk = $fsize > 16384 ? 16384 : $fsize;
+	  my $data;
+	  die("cpio read error body\n") unless (read(F, $data, $chunk) || 0) == $chunk;
+	  $ctx->add($data);
+	  $ctx256->add($data);
+	  if ($tomem) {
+	    $x->{'content'} .= $data;
+	  } elsif ($x) {
+	    print G $data;
+	  }
+	  $fsize -= $chunk;
 	}
-	$fsize -= $chunk;
+        $info = $ctx256->hexdigest() if $type eq '-';
+        $md5 = $ctx->hexdigest() if $type eq '-';
       }
-      $info = $ctx256->hexdigest() if $type eq '-';
-      $md5 = $ctx->hexdigest() if $type eq '-';
     }
     close(G) if $x && !$tomem;
     $c[-1]->{'info'} = $info;
@@ -412,6 +419,64 @@ sub listextractcpio {
   return @c;
 }
 
+my %ziptypes = (1 => 'p', 2 => 'c', 4 => 'd', 8 => '-', 10 => 'l', 12 => 's');
+
+sub listzip {
+  my ($zipfile) = @_;
+  local *F;
+  open(F, '<', $zipfile) || die("$zipfile: $!\n");
+  my $entries;
+  eval { $entries = BSZip::zip_list(\*F) };
+  die("$zipfile: $@") if $@;
+  my @c;
+  for my $e (@$entries) {
+    die("$zipfile: name contains \\0\n") if $e->{'name'} =~ /\0/;
+    my $type = $ziptypes{$e->{'ziptype'}} || '?';
+    my $fsize = $e->{'size'};
+    push @c, {'type' => $type, 'name' => $e->{'name'}, 'size' => $fsize, 'mode' => cpiomode($e->{'mode'})};
+    my $md5 = $type eq '-' ? 'd41d8cd98f00b204e9800998ecf8427e' : undef;
+    my $info = $type eq '-' ? 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' : '';
+    if ($fsize > 0) {
+      if ($type eq 'l') {
+	die("ridiculous long symlink $e->{'name'}\n") if $fsize > 8192;
+	$info = BSZip::zip_extract(\*F, $e);
+      } elsif ($type eq '-') {
+        my $ctx = Digest::MD5->new;
+        my $ctx256 = Digest::SHA->new(256);
+        my $writer = sub { $ctx->add($_[0]); $ctx256->add($_[0]) };
+	BSZip::zip_extract(\*F, $e, 'writer' => $writer);
+	$info = $ctx256->hexdigest();
+	$md5 = $ctx->hexdigest();
+      }
+    }
+    $c[-1]->{'info'} = $info;
+    $c[-1]->{'md5'} = $md5 if $type eq '-';
+  }
+  close(F);
+  return @c;
+}
+
+sub extractzip {
+  my ($zipfile, $cp) = @_;
+  local *F;
+  open(F, '<', $zipfile) || die("$zipfile: $!\n");
+  my $entries = BSZip::zip_list(\*F);
+  for my $e (@$entries) {
+    my $x = shift @$cp;
+    die unless $x;
+    next unless $x->{'extract'};
+    die("bad extract file type $e->{'ziptype'}\n") unless $e->{'ziptype'} == 8;
+    if (exists($x->{'content'})) {
+      $x->{'content'} .= BSZip::zip_extract(\*F, $e);
+    } else {
+      local *G;
+      open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
+      my $writer = sub { print G $_[0] or die("write: $!\n") };
+      BSZip::zip_extract(\*F, $e, 'writer' => $writer);
+      close(G) || die("close: $!\n");
+    }
+  }
+}
 
 sub filediff_libxdiff_check {
   my ($f, $content) = @_;
@@ -700,12 +765,14 @@ sub listit {
   my ($f) = @_;
   return listgem($f) if $f =~ /\.gem$/;
   return listextractcpio($f) if $f =~ /\.obscpio$/;
+  return listzip($f) if $f =~ /\.zip$/;
   return listtar($f);
 }
 
 sub extractit {
   my ($f, $cp) = @_;
   return listextractcpio($f, $cp || []) if $f =~ /\.obscpio$/;
+  return extractzip($f, $cp) if $f =~ /\.zip$/;
   return extracttar($f, $cp);
 }
 
@@ -897,7 +964,7 @@ my @simclasses = (
   'dsc',
   'changes',
   '(?:diff?|patch)(?:\.gz|\.bz2|\.xz)?',
-  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz|gem|obscpio|livebuild)',
+  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz|gem|obscpio|livebuild|zip)',
 );
 
 sub findsim {
@@ -1073,7 +1140,7 @@ sub srcdiff {
     } else {
       $dd .= "\n++++++ $f (new)\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
       if (defined $of) {
 	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
 	for my $r (@r) {
@@ -1099,7 +1166,7 @@ sub srcdiff {
   if (1) {
     for my $of (sort keys %oold) {
       $d .= "\n++++++ $of (deleted)\n";
-      if ($opts{'doarchive'} && $of =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+      if ($opts{'doarchive'} && $of =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
         next;
       }
       my $r = filediff(fn($pold, $of), undef, %opts);
@@ -1138,7 +1205,7 @@ sub unifieddiff {
     } else {
       $d .= "Index: $f\n" . ("=" x 67) . "\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'}$orevb", "$r->{'name'}$revb");
@@ -1150,7 +1217,7 @@ sub unifieddiff {
   }
   for my $f (@added) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(undef, fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'} (added)", "$r->{'name'}$revb");
@@ -1198,7 +1265,7 @@ sub datadiff {
 	next;
       }
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       if (@r == 0 && $f ne $of) {
 	# (almost) identical tars but renamed
