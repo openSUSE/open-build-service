@@ -86,8 +86,8 @@ our $tbscertificate_tags = [
 
 # pack/unpack helpers for certificates
 sub pack_random_serial {
-  my $serial = pack("C", 128 + int(rand(128)));
-  $serial .= pack("C", int(rand(256))) for (1, 2, 3, 4, 5, 6, 7);
+  my $serial = pack("C", 64 + int(rand(32)));
+  $serial .= pack("C", int(rand(256))) for 1..19;
   return BSASN1::pack_integer_mpi($serial);
 }
 

@@ -1096,6 +1096,16 @@ sub srcdiff {
     $d .= "\n++++++ deleted files:\n";
     $d .= "--- $_\n" for sort keys %oold;
   }
+  if (1) {
+    for my $of (sort keys %oold) {
+      $d .= "\n++++++ $of (deleted)\n";
+      if ($opts{'doarchive'} && $of =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+        next;
+      }
+      my $r = filediff(fn($pold, $of), undef, %opts);
+      $d .= adddiffheader($r, $of, undef);
+    }
+  }
   return $d;
 }
 
