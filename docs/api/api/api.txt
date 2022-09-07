@@ -1988,6 +1988,29 @@ DELETE /status_reports/repositories/<project>/<repository>/required_checks/<chec
 XmlBody: none
 XmlResult: required_checks
 
+=== Built Repositories
+
+<project>: The name of a project, e.g. home:user1
+<repository>: The name of a repository of the project, e.g. openSUSE_Tumbleweed
+<arch>: architecture
+<check>: The name of the required check
+
+GET /status_reports/built_repositories/<project>/<repository>/<arch>/required_checks
+  Get all required checks for this repository
+XmlResult: required_checks
+
+
+POST /status_reports/built_repositories/<project>/<repository>/<arch>/required_checks/<check>
+  Create a required check
+XmlResult: required_checks
+
+
+DELETE /status_reports/built_repositories/<project>/<repository>/<arch>/required_checks/<check>
+  Delete a required check
+
+XmlBody: none
+XmlResult: required_checks
+
 == Staging
   WARNING: This API is currently in beta and unstable
 
