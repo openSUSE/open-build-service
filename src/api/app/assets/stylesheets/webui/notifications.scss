@@ -1,10 +1,11 @@
 $notifications-filter-box-height: 3.5rem;
+$avatars-counter-size: 1.4375rem;
 
 .avatars-counter, .simulated-avatar {
   display: inline-block;
   text-align: center;
-  width: 1.4375rem;
-  height: 1.4375rem;
+  width: $avatars-counter-size;
+  height: $avatars-counter-size;
   line-height: 1.4rem;
   cursor: default;
 }
