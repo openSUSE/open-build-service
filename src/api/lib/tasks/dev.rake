@@ -274,7 +274,7 @@ namespace :dev do
       FetchRemoteDistributionsJob.perform_now
       tw_repository = create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
 
-      # the home:admin is not created because the Admin user is created in seeds.rb
+      # the home:Admin is not created because the Admin user is created in seeds.rb
       # therefore we need to create it manually and also set the proper relationship
       home_admin = create(:project, name: admin.home_project_name)
       create(:relationship, project: home_admin, user: admin, role: Role.hashed['maintainer'])
@@ -396,7 +396,7 @@ namespace :dev do
       create(:package_with_link, project: home_admin, name: 'linked_package')
       create(:package_with_remote_link, project: home_admin, name: 'remotely_linked_package', remote_project_name: 'openSUSE.org:openSUSE:Factory', remote_package_name: 'aaa_base')
 
-      # Trigger package builds for home:admin
+      # Trigger package builds for home:Admin
       home_admin.store
 
       # Create notifications by running the `dev:notifications:data` task two times
@@ -404,6 +404,9 @@ namespace :dev do
 
       # Create a workflow token, some workflow runs and their related data
       Rake::Task['workflows:create_workflow_runs'].invoke
+
+      # Create a request with multiple actions
+      Rake::Task['requests:multiple_actions_request'].invoke
     end
   end
 end
