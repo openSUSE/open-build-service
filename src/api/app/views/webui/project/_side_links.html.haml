@@ -23,7 +23,9 @@
   - if requests.present?
     = render partial: 'webui/project/side_links/requests', locals: { requests: requests,
                                                                      project: project,
-                                                                     package: package }
+                                                                     package: package,
+                                                                     incoming_requests_size: incoming_requests_size,
+                                                                     outgoing_requests_size: outgoing_requests_size }
 
   - if project.defines_remote_instance?
     %li
