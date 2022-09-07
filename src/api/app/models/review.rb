@@ -294,24 +294,11 @@ class Review < ApplicationRecord
   end
 
   def maintainers_and_reviewers_for_package
-    return [] unless package
-
-    package.relationships
-           .for_maintainer_and_reviewer_roles
-           .includes(:user, :group)
-           .map { |relation| relation.user_id.present? ? relation.user : relation.group.users }
-           .flatten.uniq
+    MaintainersAndReviewersFinder.new(self).for_package
   end
 
   def maintainers_and_reviewers_for_project
-    return [] unless package
-    return [] unless package.project
-
-    package.project.relationships
-           .for_maintainer_and_reviewer_roles
-           .includes(:user, :group)
-           .map { |relation| relation.user_id.present? ? relation.user : relation.group.users }
-           .flatten.uniq
+    MaintainersAndReviewersFinder.new(self).for_project
   end
 
   private

@@ -25,6 +25,14 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
     [@review.group.users, @review.group].flatten
   end
 
+  def package_avatar_objects
+    reviewers = @review.maintainers_and_reviewers_for_package
+    # if the package explicitly has maintainer or reviewer assigned return them, otherwise
+    # check the related project for responsible user
+    reviewers = @review.maintainers_and_reviewers_for_project if reviewers.present?
+    reviewers
+  end
+
   def project_avatar_objects
     [@review.project&.users].flatten.compact
   end
@@ -35,15 +43,5 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
 
   def number_of_hidden_avatars
     [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
-  end
-
-  def package_avatar_objects
-    reviewers = @review.maintainers_and_reviewers_for_package_for_package
-    # if the package explicitly has maintainer or reviewer assigned return them, otherwise
-    # check the related project for responsible user
-    return reviewers if reviewers.present?
-
-    relationships = @review.package&.project&.relationships&.for_maintainer_and_reviewer_roles&.includes(:user, :group)
-    relationships.map { |relation| relation.user_id.present? ? relation.user : relation.group.users }.flatten.uniq!
   end
 end
