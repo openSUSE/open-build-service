@@ -1,15 +1,10 @@
 // This stylesheet defines styles for use in the comments and request history merged timeline
-.timeline-item {
-    position: relative;
-}
+.timeline {
+    $timeline-border-width: 0.125rem;
+    border-left: $timeline-border-width solid $gray-400;
 
-.timeline-item:before {
-    content: "";
-    display: block;
-    width: 2px;
-    background-color: #aeaeae;
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 11px;
+    .timeline-item {
+        position: relative;
+        left: -(($avatars-counter-size / 2) + $timeline-border-width); // The avatars of users involved in timeline items will be displayed on the timeline border
+    }
 }
