@@ -526,8 +526,8 @@ class Webui::ProjectController < Webui::WebuiController
 
     reqs = @project.open_requests
     @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort!.uniq
-    @incoming_requests_size = RequestsFinder.new.count_incoming(reqs.values.sum, @project.name)
-    @outgoing_requests_size = RequestsFinder.new.count_outgoing(reqs.values.sum, @project.name)
+    @incoming_requests_size = OpenRequestsFinder.new(BsRequest, @project.name).count_incoming(reqs.values.sum)
+    @outgoing_requests_size = OpenRequestsFinder.new(BsRequest, @project.name).count_outgoing(reqs.values.sum)
 
     @nr_of_problem_packages = @project.number_of_build_problems
   end

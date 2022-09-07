@@ -12,4 +12,16 @@ class OpenRequestsFinder
   def requests_finder
     @relation
   end
+
+  def requests_with_actions(request_numbers)
+    @relation.includes(:bs_request_actions).where(number: request_numbers)
+  end
+
+  def count_incoming(request_numbers)
+    requests_with_actions(request_numbers).where(bs_request_actions: { target_project: @project_name }).count
+  end
+
+  def count_outgoing(request_numbers)
+    requests_with_actions(request_numbers).where(bs_request_actions: { source_project: @project_name }).count
+  end
 end
