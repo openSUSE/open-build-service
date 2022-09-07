@@ -14,10 +14,10 @@
           - bs_request.superseding.each do |superseded_request|
             = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
 
-  - timeline.each do |comment_or_history_element|
-    .timeline-item
-      - if comment_or_history_element.is_a?(Comment)
-        .comments-thread
-          = render BsRequestCommentComponent.new(comment: comment_or_history_element, level: 1, commentable: comment_or_history_element.commentable)
-      - else
-        = render BsRequestHistoryElementComponent.new(element: comment_or_history_element)
+- timeline.each do |comment_or_history_element|
+  .timeline-item
+    - if comment_or_history_element.is_a?(Comment)
+      .comments-thread
+        = render BsRequestCommentComponent.new(comment: comment_or_history_element, level: 1, commentable: comment_or_history_element.commentable)
+    - else
+      = render BsRequestHistoryElementComponent.new(element: comment_or_history_element)
