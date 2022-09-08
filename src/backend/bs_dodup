@@ -444,6 +444,8 @@ sub registry_fetch_manifest {
   if ($olddigest || ($oldfatdigest && !$fatdigest)) {
     $param->{'request'} = 'HEAD';
     eval { BSRPC::rpc($param) };
+    # docker returns 401 for non-existing repositories
+    return (undef, undef, $fatdigest) if !$fatdigest && $@ && $@ =~ /^401/;
     return (undef, undef, $fatdigest) if $@ && $@ =~ /^404/;
     die($@) if $@;
     my $ct = $replyheaders->{'content-type'};
@@ -463,6 +465,7 @@ sub registry_fetch_manifest {
 
   my $mani_json;
   eval { $mani_json = BSRPC::rpc($param) };
+  return (undef, undef, $fatdigest) if !$fatdigest && $@ && $@ =~ /^401/;
   return (undef, undef, $fatdigest) if $@ && $@ =~ /^404/;
   die($@) if $@;
   my $ct = $replyheaders->{'content-type'};
