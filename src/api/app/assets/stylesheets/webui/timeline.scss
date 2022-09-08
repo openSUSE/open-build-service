@@ -6,5 +6,14 @@
     .timeline-item {
         position: relative;
         left: -(($avatars-counter-size / 2) + $timeline-border-width); // The avatars of users involved in timeline items will be displayed on the timeline border
+
+        $timeline-item-avatar-margin: 0.5rem;
+        img.avatars-counter {
+            margin-right: $timeline-item-avatar-margin;
+        }
+
+        .timeline-item-comment {
+            margin-left: $avatars-counter-size + $timeline-border-width + $timeline-item-avatar-margin;
+        }
     }
 }

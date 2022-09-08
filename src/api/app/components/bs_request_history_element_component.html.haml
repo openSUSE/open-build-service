@@ -1,16 +1,15 @@
-.row
-  .col-auto.pr-0
-    = helpers.image_tag_for(element.user, size: 36, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
-  .col-10
-    %p
-      = icon
-      = link_to(helpers.realname_with_login(element.user), user_path(element.user))
-      - if element.instance_of?(HistoryElement::RequestSuperseded)
-        superseded this request with
-        = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
-      - else
-        = element.user_action
-      = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
-        #{time_ago_in_words(element.created_at)} ago
+.d-inline-flex
+  = helpers.image_tag_for(element.user, size: 36, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
+  %p
+    = icon
+    = link_to(helpers.realname_with_login(element.user), user_path(element.user))
+    - if element.instance_of?(HistoryElement::RequestSuperseded)
+      superseded this request with
+      = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
+    - else
+      = element.user_action
+    = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
+      #{time_ago_in_words(element.created_at)} ago
 
-    = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment }
+.timeline-item-comment
+  = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment }
