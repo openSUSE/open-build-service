@@ -47,23 +47,23 @@
                                                         diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
 
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
-      %li.nav-item.scrollable-tab-link
-        = link_to('Conversation', '#conversation', class: 'nav-link text-nowrap active', 'aria-controls': 'conversation',
+      %li.nav-item.scrollable-tab-link#conversation-nav-item
+        = link_to('Conversation', '#conversation', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
                   'aria-selected': 'true', 'data-toggle': 'tab', role: 'tab')
       - if @action[:sprj] || @action[:spkg]
-        %li.nav-item.scrollable-tab-link
+        %li.nav-item.scrollable-tab-link#build-results-nav-item
           = link_to('Build Results', '#build-results', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link#changes-item{ 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
+        %li.nav-item.scrollable-tab-link#changes-nav-item{ 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
           = link_to('Changes', '#changes', class: 'nav-link text-nowrap', 'aria-controls': 'changes', 'aria-selected': 'false',
                     'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link
+        %li.nav-item.scrollable-tab-link#mentioned-issues-nav-item
           = link_to('Mentioned Issues', '#mentioned-issues', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
     .tab-content.p-4#request-tabs-content
-      .tab-pane.fade.show.p-2.active#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
+      .tab-pane.fade.show.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
                                                                              open_reviews: @open_reviews,
                                                                              accepted_reviews: @accepted_reviews,
