@@ -73,7 +73,7 @@ sub extract_inflate {
 
 sub zip_extract {
   my ($handle, $ent, %opts) = @_;
-  die("cannot extract this type of entry\n") if defined($ent->{'ziptype'}) && $ent->{'ziptype'} != 8;
+  die("cannot extract this type of entry\n") if defined($ent->{'ziptype'}) && $ent->{'ziptype'} != 8 && $ent->{'ziptype'} != 10;
   my $data = '';
   return $data if $ent->{'size'} == 0;
   my $writer = $opts{'writer'} || sub { $data .= $_[0] };
