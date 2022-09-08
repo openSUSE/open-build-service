@@ -12,4 +12,4 @@
       #{time_ago_in_words(element.created_at)} ago
 
 .timeline-item-comment
-  = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment }
+  = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment, extra_css_classes: css_for_comment }

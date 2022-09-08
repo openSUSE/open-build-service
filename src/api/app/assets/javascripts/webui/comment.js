@@ -45,7 +45,13 @@ $(document).ready(function(){
 
   // This is being used to render a new root comment by the beta request show view
   $('.comment_new').on('ajax:complete', '.post-comment-form', function(_, data) {
-    $(this).closest('.comment_new').prev().append(data.responseText);
+    $(this).closest('.comment_new').prev().append(
+      '<div class="timeline-item">' +
+        '<div class="comments-thread">' +
+          data.responseText +
+        '</div>' +
+      '</div>'
+    );
     $(this).trigger("reset");
   });
 
@@ -88,14 +94,14 @@ $(document).ready(function(){
     });
   });
 
-  $('body').on('click', 'button[id*="edit_button_of_"]', function (e) {
-    var closest = $(e.target).parent().parent().find('button[id*="reply_button_of_"]');
+  $('body').on('click', '[id*="edit_button_of_"]', function (e) {
+    var closest = $(e.target).parent().parent().find('[id*="reply_button_of_"]');
     if (!closest.hasClass('collapsed'))
       closest.trigger('click');
   });
 
-  $('body').on('click', 'button[id*="reply_button_of_"]', function (e) {
-    var closest = $(e.target).parent().parent().find('button[id*="edit_button_of_"]');
+  $('body').on('click', '[id*="reply_button_of_"]', function (e) {
+    var closest = $(e.target).parent().parent().find('[id*="edit_button_of_"]');
     if (!closest.hasClass('collapsed'))
       closest.trigger('click');
   });

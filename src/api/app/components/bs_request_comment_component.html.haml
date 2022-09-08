@@ -7,8 +7,40 @@
     = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
       #{time_ago_in_words(comment.created_at)} ago
 .timeline-item-comment
-  = helpers.render_as_markdown(comment)
-  = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+  .comment-bubble
+    - if policy(comment).update? || policy(comment).destroy?
+      .dropdown.dropleft.float-right
+        = link_to('#', role: 'button', 'data-toggle': 'dropdown', 'aria-expanded': 'false', class: 'text-dark') do
+          %i.fas.fa-ellipsis
+        .dropdown-menu
+          - if policy(comment).update?
+            = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-toggle': 'collapse',
+                      class: 'dropdown-item collapsed') do
+              Edit
+          - if policy(comment).destroy?
+            = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment.id}" },
+                      class: 'dropdown-item delete_link', title: 'Delete comment') do
+              Delete
+
+    = helpers.render_as_markdown(comment)
+
+    - if policy(comment).update?
+      .collapse{ id: "edit_form_of_#{comment.id}" }
+        = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
+         comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
+
+    - if policy(comment).destroy?
+      = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
+
+  - if User.session
+    .mb-2
+      = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-toggle': 'collapse',
+                class: 'font-italic small collapsed') do
+        Reply
+      .collapse{ id: "reply_form_of_#{comment.id}" }
+        = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
+         comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })
+
   - if level <= 3
     - comment.children.includes(:user).each do |children|
       = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable)
