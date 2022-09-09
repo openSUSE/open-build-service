@@ -288,7 +288,7 @@ OBSApi::Application.routes.draw do
     controller 'webui/request' do
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
-      get 'request/show/:number' => :show, as: 'request_show', constraints: cons
+      get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
