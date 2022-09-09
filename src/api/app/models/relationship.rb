@@ -50,10 +50,19 @@ class Relationship < ApplicationRecord
     joins(:role, :group).order('roles.title, groups.title')
   }
   scope :maintainers, lambda {
-    where(role_id: Role.hashed['maintainer'])
+    where(role: Role.hashed['maintainer'])
   }
+  # FIXME: This probably can be refactored to avoid instantiation inside the `map`
+  scope :user_with_maintainer_role, lambda {
+    where(role: Role.hashed['maintainer'])
+      .map { |relation| relation.user || relation.group.users }
+      .flatten.uniq
+  }
+  scope :for_package, ->(package) { where(package: package) }
+  scope :for_project, ->(project) { where(project: project) }
+
   scope :bugowners, lambda {
-    where(role_id: Role.hashed['bugowner'])
+    where(role: Role.hashed['bugowner'])
   }
 
   scope :bugowners_with_email, lambda {
