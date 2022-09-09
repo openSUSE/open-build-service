@@ -1102,6 +1102,7 @@ eval {
     # Step 2c: expand all dependencies, put them in %pdeps hash and sort the packages
     ($state, $details) = $ctx->expandandsort();
     if ($state ne 'scheduling') {
+      $ctx->unpreparepool();
       $ctx->set_repo_state($state, $details);
       print "    $details\n";
       sendrepochangeevent($gctx, $prp);
@@ -1134,10 +1135,7 @@ eval {
 
     # free memory
     Build::forgetdeps($bconf);
-    delete $ctx->{'expander'};
-    delete $ctx->{'pool'};
-    delete $ctx->{'pool_host'};
-    delete $ctx->{'pool_local'};
+    $ctx->unpreparepool();
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 

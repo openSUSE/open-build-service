@@ -596,7 +596,6 @@ sub preparepool {
 
   return ('scheduling', undef) if $ctx->{'alllocked'};		# we do not need a pool
   my ($pool, $error, $delayed) = createpool($ctx, $bconf, $ctx->{'prpsearchpath'});
-  $ctx->{'pool'} = $pool;
   if ($error) {
     $ctx->{'havedelayed'} = 1 if $delayed;
     return ('broken', $error);
@@ -605,16 +604,26 @@ sub preparepool {
   $prpnotready = undef if ($ctx->{'repo'}->{'block'} || '') eq 'local';
   ($ctx->{'dep2pkg'}, $ctx->{'dep2src'}, $ctx->{'depislocal'}, $ctx->{'notready'}, $ctx->{'subpacks'}) = preparehashes($pool, $prp, $prpnotready);
 
+  my $pool_host;
   if ($ctx->{'conf_host'}) {
-    ($pool, $error, $delayed) = createpool($ctx, $ctx->{'conf_host'}, $ctx->{'prpsearchpath_host'}, $ctx->{'repo'}->{'crosshostarch'});
-    $ctx->{'pool_host'} = $pool;
+    ($pool_host, $error, $delayed) = createpool($ctx, $ctx->{'conf_host'}, $ctx->{'prpsearchpath_host'}, $ctx->{'repo'}->{'crosshostarch'});
     if ($error) {
       $ctx->{'havedelayed'} = 1 if $delayed;
       return ('broken', $error);
     }
     ($ctx->{'dep2pkg_host'}) = preparehashes($pool, $prp, $prpnotready);
   }
+  $ctx->{'pool'} = $pool;
+  $ctx->{'pool_host'} = $pool_host if $pool_host;
   return ('scheduling', undef);
+}
+
+sub unpreparepool {
+  my ($ctx) = @_;
+  delete $ctx->{'expander'};
+  delete $ctx->{'pool'};
+  delete $ctx->{'pool_host'};
+  delete $ctx->{'pool_local'};
 }
 
 # emulate depsort2 with depsort. This is not very fast,

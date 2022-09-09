@@ -641,6 +641,7 @@ sub event_memstats {
   eval {
     require Devel::Mallinfo;
     print Devel::Mallinfo::malloc_info_string(0);
+    Devel::Mallinfo::malloc_stats();
   };
   my $gctx = $ectx->{'gctx'};
   my %gctx = %$gctx;
