@@ -74,4 +74,6 @@
 
 html {
     overflow-y: scroll !important;
+    scroll-padding-top: $top-navigation-height;
+    scroll-behavior: smooth;
 }
