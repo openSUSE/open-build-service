@@ -529,6 +529,7 @@ our $sourceinfo = [
        [ 'prereqs' ],
        [ 'exclarch' ],
        [ 'badarch' ],
+       [ 'buildtimeservice' ],
 ];
 
 our $sourceinfolist = [
