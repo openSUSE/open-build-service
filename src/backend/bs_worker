@@ -3552,7 +3552,9 @@ sub dobuild {
     $stats->{'download'}->{'binaries'}           = $binariesdownload;
   }
   $stats->{'download'}->{'preinstallimage'} = $preinstallimagedata->{'imagename'} if $preinstallimagedata->{'imagename'};
+
   ####### end of download phase
+  $buildinfo->{'download_complete'} = 1;
 
   if ($deltamode) {
     # replace @mopt@ in specfile
@@ -3560,13 +3562,9 @@ sub dobuild {
     if ($spec =~ /\@mopt\@/s) {
       my $mopt;
       $mopt = $BSConfig::deltagen_mopt if defined $BSConfig::deltagen_mopt;
-      importbuild() unless defined &Build::queryhdrmd5;
-      eval {
-	$bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $config) ]);
-	for (@{$bconf->{'repotype'}}) {
-	  $mopt = $1 eq '' ? undef : $1 if /^deltagen-mopt:(\d*)/;
-	}
-      };
+      for (@{$bconf->{'repotype'}}) {
+	$mopt = $1 eq '' ? undef : $1 if /^deltagen-mopt:(\d*)/;
+      }
       $mopt = 512 unless defined $mopt;
       $mopt = '' unless $mopt;
       $spec =~ s/\@mopt\@/$mopt/sg;
@@ -4345,6 +4343,7 @@ eval {
 };
 if ($@) {
   $ex = 1;
+  $ex = 3 if !$buildinfo->{'download_complete'} && $@ !~ /^\d\d\d/;
   # mark as bad build host if Build.pm could not be imported
   $ex = 3 unless defined &Build::queryhdrmd5;
   $ex = 3 if $@ =~ /^500 /;
