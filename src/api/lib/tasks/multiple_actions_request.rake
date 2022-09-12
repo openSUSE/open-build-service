@@ -43,24 +43,42 @@ namespace :requests do
       source_package: source_package_a
     )
 
-    # Create an action to submit a new file to package B
     action_attributes = {
-      source_package: source_package_b,
-      source_project: source_project,
+      source_project: target_project,
+      source_package: target_package_b,
       target_project: target_project,
-      target_package: target_package_b
+      target_package: target_package_b,
+      bs_request: request
     }
-    bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit', bs_request: request))
+
+    # Create an action to submit a new file to package B
+    bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit'))
     bs_req_action.save! if bs_req_action.valid?
 
     # Create an action to add role
+    bs_req_action = build(:bs_request_action_add_maintainer_role, action_attributes.merge(person_name: User.last.login))
+    bs_req_action.save! if bs_req_action.valid?
+
+    # Create an action to set bugowner
+    bs_req_action = build(:bs_request_action_set_bugowner, action_attributes.merge(person_name: User.last.login))
+    bs_req_action.save! if bs_req_action.valid?
+
+    # Create an action to request maintenance incident
+    bs_req_action = build(:bs_request_action_maintenance_incident, action_attributes)
+    bs_req_action.save! if bs_req_action.valid?
+
+    # Create an action to request maintenance release
+    bs_req_action = build(:bs_request_action_maintenance_release, action_attributes)
+    bs_req_action.save! if bs_req_action.valid?
+
     action_attributes = {
       target_project: target_project,
       target_package: target_package_b,
-      person_name: User.last.login,
-      role: Role.find_by_title!('maintainer')
+      bs_request: request
     }
-    bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'add_role', bs_request: request))
+
+    # Create an action to delete a package
+    bs_req_action = build(:bs_request_action_delete, action_attributes)
     bs_req_action.save! if bs_req_action.valid?
 
     puts "* Request #{request.number} has been created."
