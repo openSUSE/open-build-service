@@ -3552,7 +3552,9 @@ sub dobuild {
     $stats->{'download'}->{'binaries'}           = $binariesdownload;
   }
   $stats->{'download'}->{'preinstallimage'} = $preinstallimagedata->{'imagename'} if $preinstallimagedata->{'imagename'};
+
   ####### end of download phase
+  $buildinfo->{'download_complete'} = 1;
 
   if ($deltamode) {
     # replace @mopt@ in specfile
@@ -4345,6 +4347,7 @@ eval {
 };
 if ($@) {
   $ex = 1;
+  $ex = 3 if !$buildinfo->{'download_complete'} && $@ !~ /^\d\d\d/;
   # mark as bad build host if Build.pm could not be imported
   $ex = 3 unless defined &Build::queryhdrmd5;
   $ex = 3 if $@ =~ /^500 /;
