@@ -3562,13 +3562,9 @@ sub dobuild {
     if ($spec =~ /\@mopt\@/s) {
       my $mopt;
       $mopt = $BSConfig::deltagen_mopt if defined $BSConfig::deltagen_mopt;
-      importbuild() unless defined &Build::queryhdrmd5;
-      eval {
-	$bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $config) ]);
-	for (@{$bconf->{'repotype'}}) {
-	  $mopt = $1 eq '' ? undef : $1 if /^deltagen-mopt:(\d*)/;
-	}
-      };
+      for (@{$bconf->{'repotype'}}) {
+	$mopt = $1 eq '' ? undef : $1 if /^deltagen-mopt:(\d*)/;
+      }
       $mopt = 512 unless defined $mopt;
       $mopt = '' unless $mopt;
       $spec =~ s/\@mopt\@/$mopt/sg;
