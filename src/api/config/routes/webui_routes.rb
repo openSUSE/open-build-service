@@ -288,14 +288,13 @@ OBSApi::Application.routes.draw do
     controller 'webui/request' do
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
-      get 'request/show/:number' => :show, as: 'request_show', constraints: cons
+      get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
       get 'request/list_small' => :list_small, as: 'request_list_small'
       post 'request/set_bugowner_request' => :set_bugowner_request
       get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
-      get 'request/:number/request_action/:id/changes' => :request_action_changes, as: 'request_action_changes'
     end
 
     resources :requests, only: [], param: :number, controller: 'webui/bs_requests' do

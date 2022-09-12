@@ -1,11 +1,10 @@
 class RequestDecisionComponent < ApplicationComponent
-  def initialize(bs_request:, actions:, is_target_maintainer:, is_author:)
+  def initialize(bs_request:, action:, is_target_maintainer:, is_author:)
     super
 
     @bs_request = bs_request
-    @actions = actions
     @is_target_maintainer = is_target_maintainer
-    @action = @actions.first
+    @action = action
     @is_author = is_author
   end
 
@@ -14,7 +13,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def single_action_request
-    @actions.count == 1
+    @single_action_request ||= @bs_request.bs_request_actions.count == 1
   end
 
   def confirmation

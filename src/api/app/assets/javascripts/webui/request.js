@@ -135,9 +135,33 @@ $(document).ready(function(){
     }
   });
   // TODO: Remove the enclosing code when the request_show_redesign feature is finished - END
-  $('#changes-item').on('shown.bs.tab', function () {
-    loadChanges();
+
+  // NOTE: Add value of selected tab in dropdown urls
+  $('#request-tabs .nav-item .nav-link').on('click', function() {
+    var tabName = $(this).attr('aria-controls');
+    $.each($('.dropdown-menu .dropdown-item'), function(){
+      var href = $(this).attr('href');
+      if(href){
+        var regex = /tab_name=([aA-zZ-]+)/;
+        var matches = href.match(regex);
+        if(matches !== null){
+          href = href.replace(matches[0], 'tab_name=' + tabName);
+        } else if(href.match(/\?/g)){
+          href = href + '&tab_name=' + tabName;
+        } else {
+          href = href + '?tab_name=' + tabName;
+        }
+        $(this).attr('href', href);
+      }
+    });
   });
+
+  var selectedTab = $('.selected-tab').data('selected');
+  if(document.getElementById(selectedTab + '-nav-item')){
+    $('#'+selectedTab + '-nav-item a').click();
+  } else{
+    $('#conversation-nav-item a').click();
+  }
 });
 
 // TODO: Remove the following method when the request_show_redesign feature is finished
@@ -165,20 +189,6 @@ function loadDiffs(element){
   $.ajax({
     url: url,
     success: function(){
-      $('.loading-diff').addClass('invisible');
-    }
-  });
-}
-
-function loadChanges() {
-  $('.loading-diff').removeClass('invisible');
-  var element = $('#changes-item');
-  // Always retrieve the changes of the first request action, by now
-  // TODO: request-action-id should be retrieved from the select component, when it is introduced
-  var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
-  $.ajax({
-    url: url,
-    success: function() {
       $('.loading-diff').addClass('invisible');
     }
   });

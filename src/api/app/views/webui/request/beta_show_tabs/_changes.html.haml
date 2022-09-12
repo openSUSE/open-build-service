@@ -1,4 +1,2 @@
-.d-flex.justify-content-center.loading-diff
-  .spinner-border{ role: 'status' }
-    %span.sr-only Loading...
 .tab-content.sourcediff
+  = render SourcediffComponent.new(bs_request: bs_request, action: action, index: 0, refresh: refresh)

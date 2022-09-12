@@ -238,6 +238,8 @@ class BsRequest < ApplicationRecord
     request
   end
 
+  # TODO: refactor this method as soon as the request_show_redesign feature is rolled out.
+  # Now it expects an array of action hashes we'll never display more than one action at a time.
   def self.truncated_diffs?(actions)
     submit_requests = actions.select { |action| action[:type] == :submit && action[:sourcediff] }
 

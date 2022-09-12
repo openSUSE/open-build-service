@@ -44,6 +44,10 @@ class BsRequestActionSetBugowner < BsRequestAction
     node.group(name: group_name)   if group_name
   end
 
+  def name
+    uniq_key.gsub('setbugowner/', 'Set Bugowner ')
+  end
+
   #### Alias of methods
 end
 
