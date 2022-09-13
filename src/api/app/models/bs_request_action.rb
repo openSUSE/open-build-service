@@ -829,7 +829,7 @@ class BsRequestAction < ApplicationRecord
   def commit_details
     package = Package.find_by_project_and_name(source_project, source_package)
 
-    return nil if package.nil? && source_rev.nil?
+    return nil if package.nil? || source_rev.nil?
 
     package.commit(source_rev) || package.commit
   end
