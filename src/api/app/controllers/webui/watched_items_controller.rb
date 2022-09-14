@@ -28,13 +28,14 @@ class Webui::WatchedItemsController < Webui::WebuiController
   private
 
   def set_watchable
-    @watchable = if params[:project_name] && params[:package_name]
-                   @package = Package.get_by_project_and_name(params[:project_name], params[:package_name])
-                 elsif params[:project_name]
-                   @project = Project.get_by_name(params[:project_name])
-                 elsif params[:number]
-                   @bs_request = BsRequest.find_by(number: params[:number])
-                 end
+    if params[:project_name]
+      @project = Project.get_by_name(params[:project_name])
+      @package = Package.get_by_project_and_name(params[:project_name], params[:package_name]) if params[:package_name]
+    elsif params[:number]
+      @bs_request = BsRequest.find_by(number: params[:number])
+    end
+
+    @watchable = @package || @project || @bs_request
   end
 
   def check_user_belongs_feature_flag
