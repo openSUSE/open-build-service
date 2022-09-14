@@ -442,7 +442,7 @@ class SourceController < ApplicationController
 
   # POST /source?cmd=triggerscmsync
   def global_command_triggerscmsync
-    pass_to_backend('/source' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch]))
+    pass_to_backend('/source' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch, :isdefaultbranch]))
   end
 
   private
