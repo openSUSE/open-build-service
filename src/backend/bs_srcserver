@@ -347,10 +347,17 @@ sub notify_all_repservers {
 
 sub triggerscmsync {
   my ($cgi) = @_;
-  my $scmrepo = $cgi->{'scmrepository'};
-  my $scmbranch = $cgi->{'scmbranch'};
 
   return '<status code="fail" details="scmsync tracking is not enabled" />\n' unless $BSConfig::source_db_sqlite;
+
+  triggerscmsyncrun($cgi, $cgi->{'scmrepository'}, $cgi->{'scmbranch'});
+  triggerscmsyncrun($cgi, $cgi->{'scmrepository'}, '') if $cgi->{'isdefaultbranch'};
+
+  return $BSStdServer::return_ok;
+}
+
+sub triggerscmsyncrun {
+  my ($cgi, $scmrepo, $scmbranch) = @_;
 
   for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
     my $scmsync;
@@ -365,7 +372,6 @@ sub triggerscmsync {
     next unless $scmsync;
     BSSrcServer::Service::runservice_obsscm($cgi, @$ref[0], @$ref[1], $scmsync);
   }
-  return $BSStdServer::return_ok;
 }
 
 sub triggerservicerun {
@@ -7497,7 +7503,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   'POST:/source cmd=orderkiwirepos' => \&orderkiwirepos,
-  'POST:/source cmd=triggerscmsync scmrepository:? scmbranch:?' => \&triggerscmsync,
+  'POST:/source cmd=triggerscmsync scmrepository:? scmbranch:? isdefaultbranch:?' => \&triggerscmsync,
   'POST:/source cmd: *:*' => \&unknowncmd,
 
   # /source name space: manage project and package data
