@@ -1,14 +1,8 @@
 class WatchlistComponent < ApplicationComponent
-  REMOVE_FROM_WATCHLIST_TEXT = {
-    'Package' => 'Remove this package from Watchlist',
-    'Project' => 'Remove this project from Watchlist',
-    'BsRequest' => 'Remove this request from Watchlist'
-  }.freeze
-
-  ADD_TO_WATCHLIST_TEXT = {
-    'Package' => 'Watch this package',
-    'Project' => 'Watch this project',
-    'BsRequest' => 'Watch this request'
+  WATCHABLE_TYPE_TEXT = {
+    'Package' => 'package',
+    'Project' => 'project',
+    'BsRequest' => 'request'
   }.freeze
 
   def initialize(user:, bs_request: nil, package: nil, project: nil)
@@ -42,12 +36,8 @@ class WatchlistComponent < ApplicationComponent
     @user.watched_items.exists?(watchable: @object_to_be_watched)
   end
 
-  def add_to_watchlist_text
-    ADD_TO_WATCHLIST_TEXT[@object_to_be_watched.class.name]
-  end
-
-  def remove_from_watchlist_text
-    REMOVE_FROM_WATCHLIST_TEXT[@object_to_be_watched.class.name]
+  def watchable_type_text
+    WATCHABLE_TYPE_TEXT[@object_to_be_watched.class.name]
   end
 
   def toggle_watchable_path

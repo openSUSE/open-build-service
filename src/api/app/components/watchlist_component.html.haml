@@ -9,11 +9,11 @@
         - if object_to_be_watched_in_watchlist?
           %p.mb-0.text-light
             %i.fas.fa-times-circle
-            %span= remove_from_watchlist_text
+            %span Remove this #{watchable_type_text} from Watchlist
         - else
           %p.mb-0.text-light
             %i.fas.fa-plus-circle
-            %span= add_to_watchlist_text
+            %span Watch this #{watchable_type_text}
 
   = render WatchedItemsListComponent.new(items: projects, class_name: 'Project')
   = render WatchedItemsListComponent.new(items: packages, class_name: 'Package')
