@@ -3,7 +3,7 @@ class TriggerWorkflowController < TriggerController
   skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
 
   before_action :set_scm_event
-  before_action :abort_trigger_if_ignored_pull_request_action
+  before_action :extract_scm_webhook
   before_action :create_workflow_run
   before_action :validate_scm_event
 
@@ -73,9 +73,11 @@ class TriggerWorkflowController < TriggerController
     @workflow_run = @token.workflow_runs.create(request_headers: request_headers, request_payload: request.body.read)
   end
 
-  def abort_trigger_if_ignored_pull_request_action
+  def extract_scm_webhook
     @scm_webhook = TriggerControllerService::ScmExtractor.new(scm, event, payload).call
 
+    # There are plenty of different pull/merge request action which we don't support.
+    # Those should not cause an error, we simply ignore them.
     render_ok if @scm_webhook && @scm_webhook.ignored_pull_request_action?
   end
 end

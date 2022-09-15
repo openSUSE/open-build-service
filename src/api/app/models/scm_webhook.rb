@@ -7,10 +7,6 @@ class ScmWebhook
 
   validates_with ScmWebhookEventValidator
 
-  IGNORED_PULL_REQUEST_ACTIONS = ['assigned', 'auto_merge_disabled', 'auto_merge_enabled', 'converted_to_draft',
-                                  'edited', 'labeled', 'locked', 'ready_for_review', 'review_request_removed',
-                                  'review_requested', 'unassigned', 'unlabeled', 'unlocked'].freeze
-  IGNORED_MERGE_REQUEST_ACTIONS = ['approved', 'unapproved'].freeze
   ALLOWED_PULL_REQUEST_ACTIONS = ['closed', 'opened', 'reopened', 'synchronize'].freeze
   ALLOWED_MERGE_REQUEST_ACTIONS = ['close', 'merge', 'open', 'reopen', 'update'].freeze
 
@@ -85,10 +81,10 @@ class ScmWebhook
   end
 
   def ignored_github_pull_request_action?
-    github_pull_request? && IGNORED_PULL_REQUEST_ACTIONS.include?(@payload[:action])
+    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(@payload[:action])
   end
 
   def ignored_gitlab_merge_request_action?
-    gitlab_merge_request? && IGNORED_MERGE_REQUEST_ACTIONS.include?(@payload[:action])
+    gitlab_merge_request? && ALLOWED_MERGE_REQUEST_ACTIONS.exclude?(@payload[:action])
   end
 end
