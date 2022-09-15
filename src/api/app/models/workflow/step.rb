@@ -15,7 +15,7 @@ class Workflow::Step
     end
   end
 
-  def call(_options)
+  def call
     raise AbstractMethodCalled
   end
 
@@ -40,7 +40,7 @@ class Workflow::Step
     # It's possible for a package to not exist, so we simply rescue and do nothing. The package will be created later in the step.
   end
 
-  def create_or_update_subscriptions(package, workflow_filters)
+  def create_or_update_subscriptions(package)
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
       subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
                                                           receiver_role: 'reader', # We pass a valid value, but we don't need this.
@@ -50,7 +50,7 @@ class Workflow::Step
                                                           token: @token,
                                                           package: package,
                                                           workflow_run: workflow_run)
-      subscription.update!(payload: scm_webhook.payload.merge({ workflow_filters: workflow_filters }))
+      subscription.update!(payload: scm_webhook.payload) # The payload is updated regardless of whether the subscription already existed or not.
     end
   end
 

@@ -5,7 +5,7 @@ class Workflow::Step::SetFlags < ::Workflow::Step
 
   validate :validate_flags
 
-  def call(_options = {})
+  def call
     return unless valid?
 
     set_flags
