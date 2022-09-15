@@ -55,21 +55,12 @@ sub createsig {
   my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
   my $payload = createpayload('atomic container signature', $digest, $reference, $creator, $timestamp);
   my $sig = $signfunc->($payload);
-  my $sd = BSPGP::pk2sigdata($sig);
-  die("no issuer\n") unless $sd->{'issuer'};
-  # create onepass_sig packet
-  my $onepass_sig_pkt = pack('CCCCH16C', 3, $sd->{'pgptype'}, $sd->{'pgphash'}, $sd->{'pgpalgo'}, $sd->{'issuer'}, 1);
-  $onepass_sig_pkt = BSPGP::pkencodepacket(4, $onepass_sig_pkt);
-  # create literal data packet
-  my $fn = 'rpmsig-req.bin';
-  my $t = $sd->{'signtime'} || time();
-  my $literal_data_pkt = pack('CCa*N', 0x62, length($fn), $fn, $t).$payload;
-  $literal_data_pkt = BSPGP::pkencodepacket(11, $literal_data_pkt);
-  # create compressed packet
-  my $packets = "$onepass_sig_pkt$literal_data_pkt$sig";
-  my $compressed_pkt;
-  IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkt);
-  return pack('CC', 0xa3, 1).$compressed_pkt;
+  my $packets = BSPGP::onepass_signed_message($payload, $sig, 'rpmsig-req.bin');
+  # compress packets like gpg does
+  my $compressed_pkts;
+  IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkts);
+  $packets = pack('CC', 0xa3, 1).$compressed_pkts;
+  return $packets;
 }
 
 sub sig2openshift {

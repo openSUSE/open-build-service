@@ -276,4 +276,15 @@ sub unarmor {
   return $pk;
 }
 
+sub onepass_signed_message {
+  my ($data, $sig, $fn, $t) = @_;
+  die("filename too long\n") if length($fn) > 255;
+  my $sd = pk2sigdata($sig);
+  die("no issuer in signature\n") unless $sd->{'issuer'};
+  my $onepass_sig = pack('CCCCH16C', 3, $sd->{'pgptype'}, $sd->{'pgphash'}, $sd->{'pgpalgo'}, $sd->{'issuer'}, 1);
+  $t ||= $sd->{'signtime'} || time();
+  my $literal_data = pack('CCa*N', 0x62, length($fn), $fn, $t).$data;
+  return pkencodepacket(4, $onepass_sig).pkencodepacket(11, $literal_data).$sig;
+}
+
 1;
