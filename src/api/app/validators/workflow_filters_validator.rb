@@ -20,6 +20,7 @@ class WorkflowFiltersValidator < ActiveModel::Validator
   def validate_filters
     # Filters aren't mandatory in a workflow
     return unless @workflow_instructions.key?(:filters)
+    return @workflow.errors.add(:filters, 'definition is wrong') unless valid_filters_definition?
 
     if unsupported_filters.present?
       @workflow.errors.add(:filters,
@@ -30,6 +31,11 @@ class WorkflowFiltersValidator < ActiveModel::Validator
 
     @workflow.errors.add(:filters, "#{unsupported_filter_values.to_sentence} have unsupported values, " \
                                    "#{SUPPORTED_FILTER_VALUES.map { |key| "'#{key}'" }.to_sentence} are the only supported values.")
+  end
+
+  # FIXME: Remove once we have general workflow.yml validation
+  def valid_filters_definition?
+    @workflow_instructions[:filters].is_a?(Hash)
   end
 
   def unsupported_filters
