@@ -10,7 +10,7 @@ class Workflow
     set_flags: Workflow::Step::SetFlags, trigger_services: Workflow::Step::TriggerServices
   }.freeze
 
-  SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
+  SUPPORTED_FILTERS = [:branches, :event].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
 
