@@ -5,12 +5,18 @@
 
   - if @object_to_be_watched && @object_to_be_watched.persisted?
     .nav-item.pb-2.mb-4.border-bottom.border-gray-500
-      = link_to(toggle_watchable_path, method: :put, class: 'nav-link', remote: true) do
-        - if object_to_be_watched_in_watchlist?
+      - if object_to_be_watched_in_watchlist?
+        = link_to('#', class: 'nav-link',
+                  data: { toggle: 'modal',
+                          target: '#delete-item-from-watchlist-modal',
+                          modal_title: "Do you really want to remove this #{watchable_type_text} from the watchlist?",
+                          confirmation_text: "Please confirm you want to remove this #{watchable_type_text} from the watchlist.",
+                          action: toggle_watchable_path }) do
           %p.mb-0.text-light
             %i.fas.fa-times-circle
             %span Remove this #{watchable_type_text} from Watchlist
-        - else
+      - else
+        = link_to(toggle_watchable_path, method: :put, class: 'nav-link', remote: true) do
           %p.mb-0.text-light
             %i.fas.fa-plus-circle
             %span Watch this #{watchable_type_text}
