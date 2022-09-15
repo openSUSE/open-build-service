@@ -28,17 +28,20 @@ class TriggerWorkflowController < TriggerController
 
   def set_scm_event
     @gitlab_event = request.env['HTTP_X_GITLAB_EVENT']
-    @github_event = request.env['HTTP_X_GITHUB_EVENT']
+    # Gitea contains the Github headers as well, so we have to check that the Gitea ones are
+    # not present for Github
+    @github_event = request.env['HTTP_X_GITHUB_EVENT'] unless request.env['HTTP_X_GITEA_EVENT']
+    @gitea_event = request.env['HTTP_X_GITEA_EVENT']
   end
 
   def validate_scm_event
-    return if @gitlab_event.present? || @github_event.present?
+    return if @gitlab_event.present? || @github_event.present? || @gitea_event.present?
 
     @workflow_run.update_as_failed(
       render_error(
         status: 400,
         errorcode: 'bad_request',
-        message: 'Only GitHub and GitLab are supported. Could not find the required HTTP request headers X-GitHub-Event or X-Gitlab-Event.'
+        message: 'Only GitHub, GitLab and Gitea are supported. Could not find the required HTTP request headers X-GitHub-Event, X-Gitlab-Event or X-Gitea-Event.'
       )
     )
   end
@@ -48,11 +51,13 @@ class TriggerWorkflowController < TriggerController
       'gitlab'
     elsif @github_event
       'github'
+    elsif @gitea_event
+      'gitea'
     end
   end
 
   def event
-    @github_event || @gitlab_event
+    @github_event || @gitlab_event || @gitea_event
   end
 
   def payload
