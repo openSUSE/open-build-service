@@ -5,9 +5,11 @@
       - when 'Package'
         - name = "#{item.project}/#{item}"
         .d-flex.flex-row.flex-wrap.align-items-baseline
-          = link_to(package_show_path(item.project, item), class: 'text-word-break-all') do
+          = link_to(package_show_path(item.project, item), class: 'd-flex flex-row flex-wrap align-items-baseline') do
             %i.fas.fa-archive.mr-1
-            = name
+            - name.split(%r{(/)}).each_slice(2).map(&:join).map(&:strip).each do |slice|
+              %span.d-inline
+                = slice
           = link_to('#', class: 'text-light ml-auto',
                     data: { toggle: 'modal',
                             target: '#delete-item-from-watchlist-modal',
@@ -18,9 +20,11 @@
       - when 'Project'
         - name = item.name
         .d-flex.flex-row.flex-wrap.align-items-baseline
-          = link_to(project_show_path(item), class: 'text-word-break-all') do
+          = link_to(project_show_path(item), class: 'd-flex flex-row flex-wrap align-items-baseline') do
             %i.fas.fa-cubes.mr-1
-            = name
+            - name.split(/(:)/).each_slice(2).map(&:join).map(&:strip).each do |slice|
+              %span.d-inline
+                = slice
           = link_to('#', class: 'text-light ml-auto',
                     data: { toggle: 'modal',
                             target: '#delete-item-from-watchlist-modal',
