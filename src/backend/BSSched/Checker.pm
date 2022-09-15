@@ -611,7 +611,7 @@ sub preparepool {
       $ctx->{'havedelayed'} = 1 if $delayed;
       return ('broken', $error);
     }
-    ($ctx->{'dep2pkg_host'}) = preparehashes($pool, $prp, $prpnotready);
+    ($ctx->{'dep2pkg_host'}) = preparehashes($pool_host, $prp, $prpnotready);
   }
   $ctx->{'pool'} = $pool;
   $ctx->{'pool_host'} = $pool_host if $pool_host;
