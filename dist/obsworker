@@ -83,8 +83,12 @@ fi
 
 REPO_PARAM=
 for i in $OBS_REPO_SERVERS; do
-    REPO_PARAM="$REPO_PARAM --reposerver http://$i"
-    WORKER_CODE="http://$i"
+    case $i in
+       http://*|https://*) ;;
+       *) i="http://$i";;
+    esac
+    REPO_PARAM="$REPO_PARAM --reposerver $i"
+    WORKER_CODE="$i"
 done
 
 obsrundir="$OBS_RUN_DIR"
