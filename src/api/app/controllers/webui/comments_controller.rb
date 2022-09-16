@@ -1,8 +1,13 @@
 class Webui::CommentsController < Webui::WebuiController
   before_action :require_login
-  before_action :find_commentable, only: :create
+  before_action :set_commented, only: :create
 
   def create
+    if @commented.nil?
+      flash.now[:error] = "Failed to create comment: This #{@commentable_type.name.downcase} does not exist anymore."
+      render partial: 'layouts/webui/flash' and return
+    end
+
     comment = @commented.comments.new(permitted_params)
     User.session!.comments << comment
     @commentable = comment.commentable
@@ -106,13 +111,12 @@ class Webui::CommentsController < Webui::WebuiController
     params.require(:comment).permit(:body, :parent_id)
   end
 
-  def find_commentable
-    commentable = [Project, Package, BsRequest].find { |klass| klass.name == params[:commentable_type] }
+  def set_commented
+    @commentable_type = [Project, Package, BsRequest].find { |klass| klass.name == params[:commentable_type] }
+    @commented = @commentable_type&.find_by(id: params[:commentable_id])
+    return if @commentable_type.present?
 
-    if commentable.nil?
-      redirect_to(root_path, error: 'Failed to create comment')
-    else
-      @commented = commentable.find(params[:commentable_id])
-    end
+    flash[:error] = "Invalid commentable #{params[:commentable_type]} supplied."
+    render partial: 'layouts/webui/flash'
   end
 end
