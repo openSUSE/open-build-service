@@ -40,7 +40,7 @@ sub initctx {
   $sslctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
   Net::SSLeay::CTX_set_options($sslctx, &Net::SSLeay::OP_ALL);
   if ($keyfile) {
-    Net::SSLeay::CTX_use_RSAPrivateKey_file($sslctx, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
+    Net::SSLeay::CTX_use_PrivateKey_file($sslctx, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $keyfile failed to load\n");
   }
   if ($certfile) {
     # CTX_use_certificate_chain_file expects PEM format anyway, client cert first, chain certs after that
@@ -71,7 +71,7 @@ sub TIEHANDLE {
   my $ssl = Net::SSLeay::new($sslctx) or die("SSL_new failed\n");
   Net::SSLeay::set_fd($ssl, fileno($socket));
   if ($keyfile) {
-    Net::SSLeay::use_RSAPrivateKey_file($ssl, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
+    Net::SSLeay::use_PrivateKey_file($ssl, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $keyfile failed to load\n");
   }
   if ($certfile) {
     Net::SSLeay::use_certificate_file($ssl, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $certfile failed\n");
