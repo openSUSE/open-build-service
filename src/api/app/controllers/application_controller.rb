@@ -345,7 +345,7 @@ class ApplicationController < ActionController::Base
     # apache & mod_xforward case
     if CONFIG['use_xforward'] && CONFIG['use_xforward'] != 'false'
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['X-Forward'] = "#{CONFIG['source_protocol'] || 'http'}://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true

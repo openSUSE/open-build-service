@@ -9,13 +9,26 @@ module Backend
       CONFIG['source_port']
     end
 
+    cattr_accessor :use_ssl, instance_accessor: false do
+      CONFIG['source_protocol'] == 'https'
+    end
+
+    cattr_accessor :verify_mode, instance_accessor: false do
+      if CONFIG['source_protocol_ssl_verification'] == false
+        OpenSSL::SSL::VERIFY_NONE
+      else
+        # default with no config set
+        OpenSSL::SSL::VERIFY_PEER
+      end
+    end
+
     def self.get(path, in_headers = {})
       start_time = Time.now
       Rails.logger.debug { "[backend] GET: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
-      response = Net::HTTP.start(host, port) do |http|
+      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
         http.read_timeout = timeout
         if block_given?
           http.request(backend_request) do |backend_response|
@@ -46,7 +59,7 @@ module Backend
       Rails.logger.debug { "[backend] DELETE: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Delete.new(path, in_headers)
-      response = Net::HTTP.start(host, port) do |http|
+      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
         http.read_timeout = timeout
         http.request(backend_request)
       end
@@ -91,7 +104,7 @@ module Backend
         backend_request.body = data
       end
 
-      response = Net::HTTP.start(host, port) do |http|
+      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
         http.read_timeout = if method == 'POST'
                               # POST requests can be quite complicate and take some time ..
                               timeout || 100_000
