@@ -107,6 +107,7 @@ sub pk2times {
     my ($ct, $ex, $stag, $spack);
     while ($pack ne '') {
       ($stag, $spack, $pack) = pkdecodesubpacket($pack);
+      $stag -= 128 if $stag >= 128;	# mask critical bit
       $ct = unpack('N', $spack) if $stag == 2;
       $ex = unpack('N', $spack) if $stag == 9;
     }
@@ -237,6 +238,7 @@ sub pk2sigdata {
       while ($pack ne '') {
         my ($stag, $spack);
         ($stag, $spack, $pack) = pkdecodesubpacket($pack);
+        $stag -= 128 if $stag >= 128;	# mask critical bit
         $d->{'signtime'} = unpack('N', $spack) if $stag == 2 && $hashed;
         $d->{'issuer'} = unpack('H*', substr($spack, 0, 8)) if $stag == 16;
       }
