@@ -23,12 +23,20 @@ module Backend
                    params: { code: :lastfailures })
         end
 
-        # Returns the download url (published path) for a file of a package
-        # @return [String]
-        def self.download_url_for_file(project_name, repository_name, package_name, architecture_name, file_name)
+        # Returns the publishedpath for a file of a package
+        def self.publishedpath(project_name, repository_name, package_name, architecture_name, file_name)
           http_get(['/build/:project/:repository/:architecture/:package/:file',
                     project_name, repository_name, architecture_name, package_name, file_name],
                    params: { view: :publishedpath })
+        end
+
+        # Returns the download url for a file of a package
+        # @return [String]
+        def self.download_url_for_file(project_name, repository_name, package_name, architecture_name, file_name)
+          published_url = Xmlhash.parse(publishedpath(project_name, repository_name, package_name, architecture_name, file_name))['url']
+          return unless published_url
+
+          return published_url if published_url.end_with?(file_name) # FIXME: bs_srcserver.published_path should not return an url in the first place...
         end
 
         # Returns the RPMlint log
