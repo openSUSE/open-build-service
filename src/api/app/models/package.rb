@@ -1375,6 +1375,17 @@ class Package < ApplicationRecord
     { project: project.name, package: name }
   end
 
+  def download_url_for_binary(repository_name:, architecture_name:, filename:, package_name: nil)
+    package_name ||= name
+
+    if enabled_for?('publish', repository_name, architecture_name)
+      published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(project.name, repository_name, package_name, architecture_name, filename)
+      return published_url if published_url
+    end
+
+    return "/build/#{project}/#{repository_name}/#{architecture_name}/#{package_name}/#{filename}" if User.session
+  end
+
   private
 
   def extract_kiwi_element(element)
