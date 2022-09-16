@@ -224,36 +224,4 @@ RSpec.describe Webui::PackageController do
       end
     end
   end
-
-  describe 'GET #binary_download' do
-    before do
-      login(tom)
-    end
-
-    context 'when the backend has a build result', vcr: true do
-      subject do
-        get :binary_download, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name, arch: 'i586', filename: 'my_file' }
-      end
-
-      it { is_expected.to redirect_to('http://localhost:3203/build/home:tom/source_repo/i586/my_package/my_file') }
-    end
-
-    context 'when requesting a result for an invalid repository' do
-      subject! do
-        get :binary_download, params: { package: toms_package, project: home_tom, repository: 'invalid', arch: 'i586', filename: 'my_file' }
-      end
-
-      it { is_expected.to redirect_to(package_show_path(project: home_tom, package: toms_package)) }
-      it { expect(flash[:error]).to eq("Couldn't find repository 'invalid'") }
-    end
-
-    context 'when requesting a result for an invalid architecture' do
-      subject! do
-        get :binary_download, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name, arch: 'invalid', filename: 'my_file' }
-      end
-
-      it { is_expected.to redirect_to(package_binaries_path(project: home_tom, package: toms_package, repository: repo_for_home_tom.name)) }
-      it { expect(flash[:error]).to eq("Couldn't find architecture 'invalid'") }
-    end
-  end
 end
