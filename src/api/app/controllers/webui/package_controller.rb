@@ -180,24 +180,26 @@ class Webui::PackageController < Webui::WebuiController
                                                       architecture: params[:arch]).results
   end
 
+  # FIXME: This is Webui::Packages::BinariesController#show
   def binary
-    @package_name = params[:package]
+    @package_name = params[:package] # might be a multibuild flavor
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @architecture.name, @filename)
     raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
-    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
-                                                                 user: User.possibly_nobody, arch: @arch,
-                                                                 repository: @repository, filename: @filename)
-    @download_url = url_generator.download_url_for_file_in_repo
+    @download_url = @package.download_url_for_binary(repository_name: @repository.name,
+                                                     architecture_name: @architecture.name,
+                                                     package_name: @package_name,
+                                                     filename: @filename)
 
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
-    # little trick to give users eager to download binaries a single click
+    # FIXME: this little trick to give users eager to download binaries a single click should die...
     redirect_to(@download_url) && return if request.format != Mime[:html] && @download_url
   end
 
+  # FIXME: This is Webui::Packages::BinariesController#index
   def binaries
     @repository = params[:repository]
     @package_name = params[:package]
@@ -206,7 +208,6 @@ class Webui::PackageController < Webui::WebuiController
     raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
     @buildresults = []
-    repository = Repository.find_by_project_and_name(@project.to_s, @repository)
     results_from_backend.elements('result') do |result|
       build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
 
@@ -214,8 +215,15 @@ class Webui::PackageController < Webui::WebuiController
         if binary['filename'] == '_statistics'
           build_results_set[:statistics] = true
         else
-          links = links_for_binaries_action(@project, @package_name, repository, result['arch'], binary['filename'])
-          build_results_set[:binaries] << { filename: binary['filename'], size: binary['size'], links: links }
+          download_url = @package.download_url_for_binary(repository_name: @repository,
+                                                          architecture_name: result['arch'],
+                                                          package_name: @package_name, # multibuild flavors...
+                                                          filename: binary['filename'])
+          build_results_set[:binaries] << { filename: binary['filename'],
+                                            size: binary['size'],
+                                            links: { details?: binary['filename'] != 'rpmlint.log',
+                                                     download_url: download_url,
+                                                     cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
         end
       end
       @buildresults << build_results_set
@@ -711,8 +719,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def require_architecture
-    @arch = Architecture.archcache[params[:arch]]
-    return if @arch
+    @architecture = Architecture.archcache[params[:arch]]
+    return if @architecture
 
     flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
     redirect_to package_binaries_path(project: @project, package: @package, repository: @repository.name)
