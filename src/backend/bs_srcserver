@@ -2942,7 +2942,7 @@ sub getfile {
   die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = BSRevision::revstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
-  if (!$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
+  if (!$cgi->{'noajax'} && !$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
     # hack: we identify remote source downloads by looking at the user agent
     my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
     if ($useragent =~ /BSRPC/) {
@@ -7465,7 +7465,7 @@ my $dispatches = [
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool? view:? interconnect:?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
-  '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool? view:?' => \&getfile,
+  '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool? view:? noajax:bool?' => \&getfile,
   'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&delfile,
 

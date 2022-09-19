@@ -1132,7 +1132,7 @@ sub getfollowupsources {
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::file_receiver,
     'filename' => "$dir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}",
-  }, undef, "rev=$buildinfo->{'srcmd5'}");
+  }, undef, "rev=$buildinfo->{'srcmd5'}", 'noajax=1');
 }
 
 sub getobsgendiffdata {
@@ -2811,7 +2811,7 @@ sub getlinkedccache {
       if ($buildinfo->{'releasename'}) {
         $opackid = $buildinfo->{'releasename'};
         eval {
-          my $link = BSRPC::rpc("$buildinfo->{'srcserver'}/source/$oprojid/$opackid/_link", $BSXML::link);
+          my $link = BSRPC::rpc("$buildinfo->{'srcserver'}/source/$oprojid/$opackid/_link", $BSXML::link, 'noajax=1');
           $opackid = $link->{'package'} if $link->{'package'} && !$link->{'project'};
         };
         warn($@) if $@ && $@ !~ /^404/;
