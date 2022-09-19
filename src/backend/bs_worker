@@ -1132,7 +1132,7 @@ sub getfollowupsources {
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::file_receiver,
     'filename' => "$dir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}",
-  }, undef, "rev=$buildinfo->{'srcmd5'}");
+  }, undef, "rev=$buildinfo->{'srcmd5'}", 'noajax=1');
 }
 
 sub getobsgendiffdata {
@@ -2811,7 +2811,7 @@ sub getlinkedccache {
       if ($buildinfo->{'releasename'}) {
         $opackid = $buildinfo->{'releasename'};
         eval {
-          my $link = BSRPC::rpc("$buildinfo->{'srcserver'}/source/$oprojid/$opackid/_link", $BSXML::link);
+          my $link = BSRPC::rpc("$buildinfo->{'srcserver'}/source/$oprojid/$opackid/_link", $BSXML::link, 'noajax=1');
           $opackid = $link->{'package'} if $link->{'package'} && !$link->{'project'};
         };
         warn($@) if $@ && $@ !~ /^404/;
@@ -4047,8 +4047,8 @@ sub startbuild {
   my $req = $BSServer::request;
   if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
     unlink("job.new.$$");
-    my $peer = "$req->{'peer'}:$cgi->{'port'}";
-    $workercode = getcode('worker', "http://$peer/getworkercode");
+    my $peer = $cgi->{'registerserver'} || "http://$req->{'peer'}:$cgi->{'port'}";
+    $workercode = getcode('worker', "$peer/getworkercode");
     die("could not update worker code\n") unless $workercode;
     $state->{'state'} = 'rebooting';
     print "activating new worker code $workercode\n";
@@ -4078,8 +4078,8 @@ sub startbuild {
   $buildcode = codemd5('build');
   if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
     print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
-    my $peer = "$req->{'peer'}:$cgi->{'port'}";
-    $buildcode = getcode('build', "http://$peer/getbuildcode");
+    my $peer = $cgi->{'registerserver'} || "http://$req->{'peer'}:$cgi->{'port'}";
+    $buildcode = getcode('build', "$peer/getbuildcode");
     die("could not update build code\n") unless $buildcode;
   }
   rename("job.new.$$", 'job') || die("rename job.new.$$ job: $!\n");
