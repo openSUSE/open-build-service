@@ -791,8 +791,8 @@ sub signjob {
       if (!$followupfile && grep {/\.followup.spec$/} @files) {
 	$followupfile = (grep {/\.followup.spec$/} @files)[0];
       }
-      if (!$followupfile && grep {/^mkosi\.*/} @files) {
-	$followupfile = (grep {/^mkosi\.*/} @files)[0];
+      if (!$followupfile && grep {/^mkosi\./} @files) {
+	$followupfile = (grep {/^mkosi\./} @files)[0];
       }
     }
 
