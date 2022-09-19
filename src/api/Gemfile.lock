@@ -539,6 +539,7 @@ DEPENDENCIES
   down
   factory_bot_rails
   faker
+  faraday
   flipper
   flipper-active_record
   flipper-ui

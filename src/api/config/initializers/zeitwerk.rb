@@ -3,6 +3,7 @@ Rails.autoloaders.each do |autoloader|
   autoloader.inflector.inflect(
     'api_matcher' => 'APIMatcher',
     'cve_parser' => 'CVEParser',
+    'gitea_api' => 'GiteaAPI',
     'meta_xml_validator' => 'MetaXMLValidator',
     'obs_quality_categories_finder' => 'OBSQualityCategoriesFinder',
     'opensuse_upstream_tarball_url_finder' => 'OpenSUSEUpstreamTarballURLFinder',
