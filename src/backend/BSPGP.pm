@@ -107,6 +107,7 @@ sub pk2times {
     my ($ct, $ex, $stag, $spack);
     while ($pack ne '') {
       ($stag, $spack, $pack) = pkdecodesubpacket($pack);
+      $stag -= 128 if $stag >= 128;	# mask critical bit
       $ct = unpack('N', $spack) if $stag == 2;
       $ex = unpack('N', $spack) if $stag == 9;
     }
@@ -237,6 +238,7 @@ sub pk2sigdata {
       while ($pack ne '') {
         my ($stag, $spack);
         ($stag, $spack, $pack) = pkdecodesubpacket($pack);
+        $stag -= 128 if $stag >= 128;	# mask critical bit
         $d->{'signtime'} = unpack('N', $spack) if $stag == 2 && $hashed;
         $d->{'issuer'} = unpack('H*', substr($spack, 0, 8)) if $stag == 16;
       }
@@ -274,6 +276,17 @@ sub unarmor {
   my $pk = MIME::Base64::decode($str);
   die("unarmor failed\n") unless $pk;
   return $pk;
+}
+
+sub onepass_signed_message {
+  my ($data, $sig, $fn, $t) = @_;
+  die("filename too long\n") if length($fn) > 255;
+  my $sd = pk2sigdata($sig);
+  die("no issuer in signature\n") unless $sd->{'issuer'};
+  my $onepass_sig = pack('CCCCH16C', 3, $sd->{'pgptype'}, $sd->{'pgphash'}, $sd->{'pgpalgo'}, $sd->{'issuer'}, 1);
+  $t ||= $sd->{'signtime'} || time();
+  my $literal_data = pack('CCa*N', 0x62, length($fn), $fn, $t).$data;
+  return pkencodepacket(4, $onepass_sig).pkencodepacket(11, $literal_data).$sig;
 }
 
 1;

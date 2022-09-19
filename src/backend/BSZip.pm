@@ -71,7 +71,7 @@ sub extract_inflate {
   die("decompressed returned too few data\n") if $size;
 }
 
-sub zip_extract {
+sub extract {
   my ($handle, $ent, %opts) = @_;
   die("cannot extract this type of entry\n") if defined($ent->{'ziptype'}) && $ent->{'ziptype'} != 8 && $ent->{'ziptype'} != 10;
   my $data = '';
@@ -93,7 +93,7 @@ sub zip_extract {
   return $data;
 }
 
-sub zip_list {
+sub list {
   my ($handle) = @_;
   my @s = stat($handle);
   die("zip_list: $!\n") unless @s;

@@ -59,10 +59,7 @@ eval {
   $can_rewrite_containers = 1;
 };
 
-eval {
-  require BSSSL;
-  BSSSL::import('https:');
-};
+eval { BSRPC::import(':https') };
 
 use strict;
 

@@ -426,7 +426,7 @@ sub listzip {
   local *F;
   open(F, '<', $zipfile) || die("$zipfile: $!\n");
   my $entries;
-  eval { $entries = BSZip::zip_list(\*F) };
+  eval { $entries = BSZip::list(\*F) };
   die("$zipfile: $@") if $@;
   my @c;
   for my $e (@$entries) {
@@ -439,12 +439,12 @@ sub listzip {
     if ($fsize > 0) {
       if ($type eq 'l') {
 	die("ridiculous long symlink $e->{'name'}\n") if $fsize > 8192;
-	$info = BSZip::zip_extract(\*F, $e);
+	$info = BSZip::extract(\*F, $e);
       } elsif ($type eq '-') {
         my $ctx = Digest::MD5->new;
         my $ctx256 = Digest::SHA->new(256);
         my $writer = sub { $ctx->add($_[0]); $ctx256->add($_[0]) };
-	BSZip::zip_extract(\*F, $e, 'writer' => $writer);
+	BSZip::extract(\*F, $e, 'writer' => $writer);
 	$info = $ctx256->hexdigest();
 	$md5 = $ctx->hexdigest();
       }
@@ -460,19 +460,19 @@ sub extractzip {
   my ($zipfile, $cp) = @_;
   local *F;
   open(F, '<', $zipfile) || die("$zipfile: $!\n");
-  my $entries = BSZip::zip_list(\*F);
+  my $entries = BSZip::list(\*F);
   for my $e (@$entries) {
     my $x = shift @$cp;
     die unless $x;
     next unless $x->{'extract'};
     die("bad extract file type $e->{'ziptype'}\n") unless $e->{'ziptype'} == 8;
     if (exists($x->{'content'})) {
-      $x->{'content'} .= BSZip::zip_extract(\*F, $e);
+      $x->{'content'} .= BSZip::extract(\*F, $e);
     } else {
       local *G;
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
       my $writer = sub { print G $_[0] or die("write: $!\n") };
-      BSZip::zip_extract(\*F, $e, 'writer' => $writer);
+      BSZip::extract(\*F, $e, 'writer' => $writer);
       close(G) || die("close: $!\n");
     }
   }
