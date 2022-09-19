@@ -28,7 +28,7 @@ class WorkflowRun < ApplicationRecord
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
-  has_many :scm_status_reports, dependent: :destroy
+  has_many :scm_status_reports, class_name: 'SCMStatusReport', dependent: :destroy
 
   paginates_per 20
 
@@ -49,7 +49,7 @@ class WorkflowRun < ApplicationRecord
     update(status: 'fail') # set WorkflowRun status
     scm_status_reports.create(response_body: message,
                               request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)),
-                              status: 'fail') # set ScmStatusReport status
+                              status: 'fail') # set SCMStatusReport status
   end
 
   # Stores info from a succesful SCM status report. The default value for 'status' is 'success'.
@@ -133,12 +133,12 @@ class WorkflowRun < ApplicationRecord
 
   def pull_request_with_allowed_action
     hook_event == 'pull_request' &&
-      ScmWebhook::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
+      SCMWebhook::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
   end
 
   def merge_request_with_allowed_action
     hook_event == 'Merge Request Hook' &&
-      ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
+      SCMWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
 # rubocop:enable Metrics/ClassLength

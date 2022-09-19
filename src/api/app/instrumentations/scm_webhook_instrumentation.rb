@@ -1,4 +1,4 @@
-module ScmWebhookInstrumentation
+module SCMWebhookInstrumentation
   extend ActiveSupport::Concern
 
   # Define callbacks with ActiveModel::Callback which is included in ActiveModel::Model

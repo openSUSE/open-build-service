@@ -1,4 +1,4 @@
-class ScmExceptionMessage
+class SCMExceptionMessage
   GITHUB_EXCEPTIONS = {
     Octokit::AbuseDetected =>
       'You have triggered an abuse detection mechanism and have been temporarily blocked from content creation. Please retry your request again later.',

@@ -69,7 +69,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
   end
 
   def scm_webhook
-    ScmWebhook.new(payload: extractor_payload)
+    SCMWebhook.new(payload: extractor_payload)
   end
 
   def token

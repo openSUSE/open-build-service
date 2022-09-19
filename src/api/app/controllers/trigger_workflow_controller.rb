@@ -57,12 +57,12 @@ class TriggerWorkflowController < TriggerController
 
   def payload
     request_body = request.body.read
-    raise BadScmPayload if request_body.blank?
+    raise BadSCMPayload if request_body.blank?
 
     begin
       JSON.parse(request_body)
     rescue JSON::ParserError
-      raise BadScmPayload
+      raise BadSCMPayload
     end
   end
 
@@ -74,7 +74,7 @@ class TriggerWorkflowController < TriggerController
   end
 
   def extract_scm_webhook
-    @scm_webhook = TriggerControllerService::ScmExtractor.new(scm, event, payload).call
+    @scm_webhook = TriggerControllerService::SCMExtractor.new(scm, event, payload).call
 
     # There are plenty of different pull/merge request action which we don't support.
     # Those should not cause an error, we simply ignore them.

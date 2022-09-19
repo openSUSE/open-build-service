@@ -10,7 +10,7 @@ RSpec.describe Token::Workflow do
       it do
         expect do
           workflow_token.call({ workflow_run: workflow_run,
-                                scm_webhook: ScmWebhook.new(payload: {}) })
+                                scm_webhook: SCMWebhook.new(payload: {}) })
         end.to raise_error(Token::Errors::MissingPayload, 'A payload is required').and(change(workflow_token, :triggered_at))
       end
     end
@@ -26,7 +26,7 @@ RSpec.describe Token::Workflow do
       it "changes the token's triggered_at field and raises an error with a helpful message" do
         expect do
           workflow_token.call({ workflow_run: workflow_run,
-                                scm_webhook: ScmWebhook.new(payload: { something: 123 }) })
+                                scm_webhook: SCMWebhook.new(payload: { something: 123 }) })
         end.to change(workflow_token, :triggered_at).and(raise_error(Token::Errors::SCMTokenInvalid, 'Your SCM token secret is not properly set in your OBS workflow token.' \
                                                                                                      "\nCheck #{described_class::AUTHENTICATION_DOCUMENTATION_LINK}"))
       end
@@ -67,8 +67,8 @@ RSpec.describe Token::Workflow do
           target_repository_full_name: 'openSUSE/open-build-service'
         }
       end
-      let(:scm_extractor) { TriggerControllerService::ScmExtractor.new(scm, event, github_payload) }
-      let(:scm_webhook) { ScmWebhook.new(payload: github_extractor_payload) }
+      let(:scm_extractor) { TriggerControllerService::SCMExtractor.new(scm, event, github_payload) }
+      let(:scm_webhook) { SCMWebhook.new(payload: github_extractor_payload) }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
       let(:yaml_file) { Rails.root.join('spec/support/files/workflows.yml').expand_path }
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token, workflow_run: workflow_run) }
@@ -82,7 +82,7 @@ RSpec.describe Token::Workflow do
         # Skipping call since it's tested in the Workflow model
         allow(workflow).to receive(:call).and_return(true)
 
-        allow(TriggerControllerService::ScmExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
+        allow(TriggerControllerService::SCMExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
         allow(scm_extractor).to receive(:call).and_return(scm_webhook)
         allow(Workflows::YAMLDownloader).to receive(:new).with(scm_webhook.payload, token: workflow_token).and_return(yaml_downloader)
         allow(yaml_downloader).to receive(:call).and_return(yaml_file)
@@ -134,15 +134,15 @@ RSpec.describe Token::Workflow do
           api_endpoint: 'https://api.github.com'
         }
       end
-      let(:scm_extractor) { TriggerControllerService::ScmExtractor.new(scm, event, github_payload) }
-      let(:scm_webhook) { ScmWebhook.new(payload: github_extractor_payload) }
+      let(:scm_extractor) { TriggerControllerService::SCMExtractor.new(scm, event, github_payload) }
+      let(:scm_webhook) { SCMWebhook.new(payload: github_extractor_payload) }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
       let(:yaml_file) { Rails.root.join('spec/support/files/workflows.yml').expand_path }
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token, workflow_run: workflow_run) }
       let(:workflows) { [Workflow.new(scm_webhook: scm_webhook, token: workflow_token, workflow_instructions: {})] }
 
       before do
-        allow(TriggerControllerService::ScmExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
+        allow(TriggerControllerService::SCMExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
         allow(scm_extractor).to receive(:call).and_return(scm_webhook)
         allow(Workflows::YAMLDownloader).to receive(:new).with(scm_webhook.payload, token: workflow_token).and_return(yaml_downloader)
         allow(yaml_downloader).to receive(:call).and_return(yaml_file)

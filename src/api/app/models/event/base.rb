@@ -160,6 +160,10 @@ module Event
       save
       create_jobs.each do |job|
         job_class = job.to_s.camelize.safe_constantize
+
+        # we want to keep SCM capitalized in the job name, so we catch the case and overwrite the name
+        job_class = ReportToSCMJob.name.safe_constantize if job.to_s.camelize.casecmp(ReportToSCMJob.name).zero?
+
         raise "#{job.to_s.camelize} does not map to a constant" if job_class.nil?
 
         job_obj = job_class.new

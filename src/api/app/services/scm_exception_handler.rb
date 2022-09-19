@@ -57,7 +57,7 @@ class SCMExceptionHandler
                                                                          @event_payload[:package],
                                                                          host: Configuration.obs_url)
     end
-    @workflow_run.save_scm_report_failure("Failed to report back to #{scm}: #{ScmExceptionMessage.for(exception: exception, scm: scm)}",
+    @workflow_run.save_scm_report_failure("Failed to report back to #{scm}: #{SCMExceptionMessage.for(exception: exception, scm: scm)}",
                                           {
                                             api_endpoint: @event_subscription_payload[:api_endpoint],
                                             target_repository_full_name: @event_subscription_payload[:target_repository_full_name],

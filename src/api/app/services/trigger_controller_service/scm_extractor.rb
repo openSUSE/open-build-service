@@ -1,7 +1,7 @@
 # TODO: Extract SCM-specific code to separate classes. This class is too big for GitHub and GitLab.
 module TriggerControllerService
   # NOTE: this class is coupled to GitHub pull requests events and GitLab merge requests events.
-  class ScmExtractor
+  class SCMExtractor
     def initialize(scm, event, payload)
       # TODO: What should we do when the user sends a wwwurlencoded payload? Raise an exception?
       @payload = payload.deep_symbolize_keys
@@ -13,9 +13,9 @@ module TriggerControllerService
     def call
       case @scm
       when 'github'
-        ScmWebhook.new(payload: github_extractor_payload)
+        SCMWebhook.new(payload: github_extractor_payload)
       when 'gitlab'
-        ScmWebhook.new(payload: gitlab_extractor_payload)
+        SCMWebhook.new(payload: gitlab_extractor_payload)
       end
     end
 
@@ -71,7 +71,7 @@ module TriggerControllerService
                          path_with_namespace: @payload.dig(:project, :path_with_namespace),
                          # We need this for SCMStatusReporter#call
                          project_id: @payload[:project_id],
-                         # We need this for ScmWebhookEventValidator#valid_push_event
+                         # We need this for SCMWebhookEventValidator#valid_push_event
                          ref: @payload[:ref] })
       when 'Tag Push Hook'
         gitlab_payload_tag(payload)
@@ -129,7 +129,7 @@ module TriggerControllerService
                        target_branch: @payload[:after],
                        # We need this for Workflows::YAMLDownloader#download_url
                        path_with_namespace: @payload.dig(:project, :path_with_namespace),
-                       # We need this for ScmWebhookEventValidator#valid_push_event
+                       # We need this for SCMWebhookEventValidator#valid_push_event
                        ref: @payload[:ref],
                        # We need this for Workflow::Step#branch_request_content_{github,gitlab}
                        commit_sha: @payload[:after]

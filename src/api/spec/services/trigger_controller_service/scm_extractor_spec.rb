@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TriggerControllerService::ScmExtractor do
+RSpec.describe TriggerControllerService::SCMExtractor do
   describe '#call' do
     subject(:scm_webhook) do
       described_class.new(scm, event, payload).call
@@ -63,8 +63,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           }
         end
 
-        it 'returns an instance of ScmWebhook with the extracted data from the GitHub payload' do
-          expect(scm_webhook).to be_instance_of(ScmWebhook)
+        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
       end
@@ -97,8 +97,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           }
         end
 
-        it 'returns an instance of ScmWebhook with the extracted data from the GitHub payload' do
-          expect(scm_webhook).to be_instance_of(ScmWebhook)
+        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
       end
@@ -132,8 +132,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           }
         end
 
-        it 'returns an instance of ScmWebhook with the extracted data from the GitHub payload' do
-          expect(scm_webhook).to be_instance_of(ScmWebhook)
+        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
       end
@@ -181,8 +181,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           }
         end
 
-        it 'returns an instance of ScmWebhook with the extracted data from the GitLab payload' do
-          expect(scm_webhook).to be_instance_of(ScmWebhook)
+        it 'returns an instance of SCMWebhook with the extracted data from the GitLab payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
       end
@@ -216,8 +216,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           }
         end
 
-        it 'returns an instance of ScmWebhook with the extracted data from the GitLab payload' do
-          expect(scm_webhook).to be_instance_of(ScmWebhook)
+        it 'returns an instance of SCMWebhook with the extracted data from the GitLab payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
       end
@@ -250,8 +250,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
           }
         end
 
-        it 'returns an instance of ScmWebhook with the extracted data from the GitLab payload' do
-          expect(scm_webhook).to be_instance_of(ScmWebhook)
+        it 'returns an instance of SCMWebhook with the extracted data from the GitLab payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
       end
@@ -284,8 +284,8 @@ RSpec.describe TriggerControllerService::ScmExtractor do
         }
       end
 
-      it 'returns an instance of ScmWebhook with the extracted data' do
-        expect(scm_webhook).to be_instance_of(ScmWebhook)
+      it 'returns an instance of SCMWebhook with the extracted data' do
+        expect(scm_webhook).to be_instance_of(SCMWebhook)
         expect(scm_webhook.payload).to eq(expected_hash)
       end
     end

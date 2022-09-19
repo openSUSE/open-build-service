@@ -55,7 +55,7 @@ FactoryBot.define do
       end
 
       after(:create) do |workflow_run, _evaluator|
-        ScmStatusReport.create(workflow_run: workflow_run,
+        SCMStatusReport.create(workflow_run: workflow_run,
                                response_body: "<status code=\"ok\">\n  <summary>Ok</summary>\n</status>\n",
                                request_parameters: JSON.generate({
                                                                    api_endpoint: 'https://api.github.com',
@@ -67,7 +67,7 @@ FactoryBot.define do
                                                                      target_url: nil
                                                                    }
                                                                  }),
-                               status: ScmStatusReport.statuses[:success])
+                               status: SCMStatusReport.statuses[:success])
       end
     end
 
@@ -88,7 +88,7 @@ FactoryBot.define do
       end
 
       after(:create) do |workflow_run, _evaluator|
-        ScmStatusReport.create(workflow_run: workflow_run,
+        SCMStatusReport.create(workflow_run: workflow_run,
                                response_body: 'Failed to report back to GitHub: Unauthorized request. Please check your credentials again.',
                                request_parameters: JSON.generate({
                                                                    api_endpoint: 'https://api.github.com',
@@ -100,7 +100,7 @@ FactoryBot.define do
                                                                      target_url: nil
                                                                    }
                                                                  }),
-                               status: ScmStatusReport.statuses[:fail])
+                               status: SCMStatusReport.statuses[:fail])
       end
     end
   end

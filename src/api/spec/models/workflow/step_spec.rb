@@ -6,7 +6,7 @@ RSpec.describe Workflow::Step do
 
     context 'for a pull request_event when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: { scm: 'github', event: 'pull_request' }) }
+      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'pull_request' }) }
 
       it 'returns the value of target_package' do
         expect(subject).to eq('hello_world')
@@ -15,7 +15,7 @@ RSpec.describe Workflow::Step do
 
     context 'for a pull request_event when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: { scm: 'github', event: 'pull_request' }) }
+      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'pull_request' }) }
 
       it 'returns the name of the source package' do
         expect(subject).to eq('package123')
@@ -24,7 +24,7 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a commit when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
+      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
 
       it 'returns the value of target_package with the commit SHA as a suffix' do
         expect(subject).to eq('hello_world-456')
@@ -33,7 +33,7 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a commit when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
+      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
 
       it 'returns the name of the source package with the commit SHA as a suffix' do
         expect(subject).to eq('package123-456')
@@ -42,7 +42,7 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a tag when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
+      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
 
       it 'returns the value of target_package with the tag name as a suffix' do
         expect(subject).to eq('hello_world-release_abc')
@@ -51,7 +51,7 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a tag when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
+      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
 
       it 'returns the name of the source package with the tag name as a suffix' do
         expect(subject).to eq('package123-release_abc')
@@ -89,7 +89,7 @@ RSpec.describe Workflow::Step do
           ]
       }
     end
-    let(:scm_webhook) { ScmWebhook.new(payload: payload) }
+    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
 
     subject do
       step.new(step_instructions: step_instructions, scm_webhook: scm_webhook).target_project_name

@@ -7,7 +7,7 @@ module Trigger::Errors
           'No valid token found'
   end
 
-  class BadScmPayload < APIError
+  class BadSCMPayload < APIError
     setup 'bad_request',
           400,
           'Failed to parse the JSON payload of your request'
