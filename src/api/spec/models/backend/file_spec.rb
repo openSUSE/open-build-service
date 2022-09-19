@@ -7,10 +7,10 @@ RSpec.describe Backend::File, vcr: true do
   let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) do
-    File.open(File.expand_path(Rails.root.join('spec/support/files/hello.txt'))) { |file| file }
+    File.open(Rails.root.join('spec/support/files/hello.txt').expand_path) { |file| file }
   end
   let(:fake_file_without_extension) do
-    File.open(File.expand_path(Rails.root.join('spec/support/files/hello_world'))) { |file| file }
+    File.open(Rails.root.join('spec/support/files/hello_world').expand_path) { |file| file }
   end
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
 

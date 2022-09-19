@@ -43,7 +43,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
       end
 
       context 'uploading a utf-8 file' do
-        let(:file_to_upload) { File.read(File.expand_path(Rails.root.join('spec/support/files/chinese.txt'))) }
+        let(:file_to_upload) { File.read(Rails.root.join('spec/support/files/chinese.txt').expand_path) }
 
         before do
           do_request(project_name: source_project, package_name: source_package, filename: '学习总结', file: file_to_upload)

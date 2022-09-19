@@ -56,7 +56,7 @@ class Status::ChecksController < ApplicationController
   end
 
   def xml_hash
-    result = HashWithIndifferentAccess.new
+    result = ActiveSupport::HashWithIndifferentAccess.new
     parsed_body = Xmlhash.parse(request.body.read)
     return if parsed_body.blank?
 

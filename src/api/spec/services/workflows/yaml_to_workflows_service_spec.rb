@@ -29,7 +29,7 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       event: 'Merge Request Hook'
     }
   end
-  let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/workflows.yml')) }
+  let(:workflows_yml_file) { Rails.root.join('spec/support/files/workflows.yml').expand_path }
   let(:token) { create(:workflow_token) }
   let(:workflow_run) { create(:workflow_run, token: token) }
 
@@ -39,7 +39,7 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
     end
 
     context 'it supports many workflows' do
-      let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/multiple_workflows.yml')) }
+      let(:workflows_yml_file) { Rails.root.join('spec/support/files/multiple_workflows.yml').expand_path }
       let(:payload) { github_extractor_payload }
 
       it { expect(subject.size).to be(2) }
@@ -62,7 +62,7 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
     end
 
     context 'with a invalid workflows.yml' do
-      let(:workflows_yml_file) { File.expand_path(Rails.root.join('spec/support/files/unparsable_workflows.yml')) }
+      let(:workflows_yml_file) { Rails.root.join('spec/support/files/unparsable_workflows.yml').expand_path }
       let(:payload) { github_extractor_payload }
 
       it 'raises a user-friendly error' do

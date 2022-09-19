@@ -12,7 +12,7 @@ VCR.extend(CassetteReporter)
 # delete all unecessary cassettes
 RSpec.configure do |config|
   config.after(:suite) do
-    files = (Dir[File.join(Rails.root, 'spec', 'cassettes', '**', '*.yml')] - USED_CASSETTES.to_a)
+    files = (Dir[Rails.root.join('spec', 'cassettes', '**', '*.yml')] - USED_CASSETTES.to_a)
     files.each { |v| File.delete(v) } unless files.empty?
   end
 end
