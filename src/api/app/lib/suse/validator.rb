@@ -68,7 +68,7 @@ module Suse
         case opt
         when String, Symbol
           schema_file = opt.to_s
-        when Hash, HashWithIndifferentAccess
+        when Hash, ActiveSupport::HashWithIndifferentAccess
           schema_file = get_schema(opt).to_s
         when ActionController::Parameters
           # TODO: Once everything else works test if we can move this to
