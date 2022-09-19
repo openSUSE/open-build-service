@@ -165,6 +165,8 @@ sub opentar {
       exec('tar', '-z', @taropts, '-');
     } elsif ($gemdata =~ /\.xz$/) {
       exec('tar', '--xz', @taropts, '-');
+    } elsif ($gemdata =~ /\.zstd?$/) {
+      exec('tar', '--zstd', @taropts, '-');
     } else {
       exec('tar', @taropts, '-');
     }
@@ -482,7 +484,7 @@ sub filediff_libxdiff_check {
   my ($f, $content) = @_;
   return '' unless defined($f);
   return $f if ref($f);
-  return undef if $f =~ /\.(?:gz|bz2|xz)$/;
+  return undef if $f =~ /\.(?:gz|bz2|xz|zstd?)$/;
   if (!defined($content)) {
     return undef unless -e $f;
     return undef if -s _ > 65536;
@@ -594,6 +596,8 @@ sub filediff {
       open(F1, "-|", 'bzip2', '-dc', $f1) || die("open $f1: $!\n");
     } elsif (!$nodecomp && $f1 =~ /\.xz$/i) {
       open(F1, "-|", 'xz', '-dc', $f1) || die("open $f1: $!\n");
+    } elsif (!$nodecomp && $f1 =~ /\.zstd?$/i) {
+      open(F1, "-|", 'zstd', '-dc', $f1) || die("open $f1: $!\n");
     } else {
       open(F1, '<', $f1) || die("open $f1: $!\n");
     }
@@ -605,6 +609,8 @@ sub filediff {
       open(F2, "-|", 'bzip2', '-dc', $f2) || die("open $f2: $!\n");
     } elsif (!$nodecomp && $f2 =~ /\.xz$/i) {
       open(F2, "-|", 'xz', '-dc', $f2) || die("open $f2: $!\n");
+    } elsif (!$nodecomp && $f2 =~ /\.zstd?$/i) {
+      open(F2, "-|", 'zstd', '-dc', $f2) || die("open $f2: $!\n");
     } else {
       open(F2, '<', $f2) || die("open $f2: $!\n");
     }
@@ -864,7 +870,7 @@ sub tardiff {
     next if $l1 && $l2 && $l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'};
     if ($l1 && $l1->{'size'} && $l1->{'type'} eq '-') {
       my $suf1 = '';
-      $suf1 = ".$1" if $l1->{'name'} =~ /\.(gz|xz|bz2)$/;
+      $suf1 = ".$1" if $l1->{'name'} =~ /\.(gz|xz|bz2|zstd?)$/;
       my $exfile = "$edir/a$e1cnt$suf1";
       $l1->{'extract'} = $exfile;
       push @efiles, $exfile;
@@ -872,7 +878,7 @@ sub tardiff {
     }
     if ($l2 && $l2->{'size'} && $l2->{'type'} eq '-') {
       my $suf2 = '';
-      $suf2 = ".$1" if $l2->{'name'} =~ /\.(gz|xz|bz2)$/;
+      $suf2 = ".$1" if $l2->{'name'} =~ /\.(gz|xz|bz2|zstd?)$/;
       my $exfile = "$edir/b$e2cnt$suf2";
       $l2->{'extract'} = $exfile;
       push @efiles, $exfile;
@@ -963,8 +969,8 @@ my @simclasses = (
   'spec',
   'dsc',
   'changes',
-  '(?:diff?|patch)(?:\.gz|\.bz2|\.xz)?',
-  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz|gem|obscpio|livebuild|zip)',
+  '(?:diff?|patch)(?:\.gz|\.bz2|\.xz|\.zstd?)?',
+  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tar\.zstd?|tgz|tbz|gem|obscpio|livebuild|zip)',
 );
 
 sub findsim {
@@ -990,6 +996,7 @@ sub findsim {
       $fc =~ s/\.bz2$//;
       $fc =~ s/\.gz$//;
       $fc =~ s/\.xz$//;
+      $fc =~ s/\.zstd?$//;
       next if $fc =~ /\.(?:spec|dsc|changes)$/;	# no compression here!
       if ($fc =~ /^(.*)\.([^\/]+)$/) {
 	$fc{$f} = $1;
@@ -1140,7 +1147,7 @@ sub srcdiff {
     } else {
       $dd .= "\n++++++ $f (new)\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
       if (defined $of) {
 	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
 	for my $r (@r) {
@@ -1166,7 +1173,7 @@ sub srcdiff {
   if (1) {
     for my $of (sort keys %oold) {
       $d .= "\n++++++ $of (deleted)\n";
-      if ($opts{'doarchive'} && $of =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
+      if ($opts{'doarchive'} && $of =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
         next;
       }
       my $r = filediff(fn($pold, $of), undef, %opts);
@@ -1205,7 +1212,7 @@ sub unifieddiff {
     } else {
       $d .= "Index: $f\n" . ("=" x 67) . "\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'}$orevb", "$r->{'name'}$revb");
@@ -1217,7 +1224,7 @@ sub unifieddiff {
   }
   for my $f (@added) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(undef, fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'} (added)", "$r->{'name'}$revb");
@@ -1265,7 +1272,7 @@ sub datadiff {
 	next;
       }
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       if (@r == 0 && $f ne $of) {
 	# (almost) identical tars but renamed
