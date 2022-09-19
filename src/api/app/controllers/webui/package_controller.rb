@@ -200,10 +200,6 @@ class Webui::PackageController < Webui::WebuiController
                                                      architecture_name: @architecture.name,
                                                      package_name: @package_name,
                                                      filename: @filename)
-
-    logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
-    # FIXME: this little trick to give users eager to download binaries a single click should die...
-    redirect_to(@download_url) && return if request.format != Mime[:html] && @download_url
   end
 
   # FIXME: This is Webui::Packages::BinariesController#index
