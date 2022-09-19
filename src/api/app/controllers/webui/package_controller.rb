@@ -4,6 +4,13 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include BuildLogSupport
 
+  # TODO: Keep in sync with Build::query in backend/build/Build.pm.
+  #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
+  QUERYABLE_BUILD_RESULTS = [Regexp.new('\.rpm$'),
+                             Regexp.new('\.deb$'),
+                             Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
+                             Regexp.new('\.arch$')].freeze
+
   before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
@@ -221,7 +228,7 @@ class Webui::PackageController < Webui::WebuiController
                                                           filename: binary['filename'])
           build_results_set[:binaries] << { filename: binary['filename'],
                                             size: binary['size'],
-                                            links: { details?: binary['filename'] != 'rpmlint.log',
+                                            links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
                                                      download_url: download_url,
                                                      cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
         end
