@@ -26,6 +26,7 @@ package BSHandoff;
 use Socket::MsgHdr;
 use Socket;
 use BSRPC;
+use BSUtil;
 use BSServer;
 
 sub handoffsender {
@@ -59,12 +60,16 @@ sub handoff {
   my ($path, @args) = @_;
   my $req = $BSServer::request;
   my $conf = $req->{'conf'};
+  my $proto = $conf->{'proto'} || 'http';
   $path = { 'uri' => $path } unless ref $path;
   my $sockpath = $path->{'handoffpath'} || $conf->{'handoffpath'};
   die("no handoff path set\n") unless $sockpath;
   my $sock;
   socket($sock, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
   connect($sock, sockaddr_un($sockpath)) || die("connect: $!\n");
+  if ($proto eq 'https') {
+    exit(0) if BSUtil::xfork();
+  }
   my $param = {
     'uri' => $path->{'uri'},
     'socket' => $sock,
@@ -78,6 +83,11 @@ sub handoff {
     push @headers, "X-Peer: $req->{'headers'}->{'peer'}";
   }
   $param->{'headers'} = \@headers if @headers;
+  if ($proto eq 'https') {
+    $param->{'ignorestatus'} = 1;
+    $param->{'receiver'} = \&BSServer::reply_receiver;
+    $param->{'nullhandoff'} = 1;
+  }
   my $r = BSRPC::rpc($param, @args);
   if (!$path->{'noexit'}) {
     BSServer::log_slow_requests($conf, $req);
