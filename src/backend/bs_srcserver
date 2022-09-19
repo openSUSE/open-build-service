@@ -5866,7 +5866,7 @@ sub published_path {
       $p = $bin;
     } elsif ($bin =~ /\.pkg\.tar(?:\.gz|\.xz|\.zst)$/) {
       $p = ($cgi->{'arch'} eq 'i586' ? 'i686' : $cgi->{'arch'})."/$bin";
-    } elsif ($bin =~ /\.iso(?:\.report)$/) {
+    } elsif ($bin =~ /\.iso(\.report)?$/) {
       $p = "iso/$bin";
     } elsif ($bin =~ /-Media\d+$/) {
       $medium = $bin;
