@@ -11,11 +11,13 @@ class WatchedItemsListComponent < ApplicationComponent
     'BsRequest' => 'There are no requests in the watchlist yet.'
   }.freeze
 
-  def initialize(items:, class_name:)
+  def initialize(items:, class_name:, current_object:)
     super
 
     @items = items
     @class_name = class_name
+    @current_object = current_object
+    @current_object_class_name = @current_object.class.name
   end
 
   private
@@ -26,5 +28,17 @@ class WatchedItemsListComponent < ApplicationComponent
 
   def empty_list_text
     EMPTY_LIST_TEXTS[@class_name]
+  end
+
+  def current_object_params
+    object_type = @current_object.class.name
+    case object_type
+    when 'Project'
+      { type: object_type, name: @current_object.name }
+    when 'Package'
+      { type: object_type, package_name: @current_object.name, project_name: @current_object.project_name }
+    when 'BsRequest'
+      { type: object_type, number: @current_object.number }
+    end
   end
 end
