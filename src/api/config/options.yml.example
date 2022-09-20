@@ -20,6 +20,7 @@ default: &default
   # NOTE: the source_port setting is ignored and hardcoded for "test" and "development" env
   source_port: 5352
   #source_protocol: https
+  #source_protocol_ssl_verification: false
 
   # api access to this instance
   frontend_host: localhost
