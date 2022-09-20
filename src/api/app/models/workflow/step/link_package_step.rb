@@ -5,22 +5,21 @@ class Workflow::Step::LinkPackageStep < ::Workflow::Step
 
   validate :validate_source_project_and_package_name
 
-  def call(options = {})
+  def call
     return unless valid?
 
-    workflow_filters = options.fetch(:workflow_filters, {})
-    link_package(workflow_filters)
+    link_package
   end
 
   private
 
-  def link_package(workflow_filters = {})
+  def link_package
     create_target_package if webhook_event_for_linking_or_branching?
 
     scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
 
     # SCMs don't support statuses for tags, so we don't need to report back in this case
-    create_or_update_subscriptions(target_package, workflow_filters) unless scm_webhook.tag_push_event?
+    create_or_update_subscriptions(target_package) unless scm_webhook.tag_push_event?
 
     target_package
   end

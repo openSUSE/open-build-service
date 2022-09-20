@@ -40,9 +40,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                        commit_sha: '123'
                      })
     end
-    let(:workflow_filters) do
-      { architectures: { only: ['x86_64', 'ppc'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
-    end
 
     subject do
       described_class.new(step_instructions: step_instructions,
@@ -80,7 +77,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
       context 'and we have all the required keys in the step instructions' do
         before do
-          subject.call({ workflow_filters: workflow_filters })
+          subject.call
         end
 
         let(:configured_repositories) { target_project.reload.repositories }
@@ -127,11 +124,11 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         it { expect(subject).not_to be_valid }
 
         it 'does not create any repository' do
-          expect { subject.call({}) }.not_to change(Repository, :count)
+          expect { subject.call }.not_to change(Repository, :count)
         end
 
         it 'does not create any architecture' do
-          expect { subject.call({}) }.not_to change(Architecture, :count)
+          expect { subject.call }.not_to change(Architecture, :count)
         end
 
         it "a validation fails complaining about the missing 'project' key" do

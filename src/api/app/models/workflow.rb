@@ -10,7 +10,7 @@ class Workflow
     set_flags: Workflow::Step::SetFlags, trigger_services: Workflow::Step::TriggerServices
   }.freeze
 
-  SUPPORTED_FILTERS = [:architectures, :branches, :event, :repositories].freeze
+  SUPPORTED_FILTERS = [:branches, :event].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
 
@@ -44,7 +44,7 @@ class Workflow
 
   # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
   def call_step_and_collect_artifacts(step)
-    step.call({ workflow_filters: filters }) && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
+    step.call && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
   end
 
   def steps
@@ -137,7 +137,7 @@ class Workflow
     target_packages = processable_steps.map(&:target_package).uniq.compact
     target_packages.each do |target_package|
       # FIXME: We shouldn't rely on a workflow step to be able to create/update subscriptions
-      processable_steps.first.create_or_update_subscriptions(target_package, filters)
+      processable_steps.first.create_or_update_subscriptions(target_package)
     end
   end
 end

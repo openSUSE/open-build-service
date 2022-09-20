@@ -273,7 +273,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
             end
             let(:update_payload) do
               { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github',
-                'source_repository_full_name' => 'reponame', 'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
+                'source_repository_full_name' => 'reponame', 'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do
@@ -396,9 +396,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
             target_project: target_project_name
           }
         end
-        let(:workflow_filters) do
-          { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
-        end
+
         let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
 
         before do
@@ -487,7 +485,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
             end
             let(:update_payload) do
               { 'action' => 'update', 'commit_sha' => '456', 'event' => 'Merge Request Hook', 'pr_number' => 1, 'scm' => 'gitlab',
-                'source_repository_full_name' => 'reponame', 'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
+                'source_repository_full_name' => 'reponame', 'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:commit_sha) { '456' }
             let(:existing_branch_request_file) do

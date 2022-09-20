@@ -69,10 +69,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
       }
     end
 
-    let(:workflow_filters) do
-      { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
-    end
-
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq(target_project_final_name) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
@@ -212,9 +208,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
             target_project: target_project_name
           }
         end
-        let(:workflow_filters) do
-          { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
-        end
 
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
@@ -243,7 +236,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
             let(:update_payload) do
               { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
                 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-                'target_repository_full_name' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
+                'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:existing_branch_request_file) do
               {
@@ -361,9 +354,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
             target_project: target_project_name
           }
         end
-        let(:workflow_filters) do
-          { architectures: { only: ['x86_64', 'i586'] }, repositories: { ignore: ['openSUSE_Tumbleweed'] } }
-        end
         let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
 
         before do
@@ -452,7 +442,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
             let(:update_payload) do
               { 'action' => 'update', 'commit_sha' => long_commit_sha, 'event' => 'Merge Request Hook',
                 'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'path_with_namespace' => 'openSUSE/open-build-service', 'workflow_filters' => {} }
+                'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:existing_branch_request_file) do
               { object_kind: 'update',

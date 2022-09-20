@@ -6,7 +6,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
 
   validate :validate_project_and_package_name
 
-  def call(_options = {})
+  def call
     @project_name = step_instructions[:project]
     @package_name = step_instructions[:package]
 

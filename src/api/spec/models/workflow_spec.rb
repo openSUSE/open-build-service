@@ -451,16 +451,15 @@ RSpec.describe Workflow, type: :model, vcr: true do
       let(:yaml) do
         {
           'filters' => {
-            'architectures' => { 'only' => ['s390x', 12.3, 567], 'ignore' => ['i586'] },
             'event' => 'push',
-            'repositories' => { 'only' => ['openSUSE_Tumbleweed', 'openSUSE_Leap_15.3'], 'ignore' => ['openSUSE_Leap_15.1'] }
+            'branches' => { 'only' => ['master', 'staging'] }
           }
         }
       end
 
       it 'returns filters' do
-        expect(subject.filters).to eq({ architectures: { ignore: ['i586'], only: ['s390x', 12.3, 567] }, event: 'push',
-                                        repositories: { ignore: ['openSUSE_Leap_15.1'], only: ['openSUSE_Tumbleweed', 'openSUSE_Leap_15.3'] } })
+        expect(subject.filters).to eq({ event: 'push',
+                                        branches: { only: ['master', 'staging'] } })
       end
     end
 

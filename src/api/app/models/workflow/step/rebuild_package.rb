@@ -7,7 +7,7 @@ class Workflow::Step::RebuildPackage < ::Workflow::Step
 
   validate :validate_project_and_package_name
 
-  def call(_options = {})
+  def call
     return unless valid?
 
     # Call Triggerable method to set all the elements needed for rebuilding

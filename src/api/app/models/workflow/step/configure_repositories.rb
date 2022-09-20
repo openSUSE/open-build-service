@@ -8,7 +8,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_architectures
   validate :validate_project_name
 
-  def call(_options = {})
+  def call
     return unless valid?
 
     target_project = Project.get_by_name(target_project_name)

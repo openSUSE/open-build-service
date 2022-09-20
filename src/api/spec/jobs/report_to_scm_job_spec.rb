@@ -110,44 +110,5 @@ RSpec.describe ReportToScmJob, vcr: false do
         subject
       end
     end
-
-    context 'when the event subscription payload contains filters' do
-      let(:event_subscription) do
-        EventSubscription.create(token: token,
-                                 user: user,
-                                 package: package,
-                                 receiver_role: 'reader',
-                                 payload: { scm: 'github', workflow_filters: workflow_filters },
-                                 eventtype: 'Event::BuildSuccess',
-                                 channel: :scm)
-      end
-
-      before do
-        event
-        event_subscription
-      end
-
-      context 'matching architectures and repositories of the event' do
-        let(:workflow_filters) do
-          { repositories: { only: ['openSUSE_Tumbleweed'] }, architectures: { ignore: ['x86_64'] } }
-        end
-
-        let(:event) { Event::BuildSuccess.create(project: project.name, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64', reason: 'foo') }
-
-        it_behaves_like 'the job performed'
-        it_behaves_like 'not reporting to the SCM'
-      end
-
-      context 'not matching architectures and repositories' do
-        let(:workflow_filters) do
-          { repositories: { ignore: ['Unicorn_123', 'CentOS'] }, architectures: { ignore: ['ppc', 'aarch64'] } }
-        end
-
-        let(:event) { Event::BuildSuccess.create(project: project.name, package: package.name, repository: 'openSUSE_Tumbleweed', arch: 'x86_64', reason: 'foo') }
-
-        it_behaves_like 'the job performed'
-        it_behaves_like 'reports to the SCM'
-      end
-    end
   end
 end
