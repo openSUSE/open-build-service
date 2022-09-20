@@ -35,6 +35,11 @@
 	</attribute>
       </optional>
       <optional>
+	<attribute name="created">
+          <data type="string" />
+	</attribute>
+      </optional>
+      <optional>
 	<attribute name="superseded_by">
           <data type="integer" />
 	</attribute>

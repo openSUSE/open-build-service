@@ -202,6 +202,7 @@ class BsRequest < ApplicationRecord
         end
       end
 
+      state.delete('created')
       str = state.delete('when')
       request.updated_when = Time.zone.parse(str) if str
       str = state.delete('superseded_by') || ''
@@ -381,7 +382,7 @@ class BsRequest < ApplicationRecord
       r.priority(priority) unless priority == 'moderate'
 
       # state element
-      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S') }
+      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'), created: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
       attributes[:superseded_by] = superseded_by if superseded_by
       attributes[:approver] = approver if approver
       r.state(attributes) do |s|

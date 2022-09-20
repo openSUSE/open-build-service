@@ -97,7 +97,10 @@ class BsRequestTest < ActiveSupport::TestCase
       </request>
     XML
     req = BsRequest.new_from_xml(xml)
-    req.save!
+    new_time = Time.zone.local(2012, 11, 7, 0, 0, 0)
+    Timecop.freeze(new_time) do
+      req.save!
+    end
     # number got increased by one
     assert_equal 1027, req.number
 
@@ -113,7 +116,7 @@ class BsRequestTest < ActiveSupport::TestCase
           <acceptinfo rev="1" srcmd5="806a6e27ed7915d1bb8d8a989404fd5a" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
         </action>
         <priority>critical</priority>
-        <state name="review" who="Iggy" when="2012-11-07T21:13:12">
+        <state name="review" who="Iggy" when="2012-11-07T21:13:12" created="2012-11-07T00:00:00">
           <comment>No comment</comment>
         </state>
         <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>

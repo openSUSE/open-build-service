@@ -322,7 +322,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105', 'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
                    },
                    'priority' => 'low',
-                   'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
+                   'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'created' => '2010-07-12T00:00:00', 'comment' => 'approved' },
                    'history' => [
                      { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00', 'description' => 'Request created', 'comment' => 'DESCRIPTION IS HERE' },
                      { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01', 'description' => 'Request got a new priority: critical => low', 'comment' => 'dontcare' },
@@ -1091,6 +1091,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      'name' => 'review',
                      'who' => 'tom',
                      'when' => '2010-07-12T00:00:05',
+                     'created' => '2010-07-12T00:00:00',
                      'comment' => 'reopen2'
                    },
                    'review' => [{
@@ -3527,6 +3528,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                 { 'name' => 'declined',
                                   'who' => 'Iggy',
                                   'when' => '2010-07-12T00:00:01',
+                                  'created' => '2010-07-12T00:00:00',
                                   'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
                    'history' => [{ 'who' => 'Iggy',
                                    'when' => '2010-07-12T00:00:00',
@@ -3550,6 +3552,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    'state' => { 'name' => 'revoked',
                                 'who' => 'Iggy',
                                 'when' => '2010-07-12T00:00:02',
+                                'created' => '2010-07-12T00:00:00',
                                 'comment' => {} },
                    'history' =>
                                 [{ 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
