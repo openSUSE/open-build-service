@@ -23,18 +23,33 @@ class SCMStatusReporter
                                @state,
                                @workflow_run,
                                initial_report: @initial_report).call
-    else
+    elsif gitlab?
       GitlabStatusReporter.new(@event_payload,
                                @event_subscription_payload,
                                @scm_token,
                                @state,
                                @workflow_run,
                                initial_report: @initial_report).call
+    elsif gitea?
+      GiteaStatusReporter.new(@event_payload,
+                              @event_subscription_payload,
+                              @scm_token,
+                              @state,
+                              @workflow_run,
+                              initial_report: @initial_report).call
     end
   end
 
   def github?
     @event_subscription_payload[:scm] == 'github'
+  end
+
+  def gitlab?
+    @event_subscription_payload[:scm] == 'gitlab'
+  end
+
+  def gitea?
+    @event_subscription_payload[:scm] == 'gitea'
   end
 
   private
