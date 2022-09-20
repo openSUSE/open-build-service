@@ -5,11 +5,12 @@ class WatchlistComponent < ApplicationComponent
     'BsRequest' => 'request'
   }.freeze
 
-  def initialize(user:, bs_request: nil, package: nil, project: nil)
+  def initialize(user:, current_object:, bs_request: nil, package: nil, project: nil)
     super
 
     @user = user
     @object_to_be_watched = object_to_be_watched(bs_request, package, project)
+    @current_object = current_object
   end
 
   private
@@ -33,21 +34,21 @@ class WatchlistComponent < ApplicationComponent
   end
 
   def object_to_be_watched_in_watchlist?
-    @user.watched_items.exists?(watchable: @object_to_be_watched)
+    @user.watched_items.exists?(watchable: @current_object)
   end
 
   def watchable_type_text
-    WATCHABLE_TYPE_TEXT[@object_to_be_watched.class.name]
+    WATCHABLE_TYPE_TEXT[@current_object.class.name]
   end
 
   def toggle_watchable_path
-    case @object_to_be_watched
+    case @current_object
     when Package
-      project_package_toggle_watched_item_path(project_name: @object_to_be_watched.project.name, package_name: @object_to_be_watched.name)
+      project_package_toggle_watched_item_path(project_name: @current_object.project.name, package_name: @current_object.name)
     when Project
-      project_toggle_watched_item_path(project_name: @object_to_be_watched.name)
+      project_toggle_watched_item_path(project_name: @current_object.name)
     when BsRequest
-      toggle_watched_item_request_path(number: @object_to_be_watched.number)
+      toggle_watched_item_request_path(number: @current_object.number)
     end
   end
 

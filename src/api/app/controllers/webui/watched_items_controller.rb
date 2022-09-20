@@ -2,6 +2,7 @@ class Webui::WatchedItemsController < Webui::WebuiController
   before_action :require_login
   before_action :check_user_belongs_feature_flag
   before_action :set_watchable
+  before_action :set_current_object
 
   FLASH_PER_WATCHABLE_TYPE = {
     Package => 'package',
@@ -36,6 +37,22 @@ class Webui::WatchedItemsController < Webui::WebuiController
     end
 
     @watchable = @package || @project || @bs_request
+  end
+
+  def set_current_object
+    params[:current_object] ||= {}
+    object_type = params[:current_object][:type]
+    @current_object = case object_type
+                      when 'BsRequest'
+                        BsRequest.find_by(number: params[:current_object][:number])
+                      when 'Project'
+                        Project.get_by_name(params[:current_object][:name])
+                      when 'Package'
+                        current_object = params[:current_object]
+                        Package.get_by_project_and_name(current_object[:project_name], current_object[:package_name])
+                      end
+
+    @current_object = @watchable if @current_object.nil?
   end
 
   def check_user_belongs_feature_flag

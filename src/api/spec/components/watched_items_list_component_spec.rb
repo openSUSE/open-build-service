@@ -2,11 +2,12 @@ require 'rails_helper'
 
 RSpec.describe WatchedItemsListComponent, type: :component do
   let(:user) { create(:confirmed_user) }
+  let(:current_object) { create(:package) }
 
   context 'when dealing with packages' do
     context 'and the user is not watching packages' do
       before do
-        render_inline(described_class.new(items: [], class_name: 'Package'))
+        render_inline(described_class.new(items: [], class_name: 'Package', current_object: current_object))
       end
 
       it 'does not show any watched package in the list' do
@@ -19,7 +20,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       let(:packages) { create_list(:package, 2) }
 
       before do
-        render_inline(described_class.new(items: packages, class_name: 'Package'))
+        render_inline(described_class.new(items: packages, class_name: 'Package', current_object: current_object))
       end
 
       it 'does show the watched package in the list' do
@@ -32,7 +33,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
   context 'when dealing with projects' do
     context 'and the user is not watching projects' do
       before do
-        render_inline(described_class.new(items: [], class_name: 'Project'))
+        render_inline(described_class.new(items: [], class_name: 'Project', current_object: current_object))
       end
 
       it 'does not show any watched project in the list' do
@@ -45,7 +46,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       let(:projects) { create_list(:project, 2) }
 
       before do
-        render_inline(described_class.new(items: projects, class_name: 'Project'))
+        render_inline(described_class.new(items: projects, class_name: 'Project', current_object: current_object))
       end
 
       it 'does show the watched project in the list' do
@@ -58,7 +59,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
   context 'when dealing with requests' do
     context 'and the user is not watching requests' do
       before do
-        render_inline(described_class.new(items: [], class_name: 'BsRequest'))
+        render_inline(described_class.new(items: [], class_name: 'BsRequest', current_object: current_object))
       end
 
       it 'does not show any watched request in the list' do
@@ -71,7 +72,7 @@ RSpec.describe WatchedItemsListComponent, type: :component do
       let(:requests) { create_list(:bs_request_with_submit_action, 2) }
 
       before do
-        render_inline(described_class.new(items: requests, class_name: 'BsRequest'))
+        render_inline(described_class.new(items: requests, class_name: 'BsRequest', current_object: current_object))
       end
 
       it 'does show the watched request in the list' do
