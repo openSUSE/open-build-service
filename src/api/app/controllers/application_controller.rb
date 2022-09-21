@@ -252,7 +252,7 @@ class ApplicationController < ActionController::Base
       format.xml { render template: 'status', status: @status }
       format.json { render json: { errorcode: @errorcode, summary: @summary }, status: @status }
       format.html do
-        flash[:error] = "#{@errorcode}(#{@summary}): #{@message}" unless request.env['HTTP_REFERER']
+        flash[:error] = "#{@summary} (#{@errorcode})" unless request.env['HTTP_REFERER']
         redirect_back(fallback_location: root_path)
       end
     end

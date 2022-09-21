@@ -18,7 +18,7 @@ RSpec.describe SourceController, vcr: true do
   describe 'POST #global_command_branch' do
     it 'is not accessible anonymously' do
       post :global_command_branch, params: { cmd: 'branch' }
-      expect(flash[:error]).to eq('anonymous_user(Anonymous user is not allowed here - please login): ')
+      expect(flash[:error]).to eq('Anonymous user is not allowed here - please login (anonymous_user)')
       expect(response).to redirect_to(root_path)
     end
   end
@@ -26,7 +26,7 @@ RSpec.describe SourceController, vcr: true do
   describe 'POST #global_command_createmaintenanceincident' do
     it 'is not accessible anonymously' do
       post :global_command_createmaintenanceincident, params: { cmd: 'createmaintenanceincident' }
-      expect(flash[:error]).to eq('anonymous_user(Anonymous user is not allowed here - please login): ')
+      expect(flash[:error]).to eq('Anonymous user is not allowed here - please login (anonymous_user)')
       expect(response).to redirect_to(root_path)
     end
   end
@@ -50,7 +50,7 @@ RSpec.describe SourceController, vcr: true do
         }
       end
 
-      it { expect(flash[:error]).to eq("invalid_package_name(invalid package name '#{multibuild_package.name}:one'): ") }
+      it { expect(flash[:error]).to eq("invalid package name '#{multibuild_package.name}:one' (invalid_package_name)") }
       it { expect(response.status).to eq(302) }
     end
   end

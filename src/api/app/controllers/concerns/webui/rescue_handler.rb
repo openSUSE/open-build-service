@@ -1,3 +1,5 @@
+# NOTE: There is also ApplicationController.render_error which will handle APIError
+# exceptions that will happen while requesting HTML from the API
 module Webui::RescueHandler
   extend ActiveSupport::Concern
 
