@@ -25,7 +25,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       context 'and pull_request event' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'pull_request',
                            pr_number: 1,
@@ -56,7 +56,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       context 'and push for commit event' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
                            target_branch: 'main',
@@ -87,7 +87,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       context 'and push for tag event' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
                            target_branch: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
@@ -135,7 +135,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       context 'and pull_request event' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'pull_request',
                            pr_number: 1,
@@ -166,7 +166,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       context 'and push for commit event' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
                            target_branch: 'main',
@@ -197,7 +197,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       context 'and push for tag event' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
                            target_branch: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
@@ -243,7 +243,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          pr_number: 1,
@@ -280,7 +280,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          pr_number: 1,
@@ -342,7 +342,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          pr_number: 1,

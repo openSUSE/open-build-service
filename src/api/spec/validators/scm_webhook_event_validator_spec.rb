@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe ScmWebhookEventValidator do
+RSpec.describe SCMWebhookEventValidator do
   let(:fake_model) do
     Struct.new(:payload) do
       include ActiveModel::Validations
 
-      validates_with ScmWebhookEventValidator
+      validates_with SCMWebhookEventValidator
     end
   end
 

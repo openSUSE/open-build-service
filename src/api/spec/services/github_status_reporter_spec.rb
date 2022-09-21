@@ -67,7 +67,7 @@ RSpec.describe GithubStatusReporter, type: :service do
         end
 
         it { expect { subject }.to change(EventSubscription, :count).by(-1) }
-        it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
+        it { expect { subject }.to change(SCMStatusReport, :count).by(1) }
 
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
           subject
@@ -82,7 +82,7 @@ RSpec.describe GithubStatusReporter, type: :service do
           allow(octokit_client).to receive(:create_status).and_raise(Octokit::AccountSuspended)
         end
 
-        it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
+        it { expect { subject }.to change(SCMStatusReport, :count).by(1) }
 
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
           subject
@@ -97,7 +97,7 @@ RSpec.describe GithubStatusReporter, type: :service do
           allow(octokit_client).to receive(:create_status).and_raise(Faraday::ConnectionFailed.new('Network glitch'))
         end
 
-        it { expect { subject }.to change(ScmStatusReport, :count).by(1) }
+        it { expect { subject }.to change(SCMStatusReport, :count).by(1) }
 
         it 'tracks the exception in the workflow_run response body and sets the status to fail' do
           subject

@@ -9,7 +9,7 @@ RSpec.describe Workflow::Step::TriggerServices do
   let(:step_instructions) { { package: package.name, project: project.name } }
 
   let(:scm_webhook) do
-    ScmWebhook.new(payload: {
+    SCMWebhook.new(payload: {
                      scm: 'github',
                      event: 'pull_request',
                      action: 'opened',

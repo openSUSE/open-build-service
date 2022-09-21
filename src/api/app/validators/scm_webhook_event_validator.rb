@@ -1,4 +1,4 @@
-class ScmWebhookEventValidator < ActiveModel::Validator
+class SCMWebhookEventValidator < ActiveModel::Validator
   ALLOWED_GITHUB_EVENTS = ['pull_request', 'push'].freeze
   ALLOWED_GITLAB_EVENTS = ['Merge Request Hook', 'Push Hook', 'Tag Push Hook'].freeze
 
@@ -19,7 +19,7 @@ class ScmWebhookEventValidator < ActiveModel::Validator
 
     case @record.payload[:event]
     when 'pull_request'
-      return true if ScmWebhook::ALLOWED_PULL_REQUEST_ACTIONS.include?(@record.payload[:action])
+      return true if SCMWebhook::ALLOWED_PULL_REQUEST_ACTIONS.include?(@record.payload[:action])
 
       @record.errors.add(:base, 'Pull request action not supported.')
     when 'push'
@@ -35,7 +35,7 @@ class ScmWebhookEventValidator < ActiveModel::Validator
 
     case @record.payload[:event]
     when 'Merge Request Hook'
-      return true if ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(@record.payload[:action])
+      return true if SCMWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(@record.payload[:action])
 
       @record.errors.add(:base, 'Merge request action not supported.')
     when 'Push Hook', 'Tag Push Hook'

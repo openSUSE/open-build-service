@@ -5,7 +5,7 @@ RSpec.describe WorkflowRunRequestActionFilterComponent, type: :component do
 
   it 'shows correct filter options' do
     render_inline(described_class.new(token_id: workflow_token.id))
-    filters = ['all'] + ScmWebhook::ALLOWED_PULL_REQUEST_ACTIONS + ScmWebhook::ALLOWED_MERGE_REQUEST_ACTIONS
+    filters = ['all'] + SCMWebhook::ALLOWED_PULL_REQUEST_ACTIONS + SCMWebhook::ALLOWED_MERGE_REQUEST_ACTIONS
 
     filters.each do |filter|
       expect(rendered_content).to have_text(filter)

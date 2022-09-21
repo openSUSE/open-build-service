@@ -159,7 +159,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
     context 'when the SCM is GitHub' do
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          action: action,
@@ -261,7 +261,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
       context 'with a push event for a commit' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
                            target_branch: 'main',
@@ -293,7 +293,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
       context 'with a push event for a tag' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'github',
                            event: 'push',
                            target_branch: '123456789012345',
@@ -392,7 +392,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
     context 'when the SCM is GitLab' do
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'gitlab',
                          event: 'Merge Request Hook',
                          action: action,
@@ -461,7 +461,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
       context 'with a push event for a commit' do
         let(:scm_webhook) do
-          ScmWebhook.new(payload: {
+          SCMWebhook.new(payload: {
                            scm: 'gitlab',
                            event: 'Push Hook',
                            target_branch: 'main',
@@ -496,7 +496,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:scm_webhook) do
-      ScmWebhook.new(payload: {
+      SCMWebhook.new(payload: {
                        scm: 'github',
                        event: 'pull_request',
                        action: 'opened',

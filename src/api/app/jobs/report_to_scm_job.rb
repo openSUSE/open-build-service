@@ -1,5 +1,4 @@
-# We don't properly capitalize SCM in the class name since CreateJob is doing `CLASS_NAME.to_s.camelize.safe_constantize`
-class ReportToScmJob < CreateJob
+class ReportToSCMJob < CreateJob
   ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess'].freeze
 
   queue_as :scm

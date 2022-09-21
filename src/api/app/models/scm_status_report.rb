@@ -6,7 +6,7 @@
 #
 # The details of the request and the response will be shown in the
 # Reports to the SCM tab in Workflow Runs show page.
-class ScmStatusReport < ApplicationRecord
+class SCMStatusReport < ApplicationRecord
   belongs_to :workflow_run
 
   enum status: {

@@ -32,7 +32,7 @@ RSpec.describe Workflow::Step::SetFlags do
       let(:token) { create(:workflow_token, executor: another_user) }
       let!(:project) { create(:project, name: 'home:Iggy') }
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          action: 'opened',
@@ -57,7 +57,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
     context 'when user have the permissions and the project is valid' do
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          action: 'opened',
@@ -108,7 +108,7 @@ RSpec.describe Workflow::Step::SetFlags do
     context 'when user have the permission and the package is valid' do
       let!(:target_package) { create(:package, commit_user: user, project: user.home_project, name: 'ctris-0087aa5c0549a6cc0b4c1bb324d2fa8dc665e063') }
       let(:payload) { { scm: 'gitlab', event: 'Push Hook', commit_sha: '0087aa5c0549a6cc0b4c1bb324d2fa8dc665e063' } }
-      let(:scm_webhook) { ScmWebhook.new(payload: payload) }
+      let(:scm_webhook) { SCMWebhook.new(payload: payload) }
       let(:step_instructions) do
         {
           flags:
@@ -137,7 +137,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
     context 'when there is a duplicate flag' do
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          action: 'opened',
@@ -177,7 +177,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
   describe '#validate_flags' do
     let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
-    let(:scm_webhook) { ScmWebhook.new(payload: payload) }
+    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
 
     subject do
       described_class.new(step_instructions: step_instructions,

@@ -1,11 +1,11 @@
 # Contains the payload extracted from a SCM webhook and provides helper methods to know which webhook event we're dealing with
-class ScmWebhook
+class SCMWebhook
   include ActiveModel::Model
-  include ScmWebhookInstrumentation # for run_callbacks
+  include SCMWebhookInstrumentation # for run_callbacks
 
   attr_accessor :payload
 
-  validates_with ScmWebhookEventValidator
+  validates_with SCMWebhookEventValidator
 
   ALLOWED_PULL_REQUEST_ACTIONS = ['closed', 'opened', 'reopened', 'synchronize'].freeze
   ALLOWED_MERGE_REQUEST_ACTIONS = ['close', 'merge', 'open', 'reopen', 'update'].freeze

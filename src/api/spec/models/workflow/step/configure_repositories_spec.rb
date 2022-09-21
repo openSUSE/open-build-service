@@ -30,7 +30,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       }
     end
     let(:scm_webhook) do
-      ScmWebhook.new(payload: {
+      SCMWebhook.new(payload: {
                        scm: 'github',
                        event: 'pull_request',
                        action: 'opened',
@@ -51,7 +51,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
       let(:token) { create(:workflow_token, executor: another_user) }
       let(:scm_webhook) do
-        ScmWebhook.new(payload: {
+        SCMWebhook.new(payload: {
                          scm: 'github',
                          event: 'pull_request',
                          action: 'opened',
@@ -351,7 +351,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           ]
       }
     end
-    let(:scm_webhook) { ScmWebhook.new(payload: payload) }
+    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
 
     subject do
       described_class.new(step_instructions: step_instructions,
