@@ -55,10 +55,13 @@ class SCMStatusReporter
   private
 
   def scm_final_state(event_type)
-    if github?
-      GithubStatusReporter.scm_final_state(event_type)
+    case event_type
+    when 'Event::BuildFail'
+      'failure'
+    when 'Event::BuildSuccess'
+      'success'
     else
-      GitlabStatusReporter.scm_final_state(event_type)
+      'pending'
     end
   end
 end
