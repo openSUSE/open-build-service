@@ -50,6 +50,16 @@ RSpec.describe WorkflowFiltersValidator do
       end
     end
 
+    context 'with multiple filters' do
+      let(:workflow_instructions) { { filters: [{ event: 'push' }] } }
+
+      it 'is not valid and has an error message' do
+        subject.valid?
+        expect(subject.errors.full_messages.to_sentence).to eq('Filters definition is wrong and ' \
+                                                               "Documentation for filters: #{described_class::DOCUMENTATION_LINK}")
+      end
+    end
+
     context 'with supported filters and filter values' do
       let(:workflow_instructions) { { filters: { event: 'something', branches: { only: [] } } } }
 
