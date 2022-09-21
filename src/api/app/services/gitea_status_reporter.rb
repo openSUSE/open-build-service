@@ -14,10 +14,15 @@ class GiteaStatusReporter < SCMExceptionHandler
                                       sha: @event_subscription_payload[:commit_sha],
                                       state: @state, **status_options)
     @workflow_run.save_scm_report_success(request_context) if @workflow_run.present?
+  rescue Faraday::ConnectionFailed => e
+    @workflow_run.save_scm_report_failure("Failed to report back to Gitea: #{e.message}", request_context) if @workflow_run.present?
+  rescue GiteaAPI::V1::Client::GiteaApiError => e
+    rescue_with_handler(e) || raise(e)
   end
 
   private
 
+  # TODO: extract to a parent class
   def status_options
     if @initial_report
       { context: 'OBS SCM/CI Workflow Integration started',
