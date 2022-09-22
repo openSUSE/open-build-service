@@ -31,32 +31,47 @@ use Net::SSLeay;
 use strict;
 
 my $sslctx;
+my $ssleay_inited;
 
-sub initctx {
-  my (%opts) = @_;
+sub initssleay {
   Net::SSLeay::load_error_strings();
   Net::SSLeay::SSLeay_add_ssl_algorithms();
   Net::SSLeay::randomize();
-  $sslctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
-  Net::SSLeay::CTX_set_options($sslctx, &Net::SSLeay::OP_ALL);
+  $ssleay_inited = 1;
+}
+
+sub newctx {
+  my (%opts) = @_;
+  initssleay() unless $ssleay_inited;
+  my $ctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
+  Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
   if ($opts{'keyfile'}) {
-    Net::SSLeay::CTX_use_PrivateKey_file($sslctx, $opts{'keyfile'}, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $opts{'keyfile'} failed to load\n");
+    Net::SSLeay::CTX_use_PrivateKey_file($ctx, $opts{'keyfile'}, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $opts{'keyfile'} failed to load\n");
   }
   if ($opts{'certfile'}) {
     # CTX_use_certificate_chain_file expects PEM format anyway, client cert first, chain certs after that
-    Net::SSLeay::CTX_use_certificate_chain_file($sslctx, $opts{'certfile'}) || die("certificate $opts{'certfile'} failed\n");
+    Net::SSLeay::CTX_use_certificate_chain_file($ctx, $opts{'certfile'}) || die("certificate $opts{'certfile'} failed to load\n");
   }
   if (defined(&Net::SSLeay::CTX_set_tmp_ecdh) && Net::SSLeay::SSLeay() < 0x10100000) {
     my $curve = Net::SSLeay::OBJ_txt2nid('prime256v1');
     my $ecdh  = Net::SSLeay::EC_KEY_new_by_curve_name($curve);
-    Net::SSLeay::CTX_set_tmp_ecdh($sslctx, $ecdh);
+    Net::SSLeay::CTX_set_tmp_ecdh($ctx, $ecdh);
     Net::SSLeay::EC_KEY_free($ecdh);
   }
+  return $ctx;
 }
 
 sub freectx {
-  Net::SSLeay::CTX_free($sslctx);
-  undef $sslctx;
+  my ($ctx) = @_;
+  Net::SSLeay::CTX_free($ctx) if $ctx;
+  return undef;
+}
+
+sub setdefaultctx {
+  my ($ctx) = @_;
+  freectx($sslctx);
+  $sslctx = $ctx;
+  return $sslctx;
 }
 
 sub tossl {
@@ -67,8 +82,8 @@ sub tossl {
 sub TIEHANDLE {
   my ($self, $socket, %opts) = @_;
 
-  initctx() unless $sslctx;
-  my $ssl = Net::SSLeay::new($sslctx) or die("SSL_new failed\n");
+  my $ctx = $opts{'ctx'} || $sslctx || setdefaultctx(newctx());
+  my $ssl = Net::SSLeay::new($ctx) or die("SSL_new failed\n");
   Net::SSLeay::set_fd($ssl, fileno($socket));
   if ($opts{'keyfile'}) {
     Net::SSLeay::use_PrivateKey_file($ssl, $opts{'keyfile'}, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $opts{'keyfile'} failed to load\n");
