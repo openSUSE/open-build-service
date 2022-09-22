@@ -1389,6 +1389,7 @@ our $request = [
 	    'name',
 	    'who',
 	    'when',
+	    'created',
 	    'approver',
 	    'superseded_by', # set when state.name is "superseded"
 	    [],
