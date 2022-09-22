@@ -1972,6 +1972,7 @@ sub getproject {
 
 sub updatesslcert {
   my ($projid, $pubkeyfile, $signkeyfile) = @_;
+  return undef if $BSConfig::disable_sslcert_cache && $BSConfig::disable_sslcert_cache->{$projid};
   my $rev = BSRevision::getrev_meta($projid, undef);
   return undef unless $rev;
   my $files = BSRevision::lsrev($rev);
@@ -2024,7 +2025,7 @@ sub recreatesslcert {
   die("project does not have a key\n") unless -s "$projectsdir/$projid.pkg/_pubkey";
   die("project does not have a signkey\n") unless -s "$projectsdir/$projid.pkg/_signkey";
   my $certfile = updatesslcert($projid, "$projectsdir/$projid.pkg/_pubkey", "$projectsdir/$projid.pkg/_signkey");
-  die("could not update cert\n") unless $certfile;
+  die("could not update cert\n") unless $certfile || ($BSConfig::disable_sslcert_cache && $BSConfig::disable_sslcert_cache->{$projid});
   BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ $certfile, undef, '_sslcert' ]);
   return $BSStdServer::return_ok;
