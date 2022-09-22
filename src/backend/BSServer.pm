@@ -306,7 +306,7 @@ sub server {
     die("need ssl_keyfile and ssl_certfile for https\n") unless $conf->{'ssl_keyfile'} && $conf->{'ssl_certfile'};
     require BSSSL;
     $tossl = \&BSSSL::tossl;
-    BSSSL::initctx($conf->{'ssl_keyfile'}, $conf->{'ssl_certfile'});
+    BSSSL::initctx('keyfile' => $conf->{'ssl_keyfile'}, 'certfile' => $conf->{'ssl_certfile'});
   }
   
   if ($conf->{'serverstatus'} && !$serverstatus_ok) {
@@ -449,7 +449,7 @@ sub server {
     reply_error($conf, $@) if $@;
   }
 
-  $tossl->($clnt, 0, 0, 0) if $tossl;
+  $tossl->($clnt, 'mode' => 'accept') if $tossl;
 
   if (!$conf->{'dispatch'}) {
     # the old way... please use a dispatch function in new code
