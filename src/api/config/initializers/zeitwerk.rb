@@ -10,7 +10,6 @@ Rails.autoloaders.each do |autoloader|
     'remote_url' => 'RemoteURL',
     'report_to_scm_job' => 'ReportToSCMJob',
     'rss_channel' => 'RSSChannel',
-    'url_generator' => 'URLGenerator',
     'scm_status_report' => 'SCMStatusReport',
     'scm_status_reporter' => 'SCMStatusReporter',
     'scm_exception_handler' => 'SCMExceptionHandler',

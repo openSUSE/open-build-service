@@ -273,13 +273,6 @@ class Repository < ApplicationRecord
     url + '/' + file if file.present?
   end
 
-  def download_url_for_file(package_name, architecture, filename)
-    Rails.cache.fetch("download_url_for_file_#{project.name}##{name}##{package_name}##{architecture}##{filename}") do
-      xml = Xmlhash.parse(Backend::Api::BuildResults::Binaries.download_url_for_file(project.name, name, package_name, architecture, filename))
-      xml.elements('url').last.to_s
-    end
-  end
-
   def is_dod_repository?
     download_repositories.any?
   end

@@ -214,9 +214,6 @@ function adjust_api_config {
       sed -i 's,^frontend_host: .*,frontend_host: "localhost",' $api_options_yml
       sed -i 's,^frontend_port: .*,frontend_port: 443,' $api_options_yml
       sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' $api_options_yml
-      sed -i 's,^external_frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' $api_options_yml
-      sed -i 's,^external_frontend_port: .*,frontend_port: 443,' $api_options_yml
-      sed -i 's,^external_frontend_protocol: .*,frontend_protocol: "'"https"'",' $api_options_yml
 
 }
 ###############################################################################
