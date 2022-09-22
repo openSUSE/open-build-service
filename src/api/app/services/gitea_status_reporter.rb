@@ -13,11 +13,16 @@ class GiteaStatusReporter < SCMExceptionHandler
     gitea_client.create_commit_status(owner: owner, repo: repository_name,
                                       sha: @event_subscription_payload[:commit_sha],
                                       state: @state, **status_options)
-    @workflow_run.save_scm_report_success(request_context) if @workflow_run.present?
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_success(request_context)
+      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
+    end
   rescue Faraday::ConnectionFailed => e
     @workflow_run.save_scm_report_failure("Failed to report back to Gitea: #{e.message}", request_context) if @workflow_run.present?
   rescue GiteaAPI::V1::Client::GiteaApiError => e
     rescue_with_handler(e) || raise(e)
+  ensure
+    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
   end
 
   private
