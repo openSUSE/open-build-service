@@ -59,7 +59,7 @@ sub connect {
   connect($sock, $hostaddr) || die("connect to $self->{'server'}:$self->{'port'}: $!\n");
   if ($self->{'tls'}) {
     die("tls not supported\n") unless $self->{'tossl'} || $tossl;
-    ($self->{'tossl'} || $tossl)->($sock, $self->{'ssl_keyfile'}, $self->{'certfile'}, 1, $self->{'server'});
+    ($self->{'tossl'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $self->{'ssl_keyfile'}, 'certfile' => $self->{'certfile'}, 'sni' => $self->{'server'});
     BSRPC::verify_sslpeerfingerprint($sock, $self->{'sslpeerfingerprint'}) if $self->{'sslpeerfingerprint'};
   }
   $self->{'sock'} = $sock;
