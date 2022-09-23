@@ -24,7 +24,7 @@ class Workflow::Step
 
     return nil unless scm_webhook.pull_request_event?
 
-    pr_subproject_name = if scm_webhook.payload[:scm] == 'github'
+    pr_subproject_name = if ['github', 'gitea'].include?(scm_webhook.payload[:scm])
                            scm_webhook.payload[:target_repository_full_name]&.tr('/', ':')
                          else
                            scm_webhook.payload[:path_with_namespace]&.tr('/', ':')
@@ -109,6 +109,8 @@ class Workflow::Step
                             branch_request_content_github
                           when 'gitlab'
                             branch_request_content_gitlab
+                          when 'gitea'
+                            branch_request_content_gitea
                           end
 
     package.save_file({ file: branch_request_file, filename: '_branch_request' })
@@ -131,6 +133,12 @@ class Workflow::Step
 
   def branch_request_content_gitlab
     { object_kind: scm_webhook.payload[:object_kind],
+      project: { http_url: scm_webhook.payload[:http_url] },
+      object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
+  end
+
+  def branch_request_content_gitea
+    { object_kind: 'merge_request',
       project: { http_url: scm_webhook.payload[:http_url] },
       object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
   end
