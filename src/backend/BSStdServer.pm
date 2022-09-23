@@ -76,10 +76,19 @@ sub errreply {
 
 sub authorize {
   my ($conf, $req, $auth) = @_;
-  return () unless $BSConfig::ipaccess;
   my %auths;
+  return () unless $BSConfig::subjectdnaccess || $BSConfig::ipaccess;
+  if ($BSConfig::subjectdnaccess && $conf->{'ssl_verify'}) {
+    my $dn = BSServer::getsubjectdn($req);
+    if (defined($dn)) {
+      for my $dnre (sort keys %{$BSConfig::subjectdnaccess || {}}) {
+        next unless $dn =~ /^$dnre$/s;
+        $auths{$_} = 1 for split(',', $BSConfig::subjectdnaccess->{$dnre});
+      }
+    }
+  }
   my $peer = $req->{'peer'};
-  for my $ipre (sort keys %$BSConfig::ipaccess) {
+  for my $ipre (sort keys %{$BSConfig::ipaccess || {}}) {
     next unless $peer =~ /^$ipre$/s;
     $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});
   }
@@ -393,6 +402,7 @@ sub server {
     $conf->{'logfile'} = $logfile if $logfile;
     $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
     $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
+    $conf->{'ssl_verify'} ||= $BSConfig::ssl_verify if $BSConfig::ssl_verify;
     BSDispatch::compile($conf);
   }
   if ($request) {
