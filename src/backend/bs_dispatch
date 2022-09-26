@@ -290,10 +290,10 @@ sub assignjob {
     my $msg = "gave up after $attempt failed build attempts...";
     push @args, "nobadhost=$msg" if checkbadhost(@attempts);
   }
-  my $uri = "http://$worker->{'ip'}:$worker->{'port'}/build";
+  my $uri = $worker->{'uri'} || "http://$worker->{'ip'}:$worker->{'port'}";
   eval {
     BSRPC::rpc({
-      'uri'     => $uri,
+      'uri'     => "$uri/build",
       'timeout' => 10 + int(length($infoxml) / 100000),
       'request' => "PUT",
       'headers' => [ "Content-Type: text/xml" ],
@@ -329,7 +329,7 @@ sub assignjob {
  
   # update jobstatus data
   $jobstatus->{'code'} = 'building';
-  $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
+  $jobstatus->{'uri'} = $uri;
   $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
   $jobstatus->{'starttime'} = time();
   $jobstatus->{'hostarch'} = $worker->{'hostarch'};

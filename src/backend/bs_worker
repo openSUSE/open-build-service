@@ -68,6 +68,7 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $buildroot;
 my $port;
+my $proto;
 my $statedir;
 my $hostarch;
 my $vm = '';
@@ -409,6 +410,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--port') {
     shift @ARGV;
     $port = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--proto') {
+    shift @ARGV;
+    $proto = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--arch') {
@@ -895,6 +901,7 @@ sub stream_logfile {
 sub send_state {
   my ($state, $p, $ba, $exclude) = @_;
   my @args = ("state=$state", "arch=$ba", "port=$p");
+  push @args, "proto=$proto" if ($proto || 'http') ne 'http';
   push @args, "workerid=$workerid" if defined $workerid;
   for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
@@ -920,6 +927,7 @@ sub send_state {
 sub send_dispatched {
   my ($server, $p, $ba, $buildinfo) = @_;
   my @args = ("hostarch=$ba", "port=$p");
+  push @args, "proto=$proto" if ($proto || 'http') ne 'http';
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "job=$buildinfo->{'job'}";
   push @args, "arch=$buildinfo->{'arch'}";
