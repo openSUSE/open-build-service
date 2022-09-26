@@ -4262,6 +4262,9 @@ BSServer::deamonize(@ARGV) unless $oneshot;
 $SIG{'PIPE'} = 'IGNORE';
 $| = 1;
 
+die("Unsupported proto $proto\n") if $proto && $proto ne 'http' && $proto ne 'https';
+require BSSSL if $proto && $proto eq 'https';	# fail early
+
 # calculate code meta md5
 $workercode = codemd5('worker');
 $buildcode = codemd5('build');
@@ -4309,6 +4312,11 @@ BSDispatch::compile($conf);
 $conf->{'stdreply'} ||= \&stdreply;
 $conf->{'errorreply'} ||= \&errreply;
 $conf->{'dispatch'} ||= \&BSDispatch::dispatch;
+if ($proto && $proto eq 'https') {
+  $conf->{'proto'} = $proto;
+  $conf->{'ssl_keyfile'} = $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
+  $conf->{'ssl_certfile'} = $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
+}
 
 # run the server, this will return only for /build requests
 # see returnfromserver setting above
