@@ -847,8 +847,9 @@ our $packagebinarychecksums = [
 our $worker = [
     'worker' =>
 	'hostarch',
-	'ip',
-	'port',
+	'ip',		# obsolete
+	'port',		# obsolete
+	'uri',
 	'registerserver',
 	'workerid',
       [ 'buildarch' ],

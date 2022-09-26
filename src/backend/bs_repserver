@@ -1612,7 +1612,9 @@ sub updateredisjobstatus {
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
   my $peerip = BSServer::getpeerdata();
+  my $peerproto = $cgi->{'proto'} || 'http';
   die("cannot get your ip address\n") unless $peerip;
+  die("unsupported proto $peerproto\n") unless $peerproto eq 'http' || $peerproto eq 'https';
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
   my $workerskel;
   if (BSServer::have_content()) {
@@ -1661,6 +1663,7 @@ sub workerstate {
       'hostarch' => $harch,
       'ip' => $peerip,
       'port' => $peerport,
+      'uri' => "$peerproto://$peerip:$peerport",
       'workerid' => $workerid,
     };
     $worker = { %$workerskel, %$worker } if $workerskel;
@@ -1706,9 +1709,13 @@ sub workerdispatched {
   
   my $peerip = BSServer::getpeerdata();
   my $peerport = $cgi->{'port'};
+  my $peerproto = $cgi->{'proto'} || 'http';
+  die("cannot get your ip address\n") unless $peerip;
+  die("unsupported proto $peerproto\n") unless $peerproto eq 'http' || $peerproto eq 'https';
+  my $uri = "$peerproto://$peerip:$peerport";
   my $jobstatus = {
     'code' => 'building',
-    'uri' => "http://$peerip:$peerport",
+    'uri' => $uri,
     'starttime' => time(),
     'hostarch' => $cgi->{'hostarch'},
     'jobid' => $jobid,
@@ -1831,7 +1838,8 @@ sub workerstatus {
       for my $w (ls("$workersdir/$workerstate")) {
         my $worker = readxml("$workersdir/$workerstate/$w", $BSXML::worker, 1);
         next unless $worker;
-        push @w, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
+        my $uri = $worker->{'uri'} || "http://$worker->{'ip'}:$worker->{'port'}";
+        push @w, {'hostarch' => $worker->{'hostarch'}, 'uri' => $uri, 'workerid' => $worker->{'workerid'}};
       }
       next unless @w;
       @w = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @w;
@@ -4013,7 +4021,7 @@ sub getworkercap {
     $worker_cap ||= readxml("$workersdir/$workerstate/$workerid", $BSXML::worker, 1);
   }
   die("404 unknown worker\n") unless $worker_cap;
-  delete $worker_cap->{$_} for qw{port ip};
+  delete $worker_cap->{$_} for qw{port ip uri};
   return ($worker_cap, $BSXML::worker);
 }
 
@@ -4361,11 +4369,11 @@ my $dispatches = [
   'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
 
   # worker calls
-  '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
+  '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool? proto:' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
-  '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port workerid?' => \&workerdispatched,
+  '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port proto: workerid?' => \&workerdispatched,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module*' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
