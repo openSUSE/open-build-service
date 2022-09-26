@@ -58,6 +58,9 @@ sub newctx {
     Net::SSLeay::CTX_set_tmp_ecdh($ctx, $ecdh);
     Net::SSLeay::EC_KEY_free($ecdh);
   }
+  if ($opts{'verify_file'} || $opts{'verify_dir'}) {
+    Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed\n");
+  }
   return $ctx;
 }
 
@@ -91,6 +94,18 @@ sub TIEHANDLE {
   if ($opts{'certfile'}) {
     Net::SSLeay::use_certificate_file($ssl, $opts{'certfile'}, &Net::SSLeay::FILETYPE_PEM) || die("certificate $opts{'certfile'} failed\n");
   }
+  my $cert_ok;
+  if ($opts{'verify'}) {
+    my $mode = &Net::SSLeay::VERIFY_PEER;
+    $mode |= &Net::SSLeay::VERIFY_FAIL_IF_NO_PEER_CERT if $opts{'verify'} =~ /enforce_cert/;
+    my $cb;
+    if ($opts{'verify'} !~ /fail_unverified/) {
+      $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return 1 };
+    } else {
+      $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return $_[0] };
+    }
+    Net::SSLeay::set_verify($ssl, $mode, $cb);
+  }
   my $mode = $opts{'mode'} || ($opts{'keyfile'} ? 'accept' : 'connect');
   if ($mode eq 'accept') {
     Net::SSLeay::accept($ssl) == 1 || die("SSL_accept error $!\n");
@@ -98,6 +113,7 @@ sub TIEHANDLE {
     Net::SSLeay::set_tlsext_host_name($ssl, $opts{'sni'}) if $opts{'sni'} && defined(&Net::SSLeay::set_tlsext_host_name);
     Net::SSLeay::connect($ssl) || die("SSL_connect error");
   }
+  return bless [$ssl, $socket, \$cert_ok] if $opts{'verify'};
   return bless [$ssl, $socket];
 }
 
@@ -175,6 +191,19 @@ sub peerfingerprint {
   return undef unless $fp;
   $fp =~ s/://g;
   return lc($fp);
+}
+
+sub subjectdn {
+  my ($sslr, $ignoreverify) = @_;
+  if (!$ignoreverify) {
+    my $cert_ok = @$sslr >= 3 ? ${$sslr->[2]} : 0;
+    return undef unless $cert_ok;
+  }
+  my $cert = Net::SSLeay::get_peer_certificate($sslr->[0]);
+  return undef unless $cert;
+  my $issuer = Net::SSLeay::X509_get_issuer_name($cert);
+  return undef unless $issuer;
+  return Net::SSLeay::X509_NAME_print_ex($issuer, &Net::SSLeay::XN_FLAG_RFC2253);
 }
 
 1;
