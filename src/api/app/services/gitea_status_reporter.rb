@@ -1,4 +1,6 @@
 class GiteaStatusReporter < SCMExceptionHandler
+  attr_accessor :state, :initial_report
+
   def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, initial_report: false)
     super(event_payload, event_subscription_payload, scm_token, workflow_run)
 
