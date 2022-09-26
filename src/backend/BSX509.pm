@@ -37,6 +37,8 @@ our $oid_street_address		= BSASN1::pack_obj_id(2, 5, 4, 9);
 our $oid_org_name		= BSASN1::pack_obj_id(2, 5, 4, 10);
 our $oid_org_unit_name		= BSASN1::pack_obj_id(2, 5, 4, 11);
 our $oid_email_address		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 9, 1);
+our $oid_user_id                = BSASN1::pack_obj_id(0, 9, 2342, 19200300, 100, 1, 1);
+our $oid_domain_component       = BSASN1::pack_obj_id(0, 9, 2342, 19200300, 100, 1, 25);
 our $oid_sha1			= BSASN1::pack_obj_id(1, 3, 14, 3, 2, 26);
 our $oid_sha256			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
 our $oid_sha512			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
@@ -240,6 +242,8 @@ my %oid2abbrev = (
   $oid_org_name => 'O',
   $oid_org_unit_name => 'OU',
   $oid_street_address => 'STREET',
+  $oid_domain_component => 'DC',
+  $oid_user_id => 'UID',
   $oid_email_address => 'emailAddress',
 );
 
@@ -251,7 +255,7 @@ sub dn2str {
   my @rdns;
   for my $rdn (unpack_distinguished_name(@_)) {
     my %s = @{$rdn || []};
-    push @rdns, join('/', map { ($oid2abbrev{$_} || oid2str($_))."=$s{$_}" } sort keys %s);
+    push @rdns, join('+', map { ($oid2abbrev{$_} || oid2str($_))."=$s{$_}" } sort keys %s);
   }
   return join(', ', @rdns);
 }
