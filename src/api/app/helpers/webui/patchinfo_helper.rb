@@ -16,14 +16,14 @@ module Webui::PatchinfoHelper
   private
 
   def header_title(patchinfo, text, list)
-    haml_tag(:h3) do
-      haml_tag(:span, text, title: list)
-      haml_tag(:span, patchinfo.category, class: "badge badge-category #{patchinfo.category}", title: 'Category of this patchinfo')
-      haml_tag(:span, patchinfo.rating, class: "badge badge-rating #{patchinfo.rating}", title: 'Rating of this patchinfo')
+    content_tag(:h3) do
+      content_tag(:span, text, title: list)
+      content_tag(:span, patchinfo.category, class: "badge badge-category #{patchinfo.category}", title: 'Category of this patchinfo')
+      content_tag(:span, patchinfo.rating, class: "badge badge-rating #{patchinfo.rating}", title: 'Rating of this patchinfo')
     end
   end
 
   def header_subtitle(summary)
-    haml_tag(:div, summary, class: 'mb-3 text-muted') if summary.present?
+    content_tag(:div, summary, class: 'mb-3 text-muted') if summary.present?
   end
 end
