@@ -27,7 +27,7 @@ RSpec.describe 'User notifications', type: :feature, js: true do
       it 'keeps the filter' do
         wait_for_ajax
 
-        find('#notifications-dropdown-trigger').click if mobile?
+        find_by_id('notifications-dropdown-trigger').click if mobile?
         expect(find('.list-group-item.list-group-item-action.active')).to have_text('Comment')
       end
     end
@@ -39,7 +39,7 @@ RSpec.describe 'User notifications', type: :feature, js: true do
 
     context 'when clicking on the Comments filter' do
       before do
-        find('#notifications-dropdown-trigger').click if mobile?
+        find_by_id('notifications-dropdown-trigger').click if mobile?
         within('#filters') { click_link('Comments') }
       end
 
@@ -58,7 +58,7 @@ RSpec.describe 'User notifications', type: :feature, js: true do
 
     context 'when marking multiple comment notifications as read' do
       before do
-        find('#notifications-dropdown-trigger').click if mobile?
+        find_by_id('notifications-dropdown-trigger').click if mobile?
         within('#filters') { click_link('Comments') }
         toggle_checkbox("notification_ids_#{notification_for_projects_comment.id}")
         toggle_checkbox("notification_ids_#{another_notification_for_projects_comment.id}")
@@ -84,21 +84,21 @@ RSpec.describe 'User notifications', type: :feature, js: true do
       end
 
       it 'shows all unread project notifications' do
-        find('#notifications-dropdown-trigger').click if mobile?
+        find_by_id('notifications-dropdown-trigger').click if mobile?
         within('#filters') { click_link(project.name) }
-        find('#notifications-dropdown-trigger').click if mobile?
+        find_by_id('notifications-dropdown-trigger').click if mobile?
         expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
       end
 
       context 'when marking a project notification as read' do
         before do
-          find('#notifications-dropdown-trigger').click if mobile?
+          find_by_id('notifications-dropdown-trigger').click if mobile?
           within('#filters') { click_link(project.name) }
         end
 
         it 'keeps the project filter' do
           wait_for_ajax
-          find('#notifications-dropdown-trigger').click if mobile?
+          find_by_id('notifications-dropdown-trigger').click if mobile?
           expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
         end
       end

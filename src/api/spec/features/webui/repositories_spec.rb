@@ -51,7 +51,7 @@ RSpec.describe 'Repositories', type: :feature, js: true, vcr: true do
         click_link(title: 'Delete Repository')
       end
 
-      expect(find('#delete-repository'))
+      expect(find_by_id('delete-repository'))
         .to have_text("Please confirm deletion of '#{dod_repository}' repository")
 
       within('#delete-repository .modal-footer') do
@@ -195,7 +195,7 @@ RSpec.describe 'Repositories', type: :feature, js: true, vcr: true do
       # Select the first autocomplete result
       find('.ui-menu-item-wrapper', match: :first).click
       # Remove focus from autocomplete. Needed to trigger update of the other input fields.
-      find('#target_repo').click
+      find_by_id('target_repo').click
 
       click_button('Accept')
 

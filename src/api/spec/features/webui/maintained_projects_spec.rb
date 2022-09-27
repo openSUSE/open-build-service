@@ -60,7 +60,7 @@ RSpec.describe 'MaintainedProjects', type: :feature, js: true do
 
         click_link('Delete Project')
 
-        expect(find('#delete-maintained-project-modal')).to have_text('Disable Maintenance to this project?')
+        expect(find_by_id('delete-maintained-project-modal')).to have_text('Disable Maintenance to this project?')
 
         within('#delete-maintained-project-modal .modal-footer') do
           expect(page).to have_button('Disable')

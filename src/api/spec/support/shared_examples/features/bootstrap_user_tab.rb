@@ -204,7 +204,7 @@ RSpec.shared_examples 'bootstrap user tab' do
 
       visit project_path
       click_link('Users')
-      expect(find('#group_reviewer_existing_group', visible: false)).to be_checked
+      expect(find_by_id('group_reviewer_existing_group', visible: false)).to be_checked
     end
 
     it 'Remove role from group' do

@@ -263,7 +263,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         find(:id, 'review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
         # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `review_package`.
-        find('#review_comment').click
+        find_by_id('review_comment').click
         fill_in 'review_package', with: package.name
         click_button('Accept')
         expect(page).to have_text("Open review for #{submitter.home_project} / #{package.name}")
@@ -299,7 +299,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         it 'does not show any request reason' do
           login reviewer
           visit request_show_path(bs_request)
-          expect(find('#review-0')).not_to have_text('requested:')
+          expect(find_by_id('review-0')).not_to have_text('requested:')
         end
       end
 

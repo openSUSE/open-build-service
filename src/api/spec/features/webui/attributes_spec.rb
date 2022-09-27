@@ -75,7 +75,7 @@ RSpec.describe 'Attributes', type: :feature, js: true do
           visit index_attribs_path(project: user.home_project_name)
           first('table tbody tr td').click if mobile?
           click_link 'Delete attribute'
-          expect(find('#delete-attribute-modal')).to have_text('Do you want to remove the attribute?')
+          expect(find_by_id('delete-attribute-modal')).to have_text('Do you want to remove the attribute?')
           within('#delete-attribute-modal .modal-footer') do
             expect(page).to have_button('Remove')
             click_button('Remove')

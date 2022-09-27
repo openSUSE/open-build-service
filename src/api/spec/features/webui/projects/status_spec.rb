@@ -31,7 +31,7 @@ RSpec.describe 'ProjectStatus', type: :feature, js: true do
     visit project_status_path(project_name: project)
     uncheck('limit_to_fails')
     click_button('Filter results')
-    expect(find('#status-table')).to have_text('broken_package')
-    expect(find('#status-table')).to have_css('.text-danger')
+    expect(find_by_id('status-table')).to have_text('broken_package')
+    expect(find_by_id('status-table')).to have_css('.text-danger')
   end
 end

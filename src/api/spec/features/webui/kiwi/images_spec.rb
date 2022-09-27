@@ -19,7 +19,7 @@ RSpec.describe 'Kiwi_Images', type: :feature, js: true, vcr: true do
       click_link('Edit details')
       fill_in 'kiwi_image_description_attributes_author', with: 'custom_author'
       click_link('Continue')
-      find('#kiwi-image-update-form-save').click
+      find_by_id('kiwi-image-update-form-save').click
 
       within('#kiwi-description') do
         expect(page).to have_text('Author: custom_author')
@@ -73,8 +73,8 @@ RSpec.describe 'Kiwi_Images', type: :feature, js: true, vcr: true do
         click_link('Continue')
       end
 
-      find('#kiwi-image-update-form-save').click
-      find('#image-name')
+      find_by_id('kiwi-image-update-form-save').click
+      find_by_id('image-name')
       click_link('Software')
 
       within('#kiwi-repositories-list') do
@@ -109,8 +109,8 @@ RSpec.describe 'Kiwi_Images', type: :feature, js: true, vcr: true do
         click_link('Continue')
       end
 
-      find('#kiwi-image-update-form-save').click
-      find('#image-name')
+      find_by_id('kiwi-image-update-form-save').click
+      find_by_id('image-name')
       click_link('Software')
 
       within('#kiwi-repositories-list') do
@@ -145,11 +145,11 @@ RSpec.describe 'Kiwi_Images', type: :feature, js: true, vcr: true do
         click_link('Continue')
       end
 
-      find('#kiwi-image-update-form-save').click
-      find('#image-name')
+      find_by_id('kiwi-image-update-form-save').click
+      find_by_id('image-name')
       click_link('Software')
 
-      find('#kiwi-packages-list')
+      find_by_id('kiwi-packages-list')
       within('#kiwi-packages-list') do
         expect(page).to have_text('perl-Citrix')
         expect(page).to have_css('a small', text: '(x86_64)')

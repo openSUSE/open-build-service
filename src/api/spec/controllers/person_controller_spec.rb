@@ -26,19 +26,13 @@ RSpec.describe PersonController do
         get :get_userinfo, params: { login: user.login }
       end
 
-      it 'shows all user related data' do
-        assert_select 'person' do
-          assert_select 'login', text: user.login
-          assert_select 'email', text: user.email
-          assert_select 'realname', text: user.realname
-          assert_select 'state', text: 'confirmed'
-        end
-      end
+      it { expect(response.body).to have_selector('person > login', text: user.login) }
+      it { expect(response.body).to have_selector('person > email', text: user.email) }
+      it { expect(response.body).to have_selector('person > realname', text: user.realname) }
+      it { expect(response.body).to have_selector('person > state', text: 'confirmed') }
 
       it 'shows not the ignore_auth_services flag' do
-        assert_select 'person' do
-          assert_select 'ignore_auth_services', text: user.ignore_auth_services, count: 0
-        end
+        expect(response.body).to have_selector('person > ignore_auth_services', text: user.ignore_auth_services, count: 0)
       end
     end
 
@@ -48,19 +42,13 @@ RSpec.describe PersonController do
         get :get_userinfo, params: { login: user.login }
       end
 
-      it 'shows all user related data' do
-        assert_select 'person' do
-          assert_select 'login', text: user.login
-          assert_select 'email', text: user.email
-          assert_select 'realname', text: user.realname
-          assert_select 'state', text: 'confirmed'
-        end
-      end
+      it { expect(response.body).to have_selector('person > login', text: user.login) }
+      it { expect(response.body).to have_selector('person > email', text: user.email) }
+      it { expect(response.body).to have_selector('person > realname', text: user.realname) }
+      it { expect(response.body).to have_selector('person > state', text: 'confirmed') }
 
       it 'shows not the ignore_auth_services flag' do
-        assert_select 'person' do
-          assert_select 'ignore_auth_services', text: user.ignore_auth_services, count: 0
-        end
+        expect(response.body).to have_selector('person > ignore_auth_services', text: user.ignore_auth_services, count: 0)
       end
     end
   end
