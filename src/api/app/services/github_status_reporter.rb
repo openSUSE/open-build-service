@@ -42,17 +42,6 @@ class GithubStatusReporter < SCMExceptionHandler
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
 
-  def self.scm_final_state(event_type)
-    case event_type
-    when 'Event::BuildFail'
-      'failure'
-    when 'Event::BuildSuccess'
-      'success'
-    else
-      'pending'
-    end
-  end
-
   # TODO: extract to a parent class
   def status_options
     if @initial_report

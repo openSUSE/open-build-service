@@ -1,11 +1,11 @@
 class SCMWebhookEventValidator < ActiveModel::Validator
-  ALLOWED_GITHUB_EVENTS = ['pull_request', 'push'].freeze
+  ALLOWED_GITHUB_AND_GITEA_EVENTS = ['pull_request', 'push'].freeze
   ALLOWED_GITLAB_EVENTS = ['Merge Request Hook', 'Push Hook', 'Tag Push Hook'].freeze
 
   def validate(record)
     @record = record
 
-    return if valid_github_event? || valid_gitlab_event?
+    return if valid_github_or_gitea_event? || valid_gitlab_event?
 
     # FIXME: This error message is wrong when the SCM isn't supported. This is an edge case, somebody most probably fiddled with the payload.
     @record.errors.add(:base, 'Event not supported.')
@@ -13,9 +13,9 @@ class SCMWebhookEventValidator < ActiveModel::Validator
 
   private
 
-  def valid_github_event?
-    return false unless @record.payload[:scm] == 'github'
-    return false unless ALLOWED_GITHUB_EVENTS.include?(@record.payload[:event])
+  def valid_github_or_gitea_event?
+    return false unless ['github', 'gitea'].include?(@record.payload[:scm])
+    return false unless ALLOWED_GITHUB_AND_GITEA_EVENTS.include?(@record.payload[:event])
 
     case @record.payload[:event]
     when 'pull_request'

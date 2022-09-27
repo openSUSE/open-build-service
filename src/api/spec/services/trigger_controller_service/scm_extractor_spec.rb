@@ -289,5 +289,124 @@ RSpec.describe TriggerControllerService::SCMExtractor do
         expect(scm_webhook.payload).to eq(expected_hash)
       end
     end
+
+    context 'when the SCM is Gitea' do
+      let(:scm) { 'gitea' }
+
+      context 'for a pull request event' do
+        let(:event) { 'pull_request' }
+        let(:payload) do
+          {
+            action: 'opened',
+            pull_request: {
+              head: {
+                repo: {
+                  full_name: 'iggy/source_repo'
+                },
+                ref: 'add-changes',
+                sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
+              },
+              base: {
+                repo: {
+                  full_name: 'iggy/target_repo'
+                },
+                ref: 'main'
+              }
+            },
+            repository: {
+              clone_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            },
+            number: 4
+          }
+        end
+        let(:expected_hash) do
+          {
+            scm: 'gitea',
+            commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            pr_number: 4,
+            source_branch: 'add-changes',
+            target_branch: 'main',
+            action: 'opened',
+            source_repository_full_name: 'iggy/source_repo',
+            target_repository_full_name: 'iggy/target_repo',
+            event: 'pull_request',
+            api_endpoint: 'https://gitea.opensuse.org',
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+          }
+        end
+
+        it 'returns an instance of SCMWebhook with the extracted data from the Gitea payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
+          expect(scm_webhook.payload).to eq(expected_hash)
+        end
+      end
+
+      context 'with a push event for a commit' do
+        let(:event) { 'push' }
+        let(:payload) do
+          {
+            ref: 'refs/heads/main/fix-bug',
+            after: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            repository: {
+              full_name: 'iggy/repo123',
+              clone_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            },
+            base_ref: nil
+          }
+        end
+        let(:expected_hash) do
+          {
+            scm: 'gitea',
+            event: 'push',
+            api_endpoint: 'https://gitea.opensuse.org',
+            commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            target_branch: 'main/fix-bug',
+            source_repository_full_name: 'iggy/repo123',
+            target_repository_full_name: 'iggy/repo123',
+            ref: 'refs/heads/main/fix-bug',
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+          }
+        end
+
+        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
+          expect(scm_webhook.payload).to eq(expected_hash)
+        end
+      end
+
+      context 'with a push event for a tag' do
+        let(:event) { 'push' }
+        let(:payload) do
+          {
+            ref: 'refs/tags/release_abc',
+            after: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            repository: {
+              full_name: 'iggy/repo123',
+              clone_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            },
+            base_ref: 'refs/heads/main'
+          }
+        end
+        let(:expected_hash) do
+          {
+            scm: 'gitea',
+            event: 'push',
+            api_endpoint: 'https://gitea.opensuse.org',
+            commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            source_repository_full_name: 'iggy/repo123',
+            target_repository_full_name: 'iggy/repo123',
+            ref: 'refs/tags/release_abc',
+            tag_name: 'release_abc',
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+          }
+        end
+
+        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
+          expect(scm_webhook.payload).to eq(expected_hash)
+        end
+      end
+    end
   end
 end

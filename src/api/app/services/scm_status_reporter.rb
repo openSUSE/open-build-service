@@ -23,13 +23,20 @@ class SCMStatusReporter
                                @state,
                                @workflow_run,
                                initial_report: @initial_report).call
-    else
+    elsif gitlab?
       GitlabStatusReporter.new(@event_payload,
                                @event_subscription_payload,
                                @scm_token,
                                @state,
                                @workflow_run,
                                initial_report: @initial_report).call
+    elsif gitea?
+      GiteaStatusReporter.new(@event_payload,
+                              @event_subscription_payload,
+                              @scm_token,
+                              @state,
+                              @workflow_run,
+                              initial_report: @initial_report).call
     end
   end
 
@@ -37,13 +44,24 @@ class SCMStatusReporter
     @event_subscription_payload[:scm] == 'github'
   end
 
+  def gitlab?
+    @event_subscription_payload[:scm] == 'gitlab'
+  end
+
+  def gitea?
+    @event_subscription_payload[:scm] == 'gitea'
+  end
+
   private
 
   def scm_final_state(event_type)
-    if github?
-      GithubStatusReporter.scm_final_state(event_type)
+    case event_type
+    when 'Event::BuildFail'
+      'failure'
+    when 'Event::BuildSuccess'
+      'success'
     else
-      GitlabStatusReporter.scm_final_state(event_type)
+      'pending'
     end
   end
 end

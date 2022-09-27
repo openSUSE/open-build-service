@@ -74,12 +74,12 @@ class WorkflowRun < ApplicationRecord
   end
 
   def repository_name
-    payload.dig('repository', 'full_name') || # For GitHub on pull_request and push events
+    payload.dig('repository', 'full_name') || # For GitHub and Gitea on pull_request and push events
       payload.dig('project', 'path_with_namespace') # For GitLab on merge request and push events
   end
 
   def repository_url
-    payload.dig('repository', 'html_url') || # For GitHub on pull_request and push events
+    payload.dig('repository', 'html_url') || # For GitHub and Gitea on pull_request and push events
       payload.dig('project', 'web_url') # For GitLab on merge request and push events
   end
 
@@ -113,6 +113,8 @@ class WorkflowRun < ApplicationRecord
       :github
     elsif parsed_request_headers['HTTP_X_GITLAB_EVENT']
       :gitlab
+    elsif parsed_request_headers['HTTP_X_GITEA_EVENT']
+      :gitea
     else
       :unknown
     end

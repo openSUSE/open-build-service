@@ -94,6 +94,8 @@ gem 'octokit'
 gem 'gitlab'
 # Build reusable, testable & encapsulated view components in Ruby on Rails
 gem 'view_component'
+# Abstraction layer for HTTP requests in custom API wrapper
+gem 'faraday'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083
