@@ -234,6 +234,11 @@ sub generate_key_id {
   return Digest::SHA::sha1(BSASN1::unpack_bytes($bits));
 }
 
+sub generate_cert_fingerprint {
+  my ($cert) = @_;
+  return Digest::SHA::sha1($cert);
+}
+
 my %oid2abbrev = (
   $oid_common_name => 'CN',
   $oid_country_name => 'C',

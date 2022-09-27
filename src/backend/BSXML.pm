@@ -2054,6 +2054,7 @@ our $certinfo = [
 	'begins',
 	'expires',
 	'fingerprint',
+	'keyid',
 	'_content',
 ];
 
