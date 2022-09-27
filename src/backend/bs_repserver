@@ -4369,11 +4369,11 @@ my $dispatches = [
   'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
 
   # worker calls
-  '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool? proto:' => \&workerstate,
+  '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool? proto:?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
-  '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port proto: workerid?' => \&workerdispatched,
+  '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port proto:? workerid?' => \&workerdispatched,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module*' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
