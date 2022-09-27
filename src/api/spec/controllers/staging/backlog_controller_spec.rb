@@ -31,9 +31,7 @@ RSpec.describe Staging::BacklogController do
       it { expect(response).to have_http_status(:success) }
 
       it 'returns the backlog xml' do
-        assert_select 'backlog' do
-          assert_select 'request', 1
-        end
+        expect(response.body).to have_selector('backlog > request', count: 1)
       end
     end
 
@@ -55,9 +53,7 @@ RSpec.describe Staging::BacklogController do
       it { expect(response).to have_http_status(:not_found) }
 
       it 'responds_with_an_error' do
-        assert_select 'status' do
-          assert_select 'summary', text: "Project #{other_project} doesn't have an asociated Staging Workflow"
-        end
+        expect(response.body).to have_selector('status > summary', text: "Project #{other_project} doesn't have an asociated Staging Workflow")
       end
     end
   end

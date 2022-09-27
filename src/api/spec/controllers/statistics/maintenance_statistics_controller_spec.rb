@@ -39,7 +39,7 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
         end
 
         it 'hides the project' do
-          assert_response :not_found
+          expect(response).to have_http_status(:not_found)
         end
       end
 

@@ -17,9 +17,7 @@ RSpec.describe StatusMessagesController do
     it { is_expected.to have_http_status(:success) }
 
     it 'returns the requested status message' do
-      assert_select 'status_message' do
-        assert_select 'message', status_message.message
-      end
+      expect(response.body).to have_selector('status_message > message', text: status_message.message)
     end
   end
 
@@ -31,10 +29,8 @@ RSpec.describe StatusMessagesController do
     it { is_expected.to have_http_status(:success) }
 
     it 'returns all status messages' do
-      assert_select 'status_messages[count=3]' do
-        status_messages.each do |status_message|
-          assert_select 'message', status_message.message
-        end
+      status_messages.each do |status_message|
+        expect(response.body).to have_selector('status_messages[count=3] > status_message > message', text: status_message.message)
       end
     end
   end

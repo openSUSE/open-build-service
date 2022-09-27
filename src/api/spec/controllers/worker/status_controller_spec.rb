@@ -10,10 +10,10 @@ RSpec.describe Worker::StatusController, vcr: true do
   end
 
   describe 'GET /index' do
-    let(:response) { file_fixture('worker_status_response.xml') }
+    let(:worker_status_response) { file_fixture('worker_status_response.xml') }
 
     before do
-      stub_request(:get, CONFIG['source_url'] + '/build/_workerstatus').and_return(body: response)
+      stub_request(:get, CONFIG['source_url'] + '/build/_workerstatus').and_return(body: worker_status_response)
     end
 
     subject! { get :index, params: { format: :xml } }
@@ -21,7 +21,7 @@ RSpec.describe Worker::StatusController, vcr: true do
     it { is_expected.to have_http_status(:success) }
 
     it 'finds 2 workers' do
-      assert_select 'workerstatus[clients=2]'
+      expect(response.body).to have_selector('workerstatus[clients=2]')
     end
   end
 end

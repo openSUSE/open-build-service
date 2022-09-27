@@ -49,9 +49,8 @@ RSpec.describe RequestController, vcr: true do
       it 'prohibits creation of request', vcr: true do
         expect { post :global_command, params: { cmd: :create }, body: xml, format: :xml }.not_to change(BsRequest, :count)
         expect(response).to have_http_status(:forbidden)
-        assert_select 'status[code=lacking_maintainership]' do
-          assert_select 'summary', text: 'Creating a submit request action with options requires maintainership in source package'
-        end
+        expect(response.body).to have_selector('status[code=lacking_maintainership] > summary',
+                                               text: 'Creating a submit request action with options requires maintainership in source package')
       end
     end
   end
