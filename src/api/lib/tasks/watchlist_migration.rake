@@ -21,7 +21,7 @@ namespace :watchlist do
   task migrate: :environment do
     # Copy projects from the old watchlist to the new one only if the user has projects
     # in the old wachtlist and the user doesn't have any project in the new watchlist.
-    User.where(id: WatchedProject.map(&:user_id).uniq).each do |user|
+    User.where(id: WatchedProject.all.map(&:user_id).uniq).each do |user|
       next if user.watched_items.where(watchable_type: :project).any?
 
       user.watched_projects.each do |watched_project|
