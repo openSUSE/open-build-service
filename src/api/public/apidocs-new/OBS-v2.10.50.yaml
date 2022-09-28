@@ -44,6 +44,7 @@ tags:
 
   - name: Sources
   - name: Sources - Projects
+  - name: Sources - Packages
   - name: Trigger
   - name: Workers
 
@@ -289,6 +290,11 @@ paths:
     $ref: 'paths/source_project_name_cmd_undelete.yaml'
   /source/{project_name}?cmd=unlock:
     $ref: 'paths/source_project_name_cmd_unlock.yaml'
+
+  # Sources - Packages
+
+  /source/{project_name}/{package_name}?cmd=showlinked:
+    $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
