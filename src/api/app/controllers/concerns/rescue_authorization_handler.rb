@@ -1,7 +1,7 @@
 module RescueAuthorizationHandler
   extend ActiveSupport::Concern
 
-  included do # rubocop:disable Metrics/BlockLength
+  included do
     rescue_from Pundit::NotAuthorizedError do |exception|
       respond_to do |format|
         format.html do
