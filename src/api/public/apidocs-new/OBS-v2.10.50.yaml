@@ -293,6 +293,8 @@ paths:
 
   # Sources - Packages
 
+  /source/{project_name}/{package_name}?cmd=diff:
+    $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
   /source/{project_name}/{package_name}?cmd=showlinked:
     $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
 
