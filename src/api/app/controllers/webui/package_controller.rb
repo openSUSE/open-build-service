@@ -23,7 +23,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :validate_xml, only: [:save_meta]
 
-  before_action :require_repository, only: [:binary]
+  before_action :require_repository, only: [:binary, :binaries]
   before_action :require_architecture, only: [:binary]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
@@ -189,25 +189,18 @@ class Webui::PackageController < Webui::WebuiController
 
   # FIXME: This is Webui::Packages::BinariesController#show
   def binary
-    @package_name = params[:package] # might be a multibuild flavor
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @architecture.name, @filename)
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, params[:package], @repository.name, @architecture.name, @filename)
     raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
-    @download_url = @package.download_url_for_binary(repository_name: @repository.name,
-                                                     architecture_name: @architecture.name,
-                                                     package_name: @package_name,
-                                                     filename: @filename)
+    @download_url = download_url_for_binary(architecture_name: @architecture.name, file_name: @filename)
   end
 
   # FIXME: This is Webui::Packages::BinariesController#index
   def binaries
-    @repository = params[:repository]
-    @package_name = params[:package]
-
-    results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
+    results_from_backend = Buildresult.find_hashed(project: @project.name, package: params[:package], repository: @repository.name, view: ['binarylist', 'status'])
     raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
     @buildresults = []
@@ -218,14 +211,10 @@ class Webui::PackageController < Webui::WebuiController
         if binary['filename'] == '_statistics'
           build_results_set[:statistics] = true
         else
-          download_url = @package.download_url_for_binary(repository_name: @repository,
-                                                          architecture_name: result['arch'],
-                                                          package_name: @package_name, # multibuild flavors...
-                                                          filename: binary['filename'])
           build_results_set[:binaries] << { filename: binary['filename'],
                                             size: binary['size'],
                                             links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                     download_url: download_url,
+                                                     download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']),
                                                      cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
         end
       end
@@ -631,6 +620,31 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   private
+
+  # Get an URL to a binary produced by the build.
+  # In the published repo for everyone, in the backend directly only for logged in users.
+  def download_url_for_binary(architecture_name:, file_name:)
+    if publishing_enabled(architecture_name: architecture_name)
+      published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, params[:package], architecture_name, file_name)
+      return published_url if published_url
+    end
+
+    return "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{params[:package]}/#{file_name}" if User.session
+  end
+
+  def publishing_enabled(architecture_name:)
+    if @project == @package.project
+      @package.enabled_for?('publish', @repository.name, architecture_name)
+    else
+      # We are looking at a package coming through a project link
+      # Let's see if we rebuild linked packages.
+      # NOTE: linkedbuild=localdep||alldirect would be too much hassle to figure out...
+      return false if @repository.linkedbuild != 'all'
+
+      # If we are rebuilding packages, let's ask @project if it publishes.
+      @project.enabled_for?('publish', @repository.name, architecture_name)
+    end
+  end
 
   def package_params
     params.require(:package).permit(:name, :title, :description)
