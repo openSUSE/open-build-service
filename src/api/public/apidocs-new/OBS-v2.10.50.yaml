@@ -255,7 +255,8 @@ paths:
     $ref: 'paths/source_orderkiwirepos.yaml'
 
   # Sources - Projects
-
+  /source:
+    $ref: 'paths/source.yaml'
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
   /source/{project_name}?cmd=copy:
