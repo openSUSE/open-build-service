@@ -336,6 +336,7 @@ RSpec/MultipleExpectations:
     - 'spec/controllers/person/token_controller_spec.rb'
     - 'spec/controllers/request_controller_spec.rb'
     - 'spec/controllers/source_controller_spec.rb'
+    - 'spec/controllers/staging/excluded_requests_controller_spec.rb'
     - 'spec/controllers/staging/staging_projects_controller_spec.rb'
     - 'spec/controllers/statistics/maintenance_statistics_controller_spec.rb'
     - 'spec/controllers/status/checks_controller_spec.rb'
