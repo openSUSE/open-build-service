@@ -301,6 +301,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
   /source/{project_name}/{package_name}?cmd=waitservice:
     $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
+  /source/{project_name}/{package_name}?cmd=undelete:
+    $ref: 'paths/source_project_name_package_name_cmd_undelete.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
