@@ -471,6 +471,20 @@ sub dsse_pae {
   return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload))."$payload";
 }
 
+sub dsse_sign {
+  my ($payload, $payloadtype, $signfunc) = @_;
+  my $dsse = dsse_pae($payloadtype, $payload);
+  my $sig = $signfunc->($dsse);
+  # hack: prepend _ to payloadType so it comes first
+  my $envelope = {
+    '_payloadType' => $payloadtype,
+    'payload' => MIME::Base64::encode_base64($payload, ''),
+    'signatures' => [ { 'sig' => MIME::Base64::encode_base64($sig, '') } ],
+  };
+  my $envelope_json = JSON::XS->new->utf8->canonical->encode($envelope);;
+  $envelope_json =~ s/_payloadType/payloadType/;
+  return $envelope_json;
+}
 
 my $slsa_json_template = {
   '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
@@ -577,16 +591,8 @@ sub signslaprovenance {
 
   # now sign the provenance statement
   if (!$alreadysigned) {
-    # hack: prepend _ to payloadType so it comes first
-    my $envelope = {
-      '_payloadType' => 'application/vnd.in-toto+json',
-      'payload' => MIME::Base64::encode_base64($provenance_json, ''),
-    };
-    my $dsse = dsse_pae($envelope->{'_payloadType'}, $envelope->{'payload'});
-    my $sig = BSUtil::xsystem($dsse, $BSConfig::sign, @signargs, '-D');
-    push @{$envelope->{'signatures'}}, {'sig' => MIME::Base64::encode_base64($sig)};
-    my $envelope_json = JSON::XS->new->utf8->canonical->encode($envelope);;
-    $envelope_json =~ s/_payloadType/payloadType/;
+    my $signfunc = sub { BSUtil::xsystem($_[0], $BSConfig::sign, @signargs, '-D') };
+    my $envelope_json = dsse_sign($provenance_json, 'application/vnd.in-toto+json', $signfunc);
     writestr("$jobdir/.slsa_provenance.sIgN$$", $signfile, $envelope_json);
   }
 }
