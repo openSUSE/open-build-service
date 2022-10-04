@@ -299,6 +299,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_runservice.yaml'
   /source/{project_name}/{package_name}?cmd=showlinked:
     $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
+  /source/{project_name}/{package_name}?cmd=waitservice:
+    $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
