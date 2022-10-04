@@ -149,7 +149,6 @@ GEM
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.5.0)
-    digest (3.1.0)
     docile (1.4.0)
     down (5.3.1)
       addressable (~> 2.8)
@@ -270,10 +269,8 @@ GEM
     mocha (1.15.0)
     multi_xml (0.6.0)
     mysql2 (0.5.4)
-    net-imap (0.2.3)
-      digest
+    net-imap (0.3.1)
       net-protocol
-      strscan
     net-pop (0.1.2)
       net-protocol
     net-protocol (0.1.3)
