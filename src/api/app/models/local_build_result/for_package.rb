@@ -1,7 +1,7 @@
 class LocalBuildResult
   class ForPackage
     include ActiveModel::Model
-    attr_accessor :package, :project, :show_all
+    attr_accessor :package, :project, :show_all, :lastbuild
     attr_reader :excluded_counter, :results
 
     def initialize(attributes = {})
@@ -56,7 +56,7 @@ class LocalBuildResult
     end
 
     def backend_build_result
-      backend_results = Buildresult.find_hashed(project: project, package: package, view: 'status', multibuild: '1', locallink: '1')
+      backend_results = Buildresult.find_hashed(project: project, package: package, view: 'status', multibuild: '1', locallink: '1', lastbuild: lastbuild ? '1' : '0')
       backend_results.elements('result').sort_by { |a| a['repository'] }
     end
   end
