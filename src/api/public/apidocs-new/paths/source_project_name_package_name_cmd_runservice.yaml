@@ -1,0 +1,80 @@
+post:
+  summary: Trigger run of defined services.
+  description: Trigger run of defined services in the `_service` file.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Set a comment.
+      default: trigger service run
+      example: Trigger services once more.
+    - in: query
+      name: user
+      schema:
+        type: string
+      description: Set the user who triggers the services.
+      example: Iggy
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Package is _project:
+              value:
+                code: 400
+                origin: backend
+                summary: triggerservicerun does not work with _project
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            No Permission to Run Services:
+              value:
+                code: cmd_execution_no_permission
+                summary: no permission to modify package test in project home:Admin
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+            No Source Service Defined:
+              value:
+                code: not_found
+                summary: |
+                  <status code="404">
+                    <summary>no source service defined!</summary>
+                    <details>404 no source service defined!</details>
+                  </status>
+  tags:
+    - Sources - Packages
