@@ -241,11 +241,11 @@ sub prpfinished {
       # find out if we have a corresponding provenance file
       my $provenance;
       my $rprovenance;
-      if ($bin =~ /^(.*)\.(?:$binsufsre)$/) {
+      if ($bin =~ /^(.*)\.(?:$binsufsre|containerinfo)$/) {
         $provenance = "$pdir/$1.slsa_provenance.json" if $all{"$1.slsa_provenance.json"};
         $provenance = "$pdir/_slsa_provenance.json" if !$provenance && $all{'_slsa_provenance.json'};
 	if ($provenance) {
-	  if ($rbin =~ /^(.*)\.(?:$binsufsre)$/) {
+	  if ($rbin =~ /^(.*)\.(?:$binsufsre|containerinfo)$/) {
             $rprovenance = "$1.slsa_provenance.json";
 	  } else {
             $rprovenance = "$rbin.slsa_provenance.json";

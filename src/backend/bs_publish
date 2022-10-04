@@ -1851,6 +1851,15 @@ sub fixsleimage {
   return 1;
 }
 
+sub readcontainerprovenance {
+  my ($containerinfo, $containerinfofile) = @_;
+  return unless $containerinfo;
+  return unless $containerinfofile =~ s/\.containerinfo$/.slsa_provenance.json/;
+  return unless -e $containerinfofile;
+  my $provenance = readstr($containerinfofile, 1);
+  $containerinfo->{'slsa_provenance'} = $provenance if $provenance;
+}
+
 sub publish {
   my ($projid, $repoid, $dbgsplit, $dbgpacktrack, $dbgsources) = @_;
   my $prp = "$projid/$repoid";
@@ -2186,6 +2195,7 @@ sub publish {
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
+          readcontainerprovenance($containerinfo, "$r/$bin");
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
           # kiwi image case
@@ -2204,6 +2214,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
+            readcontainerprovenance($containerinfo, "$r/$1.containerinfo") if $containerinfo;
 	  } else {
 	    $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  }
@@ -2224,6 +2235,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
+            readcontainerprovenance($containerinfo, "$r/$1.containerinfo") if $containerinfo;
 	  }
 	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {

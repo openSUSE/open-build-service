@@ -435,6 +435,32 @@ sub update_sigs {
   }
 }
 
+sub create_cosign_manifest {
+  my ($repodir, $oci, $config, $payload_layer, $payload, $knownmanifests, $knownblobs) = @_;
+
+  my $config_blobid = push_blob_content($repodir, $config);
+  $knownblobs->{$config_blobid} = 1;
+  my $payload_blobid = push_blob_content($repodir, $payload);
+  $knownblobs->{$payload_blobid} = 1;
+  die unless $payload_blobid eq $payload_layer->{'digest'};
+  my $config_data = {
+    'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
+    'size' => length($config),
+    'digest' => $config_blobid,
+  }; 
+  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
+    my $mani = {
+      'schemaVersion' => 2,
+      'mediaType' => $mediaType,
+      'config' => $config_data,
+      'layers' => [ $payload_layer ],
+    }; 
+  my $mani_json = BSContar::create_dist_manifest($mani);
+  my $mani_id = push_manifest($repodir, $mani_json);
+  $knownmanifests->{$mani_id} = 1;
+  return $mani_id;
+}
+
 sub update_cosign {
   my ($prp, $repo, $gun, $digests_to_cosign, $pubkey, $signargs, $rekorserver, $knownmanifests, $knownblobs) = @_;
 
@@ -453,9 +479,11 @@ sub update_cosign {
   if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp || ($oldsigs->{'gun'} || '') ne $gun || ($oldsigs->{'creator'} || '') ne ($creator || '')) {
     $oldsigs = {};	# fingerprint/gun/creator mismatch, do not use old signatures
   }
-  my $sigs = { 'pubkey' => $pubkey_fp, 'gun' => $gun, 'creator' => $creator, 'digests' => {} };
+  my $sigs = { 'pubkey' => $pubkey_fp, 'gun' => $gun, 'creator' => $creator, 'digests' => {}, 'attestations' => {} };
+
+  # update signatures
   for my $digest (sort keys %$digests_to_cosign) {
-    my $oci = $digests_to_cosign->{$digest};
+    my $oci = $digests_to_cosign->{$digest}->[0];
     my $old = ($oldsigs->{'digests'} || {})->{$digest};
     if ($old) {
       $sigs->{'digests'}->{$digest} = $old;
@@ -463,26 +491,7 @@ sub update_cosign {
     }
     print "creating cosign signature for $gun $digest\n";
     my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
-    my $config_blobid = push_blob_content($repodir, $config);
-    $knownblobs->{$config_blobid} = 1;
-    my $payload_blobid = push_blob_content($repodir, $payload);
-    $knownblobs->{$payload_blobid} = 1;
-    die unless $payload_blobid eq $payload_layer->{'digest'};
-    my $config_data = {
-      'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
-      'size' => length($config),
-      'digest' => $config_blobid,
-    };
-    my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-    my $mani = {
-      'schemaVersion' => 2,
-      'mediaType' => $mediaType,
-      'config' => $config_data,
-      'layers' => [ $payload_layer ],
-    };
-    my $mani_json = BSContar::create_dist_manifest($mani);
-    my $mani_id = push_manifest($repodir, $mani_json);
-    $knownmanifests->{$mani_id} = 1;
+    my $mani_id = create_cosign_manifest($repodir, $oci, $config, $payload_layer, $payload, $knownmanifests, $knownblobs);
     $sigs->{'digests'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
@@ -491,6 +500,34 @@ sub update_cosign {
       BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
     }
   }
+
+  # update attestations
+  for my $digest (sort keys %$digests_to_cosign) {
+    my $oci = $digests_to_cosign->{$digest}->[0];
+    my $containerinfo = $digests_to_cosign->{$digest}->[1];
+    if (!$containerinfo->{'slsa_provenance'}) {
+      delete $sigs->{'attestations'}->{$digest};
+      next;
+    }
+    my $old = ($oldsigs->{'attestations'} || {})->{$digest};
+    if ($old) {
+      $sigs->{'attestations'}->{$digest} = $old;
+      next;
+    }
+    print "creating cosign attestation for $gun $digest\n";
+    my $attestation = $containerinfo->{'slsa_provenance'};
+    $attestation = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $gun);
+    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign_attestation($digest, $attestation);
+    my $mani_id = create_cosign_manifest($repodir, $oci, $config, $payload_layer, $payload, $knownmanifests, $knownblobs);
+    $sigs->{'attestations'}->{$digest} = $mani_id;
+    if ($rekorserver) {
+      print "uploading cosign attestation to $rekorserver\n";
+      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+      BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
+    }
+  }
+
   if (BSUtil::identical($oldsigs, $sigs)) {
     print "local cosign signatures: no change.\n";
     return;
@@ -640,7 +677,7 @@ sub push_containers {
       my $mani_json = BSContar::create_dist_manifest($mani);
       my $mani_id = push_manifest($repodir, $mani_json);
       $knownmanifests{$mani_id} = 1;
-      $digests_to_cosign{$mani_id} = $oci;
+      $digests_to_cosign{$mani_id} = [ $oci, $containerinfo ];
 
       my $multimani = {
 	'mediaType' => $mediaType,
@@ -694,7 +731,7 @@ sub push_containers {
       $mani_size = length($mani_json);
       $knownmanifests{$mani_id} = 1;
       $taginfo->{'distmanifesttype'} = 'list';
-      $digests_to_cosign{$mani_id} = $oci;
+      $digests_to_cosign{$mani_id} = [ $oci ];
     } else {
       $mani_id = $multimanifests[0]->{'digest'};
       $mani_size = $multimanifests[0]->{'size'};

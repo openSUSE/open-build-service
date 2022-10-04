@@ -4098,6 +4098,10 @@ sub registry_manifest {
     my $digest = "sha256:$1";
     my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
     $manifest = $sigs->{'digests'}->{$digest} if $sigs && $sigs->{'digests'}->{$digest};
+  } elsif ($manifest =~ /^sha256-([0-9a-f]{64}).att$/) {
+    my $digest = "sha256:$1";
+    my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
+    $manifest = $sigs->{'attestations'}->{$digest} if $sigs && $sigs->{'attestations'}->{$digest};
   }
   if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
     $mani_json = readstr("$repodir/:tags/$manifest", 1);
