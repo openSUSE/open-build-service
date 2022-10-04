@@ -1,0 +1,39 @@
+type: object
+properties:
+  name:
+    type: string
+    xml:
+      attribute: true
+  rev:
+    type: string
+    xml:
+      attribute: true
+  vrev:
+    type: string
+    xml:
+      attribute: true
+  srcmd5:
+    type: string
+    xml:
+      attribute: true
+  entry:
+    type: object
+    properties:
+      name:
+        type: string
+        xml:
+          attribute: true
+      md5:
+        type: string
+        xml:
+          attribute: true
+      size:
+        type: string
+        xml:
+          attribute: true
+      mtime:
+        type: string
+        xml:
+          attribute: true
+xml:
+  name: directory

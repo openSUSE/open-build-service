@@ -1,0 +1,55 @@
+get:
+  summary: List project files
+  description: |
+    List all the files in project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: meta
+      required: false
+      schema:
+        type: integer
+      description: Set to 1 to include _meta files
+      example: 1
+    - in: query
+      name: rev
+      required: false
+      schema:
+        type: integer
+      description: Revision number
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/project_files.yaml'
+          example:
+            name: _project
+            rev: '7'
+            vrev: '445'
+            srcmd5: 9a18405476229262648b4c3e548a90a9
+            entry:
+              name: _pubkey
+              md5: 1536ab133eb76be69aaba65d934d827a
+              size: '1369'
+              mtime: '1650378374'
+    '400':
+      description: Wrong value for meta parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not boolean:
+              value:
+                code: 400
+                summary: "not boolean"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
