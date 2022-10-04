@@ -147,6 +147,7 @@ sub stat_container {
   $s[7] = $containerinfo->{'tar_size'};
   $s[9] = $containerinfo->{'tar_mtime'};
   $s[20] = $containerinfo->{'tar_md5sum'};
+  $s[21] = $containerinfo->{'tar_sha256sum'};
   return @s;
 }
 
@@ -165,6 +166,18 @@ sub open_container {
   BSTar::writetar($fd, $tar);
   seek($fd, 0, 0);
   return $fd;
+}
+
+sub write_container {
+  my ($container, $fn, $fnf, $sha256sum) = @_;
+  my $containerinfo = get_containerinfo($container);
+  return undef unless $containerinfo;
+  return undef if $sha256sum && $containerinfo->{'tar_sha256sum'} ne $sha256sum;
+  my $dir = $container;
+  $dir =~ s/[^\/]*$/./;
+  my ($tar, undef, $mtime) = construct_container_tar($dir, $containerinfo, 1);
+  BSTar::writetarfile($fn, $fnf, $tar, 'mtime' => $mtime);
+  return 1;
 }
 
 sub add_containers {
