@@ -4,22 +4,27 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include BuildLogSupport
 
+  # TODO: Keep in sync with Build::query in backend/build/Build.pm.
+  #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
+  QUERYABLE_BUILD_RESULTS = [Regexp.new('\.rpm$'),
+                             Regexp.new('\.deb$'),
+                             Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
+                             Regexp.new('\.arch$')].freeze
+
   before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
-                                     :binary_download]
+                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
 
   before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
-                                         :binary_download]
+                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
 
   before_action :validate_xml, only: [:save_meta]
 
-  before_action :require_repository, only: [:binary, :binary_download]
-  before_action :require_architecture, only: [:binary, :binary_download]
+  before_action :require_repository, only: [:binary]
+  before_action :require_architecture, only: [:binary]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :index, :branch_diff_info, :binaries,
@@ -33,7 +38,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
-  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
+  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
@@ -182,24 +187,22 @@ class Webui::PackageController < Webui::WebuiController
                                                       architecture: params[:arch]).results
   end
 
+  # FIXME: This is Webui::Packages::BinariesController#show
   def binary
-    @package_name = params[:package]
+    @package_name = params[:package] # might be a multibuild flavor
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @architecture.name, @filename)
     raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
-    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
-                                                                 user: User.possibly_nobody, arch: @arch,
-                                                                 repository: @repository, filename: @filename)
-    @download_url = url_generator.download_url_for_file_in_repo
-
-    logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
-    # little trick to give users eager to download binaries a single click
-    redirect_to(@download_url) && return if request.format != Mime[:html] && @download_url
+    @download_url = @package.download_url_for_binary(repository_name: @repository.name,
+                                                     architecture_name: @architecture.name,
+                                                     package_name: @package_name,
+                                                     filename: @filename)
   end
 
+  # FIXME: This is Webui::Packages::BinariesController#index
   def binaries
     @repository = params[:repository]
     @package_name = params[:package]
@@ -208,7 +211,6 @@ class Webui::PackageController < Webui::WebuiController
     raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
     @buildresults = []
-    repository = Repository.find_by_project_and_name(@project.to_s, @repository)
     results_from_backend.elements('result') do |result|
       build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
 
@@ -216,8 +218,15 @@ class Webui::PackageController < Webui::WebuiController
         if binary['filename'] == '_statistics'
           build_results_set[:statistics] = true
         else
-          links = links_for_binaries_action(@project, @package_name, repository, result['arch'], binary['filename'])
-          build_results_set[:binaries] << { filename: binary['filename'], size: binary['size'], links: links }
+          download_url = @package.download_url_for_binary(repository_name: @repository,
+                                                          architecture_name: result['arch'],
+                                                          package_name: @package_name, # multibuild flavors...
+                                                          filename: binary['filename'])
+          build_results_set[:binaries] << { filename: binary['filename'],
+                                            size: binary['size'],
+                                            links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
+                                                     download_url: download_url,
+                                                     cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
         end
       end
       @buildresults << build_results_set
@@ -621,25 +630,6 @@ class Webui::PackageController < Webui::WebuiController
     render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
   end
 
-  def binary_download
-    package_name = params[:package]
-    architecture = Architecture.find_by_name(params[:arch]).name
-    filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
-    repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
-
-    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: package_name,
-                                                                 user: User.possibly_nobody, arch: architecture,
-                                                                 repository: repository, filename: filename)
-
-    download_url = url_generator.download_url_for_file_in_repo
-
-    if download_url
-      redirect_to download_url
-    else
-      redirect_back(fallback_location: root_path)
-    end
-  end
-
   private
 
   def package_params
@@ -731,16 +721,9 @@ class Webui::PackageController < Webui::WebuiController
     true
   end
 
-  def links_for_binaries_action(project, package_name, repository, architecture, filename)
-    download_url = package_binary_download_path(project: project.name, package: package_name,
-                                                repository: repository.name, arch: architecture, filename: filename)
-    cloud_upload = User.session && uploadable?(filename, architecture)
-    { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
-  end
-
   def require_architecture
-    @arch = Architecture.archcache[params[:arch]]
-    return if @arch
+    @architecture = Architecture.archcache[params[:arch]]
+    return if @architecture
 
     flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
     redirect_to package_binaries_path(project: @project, package: @package, repository: @repository.name)

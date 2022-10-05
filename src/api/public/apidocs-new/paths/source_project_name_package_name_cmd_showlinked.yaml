@@ -1,0 +1,48 @@
+post:
+  summary: List all packages linking to this one.
+  description: List all packages linking to this one. Despite using the method `POST`, this endpoint doesn't alter any data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  xml:
+                    attribute: true
+                project:
+                  type: string
+                  xml:
+                    attribute: true
+              xml:
+                name: package
+            xml:
+              name: collection
+              wrapped : true
+          examples:
+            No results:
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <collection/>
+            Two linked packages:
+              value:
+                - name: hello_world
+                  project: home:Admin:branches:home:Admin
+                - name: hello_world2
+                  project: home:Admin:branches:home:Admin
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

@@ -412,6 +412,10 @@ case "$1" in
             else
                 port=""
             fi
+            proto=
+            if [ -n "$OBS_WORKER_PROTO" ] ; then
+                proto="--proto $OBS_WORKER_PROTO"
+            fi
             I_INDEX=$I
             I=$(( $I + 1 ))
             if [ "$OBS_VM_TYPE" = 'zvm' ]; then
@@ -466,7 +470,7 @@ case "$1" in
                 SWAP=
                 MEMORY=
             fi
-            echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port --root $R" \
+            echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port $proto --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 "$OBS_CLEANUP_CHROOT $OBS_WIPE_AFTER_BUILD $OBS_WORKER_USE_MKFS_COPYIN $ARCH $EMULATOR" \

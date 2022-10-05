@@ -31,9 +31,11 @@ use BSRPC ':https';
 use BSConfiguration;
 
 our $intoto_slsav1 = "https://slsa.dev/provenance/v0.1";
+our $intoto_slsav2 = "https://slsa.dev/provenance/v0.2";
 our $intoto_spdx = "https://spdx.dev/Document";
 our $intoto_linkv1= "https://in-toto.io/Link/v1";
 our $intoto_cosignv1 = "cosign.sigstore.dev/attestation/v1";
+our $intoto_vulnv1 = "cosign.sigstore.dev/attestation/vuln/v1";
 
 sub canonical_json {
   my ($d) = @_;
@@ -117,15 +119,10 @@ sub upload_hashedrekord {
 }
 
 sub upload_intoto {
-  my ($server, $pubkey, $payloadtype, $payload, $signature) = @_;
-  my $envelope = {
-    'payload' => mime_encode($payload),
-    'payloadType' => $payloadtype,
-    'signatures' => [ { 'sig' => mime_encode($signature) } ],
-  };
+  my ($server, $envelope, $pubkey) = @_;
   my $spec = {
     'publicKey' => mime_encode($pubkey),
-    'content' => { 'envelope' => canonical_json($envelope) },
+    'content' => { 'envelope' => $envelope },
   };
   my $entry = {
     'kind' => 'intoto',

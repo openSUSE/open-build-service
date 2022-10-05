@@ -301,12 +301,15 @@ sub server {
   my $chld_full_data = {};
   my $chld2_full_data = {};
   my $tossl;
+  my %tosslopts;
 
   if ($conf->{'proto'} && $conf->{'proto'} eq 'https') {
     die("need ssl_keyfile and ssl_certfile for https\n") unless $conf->{'ssl_keyfile'} && $conf->{'ssl_certfile'};
     require BSSSL;
     $tossl = \&BSSSL::tossl;
-    BSSSL::initctx($conf->{'ssl_keyfile'}, $conf->{'ssl_certfile'});
+    my $verify = ref($conf->{'ssl_verify'}) eq 'HASH' ? $conf->{'ssl_verify'} : {};
+    $tosslopts{'ctx'} = BSSSL::newctx('keyfile' => $conf->{'ssl_keyfile'}, 'certfile' => $conf->{'ssl_certfile'}, 'verify_file' => $verify->{'verify_file'}, 'verify_dir' => $verify->{'verify_dir'});
+    $tosslopts{'verify'} = $verify->{'mode'} || '1' if $conf->{'ssl_verify'};
   }
   
   if ($conf->{'serverstatus'} && !$serverstatus_ok) {
@@ -449,7 +452,7 @@ sub server {
     reply_error($conf, $@) if $@;
   }
 
-  $tossl->($clnt, 0, 0, 0) if $tossl;
+  $tossl->($clnt, 'mode' => 'accept', %tosslopts) if $tossl;
 
   if (!$conf->{'dispatch'}) {
     # the old way... please use a dispatch function in new code
@@ -630,6 +633,22 @@ sub getpeerdata {
   my ($port, $addr) = sockaddr_in($peername);
   $addr = inet_ntoa($addr) if $addr;
   return ($port, $addr);
+}
+
+sub getpeerfingerprint {
+  my ($req, $type) = @_;
+  my $conf = $req->{'conf'};
+  return undef unless ($conf->{'proto'} || '') eq 'https';
+  return undef unless $req->{'__socket'};
+  tied(*{$req->{'__socket'}})->peerfingerprint($type);
+}
+
+sub getsubjectdn {
+  my ($req, $ignoreverify) = @_;
+  my $conf = $req->{'conf'};
+  return undef unless ($conf->{'proto'} || '') eq 'https';
+  return undef unless $req->{'__socket'};
+  tied(*{$req->{'__socket'}})->subjectdn($ignoreverify);
 }
 
 sub readrequest {

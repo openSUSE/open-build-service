@@ -847,8 +847,9 @@ our $packagebinarychecksums = [
 our $worker = [
     'worker' =>
 	'hostarch',
-	'ip',
-	'port',
+	'ip',		# obsolete
+	'port',		# obsolete
+	'uri',
 	'registerserver',
 	'workerid',
       [ 'buildarch' ],
@@ -1389,6 +1390,7 @@ our $request = [
 	    'name',
 	    'who',
 	    'when',
+	    'created',
 	    'approver',
 	    'superseded_by', # set when state.name is "superseded"
 	    [],
@@ -2061,6 +2063,7 @@ our $certinfo = [
 	'begins',
 	'expires',
 	'fingerprint',
+	'keyid',
 	'_content',
 ];
 

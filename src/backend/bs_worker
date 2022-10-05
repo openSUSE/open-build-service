@@ -68,6 +68,7 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $buildroot;
 my $port;
+my $proto;
 my $statedir;
 my $hostarch;
 my $vm = '';
@@ -409,6 +410,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--port') {
     shift @ARGV;
     $port = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--proto') {
+    shift @ARGV;
+    $proto = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--arch') {
@@ -895,6 +901,7 @@ sub stream_logfile {
 sub send_state {
   my ($state, $p, $ba, $exclude) = @_;
   my @args = ("state=$state", "arch=$ba", "port=$p");
+  push @args, "proto=$proto" if ($proto || 'http') ne 'http';
   push @args, "workerid=$workerid" if defined $workerid;
   for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
@@ -920,6 +927,7 @@ sub send_state {
 sub send_dispatched {
   my ($server, $p, $ba, $buildinfo) = @_;
   my @args = ("hostarch=$ba", "port=$p");
+  push @args, "proto=$proto" if ($proto || 'http') ne 'http';
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "job=$buildinfo->{'job'}";
   push @args, "arch=$buildinfo->{'arch'}";
@@ -2489,6 +2497,7 @@ sub getbinaries_containers {
     $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
     die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
     my $tarname = $res->[0]->{'name'};
+    add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}", $tarname, "$ddir/$tarname", 'containers') if $buildinfo->{'slsaprovenance'};
     my $kiwimode = getkiwimode($buildinfo);
     if ($kiwimode eq 'image' && $tarname =~ /\.tar$/) {
       system('gzip', '-f', '-1', "$ddir/$tarname") && die("kiwi container compression: $?\n");
@@ -2549,6 +2558,12 @@ sub getbinaries_kiwiimage {
       last unless @todo;
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $syspatharch, 1, \@todo, $modules);
+      if ($buildinfo->{'slsaprovenance'}) {
+	for my $n (sort keys %$got) {
+	  my $f = $got->{$n};
+	  add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$syspatharch", $f->{'name'}, "$dir/$f->{'name'}");
+	}
+      }
       @todo = grep {!$got->{$_}} @todo;
     }
     die("getbinaries: missing packages: @todo\n") if @todo;
@@ -2593,6 +2608,7 @@ sub getbinaries_kiwiimage {
       if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
 	if (!-e "$dir/$f->{'name'}") {
 	  link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
+	  add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", $f->{'name'}, "$dir/$f->{'name'}") if $buildinfo->{'slsaprovenance'};
 	}
 	unlink("$ddir/$f->{'name'}") if $bdep_notmeta{$n};
       }
@@ -3143,6 +3159,18 @@ sub createreport {
   local *F;
   for my $file (grep {/\.packages$/} sort(ls($dir))) {
     next unless open(F, '<', "$dir/$file");
+    # get basepackages if available
+    my $bfile = $file;
+    $bfile =~ s/\.packages$/.basepackages/;
+    my %baseentries;
+    my $bf;
+    if (open($bf, '<', "$dir/$bfile")) {
+      while(<$bf>) {
+        chomp;
+        $baseentries{$_} = 1;
+      }
+      close($bf);
+    }
     my @bins;
     while (<F>) {
       chomp;
@@ -3171,8 +3199,14 @@ sub createreport {
 	}
       }
       my $prpap = $kiwiorigins->{$s[0]};
-      if ($prpap) {
+      if ($prpap && !$baseentries{$_}) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+        if ($buildinfo->{'slsaprovenance'}) {
+          my $fn;
+          $fn = "$s[0].rpm" if -e "$srcdir/repos/$projid/$repoid/$s[0].rpm";
+          $fn = "$s[0].deb" if -e "$srcdir/repos/$projid/$repoid/$s[0].deb";
+          add_slsa_materials_binary($buildinfo, "$projid/$repoid/$arch", $fn, "$srcdir/repos/$projid/$repoid/$fn", 'repos') if $fn;
+        }
         $bin->{'project'} = $projid;
         $bin->{'repository'} = $repoid;
         $bin->{'arch'} = $arch;
@@ -3244,7 +3278,7 @@ my $slsa_json_template = {
       'reproducible' => 'bool',
     },
     'materials' => {
-      '_order' => ['uri', 'digest' ],
+      '_order' => ['uri', 'digest', 'intent' ],
     }
   }
 };
@@ -3325,7 +3359,7 @@ sub add_slsa_materials_sourcefile {
 }
 
 sub add_slsa_materials_binary {
-  my ($buildinfo, $prpa, $filename, $localfile) = @_;
+  my ($buildinfo, $prpa, $filename, $localfile, $intent) = @_;
   my $sha256sum = sha256file($localfile);
   my $uri;
   if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /\/_slsa$/) {
@@ -3337,7 +3371,9 @@ sub add_slsa_materials_binary {
     my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
     $uri = BSHTTP::urlencode("$server/slsa/$prpa/$filename/$sha256sum");
   }
-  push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+  my $m = { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+  $m->{'intent'} = $intent if $intent;
+  push @{$buildinfo->{'materials'}}, $m;
 }
 
 sub add_slsa_materials_config {
@@ -4254,6 +4290,9 @@ BSServer::deamonize(@ARGV) unless $oneshot;
 $SIG{'PIPE'} = 'IGNORE';
 $| = 1;
 
+die("Unsupported proto $proto\n") if $proto && $proto ne 'http' && $proto ne 'https';
+require BSSSL if $proto && $proto eq 'https';	# fail early
+
 # calculate code meta md5
 $workercode = codemd5('worker');
 $buildcode = codemd5('build');
@@ -4301,6 +4340,11 @@ BSDispatch::compile($conf);
 $conf->{'stdreply'} ||= \&stdreply;
 $conf->{'errorreply'} ||= \&errreply;
 $conf->{'dispatch'} ||= \&BSDispatch::dispatch;
+if ($proto && $proto eq 'https') {
+  $conf->{'proto'} = $proto;
+  $conf->{'ssl_keyfile'} = $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
+  $conf->{'ssl_certfile'} = $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
+}
 
 # run the server, this will return only for /build requests
 # see returnfromserver setting above

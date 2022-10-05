@@ -155,24 +155,24 @@ sub pubkeyinfo {
 sub subjectpublickeyinfo {
   my ($pk, $isder) = @_;
   my ($algo, $curve, $keysize);
-  my $fingerprint;
+  my $keyid;
   eval {
     my $pku = $isder ? $pk : BSASN1::pem2der($pk, 'PUBLIC KEY');
     my $d = BSX509::pubkey2keydata($pku);
     $algo = $d->{'algo'} if $d->{'algo'};
     $curve = $d->{'curve'} if $d->{'curve'};
     $keysize = $d->{'keysize'} if $d->{'keysize'};
-    $fingerprint = unpack('H*', BSX509::generate_key_id($pku));
+    $keyid = unpack('H*', BSX509::generate_key_id($pku));
   };
   warn($@) if $@;
   my $pubkey = {};
   $pubkey->{'algo'} = $algo if $algo;
   $pubkey->{'curve'} = $curve if $curve;
   $pubkey->{'keysize'} = $keysize if $keysize;
-  if ($fingerprint) {
-    $fingerprint =~ s/(....)/$1 /g;
-    $fingerprint =~ s/ $//;
-    $pubkey->{'fingerprint'} = $fingerprint;
+  if ($keyid) {
+    $keyid =~ s/(....)/$1 /g;
+    $keyid =~ s/ $//;
+    $pubkey->{'keyid'} = $keyid;
   }
   return $pubkey;
 }
@@ -188,9 +188,15 @@ sub certinfo {
     $info->{'serial'} = length($serial) ? '0x' . unpack('H*', $serial) : '0x0';
     ($info->{'begins'}, $info->{'expires'}) = BSX509::unpack_validity($validity);
     my $pkinfo = subjectpublickeyinfo($subjectkeyinfo, 1);
-    defined($pkinfo->{$_}) && ($info->{$_} = $pkinfo->{$_}) for qw{algo keysize fingerprint};
+    defined($pkinfo->{$_}) && ($info->{$_} = $pkinfo->{$_}) for qw{algo keysize keyid};
     $info->{'subject'} = BSX509::dn2str($subject);
     $info->{'issuer'} = BSX509::dn2str($issuer) if $issuer ne $subject;
+    my $fp = unpack('H*', BSX509::generate_cert_fingerprint($der));
+    if ($fp) {
+      $fp =~ s/(....)/$1 /g;
+      $fp =~ s/ $//;
+      $info->{'fingerprint'} = $fp;
+    }
   };
   warn($@) if $@;
   return $info;

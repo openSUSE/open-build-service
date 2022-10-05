@@ -368,7 +368,7 @@ sub rpc {
         die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
       }
       if ($proto eq 'https' || $proxytunnel) {
-        ($param->{'https'} || $tossl)->($sock, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1, $host);
+        ($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $host);
         verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
       }
     }

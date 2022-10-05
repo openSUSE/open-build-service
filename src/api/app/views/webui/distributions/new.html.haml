@@ -25,8 +25,7 @@
                                                                   content: 'Variants are distributions of the same general kind that only
                                                                             differ in the set of packages they include. You should consult
                                                                             the distributions documentation to learn more about the variants.
-                                                                            It is only possible to add one distribution variant as repository.'
-                                                                } }
+                                                                            It is only possible to add one distribution variant as repository.' } }
                       \:
                     - variants.each do |variant|
                       = form_tag(toggle_project_distributions_path, remote: true, id: "distribution-#{variant.id}-form") do

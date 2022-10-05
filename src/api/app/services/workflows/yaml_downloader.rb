@@ -31,6 +31,8 @@ module Workflows
       when 'gitlab'
         # This GitLab URL admits both a branch name and a commit sha.
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
+      when 'gitea'
+        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/.obs/workflows.yml"
       end
     rescue Octokit::InvalidRepository => e
       raise Token::Errors::NonExistentRepository, e.message

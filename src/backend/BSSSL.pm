@@ -31,32 +31,50 @@ use Net::SSLeay;
 use strict;
 
 my $sslctx;
+my $ssleay_inited;
 
-sub initctx {
-  my ($keyfile, $certfile) = @_;
+sub initssleay {
   Net::SSLeay::load_error_strings();
   Net::SSLeay::SSLeay_add_ssl_algorithms();
   Net::SSLeay::randomize();
-  $sslctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
-  Net::SSLeay::CTX_set_options($sslctx, &Net::SSLeay::OP_ALL);
-  if ($keyfile) {
-    Net::SSLeay::CTX_use_PrivateKey_file($sslctx, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $keyfile failed to load\n");
+  $ssleay_inited = 1;
+}
+
+sub newctx {
+  my (%opts) = @_;
+  initssleay() unless $ssleay_inited;
+  my $ctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
+  Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
+  if ($opts{'keyfile'}) {
+    Net::SSLeay::CTX_use_PrivateKey_file($ctx, $opts{'keyfile'}, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $opts{'keyfile'} failed to load\n");
   }
-  if ($certfile) {
+  if ($opts{'certfile'}) {
     # CTX_use_certificate_chain_file expects PEM format anyway, client cert first, chain certs after that
-    Net::SSLeay::CTX_use_certificate_chain_file($sslctx, $certfile) || die("certificate $certfile failed\n");
+    Net::SSLeay::CTX_use_certificate_chain_file($ctx, $opts{'certfile'}) || die("certificate $opts{'certfile'} failed to load\n");
   }
   if (defined(&Net::SSLeay::CTX_set_tmp_ecdh) && Net::SSLeay::SSLeay() < 0x10100000) {
     my $curve = Net::SSLeay::OBJ_txt2nid('prime256v1');
     my $ecdh  = Net::SSLeay::EC_KEY_new_by_curve_name($curve);
-    Net::SSLeay::CTX_set_tmp_ecdh($sslctx, $ecdh);
+    Net::SSLeay::CTX_set_tmp_ecdh($ctx, $ecdh);
     Net::SSLeay::EC_KEY_free($ecdh);
   }
+  if ($opts{'verify_file'} || $opts{'verify_dir'}) {
+    Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed\n");
+  }
+  return $ctx;
 }
 
 sub freectx {
-  Net::SSLeay::CTX_free($sslctx);
-  undef $sslctx;
+  my ($ctx) = @_;
+  Net::SSLeay::CTX_free($ctx) if $ctx;
+  return undef;
+}
+
+sub setdefaultctx {
+  my ($ctx) = @_;
+  freectx($sslctx);
+  $sslctx = $ctx;
+  return $sslctx;
 }
 
 sub tossl {
@@ -65,23 +83,37 @@ sub tossl {
 }
 
 sub TIEHANDLE {
-  my ($self, $socket, $keyfile, $certfile, $forceconnect, $sni) = @_;
+  my ($self, $socket, %opts) = @_;
 
-  initctx() unless $sslctx;
-  my $ssl = Net::SSLeay::new($sslctx) or die("SSL_new failed\n");
+  my $ctx = $opts{'ctx'} || $sslctx || setdefaultctx(newctx());
+  my $ssl = Net::SSLeay::new($ctx) or die("SSL_new failed\n");
   Net::SSLeay::set_fd($ssl, fileno($socket));
-  if ($keyfile) {
-    Net::SSLeay::use_PrivateKey_file($ssl, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $keyfile failed to load\n");
+  if ($opts{'keyfile'}) {
+    Net::SSLeay::use_PrivateKey_file($ssl, $opts{'keyfile'}, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $opts{'keyfile'} failed to load\n");
   }
-  if ($certfile) {
-    Net::SSLeay::use_certificate_file($ssl, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $certfile failed\n");
+  if ($opts{'certfile'}) {
+    Net::SSLeay::use_certificate_file($ssl, $opts{'certfile'}, &Net::SSLeay::FILETYPE_PEM) || die("certificate $opts{'certfile'} failed\n");
   }
-  if (defined($keyfile) && !$forceconnect) {
-    Net::SSLeay::accept($ssl) == 1 || die("SSL_accept\n");
+  my $cert_ok;
+  if ($opts{'verify'}) {
+    my $mode = &Net::SSLeay::VERIFY_PEER;
+    $mode |= &Net::SSLeay::VERIFY_FAIL_IF_NO_PEER_CERT if $opts{'verify'} =~ /enforce_cert/;
+    my $cb;
+    if ($opts{'verify'} !~ /fail_unverified/) {
+      $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return 1 };
+    } else {
+      $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return $_[0] };
+    }
+    Net::SSLeay::set_verify($ssl, $mode, $cb);
+  }
+  my $mode = $opts{'mode'} || ($opts{'keyfile'} ? 'accept' : 'connect');
+  if ($mode eq 'accept') {
+    Net::SSLeay::accept($ssl) == 1 || die("SSL_accept error $!\n");
   } else {
-    Net::SSLeay::set_tlsext_host_name($ssl, $sni) if $sni && defined(&Net::SSLeay::set_tlsext_host_name);
-    Net::SSLeay::connect($ssl) || die("SSL_connect");
+    Net::SSLeay::set_tlsext_host_name($ssl, $opts{'sni'}) if $opts{'sni'} && defined(&Net::SSLeay::set_tlsext_host_name);
+    Net::SSLeay::connect($ssl) || die("SSL_connect error");
   }
+  return bless [$ssl, $socket, \$cert_ok] if $opts{'verify'};
   return bless [$ssl, $socket];
 }
 
@@ -159,6 +191,19 @@ sub peerfingerprint {
   return undef unless $fp;
   $fp =~ s/://g;
   return lc($fp);
+}
+
+sub subjectdn {
+  my ($sslr, $ignoreverify) = @_;
+  if (!$ignoreverify) {
+    my $cert_ok = @$sslr >= 3 ? ${$sslr->[2]} : 0;
+    return undef unless $cert_ok;
+  }
+  my $cert = Net::SSLeay::get_peer_certificate($sslr->[0]);
+  return undef unless $cert;
+  my $issuer = Net::SSLeay::X509_get_issuer_name($cert);
+  return undef unless $issuer;
+  return Net::SSLeay::X509_NAME_print_ex($issuer, &Net::SSLeay::XN_FLAG_RFC2253);
 }
 
 1;

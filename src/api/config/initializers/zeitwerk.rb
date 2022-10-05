@@ -3,6 +3,7 @@ Rails.autoloaders.each do |autoloader|
   autoloader.inflector.inflect(
     'api_matcher' => 'APIMatcher',
     'cve_parser' => 'CVEParser',
+    'gitea_api' => 'GiteaAPI',
     'meta_xml_validator' => 'MetaXMLValidator',
     'obs_quality_categories_finder' => 'OBSQualityCategoriesFinder',
     'opensuse_upstream_tarball_url_finder' => 'OpenSUSEUpstreamTarballURLFinder',
@@ -10,7 +11,6 @@ Rails.autoloaders.each do |autoloader|
     'remote_url' => 'RemoteURL',
     'report_to_scm_job' => 'ReportToSCMJob',
     'rss_channel' => 'RSSChannel',
-    'url_generator' => 'URLGenerator',
     'scm_status_report' => 'SCMStatusReport',
     'scm_status_reporter' => 'SCMStatusReporter',
     'scm_exception_handler' => 'SCMExceptionHandler',

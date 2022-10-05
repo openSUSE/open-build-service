@@ -285,8 +285,8 @@ RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
       it { expect(response.content_type).to eq('application/xml; charset=utf-8') }
 
       it 'returns an error message in the response body' do
-        expect(response.body).to include('Only GitHub and GitLab are supported. ' \
-                                         'Could not find the required HTTP request headers X-GitHub-Event or X-Gitlab-Event')
+        expect(response.body).to include('Only GitHub, GitLab and Gitea are supported. ' \
+                                         'Could not find the required HTTP request headers X-GitHub-Event, X-Gitlab-Event or X-Gitea-Event')
       end
     end
   end

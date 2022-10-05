@@ -25,17 +25,6 @@ class GitlabStatusReporter < SCMExceptionHandler
     RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if @workflow_run.present?
   end
 
-  def self.scm_final_state(event_type)
-    case event_type
-    when 'Event::BuildFail'
-      'failed'
-    when 'Event::BuildSuccess'
-      'success'
-    else
-      'pending'
-    end
-  end
-
   # TODO: extract to a parent class
   def status_options
     if @initial_report

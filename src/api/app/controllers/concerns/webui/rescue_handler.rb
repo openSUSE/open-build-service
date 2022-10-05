@@ -36,7 +36,7 @@ module Webui::RescueHandler
     class MissingParameterError < RuntimeError; end
     rescue_from MissingParameterError do |exception|
       logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
-      render file: Rails.public_path.join('404'), status: 404, layout: false, formats: [:html]
+      render file: Rails.public_path.join('404.html'), status: 404, layout: false, formats: [:html]
     end
   end
 end
