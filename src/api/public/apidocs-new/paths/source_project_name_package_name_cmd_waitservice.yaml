@@ -1,0 +1,43 @@
+post:
+  summary: Return when the last run of defined services has finished.
+  description: |
+    Return an `Ok` code when the last run of defined services in the `_service` file has finished.
+
+    If a run of services is in progress, wait until all services finish.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Service Not Installed:
+              value:
+                code: 400
+                origin: backend
+                summary: " 400 remote error: /usr/lib/obs/service//set_version.service  No such file or directory (http://backend:5152/sourceupdate/home:Admin/obs-server?timeout=3600)"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            No Permission to Wait for Services:
+              value:
+                code: cmd_execution_no_permission
+                summary: no permission to modify package test in project home:Admin
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages
