@@ -56,6 +56,8 @@ my $blobdir;
 my $oci;
 
 my $cosign;
+my $cosigncookie;
+my $slsaprovenance;
 my $gun;
 my @signcmd;
 my $pubkeyfile;
@@ -68,6 +70,8 @@ my @tarfiles;
 
 my $registry_authenticator;
 my $keepalive;
+
+my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
 
 sub send_layer {
   my ($param) = @_;
@@ -255,6 +259,27 @@ sub manifest_upload_tags {
   }
 }
 
+sub cosign_upload {
+  my ($tag, $config, $payload_layer, $payload) = @_;
+  my $config_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($config), $config);
+  my $payload_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($payload), $payload);
+  die unless $payload_blobid eq $payload_layer->{'digest'};
+  my $config_data = {
+    'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
+    'size' => length($config),
+    'digest' => $config_blobid,
+  };
+  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
+  my $mani = {
+    'schemaVersion' => 2,
+    'mediaType' => $mediaType,
+    'config' => $config_data,
+    'layers' => [ $payload_layer ],
+  };
+  my $mani_json = BSContar::create_dist_manifest_list($mani);
+  return manifest_upload($mani_json, $tag, $mediaType);
+}
+
 sub get_all_tags {
   my @regtags;
   my $replyheaders;
@@ -354,10 +379,17 @@ sub list_tag {
 
   my ($mani, $maniid) = get_manifest_for_tag($tag);
   my $extra = '';
-  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
+  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && $mani->{'mediaType'} && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
     if (@{$mani->{'layers'} || []} == 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dev.cosign.simplesigning.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
-      my $cookie = $annotations->{'org.open-build-service.cosign.cookie'};
+      my $cookie = $annotations->{$cosign_cookie_name};
+      $extra = " cosigncookie=$cookie" if $cookie;
+    }
+  }
+  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.att$/ && $mani && $mani->{'mediaType'} && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
+    if (@{$mani->{'layers'} || []} >= 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dsse.envelope.v1+json') {
+      my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
+      my $cookie = $annotations->{$cosign_cookie_name};
       $extra = " cosigncookie=$cookie" if $cookie;
     }
   }
@@ -379,7 +411,7 @@ sub list_tag {
 }
 
 sub tags_from_digestfile {
-  my ($add_sig_tags) = @_;
+  my ($add_cosign_tags) = @_;
   return () unless $digestfile;
   my @ret;
   local *DIG;
@@ -387,7 +419,7 @@ sub tags_from_digestfile {
   while (<DIG>) {
     chomp;
     next if /^#/ || /^\s*$/;
-    push @ret, "$1-$2.sig" if $add_sig_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+    push @ret, "$1-$2.sig", "$1-$2.att" if $add_cosign_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
     next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;	# ignore anonymous images
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     push @ret, $4;
@@ -496,6 +528,11 @@ while (@ARGV) {
     shift @ARGV;
   } elsif ($ARGV[0] eq '--cosign') {
     $cosign = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--cosigncookie') {
+    (undef, $cosigncookie) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--slsaprovenance') {
+    $slsaprovenance = 1;
     shift @ARGV;
   } elsif ($ARGV[0] eq '--rekor') {
     (undef, $rekorserver) = splice(@ARGV, 0, 2);
@@ -613,6 +650,14 @@ for my $tarfile (@tarfiles) {
   my ($tar, $tarfd, $govariant) = open_tarfile($tarfile);
   my %tar = map {$_->{'name'} => $_} @$tar;
 
+  my $provenance;
+  if ($slsaprovenance) {
+    my $provenancefile = $tarfile;
+    if ($provenancefile =~ s/\.[^\.]*$/.slsa_provenance.json/) {
+      $provenance = readstr($provenancefile) if -s $provenancefile;
+    }
+  }
+
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
   #print Dumper($manifest);
 
@@ -706,7 +751,7 @@ for my $tarfile (@tarfiles) {
   };
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
-  $digests_to_sign{$mani_id} = 1;
+  $digests_to_sign{$mani_id} = [ $provenance ];
 
   if ($multiarch) {
     manifest_upload_tags($mani_json, undef, $mediaType);	# upload anonymous image
@@ -732,48 +777,57 @@ if ($multiarch) {
   };
   my $mani_json = BSContar::create_dist_manifest_list($mani);
   my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
-  $digests_to_sign{$mani_id} = 1;
+  $digests_to_sign{$mani_id} = [];
   manifest_upload_tags($mani_json, \@tags, $mediaType);
 }
 
 if ($cosign && %digests_to_sign) {
   my $creator = 'OBS';
   my $gpgpubkey = readstr($pubkeyfile);
-  my $cosigncookie = BSConSign::createcosigncookie($gpgpubkey, $gun, $creator);
+  $cosigncookie ||= BSConSign::createcosigncookie($gpgpubkey, $gun, $creator);
+  # upload signatures
   for my $digest (sort keys %digests_to_sign) {
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
     my ($sig_mani, $sig_maniid, $sig_mani_json) = get_manifest_for_tag($sig_tag);
     if ($sig_mani && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
       my $annotations = $sig_mani->{'layers'}->[0]->{'annotations'} || {};
-      next if ($annotations->{'org.open-build-service.cosign.cookie'} || '') eq $cosigncookie;
+      next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
     }
     print "creating cosign signature for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
-    my $annotations = { 'org.open-build-service.cosign.cookie' => $cosigncookie };
+    my $annotations = { $cosign_cookie_name => $cosigncookie };
     my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
-    my $config_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($config), $config);
-    my $payload_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($payload), $payload);
-    die unless $payload_blobid eq $payload_layer->{'digest'};
-    my $config_data = {
-      'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
-      'size' => length($config),
-      'digest' => $config_blobid,
-    };
-    my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-    my $mani = {
-      'schemaVersion' => 2,
-      'mediaType' => $mediaType,
-      'config' => $config_data,
-      'layers' => [ $payload_layer ],
-    };
-    my $mani_json = BSContar::create_dist_manifest_list($mani);
-    manifest_upload($mani_json, $sig_tag, $mediaType);
+    cosign_upload($sig_tag, $config, $payload_layer, $payload);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
       BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
+    }
+  }
+  # upload attestations
+  for my $digest (sort keys %digests_to_sign) {
+    my $provenance = $digests_to_sign{$digest}->[0];
+    next unless $provenance;
+    my $att_tag = "$digest.att";
+    $att_tag =~ s/:/-/;
+    my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
+    if ($att_mani && @{$att_mani->{'layers'} || []} >= 1 && $BSConSign::mt_dsse && $att_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_dsse) {
+      my $annotations = $att_mani->{'layers'}->[0]->{'annotations'} || {};
+      next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
+    }
+    print "creating cosign attestation for $gun $digest\n";
+    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+    my $annotations = { $cosign_cookie_name => $cosigncookie };
+    my $attestation = BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun);
+    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign_attestation($digest, $attestation, $annotations);
+    cosign_upload($att_tag, $config, $payload_layer, $payload);
+    if ($rekorserver) {
+      print "uploading cosign attestation to $rekorserver\n";
+      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
+      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+      BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
     }
   }
 }
