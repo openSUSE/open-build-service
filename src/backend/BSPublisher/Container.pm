@@ -473,7 +473,7 @@ sub query_repostate {
     $repostate = {};
     while (<$fd>) {
       my @s = split(' ', $_);
-      if (@s == 4 && $s[0] =~ /\.sig$/ && $s[3] =~ /^cosigncookie=/) {
+      if (@s == 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[3] =~ /^cosigncookie=/) {
         $repostate->{$s[0]} = $s[3];
       } elsif (@s >= 3) {
         $repostate->{$s[0]} = $s[1];
@@ -519,6 +519,12 @@ sub upload_to_registry {
 
   my $cosign = $registry->{'cosign'};
   $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
+  my $cosign_attestation = $cosign;
+  if (defined $registry->{'cosign_attestation'}) {
+    $cosign_attestation = $registry->{'cosign_attestation'};
+    $cosign_attestation = $cosign_attestation->($repository, $projid) if $cosign_attestation && ref($cosign_attestation) eq 'CODE';
+  }
+  
   my $cosigncookie;
   if (defined($pubkey) && $cosign) {
     my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
@@ -538,6 +544,11 @@ sub upload_to_registry {
       my @infos;
       for my $containerinfo (@$containerinfos) {
 	$info = create_container_dist_info($containerinfo, $oci, \%platforms);
+        if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
+	  my $atttag = $info->{'digest'};
+	  $atttag =~ s/:(.*)/-$1.att/;
+	  $expected{$atttag} = "cosigncookie=$cosigncookie";
+        }
 	push @infos, { %$info };	# copy so that size is not stringified
 	$containerdigests .= "$info->{'digest'} $info->{'size'}\n";
 	if ($cosigncookie) {
@@ -548,7 +559,13 @@ sub upload_to_registry {
       }
       $info = create_container_index_info(\@infos, $oci);
     } else {
-      $info = create_container_dist_info($containerinfos->[0], $oci);
+      my $containerinfo = $containerinfos->[0];
+      $info = create_container_dist_info($containerinfo, $oci);
+      if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
+	my $atttag = $info->{'digest'};
+	$atttag =~ s/:(.*)/-$1.att/;
+	$expected{$atttag} = "cosigncookie=$cosigncookie";
+      }
     }
     $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
     $expected{$_} = $info->{'digest'} for @$tags;
@@ -567,14 +584,17 @@ sub upload_to_registry {
   my @tempfiles;
   my @uploadfiles;
   my $blobdir;
+  my $do_slsaprovenance;
   for my $containerinfo (@$containerinfos) {
     my $file = $containerinfo->{'publishfile'};
+    my $provenance;
     if (!defined($file)) {
       # tar file needs to be constructed from blobs
       $blobdir = $containerinfo->{'blobdir'};
       die("need a blobdir for containerinfo uploads\n") unless $blobdir;
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
+      $provenance = $containerinfo->{'slsa_provenance'};
     } elsif ($file =~ /(.*)\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
       my $helminfofile = "$1.helminfo";
       $blobdir = $containerinfo->{'blobdir'};
@@ -582,12 +602,20 @@ sub upload_to_registry {
       die("bad publishfile\n") unless $helminfofile =~ /^\Q$blobdir\E\//;	# just in case
       push @uploadfiles, $helminfofile;
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
+      $provenance = $containerinfo->{'slsa_provenance'};
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
       my $tmpfile = decompress_container($file);
       push @uploadfiles, $tmpfile;
       push @tempfiles, $tmpfile;
+    }
+    # copy provenance file into blobdir
+    if ($provenance && $cosign_attestation) {
+      my $provenancefile = $uploadfiles[-1];
+      die unless $provenancefile =~ s/\.[^\.]+$/.slsa_provenance.json/;
+      writestr($provenancefile, undef, $provenance);
+      $do_slsaprovenance = 1;
     }
   }
 
@@ -599,7 +627,7 @@ sub upload_to_registry {
   push @opts, '-m' if $multiarch;
   push @opts, '--oci' if $oci;
   push @opts, '-B', $blobdir if $blobdir;
-  if (defined($pubkey) && $cosign) {
+  if ($cosigncookie) {
     my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
     $gun =~ s/^https?:\/\///;
     $gun .= "/$repository";
@@ -611,8 +639,10 @@ sub upload_to_registry {
     mkdir_p($uploaddir);
     unlink($pubkeyfile);
     writestr($pubkeyfile, undef, $pubkey);
-    push @opts, '--cosign', '-p', $pubkeyfile, '-G', $gun, @signargs;
+    push @opts, '--cosign', '--cosigncookie', $cosigncookie,
+    push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs,
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
+    push @opts, '--slsaprovenance' if $do_slsaprovenance;
   }
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
   print "uploading to registry: @cmd\n";
@@ -635,7 +665,7 @@ sub delete_obsolete_tags_from_registry {
     my @keep;
     for (split("\n", $containerdigests)) {
       next if /^#/ || /^\s*$/;
-      push @keep, "$1-$2.sig" if /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+      push @keep, "$1-$2.sig", "$1-$2.att" if /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
       next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;       # ignore anonymous images
       die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
       push @keep, $4;
