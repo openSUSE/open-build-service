@@ -135,9 +135,12 @@ sub dsse_sign {
 sub fixup_intoto_attestation {
   my ($attestation, $signfunc, $digest, $reference) = @_;
   $attestation = JSON::XS::decode_json($attestation);
-  die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH' && $attestation->{'payload'} && $attestation->{'payloadType'};
-  die("no an in-toto attestation\n") unless $attestation->{'payloadType'} eq $mt_intoto;
-  $attestation = JSON::XS::decode_json(MIME::Base64::decode_base64($attestation->{'payload'}));
+  die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH';
+  if ($attestation->{'payload'}) {
+    die("bad attestation\n") unless $attestation->{'payloadType'};
+    die("no an in-toto attestation\n") unless $attestation->{'payloadType'} eq $mt_intoto;
+    $attestation = JSON::XS::decode_json(MIME::Base64::decode_base64($attestation->{'payload'}));
+  }
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH' && $attestation->{'_type'};
   die("not a in-toto v0.1 attestation\n") unless $attestation->{'_type'} eq 'https://in-toto.io/Statement/v0.1';
   my $sha256digest = $digest;
