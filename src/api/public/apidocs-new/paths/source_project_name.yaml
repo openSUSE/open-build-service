@@ -1,0 +1,41 @@
+delete:
+  summary: Delete a specified project
+  description: |
+    Deletes a specified project and all the packages of this project
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: force
+      in: query
+      schema:
+        type: integer
+      description: |
+        Set to `1` if you want to delete the project even if the repositories of other
+        projects include a path to this project. After deletion, the path
+        in the other repository will start pointing towards 'deleted/standard' to
+        prevent the build and publishing
+    - name: comment
+      in: query
+      schema:
+        type: string
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Unauthorized to delete project
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            delete_project_no_permission:
+              value:
+                code: delete_project_no_permission
+                summary: Permission denied (delete project 'project_name')
+              summary: No permission
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
