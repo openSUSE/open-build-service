@@ -18,13 +18,15 @@ package BSRepServer::SLSA;
 
 use strict;
 
+use Digest::SHA ();
+use Data::Dumper;
+use DBI qw(:sql_types);
+
 use BSConfiguration;
 use BSUtil;
 use BSSQLite;
-use Digest::SHA ();
-use Data::Dumper;
+use BSRepServer::Containertar;
 
-use DBI qw(:sql_types);
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $slsadir = "$BSConfig::bsdir/slsa";
@@ -91,7 +93,13 @@ sub link_binary {
       my $ent = $gbininfo->{$packid}->{$k};
       next unless $ent->{'name'} && ($ent->{'name'} eq $binname1 || $ent->{'name'} eq $binname2);
       unlink($tmp);
-      next unless link("$reporoot/$prpa/$packid/$ent->{'filename'}", $tmp);
+      if ($ent->{'filename'} =~ /\.obsbinlnk$/ && $hint =~ /\.tar$/) {
+	my $fn = "$reporoot/$prpa/$packid/$ent->{'filename'}";
+	$fn =~ s/\.obsbinlnk/\.tar/;
+	next unless BSRepServer::Containertar::write_container($fn, $tmp, $digest);
+      } else {
+        next unless link("$reporoot/$prpa/$packid/$ent->{'filename'}", $tmp);
+      }
       unlink("$tmp.prov");
       link("$reporoot/$prpa/$packid/_slsa_provenance.json", "$tmp.prov");
       return 1 if sha256file($tmp) eq $digest;
@@ -117,7 +125,13 @@ sub link_binary_from_full {
   for my $bin (sort(ls("$reporoot/$prpa/:full"))) {
     if (($binname1 && $bin =~ /^\Q$binname1\E[-_\.]/) || ($binname2 && $bin =~ /^\Q$binname2\E[-_\.]/)) {
       unlink($tmp);
-      next unless link("$reporoot/$prpa/:full/$bin", $tmp);
+      if ($bin =~ /\.obsbinlnk$/ && $hint =~ /\.tar$/) {
+	my $fn = "$reporoot/$prpa/:full/$bin";
+	$fn =~ s/\.obsbinlnk/\.tar/;
+	next unless BSRepServer::Containertar::write_container($fn, $tmp, undef, $digest);
+      } else {
+        next unless link("$reporoot/$prpa/:full/$bin", $tmp);
+      }
       unlink("$tmp.prov");
       return 1 if sha256file($tmp) eq $digest;
     }

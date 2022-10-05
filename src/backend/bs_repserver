@@ -2398,7 +2398,7 @@ sub putjob {
 
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
-  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|AppImage|deb|appx|helminfo|raw|efi|roothash|usrhash)$/} @$uploaded)) {
+  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} eq '_slsa_provenance.json' || $_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|AppImage|deb|appx|helminfo|raw|efi|roothash|usrhash)$/} @$uploaded)) {
     if (@{$kiwitree_tosign || []}) {
       my $c = '';
       $c .= BSHTTP::urlencode($_)."\n" for @$kiwitree_tosign;
@@ -4098,6 +4098,10 @@ sub registry_manifest {
     my $digest = "sha256:$1";
     my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
     $manifest = $sigs->{'digests'}->{$digest} if $sigs && $sigs->{'digests'}->{$digest};
+  } elsif ($manifest =~ /^sha256-([0-9a-f]{64}).att$/) {
+    my $digest = "sha256:$1";
+    my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
+    $manifest = $sigs->{'attestations'}->{$digest} if $sigs && $sigs->{'attestations'}->{$digest};
   }
   if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
     $mani_json = readstr("$repodir/:tags/$manifest", 1);
