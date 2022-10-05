@@ -219,6 +219,10 @@ class Repository < ApplicationRecord
     name
   end
 
+  def to_param
+    name
+  end
+
   def is_kiwi_type?
     # HACK: will be cleaned up after implementing FATE #308899
     name == 'images'

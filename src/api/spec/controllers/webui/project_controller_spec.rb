@@ -504,12 +504,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it 'with a repository param but without a path param' do
-      expect { post :remove_path_from_target, params: { repository: repo_for_user_home, project: user } }.to raise_error ActiveRecord::RecordNotFound
+      expect { post :remove_path_from_target, params: { repository: repo_for_user_home.id, project: user } }.to raise_error ActiveRecord::RecordNotFound
     end
 
     context 'with a repository and path' do
       before do
-        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
+        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home.id, path: path_element }
       end
 
       it { expect(flash[:success]).to eq('Successfully removed path') }
@@ -522,7 +522,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
         path_element # Needed before stubbing Project#valid? to false
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
-        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
+        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home.id, path: path_element }
       end
 
       it { expect(flash[:error]).to eq('Can not remove path: ') }
