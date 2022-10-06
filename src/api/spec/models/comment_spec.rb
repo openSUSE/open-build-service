@@ -13,7 +13,7 @@ RSpec.describe Comment do
   describe 'save' do
     it 'stores emoji' do
       comment_package.body = '😁'
-      comment_package.save
+      expect { comment_package.save! }.not_to raise_error
     end
   end
 

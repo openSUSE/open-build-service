@@ -21,11 +21,9 @@ RSpec.describe GroupController do
       it { is_expected.to have_http_status(:success) }
 
       it 'returns with the xml representation of that group' do
-        assert_select 'group' do
-          assert_select 'title', group.title
-          assert_select 'email', group.email
-          assert_select 'maintainer', userid: group_maintainer
-        end
+        expect(response.body).to have_selector('group > title', text: group.title)
+        expect(response.body).to have_selector('group > email', text: group.email)
+        expect(response.body).to have_selector("group > maintainer[userid=#{group_maintainer}]")
       end
     end
 
@@ -50,10 +48,8 @@ RSpec.describe GroupController do
     it { is_expected.to have_http_status(:success) }
 
     it 'returns with the group xml representation' do
-      assert_select "directory[count=#{groups.count}]" do
-        groups.each do |group|
-          assert_select 'entry', name: group.title
-        end
+      groups.each do |group|
+        expect(response.body).to have_selector("directory[count=#{groups.count}] > entry[name=#{group.title}]")
       end
     end
   end

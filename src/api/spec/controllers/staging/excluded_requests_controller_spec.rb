@@ -39,17 +39,14 @@ RSpec.describe Staging::ExcludedRequestsController do
     it { expect(response).to have_http_status(:success) }
 
     it 'returns the excluded_requests xml' do
-      assert_select 'excluded_requests', 1 do
-        assert_select 'request', 2 do
-          assert_select "[id='#{bs_request.number}']"
-          assert_select "[id='#{bs_request_2.number}']"
-          assert_select "[package='#{bs_request.first_target_package}']"
-          assert_select "[package='#{bs_request_2.first_target_package}']"
-          assert_select "[description='Request 2']"
-          assert_select "[description='Request 1']"
-          assert_select "[description='Request 2']"
-        end
-      end
+      expect(response.body).to have_selector('excluded_requests', count: 1)
+      expect(response.body).to have_selector('excluded_requests > request', count: 2)
+      expect(response.body).to have_selector("excluded_requests > request[id='#{bs_request.number}']")
+      expect(response.body).to have_selector("excluded_requests > request[id='#{bs_request_2.number}']")
+      expect(response.body).to have_selector("excluded_requests > request[package='#{bs_request.first_target_package}']")
+      expect(response.body).to have_selector("excluded_requests > request[package='#{bs_request_2.first_target_package}']")
+      expect(response.body).to have_selector("excluded_requests > request[description='Request 1']")
+      expect(response.body).to have_selector("excluded_requests > request[description='Request 2']")
     end
   end
 

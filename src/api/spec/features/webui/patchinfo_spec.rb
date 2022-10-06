@@ -18,9 +18,9 @@ RSpec.describe 'Patchinfo', type: :feature, js: true do
       click_button 'Save'
       # We check this field using 'minlength' HTML5 control. It opens a tooltip and the error message inside can vary depending on the browser,
       # so we just check its presence and not its content like follows.
-      message = page.find('#patchinfo_summary').native.attribute('validationMessage')
+      message = page.find_by_id('patchinfo_summary').native.attribute('validationMessage')
       expect(message).not_to be_empty
-      message = page.find('#patchinfo_description').native.attribute('validationMessage')
+      message = page.find_by_id('patchinfo_description').native.attribute('validationMessage')
       expect(message).not_to be_empty
     end
 

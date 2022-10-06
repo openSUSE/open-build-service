@@ -248,6 +248,8 @@ RSpec.describe Webui::PackageController, vcr: true do
     it 'calls delete_file method' do
       allow_any_instance_of(Package).to receive(:delete_file).with('the_file')
       remove_file_post
+
+      expect(flash[:success]).to eq("File 'the_file' removed successfully")
     end
 
     context 'with no permissions' do

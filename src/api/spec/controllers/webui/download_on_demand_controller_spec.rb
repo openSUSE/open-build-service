@@ -57,7 +57,7 @@ RSpec.describe Webui::DownloadOnDemandController do
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
       it { expect(flash[:success]).to eq('Successfully created Download on Demand') }
-      it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
+      it { expect(assigns(:download_on_demand)).to be_a(DownloadRepository) }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).to exist }
     end
 
@@ -70,7 +70,7 @@ RSpec.describe Webui::DownloadOnDemandController do
 
       it { is_expected.to redirect_to(root_path) }
       it { expect(flash[:error]).to eq("Download on Demand can't be created: Validation failed: Architecture must exist") }
-      it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
+      it { expect(assigns(:download_on_demand)).to be_a(DownloadRepository) }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
     end
   end

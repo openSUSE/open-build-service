@@ -165,7 +165,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     it 'live build finishes succesfully' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
 
-      find('#status', text: 'Build') # to wait until it loads
+      find_by_id('status', text: 'Build') # to wait until it loads
       expect(page).to have_text('Build')
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
     end
@@ -290,7 +290,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
         click_button('Update')
       end
 
-      expect(find('#flash')).to have_text('Package was successfully updated.')
+      expect(find_by_id('flash')).to have_text('Package was successfully updated.')
       expect(page).to have_text('test title')
       expect(page).to have_text('test description')
       expect(page).to have_text('https://test.url')

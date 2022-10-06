@@ -110,7 +110,7 @@ RSpec.shared_examples 'bootstrap tests for sections with flag tables' do
     describe '#flag_table_build' do
       let(:flag_type) { 'build' }
 
-      subject { find('#flag_table_build') }
+      subject { find_by_id('flag_table_build') }
 
       it_behaves_like 'bootstrap a flag table'
     end
@@ -118,7 +118,7 @@ RSpec.shared_examples 'bootstrap tests for sections with flag tables' do
     describe '#flag_table_publish' do
       let(:flag_type) { 'publish' }
 
-      subject { find('#flag_table_publish') }
+      subject { find_by_id('flag_table_publish') }
 
       it_behaves_like 'bootstrap a flag table'
     end
@@ -132,7 +132,7 @@ RSpec.shared_examples 'bootstrap tests for sections with flag tables' do
         visit project_repositories_path(project: project)
       end
 
-      subject { find('#flag_table_debuginfo') }
+      subject { find_by_id('flag_table_debuginfo') }
 
       it_behaves_like 'bootstrap a flag table'
     end
@@ -140,7 +140,7 @@ RSpec.shared_examples 'bootstrap tests for sections with flag tables' do
     describe '#flag_table_useforbuild' do
       let(:flag_type) { 'useforbuild' }
 
-      subject { find('#flag_table_useforbuild') }
+      subject { find_by_id('flag_table_useforbuild') }
 
       it_behaves_like 'bootstrap a flag table'
     end

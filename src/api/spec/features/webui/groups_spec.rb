@@ -33,7 +33,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
     expect(page).to have_content('Incoming Reviews')
     expect(page).to have_content('Incoming Requests')
     expect(page).to have_content('All Requests')
-    find('#group-members-tab').click
+    find_by_id('group-members-tab').click
 
     expect(page).to have_link('Add Member')
     group_1.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }

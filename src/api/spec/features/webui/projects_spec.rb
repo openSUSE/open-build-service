@@ -68,7 +68,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
       expect(page).to have_current_path(project_show_path(project: "#{user.home_project_name}:coolstuff"))
-      expect(find('#project-title').text).to eq("#{user.home_project_name}:coolstuff")
+      expect(find_by_id('project-title').text).to eq("#{user.home_project_name}:coolstuff")
     end
   end
 
@@ -117,7 +117,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     it 'an existing package' do
       fill_in('linked_project', with: other_user.home_project_name)
       # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `linked_package`.
-      find('#target_package').click
+      find_by_id('target_package').click
       fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
       click_button('Branch')
@@ -129,7 +129,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     it 'an existing package, but chose a different target package name' do
       fill_in('linked_project', with: other_user.home_project_name)
       # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `linked_package`.
-      find('#target_package').click
+      find_by_id('target_package').click
       fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
@@ -144,7 +144,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
 
       fill_in('linked_project', with: other_user.home_project_name)
       # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `linked_package`.
-      find('#target_package').click
+      find_by_id('target_package').click
       fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
       click_button('Branch')
