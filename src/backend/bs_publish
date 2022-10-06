@@ -2131,6 +2131,7 @@ sub publish {
         print "      + $p\n";
       }
       $containerinfo->{'blobdir'} = $blobdir if $blobdir;
+      mkdir_p($extrep) unless -d $extrep;
       BSPublisher::Container::reconstruct_container($containerinfo, "$extrep/$p");
       my @s = stat("$extrep/$p");
       $bins{$p} = undef;
