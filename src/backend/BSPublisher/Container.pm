@@ -639,8 +639,8 @@ sub upload_to_registry {
     mkdir_p($uploaddir);
     unlink($pubkeyfile);
     writestr($pubkeyfile, undef, $pubkey);
-    push @opts, '--cosign', '--cosigncookie', $cosigncookie,
-    push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs,
+    push @opts, '--cosign', '--cosigncookie', $cosigncookie;
+    push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs;
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
     push @opts, '--slsaprovenance' if $do_slsaprovenance;
   }
