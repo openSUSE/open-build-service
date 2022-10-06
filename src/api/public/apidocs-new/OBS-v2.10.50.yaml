@@ -311,6 +311,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
   /source/{project_name}/{package_name}?cmd=linkdiff:
     $ref: 'paths/source_project_name_package_name_cmd_linkdiff.yaml'
+  /source/{project_name}/{package_name}?cmd=mergeservice:
+    $ref: 'paths/source_project_name_package_name_cmd_mergeservice.yaml'
   /source/{project_name}/{package_name}?cmd=remove_flag:
     $ref: 'paths/source_project_name_package_name_cmd_remove_flag.yaml'
   /source/{project_name}/{package_name}?cmd=runservice:
