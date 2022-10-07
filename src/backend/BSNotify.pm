@@ -38,11 +38,14 @@ sub notify {
   # strip
   $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
 
+  my $timeout = 60;
+  $timeout += int(length($payload) / 1000000) if $payload;
+  $timeout = 3600 if $timeout > 3600;
   my $param = {
     'uri' => "$BSConfig::srcserver/notify/$type",
     'request' => 'POST',
     'formurlencode' => 1,
-    'timeout' => 60,
+    'timeout' => $timeout,
   };
   if ($payload) {
     $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
