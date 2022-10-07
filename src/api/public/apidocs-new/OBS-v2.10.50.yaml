@@ -258,6 +258,8 @@ paths:
   # Sources - Projects
   /source:
     $ref: 'paths/source.yaml'
+  /source/{project_name}/_project:
+    $ref: 'paths/source_project_name_project.yaml'
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
   /source/{project_name}?cmd=copy:
