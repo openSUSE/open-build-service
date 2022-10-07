@@ -295,8 +295,12 @@ paths:
 
   /source/{project_name}/{package_name}?cmd=diff:
     $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
+  /source/{project_name}/{package_name}?cmd=remove_flag:
+    $ref: 'paths/source_project_name_package_name_cmd_remove_flag.yaml'
   /source/{project_name}/{package_name}?cmd=runservice:
     $ref: 'paths/source_project_name_package_name_cmd_runservice.yaml'
+  /source/{project_name}/{package_name}?cmd=set_flag:
+    $ref: 'paths/source_project_name_package_name_cmd_set_flag.yaml'
   /source/{project_name}/{package_name}?cmd=showlinked:
     $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
   /source/{project_name}/{package_name}?cmd=waitservice:
