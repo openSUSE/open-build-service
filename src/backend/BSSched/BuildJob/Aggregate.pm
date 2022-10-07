@@ -460,7 +460,7 @@ sub build {
 	      }
 	    }
 	    my $containerfile = $containerinfo->{'file'};
-	    # do we need to copy the container file?
+	    # do we need to copy the container tar file?
 	    if (!$containerinfo->{'tar_blobids'} || grep {!$jobbins{"_blob.$_"}} @{$containerinfo->{'tar_blobids'}}) {
 	      if (-e "$dir/$prefix$containerfile") {
 	        BSUtil::cp("$dir/$prefix$containerfile", "$jobdatadir/$containerfile");
@@ -469,6 +469,16 @@ sub build {
 	      if (-e "$dir/$prefix$containerfile.sha256") {
 	        BSUtil::cp("$dir/$prefix$containerfile.sha256", "$jobdatadir/$containerfile.sha256");
 	        $jobbins{"$containerinfofile.sha256"} = 1;
+	      }
+	    }
+	    # copy extra data like .packages or .basepackages
+	    my $extraprefix = $containerinfofile;
+	    $extraprefix =~ s/\.containerinfo//;
+	    $extraprefix =~ s/\.docker// unless -e "$dir/$prefix$extraprefix.packages";
+	    for my $extra ('.basepackages', '.packages', '.report', '.verified') {
+	      if (-e "$dir/$prefix$extraprefix$extra") {
+		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
+		$jobbins{"$extraprefix$extra"} = 1;
 	      }
 	    }
 	    # hack to add a container tag with the attribute
