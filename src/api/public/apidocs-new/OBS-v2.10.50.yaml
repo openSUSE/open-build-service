@@ -315,6 +315,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_remove_flag.yaml'
   /source/{project_name}/{package_name}?cmd=runservice:
     $ref: 'paths/source_project_name_package_name_cmd_runservice.yaml'
+  /source/{project_name}/{package_name}?cmd=servicediff:
+    $ref: 'paths/source_project_name_package_name_cmd_servicediff.yaml'
   /source/{project_name}/{package_name}?cmd=set_flag:
     $ref: 'paths/source_project_name_package_name_cmd_set_flag.yaml'
   /source/{project_name}/{package_name}?cmd=showlinked:
