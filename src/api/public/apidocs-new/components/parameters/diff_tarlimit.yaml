@@ -1,0 +1,6 @@
+in: query
+name: tarlimit
+schema:
+  type: string
+description: Limit the size of the diff of tar files to this amount of lines.
+example: 100

@@ -29,29 +29,9 @@ post:
           - 0
       description: Set to `1` to expand any link before diffing.
       example: 1
-    - in: query
-      name: file
-      schema:
-        type: string
-      description: Limit diff to the given file name.
-      example: hello_world.spec
-    - in: query
-      name: filelimit
-      schema:
-        type: string
-      description: |
-        Limit the size of the diff to this amount of lines.
-
-        By default it takes a built-in value of 200.
-
-        Set to `0` to disable the limit.
-      example: 20
-    - in: query
-      name: linkrev
-      schema:
-        type: string
-      description: Link revision in base package. Set to `base` to use the commit revision.
-      example: base
+    - $ref: '../components/parameters/diff_file.yaml'
+    - $ref: '../components/parameters/diff_filelimit.yaml'
+    - $ref: '../components/parameters/diff_linkrev.yaml'
     - in: query
       name: meta
       schema:
@@ -84,15 +64,7 @@ post:
       schema:
         type: string
       description: Link revision of the origin package.
-    - in: query
-      name: onlyissues
-      schema:
-        type: string
-        enum:
-          - 1
-          - 0
-      description: Set to `1` to show no source diff, only the tracker issues and their change state.
-      example: 1
+    - $ref: '../components/parameters/diff_onlyissues.yaml'
     - in: query
       name: orev
       schema:
@@ -108,56 +80,11 @@ post:
       schema:
         type: string
       description: Old project.
-    - in: query
-      name: rev
-      schema:
-        type: string
-      description: Revision of the package.
-    - in: query
-      name: tarlimit
-      schema:
-        type: string
-      description: Limit the size of the diff of tar files to this amount of lines.
-      example: 100
-    - in: query
-      name: unified
-      schema:
-        type: string
-        enum:
-          - 1
-          - 0
-      description: |
-        Set to `1` to use unified diff format. Same as setting `view=unified`.
-
-        Setting `unified` to `1` takes precedence on the setting of the `view` parameter.
-
-        See `view` parameter for details on the unified format.
-      example: 1
-    - in: query
-      name: view
-      schema:
-        type: string
-        enum:
-          - unified
-          - xml
-      description: |
-        Set the format of the diff being returned.
-
-        Don't pass the parameter for custom diff format.
-
-        Set to `unified` for unified content.
-
-        Set to `xml` for structured content in a `sourcediff` xml element.
-      example: unified
-    - in: query
-      name: withissues
-      schema:
-        type: string
-        enum:
-          - 1
-          - 0
-      description: Set to `1` to include parsed issue tracker issues and their change state.
-      example: 1
+    - $ref: '../components/parameters/diff_rev.yaml'
+    - $ref: '../components/parameters/diff_tarlimit.yaml'
+    - $ref: '../components/parameters/diff_unified.yaml'
+    - $ref: '../components/parameters/diff_view.yaml'
+    - $ref: '../components/parameters/diff_withissues.yaml'
   responses:
     '200':
       description: OK
