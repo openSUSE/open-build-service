@@ -1,0 +1,63 @@
+get:
+  summary: Get project's configuration
+  description: |
+    Read configuration for the specified project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: rev
+      in: query
+      schema:
+        type: string
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: |
+            # temporary should be fixed in SUSE:SLE-15-SP4:GA
+            Prefer: -libudev-devel
+            Prefer: -libudev-devel-32bit
+            ...
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
+
+put:
+  summary: Update project's configuration
+  description: |
+    Update configuration for the specified project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: comment
+      in: query
+      schema:
+        type: string
+  requestBody:
+    description: configuration you want to update
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: |
+          # temporary should be fixed in SUSE:SLE-15-SP4:GA
+          Prefer: -libudev-devel
+          Prefer: -libudev-devel-32bit
+          ...
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
