@@ -96,7 +96,7 @@ sub link_binary {
       if ($ent->{'filename'} =~ /\.obsbinlnk$/ && $hint =~ /\.tar$/) {
 	my $fn = "$reporoot/$prpa/$packid/$ent->{'filename'}";
 	$fn =~ s/\.obsbinlnk/\.tar/;
-	next unless BSRepServer::Containertar::write_container($fn, $tmp, $digest);
+	next unless BSRepServer::Containertar::write_container($fn, $tmp, undef, $digest);
       } else {
         next unless link("$reporoot/$prpa/$packid/$ent->{'filename'}", $tmp);
       }
