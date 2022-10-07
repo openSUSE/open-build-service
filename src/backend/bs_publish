@@ -2819,6 +2819,7 @@ sub publish {
 	  my $pt = { %$kb };
 	  delete $pt->{'_content'};
 	  $pt->{'medium'} = $medium;
+	  $pt->{'binaryarch'} ||= $pt->{'arch'} || 'noarch';
 	  my $fn = '';
 	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{binaryarch name epoch version release};
 	  $packtrack->{"$medium$fn"} = $pt;
