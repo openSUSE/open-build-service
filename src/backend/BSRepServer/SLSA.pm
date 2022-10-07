@@ -117,6 +117,7 @@ sub link_binary {
 sub link_binary_from_full {
   my ($prpa, $hint, $digest, $tmp) = @_;
 
+  $hint =~ s/^container:(.*\.tar)$/$1/;		# see fetchdodcontainer() in DoD.pm
   my $binname1 = '';
   my $binname2 = '';
   $binname1 = $hint;
