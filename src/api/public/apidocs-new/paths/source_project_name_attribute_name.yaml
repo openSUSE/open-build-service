@@ -1,0 +1,122 @@
+get:
+  summary: Get project's attribute
+  description: |
+    Get a specified attribute of the project
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+    - name: meta
+      in: query
+      schema:
+        type: string
+    - name: rev
+      in: query
+      schema:
+        type: string
+    - name: view
+      in: query
+      schema:
+        type: string
+      description: The value of this parameter should only be `blame`
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/attributes.yaml'
+          example:
+            attribute:
+              name: MaintenanceProject
+              namespace: OBS
+    '400':
+      description: Wrong value for deleted parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              value:
+                code: 400
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
+
+post:
+  summary: Modifies the specified attribute
+  description: |
+    Modifies the specified attribute
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+    - name: comment
+      in: query
+      schema:
+        type: string
+  requestBody:
+    description: Attributes you want to update
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/attributes.yaml'
+        example:
+          attribute:
+            name: MaintenanceProject
+            namespace: OBS
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Wrong value for deleted parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              value:
+                code: 400
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
+
+delete:
+  summary: Removes a specified attribute
+  description: |
+    Removes a specified attribute
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+    - name: comment
+      in: query
+      schema:
+        type: string
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Wrong value for deleted parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              value:
+                code: 400
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
