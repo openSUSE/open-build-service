@@ -388,8 +388,11 @@ sub build {
 	my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
 	my $updateinfo;
 	if ($remoteprojs->{$aprojid}) {
+	  my $remoteproj = $remoteprojs->{$aprojid};
+	  my @args = 'view=cpio';
+	  push @args, 'noajax=1' if $remoteproj->{'partition'};
 	  my $param = {
-	    'uri' => "$remoteprojs->{$aprojid}->{'remoteurl'}/build/$remoteprojs->{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
+	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$myarch/$apackid",
 	    'receiver' => \&BSHTTP::cpio_receiver,
 	    'directory' => $jobdatadir,
 	    'map' => "upload:",
@@ -399,12 +402,12 @@ sub build {
 	  my $done;
 	  if ($nosource) {
 	    eval {
-	      $cpio = BSRPC::rpc($param, undef, "view=cpio", "nosource=1");
+	      $cpio = BSRPC::rpc($param, undef, @args, 'nosource=1');
 	    };
 	    $done = 1 if !$@ || $@ !~ /nosource/;
 	  }
 	  eval {
-	    $cpio = BSRPC::rpc($param, undef, "view=cpio");
+	    $cpio = BSRPC::rpc($param, undef, @args);
 	  } unless $done;
 	  if ($@) {
 	    warn($@);
