@@ -1,0 +1,118 @@
+post:
+  summary: Copy packages.
+  description: |
+    Copy packages. 
+    Additionally you can copy the binaries and/or the commit history.
+    The copy can be done synchronously or asynchronously.
+    You can leave a comment in the package revision.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: rev
+      schema:
+        type: string
+        enum:
+          - upload
+          - repository
+      example: repository
+    - in: query
+      name: opackage
+      schema:
+        type: string
+      description: Origin package. The package that will be copied.
+    - in: query
+      name: oproject
+      schema:
+        type: string
+      description: Origin project. The project that the Origin Package will be copied from.
+    - in: query
+      name: withbinaries
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to '1' to copy binaries that have been build by the origin package too.
+    - in: query
+      name: makeolder
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to '1' to make the target older, the source vrev is bumped by two numbers and target by one. Setting both makeolder and makeoriginolder will return an error back.
+    - in: query
+      name: makeoriginolder
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to '1' to make the origin older, the source vrev is extended and target is guaranteed to be newer. Setting both makeoriginolder and makeolder will return an error back.
+    - in: query
+      name: nodelay
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to '1' to do the copying synchronously. By default the copying is done asynchronously.
+    - in: query
+      name: withhistory
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to '1' to copy the package commit history.
+    - in: query
+      name: noservice
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to '1' to avoid running the services after the copy.
+    - in: query
+      name: comment
+      description: Comment for the new revision.
+    - in: query
+      name: user
+      schema:
+        type: string
+      description: Set the user who triggers the services.
+      example: Iggy
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: object
+            properties:
+              rev:
+                type: string
+                xml:
+                  attribute: true
+              srcmd5:
+                type: string
+            xml:
+              name: revision
+              wrapped : true
+          examples:
+            Repository:
+              value:
+                srcmd5: d41d8cd98f00b204e9800998ecf8427e
+            Upload:
+              value:
+                srcmd5: d41d8cd98f00b204e9800998ecf8427e
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages
+
