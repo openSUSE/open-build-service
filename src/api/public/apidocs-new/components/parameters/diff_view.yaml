@@ -1,0 +1,16 @@
+in: query
+name: view
+schema:
+  type: string
+  enum:
+    - unified
+    - xml
+description: |
+  Set the format of the diff being returned.
+
+  Don't pass the parameter for custom diff format.
+
+  Set to `unified` for unified content.
+
+  Set to `xml` for structured content in a `sourcediff` xml element.
+example: unified
