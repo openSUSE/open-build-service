@@ -5,9 +5,9 @@
     .float-right
       = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
-  .list-group
+  .list-group.list-group-flush
     - latest_updates.each do |update|
-      .list-group-item.list-group-item-integrated.border-left-0.border-right-0
+      .list-group-item
         .row
           .col-1
             - if update[1] == :package
