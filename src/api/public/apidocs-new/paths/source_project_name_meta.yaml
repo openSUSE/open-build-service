@@ -1,0 +1,108 @@
+get:
+  summary: Get project meta file
+  description: |
+    Get project meta file
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: view
+      in: query
+      schema:
+        type: string
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/project_meta.yaml'
+          example:
+            name: home:Admin
+            title: Endless Night
+            description: Test project
+            person:
+              userid: Admin
+              role: maintainer
+            repository:
+              name: openSUSE_Tumbleweed
+              path:
+                project: openSUSE.org:openSUSE:Factory
+                repository: snapshot
+              arch:
+                - x86_64
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Unknown project.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+            Invalid Project Parameters:
+              value:
+                code: invalid_project_parameters
+                summary: Not found
+  tags:
+    - Sources - Projects
+
+put:
+  summary: Write project meta file
+  description: |
+    Write project's meta file. Create the project if it doesn't exist.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment that explains the changes you made in meta file.
+  requestBody:
+    description: Project meta definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/project_meta.yaml'
+        example:
+          name: home:Admin
+          title: Endless Night
+          description: Test project
+          person:
+            userid: Admin
+            role: maintainer
+          repository:
+            name: openSUSE_Tumbleweed
+            path:
+              project: openSUSE.org:openSUSE:Factory
+              repository: snapshot
+            arch:
+              - x86_64
+              - aarch64
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      $ref: '../components/responses/bad_request_error.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        The user does not have permission to change the project.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Change project no permission:
+              value:
+                code: change_project_no_permission
+                summary: The project <some project> is locked
+  tags:
+    - Sources - Projects

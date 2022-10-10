@@ -1,0 +1,47 @@
+
+type: object
+properties:
+  name:
+    type: string
+    xml:
+      attribute: true
+  title:
+    type: string
+  description:
+    type: string
+  person:
+    type: object
+    properties:
+      userid:
+        type: string
+        xml:
+          attribute: true
+      role:
+        type: string
+        xml:
+          attribute: true
+  repository:
+    type: object
+    properties:
+      name:
+        type: string
+        xml:
+          attribute: true
+      path:
+        type: object
+        properties:
+          project:
+            type: string
+            xml:
+              attribute: true
+          repository:
+            type: string
+            xml:
+              attribute: true
+      arch:
+        type: array
+        items:
+          type: string
+
+xml:
+  name: project
