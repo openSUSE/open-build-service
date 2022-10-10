@@ -1,0 +1,63 @@
+get:
+  summary: Get GPG key
+  description: |
+    Get the project's GPG key. If the project doesn't have a default GPG key, it looks for the first one
+    available in the namespace hierarchy, ending at the global buildservice key.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: |
+              -----BEGIN PGP PUBLIC KEY BLOCK-----
+              Version: GnuPG v1.4.5 (GNU/Linux)
+              mQENBFfX+W4BCAC89VZEUt8O/o2rXnFoNrW0nsZoaHZX5Kjtzwuns5/UwzBffY/h
+              [...]
+              -----END PGP PUBLIC KEY BLOCK-----
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: not_found
+                summary: "Project not found: <some project>."
+            No pubkey:
+              value:
+                code: no_pubkey
+                summary: no pubkey available
+
+  tags:
+    - Sources - Projects
+
+delete:
+  summary: Removes the current gpg key
+  description: |
+    Removes the current gpg key if it exists
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
