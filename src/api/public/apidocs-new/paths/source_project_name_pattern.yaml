@@ -1,0 +1,35 @@
+get:
+  summary: Get list of patterns
+  description: |
+    Get a list of all patterns for the project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/project_pattern.yaml'
+          example:
+            name: _pattern
+            rev: '3'
+            vrev: '555'
+            srcmd5: db8d976cd59b1a933ab82a539247aeac
+            entry:
+              - name: OBS_Server
+                md5: d4ba5bf938ed8d26e68a7c6d1237854e
+                size: '947'
+                ntime: '1463555386'
+              - name: OBS_Server:unstable
+                md5: d4ba5bf938ed8d26e6xvv8a7c6d12ddd
+                size: '737'
+                ntime: '146355ddd6'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

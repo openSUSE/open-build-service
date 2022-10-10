@@ -266,6 +266,8 @@ paths:
     $ref: 'paths/source_project_name.yaml'
   /source/{project_name}/_pubkey:
     $ref: 'paths/source_project_name_pubkey.yaml'
+  /source/{project_name}/_pattern:
+    $ref: 'paths/source_project_name_pattern.yaml'
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
   /source/{project_name}?cmd=copy:
