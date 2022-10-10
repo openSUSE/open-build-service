@@ -338,6 +338,19 @@ sub check {
 
 =cut
 
+sub copy_provenance {
+  my ($jobdatadir, $dirprefix, $filename, $jobbins) = @_;
+  my $provenance = $filename;
+  die unless $provenance =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
+  if (-e "$dirprefix$provenance") {
+    BSUtil::cp("$dirprefix$provenance", "$jobdatadir/$provenance");
+    $jobbins->{$provenance} = 1;
+  } elsif (-e "${dirprefix}_slsa_provenance.json") {
+    BSUtil::cp("${dirprefix}_slsa_provenance.json", "$jobdatadir/$provenance");
+    $jobbins->{$provenance} = 1;
+  }
+}
+
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
@@ -356,7 +369,6 @@ sub build {
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
-  my $jobrepo = {};
   my %jobbins;
   my $error;
   my $modulemd;
@@ -427,6 +439,7 @@ sub build {
 
 	my $copysources;
 	my @sources;
+	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprojid/$arepoid/$myarch/$apackid/";
 	for my $d (@d) {
 	  my @s = stat($d);
 	  next unless @s;
@@ -499,6 +512,7 @@ sub build {
 	    $r->{'path'} = "../$packid/$containerfile";
 	    BSUtil::store("$jobdatadir/$filename", undef, $r);
 	    $jobbins{$filename} = 1;
+	    copy_provenance($jobdatadir, $dirprefix, $containerinfofile, \%jobbins);
 	    next;
 	  }
 	  next unless $filename =~ /\.(?:$binsufsre)$/;
@@ -527,8 +541,8 @@ sub build {
 	  }
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
-	  $jobrepo->{"$jobdatadir/$filename"} = $r;
 	  $copysources = 1 unless $nosource;
+	  copy_provenance($jobdatadir, $dirprefix, $filename, \%jobbins);
 	}
 	@sources = () unless $copysources;
 	for my $d (@sources) {
@@ -543,7 +557,7 @@ sub build {
 	  }
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
-	  $jobrepo->{"$jobdatadir/$filename"} = $r;
+	  copy_provenance($jobdatadir, $dirprefix, $filename, \%jobbins);
 	}
 	# delete upload files
 	unlink("$jobdatadir/$_->{'name'}") for @{$cpio || []};
@@ -561,7 +575,7 @@ sub build {
   write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml") if $modulemd && $have_modulemd_artifacts;
   writestr("$jobdatadir/meta", undef, $new_meta);
   my $needsign;
-  $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %$jobrepo;
+  $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
   BSSched::BuildJob::fakejobfinished($ctx, $packid, $job, 'succeeded', { 'file' => '_aggregate' }, $needsign);
   print "        scheduled\n";
   return ('scheduled', $job);
