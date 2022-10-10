@@ -96,7 +96,7 @@ sub link_binary {
       if ($ent->{'filename'} =~ /\.obsbinlnk$/ && $hint =~ /\.tar$/) {
 	my $fn = "$reporoot/$prpa/$packid/$ent->{'filename'}";
 	$fn =~ s/\.obsbinlnk/\.tar/;
-	next unless BSRepServer::Containertar::write_container($fn, $tmp, $digest);
+	next unless BSRepServer::Containertar::write_container($fn, $tmp, undef, $digest);
       } else {
         next unless link("$reporoot/$prpa/$packid/$ent->{'filename'}", $tmp);
       }
@@ -117,6 +117,7 @@ sub link_binary {
 sub link_binary_from_full {
   my ($prpa, $hint, $digest, $tmp) = @_;
 
+  $hint =~ s/^container:(.*\.tar)$/$1/;		# see fetchdodcontainer() in DoD.pm
   my $binname1 = '';
   my $binname2 = '';
   $binname1 = $hint;

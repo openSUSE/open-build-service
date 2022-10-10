@@ -117,8 +117,10 @@ sub reply {
   push @hdrs, "Content-Length: ".length($str) if defined $str;
   my $data = join("\r\n", @hdrs)."\r\n\r\n";
   $data .= $str if defined $str;
-  my $dummy = '';
-  sysread($ev->{'fd'}, $dummy, 1024, 0);	# clear extra input
+  if (!$ev->{'request'}->{'no_drain_clnt'}) {
+    my $dummy = '';
+    sysread($ev->{'fd'}, $dummy, 1024, 0);	# clear extra input
+  }
   $ev->{'replbuf'} = $data;
   $ev->{'type'} = 'write';
   $ev->{'handler'} = \&replrequest_write;

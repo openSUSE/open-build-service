@@ -2520,6 +2520,7 @@ sub getbinaries_containers {
 	}
       }
     }
+    $bin->{'binaryarch'} ||= $bin->{'arch'} || 'noarch';
     push @{$origins->{':basecontainers'}}, $bin;
   }
 
