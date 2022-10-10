@@ -60,6 +60,9 @@ sub blobstore_lnk {
   if (!@s) {
     mkdir_p("$blobdir/sha256/$d") unless -d "$blobdir/sha256/$d";
     return if link("$dir/$f", "$blobdir/sha256/$d/$b");
+  } else {
+    my @sf = stat("$dir/$f");
+    return if @sf && $sf[0] == $s[0] && $sf[1] == $s[1];
   }
   return unless link("$blobdir/sha256/$d/$b", "$blobdir/sha256/$d/$b.$$");
   # make sure the content is identical in paranoid mode
