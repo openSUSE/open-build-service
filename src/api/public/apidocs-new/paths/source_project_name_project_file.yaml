@@ -1,0 +1,73 @@
+get:
+  summary: Read a project file
+  description: |
+    Read a project file
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - in: query
+      name: meta
+      required: false
+      schema:
+        type: integer
+      description: Set to 1 to include _meta files
+      example: 1
+    - in: query
+      name: rev
+      required: false
+      schema:
+        type: integer
+      description: Revision number
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/project_meta.yaml'
+          example:
+            name: home:Admin
+            title: Endless Night
+            description: Test project
+            person:
+              userid: Admin
+              role: maintainer
+            repository:
+              name: openSUSE_Tumbleweed
+              path:
+                project: openSUSE.org:openSUSE:Factory
+                repository: snapshot
+              arch:
+                - x86_64
+    '400':
+      description: Wrong value for meta parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not boolean:
+              value:
+                code: 400
+                summary: "not boolean"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        The user does not have permission to access the source.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Source access no permission:
+              value:
+                code: source_access_no_permission
+                summary: Source Access not allowed
+
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
