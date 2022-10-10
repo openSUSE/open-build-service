@@ -405,22 +405,6 @@ sub server {
     $conf->{'ssl_verify'} ||= $BSConfig::ssl_verify if $BSConfig::ssl_verify;
     BSDispatch::compile($conf);
   }
-  if ($request) {
-    $conf->{'authorize'} = sub {};
-    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-    my $fd;
-    open($fd, '>&STDOUT') || die;
-    open('STDOUT', '>&STDERR') || die;
-    my $req = { 'peer' => 'unknown', 'conf' => $conf, 'starttime' => time(), 'action' => 'GET', 'query' => '', '__socket' => $fd, 'req_mode' => 1, 'no_drain_clnt' => 1 };
-    $BSServer::request = $req;
-    $req->{'action'} = $1 if $request =~ s/^([A-Z]+)://;
-    $req->{'path'} = $request;
-    ($req->{'path'}, $req->{'query'}) = ($1, $2) if $request =~ /^(.*?)\?(.*)$/;
-    $req->{'path'} =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    my @r = $conf->{'dispatch'}->($conf, $req);
-    $conf->{'stdreply'}->(@r) unless $req->{'replying'};
-    exit(0);
-  }
   if ($aconf) {
     require BSHandoff;
     $aconf->{'rundir'} ||= $BSConfig::rundir || "$BSConfig::bsdir/run";
@@ -438,6 +422,38 @@ sub server {
     $aconf->{'run'} ||= \&BSEvents::schedule;
     $aconf->{'name'} = $name;
     BSDispatch::compile($aconf);
+  }
+  if ($request) {
+    $conf->{'authorize'} = sub {};
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+    my $fd;
+    open($fd, '>&STDOUT') || die;
+    open('STDOUT', '>&STDERR') || die;
+    my $req = { 'peer' => 'unknown', 'conf' => $conf, 'starttime' => time(), 'action' => 'GET', 'query' => '', '__socket' => $fd, 'req_mode' => 1, 'no_drain_clnt' => 1 };
+    $req->{'action'} = $1 if $request =~ s/^([A-Z]+)://;
+    $req->{'path'} = $request;
+    ($req->{'path'}, $req->{'query'}) = ($1, $2) if $request =~ /^(.*?)\?(.*)$/;
+    $req->{'path'} =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    $BSServer::request = $req;
+    if ($req->{'action'} eq 'AJAX') {
+      $isajax = 1;
+      die("no AJAX configured\n") unless $aconf;
+      $req->{'action'} = 'GET';
+      $req->{'conf'} = $aconf;
+      $req->{'state'} = 'processing';
+      my $ev = BSEvents::new('never');
+      $ev->{'fd'} = $fd;
+      $ev->{'request'} = $req;
+      $ev->{'closehandler'} = sub { exit(0) };
+      $BSServerEvents::gev = $ev;
+      my @r = $aconf->{'dispatch'}->($aconf, $req);
+      $aconf->{'stdreply'}->(@r);
+      $aconf->{'run'}->($aconf);
+      exit(0);
+    }
+    my @r = $conf->{'dispatch'}->($conf, $req);
+    $conf->{'stdreply'}->(@r) unless $req->{'replying'};
+    exit(0);
   }
   BSServer::deamonize(@{$args || []});
   if ($conf) {
