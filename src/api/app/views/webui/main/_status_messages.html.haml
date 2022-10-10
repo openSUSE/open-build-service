@@ -5,13 +5,13 @@
     .float-right
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
-  .list-group
+  .list-group.list-group-flush
     = render StatusMessageComponent.with_collection(status_messages)
-    - if policy(StatusMessage.new).create?
-      .card-footer
-        = link_to(new_status_message_path, class: 'nav-link') do
-          %i.fas.fa-plus-circle.text-primary
-          Create Status Message
+  - if policy(StatusMessage.new).create?
+    .card-footer
+      = link_to(new_status_message_path, class: 'nav-link') do
+        %i.fas.fa-plus-circle.text-primary
+        Create Status Message
 
 - if policy(StatusMessage.new).destroy?
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-status-message-modal',
