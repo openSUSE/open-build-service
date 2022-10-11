@@ -4137,6 +4137,50 @@ sub registry_manifest {
   return undef;
 }
 
+sub registry_manifestinfo_gun {
+  my ($cgi, $gun, $regrepo, $manifest) = @_;
+  my %regs;
+  my @pc = @$BSConfig::publish_containers;
+  while (@pc) {
+    my (undef, $v) = splice(@pc, 0, 2);
+    $regs{$_} = 1 for @{ref($v) ? $v : [ $v ]};
+  }
+  delete $regs{'local'};
+  my $foundone;
+  for my $regname (sort keys %regs) {
+    my $registry = $BSConfig::container_registries->{$regname};
+    next unless $registry && $registry->{'manifestinfos'};
+    my $reggun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+    $reggun =~ s/^https?:\/\///;
+    next unless $gun eq $reggun;
+    $foundone = 1;
+    my $fd;
+    next unless open ($fd, '<', "$registry->{'manifestinfos'}/$regrepo/$manifest");
+    my @hdrs = ('Content-Type: application/json');
+    BSServer::reply_file($fd, @hdrs);
+    return undef;
+  }
+  die("404 MANIFESTINFO_UNKNOWN\n") if $foundone;
+  die("404 NAME_UNKNOWN\n");
+}
+
+sub registry_manifestinfo {
+  my ($cgi, $regrepo, $manifest) = @_;
+  my $repodir = "$registrydir/$regrepo";
+  die("400 DIGEST_INVALID\n") unless $manifest =~ /^sha256:[0-9a-f]{64}$/;
+  if (! -f "$repodir/:info") {
+    if ($BSConfig::publish_containers && $BSConfig::container_registries && $regrepo =~ /^([^\/]+\.[^\/]+)\/(.*)$/) {
+      return registry_manifestinfo_gun($cgi, $1, $2, $manifest);
+    }
+    die("404 NAME_UNKNOWN\n");
+  }
+  my $fd;
+  open ($fd, '<', "$repodir/:manifestinfos/$manifest") || die("404 MANIFESTINFO_UNKNOWN\n");
+  my @hdrs = ('Content-Type: application/json');
+  BSServer::reply_file($fd, @hdrs);
+  return undef;
+}
+
 sub registry_blob {
   my ($cgi, $regrepo, $blob) = @_;
   die("400 DIGEST_INVALID\n") unless $blob =~ /^sha256:[0-9a-f]{64}$/s;
@@ -4414,6 +4458,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_manifest,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_blob,
   'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_sigstore,
+  'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_taglist,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_info,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,
