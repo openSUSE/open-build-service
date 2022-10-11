@@ -1610,10 +1610,13 @@ sub sync_to_stage {
   qsystem('rsync', '-a', @rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
 }
 
+my $blobdir_idx;
+
 sub create_blobdir {
   my $blobdir = "$uploaddir/publisher.$$.blobs";
   BSUtil::cleandir($blobdir);
   mkdir_p($blobdir);
+  $blobdir_idx = 0;
   return $blobdir;
 }
 
@@ -1625,6 +1628,12 @@ sub clean_blobdir {
     BSPublisher::Blobstore::blobstore_chk($blobid) if $blobid =~ /^_blob/;
   }
   rmdir($blobdir);
+}
+
+sub tmpfile_blobdir {
+  my ($blobdir) = @_;
+  my $idx = $blobdir_idx++;
+  return "$blobdir/$idx";
 }
 
 sub deleterepo {
@@ -1851,13 +1860,30 @@ sub fixsleimage {
   return 1;
 }
 
-sub readcontainerprovenance {
-  my ($containerinfo, $containerinfofile) = @_;
+sub linkintoblobdir {
+  my ($file, $blobdirref) = @_;
+  $$blobdirref ||= create_blobdir();
+  my $bfile = tmpfile_blobdir($$blobdirref);
+  link($file, $bfile) || die("link $file $bfile: $!\n");
+  return $bfile;
+}
+
+sub readcontainermetafiles {
+  my ($containerinfo, $containerinfofile, $blobdirref) = @_;
   return unless $containerinfo;
-  return unless $containerinfofile =~ s/\.containerinfo$/.slsa_provenance.json/;
-  return unless -e $containerinfofile;
-  my $provenance = readstr($containerinfofile, 1);
-  $containerinfo->{'slsa_provenance'} = $provenance if $provenance;
+  my $prefix = $containerinfofile;
+  return unless $prefix =~ s/\.containerinfo$//;
+  if (-e "$prefix.slsa_provenance.json") {
+    my $provenance = readstr("$prefix.slsa_provenance.json", 1);
+    $containerinfo->{'slsa_provenance'} = $provenance if $provenance;
+  }
+  $prefix =~ s/\.docker$// unless -e "$prefix.packages";
+  if (-e "$prefix.packages") {
+    $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);
+  }
+  if (-e "$prefix.basepackages") {
+    $containerinfo->{'container_basepackages'} = linkintoblobdir("$prefix.basepackages", $blobdirref);
+  }
 }
 
 sub publish {
@@ -2195,7 +2221,7 @@ sub publish {
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
-          readcontainerprovenance($containerinfo, "$r/$bin");
+          readcontainermetafiles($containerinfo, "$r/$bin", \$blobdir);
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
           # kiwi image case
@@ -2214,7 +2240,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
-            readcontainerprovenance($containerinfo, "$r/$1.containerinfo") if $containerinfo;
+            readcontainermetafiles($containerinfo, "$r/$1.containerinfo", \$blobdir) if $containerinfo;
 	  } else {
 	    $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  }
@@ -2235,7 +2261,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
-            readcontainerprovenance($containerinfo, "$r/$1.containerinfo") if $containerinfo;
+            readcontainermetafiles($containerinfo, "$r/$1.containerinfo", \$blobdir) if $containerinfo;
 	  }
 	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
