@@ -48,9 +48,11 @@ my $dest_creds;
 my $use_image_tags;
 my $multiarch;
 my $digestfile;
+my $writeinfofile;
 my $delete_mode;
 my $delete_except_mode;
 my $list_mode;
+my $no_cosign_info;
 my @tags;
 my $blobdir;
 my $oci;
@@ -377,6 +379,10 @@ sub delete_tag {
 sub list_tag {
   my ($tag) = @_;
 
+  if ($no_cosign_info && $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+    printf "%-20s -\n", $tag;
+    return;
+  }
   my ($mani, $maniid) = get_manifest_for_tag($tag);
   my $extra = '';
   if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && $mani->{'mediaType'} && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
@@ -511,11 +517,16 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '-F') {
     $digestfile = $ARGV[1];
     splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--write-info') {
+    (undef, $writeinfofile) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-D') {
     $delete_mode = 1;
     shift @ARGV;
   } elsif ($ARGV[0] eq '-l') {
     $list_mode = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--no-cosign-info') {
+    $no_cosign_info = 1;
     shift @ARGV;
   } elsif ($ARGV[0] eq '-X') {
     $delete_except_mode = 1;
@@ -646,6 +657,7 @@ $oci = 1 if grep {/\.helminfo$/} @tarfiles;
 my %digests_to_sign;
 my @multimanifests;
 my %multiplatforms;
+my @imginfos;
 for my $tarfile (@tarfiles) {
   my ($tar, $tarfd, $govariant) = open_tarfile($tarfile);
   my %tar = map {$_->{'name'} => $_} @$tar;
@@ -766,7 +778,29 @@ for my $tarfile (@tarfiles) {
   } else {
     manifest_upload_tags($mani_json, \@tags, $mediaType);
   }
+  my $imginfo = {
+    'file' => $tarfile,
+    'imageid' => $config_blobid,
+    'goarch' => $goarch,
+    'goos' => $goos,
+    'distmanifest' => $mani_id,
+  };
+  $imginfo->{'govariant'} = $govariant if $govariant;
+  my @diff_ids = @{$config_layers || []};
+  for (@layer_data) {
+    my $l = { 'blobid' => $_->{'digest'}, 'blobsize' => $_->{'size'} };
+    $l->{'diffid'} = shift @diff_ids if @diff_ids;
+    push @{$imginfo->{'layers'}}, $l;
+  }
+  push @imginfos, $imginfo;
 }
+
+my $info = {
+  'images' => \@imginfos,
+  'tags' => \@tags,
+  'distmanifesttype' => 'image',
+  'distmanifest' => $imginfos[0]->{'distmanifest'},
+};
 
 if ($multiarch) {
   my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
@@ -779,6 +813,13 @@ if ($multiarch) {
   my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
   $digests_to_sign{$mani_id} = [];
   manifest_upload_tags($mani_json, \@tags, $mediaType);
+  $info->{'distmanifesttype'} = 'list';
+  $info->{'distmanifest'} = $mani_id;
+}
+
+if ($writeinfofile) {
+  my $info_json = JSON::XS->new->utf8->canonical->encode($info);
+  writestr($writeinfofile, undef, $info_json);
 }
 
 if ($cosign && %digests_to_sign) {

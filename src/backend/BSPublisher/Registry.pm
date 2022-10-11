@@ -30,6 +30,7 @@ use BSConfiguration;
 use BSUtil;
 use BSVerify;
 use BSPublisher::Blobstore;
+use BSPublisher::Containerinfo;
 use BSContar;
 use BSRPC;
 use BSTUF;
@@ -181,6 +182,15 @@ sub push_tag {
   unlink("$mdir/.$mani_id.$$");
   return 1;
 }
+
+sub push_manifestinfo {
+  my ($repodir, $mani_id, $info_json) = @_;
+  my $dir = "$repodir/:manifestinfos";
+  mkdir_p($dir);
+  unlink("$dir/.$mani_id.$$");
+  writestr("$dir/.$mani_id.$$", "$dir/$mani_id", $info_json);
+}
+
 
 sub construct_container_tar {
   my ($containerinfo) = @_;
@@ -539,6 +549,18 @@ sub update_cosign {
   }
 }
 
+sub create_manifestinfo {
+  my ($prp, $repo, $containerinfo, $imginfo) = @_;
+
+  my $repodir = "$registrydir/$repo";
+  my ($projid, $repoid) = split('/', $prp, 2);
+  $imginfo = { %$imginfo, 'project' => $projid, 'repository' => $repoid };
+  my $bins = BSPublisher::Containerinfo::create_packagelist($containerinfo);
+  $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};	# turn flag to True
+  $imginfo->{'packages'} = $bins if $bins;
+  push_manifestinfo($repodir, $imginfo->{'distmanifest'}, JSON::XS->new->utf8->canonical->encode($imginfo));
+}
+
 sub push_containers {
   my ($prp, $repo, $gun, $multiarch, $tags, $pubkey, $signargs, $rekorserver) = @_;
 
@@ -562,6 +584,8 @@ sub push_containers {
   my %digests_to_cosign;
 
   my %info;
+  my %have_manifestinfos;
+  %have_manifestinfos = map {$_ => 1} ls("$repodir/:manifestinfos") if -d "$repodir/:manifestinfos";
 
   for my $tag (sort keys %$tags) {
     eval { BSVerify::verify_regtag($tag) };
@@ -712,6 +736,11 @@ sub push_containers {
       $knownimagedigests{$imginfo->{'distmanifest'}}->{$tag} = 1;
       # cache result
       $done{$containerinfo} = [ $multimani, $platformstr, $imginfo ];
+
+      if (!$have_manifestinfos{$mani_id}) {
+	create_manifestinfo($prp, $repo, $containerinfo, $imginfo);
+	$have_manifestinfos{$mani_id} = 1;
+      }
     }
     next unless @multimanifests;
     my $taginfo = {
@@ -760,6 +789,10 @@ sub push_containers {
     next if $knownmanifests{$_};
     unlink("$repodir/:manifests/$_");
   }
+  for (sort(keys %have_manifestinfos)) {
+    next if $knownmanifests{$_};
+    unlink("$repodir/:manifestinfos/$_");
+  }
   for (sort(ls("$repodir/:blobs"))) {
     next if $knownblobs{$_};
     unlink("$repodir/:blobs/$_");
@@ -771,6 +804,7 @@ sub push_containers {
     rmdir("$repodir/:tags");
     rmdir("$repodir/:manifests");
     rmdir("$repodir/:blobs");
+    rmdir("$repodir/:manifestinfos");
     unlink("$repodir/:info");
     unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");

@@ -7402,6 +7402,45 @@ sub registry_forward {
   return undef;
 }
 
+sub registry_manifestinfo {
+  my ($cgi, $regrepo, $manifest) = @_;
+  
+  my $foundone;
+  if ($BSConfig::publish_containers && $BSConfig::container_registries && $regrepo =~ /^([^\/]+\.[^\/]+)\/(.*)$/) {
+    my $gun = $1;
+    my %regs;
+    my @pc = @$BSConfig::publish_containers;
+    while (@pc) {
+      my (undef, $v) = splice(@pc, 0, 2);
+      $regs{$_} = 1 for @{ref($v) ? $v : [ $v ]};
+    }
+    delete $regs{'local'};
+    for my $regname (sort keys %regs) {
+      my $registry = $BSConfig::container_registries->{$regname};
+      next unless $registry && $registry->{'manifestinfos'};
+      my $reggun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+      $reggun =~ s/^https?:\/\///;
+      next unless $gun eq $reggun;
+      $foundone = 1;
+      last;
+    }
+  }
+  return registry_forward ($cgi, $regrepo) if !$foundone || BSSrcServer::Registry::regrepo2reposerver($regrepo);
+
+  my %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
+  for my $reposerver (sort keys %reposervers) {
+    my $param = {
+      'uri' => "$reposerver/registry/$regrepo/manifestinfos/$manifest",
+      'timeout' => 60,
+    };
+    my $info = eval { BSWatcher::rpc($param, undef) };
+    next unless $info;
+    BSRegistryServer::reply($info, 'Content-Type: application/json');
+    return undef;
+  }
+  die("404 MANIFESTINFO_UNKNOWN\n");
+}
+
 sub registry_catalog {
   my ($cgi) = @_;
   my @repos = BSSrcServer::Registry::catalog();
@@ -7695,6 +7734,7 @@ my $dispatches = [
   # registry
   'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&notary_forward,
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_forward,
