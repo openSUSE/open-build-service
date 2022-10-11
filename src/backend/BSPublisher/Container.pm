@@ -23,10 +23,12 @@
 package BSPublisher::Container;
 
 use File::Temp qw/tempfile/;
+use JSON::XS ();
 
 use BSConfiguration;
 use BSPublisher::Util;
 use BSPublisher::Registry;
+use BSPublisher::Containerinfo;
 use BSUtil;
 use BSTar;
 use BSRepServer::Containerinfo;
@@ -258,7 +260,7 @@ sub upload_all_containers {
       for my $joinp (sort keys %todo) {
 	my @tags = @{$todo{$joinp}};
 	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $signargs, $pubkey, $multicontainer, $repostate);
+	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $repoid, $signargs, $pubkey, $multicontainer, $repostate);
 	$containerdigests .= $digest;
 	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
       }
@@ -463,7 +465,9 @@ sub query_repostate {
   $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
   my ($fh, $tempfile) = tempfile();
   print "querying state of $repository on $registryserver\n";
-  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-l', $registryserver, $repository);
+  my @opts = ('-l');
+  push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
   my $repostate;
@@ -486,6 +490,34 @@ sub query_repostate {
   return $repostate;
 }
 
+sub create_manifestinfo {
+  my ($registry, $prp, $repository, $containerinfo, $imginfo) = @_;
+
+  my $dir = $registry->{'manifestinfos'};
+  my $mani_id = $imginfo->{'distmanifest'};
+  return unless $dir && $mani_id;
+  return if "/$repository/" =~ /\/[\.\/]/;	# hey!
+  return if -s "$dir/$repository/$mani_id";
+  $imginfo = { %$imginfo };
+  my ($projid, $repoid) = split('/', $prp, 2);
+  $imginfo->{'type'} = $containerinfo->{'type'} if $containerinfo->{'type'};
+  $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
+  $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
+  $imginfo->{'buildtime'} = $containerinfo->{'buildtime'} if $containerinfo->{'buildtime'};
+  $imginfo->{'version'} = $containerinfo->{'version'} if $containerinfo->{'version'};
+  $imginfo->{'release'} = $containerinfo->{'release'} if $containerinfo->{'release'};
+  $imginfo->{'arch'} = $containerinfo->{'arch'};            # scheduler arch
+  my $bins = BSPublisher::Containerinfo::create_packagelist($containerinfo);
+  $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};       # turn flag to True
+  $imginfo->{'packages'} = $bins if $bins;
+  $imginfo->{'project'} = $projid;
+  $imginfo->{'repository'} = $repoid;
+  mkdir_p("$dir/$repository");
+  my $imginfo_json = JSON::XS->new->utf8->canonical->encode($imginfo);
+  unlink("$dir/$repository/.$mani_id.$$");
+  writestr("$dir/$repository/.$mani_id.$$", "$dir/$repository/$mani_id", $imginfo_json);
+}
+
 =head2 upload_to_registry - upload containers
 
  Parameters:
@@ -500,7 +532,7 @@ sub query_repostate {
 =cut
 
 sub upload_to_registry {
-  my ($registry, $containerinfos, $repository, $tags, $projid, $signargs, $pubkey, $multicontainer, $repostate) = @_;
+  my ($registry, $containerinfos, $repository, $tags, $projid, $repoid, $signargs, $pubkey, $multicontainer, $repostate) = @_;
 
   return unless @{$containerinfos || []} && @{$tags || []};
   
@@ -539,32 +571,40 @@ sub upload_to_registry {
     my %expected;
     my $containerdigests = '';
     my $info;
+    my $cosign_expect = $cosigncookie && !$registry->{'cosign_nocheck'} ? "cosigncookie=$cosigncookie" : '-';
+    my $manifestinfodir;
+    if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
+      $manifestinfodir = "$registry->{'manifestinfos'}/$repository";
+    }
+    my $missing_manifestinfo;
     if ($multiarch) {
       my %platforms;
       my @infos;
       for my $containerinfo (@$containerinfos) {
 	$info = create_container_dist_info($containerinfo, $oci, \%platforms);
+	$missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
         if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
 	  my $atttag = $info->{'digest'};
 	  $atttag =~ s/:(.*)/-$1.att/;
-	  $expected{$atttag} = "cosigncookie=$cosigncookie";
+	  $expected{$atttag} = $cosign_expect;
         }
 	push @infos, { %$info };	# copy so that size is not stringified
 	$containerdigests .= "$info->{'digest'} $info->{'size'}\n";
 	if ($cosigncookie) {
 	  my $sigtag = $info->{'digest'};
 	  $sigtag =~ s/:(.*)/-$1.sig/;
-	  $expected{$sigtag} = "cosigncookie=$cosigncookie";
+	  $expected{$sigtag} = $cosign_expect;
 	}
       }
       $info = create_container_index_info(\@infos, $oci);
     } else {
       my $containerinfo = $containerinfos->[0];
       $info = create_container_dist_info($containerinfo, $oci);
+      $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
       if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
-	$expected{$atttag} = "cosigncookie=$cosigncookie";
+	$expected{$atttag} = $cosign_expect;
       }
     }
     $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
@@ -572,9 +612,9 @@ sub upload_to_registry {
     if ($cosigncookie) {
       my $sigtag = $info->{'digest'};
       $sigtag =~ s/:(.*)/-$1.sig/;
-      $expected{$sigtag} = "cosigncookie=$cosigncookie";
+      $expected{$sigtag} = $cosign_expect;
     }
-    if (!grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
+    if (!$missing_manifestinfo && !grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
       $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
       return ($containerdigests, map {"$pullserver$repository:$_"} @$tags);
     }
@@ -623,6 +663,11 @@ sub upload_to_registry {
   mkdir_p($uploaddir);
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
   unlink($containerdigestfile);
+  my $uploadinfofile;
+  if ($registry->{'manifestinfos'}) {
+    $uploadinfofile = "$uploaddir/publisher.$$.uploadinfos";
+    unlink($uploadinfofile);
+  }
   my @opts = map {('-t', $_)} @$tags;
   push @opts, '-m' if $multiarch;
   push @opts, '--oci' if $oci;
@@ -644,13 +689,29 @@ sub upload_to_registry {
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
     push @opts, '--slsaprovenance' if $do_slsaprovenance;
   }
-  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
+  push @opts, '-F', $containerdigestfile;
+  push @opts, '--write-info', $uploadinfofile if $uploadinfofile;
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository, @uploadfiles);
   print "uploading to registry: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   my $containerdigests = readstr($containerdigestfile, 1);
   unlink($containerdigestfile);
   unlink($_) for @tempfiles;
   die("error while uploading to registry: $result\n") if $result;
+
+  if ($uploadinfofile) {
+    my $uploadinfo_json = readstr($uploadinfofile, 1);
+    unlink($uploadinfofile);
+    my $uploadinfo = $uploadinfo_json ? JSON::XS::decode_json($uploadinfo_json) : undef;
+    my %uploadfiles;
+    my $idx = 0;
+    $uploadfiles{$uploadfiles[$idx++]} = $_ for @$containerinfos;
+    for my $imginfo (@{$uploadinfo->{'images'} || []}) {
+      next unless $imginfo->{'distmanifest'};
+      my $containerinfo = $uploadfiles{delete $imginfo->{'file'}};
+      create_manifestinfo($registry, "$projid/$repoid", $repository, $containerinfo, $imginfo);
+    }
+  }
 
   # return digest and public references
   $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
