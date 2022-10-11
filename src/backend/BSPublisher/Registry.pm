@@ -556,6 +556,7 @@ sub create_manifestinfo {
   my ($projid, $repoid) = split('/', $prp, 2);
   $imginfo = { %$imginfo, 'project' => $projid, 'repository' => $repoid };
   my $bins = BSPublisher::Containerinfo::create_packagelist($containerinfo);
+  $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};	# turn flag to True
   $imginfo->{'packages'} = $bins if $bins;
   push_manifestinfo($repodir, $imginfo->{'distmanifest'}, JSON::XS->new->utf8->canonical->encode($imginfo));
 }
