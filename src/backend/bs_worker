@@ -3166,9 +3166,10 @@ sub createreport {
     my %baseentries;
     my $bf;
     if (open($bf, '<', "$dir/$bfile")) {
-      while(<$bf>) {
+      while (<$bf>) {
         chomp;
-        $baseentries{$_} = 1;
+        my @s = split(/\|/, $_);
+        $baseentries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"} = 1;
       }
       close($bf);
     }
@@ -3199,10 +3200,11 @@ sub createreport {
 	  $bin->{'release'} = $2;
 	}
       }
+      my $isbase = $baseentries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"};
       my $prpap = $kiwiorigins->{$s[0]};
-      if ($prpap && !$baseentries{$_}) {
+      if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
-        if ($buildinfo->{'slsaprovenance'}) {
+        if ($buildinfo->{'slsaprovenance'} && !$isbase) {
           my $fn;
           $fn = "$s[0].rpm" if -e "$srcdir/repos/$projid/$repoid/$s[0].rpm";
           $fn = "$s[0].deb" if -e "$srcdir/repos/$projid/$repoid/$s[0].deb";
@@ -3932,6 +3934,15 @@ sub getstate {
   return $state;
 }
 
+sub changestate {
+  my ($jobid, $newstate) = @_;
+  my $state = lockstate();
+  die("not building a job\n") if !$state || $state->{'state'} ne 'building';
+  die("building a different job\n") if $jobid && $jobid ne $state->{'jobid'};
+  $state->{'state'} = $newstate;
+  commitstate($state);
+}
+
 sub append_nonfatal {
   my ($file, $str) = @_;
   local *F;
@@ -4035,31 +4046,37 @@ sub getlogfile {
 
 sub killjob {
   my ($cgi, $jobid) = @_;
-  my $state = getstate($jobid, 1);
-  die("could not kill job\n") unless kill_job();
-  BSUtil::appendstr("$buildroot/.build.log", "\n\nKilled job\n");
-  $state->{'state'} = 'killed';
-  commitstate($state);
+  changestate($jobid, 'killed');
+  my $state = lockstate();
+  if ($state->{'state'} eq 'killed') {
+    die("could not kill job\n") unless kill_job();
+    BSUtil::appendstr("$buildroot/.build.log", "\n\nKilled job\n");
+  }
+  unlockstate();
   return "<status=\"ok\" />\n";
 }
 
 sub discardjob {
   my ($cgi, $jobid) = @_;
-  my $state = getstate($jobid, 1);
-  die("could not kill job\n") unless kill_job();
-  BSUtil::appendstr("$buildroot/.build.log", "\n\nDiscarded job\n");
-  $state->{'state'} = 'discarded';
-  commitstate($state);
+  changestate($jobid, 'discarded');
+  my $state = lockstate();
+  if ($state->{'state'} eq 'discarded') {
+    die("could not kill job\n") unless kill_job();
+    BSUtil::appendstr("$buildroot/.build.log", "\n\nDiscarded job\n");
+  }
+  unlockstate();
   return "<status=\"ok\" />\n";
 }
 
 sub badhostjob {
   my ($cgi, $jobid) = @_;
-  my $state = getstate($jobid, 1);
-  die("could not kill job\n") unless kill_job();
-  BSUtil::appendstr("$buildroot/.build.log", "\n\nTriggered badhost state for job\n");
-  $state->{'state'} = 'badhost';
-  commitstate($state);
+  changestate($jobid, 'badhost');
+  my $state = lockstate();
+  if ($state->{'state'} eq 'badhost') {
+    die("could not kill job\n") unless kill_job();
+    BSUtil::appendstr("$buildroot/.build.log", "\n\nTriggered badhost state for job\n");
+  }
+  unlockstate();
   return "<status=\"ok\" />\n";
 }
 
@@ -4168,6 +4185,7 @@ sub periodic {
     $state = lockstate();
     if ($state->{'state'} eq 'dead') {
       close RUNLOCK;
+      unlockstate();
       send_state('exit', $port, $hostarch);
       exit(0);
     }
@@ -4350,6 +4368,7 @@ if ($proto && $proto eq 'https') {
 # run the server, this will return only for /build requests
 # see returnfromserver setting above
 my ($state, $buildinfo, $registerserver) = BSServer::server($conf);
+# the returned state is locked
 
 print "got job, run build...\n";
 BSServer::done(1);
