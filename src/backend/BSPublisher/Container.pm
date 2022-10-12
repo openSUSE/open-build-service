@@ -228,7 +228,7 @@ sub upload_all_containers {
 	  undef $gun unless defined $pubkey;
 	}
 	$have_some_trust = 1 if $gun;
-	do_local_uploads($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags, $registry->{'rekorserver'});
+	do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags);
 	my $pullserver = $registry->{'server'};
 	undef $pullserver if $pullserver && $pullserver eq 'local:';
 	if ($pullserver) {
@@ -273,7 +273,7 @@ sub upload_all_containers {
     for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
       if ($registryserver eq 'local:') {
-        do_local_uploads($extrep, $projid, $repoid, $repository, undef, $containers, $pubkey, $signargs, $multicontainer, {}, $registry->{'rekorserver'});
+        do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, {});
 	next;
       }
       my $containerdigests = '';
@@ -850,7 +850,7 @@ sub delete_container_repositories {
 }
 
 sub do_local_uploads {
-  my ($extrep, $projid, $repoid, $repository, $gun, $containers, $pubkey, $signargs, $multicontainer, $uptags, $rekorserver) = @_;
+  my ($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags) = @_;
 
   my %todo;
   my @tempfiles;
@@ -875,7 +875,7 @@ sub do_local_uploads {
     }
   }
   eval {
-    BSPublisher::Registry::push_containers("$projid/$repoid", $repository, $gun, $multicontainer, \%todo, $pubkey, $signargs, $rekorserver);
+    BSPublisher::Registry::push_containers($registry, "$projid/$repoid", $repository, $multicontainer, \%todo, $pubkey, $signargs);
   };
   unlink($_) for @tempfiles;
   die($@) if $@;

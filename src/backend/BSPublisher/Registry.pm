@@ -562,8 +562,15 @@ sub create_manifestinfo {
 }
 
 sub push_containers {
-  my ($prp, $repo, $gun, $multiarch, $tags, $pubkey, $signargs, $rekorserver) = @_;
+  my ($registry, $prp, $repo, $multiarch, $tags, $pubkey, $signargs) = @_;
 
+  my $rekorserver = $registry->{'rekorserver'};
+  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+  undef $gun if ($gun && $gun eq 'local:') || !defined($pubkey);
+  if ($gun) {
+    $gun =~ s/^https?:\/\///;
+    $gun = "$gun/$repo";
+  }
   my $containerdigests = '';
 
   my $oprp = ownrepo($prp, $repo);
