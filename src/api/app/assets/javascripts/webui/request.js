@@ -135,33 +135,6 @@ $(document).ready(function(){
     }
   });
   // TODO: Remove the enclosing code when the request_show_redesign feature is finished - END
-
-  // NOTE: Add value of selected tab in dropdown urls
-  $('#request-tabs .nav-item .nav-link').on('click', function() {
-    var tabName = $(this).attr('aria-controls');
-    $.each($('.dropdown-menu .dropdown-item'), function(){
-      var href = $(this).attr('href');
-      if(href){
-        var regex = /tab_name=([aA-zZ-]+)/;
-        var matches = href.match(regex);
-        if(matches !== null){
-          href = href.replace(matches[0], 'tab_name=' + tabName);
-        } else if(href.match(/\?/g)){
-          href = href + '&tab_name=' + tabName;
-        } else {
-          href = href + '?tab_name=' + tabName;
-        }
-        $(this).attr('href', href);
-      }
-    });
-  });
-
-  var selectedTab = $('.selected-tab').data('selected');
-  if(document.getElementById(selectedTab + '-nav-item')){
-    $('#'+selectedTab + '-nav-item a').click();
-  } else{
-    $('#conversation-nav-item a').click();
-  }
 });
 
 // TODO: Remove the following method when the request_show_redesign feature is finished

@@ -2,7 +2,7 @@
 - if submit_actions.count > 1
   .d-flex.align-items-center
     %p.mb-0 This request contains multiple actions
-    .dropdown.ml-2
+    .dropdown.ml-2#request-actions
       %button.btn.btn-outline-primary.btn-sm.dropdown-toggle{ 'aria-expanded' => 'false', 'data-toggle' => 'dropdown',
                                                               :type => 'button', 'data-boundary' => 'viewport' }
         Select Action
@@ -15,11 +15,28 @@
           %li
             %hr.dropdown-divider
             = link_to((render partial: 'action_text', locals: { action: action_item }),
-                      request_show_path(number: bs_request.number,
-                                        request_action_id: action_item.id,
-                                        full_diff: diff_limit,
-                                        diff_to_superseded: diff_to_superseded_id),
-                      class: "dropdown-item #{action_item.id == active_action.id ? 'disabled' : ''}")
+                                                      request_show_path(number: bs_request.number,
+                                                                        request_action_id: action_item.id,
+                                                                        full_diff: diff_limit,
+                                                                        diff_to_superseded: diff_to_superseded_id),
+                                                      class: "dropdown-item #{action_item.id == active_action.id ? 'disabled' : ''}")
 %p
   = 'Showing' if submit_actions.count > 1
   %span.font-italic= request_action_header(action, bs_request.creator)
+
+- content_for :ready_function do
+  :plain
+    var hash_regexp = new RegExp(`\#${hash_prefix}.+`);
+
+    $('#request-actions').on('shown.bs.dropdown', function () {
+      $.each($('#request-actions .dropdown-item'), function () {
+        var href = $(this).attr('href');
+        if (href.search('#') == -1) {
+           href = href + document.location.hash;
+        }
+        else {
+          href = href.replace(hash_regexp, document.location.hash);
+        }
+        $(this).attr('href', href);
+      });
+    });
