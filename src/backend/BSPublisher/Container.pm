@@ -218,55 +218,25 @@ sub upload_all_containers {
 
       my $uptags = $uploads{$repository};
 
-      # do local publishing if requested
       if ($registryserver eq 'local:') {
-	my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-	undef $gun if $gun && $gun eq 'local:';
-        if (defined($gun)) {
-          $gun =~ s/^https?:\/\///;
-	  $gun .= "/$repository";
-	  undef $gun unless defined $pubkey;
-	}
-	$have_some_trust = 1 if $gun;
+	my $gunprefix = $registry->{'notary_gunprefix'} || $registry->{'server'};
+	$have_some_trust = 1 if defined($pubkey) && $gunprefix && $gunprefix ne 'local:';
 	do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags);
-	my $pullserver = $registry->{'server'};
-	undef $pullserver if $pullserver && $pullserver eq 'local:';
-	if ($pullserver) {
-	  $pullserver =~ s/https?:\/\///;
-	  $pullserver =~ s/\/?$/\//;
-	  for my $tag (sort keys %$uptags) {
-	    my @p = sort(values %{$uptags->{$tag}});
-	    push @{$allrefs{$_}}, "$pullserver$repository:$tag" for @p;
-	  }
-	}
-	next;
+      } else {
+        do_remote_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags, $notary_uploads);
       }
 
-      # find common containerinfos so that we can push multiple tags in one go
-      my %todo;
-      my %todo_p;
-      for my $tag (sort keys %$uptags) {
-	my @p = sort(values %{$uptags->{$tag}});
-	my $joinp = join('///', @p);
-	push @{$todo{$joinp}}, $tag;
-	$todo_p{$joinp} = \@p;
+      # add references
+      my $pullserver = $registry->{'server'};
+      if ($pullserver && $pullserver ne 'local:') {
+        $pullserver =~ s/https?:\/\///;
+        $pullserver =~ s/\/?$/\//;
+        $pullserver = '' if $registryserver ne 'local:' && $pullserver =~ /docker.io\/$/;
+	for my $tag (sort keys %$uptags) {
+	  my @p = sort(values %{$uptags->{$tag}});
+	  push @{$allrefs{$_}}, "$pullserver$repository:$tag" for @p;
+	}
       }
-      my $repostate;
-      if (1) {
-	eval { $repostate = query_repostate($registry, $repository) };
-      }
-      # now do the uploads
-      my $containerdigests = '';
-      for my $joinp (sort keys %todo) {
-	my @tags = @{$todo{$joinp}};
-	my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-	my ($digest, @refs) = upload_to_registry($registry, \@containerinfos, $repository, \@tags, $projid, $repoid, $signargs, $pubkey, $multicontainer, $repostate);
-	$containerdigests .= $digest;
-	push @{$allrefs{$_}}, @refs for @{$todo_p{$joinp}};
-      }
-      # all is pushed, now clean the rest
-      add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
-      delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate);
     }
 
     # delete repositories of former publish runs that are now empty
@@ -464,7 +434,7 @@ sub query_repostate {
   $pullserver = '' if $pullserver =~ /docker.io\/$/;
   $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
   my ($fh, $tempfile) = tempfile();
-  print "querying state of $repository on $registryserver\n";
+  print "$registryserver: querying state of $repository\n";
   my @opts = ('-l');
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
@@ -518,21 +488,76 @@ sub create_manifestinfo {
   writestr("$dir/$repository/.$mani_id.$$", "$dir/$repository/$mani_id", $imginfo_json);
 }
 
-=head2 upload_to_registry - upload containers
+sub compare_to_repostate {
+  my ($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosigncookie, $cosign_attestation) = @_;
+  my %expected;
+  my $containerdigests = '';
+  my $info;
+  my $cosign_expect = $cosigncookie && !$registry->{'cosign_nocheck'} ? "cosigncookie=$cosigncookie" : '-';
+  my $manifestinfodir;
+  if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
+    $manifestinfodir = "$registry->{'manifestinfos'}/$repository";
+  }
+  my $missing_manifestinfo;
+  if ($multiarch) {
+    my %platforms;
+    my @infos;
+    for my $containerinfo (@$containerinfos) {
+      $info = create_container_dist_info($containerinfo, $oci, \%platforms);
+      $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
+      if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
+	my $atttag = $info->{'digest'};
+	$atttag =~ s/:(.*)/-$1.att/;
+	$expected{$atttag} = $cosign_expect;
+      }
+      push @infos, { %$info };	# copy so that size is not stringified
+      $containerdigests .= "$info->{'digest'} $info->{'size'}\n";
+      if ($cosigncookie) {
+	my $sigtag = $info->{'digest'};
+	$sigtag =~ s/:(.*)/-$1.sig/;
+	$expected{$sigtag} = $cosign_expect;
+      }
+    }
+    $info = create_container_index_info(\@infos, $oci);
+  } else {
+    my $containerinfo = $containerinfos->[0];
+    $info = create_container_dist_info($containerinfo, $oci);
+    $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
+    if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
+      my $atttag = $info->{'digest'};
+      $atttag =~ s/:(.*)/-$1.att/;
+      $expected{$atttag} = $cosign_expect;
+    }
+  }
+  $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
+  $expected{$_} = $info->{'digest'} for @$tags;
+  if ($cosigncookie) {
+    my $sigtag = $info->{'digest'};
+    $sigtag =~ s/:(.*)/-$1.sig/;
+    $expected{$sigtag} = $cosign_expect;
+  }
+  if (!$missing_manifestinfo && !grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
+    return $containerdigests;
+  }
+  return undef;
+}
+
+=head2 upload_to_registry - upload container(s) to a set of tags
 
  Parameters:
-  registry       - validated config for registry
-  containerinfos - array of containers to upload (more than one for multiarch)
+  registry       - config for registry
+  projid/repoid  - container origin
   repository     - registry repository name
+  containerinfos - array of containers to upload (more than one for multiarch)
   tags           - array of tags to upload to
 
  Returns:
-  containerdigests + public references to uploaded containers
+  containerdigests
 
 =cut
 
 sub upload_to_registry {
-  my ($registry, $containerinfos, $repository, $tags, $projid, $repoid, $signargs, $pubkey, $multicontainer, $repostate) = @_;
+  my ($registry, $projid, $repoid, $repository, $containerinfos, $tags, $pubkey, $signargs, $multicontainer, $repostate) = @_;
 
   return unless @{$containerinfos || []} && @{$tags || []};
   
@@ -540,8 +565,7 @@ sub upload_to_registry {
   my $pullserver = $registry->{server};
   $pullserver =~ s/https?:\/\///;
   $pullserver =~ s/\/?$/\//;
-  $pullserver = '' if $pullserver =~ /docker.io\/$/;
-  $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
+  $repository = "library/$repository" if $repository !~ /\// && $registry->{server} =~ /docker.io\/?$/ && $repository !~ /\//;
 
   $multicontainer = 0;
   my $multiarch = @$containerinfos > 1 || $multicontainer ? 1 : 0;
@@ -568,56 +592,8 @@ sub upload_to_registry {
 
   # check if the registry is up-to-date
   if ($repostate) {
-    my %expected;
-    my $containerdigests = '';
-    my $info;
-    my $cosign_expect = $cosigncookie && !$registry->{'cosign_nocheck'} ? "cosigncookie=$cosigncookie" : '-';
-    my $manifestinfodir;
-    if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
-      $manifestinfodir = "$registry->{'manifestinfos'}/$repository";
-    }
-    my $missing_manifestinfo;
-    if ($multiarch) {
-      my %platforms;
-      my @infos;
-      for my $containerinfo (@$containerinfos) {
-	$info = create_container_dist_info($containerinfo, $oci, \%platforms);
-	$missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-        if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
-	  my $atttag = $info->{'digest'};
-	  $atttag =~ s/:(.*)/-$1.att/;
-	  $expected{$atttag} = $cosign_expect;
-        }
-	push @infos, { %$info };	# copy so that size is not stringified
-	$containerdigests .= "$info->{'digest'} $info->{'size'}\n";
-	if ($cosigncookie) {
-	  my $sigtag = $info->{'digest'};
-	  $sigtag =~ s/:(.*)/-$1.sig/;
-	  $expected{$sigtag} = $cosign_expect;
-	}
-      }
-      $info = create_container_index_info(\@infos, $oci);
-    } else {
-      my $containerinfo = $containerinfos->[0];
-      $info = create_container_dist_info($containerinfo, $oci);
-      $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-      if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
-	my $atttag = $info->{'digest'};
-	$atttag =~ s/:(.*)/-$1.att/;
-	$expected{$atttag} = $cosign_expect;
-      }
-    }
-    $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
-    $expected{$_} = $info->{'digest'} for @$tags;
-    if ($cosigncookie) {
-      my $sigtag = $info->{'digest'};
-      $sigtag =~ s/:(.*)/-$1.sig/;
-      $expected{$sigtag} = $cosign_expect;
-    }
-    if (!$missing_manifestinfo && !grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
-      $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
-      return ($containerdigests, map {"$pullserver$repository:$_"} @$tags);
-    }
+    my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosigncookie, $cosign_attestation);
+    return $containerdigests if defined $containerdigests;
   }
 
   # decompress tar files
@@ -713,9 +689,7 @@ sub upload_to_registry {
     }
   }
 
-  # return digest and public references
-  $repository =~ s/^library\/([^\/]+)$/$1/ if $pullserver eq '';
-  return ($containerdigests, map {"$pullserver$repository:$_"} @$tags);
+  return $containerdigests;
 }
 
 sub delete_obsolete_tags_from_registry {
@@ -849,6 +823,10 @@ sub delete_container_repositories {
   upload_all_containers($extrep, $projid, $repoid, undef, undef, undef, 0, $old_container_repositories);
 }
 
+=head2 do_local_uploads - sync containers to a repository in a local registry
+
+=cut
+
 sub do_local_uploads {
   my ($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags) = @_;
 
@@ -879,6 +857,42 @@ sub do_local_uploads {
   };
   unlink($_) for @tempfiles;
   die($@) if $@;
+}
+
+=head2 do_remote_uploads - sync containers to a repository in a remote registry
+
+=cut
+
+sub do_remote_uploads {
+  my ($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags, $notary_uploads) = @_;
+
+  # find common containerinfos so that we can push multiple tags in one go
+  my %todo;
+  my %todo_p;
+  for my $tag (sort keys %$uptags) {
+    my @p = sort(values %{$uptags->{$tag}});
+    my $joinp = join('///', @p);
+    push @{$todo{$joinp}}, $tag;
+    $todo_p{$joinp} = \@p;
+  }
+  my $pullserver = $registry->{server};
+  $pullserver =~ s/https?:\/\///;
+  $pullserver =~ s/\/?$/\//;
+  $pullserver = '' if $pullserver =~ /docker.io\/$/;
+  # query the current state
+  my $repostate;
+  $repostate = eval { query_repostate($registry, $repository) } if 1;
+  # now do the uploads for the tag groups
+  my $containerdigests = '';
+  for my $joinp (sort keys %todo) {
+    my @tags = @{$todo{$joinp}};
+    my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
+    my $digests = upload_to_registry($registry, $projid, $repoid, $repository, \@containerinfos, \@tags, $pubkey, $signargs, $multicontainer, $repostate);
+    $containerdigests .= $digests;
+  }
+  # all is pushed, now clean the rest
+  add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
+  delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate);
 }
 
 1;
