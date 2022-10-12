@@ -853,7 +853,7 @@ sub do_local_uploads {
     }
   }
   eval {
-    BSPublisher::Registry::push_containers($registry, "$projid/$repoid", $repository, $multicontainer, \%todo, $pubkey, $signargs);
+    BSPublisher::Registry::push_containers($registry, $projid, $repoid, $repository, \%todo, $pubkey, $signargs, $multicontainer);
   };
   unlink($_) for @tempfiles;
   die($@) if $@;

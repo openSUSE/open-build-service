@@ -562,7 +562,7 @@ sub create_manifestinfo {
 }
 
 sub push_containers {
-  my ($registry, $prp, $repo, $multiarch, $tags, $pubkey, $signargs) = @_;
+  my ($registry, $projid, $repoid, $repo, $tags, $pubkey, $signargs, $multiarch) = @_;
 
   my $rekorserver = $registry->{'rekorserver'};
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
@@ -573,6 +573,7 @@ sub push_containers {
   }
   my $containerdigests = '';
 
+  my $prp = "$projid/$repoid";
   my $oprp = ownrepo($prp, $repo);
   if ($oprp ne $prp) {
     print "cannot push to $repo: owned by $oprp\n";
@@ -822,7 +823,6 @@ sub push_containers {
   }
 
   # write info file
-  my ($projid, $repoid) = split('/', $prp, 2);
   my $info = { 'project' => $projid, 'repository' => $repoid, 'tags' => \%info };
   $info->{'gun'} = $gun if $gun;
   my $oldinfo = BSUtil::retrieve("$repodir/:info", 1);
