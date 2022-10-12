@@ -3166,9 +3166,10 @@ sub createreport {
     my %baseentries;
     my $bf;
     if (open($bf, '<', "$dir/$bfile")) {
-      while(<$bf>) {
+      while (<$bf>) {
         chomp;
-        $baseentries{$_} = 1;
+        my @s = split(/\|/, $_);
+        $baseentries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"} = 1;
       }
       close($bf);
     }
@@ -3199,10 +3200,11 @@ sub createreport {
 	  $bin->{'release'} = $2;
 	}
       }
+      my $isbase = $baseentries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"};
       my $prpap = $kiwiorigins->{$s[0]};
-      if ($prpap && !$baseentries{$_}) {
+      if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
-        if ($buildinfo->{'slsaprovenance'}) {
+        if ($buildinfo->{'slsaprovenance'} && !$isbase) {
           my $fn;
           $fn = "$s[0].rpm" if -e "$srcdir/repos/$projid/$repoid/$s[0].rpm";
           $fn = "$s[0].deb" if -e "$srcdir/repos/$projid/$repoid/$s[0].deb";
