@@ -31,7 +31,8 @@ sub create_packagelist {
   if ($containerinfo->{'container_basepackages'} && open($bf, '<', $containerinfo->{'container_basepackages'})) {
     while(<$bf>) {
       chomp;
-      $basepackages{$_} = 1;
+      my @s = split(/\|/, $_);
+      $basepackages{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"} = 1;
     }
     close($bf);
   }
@@ -39,7 +40,6 @@ sub create_packagelist {
   return undef unless open($f, '<', $containerinfo->{'container_packages'});
   while(<$f>) {
     chomp;
-    my $isbase = $basepackages{$_} ? 1 : 0;
     my @s = split(/\|/, $_);
     next if @s < 6;
     next if $s[0] eq 'gpg-pubkey';
@@ -63,7 +63,7 @@ sub create_packagelist {
 	$bin->{'release'} = $2;
       }
     }
-    $bin->{'base'} = 1 if $isbase;
+    $bin->{'base'} = 1 if $basepackages{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"};
     push @bins, $bin;
   }
   close($f);
