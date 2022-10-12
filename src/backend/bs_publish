@@ -2455,8 +2455,10 @@ sub publish {
       next if ($containerinfo->{'type'} || '') eq 'helm';	# keep helm charts
       delete $bins{$p};
       delete $bins{"$p.sha256"};
+      delete $bins{"$p.sha256.asc"};
       delete $binaryorigins->{$p};
       delete $binaryorigins->{"$p.sha256"};
+      delete $binaryorigins->{"$p.sha256.asc"};
     }
   } else {
     # reconstruct missing virtual containers
