@@ -7,7 +7,7 @@
         %i No description set
 .row
   .col-md-4.order-md-2.order-sm-1.mb-4#side-links
-    - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
+    - if request_reviews.present?
       .d-flex.justify-content-between
         %h4
           Reviewers
@@ -16,9 +16,7 @@
         = render partial: 'add_reviewer_dialog'
       = render AddReviewCollapsibleComponent.new
       .mb-4
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
+        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
       = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
                                               can_add_reviews: can_add_reviews,
                                               my_open_reviews: my_open_reviews)

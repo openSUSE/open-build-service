@@ -61,9 +61,7 @@
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
-                                                                             open_reviews: @open_reviews,
-                                                                             accepted_reviews: @accepted_reviews,
-                                                                             declined_reviews: @declined_reviews,
+                                                                             request_reviews: @request_reviews,
                                                                              open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
                                                                              my_open_reviews: @my_open_reviews,
                                                                              action: @action,
