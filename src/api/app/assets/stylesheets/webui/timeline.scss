@@ -1,11 +1,12 @@
 // This stylesheet defines styles for use in the comments and request history merged timeline
 .timeline {
     $timeline-border-width: 0.125rem;
+    $timeline-offset: -(($avatars-counter-size / 2) + $timeline-border-width);
     border-left: $timeline-border-width solid $gray-400;
 
     .timeline-item {
         position: relative;
-        left: -(($avatars-counter-size / 2) + $timeline-border-width); // The avatars of users involved in timeline items will be displayed on the timeline border
+        left: $timeline-offset; // The avatars of users involved in timeline items will be displayed on the timeline border
 
         $timeline-item-avatar-margin: 0.5rem;
         img.avatars-counter {
@@ -14,6 +15,32 @@
 
         .timeline-item-comment {
             margin-left: $avatars-counter-size + $timeline-border-width + $timeline-item-avatar-margin;
+        }
+
+        i.timeline-break, i.timeline-offset {
+            @extend .py-2;
+            @extend .mr-2;
+            @extend .fas;
+            @extend .fa-ellipsis-vertical;
+            margin-left: 0.66rem;
+        }
+        i.timeline-break {
+            @extend .bg-white;
+            @extend .text-dark;
+        }
+        a:hover i.timeline-break {
+            filter: none;
+        }
+        i.timeline-offset {
+            color: transparent;
+        }
+    }
+
+    .collapse, .collapsing {
+        position: relative;
+        left: $timeline-offset;
+        .timeline-item {
+            left: 0;
         }
     }
 }

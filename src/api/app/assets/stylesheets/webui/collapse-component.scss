@@ -1,13 +1,13 @@
 [data-toggle="collapse"] {
   &[aria-expanded="false"] {
     .collapser {
-      display: none;
+      display: none !important;
     }
   }
 
   &[aria-expanded="true"] {
     .expander {
-      display: none;
+      display: none !important;
     }
   }
 }
