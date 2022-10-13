@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Thu, 06 Sep 2018 10:45:36 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/home:tom/_result?locallink=1&multibuild=1&package=test_package&view=status
+    uri: http://backend:5352/build/home:tom/_result?lastbuild=0&locallink=1&multibuild=1&package=test_package&view=status
     body:
       encoding: US-ASCII
       string: ''

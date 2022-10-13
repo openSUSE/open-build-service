@@ -566,7 +566,7 @@ http_interactions:
   recorded_at: Fri, 25 Jun 2021 11:31:34 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=0&package=test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
