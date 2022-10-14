@@ -3,9 +3,6 @@
   @pagetitle += ": #{@action[:name]}"
   actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
-- if @can_add_reviews
-  = render partial: 'actions'
-
 .alert.alert-info{ role: 'alert' }
   As part of the
   = succeed ',' do
