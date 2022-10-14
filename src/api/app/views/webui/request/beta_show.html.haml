@@ -44,26 +44,26 @@
             = link_to "##{supersed['number']}", number: supersed['number']
 
         = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
-                                                        diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+                                                       diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
 
     %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
-      %li.nav-item.scrollable-tab-link#conversation-nav-item
+      %li.nav-item.scrollable-tab-link{ role: 'presentation' }
         = link_to('Conversation', '#conversation', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
-                  'aria-selected': 'true', 'data-toggle': 'tab', role: 'tab')
+                  'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
       - if @action[:sprj] || @action[:spkg]
-        %li.nav-item.scrollable-tab-link#build-results-nav-item
+        %li.nav-item.scrollable-tab-link{ role: 'presentation' }
           = link_to('Build Results', '#build-results', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link#changes-nav-item{ 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
-          = link_to('Changes', '#changes', class: 'nav-link text-nowrap', 'aria-controls': 'changes', 'aria-selected': 'false',
-                    'data-toggle': 'tab', role: 'tab')
+        %li.nav-item.scrollable-tab-link{ role: 'presentation', 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
+          = link_to('Changes', '#changes', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
+                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link#mentioned-issues-nav-item
+        %li.nav-item.scrollable-tab-link{ role: 'presentation' }
           = link_to('Mentioned Issues', '#mentioned-issues', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
     .tab-content.p-4#request-tabs-content
-      .tab-pane.fade.show.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
+      .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
                                                                              open_reviews: @open_reviews,
                                                                              accepted_reviews: @accepted_reviews,
@@ -71,8 +71,7 @@
                                                                              open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
                                                                              my_open_reviews: @my_open_reviews,
                                                                              action: @action,
-                                                                             is_target_maintainer: @is_target_maintainer,
-                                                                             is_author: @is_author }
+                                                                             is_target_maintainer: @is_target_maintainer, is_author: @is_author }
       - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @action[:sprj], package: @action[:spkg] }
@@ -81,4 +80,21 @@
           = render partial: 'webui/request/beta_show_tabs/changes', locals: { bs_request: @bs_request, action: @action, refresh: @refresh }
         .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/mentioned_issues'
-    .selected-tab{ 'data-selected': @active_tab }
+
+- content_for :ready_function do
+  :plain
+    var hash_prefix = 'tab-pane-';
+
+    // Show tab-pane comming from the url hash. If the url hash is empty, show first tab-pane.
+    var tab_pane_id = document.location.hash.replace('#' + hash_prefix, '#') || $('.nav-tabs .nav-item:first-child .nav-link').attr('href');
+    $('.nav-tabs .nav-link[href="' + tab_pane_id + '"]').tab('show');
+
+    // Change url hash for page-reload
+    $('.nav-tabs .nav-item .nav-link').on('shown.bs.tab', function (event) {
+      if ($(event.target).parent('.nav-item').is(':first-child')) {
+        history.pushState('', document.title, window.location.pathname + window.location.search);
+      }
+      else {
+        document.location.hash = event.target.hash.replace('#', '#' + hash_prefix);
+      }
+    });

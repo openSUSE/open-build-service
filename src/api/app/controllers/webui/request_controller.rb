@@ -114,7 +114,6 @@ class Webui::RequestController < Webui::WebuiController
       @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
       @not_full_diff = BsRequest.truncated_diffs?([@action])
       @refresh = @action[:diff_not_cached]
-      @active_tab = params[:tab_name] || 'conversation'
 
       if @refresh
         bs_request_action = BsRequestAction.find(@action[:id])
