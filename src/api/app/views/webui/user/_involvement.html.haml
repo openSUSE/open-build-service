@@ -12,7 +12,7 @@
   roles_html_ids = (roles.map(&:title) << 'owner').map { |role| "role_#{role}" }
   roles_selected = (filters.keys & roles_html_ids).count
 
-#involvement
+.d-none#involvement
   .card.sticky-top.border-0#involved-filters
     .card-body
       = form_with(model: displayed_user, method: :get, local: true, class: 'form-inline justify-content-between') do

@@ -8,8 +8,8 @@
     .bg-light.d-none.d-md-block
       %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
-          = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link active text-nowrap',
-                    data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: true }) do
+          = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link text-nowrap',
+                    data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: false }) do
             Involved Projects/Packages
         %li.nav-item
           = link_to('#activity', id: 'activity-tab', class: 'nav-link text-nowrap',
@@ -22,7 +22,7 @@
     -# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
     - if contribution_graph?
       .tab-content.d-none.d-md-block
-        .tab-pane.fade.show.active#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
+        .tab-pane.fade#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
         -# Content to be injected by JavaScript
         .tab-pane.fade#activity{ role: 'tabpanel', aria: { labelledby: 'activity-tab' } }
           = render partial: 'webui/user/activity', locals: { activities_per_year: activities_per_year,
