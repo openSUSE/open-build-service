@@ -11,18 +11,18 @@
       .d-flex.justify-content-between
         %h4
           Reviews
-        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
-                                                can_add_reviews: can_add_reviews,
-                                                my_open_reviews: my_open_reviews)
+        = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review') do
+          %i.fas.fa-plus-circle.fa-lg.mr-1
+          %span.nav-item-name Add a Review
+        = render partial: 'add_reviewer_dialog'
       = render AddReviewCollapsibleComponent.new
       .mb-4
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
-      = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review') do
-        %i.fas.fa-plus-circle.fa-lg.mr-1
-        %span.nav-item-name Add a Review
-      = render partial: 'add_reviewer_dialog'
+      = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
+                                              can_add_reviews: can_add_reviews,
+                                              my_open_reviews: my_open_reviews)
 
     - open_reviews_for_staging_projects.each do |review|
       .pl-3
