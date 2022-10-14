@@ -26,7 +26,7 @@
 
 - content_for :ready_function do
   :plain
-    var hash_regexp = new RegExp(`\#${hash_prefix}.+`);
+    var hashRegexp = new RegExp(`\#${HASH_PREFIX}.+`);
 
     $('#request-actions').on('shown.bs.dropdown', function () {
       $.each($('#request-actions .dropdown-item'), function () {
@@ -35,7 +35,7 @@
            href = href + document.location.hash;
         }
         else {
-          href = href.replace(hash_regexp, document.location.hash);
+          href = href.replace(hashRegexp, document.location.hash);
         }
         $(this).attr('href', href);
       });
