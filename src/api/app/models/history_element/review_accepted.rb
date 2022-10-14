@@ -5,7 +5,7 @@ module HistoryElement
     end
 
     def user_action
-      'accepted review'
+      'accepted the request'
     end
   end
 end

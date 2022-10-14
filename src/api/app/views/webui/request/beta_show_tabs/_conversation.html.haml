@@ -10,10 +10,10 @@
     - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
       .d-flex.justify-content-between
         %h4
-          Reviews
-        = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review') do
+          Reviewers
+        = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Ask for Review') do
           %i.fas.fa-plus-circle.fa-lg.mr-1
-          %span.nav-item-name Add a Review
+          %span.nav-item-name Ask for a Review
         = render partial: 'add_reviewer_dialog'
       = render AddReviewCollapsibleComponent.new
       .mb-4
