@@ -1,19 +1,19 @@
 %ul.nav.nav-tabs#workflow-run-tabs{ role: 'tablist' }
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link.active{ id: "incoming-webhook-tab#{id}", data: { toggle: 'tab' }, href: "#incoming-webhook-tab-content#{id}",
-                        role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'true' } }
+    %a.nav-link{ id: "incoming-webhook-tab#{id}", data: { toggle: 'tab' }, href: "#incoming-webhook-tab-content#{id}",
+                 role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'false' } }
       Webhook from #{scm_vendor}
   %li.nav-item{ role: 'presentation' }
     %a.nav-link{ id: "scm-reports-tab#{id}", data: { toggle: 'tab' }, href: "#scm-reports-tab-content#{id}",
-                role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
+                 role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
       Reports to the SCM
   %li.nav-item{ role: 'presentation' }
     %a.nav-link{ id: "artifacts#{id}", data: { toggle: 'tab' }, href: "#artifacts-tab-content#{id}",
                  role: 'tab', aria: { controls: "artifacts-tab-content#{id}", selected: 'false' } }
       Artifacts
 .tab-content.p-3#workflow-run-tabs-content
-  .tab-pane.fade.show.active{ id: "incoming-webhook-tab-content#{id}", role: 'tabpanel',
-                              aria: { labelledby: "incoming-webhook-tab#{id}" } }
+  .tab-pane.fade{ id: "incoming-webhook-tab-content#{id}", role: 'tabpanel',
+                  aria: { labelledby: "incoming-webhook-tab#{id}" } }
     %h5 Webhook URL
     %pre.border.p-2#response-url
       = response_url

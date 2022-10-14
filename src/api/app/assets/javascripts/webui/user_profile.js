@@ -4,6 +4,7 @@ function moveInvolvementToContainer() { // jshint ignore:line
     container = $('.tab-pane#involved-projects-and-packages');
 
   container.prepend($('#involvement'));
+  $('#involvement').removeClass('d-none');
 }
 
 function updateCharactersCount(e) { // jshint ignore:line

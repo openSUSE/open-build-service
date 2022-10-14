@@ -4,7 +4,7 @@
   .bg-light
     %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
-        %a.active.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' },
+        %a.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' },
           data: { toggle: 'tab' }, href: '#group-members', role: 'tab' }
           Group Members
           %span.badge.badge-primary
@@ -31,7 +31,7 @@
 
   .card-body
     .tab-content
-      .tab-pane.show.active#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
+      .tab-pane#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
         %h3
           Group Members
         = render(partial: 'group_members', locals: { group: @group })
@@ -47,10 +47,3 @@
       .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
         %h3 All Requests
         = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
-
-- content_for :ready_function do
-  :plain
-    var hash = document.location.hash;
-    if (hash) {
-      $('.nav-tabs a[href="' + hash.replace('tab-', '') + '"]').tab('show');
-    }

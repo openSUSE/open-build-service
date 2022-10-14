@@ -1,5 +1,5 @@
 .bg-light
-  %ul.nav.nav-tabs{ role: 'tablist' }
+  %ul.nav.nav-tabs.disable-link-generation{ role: 'tablist' }
     %li.nav-item
       = link_to('#comments', class: 'nav-link text-nowrap active', data: { toggle: 'tab' }, role: 'tab') do
         Comments for request #{bs_request.number}

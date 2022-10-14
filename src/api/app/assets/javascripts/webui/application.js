@@ -58,3 +58,4 @@
 //= require webui/new_watchlist/collapsible_tooltip.js
 //= require webui/request_show_redesign/add_review.js
 //= require webui/delete_confirmation_dialog.js
+//= require webui/nav_tabs.js

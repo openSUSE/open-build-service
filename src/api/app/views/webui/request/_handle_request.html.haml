@@ -1,7 +1,7 @@
 - if can_handle_request || (can_add_reviews && my_open_reviews.any?)
   .card.mb-3#handle-request
     .bg-light
-      %ul.nav.nav-tabs{ role: 'tablist' }
+      %ul.nav.nav-tabs.disable-link-generation{ role: 'tablist' }
         - if can_handle_request
           %li.nav-item
             %a.nav-link.text-nowrap.active{ href: '#decision', data: { toggle: 'tab' }, role: 'tab' }
