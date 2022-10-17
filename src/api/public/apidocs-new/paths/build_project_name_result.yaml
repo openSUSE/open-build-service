@@ -10,13 +10,14 @@ get:
       schema:
         type: string
         enum:
-          - summary
           - status
+          - summary
           - binarylist
+      default: status
       description: |
         Specify which sections should be included in the result list.
 
-        * `status`: Include detailed infos about the build status. **Default**
+        * `status`: Include detailed infos about the build status.
         * `summary`: Include the summary of the status values.
         * `binarylist`: Include a list of generated binary files.
     - in: query
@@ -40,24 +41,48 @@ get:
     - in: query
       name: lastbuild
       schema:
-        type: boolean
-      description: Show the last build result (excludes current building job states).
+        type: string
+      description: Set to `1` to show the last build result (excludes current building job states).
+      enum:
+        - 0
+        - 1
+      default: 0
       example: 1
     - in: query
       name: locallink
       schema:
-        type: boolean
-      description: Include build results from packages with project local links.
+        type: string
+      description: Set to `1` to include build results from packages with project local links.
+      enum:
+        - 0
+        - 1
+      default: 0
       example: 1
     - in: query
       name: multibuild
       schema:
-        type: boolean
-      description: Include build results from _multibuild definitions.
+        type: string
+      description: Set to `1` to include build results from _multibuild definitions.
+      enum:
+        - 0
+        - 1
+      default: 0
       example: 1
   responses:
     '200':
       $ref: '../components/responses/resultlist.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `multibuild`, for example.
+              value:
+                code: 400
+                summary: not boolean
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
