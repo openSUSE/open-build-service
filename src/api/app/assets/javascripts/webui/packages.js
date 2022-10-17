@@ -16,13 +16,13 @@ $(function ($) {
 
   $('body').on('click', '.expand-diffs', function () {
     var forPackage = $(this).data('package');
-    var details = $('details.card.details-with-coderay[data-package="' + forPackage + '"]');
+    var details = $('details.card[data-package="' + forPackage + '"]');
     details.attr('open', 'open');
   });
 
   $('body').on('click', '.collapse-diffs', function () {
     var forPackage = $(this).data('package');
-    var details = $('details.card.details-with-coderay[data-package="' + forPackage + '"]');
+    var details = $('details.card[data-package="' + forPackage + '"]');
     details.attr('open', null);
   });
 });
