@@ -3008,6 +3008,7 @@ sub putfile {
   my $uploaded = BSServer::read_file("$uploaddir/$$", 'withmd5' => 1);
   die("upload failed\n") unless $uploaded;
   if ($cgi->{'meta'}) {
+    die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
     if ($filename eq '_attribute') {
       my $attribs = readxml("$uploaddir/$$", $BSXML::attributes);
       BSVerify::verify_attributes($attribs);
