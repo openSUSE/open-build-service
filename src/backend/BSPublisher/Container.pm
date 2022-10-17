@@ -434,7 +434,7 @@ sub query_repostate {
   $pullserver = '' if $pullserver =~ /docker.io\/$/;
   $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
   my ($fh, $tempfile) = tempfile();
-  print "$registryserver: querying state of $repository\n";
+  print "querying state of $repository on $registryserver\n";
   my @opts = ('-l');
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
