@@ -97,6 +97,7 @@ end
 #  id               :integer          not null, primary key
 #  body             :text(65535)
 #  commentable_type :string(255)      indexed => [commentable_id]
+#  diff_ref         :string(255)
 #  created_at       :datetime
 #  updated_at       :datetime
 #  commentable_id   :integer          indexed => [commentable_type]

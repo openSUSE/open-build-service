@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_22_135133) do
+ActiveRecord::Schema.define(version: 2022_10_17_093424) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
@@ -297,6 +297,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "user_id", null: false
     t.string "commentable_type", collation: "utf8mb3_unicode_ci"
     t.integer "commentable_id"
+    t.string "diff_ref"
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable_type_and_commentable_id"
     t.index ["parent_id"], name: "parent_id"
     t.index ["user_id"], name: "user_id"
