@@ -40,7 +40,14 @@ module Event
     end
 
     def actions_summary
-      BsRequest.actions_summary(payload)
+      ret = []
+      payload.with_indifferent_access['actions'][0..BsRequest::ACTION_NOTIFY_LIMIT].each do |a|
+        str = "#{a['type']} #{a['targetproject']}"
+        str += "/#{a['targetpackage']}" if a['targetpackage']
+        str += "/#{a['targetrepository']}" if a['targetrepository']
+        ret << str
+      end
+      ret.join(', ')
     end
 
     def payload_with_diff
