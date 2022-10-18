@@ -10,6 +10,7 @@ class Token::Release < Token
     manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
     raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
 
+    # releasing ...
     manual_release_targets.each do |release_target|
       opts = { filter_source_repository: release_target.repository,
                manual: true,
