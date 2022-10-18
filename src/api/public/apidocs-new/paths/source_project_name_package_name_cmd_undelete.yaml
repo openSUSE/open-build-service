@@ -26,12 +26,6 @@ post:
           value: 1664912989
         Same as Delete Time:
           value: 1
-    - in: query
-      name: user
-      schema:
-        type: string
-      description: Set the user of the undelete operation.
-      example: Iggy
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'

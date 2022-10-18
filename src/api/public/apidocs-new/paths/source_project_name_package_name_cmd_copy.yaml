@@ -79,12 +79,6 @@ post:
     - in: query
       name: comment
       description: Comment for the new revision.
-    - in: query
-      name: user
-      schema:
-        type: string
-      description: Set the user who triggers the services.
-      example: Iggy
   responses:
     '200':
       description: OK

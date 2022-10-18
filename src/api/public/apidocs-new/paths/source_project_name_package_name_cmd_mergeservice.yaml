@@ -46,12 +46,6 @@ post:
         type: string
       description: Set a comment.
       example: Merge services.
-    - in: query
-      name: user
-      schema:
-        type: string
-      description: Set the user who merge the services.
-      example: Iggy
   responses:
     '200':
       description: Revision of the merge of the service file.
