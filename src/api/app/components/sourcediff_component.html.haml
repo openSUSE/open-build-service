@@ -6,6 +6,7 @@
           Crunching the latest data. Refresh again in a few seconds
           %i.fas.fa-sync-alt{ id: "cache#{@index}-reload" }
     - else
+      #diff-comment-box.hide{ data: { request_number: @bs_request.number } }
       - (@action[:sourcediff] || []).each do |sourcediff|
         .clearfix.mb-2
           .btn-group.float-right
@@ -31,8 +32,12 @@
                                                                                   index: file_index,
                                                                                   last: sourcediff['filenames'].last == filename,
                                                                                   package: @action[:spkg],
-                                                                                  linkinfo: nil }
+                                                                                  linkinfo: nil,
+                                                                                  action_id: @action[:id] }
           - else
             .mb-2
               %p.lead
                 No source changes.
+
+- content_for :ready_function do
+  attachDiffComments();
