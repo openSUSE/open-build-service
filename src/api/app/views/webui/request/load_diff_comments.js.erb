@@ -1,0 +1,5 @@
+<% @comments.each do |comment| %>
+  var diffRef = $(document).find('[name=' + "<%= comment.diff_ref %>" +']').parent();
+  var diff = diffRef.next();
+  diff.after("<%= escape_javascript(render partial: 'webui/comment/diff_comment', locals: { comment: comment }) %>");
+<% end %>

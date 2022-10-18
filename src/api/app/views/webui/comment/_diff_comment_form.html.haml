@@ -1,0 +1,16 @@
+= form_for(comment, method: form_method, html: { class: 'w-50 ml-3' }) do |f|
+  = hidden_field_tag :commentable_type, commentable.class.name
+  = hidden_field_tag :commentable_id, commentable.id
+  = f.hidden_field :diff_ref, value: '', id: 'diff_ref'
+  = f.hidden_field :parent_id, value: comment.parent_id
+  .card
+    .tab-content.px-3
+      .tab-pane.fade.show.active{ role: 'tabpanel', 'aria-labelledby': 'write-comment-tab' }
+        ~ f.text_area :body, rows: '4', placeholder: 'Write your comment here...', required: true,
+        class: 'form-control comment-field'
+      .comment-controls
+        .row
+          .col-md-2.mr-4
+            = f.submit 'Add comment', class: 'btn btn-primary'
+          .col-md-2
+            = link_to 'Cancel', '#', class: 'btn btn-secondary cancel-diff-comment'

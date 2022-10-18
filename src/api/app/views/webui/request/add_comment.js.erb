@@ -1,0 +1,1 @@
+$('#diff-comment-box').append("<%= escape_javascript(render partial: 'webui/comment/diff_comment_form', locals: { form_method: :post, comment: Comment.new, commentable: @bs_request }) %>");

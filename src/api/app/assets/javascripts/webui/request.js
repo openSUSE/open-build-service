@@ -135,7 +135,45 @@ $(document).ready(function(){
     }
   });
   // TODO: Remove the enclosing code when the request_show_redesign feature is finished - END
+
+  // Add comment on diff
+  $('.line').on('click', function() {
+    var diffRef = $(this).prev().find('a').attr('name');
+    var requestNumber = $('#diff-comment-box').data('request-number');
+    var url = '/request/' + requestNumber + '/add_comment'
+
+    var lineWithContent = $(this);
+    $.ajax({
+      url: url,
+      success: function(){
+        addCommentForm(lineWithContent, diffRef);
+      }
+    });
+  });
+
+  function addCommentForm(element, diffRef){
+    var commentForm = $('#diff-comment-box');
+    $('#diff-comment-box #diff_ref').val(diffRef);
+    if(element.next().attr('class') == 'line-numbers'){
+      element.after(commentForm.html());
+    }
+    commentForm.html('');
+  }
 });
+
+$(document).on('click', '.cancel-diff-comment', function(e) {
+  e.preventDefault();
+  location.reload();
+});
+
+
+function attachDiffComments(){
+  var requestNumber = $('#diff-comment-box').data('request-number');
+  var url = '/request/' + requestNumber + '/load_diff_comments'
+  $.ajax({
+    url: url
+  });
+}
 
 // TODO: Remove the following method when the request_show_redesign feature is finished
 function reloadRequestAction(index){ // jshint ignore:line

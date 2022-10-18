@@ -1,0 +1,4 @@
+.timeline-item-comment.pl-3
+  .comment-bubble.diff-comment.mb-0
+    = render_as_markdown(comment)
+    = link_to 'Delete', comment_path(comment, diff_ref: 1), method: :delete, class: 'btn btn-danger'

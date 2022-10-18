@@ -42,3 +42,11 @@
   overflow-y: scroll;
   height: 400px;
 }
+
+.diff-comment {
+  width: fit-content;
+}
+
+.code .line:hover {
+  cursor: pointer;
+}
