@@ -19,6 +19,8 @@
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
+
+    - if can_add_reviews
       = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review') do
         %i.fas.fa-plus-circle.fa-lg.mr-1
         %span.nav-item-name Add a Review
