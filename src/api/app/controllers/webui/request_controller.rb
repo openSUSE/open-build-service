@@ -4,7 +4,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_login, except: [:show, :sourcediff, :diff, :request_action]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :add_comment, :load_diff_comments]
   before_action :set_superseded_request, only: [:show, :request_action]
   before_action :check_ajax, only: :sourcediff
 
@@ -167,6 +167,20 @@ class Webui::RequestController < Webui::WebuiController
         format.html
         format.js { render_request_update }
       end
+    end
+  end
+
+  def add_comment
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def load_diff_comments
+    @comments = @bs_request.comments.where.not(diff_ref: nil)
+
+    respond_to do |format|
+      format.js
     end
   end
 

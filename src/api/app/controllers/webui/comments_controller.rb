@@ -21,6 +21,8 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+      return redirect_back(fallback_location: request_path(comment.commentable_id)) if params[:comment][:diff_ref]
+
       render(partial: 'webui/comment/beta/comments_thread',
              locals: { comment: comment.root, commentable: @commentable, level: 1 },
              status: status)
@@ -50,6 +52,8 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+      return redirect_back(fallback_location: request_path(comment.commentable_id)) if params[:diff_ref]
+
       # if we're a root comment with no replies there is no need to re-render anything
       return head(:ok) if comment.root? && comment.leaf?
 
@@ -108,7 +112,7 @@ class Webui::CommentsController < Webui::WebuiController
   private
 
   def permitted_params
-    params.require(:comment).permit(:body, :parent_id)
+    params.require(:comment).permit(:body, :parent_id, :diff_ref)
   end
 
   def set_commented

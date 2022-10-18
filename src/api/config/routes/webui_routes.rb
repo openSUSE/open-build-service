@@ -293,6 +293,8 @@ OBSApi::Application.routes.draw do
       get 'request/list_small' => :list_small, as: 'request_list_small'
       post 'request/set_bugowner_request' => :set_bugowner_request
       get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
+      get 'request/:number/add_comment' => :add_comment, as: 'add_comment'
+      get 'request/:number/load_diff_comments' => :load_diff_comments, as: 'load_diff_comments'
     end
 
     resources :requests, only: [], param: :number, controller: 'webui/bs_requests' do
