@@ -129,17 +129,6 @@ class BsRequest < ApplicationRecord
     list(opts).pluck(:number)
   end
 
-  def self.actions_summary(payload)
-    ret = []
-    payload.with_indifferent_access['actions'][0..ACTION_NOTIFY_LIMIT].each do |a|
-      str = "#{a['type']} #{a['targetproject']}"
-      str += "/#{a['targetpackage']}" if a['targetpackage']
-      str += "/#{a['targetrepository']}" if a['targetrepository']
-      ret << str
-    end
-    ret.join(', ')
-  end
-
   def self.new_from_xml(xml)
     hashed = Xmlhash.parse(xml)
 

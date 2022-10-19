@@ -8,9 +8,7 @@ module Event
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
     def subject
-      req = BsRequest.find_by_number(payload['number'])
-      req_payload = req.event_parameters
-      "Request #{payload['number']} commented by #{payload['commenter']} (#{BsRequest.actions_summary(req_payload)})"
+      "Request #{payload['number']} commented by #{payload['commenter']} (#{actions_summary})"
     end
 
     def set_payload(attribs, keys)
