@@ -1,3 +1,7 @@
+// TODO: replace with the content of
+// app/assets/javascripts/webui/request_show_redesign/build_results.js
+// after the rollout of 'request_show_redesign'.
+
 function updateRpmlintResult(index) { // jshint ignore:line
   $('#rpm'+index+'-reload').addClass('fa-spin');
   $.ajax({

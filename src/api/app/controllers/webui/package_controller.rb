@@ -542,11 +542,18 @@ class Webui::PackageController < Webui::WebuiController
       show_all = params[:show_all].to_s.casecmp?('true')
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
-      render partial: 'buildstatus', locals: { buildresults: @buildresults,
-                                               index: @index,
-                                               project: @project,
-                                               collapsed_packages: params.fetch(:collapsedPackages, []),
-                                               collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+
+      partial_name = if Flipper.enabled?(:request_show_redesign, User.session)
+                       'webui/request/beta_show_tabs/build_status'
+                     else
+                       'buildstatus'
+                     end
+
+      render partial: partial_name, locals: { buildresults: @buildresults,
+                                              index: @index,
+                                              project: @project,
+                                              collapsed_packages: params.fetch(:collapsedPackages, []),
+                                              collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
       render partial: 'no_repositories', locals: { project: @project }
     end

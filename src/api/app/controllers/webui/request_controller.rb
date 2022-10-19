@@ -115,6 +115,10 @@ class Webui::RequestController < Webui::WebuiController
       @not_full_diff = BsRequest.truncated_diffs?([@action])
       @refresh = @action[:diff_not_cached]
 
+      # Handling build results
+      @building_package = building_package
+      @building_project = @bs_request.staged_request? ? @bs_request.staging_project : @building_package.project
+
       if @refresh
         bs_request_action = BsRequestAction.find(@action[:id])
         job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
@@ -430,5 +434,13 @@ class Webui::RequestController < Webui::WebuiController
       show_project_maintainer_hint: @show_project_maintainer_hint,
       actions: @actions
     }
+  end
+
+  def building_package
+    @building_package ||= Package.get_by_project_and_name(@active_action.source_project,
+                                                          @active_action.source_package,
+                                                          use_source: false,
+                                                          follow_multibuild: true,
+                                                          follow_project_links: true)
   end
 end
