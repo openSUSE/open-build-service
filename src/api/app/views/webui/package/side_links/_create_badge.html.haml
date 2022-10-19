@@ -1,0 +1,48 @@
+%li
+  = link_to('#', 'aria-controls': 'badge-modal', role: 'button',
+    data: { toggle: 'modal', target: '#badge-modal' }) do
+    %i.fas.fa-certificate
+    Create Badge
+
+
+  .modal.fade#badge-modal{ tabindex: -1, role: 'dialog', 'aria-labelledby': 'badge-modal-label', 'aria-hidden': 'true' }
+    .modal-dialog{ role: 'document' }
+      .modal-content
+        .modal-header
+          %h5.modal-title#badge-modal-label
+            Create Build Results Badge
+          %button.close{ type: 'button', 'data-dismiss': 'modal', 'aria-label': 'Close' }
+            %span{ 'aria-hidden': 'true' }
+              &times;
+        .modal-body
+          %p
+            Embed a build result badge whereever you need it. Select from
+            the options below and copy the result over to your README or on
+            your website, and enjoy it refresh automatically whenever the
+            build result changes.
+          .label{ for: 'badge-style-selector' } Select Style
+          %select.custom-select#badge-style-selector
+            %option{ value: 'default', selected: 'selected' } Default
+            %option{ value: 'percent' } Percent
+          .label{ for: 'badge-format-selector' } Select Format
+          %select.custom-select#badge-format-selector
+            %option{ value: 'url', selected: 'selected' } Image URL
+            %option{ value: 'markdown' } Markdown
+            %option{ value: 'html' } HTML
+        .modal-footer
+          = image_tag(project_package_badge_url(project, package, format: 'svg'), id: 'badge-preview')
+          .input-group.w-auto
+            = render CopyToClipboardInputComponent.new(input_text: project_package_badge_url(project, package, format: 'svg'))
+:javascript
+  const BASE_BADGE_URL = "#{project_package_badge_url(project, package, format: 'svg')}";
+  const BASE_PACKAGE_URL = "#{package_show_url(project, package)}";
+
+  ['style', 'format'].forEach(function (item) {
+    $(`#badge-${item}-selector`).change(function() {
+      badgeTextCopy();
+    });
+  });
+
+  // Despite setting defaults, the browser may preselect different option
+  // on page load
+  badgeTextCopy();

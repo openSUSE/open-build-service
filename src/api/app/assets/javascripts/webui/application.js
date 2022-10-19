@@ -62,3 +62,4 @@
 //= require webui/delete_confirmation_dialog.js
 //= require webui/nav_tabs.js
 //= require webui/write_and_preview.js
+//= require webui/badge.js
