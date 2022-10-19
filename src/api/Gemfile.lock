@@ -266,7 +266,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (1.15.0)
+    mocha (1.16.0)
     multi_xml (0.6.0)
     mysql2 (0.5.4)
     net-imap (0.3.1)
