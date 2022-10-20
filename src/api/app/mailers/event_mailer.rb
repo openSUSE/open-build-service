@@ -1,55 +1,79 @@
 class EventMailer < ActionMailer::Base
   helper 'webui/markdown'
+  DefaultSender = Struct.new('DefaultSender', :email, :realname)
 
-  def set_headers
-    @host = ::Configuration.obs_url
+  before_action :set_configuration
+  before_action :set_recipients
+  before_action :set_default_headers
+  before_action :set_event
+  before_action :set_event_headers
+  before_action :set_sender
+
+  def notification_email
+    return if @recipients.blank? || @event.blank?
+
+    template_name = @event.template_name
+    mail(to: @recipients,
+         from: email_address_with_name(@sender.email, @sender.realname),
+         subject: @event.subject,
+         date: @event.created_at) do |format|
+      format.html { render template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{template_name}", formats: [:html])
+
+      format.text { render template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{template_name}", formats: [:text])
+    end
+  end
+
+  private
+
+  def set_configuration
     @configuration = ::Configuration.first
 
+    # FIXME: This if for the view. Use action_mailer.default_url_options instead
+    # https://guides.rubyonrails.org/action_mailer_basics.html#generating-urls-in-action-mailer-views
+    @host = @configuration.obs_url
+  end
+
+  def set_recipients
+    return unless params[:subscribers]
+
+    @recipients = params[:subscribers].map(&:display_name).compact_blank.sort
+  end
+
+  def set_default_headers
     headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
-    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
+    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @configuration.obs_url)
     headers['Auto-Submitted'] = 'auto-generated'
-    headers['Return-Path'] = mail_sender
-    headers['Sender'] = mail_sender
+    headers['Return-Path'] = email_address_with_name(@configuration.admin_email, 'OBS Notification')
+    headers['Sender'] = email_address_with_name(@configuration.admin_email, 'OBS Notification')
+    headers['Message-ID'] = message_id
   end
 
-  def mail_sender
-    'OBS Notification <' + ::Configuration.admin_email + '>'
+  def set_event
+    @event = params[:event]
   end
 
-  def event(subscribers, e)
-    subscribers = subscribers.to_a
-    return if subscribers.empty?
+  def set_event_headers
+    return unless @event
 
-    recipients = subscribers.map(&:display_name).compact_blank
-    return if recipients.empty?
+    headers['X-OBS-event-type'] = @event.template_name
+    headers(@event.custom_headers)
+  end
 
-    set_headers
-    begin
-      locals = { event: e.expanded_payload }
-    rescue Project::UnknownObjectError, Package::UnknownObjectError
-      # object got removed already
-      return
-    end
+  def set_sender
+    return unless @event
 
-    headers(e.custom_headers)
+    @sender = @event.originator
+    @sender ||= DefaultSender.new(@configuration.admin_email, 'OBS Notification') # rubocop:disable Naming/MemoizedInstanceVariableName
+  end
 
-    template_name = e.template_name
-    orig = e.originator
+  def message_id
+    domain = URI.parse(@configuration.obs_url).host.downcase
+    # FIXME: Stop mocking with this in code.
+    #        Migrate the unit tests to RSpec and compare headers from the message object...
+    content = "<notrandom@#{domain}>" if Rails.env.test?
+    content ||= "<#{Mail.random_tag}@#{domain}>"
 
-    orig = if orig
-             orig.display_name
-           else
-             mail_sender
-           end
-
-    mail(to: recipients.sort,
-         subject: e.subject,
-         from: orig,
-         date: e.created_at) do |format|
-      format.html { render template_name, locals: locals } if template_exists?("event_mailer/#{template_name}", formats: [:html])
-
-      format.text { render template_name, locals: locals } if template_exists?("event_mailer/#{template_name}", formats: [:text])
-    end
+    content
   end
 end

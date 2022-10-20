@@ -23,7 +23,7 @@ class SendEventEmailsJob < ApplicationJob
   def send_email(subscribers, event)
     return if subscribers.empty?
 
-    EventMailer.event(subscribers, event).deliver_now
+    EventMailer.with(subscribers: subscribers, event: event).notification_email.deliver_now
   rescue StandardError => e
     Airbrake.notify(e, event_id: event.id)
   ensure

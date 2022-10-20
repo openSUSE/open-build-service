@@ -13,7 +13,7 @@ RSpec.describe EventMailer, vcr: true do
 
   let!(:receiver) { create(:confirmed_user) }
 
-  describe '.event' do
+  describe '.notification_email' do
     context 'for an event of type Event::Request' do
       let(:source_project) { create(:project, name: 'source_project') }
       let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project) }
@@ -34,7 +34,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:event) { Event::RequestCreate.first }
       let(:originator) { event.originator }
       let!(:subscription) { create(:event_subscription_request_created, user: receiver) }
-      let(:mail) { EventMailer.event(event.subscribers, event).deliver_now }
+      let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
 
       context 'when source project does not exist' do
         before do
@@ -63,7 +63,7 @@ RSpec.describe EventMailer, vcr: true do
       let!(:subscription) { create(:event_subscription_comment_for_project, user: receiver) }
       let!(:comment) { create(:comment_project, body: "Hey @#{receiver.login} how are things? Look at [bug](/project/show/apache) please.") }
       let(:originator) { comment.user }
-      let(:mail) { EventMailer.event(Event::CommentForProject.last.subscribers, Event::CommentForProject.last).deliver_now }
+      let(:mail) { EventMailer.with(subscribers: Event::CommentForProject.last.subscribers, event: Event::CommentForProject.last).notification_email.deliver_now }
 
       it 'gets delivered' do
         expect(ActionMailer::Base.deliveries).to include(mail)
@@ -99,7 +99,7 @@ RSpec.describe EventMailer, vcr: true do
 
       context 'when originator is subscribed' do
         let!(:originator_subscription) { create(:event_subscription_comment_for_project, user: originator) }
-        let(:mail) { EventMailer.event(Event::CommentForProject.last.subscribers, Event::CommentForProject.last).deliver_now }
+        let(:mail) { EventMailer.with(subscribers: Event::CommentForProject.last.subscribers, event: Event::CommentForProject.last).notification_email.deliver_now }
 
         it 'does not send to the originator' do
           expect(mail.to).not_to include(originator.email)
@@ -121,7 +121,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:project) { create(:project) }
       let(:group) { create(:group_with_user, user: receiver) }
       let!(:subscription) { create(:event_subscription_relationship_create, user: receiver) }
-      let(:mail) { EventMailer.event(Event::RelationshipCreate.last.subscribers, Event::RelationshipCreate.last).deliver_now }
+      let(:mail) { EventMailer.with(subscribers: Event::RelationshipCreate.last.subscribers, event: Event::RelationshipCreate.last).notification_email.deliver_now }
 
       before do
         login(receiver)
@@ -189,7 +189,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:project) { create(:project) }
       let(:group) { create(:group_with_user, user: receiver) }
       let!(:subscription) { create(:event_subscription_relationship_delete, user: receiver) }
-      let(:mail) { EventMailer.event(Event::RelationshipDelete.last.subscribers, Event::RelationshipDelete.last).deliver_now }
+      let(:mail) { EventMailer.with(subscribers: Event::RelationshipDelete.last.subscribers, event: Event::RelationshipDelete.last).notification_email.deliver_now }
 
       before do
         login(receiver)
@@ -254,10 +254,10 @@ RSpec.describe EventMailer, vcr: true do
 
     context 'when the subscriber has no email' do
       let(:group) { create(:group, email: nil) }
-      let(:empty_event) { nil }
+      let(:event) { Event::RequestCreate.first }
       let(:subscribers) { [group] }
 
-      subject! { EventMailer.event(subscribers, empty_event).deliver_now }
+      subject! { EventMailer.with(subscribers: subscribers, event: event).notification_email.deliver_now }
 
       it 'does not get delivered' do
         expect(ActionMailer::Base.deliveries).to be_empty
@@ -277,7 +277,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:from) { create(:confirmed_user) }
       let(:recipient) { create(:confirmed_user) }
       let(:event_stub) { Event::BuildFail.new(expanded_payload) }
-      let(:mail) { EventMailer.event([recipient], event_stub) }
+      let(:mail) { EventMailer.with(subscribers: [recipient], event: event_stub).notification_email }
       let(:faillog) { "invalid byte sequence ->\xD3'" }
 
       before do

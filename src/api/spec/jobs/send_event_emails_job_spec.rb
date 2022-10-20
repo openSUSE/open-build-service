@@ -88,7 +88,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
       let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
 
       before do
-        allow(EventMailer).to receive(:event).and_raise(StandardError)
+        allow(EventMailer).to receive(:notification_email).and_raise(StandardError)
         allow(Airbrake).to receive(:notify)
       end
 
