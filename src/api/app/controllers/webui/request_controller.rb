@@ -13,32 +13,32 @@ class Webui::RequestController < Webui::WebuiController
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
-      @is_author = @bs_request.creator == User.possibly_nobody.login
-      @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+      is_author = @bs_request.creator == User.possibly_nobody.login
+      is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
       reviews = @bs_request.reviews.where(state: 'new')
-      @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
-      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+      my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
+      can_add_reviews = @bs_request.state.in?([:new, :review]) && (is_author || is_target_maintainer || my_open_reviews.present?)
 
-      @diff_limit = params[:full_diff] ? 0 : nil
-      @diff_to_superseded_id = params[:diff_to_superseded]
+      diff_limit = params[:full_diff] ? 0 : nil
+      diff_to_superseded_id = params[:diff_to_superseded]
 
       # Handling request actions
       action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
-      @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
-                                          diffs: true, action_id: action_id.to_i, cacheonly: 1).first
-      @active_action = @bs_request.bs_request_actions.find(action_id)
+      action = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded,
+                                         diffs: true, action_id: action_id.to_i, cacheonly: 1).first
+      active_action = @bs_request.bs_request_actions.find(action_id)
 
-      @open_reviews = @bs_request.reviews.opened.for_non_staging_projects
-      @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
-      @declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
-      @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
-      @refresh = @action[:diff_not_cached]
+      open_reviews = @bs_request.reviews.opened.for_non_staging_projects
+      accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
+      declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
+      open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
+      refresh = action[:diff_not_cached]
 
       # Handling build results
-      @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
+      staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
-      if @refresh
-        bs_request_action = BsRequestAction.find(@action[:id])
+      if refresh
+        bs_request_action = BsRequestAction.find(action[:id])
         job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
         BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
       end
@@ -49,7 +49,27 @@ class Webui::RequestController < Webui::WebuiController
       end
 
       # TODO: Remove this `render` line once request_show_redesign is rolled out
-      render :beta_show
+      respond_to do |format|
+        format.html do
+          render 'beta_show', locals: {
+            bs_request: @bs_request,
+            action: action,
+            active_action: active_action,
+            diff_to_superseded_id: diff_to_superseded_id,
+            diff_limit: diff_limit,
+            can_add_reviews: can_add_reviews,
+            open_reviews: open_reviews,
+            accepted_reviews: accepted_reviews,
+            declined_reviews: declined_reviews,
+            open_reviews_for_staging_projects: open_reviews_for_staging_projects,
+            my_open_reviews: my_open_reviews,
+            is_author: is_author,
+            is_target_maintainer: is_target_maintainer,
+            refresh: refresh,
+            staging_project: staging_project
+          }
+        end
+      end
     else
       @diff_limit = params[:full_diff] ? 0 : nil
       @diff_to_superseded_id = params[:diff_to_superseded]
