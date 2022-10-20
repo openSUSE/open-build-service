@@ -997,6 +997,10 @@ class BsRequest < ApplicationRecord
     target_project_objects.pluck(:required_checks).flatten.uniq
   end
 
+  def staged_request?
+    !staging_project_id.nil?
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore
