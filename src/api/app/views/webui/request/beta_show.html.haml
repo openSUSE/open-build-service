@@ -73,12 +73,12 @@
                                                                              is_target_maintainer: @is_target_maintainer, is_author: @is_author }
       - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @building_project,
-                                                                                    package: @building_package,
-                                                                                    bs_request: @bs_request }
+          = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @staging_project || @action[:sprj],
+                                                                                    package: @action[:spkg],
+                                                                                    is_staged_request: @staging_project.present? }
         .tab-pane.fade.p-2#rpm-lint-result{ 'aria-labelledby': 'rpm-lint-result-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/rpm_lint_result', locals: { project: @building_project,
-                                                                                      package: @building_package,
+          = render partial: 'webui/request/beta_show_tabs/rpm_lint_result', locals: { project: @action[:sprj],
+                                                                                      package: @action[:spkg],
                                                                                       bs_request: @bs_request }
       - if @action[:type].in?(actions_for_diff)
         .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }

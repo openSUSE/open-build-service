@@ -116,8 +116,7 @@ class Webui::RequestController < Webui::WebuiController
       @refresh = @action[:diff_not_cached]
 
       # Handling build results
-      @building_package = building_package
-      @building_project = @bs_request.staged_request? ? @bs_request.staging_project : @building_package.project
+      @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
       if @refresh
         bs_request_action = BsRequestAction.find(@action[:id])
@@ -434,13 +433,5 @@ class Webui::RequestController < Webui::WebuiController
       show_project_maintainer_hint: @show_project_maintainer_hint,
       actions: @actions
     }
-  end
-
-  def building_package
-    @building_package ||= Package.get_by_project_and_name(@active_action.source_project,
-                                                          @active_action.source_package,
-                                                          use_source: false,
-                                                          follow_multibuild: true,
-                                                          follow_project_links: true)
   end
 end
