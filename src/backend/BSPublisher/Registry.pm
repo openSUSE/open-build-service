@@ -506,7 +506,7 @@ sub update_cosign {
 
   # update signatures
   for my $digest (sort keys %$digests_to_cosign) {
-    my $oci = $digests_to_cosign->{$digest}->[0];
+    my $oci = 1;	# always use oci mime types
     my $old = ($oldsigs->{'digests'} || {})->{$digest};
     if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs)) {
       $sigs->{'digests'}->{$digest} = $old;
@@ -526,7 +526,7 @@ sub update_cosign {
 
   # update attestations
   for my $digest (sort keys %$digests_to_cosign) {
-    my $oci = $digests_to_cosign->{$digest}->[0];
+    my $oci = 1;	# always use oci mime types
     my $containerinfo = $digests_to_cosign->{$digest}->[1];
     if (!$containerinfo->{'slsa_provenance'}) {
       delete $sigs->{'attestations'}->{$digest};
