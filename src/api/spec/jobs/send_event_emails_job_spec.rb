@@ -82,28 +82,6 @@ RSpec.describe SendEventEmailsJob, type: :job do
       end
     end
 
-    context 'with an error being raised' do
-      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
-
-      before do
-        allow(EventMailer).to receive(:notification_email).and_raise(StandardError)
-        allow(Airbrake).to receive(:notify)
-      end
-
-      subject! { SendEventEmailsJob.new.perform }
-
-      it 'updates the event mails_sent = true' do
-        event = Event::CommentForProject.first
-        expect(event.mails_sent).to be_truthy
-      end
-
-      it 'notifies airbrake' do
-        expect(Airbrake).to have_received(:notify)
-      end
-    end
-
     context 'without any subscriptions to the event' do
       subject! { SendEventEmailsJob.new.perform }
 
