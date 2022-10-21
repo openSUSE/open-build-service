@@ -459,16 +459,29 @@ sub create_cosign_manifest {
     'digest' => $config_blobid,
   }; 
   my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-    my $mani = {
-      'schemaVersion' => 2,
-      'mediaType' => $mediaType,
-      'config' => $config_data,
-      'layers' => [ $payload_layer ],
-    }; 
+  my $mani = {
+    'schemaVersion' => 2,
+    'mediaType' => $mediaType,
+    'config' => $config_data,
+    'layers' => [ $payload_layer ],
+  }; 
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $mani_id = push_manifest($repodir, $mani_json);
   $knownmanifests->{$mani_id} = 1;
   return $mani_id;
+}
+
+sub reuse_cosign_manifest {
+  my ($repodir, $oci, $mani_id, $knownmanifests, $knownblobs) = @_;
+  my $manifest_json = readstr("$repodir/:manifests/$mani_id");
+  return 0 unless $manifest_json;
+  my $manifest = eval { JSON::XS::decode_json($manifest_json) };
+  return 0 unless $manifest;
+  return 0 unless $manifest->{'mediaType'} eq ($oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest);
+  $knownblobs->{$manifest->{'config'}->{'digest'}} = 1 if $manifest->{'config'};
+  $knownblobs->{$_->{'digest'}} = 1 for @{$manifest->{'layers'} || []};
+  $knownmanifests->{$mani_id} = 1;
+  return 1;
 }
 
 sub update_cosign {
@@ -495,7 +508,7 @@ sub update_cosign {
   for my $digest (sort keys %$digests_to_cosign) {
     my $oci = $digests_to_cosign->{$digest}->[0];
     my $old = ($oldsigs->{'digests'} || {})->{$digest};
-    if ($old) {
+    if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs)) {
       $sigs->{'digests'}->{$digest} = $old;
       next;
     }
@@ -520,7 +533,7 @@ sub update_cosign {
       next;
     }
     my $old = ($oldsigs->{'attestations'} || {})->{$digest};
-    if ($old) {
+    if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs)) {
       $sigs->{'attestations'}->{$digest} = $old;
       next;
     }
