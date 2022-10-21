@@ -139,7 +139,7 @@ class Issue < ApplicationRecord
   def name_validation
     return if issue_tracker.show_label_for(name).match?(issue_tracker.regex)
 
-    errors.add(:name, "with value \'#{name}\' does not match defined regex #{issue_tracker.regex}")
+    errors.add(:name, "with value '#{name}' does not match defined regex #{issue_tracker.regex}")
   end
 end
 

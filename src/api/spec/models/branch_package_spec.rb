@@ -22,8 +22,8 @@ RSpec.describe BranchPackage, vcr: true do
     let(:dryrun_xml) do
       <<~XML
         <collection>
-          <package project=\"BaseDistro:Update\" package=\"test_package\">
-            <target project=\"home:tom:branches:BaseDistro:Update\" package=\"test_package\"/>
+          <package project="BaseDistro:Update" package="test_package">
+            <target project="home:tom:branches:BaseDistro:Update" package="test_package"/>
           </package>
         </collection>
       XML
