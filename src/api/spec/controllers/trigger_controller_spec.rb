@@ -92,6 +92,13 @@ RSpec.describe TriggerController, vcr: true do
       let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
       let(:token) { Token::Release.create(executor: other_user, package: package) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: package) }
+      let(:expected_response_body) do
+        <<~XML
+          <status code="trigger_project_not_authorized">
+            <summary>You don't have permission to release into project target_project.</summary>
+          </status>
+        XML
+      end
 
       before do
         release_target
@@ -99,7 +106,7 @@ RSpec.describe TriggerController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:forbidden) }
-      it { expect(response.body).to include("No permission to modify project 'target_project' for user 'mrfluffy'") }
+      it { expect(response.body).to include(expected_response_body) }
     end
 
     context 'when there are no release targets' do
