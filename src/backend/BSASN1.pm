@@ -152,7 +152,7 @@ sub pack_sequence {
 }
 
 sub pack_set {
-  return pack_raw($CONS | $SET, @_);
+  return pack_raw($CONS | $SET, sort {$a cmp $b} @_);
 }
 
 sub pack_utctime {
@@ -243,7 +243,11 @@ sub unpack_sequence {
 
 sub unpack_obj_id {
   my @o = unpack('w*', unpack_body($_[0], $_[1], $OBJ_ID));
-  splice(@o, 0, 1, int($o[0] / 40), $o[0] % 40) if @o;
+  if (@o && $o[0] < 80) {
+    splice(@o, 0, 1, int($o[0] / 40), $o[0] % 40);
+  } elsif (@o) {
+    splice(@o, 0, 1, 2, $o[0] - 80);
+  }
   return @o;
 }
 

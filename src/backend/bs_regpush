@@ -267,11 +267,11 @@ sub cosign_upload {
   my $payload_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($payload), $payload);
   die unless $payload_blobid eq $payload_layer->{'digest'};
   my $config_data = {
-    'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
+    'mediaType' => $BSContar::mt_oci_config,
     'size' => length($config),
     'digest' => $config_blobid,
   };
-  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
+  my $mediaType = $BSContar::mt_oci_manifest;
   my $mani = {
     'schemaVersion' => 2,
     'mediaType' => $mediaType,
@@ -385,14 +385,14 @@ sub list_tag {
   }
   my ($mani, $maniid) = get_manifest_for_tag($tag);
   my $extra = '';
-  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && $mani->{'mediaType'} && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
+  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
     if (@{$mani->{'layers'} || []} == 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dev.cosign.simplesigning.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
       $extra = " cosigncookie=$cookie" if $cookie;
     }
   }
-  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.att$/ && $mani && $mani->{'mediaType'} && ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest || $mani->{'mediaType'} eq $BSContar::mt_oci_manifest)) {
+  if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.att$/ && $mani && $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
     if (@{$mani->{'layers'} || []} >= 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dsse.envelope.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
@@ -831,7 +831,7 @@ if ($cosign && %digests_to_sign) {
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
     my ($sig_mani, $sig_maniid, $sig_mani_json) = get_manifest_for_tag($sig_tag);
-    if ($sig_mani && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
+    if ($sig_mani && $sig_mani->{'mediaType'} && $sig_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
       my $annotations = $sig_mani->{'layers'}->[0]->{'annotations'} || {};
       next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
     }
@@ -854,7 +854,7 @@ if ($cosign && %digests_to_sign) {
     my $att_tag = "$digest.att";
     $att_tag =~ s/:/-/;
     my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
-    if ($att_mani && @{$att_mani->{'layers'} || []} >= 1 && $BSConSign::mt_dsse && $att_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_dsse) {
+    if ($att_mani && $att_mani->{'mediaType'} && $att_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$att_mani->{'layers'} || []} >= 1 && $BSConSign::mt_dsse && $att_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_dsse) {
       my $annotations = $att_mani->{'layers'}->[0]->{'annotations'} || {};
       next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
     }
