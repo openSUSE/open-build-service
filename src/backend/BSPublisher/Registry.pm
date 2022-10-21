@@ -473,7 +473,7 @@ sub create_cosign_manifest {
 
 sub reuse_cosign_manifest {
   my ($repodir, $oci, $mani_id, $knownmanifests, $knownblobs) = @_;
-  my $manifest_json = readstr("$repodir/:manifests/$mani_id");
+  my $manifest_json = readstr("$repodir/:manifests/$mani_id", 1);
   return 0 unless $manifest_json;
   my $manifest = eval { JSON::XS::decode_json($manifest_json) };
   return 0 unless $manifest;
