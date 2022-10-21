@@ -1,17 +1,3 @@
-.timeline-item
-  .d-inline-flex
-    = helpers.image_tag_for(creator, size: 35, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
-    %p
-      %i.fas.fa-code-commit.text-dark
-      = link_to(helpers.realname_with_login(creator), user_path(creator))
-      created request
-      = link_to('#request-creation', title: l(bs_request.created_at.utc), name: 'request-creation') do
-        #{time_ago_in_words(bs_request.created_at)} ago
-      - if bs_request.superseding.any?
-        superseding
-        - bs_request.superseding.each do |superseded_request|
-          = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
-
 - timeline.each do |comment_or_history_element|
   .timeline-item
     - if comment_or_history_element.is_a?(Comment)
