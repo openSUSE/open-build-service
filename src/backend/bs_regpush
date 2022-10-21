@@ -831,7 +831,7 @@ if ($cosign && %digests_to_sign) {
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
     my ($sig_mani, $sig_maniid, $sig_mani_json) = get_manifest_for_tag($sig_tag);
-    if ($sig_mani && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
+    if ($sig_mani && $sig_mani->{'mediaType'} && $sig_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
       my $annotations = $sig_mani->{'layers'}->[0]->{'annotations'} || {};
       next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
     }
@@ -854,7 +854,7 @@ if ($cosign && %digests_to_sign) {
     my $att_tag = "$digest.att";
     $att_tag =~ s/:/-/;
     my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
-    if ($att_mani && @{$att_mani->{'layers'} || []} >= 1 && $BSConSign::mt_dsse && $att_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_dsse) {
+    if ($att_mani && $att_mani->{'mediaType'} && $att_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$att_mani->{'layers'} || []} >= 1 && $BSConSign::mt_dsse && $att_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_dsse) {
       my $annotations = $att_mani->{'layers'}->[0]->{'annotations'} || {};
       next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
     }
