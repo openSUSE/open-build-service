@@ -1,9 +1,4 @@
 body.new-watchlist {
-  .color-inverted {
-    -webkit-filter: invert(100%); /* safari 6.0 - 9.0 */
-    filter: invert(100%);
-  }
-
   // TODO: the following rules are mostly duplicated from build-results.scss.
   // Please try to unify both when new_watchlist feature is rolled out.
 
