@@ -9,7 +9,7 @@ class NotificationComponent < ApplicationComponent
   def notification_icon
     case @notification.notifiable_type
     when 'BsRequest'
-      tag.i(class: ['fas', 'fa-code-pull-request'], title: 'Comment notification')
+      tag.i(class: ['fas', 'fa-code-pull-request'], title: 'Request notification')
     when 'Comment'
       tag.i(class: ['fas', 'fa-comments'], title: 'Comment notification')
     else
