@@ -189,6 +189,39 @@ class BsRequestTest < ActiveSupport::TestCase
     end
   end
 
+  def test_review_changestate
+    xml = <<~XML
+      <request id="1027" creator="Iggy">
+        <action type="submit">
+          <source project="home:Iggy" package="TestPack" rev="1"/>
+          <target project="kde4" package="mypackage"/>
+        </action>
+        <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>
+        <review state="new" when="2017-09-01T09:11:11" by_group="test_group"/>
+        <review state="accepted" when="2012-11-07T21:13:12" who="tom" by_user="tom">
+          <comment>review1</comment>
+        </review>
+        <review state="new" when="2012-11-07T21:13:13" who="tom" by_user="tom">
+          <comment>please accept</comment>
+        </review>
+        <description>Left blank</description>
+      </request>
+    XML
+    req = BsRequest.new_from_xml(xml)
+    new_time = Time.zone.local(2012, 11, 7, 0, 0, 0)
+    Timecop.freeze(new_time) do
+      req.save!
+    end
+
+    # decline review
+    req.change_review_state(:declined, { by_group: 'test_group' })
+    assert_equal :declined, req.state
+
+    # reopen the request leads to request into review state again
+    req.change_review_state(:new, { by_group: 'test_group' })
+    assert_equal :review, req.state
+  end
+
   test 'request ownership' do
     check_user_targets(:Iggy, 10)
     check_user_targets(:adrian, 1, 1000)
