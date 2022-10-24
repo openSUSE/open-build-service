@@ -1,4 +1,21 @@
 module Webui::BuildresultHelper
+  STATUS_ICON = {
+    succeeded: 'fa-check text-success',
+    failed: 'fa-xmark text-danger',
+    unresolvable: 'fa-xmark text-danger',
+    broken: 'fa-xmark text-danger',
+    blocked: 'fa-shield text-warning',
+    scheduled: 'fa-hourglass-half text-warning',
+    dispatching: 'fa-plane-departure',
+    building: 'fa-gear',
+    signing: 'fa-signature',
+    finished: 'fa-check',
+    disabled: 'fa-xmark text-warning',
+    excluded: 'fa-xmark text-warning',
+    locked: 'fa-lock text-warning',
+    unknown: 'fa-question'
+  }.with_indifferent_access.freeze
+
   # NOTE: There is a JavaScript version of this method in project_monitor.js
   # TODO: Refactor this! A good start would be to never ever use an instance variable in a helper method... please!
   def arch_repo_table_cell(repo, arch, package_name, status = nil)
@@ -55,5 +72,9 @@ module Webui::BuildresultHelper
     else
       line.strip
     end
+  end
+
+  def build_status_icon(state)
+    STATUS_ICON[state]
   end
 end
