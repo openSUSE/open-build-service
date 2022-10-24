@@ -44,6 +44,8 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def webui_trigger?
+    return false unless user.is_active?
+
     record.executor == user && !record.type.in?(['Token::Workflow', 'Token::Rss'])
   end
 

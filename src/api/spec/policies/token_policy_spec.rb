@@ -5,6 +5,8 @@ RSpec.describe TokenPolicy, type: :policy do
   let(:user_token) { create(:rebuild_token, executor: token_user) }
   let(:group) { create(:group_with_user) }
   let(:other_user) { group.users.first }
+  let(:unconfirmed_user) { create(:user, state: 'unconfirmed') }
+  let(:token_of_unconfirmed_user) { create(:rebuild_token, executor: unconfirmed_user) }
 
   let(:workflow_token) { create(:workflow_token, executor: token_user) }
   let(:rss_token) { create(:rss_token, executor: token_user) }
@@ -24,6 +26,7 @@ RSpec.describe TokenPolicy, type: :policy do
 
   permissions :webui_trigger? do
     it { is_expected.not_to permit(token_user, workflow_token) }
+    it { is_expected.not_to permit(unconfirmed_user, token_of_unconfirmed_user) }
   end
 
   describe TokenPolicy::Scope do
