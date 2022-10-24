@@ -183,27 +183,15 @@ module Event
       save!
     end
 
-    # to be overwritten in subclasses
+    # FIXME: This should be done in the event specific EmailMailer view
+    # https://guides.rubyonrails.org/action_mailer_basics.html#using-action-mailer-helpers
     def subject
       'Build Service Notification'
     end
 
-    def self.message_domain
-      domain = URI.parse(::Configuration.obs_url)
-      domain.host.downcase
-    end
-
     # needs to return a hash (merge super)
     def custom_headers
-      # not to break user's filters for now
-      ret = {}
-      ret['X-OBS-event-type'] = template_name # cheating
-      ret['Message-ID'] = if Rails.env.test?
-                            "<notrandom@#{self.class.message_domain}>"
-                          else
-                            "<#{Mail.random_tag}@#{self.class.message_domain}>"
-                          end
-      ret
+      {}
     end
 
     def subscriptions(channel = :instant_email)

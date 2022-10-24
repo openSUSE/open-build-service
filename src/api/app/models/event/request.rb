@@ -8,7 +8,7 @@ module Event
     DIFF_LIMIT = 120
 
     def self.message_number(number)
-      "<obs-request-#{number}@#{message_domain}>"
+      "<obs-request-#{number}@#{URI.parse(Configuration.obs_url).host.downcase}>"
     end
 
     def my_message_number
