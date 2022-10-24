@@ -16,15 +16,15 @@ RSpec.describe Webui::PackageController, vcr: true do
   end
   let(:fake_build_results) do
     <<-HEREDOC
-      <resultlist state=\"2b71f05ecb8742e3cd7f6066a5097c72\">
-        <result project=\"home:tom\" repository=\"#{repo_for_source_project.name}\" arch=\"x86_64\"
-          code=\"unknown\" state=\"unknown\" dirty=\"true\">
+      <resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+        <result project="home:tom" repository="#{repo_for_source_project.name}" arch="x86_64"
+          code="unknown" state="unknown" dirty="true">
          <binarylist>
-            <binary filename=\"image_binary.vhdfixed.xz\" size=\"123312217\"/>
-            <binary filename=\"image_binary.xz.sha256\" size=\"1531\"/>
-            <binary filename=\"_statistics\" size=\"4231\"/>
-            <binary filename=\"updateinfo.xml\" size=\"4231\"/>
-            <binary filename=\"rpmlint.log\" size=\"121\"/>
+            <binary filename="image_binary.vhdfixed.xz" size="123312217"/>
+            <binary filename="image_binary.xz.sha256" size="1531"/>
+            <binary filename="_statistics" size="4231"/>
+            <binary filename="updateinfo.xml" size="4231"/>
+            <binary filename="rpmlint.log" size="121"/>
           </binarylist>
         </result>
       </resultlist>

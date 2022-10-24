@@ -18,8 +18,8 @@ RSpec.describe BranchPackage::LookupIncidentPackage, vcr: false do
     let(:xml_response) do
       <<~XML_BODY
         <collection>
-          <package name=\"chromium.openSUSE_Leap_15.1_Update\" project=\"openSUSE:Maintenance:10258\"/>
-          <package name=\"chromium.openSUSE_Leap_15.1_Update\" project=\"openSUSE:Maintenance:11261\"/>
+          <package name="chromium.openSUSE_Leap_15.1_Update" project="openSUSE:Maintenance:10258"/>
+          <package name="chromium.openSUSE_Leap_15.1_Update" project="openSUSE:Maintenance:11261"/>
         </collection>
       XML_BODY
     end
@@ -46,7 +46,7 @@ RSpec.describe BranchPackage::LookupIncidentPackage, vcr: false do
     let(:xml_response) do
       <<~XML_BODY
         <collection>
-          <package name=\"chromium.openSUSE_Leap_15.1_Update\" project=\"openSUSE:Maintenance:11261\"/>
+          <package name="chromium.openSUSE_Leap_15.1_Update" project="openSUSE:Maintenance:11261"/>
         </collection>
       XML_BODY
     end

@@ -10,7 +10,7 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, type: :job, vcr: true do
       let(:bs_delete_request) do
         <<~XML
           <request>
-            <action type=\"delete\"><target project=\"foo\"/></action>
+            <action type="delete"><target project="foo"/></action>
             <description>bar</description>
             <state />
             <accept_at>3</accept_at>

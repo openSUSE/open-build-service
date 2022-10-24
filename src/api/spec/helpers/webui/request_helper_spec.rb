@@ -123,7 +123,7 @@ RSpec.describe Webui::RequestHelper do
 
     context 'when action is :delete' do
       let(:expected_regex) do
-        Regexp.new("Delete package .*#{project_show_path(target_package.project)}.* \/ .*" +
+        Regexp.new("Delete package .*#{project_show_path(target_package.project)}.* / .*" +
                    package_show_path(target_package.project, target_package).to_s)
       end
 
@@ -135,7 +135,7 @@ RSpec.describe Webui::RequestHelper do
         let(:target_repository) { create(:repository, project: target_package.project) }
         let(:expected_regex) do
           Regexp.new("Delete repository .*#{Regexp.escape(repositories_path(project: target_repository.project, repository: target_repository.name))}.* for package .*" \
-                     "#{project_show_path(target_package.project)}.* \/ .*#{package_show_path(target_package.project, target_package)}")
+                     "#{project_show_path(target_package.project)}.* / .*#{package_show_path(target_package.project, target_package)}")
         end
 
         subject { request_action_header(action.merge(type: :delete, trepo: target_repository.name), creator.login) }

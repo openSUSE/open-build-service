@@ -20,7 +20,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
       <name>test</name>
       <description>My test issue tracker</description>
       <regex>test#\d+test</regex>
-      <label>test#\@\@\@+test</label>
+      <label>test#@@@+test</label>
       <kind>bugzilla</kind>
       <enable-fetch>false</enable-fetch>
       <user>obsbugbot</user>
@@ -59,7 +59,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
       <name>test</name>
       <description>My even better test issue tracker</description>
       <regex>tester#\d+</regex>
-      <label>tester#\@\@\@+</label>
+      <label>tester#@@@+</label>
       <enable-fetch>true</enable-fetch>
       <kind>cve</kind>
       <url>http://test.com</url>

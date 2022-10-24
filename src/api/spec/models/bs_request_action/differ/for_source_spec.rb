@@ -25,9 +25,9 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
           <new name="ruby.spec" md5="70781f21decb618ec0056838e9989e6b" size="39" />
           <diff lines="5">@@ -1,1 +1,1 @@
     -foo
-    \ No newline at end of file
+     No newline at end of file
     +bar
-    \ No newline at end of file
+     No newline at end of file
           </diff>
         </file>
       </files>
