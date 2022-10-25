@@ -45,13 +45,16 @@ our $oid_sha512			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
 our $oid_id_dsa			= BSASN1::pack_obj_id(1, 2, 840, 10040, 4, 1);
 our $oid_id_dsa_with_sha1	= BSASN1::pack_obj_id(1, 2, 840, 10040, 4, 3);
 our $oid_id_dsa_with_sha256	= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 3, 2);
+our $oid_id_dsa_with_sha512	= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 3, 4);
 our $oid_id_ec_public_key	= BSASN1::pack_obj_id(1, 2, 840, 10045, 2, 1);
 our $oid_id_ecdsa_with_sha1	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 1);
 our $oid_id_ecdsa_with_sha256	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 3, 2);
+our $oid_id_ecdsa_with_sha512	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 3, 4);
 our $oid_prime256v1		= BSASN1::pack_obj_id(1, 2, 840, 10045, 3, 1, 7);
 our $oid_rsaencryption		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 1);
 our $oid_sha1withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 5);
 our $oid_sha256withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 11);
+our $oid_sha512withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 13);
 our $oid_subject_key_identifier	= BSASN1::pack_obj_id(2, 5, 29, 14);
 our $oid_key_usage		= BSASN1::pack_obj_id(2, 5, 29, 15);
 our $oid_basic_constraints	= BSASN1::pack_obj_id(2, 5, 29, 19);
@@ -60,6 +63,8 @@ our $oid_ext_key_usage		= BSASN1::pack_obj_id(2, 5, 29, 37);
 our $oid_code_signing		= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
 our $oid_ed25519		= BSASN1::pack_obj_id(1, 3, 101, 112);
 our $oid_ed448			= BSASN1::pack_obj_id(1, 3, 101, 113);
+our $oid_pkcs7_data		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 7, 1);
+our $oid_pkcs7_signed_data	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 7, 2);
 
 # certificate keyusage bits
 our $key_usage_digital_signature	= 0;
@@ -194,10 +199,13 @@ sub pack_sigalgo {
   if (defined($hash)) {
     $oid = $oid_sha1withrsaencryption if $algo eq 'rsa' && $hash eq 'sha1';
     $oid = $oid_sha256withrsaencryption if $algo eq 'rsa' && $hash eq 'sha256';
+    $oid = $oid_sha512withrsaencryption if $algo eq 'rsa' && $hash eq 'sha512';
     $oid = $oid_id_dsa_with_sha1 if $algo eq 'dsa' && $hash eq 'sha1';
     $oid = $oid_id_dsa_with_sha256 if $algo eq 'dsa' && $hash eq 'sha256';
+    $oid = $oid_id_dsa_with_sha512 if $algo eq 'dsa' && $hash eq 'sha512';
     $oid = $oid_id_ecdsa_with_sha1 if $algo eq 'ecdsa' && $hash eq 'sha1';
     $oid = $oid_id_ecdsa_with_sha256 if $algo eq 'ecdsa' && $hash eq 'sha256';
+    $oid = $oid_id_ecdsa_with_sha512 if $algo eq 'ecdsa' && $hash eq 'sha512';
     die("unknown algo/hash combination: $algo/$hash\n") unless $oid;
   } else {
     $oid = $oid_rsaencryption if $algo eq 'rsa';
@@ -221,10 +229,13 @@ sub unpack_sigalgo {
   return 'ed448', undef, $params if $oid eq $oid_ed448;
   return 'rsa', 'sha1', $params if $oid eq $oid_sha1withrsaencryption;
   return 'rsa', 'sha256', $params if $oid eq $oid_sha256withrsaencryption;
+  return 'rsa', 'sha512', $params if $oid eq $oid_sha512withrsaencryption;
   return 'dsa', 'sha1', $params if $oid eq $oid_id_dsa_with_sha1;
   return 'dsa', 'sha256', $params if $oid eq $oid_id_dsa_with_sha256;
+  return 'dsa', 'sha512', $params if $oid eq $oid_id_dsa_with_sha512;
   return 'ecdsa', 'sha1', $params if $oid eq $oid_id_ecdsa_with_sha1;
   return 'ecdsa', 'sha256', $params if $oid eq $oid_id_ecdsa_with_sha256;
+  return 'ecdsa', 'sha512', $params if $oid eq $oid_id_ecdsa_with_sha512;
   return oid2str($oid), undef, $params;
 }
 
