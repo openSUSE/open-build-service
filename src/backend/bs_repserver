@@ -4244,11 +4244,13 @@ sub registry_taglist {
   my $repodir = "$registrydir/$regrepo";
   die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
   my @tags = sort(grep {!/^\./} ls("$repodir/:tags"));
+  my @hdrs;
+  BSRegistryServer::paginate($cgi, \@tags, "/v2/$regrepo/tags/list", \@hdrs);
   my $ret = {
     'name' => $regrepo,
     'tags' => \@tags,
   };
-  BSRegistryServer::reply($ret);
+  BSRegistryServer::reply($ret, @hdrs);
   return undef;
 }
 
@@ -4459,7 +4461,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_blob,
   'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_sigstore,
   'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
-  'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_taglist,
+  'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:?' => \&registry_taglist,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_info,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,
   'GET|HEAD:/registry' => \&registry_version,

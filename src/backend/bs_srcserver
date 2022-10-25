@@ -7399,7 +7399,8 @@ sub registry_forward {
     'receiver' => \&BSServer::reply_receiver,
     'reply_receiver_forward_hdrs' => 1,
   };
-  BSWatcher::rpc($param, undef);
+  my @args = BSRPC::args($cgi, 'n', 'last');
+  BSWatcher::rpc($param, undef, @args);
   return undef;
 }
 
@@ -7445,10 +7446,12 @@ sub registry_manifestinfo {
 sub registry_catalog {
   my ($cgi) = @_;
   my @repos = BSSrcServer::Registry::catalog();
+  my @hdrs;
+  BSRegistryServer::paginate($cgi, \@repos, "/v2/_catalog", \@hdrs);
   my $ret = {
     'repositories' => \@repos,
   };
-  BSRegistryServer::reply($ret);
+  BSRegistryServer::reply($ret, @hdrs);
   return undef;
 }
 
@@ -7738,9 +7741,9 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:?' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
-  'GET|HEAD:/registry/_catalog' => \&registry_catalog,
+  'GET|HEAD:/registry/_catalog n:intnum? last:?' => \&registry_catalog,
   'GET|HEAD:/registry/info.json' => \&registry_rootinfo,
   'GET|HEAD:/registry' => \&registry_version,
   'GET|HEAD:/sigstore/$...:regrepo/$sig:' => \&sigstore_forward,
