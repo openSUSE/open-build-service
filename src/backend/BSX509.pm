@@ -180,16 +180,12 @@ sub unpack_authority_key_identifier {
 
 sub pack_validity {
   my ($begins, $expires) = @_;
-  $begins = $begins >= 2524608000 ? BSASN1::pack_gentime($begins) : BSASN1::pack_utctime($begins);
-  $expires = $expires >= 2524608000 ? BSASN1::pack_gentime($expires) : BSASN1::pack_utctime($expires);
-  return BSASN1::pack_sequence($begins, $expires);
+  return BSASN1::pack_sequence(BSASN1::pack_time($begins), BSASN1::pack_time($expires));
 }
 
 sub unpack_validity {
   my ($begins, $expires) = BSASN1::unpack_sequence($_[0], $_[1], [ [ $BSASN1::UTCTIME, $BSASN1::GENTIME], [ $BSASN1::UTCTIME, $BSASN1::GENTIME] ]);
-  $begins = BSASN1::gettag($begins) == $BSASN1::UTCTIME ? BSASN1::unpack_utctime($begins) : BSASN1::unpack_gentime($begins);
-  $expires = BSASN1::gettag($expires) == $BSASN1::UTCTIME ? BSASN1::unpack_utctime($expires) : BSASN1::unpack_gentime($expires);
-  return ($begins, $expires);
+  return (BSASN1::unpack_time($begins), BSASN1::unpack_time($expires));
 }
 
 sub pack_sigalgo {

@@ -55,13 +55,13 @@ our $BMPSTRING	= 0x1e;
 
 sub utctime {
   my ($t) = @_;
-  my @gt = gmtime($t || time());
+  my @gt = gmtime(defined($t) ? $t : time());
   return sprintf "%02d%02d%02d%02d%02d%02dZ", $gt[5] % 100, $gt[4] + 1, @gt[3,2,1,0];
 }
 
 sub gentime {
   my ($t) = @_;
-  my @gt = gmtime($t || time());
+  my @gt = gmtime(defined($t) ? $t : time());
   return sprintf "%04d%02d%02d%02d%02d%02dZ", $gt[5] + 1900, $gt[4] + 1, @gt[3,2,1,0];
 }
 
@@ -191,6 +191,12 @@ sub pack_bits_list {
   vec($v, $_ ^ 7, 1) = 1 for @_;
   my $maxbit = $v eq '' ? 7 : (sort {$b <=> $a} @_)[0];
   return pack_raw($BIT_STRING, pack('C', 7 - ($maxbit % 8)).$v);
+}
+
+sub pack_time {
+  my $t = defined($_[0]) ? $_[0] : time();
+  return pack_utctime($t) if $t >= -631152000 && $t < 2524608000;
+  return pack_gentime($t);
 }
 
 
@@ -333,6 +339,14 @@ sub unpack_tagged {
 
 sub unpack_tagged_implicit {
   return pack_raw($_[2], unpack_body($_[0], $_[1], 0));
+}
+
+sub unpack_time {
+  my ($in, $tag) = @_;
+  $tag = gettag($in, defined($tag) ? $tag : [ $UTCTIME, $GENTIME ]);
+  return unpack_utctime($in) if $tag eq $UTCTIME;
+  return unpack_gentime($in) if $tag eq $GENTIME;
+  die("unpack_time: unsupported tag $tag\n");
 }
 
 1;
