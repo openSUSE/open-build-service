@@ -318,7 +318,7 @@ sub get_all_repositories {
     my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
     push @repos, @{$r->{'repositories'}};
     last unless $replyheaders->{'link'};
-    die unless $replyheaders->{'link'} =~ /^<(\/v2\/.*)>/;
+    die("Bad link: $replyheaders->{'link'}\n") unless $replyheaders->{'link'} =~ /^<(\/v2\/\S+)>/;
     $param->{'uri'} = "$registryserver$1";
     $param->{'verbatim_uri'} = 1;
   }
@@ -348,12 +348,43 @@ sub get_manifest_for_tag {
   return ($mani, $maniid, $mani_json);
 }
 
+sub delete_manifest {
+  my ($maniid) = @_;
+  die("not a manifest digest: $maniid\n") unless $maniid =~ /^sha256:[0-9a-f]{64}$/;
+  my ($mani, $maniid2, $mani_json) = get_manifest_for_tag($maniid);
+  return unless $maniid2;
+  die("manifest digest mismatch\n") if $maniid2 ne $maniid;
+  print "deleting manifest $maniid\n";
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/manifests/$maniid",
+    'request' => 'DELETE',
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+  };
+  BSRPC::rpc($param, undef);
+}
+
+my $cannot_directly_delete_tags;
+
 sub delete_tag {
   my ($tag) = @_;
 
   my ($mani, $maniid, $mani_json) = get_manifest_for_tag($tag);
   return unless $maniid;
   print "deleting tag $tag [$maniid]\n";
+
+  if (!$cannot_directly_delete_tags) {
+    my $param = {
+      'uri' => "$registryserver/v2/$repository/manifests/$tag",
+      'request' => 'DELETE',
+      'authenticator' => $registry_authenticator,
+      'timeout' => $registry_timeout,
+    };
+    eval { BSRPC::rpc($param, undef); };
+    return unless $@;
+    die($@) unless $@ =~ /^40[05]/;
+    $cannot_directly_delete_tags = 1;
+  }
 
   # now mangle and upload so that we get a new unique image id for that tag
   my $mani_json_mangled = "\n\n".JSON::XS->new->utf8->canonical->encode($mani)."\n\n";
@@ -605,7 +636,11 @@ if ($delete_mode || $delete_except_mode) {
 
   if ($delete_mode) {
     for my $tag (sort keys %tags) {
-      delete_tag($tag);
+      if ($tag =~ /^sha256:[0-9a-f]{64}$/) {
+        delete_manifest($tag);
+      } else {
+        delete_tag($tag);
+      }
     }
   } elsif ($delete_except_mode) {
     for my $tag (grep {!$tags{$_}} get_all_tags()) {
