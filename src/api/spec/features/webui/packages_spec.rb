@@ -347,7 +347,7 @@ RSpec.describe 'Packages', js: true, vcr: true do
         expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
       end
 
-      it 'works' do
+      it 'creates a package' do
         visit new_package_path(project: user.home_project)
         fill_in 'package_name', with: 'coolstuff'
         fill_in 'package_title', with: 'cool stuff everyone needs'
