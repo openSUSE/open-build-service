@@ -5,7 +5,7 @@ require 'webmock/rspec'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: true do
+RSpec.describe Webui::Packages::BuildReasonController, vcr: true do
   describe 'GET #index' do
     let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:source_project) { user.home_project }

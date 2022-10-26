@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Attributes', type: :feature, js: true do
+RSpec.describe 'Attributes', js: true do
   let!(:user) { create(:confirmed_user, :with_home) }
   let(:attribute) { create(:attrib, project: user.home_project) }
   # AttribTypes are part of the seeds, so we can reuse them

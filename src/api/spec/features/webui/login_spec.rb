@@ -1,7 +1,7 @@
 require 'browser_helper'
 require 'ldap'
 
-RSpec.describe 'Login', type: :feature, js: true do
+RSpec.describe 'Login', js: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'proxy_user') }
   let(:admin) { create(:admin_user) }
 

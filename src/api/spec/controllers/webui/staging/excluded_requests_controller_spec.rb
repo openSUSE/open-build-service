@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::Staging::ExcludedRequestsController, type: :controller do
+RSpec.describe Webui::Staging::ExcludedRequestsController do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:another_user) { create(:confirmed_user, login: 'another_user') }
   let(:project) { user.home_project }

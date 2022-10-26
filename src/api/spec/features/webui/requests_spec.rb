@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
+RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }
@@ -16,7 +16,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         find('.show-content').click
         expect(page).to have_css('div.expanded')
         find('.show-content').click
-        expect(page).to have_no_css('div.expanded')
+        expect(page).not_to have_css('div.expanded')
       end
     end
   end

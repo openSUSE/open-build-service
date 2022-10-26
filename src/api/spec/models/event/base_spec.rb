@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Event::Base, type: :model do
+RSpec.describe Event::Base do
   describe '#package_watchers' do
     context 'when the package and project exists' do
       let(:project) { create(:project_with_repository) }

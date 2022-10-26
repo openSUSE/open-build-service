@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe SCMWebhook, type: :model do
+RSpec.describe SCMWebhook do
   describe '#new_pull_request?' do
     subject { described_class.new(payload: payload).new_pull_request? }
 

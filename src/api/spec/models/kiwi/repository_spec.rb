@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'rantly/rspec_extensions'
 
-RSpec.describe Kiwi::Repository, type: :model do
+RSpec.describe Kiwi::Repository do
   let(:kiwi_repository) { create(:kiwi_repository) }
   let(:non_obs_kiwi_repository) { create(:kiwi_repository, source_path: 'http://example.com/my_repo') }
   let(:obs_kiwi_repository) { create(:kiwi_repository, source_path: 'obs://home:project/my_obs_repo') }

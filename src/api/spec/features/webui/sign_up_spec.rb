@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Sign up', type: :feature, js: true do
+RSpec.describe 'Sign up', js: true do
   let!(:user) { build(:user) }
 
   it 'User' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::ProjectHelper, type: :helper do
+RSpec.describe Webui::ProjectHelper do
   describe '#format_seconds' do
     it 'shows a zero for the hour if under 3600 seconds' do
       expect(format_seconds(60)).to eq('0:01')

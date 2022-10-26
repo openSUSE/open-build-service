@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Cloud::Backend::UploadJob, type: :model do
+RSpec.describe Cloud::Backend::UploadJob do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
   let(:now) { Time.now }
 

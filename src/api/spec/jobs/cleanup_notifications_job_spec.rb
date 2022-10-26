@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe CleanupNotificationsJob, type: :job do
+RSpec.describe CleanupNotificationsJob do
   include ActiveJob::TestHelper
 
   describe '#perform' do

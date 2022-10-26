@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Status::ReportsController, type: :controller do
+RSpec.describe Status::ReportsController do
   render_views
 
   let(:user) { create(:confirmed_user) }

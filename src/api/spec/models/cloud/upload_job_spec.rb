@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Cloud::UploadJob, type: :model do
+RSpec.describe Cloud::UploadJob do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
   let(:params) do
     {

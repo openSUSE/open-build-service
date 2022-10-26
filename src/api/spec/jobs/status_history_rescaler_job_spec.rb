@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe StatusHistoryRescalerJob, type: :job do
+RSpec.describe StatusHistoryRescalerJob do
   include ActiveJob::TestHelper
 
   let(:status_histories) { StatusHistory.where(key: 'busy_x86_64').order(:time) }

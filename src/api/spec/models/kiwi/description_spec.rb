@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Kiwi::Description, type: :model do
+RSpec.describe Kiwi::Description do
   let(:kiwi_description) { create(:kiwi_description) }
 
   describe '#to_xml' do

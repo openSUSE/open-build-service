@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AttribValue, type: :model do
+RSpec.describe AttribValue do
   let(:attrib) { create(:attrib_with_default_value) }
   let(:user) { create(:confirmed_user) }
 

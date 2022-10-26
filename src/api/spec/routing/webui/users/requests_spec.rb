@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe '/users/:user/requests routes', type: :routing do
+RSpec.describe '/users/:user/requests routes' do
   let(:user) { Faker::Name.first_name }
 
   it do
