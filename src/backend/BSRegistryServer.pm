@@ -67,4 +67,17 @@ sub reply {
   BSServer::reply($ret, @hdrs);
 }
 
+sub paginate {
+  my ($cgi, $elements, $link, $hdrs) = @_;
+  if (defined($cgi->{'last'})) {
+    shift @$elements while @$elements && $elements->[0] le $cgi->{'last'};
+  }
+  @$elements = () if defined($cgi->{'n'}) && $cgi->{'n'} <= 0;
+  if ($cgi->{'n'} && @$elements > $cgi->{'n'}) {
+    @$elements = splice(@$elements, 0, $cgi->{'n'});
+    my @link = map {BSHTTP::urlencode($_)} ($link, "$cgi->{'n'}", "$elements->[-1]");
+    push @$hdrs, "Link: <$link[0]?n=$link[1]&last=$link[2]>; rel=\"next\"";
+  }
+}
+
 1;
