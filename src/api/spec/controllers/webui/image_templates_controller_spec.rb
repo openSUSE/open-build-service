@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::ImageTemplatesController, type: :controller do
+RSpec.describe Webui::ImageTemplatesController do
   describe 'GET #index' do
     context 'without image templates' do
       before do

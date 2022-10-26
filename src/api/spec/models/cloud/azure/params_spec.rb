@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Cloud::Azure::Params, type: :model do
+RSpec.describe Cloud::Azure::Params do
   describe 'validations' do
     it { is_expected.to validate_presence_of :image_name }
     it { is_expected.to validate_presence_of :subscription }

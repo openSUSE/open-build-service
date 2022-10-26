@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Source::KeyInfoController, type: :controller do
+RSpec.describe Source::KeyInfoController do
   describe 'GET #show' do
     let(:user) { create(:confirmed_user) }
     let(:project) { create(:project, name: 'test_project', title: 'Test Project') }

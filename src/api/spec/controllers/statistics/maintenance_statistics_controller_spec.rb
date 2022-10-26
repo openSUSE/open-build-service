@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
+RSpec.describe Statistics::MaintenanceStatisticsController do
   render_views
 
   describe 'GET #index' do

@@ -9,7 +9,7 @@ class FakePolicy < ApplicationPolicy
 end
 
 # rubocop:disable RSpec/FilePath
-RSpec.describe ApplicationController, type: :controller do
+RSpec.describe ApplicationController do
   let(:user) { create(:confirmed_user) }
 
   controller do

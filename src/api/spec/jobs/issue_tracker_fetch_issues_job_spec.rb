@@ -6,7 +6,7 @@ require 'webmock/rspec'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe IssueTrackerFetchIssuesJob, type: :job, vcr: true do
+RSpec.describe IssueTrackerFetchIssuesJob, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do

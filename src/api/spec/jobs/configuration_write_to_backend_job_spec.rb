@@ -5,7 +5,7 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe ConfigurationWriteToBackendJob, type: :job, vcr: true do
+RSpec.describe ConfigurationWriteToBackendJob, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do

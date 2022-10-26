@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Apidocs', type: :feature, js: true do
+RSpec.describe 'Apidocs', js: true do
   let(:user) { create(:confirmed_user) }
   let(:tmp_dir) { Dir.mktmpdir }
   let(:tmp_file) { "#{tmp_dir}/index.html" }

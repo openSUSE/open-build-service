@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'rantly/rspec_extensions'
 
-RSpec.describe Webui::PackageHelper, type: :helper do
+RSpec.describe Webui::PackageHelper do
   describe '#removable_file?' do
     let(:package) { create(:package, name: 'bar') }
 

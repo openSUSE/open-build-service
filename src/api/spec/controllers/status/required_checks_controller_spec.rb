@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Status::RequiredChecksController, type: :controller do
+RSpec.describe Status::RequiredChecksController do
   let(:user) { create(:confirmed_user) }
   let(:repository) { create(:repository) }
   let(:repository_architecture) { create(:repository_architecture, repository: repository) }

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Kiwi::Preference, type: :model do
+RSpec.describe Kiwi::Preference do
   let(:preference) { build(:kiwi_preference) }
 
   describe 'validations' do

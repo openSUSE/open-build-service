@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Attrib, type: :model do
+RSpec.describe Attrib do
   let(:user) { create(:confirmed_user) }
   let(:project) { create(:project) }
   let(:package) { create(:package) }

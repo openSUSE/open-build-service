@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TriggerWorkflowController, type: :controller, beta: true do
+RSpec.describe TriggerWorkflowController, beta: true do
   render_views
 
   describe 'POST :create' do

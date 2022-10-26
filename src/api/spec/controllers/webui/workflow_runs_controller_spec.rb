@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::WorkflowRunsController, type: :controller do
+RSpec.describe Webui::WorkflowRunsController do
   describe 'GET #index' do
     let(:token_user) { create(:confirmed_user) }
     let(:workflow_token) { create(:workflow_token, executor: token_user) }

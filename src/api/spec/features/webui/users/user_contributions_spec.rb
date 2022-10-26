@@ -14,7 +14,7 @@ RSpec.shared_examples 'a contribution graph' do
   end
 end
 
-RSpec.describe 'Bootstrap_User Contributions', type: :feature, js: true do
+RSpec.describe 'Bootstrap_User Contributions', js: true do
   let!(:user) { create(:confirmed_user) }
 
   context 'without contribution graph option' do

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::Projects::StatusController, type: :controller do
+RSpec.describe Webui::Projects::StatusController do
   let(:admin_user) { create(:admin_user, login: 'admin') }
 
   describe 'GET #show' do

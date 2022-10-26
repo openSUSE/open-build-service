@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Projects', type: :feature, js: true do
+RSpec.describe 'Projects', js: true do
   let!(:admin_user) { create(:admin_user, :with_home) }
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }

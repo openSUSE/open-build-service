@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe SendEventEmailsJob, type: :job do
+RSpec.describe SendEventEmailsJob do
   include ActiveJob::TestHelper
 
   describe '#perform' do

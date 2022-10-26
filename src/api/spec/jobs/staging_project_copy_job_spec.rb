@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe StagingProjectCopyJob, type: :job, vcr: true do
+RSpec.describe StagingProjectCopyJob, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do

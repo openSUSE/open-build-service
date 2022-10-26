@@ -4,7 +4,7 @@ require 'rails_helper'
 # this line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe IssueTrackerWriteToBackendJob, type: :job, vcr: true do
+RSpec.describe IssueTrackerWriteToBackendJob, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do

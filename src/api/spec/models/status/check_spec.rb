@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Status::Check, type: :model do
+RSpec.describe Status::Check do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:state) }
     it { is_expected.to validate_presence_of(:name) }

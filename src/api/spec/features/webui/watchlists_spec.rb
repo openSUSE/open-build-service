@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Watchlists', type: :feature, js: true, vcr: true do
+RSpec.describe 'Watchlists', js: true, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'kody') }
   let(:project) { create(:project, name: 'watchlist_test_project') }
   let(:user_with_watched_project) do
