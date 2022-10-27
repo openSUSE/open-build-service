@@ -24,23 +24,17 @@
           %select.custom-select#badge-style-selector
             %option{ value: 'default', selected: 'selected' } Default
             %option{ value: 'percent' } Percent
-          .label{ for: 'badge-format-selector' } Select Format
-          %select.custom-select#badge-format-selector
-            %option{ value: 'url', selected: 'selected' } Image URL
-            %option{ value: 'markdown' } Markdown
-            %option{ value: 'html' } HTML
+          .d-flex
+            = image_tag(project_package_badge_url(project, package, format: 'svg'), id: 'badge-preview', class: 'mt-3 mx-auto')
         .modal-footer
-          = image_tag(project_package_badge_url(project, package, format: 'svg'), id: 'badge-preview')
-          .input-group.w-auto
+          .input-group.w-100
             = render CopyToClipboardInputComponent.new(input_text: project_package_badge_url(project, package, format: 'svg'))
 :javascript
   const BASE_BADGE_URL = "#{project_package_badge_url(project, package, format: 'svg')}";
   const BASE_PACKAGE_URL = "#{package_show_url(project, package)}";
 
-  ['style', 'format'].forEach(function (item) {
-    $(`#badge-${item}-selector`).change(function() {
-      badgeTextCopy();
-    });
+  $('#badge-style-selector').change(function() {
+    badgeTextCopy();
   });
 
   // Despite setting defaults, the browser may preselect different option
