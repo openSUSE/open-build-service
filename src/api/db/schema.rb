@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_22_135133) do
-
+ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -100,26 +99,26 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "backend_infos", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "key", null: false, collation: "utf8mb3_unicode_ci"
     t.string "value", null: false, collation: "utf8mb3_unicode_ci"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
   end
 
   create_table "backend_packages", primary_key: "package_id", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "links_to_id"
-    t.datetime "updated_at", precision: 6
+    t.datetime "updated_at"
     t.string "srcmd5", collation: "utf8mb3_unicode_ci"
     t.string "changesmd5", collation: "utf8mb3_unicode_ci"
     t.string "verifymd5", collation: "utf8mb3_unicode_ci"
     t.string "expandedmd5", collation: "utf8mb3_unicode_ci"
     t.text "error"
-    t.datetime "maxmtime"
+    t.datetime "maxmtime", precision: nil
     t.index ["links_to_id"], name: "index_backend_packages_on_links_to_id"
   end
 
   create_table "binary_releases", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "repository_id", null: false
     t.column "operation", "enum('added','removed','modified')", default: "added", collation: "utf8mb3_general_ci"
-    t.datetime "obsolete_time"
+    t.datetime "obsolete_time", precision: nil
     t.integer "release_package_id"
     t.string "binary_name", null: false, collation: "utf8mb3_general_ci"
     t.string "binary_epoch", limit: 64, collation: "utf8mb3_general_ci"
@@ -127,14 +126,14 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "binary_release", limit: 64, null: false, collation: "utf8mb3_general_ci"
     t.string "binary_arch", limit: 64, null: false, collation: "utf8mb3_general_ci"
     t.string "binary_disturl", collation: "utf8mb3_general_ci"
-    t.datetime "binary_buildtime"
-    t.datetime "binary_releasetime", null: false
+    t.datetime "binary_buildtime", precision: nil
+    t.datetime "binary_releasetime", precision: nil, null: false
     t.string "binary_supportstatus", collation: "utf8mb3_general_ci"
     t.string "binary_maintainer", collation: "utf8mb3_general_ci"
     t.string "medium", collation: "utf8mb3_general_ci"
     t.string "binary_updateinfo", collation: "utf8mb3_general_ci"
     t.string "binary_updateinfo_version", collation: "utf8mb3_general_ci"
-    t.datetime "modify_time"
+    t.datetime "modify_time", precision: nil
     t.integer "on_medium_id"
     t.string "binary_id", collation: "utf8mb3_general_ci"
     t.string "flavor", collation: "utf8mb3_general_ci"
@@ -155,7 +154,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "xsrcmd5", collation: "utf8mb3_unicode_ci"
     t.string "osrcmd5", collation: "utf8mb3_unicode_ci"
     t.string "oxsrcmd5", collation: "utf8mb3_unicode_ci"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "oproject", collation: "utf8mb3_unicode_ci"
     t.string "opackage", collation: "utf8mb3_unicode_ci"
     t.index ["bs_request_action_id"], name: "bs_request_action_id"
@@ -175,7 +174,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "person_name", collation: "utf8mb3_unicode_ci"
     t.string "group_name", collation: "utf8mb3_unicode_ci"
     t.string "role", collation: "utf8mb3_unicode_ci"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.string "target_repository", collation: "utf8mb3_bin"
     t.boolean "makeoriginolder", default: false
     t.integer "target_package_id"
@@ -202,12 +201,12 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.text "comment"
     t.string "commenter", collation: "utf8mb3_unicode_ci"
     t.integer "superseded_by"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "accept_at"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
+    t.datetime "accept_at", precision: nil
     t.column "priority", "enum('critical','important','moderate','low')", default: "moderate", collation: "utf8mb3_bin"
     t.integer "number"
-    t.datetime "updated_when"
+    t.datetime "updated_when", precision: nil
     t.string "approver"
     t.integer "staging_project_id"
     t.index ["creator"], name: "index_bs_requests_on_creator"
@@ -265,8 +264,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "user_id"
     t.text "application_id", collation: "utf8mb3_general_ci"
     t.text "application_key", collation: "utf8mb3_general_ci"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_cloud_azure_configurations_on_user_id"
   end
 
@@ -274,8 +273,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "user_id"
     t.string "external_id", collation: "utf8mb3_general_ci"
     t.string "arn", collation: "utf8mb3_general_ci"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["external_id", "arn"], name: "index_cloud_ec2_configurations_on_external_id_and_arn", unique: true
     t.index ["user_id"], name: "index_cloud_ec2_configurations_on_user_id"
   end
@@ -283,8 +282,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "cloud_user_upload_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "user_id"
     t.integer "job_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["job_id"], name: "index_cloud_user_upload_jobs_on_job_id", unique: true
     t.index ["user_id"], name: "index_cloud_user_upload_jobs_on_user_id"
   end
@@ -292,8 +291,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "comments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.text "body"
     t.integer "parent_id"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.integer "user_id", null: false
     t.string "commentable_type", collation: "utf8mb3_unicode_ci"
     t.integer "commentable_id"
@@ -316,8 +315,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "title", default: "", collation: "utf8mb3_bin"
     t.text "description"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.string "name", default: "", collation: "utf8mb3_bin"
     t.column "registration", "enum('allow','confirmation','deny')", default: "allow", collation: "utf8mb3_bin"
     t.boolean "anonymous", default: true
@@ -355,9 +354,9 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "attempts", default: 0
     t.text "handler", size: :medium, collation: "utf8mb3_bin"
     t.text "last_error"
-    t.datetime "run_at"
-    t.datetime "locked_at"
-    t.datetime "failed_at"
+    t.datetime "run_at", precision: nil
+    t.datetime "locked_at", precision: nil
+    t.datetime "failed_at", precision: nil
     t.string "locked_by", collation: "utf8mb3_general_ci"
     t.string "queue", collation: "utf8mb3_general_ci"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
@@ -366,8 +365,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "disabled_beta_features", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.integer "user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id", "name"], name: "index_disabled_beta_features_on_user_id_and_name", unique: true
   end
 
@@ -409,8 +408,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "eventtype", null: false, collation: "utf8mb3_unicode_ci"
     t.string "receiver_role", null: false, collation: "utf8mb3_unicode_ci"
     t.integer "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.integer "group_id"
     t.integer "channel", default: 0, null: false
     t.boolean "enabled", default: false
@@ -428,8 +427,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "eventtype", null: false, collation: "utf8mb3_unicode_ci"
     t.text "payload"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.integer "undone_jobs", default: 0
     t.boolean "mails_sent", default: false
     t.index ["created_at"], name: "index_events_on_created_at"
@@ -453,8 +452,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
 
   create_table "flipper_features", id: :integer, charset: "utf8mb3", collation: "utf8mb3_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "key", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["key"], name: "index_flipper_features_on_key", unique: true
   end
 
@@ -462,8 +461,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "feature_key", null: false
     t.string "key", null: false
     t.string "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
   end
 
@@ -475,8 +474,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   end
 
   create_table "groups", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.string "title", limit: 200, default: "", null: false, collation: "utf8mb3_general_ci"
     t.integer "parent_id"
     t.string "email", collation: "utf8mb3_bin"
@@ -494,7 +493,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "groups_roles", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "group_id", default: 0, null: false
     t.integer "role_id", default: 0, null: false
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["group_id", "role_id"], name: "groups_roles_all_index", unique: true
     t.index ["role_id"], name: "role_id"
   end
@@ -502,7 +501,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "groups_users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "group_id", default: 0, null: false
     t.integer "user_id", default: 0, null: false
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.boolean "email", default: true
     t.boolean "web", default: true
     t.index ["group_id", "user_id"], name: "groups_users_all_index", unique: true
@@ -512,7 +511,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "history_elements", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "type", null: false, collation: "utf8mb3_general_ci"
     t.integer "op_object_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.integer "user_id", null: false
     t.string "description_extension", collation: "utf8mb3_general_ci"
     t.text "comment"
@@ -530,7 +529,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "updateinfo_counter_id", null: false
     t.integer "project_id", null: false
     t.integer "value", null: false
-    t.datetime "released_at", null: false
+    t.datetime "released_at", precision: nil, null: false
     t.index ["project_id"], name: "project_id"
     t.index ["updateinfo_counter_id", "project_id"], name: "uniq_id_index"
   end
@@ -545,7 +544,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "user", collation: "utf8mb3_general_ci"
     t.string "password", collation: "utf8mb3_general_ci"
     t.text "label", null: false, collation: "utf8mb3_general_ci"
-    t.datetime "issues_updated", null: false
+    t.datetime "issues_updated", precision: nil, null: false
     t.boolean "enable_fetch", default: false
     t.boolean "publish_issues", default: true
   end
@@ -555,8 +554,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "issue_tracker_id", null: false
     t.string "summary", collation: "utf8mb3_general_ci"
     t.integer "owner_id"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.column "state", "enum('OPEN','CLOSED','UNKNOWN')", collation: "utf8mb3_general_ci"
     t.index ["issue_tracker_id"], name: "issue_tracker_id"
     t.index ["name", "issue_tracker_id"], name: "index_issues_on_name_and_issue_tracker_id"
@@ -569,16 +568,16 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "author", collation: "utf8mb3_general_ci"
     t.string "contact", collation: "utf8mb3_general_ci"
     t.string "specification", collation: "utf8mb3_general_ci"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["image_id"], name: "index_kiwi_descriptions_on_image_id"
   end
 
   create_table "kiwi_images", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", collation: "utf8mb3_general_ci"
     t.string "md5_last_revision", limit: 32, collation: "utf8mb3_general_ci"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
     t.boolean "use_project_repositories", default: false
   end
 
@@ -587,8 +586,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "profiles", collation: "utf8mb3_general_ci"
     t.string "pattern_type", collation: "utf8mb3_general_ci"
     t.integer "image_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["image_id"], name: "index_kiwi_package_groups_on_image_id"
   end
 
@@ -599,8 +598,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.boolean "bootinclude"
     t.boolean "bootdelete"
     t.integer "package_group_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["package_group_id"], name: "index_kiwi_packages_on_package_group_id"
   end
 
@@ -619,8 +618,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "description", limit: 191, null: false
     t.boolean "selected", null: false
     t.integer "image_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["image_id"], name: "index_kiwi_profiles_on_image_id"
     t.index ["name", "image_id"], name: "name_once_per_image", unique: true
   end
@@ -631,8 +630,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "source_path", collation: "utf8mb3_general_ci"
     t.integer "order"
     t.integer "priority"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
     t.string "alias", collation: "utf8mb3_general_ci"
     t.boolean "imageinclude"
     t.string "password", collation: "utf8mb3_general_ci"
@@ -664,7 +663,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "maintenance_db_project_id"
     t.string "updateinfo_id", collation: "utf8mb3_general_ci"
     t.integer "incident_id"
-    t.datetime "released_at"
+    t.datetime "released_at", precision: nil
     t.index ["db_project_id"], name: "index_maintenance_incidents_on_db_project_id"
     t.index ["maintenance_db_project_id"], name: "index_maintenance_incidents_on_maintenance_db_project_id"
   end
@@ -674,8 +673,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.text "event_payload", null: false
     t.string "subscription_receiver_role", null: false, collation: "utf8mb3_general_ci"
     t.boolean "delivered", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
     t.string "subscriber_type", collation: "utf8mb3_general_ci"
     t.integer "subscriber_id"
     t.string "notifiable_type"
@@ -685,7 +684,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "title", collation: "utf8mb3_unicode_ci"
     t.boolean "rss", default: false
     t.boolean "web", default: false
-    t.datetime "last_seen_at"
+    t.datetime "last_seen_at", precision: nil
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
     t.index ["subscriber_type", "subscriber_id"], name: "index_notifications_on_subscriber_type_and_subscriber_id"
   end
@@ -693,7 +692,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "notified_projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "notification_id", null: false
     t.integer "project_id", null: false
-    t.datetime "created_at", precision: 6, null: false
+    t.datetime "created_at", null: false
     t.index ["notification_id", "project_id"], name: "index_notified_projects_on_notification_id_and_project_id", unique: true
     t.index ["notification_id"], name: "index_notified_projects_on_notification_id"
   end
@@ -717,8 +716,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "name", limit: 200, null: false, collation: "utf8mb3_bin"
     t.string "title", collation: "utf8mb3_general_ci"
     t.text "description"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.string "url", collation: "utf8mb3_general_ci"
     t.float "activity_index", default: 100.0
     t.string "bcntsynctag", collation: "utf8mb3_general_ci"
@@ -788,7 +787,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "user_name", collation: "utf8mb3_unicode_ci"
     t.string "package_name", collation: "utf8mb3_unicode_ci"
     t.integer "bs_request_id"
-    t.datetime "datetime"
+    t.datetime "datetime", precision: nil
     t.string "event_type", collation: "utf8mb3_unicode_ci"
     t.text "additional_info"
     t.index ["bs_request_id"], name: "index_project_log_entries_on_bs_request_id"
@@ -804,8 +803,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "name", limit: 200, null: false, collation: "utf8mb3_bin"
     t.string "title", collation: "utf8mb3_general_ci"
     t.text "description"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.string "remoteurl", collation: "utf8mb3_general_ci"
     t.string "remoteproject", collation: "utf8mb3_general_ci"
     t.integer "develproject_id"
@@ -877,14 +876,14 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "by_group", collation: "utf8mb3_general_ci"
     t.string "by_project", collation: "utf8mb3_general_ci"
     t.string "by_package", collation: "utf8mb3_general_ci"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
     t.integer "review_id"
     t.integer "user_id"
     t.integer "group_id"
     t.integer "project_id"
     t.integer "package_id"
-    t.datetime "changed_state_at"
+    t.datetime "changed_state_at", precision: nil
     t.index ["bs_request_id"], name: "bs_request_id"
     t.index ["by_group"], name: "index_reviews_on_by_group"
     t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project"
@@ -906,8 +905,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "title", limit: 100, default: "", null: false, collation: "utf8mb3_general_ci"
     t.integer "parent_id"
     t.boolean "global", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", null: false
     t.index ["parent_id"], name: "roles_parent_id_index"
   end
 
@@ -921,7 +920,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "roles_users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "user_id", default: 0, null: false
     t.integer "role_id", default: 0, null: false
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["role_id"], name: "role_id"
     t.index ["user_id", "role_id"], name: "roles_users_all_index", unique: true
   end
@@ -931,15 +930,15 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.text "response_body", size: :long
     t.text "request_parameters", size: :long
     t.integer "status", default: 0, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "sessions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "session_id", null: false, collation: "utf8mb3_unicode_ci"
     t.text "data"
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
     t.index ["session_id"], name: "index_sessions_on_session_id"
     t.index ["updated_at"], name: "index_sessions_on_updated_at"
   end
@@ -948,8 +947,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "staging_workflow_id", null: false
     t.integer "bs_request_id", null: false
     t.string "description"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "number"
     t.index ["bs_request_id"], name: "index_staging_request_exclusions_on_bs_request_id"
     t.index ["staging_workflow_id"], name: "index_staging_request_exclusions_on_staging_workflow_id"
@@ -957,8 +956,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
 
   create_table "staging_workflows", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "project_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "managers_group_id"
     t.index ["managers_group_id"], name: "index_staging_workflows_on_managers_group_id"
     t.index ["project_id"], name: "index_staging_workflows_on_project_id", unique: true
@@ -974,8 +973,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "url"
     t.string "short_description"
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "status_reports_id"
     t.index ["status_reports_id"], name: "index_status_checks_on_status_reports_id"
   end
@@ -991,14 +990,14 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "status_message_acknowledgements", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "status_message_id"
     t.integer "user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["status_message_id"], name: "index_status_message_acknowledgements_on_status_message_id"
     t.index ["user_id"], name: "index_status_message_acknowledgements_on_user_id"
   end
 
   create_table "status_messages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.text "message"
     t.integer "user_id"
     t.integer "severity"
@@ -1011,8 +1010,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "uuid"
     t.string "checkable_type", limit: 191
     t.integer "checkable_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["checkable_type", "checkable_id"], name: "index_status_reports_on_checkable_type_and_checkable_id"
   end
 
@@ -1023,7 +1022,7 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.string "type", collation: "utf8mb3_unicode_ci"
     t.string "scm_token"
     t.string "description", limit: 64, default: ""
-    t.datetime "triggered_at"
+    t.datetime "triggered_at", precision: nil
     t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
@@ -1041,16 +1040,16 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
   create_table "user_registrations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "user_id", default: 0, null: false
     t.text "token", null: false, collation: "utf8mb3_general_ci"
-    t.datetime "created_at"
-    t.datetime "expires_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "expires_at", precision: nil
     t.index ["expires_at"], name: "user_registrations_expires_at_index"
     t.index ["user_id"], name: "user_registrations_user_id_index", unique: true
   end
 
   create_table "users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at", precision: 6
-    t.datetime "last_logged_in_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at"
+    t.datetime "last_logged_in_at", precision: nil
     t.integer "login_failure_count", default: 0, null: false
     t.text "login", collation: "utf8mb3_bin"
     t.string "email", limit: 200, default: "", null: false, collation: "utf8mb3_general_ci"
@@ -1076,8 +1075,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "watchable_id", null: false
     t.string "watchable_type", null: false
     t.integer "user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_watched_items_on_user_id"
     t.index ["watchable_type", "watchable_id", "user_id"], name: "index_watched_items_on_type_id_and_user_id", unique: true
     t.index ["watchable_type", "watchable_id"], name: "index_watched_items_on_watchable"
@@ -1093,8 +1092,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.integer "workflow_run_id", null: false
     t.string "step"
     t.text "artifacts"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["workflow_run_id"], name: "index_workflow_artifacts_per_steps_on_workflow_run_id"
   end
 
@@ -1103,8 +1102,8 @@ ActiveRecord::Schema.define(version: 2022_06_22_135133) do
     t.text "request_payload", size: :long, null: false
     t.integer "status", limit: 1, default: 0, null: false
     t.text "response_body"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "token_id", null: false
     t.string "response_url"
     t.index ["token_id"], name: "index_workflow_runs_on_token_id"
