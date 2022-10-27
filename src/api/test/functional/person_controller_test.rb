@@ -173,7 +173,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     put '/person/tom', params: xml
     assert_response 404
     assert_select 'status', code: 'not_found' do
-      assert_select 'summary', "Couldn't find Project"
+      assert_select 'summary', /Couldn't find Project/
     end
     assert_equal ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy'],
                  User.find_by(login: 'tom').watched_project_names.sort,
