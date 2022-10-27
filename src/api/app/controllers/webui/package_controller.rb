@@ -128,7 +128,7 @@ class Webui::PackageController < Webui::WebuiController
     respond_to do |format|
       format.html
       format.js
-      format.json { render template: 'webui/package/show.html.haml' }
+      format.json { render template: 'webui/package/show', formats: [:html] }
     end
   end
 

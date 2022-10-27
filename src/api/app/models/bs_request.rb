@@ -690,13 +690,13 @@ class BsRequest < ApplicationRecord
       review = find_review_for_opts(opts)
       raise Review::NotFoundError unless review
 
-      return unless review.change_state(new_review_state, opts[:comment] || '')
+      next unless review.change_state(new_review_state, opts[:comment] || '')
 
       history_parameters = { request: self, comment: opts[:comment], user_id: User.session!.id }
-      return supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
+      next supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
 
       new_request_state = calculate_state_from_reviews
-      return if new_request_state == old_request_state
+      next if new_request_state == old_request_state
 
       self.comment = review.reason
       self.state = new_request_state
