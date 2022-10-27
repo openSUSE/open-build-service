@@ -1064,11 +1064,6 @@ Rails/TimeZone:
     - 'test/unit/binary_release.rb'
     - 'test/unit/package_remove_test.rb'
 
-# Offense count: 3
-Rails/TransactionExitStatement:
-  Exclude:
-    - 'app/models/bs_request.rb'
-
 # Offense count: 144
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
