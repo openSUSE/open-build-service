@@ -94,6 +94,9 @@ gem 'gitlab'
 gem 'view_component'
 # Abstraction layer for HTTP requests in custom API wrapper
 gem 'faraday'
+# Asset packaging system that concatenates and serves JavaScript, CoffeeScript, CSS, Sass, and SCSS
+# This cannot be in the assets group since Sprockets is loaded in config/application.rb
+gem 'sprockets-rails'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083
@@ -219,8 +222,6 @@ group :assets do
   gem 'uglifier'
   # to use sass in the asset pipeline
   gem 'sassc-rails'
-  # asset packaging system that concatenates and serves JavaScript, CoffeeScript, CSS, Sass, and SCSS
-  gem 'sprockets-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
   # assets for jQuery and jQuery-ujs
