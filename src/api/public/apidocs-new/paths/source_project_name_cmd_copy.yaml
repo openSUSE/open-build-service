@@ -24,6 +24,12 @@ post:
       description: Origin package name
       example: "ctris"
     - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment to be added in the revision history.
+      example: Copy project for testing.
+    - in: query
       name: makeolder
       schema:
         type: string
@@ -36,6 +42,16 @@ post:
       description: Make origin older, the source vrev is extended and target is guaranteed to be newer. This parameter is interpreted as `true` if present, `false` otherwise.
       example: 1
     - in: query
+      name: noservice
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` not to run source services.
+      example: 1
+    - in: query
       name: withbinaries
       schema:
         type: string
@@ -46,6 +62,16 @@ post:
       schema:
         type: string
       description: If the parameter is present, the copying is done right away. If not present, the copying is done as a deferred job.
+      example: 1
+    - in: query
+      name: withhistory
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to also copy the revision history.
       example: 1
   responses:
     '200':
