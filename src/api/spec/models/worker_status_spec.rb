@@ -70,7 +70,7 @@ RSpec.describe WorkerStatus do
       end
 
       it { expect(subject['building'].count).to eq(4) }
-      it { expect(subject['building'].map { |x| x['project'] }).to all(eq('---')) }
+      it { expect(subject['building'].pluck('project')).to all(eq('---')) }
     end
   end
 

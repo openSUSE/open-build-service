@@ -985,17 +985,6 @@ Rails/OutputSafety:
     - 'app/helpers/webui/user_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
 
-# Offense count: 8
-# This cop supports safe autocorrection (--autocorrect).
-Rails/Pluck:
-  Exclude:
-    - 'app/controllers/webui/projects/rebuild_times_controller.rb'
-    - 'app/models/event/request.rb'
-    - 'app/models/event/review_wanted.rb'
-    - 'app/services/consistency_check_job_service/base_consistency_checker.rb'
-    - 'spec/models/worker_status_spec.rb'
-    - 'test/functional/maintenance_test.rb'
-
 # Offense count: 12
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Include.
