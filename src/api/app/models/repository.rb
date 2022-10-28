@@ -27,7 +27,7 @@ class Repository < ApplicationRecord
                              message: "must not start with '_' or contain any of these characters ':/'" }
 
   # never used in production, but existed for quite some time...
-  self.ignored_columns = ['hostsystem_id']
+  self.ignored_columns += ['hostsystem_id']
 
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
