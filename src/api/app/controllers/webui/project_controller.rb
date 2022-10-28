@@ -40,6 +40,109 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
+  def show
+    @bugowners_mail = @project.bugowner_emails
+    @release_targets = @project.release_targets
+
+    @has_patchinfo = @project.patchinfos.exists?
+    @comments = @project.comments
+    @comment = Comment.new
+
+    if User.session && params[:notification_id]
+      @current_notification = Notification.find(params[:notification_id])
+      authorize @current_notification, :update?, policy_class: NotificationPolicy
+    end
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+
+  def new
+    @project = Project.new
+    @project.name = params[:name] if params[:name]
+    @namespace = params[:namespace]
+
+    @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
+  end
+
+  def edit
+    authorize @project, :update?
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def create
+    params[:project][:name] = "#{params[:namespace]}:#{params[:project][:name]}" if params[:namespace]
+
+    @project = Project.new(project_params)
+    authorize(@project, :create?)
+
+    if Project.deleted?(@project.name) && !params[:restore_option_provided]
+      redirect_to(new_project_path(name: @project.name, restore_option: true))
+      return
+    end
+
+    @project.relationships.build(user: User.session!,
+                                 role: Role.find_by_title('maintainer'))
+
+    @project.kind = 'maintenance' if params[:maintenance_project]
+
+    # TODO: do this with nested attributes
+    @project.flags.new(status: 'disable', flag: 'access') if params[:access_protection]
+
+    # TODO: do this with nested attributes
+    @project.flags.new(status: 'disable', flag: 'sourceaccess') if params[:source_protection]
+
+    # TODO: do this with nested attributes
+    @project.flags.new(status: 'disable', flag: 'publish') if params[:disable_publishing]
+
+    if @project.valid? && @project.store
+      flash[:success] = "Project '#{elide(@project.name)}' was created successfully"
+      redirect_to action: 'show', project: @project.name
+    else
+      flash[:error] = "Failed to save project '#{elide(@project.name)}'. #{@project.errors.full_messages.to_sentence}."
+      redirect_back(fallback_location: root_path)
+    end
+  end
+
+  def update
+    authorize @project, :update?
+    respond_to do |format|
+      if @project.update(project_params)
+        format.html do
+          flash[:success] = 'Project was successfully updated.'
+          redirect_to project_show_path(@project)
+        end
+        format.js { flash.now[:success] = 'Project was successfully updated.' }
+      else
+        format.html do
+          flash[:error] = 'Failed to update project'
+          redirect_to project_show_path(@project)
+        end
+        format.js
+      end
+    end
+  end
+
+  def destroy
+    authorize @project, :destroy?
+    if @project.check_weak_dependencies?
+      parent = @project.parent
+      @project.destroy
+      flash[:success] = 'Project was successfully removed.'
+      if parent
+        redirect_to project_show_path(parent)
+      else
+        redirect_to(action: :index)
+      end
+    else
+      redirect_to project_show_path(@project), error: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
+    end
+  end
+
   def autocomplete_projects
     render json: Project.autocomplete(params[:term], params[:local]).not_maintenance_incident.pluck(:name)
   end
@@ -74,14 +177,6 @@ class Webui::ProjectController < Webui::WebuiController
         render json: ProjectDatatable.new(params, view_context: view_context, projects: project_for_datatable)
       end
     end
-  end
-
-  def new
-    @project = Project.new
-    @project.name = params[:name] if params[:name]
-    @namespace = params[:namespace]
-
-    @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
   end
 
   def release_request
@@ -125,84 +220,15 @@ class Webui::ProjectController < Webui::WebuiController
     redirect_to action: 'show', project: params[:project]
   end
 
-  def show
-    @bugowners_mail = @project.bugowner_emails
-    @release_targets = @project.release_targets
-
-    @has_patchinfo = @project.patchinfos.exists?
-    @comments = @project.comments
-    @comment = Comment.new
-
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
-
-    respond_to do |format|
-      format.html
-      format.js
-    end
-  end
-
   def buildresult
     render partial: 'buildstatus', locals: { project: @project,
                                              buildresults: @project.buildresults,
                                              collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
   end
 
-  def destroy
-    authorize @project, :destroy?
-    if @project.check_weak_dependencies?
-      parent = @project.parent
-      @project.destroy
-      flash[:success] = 'Project was successfully removed.'
-      if parent
-        redirect_to project_show_path(parent)
-      else
-        redirect_to(action: :index)
-      end
-    else
-      redirect_to project_show_path(@project), error: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
-    end
-  end
-
   def requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
-  end
-
-  def create
-    params[:project][:name] = "#{params[:namespace]}:#{params[:project][:name]}" if params[:namespace]
-
-    @project = Project.new(project_params)
-    authorize(@project, :create?)
-
-    if Project.deleted?(@project.name) && !params[:restore_option_provided]
-      redirect_to(new_project_path(name: @project.name, restore_option: true))
-      return
-    end
-
-    @project.relationships.build(user: User.session!,
-                                 role: Role.find_by_title('maintainer'))
-
-    @project.kind = 'maintenance' if params[:maintenance_project]
-
-    # TODO: do this with nested attributes
-    @project.flags.new(status: 'disable', flag: 'access') if params[:access_protection]
-
-    # TODO: do this with nested attributes
-    @project.flags.new(status: 'disable', flag: 'sourceaccess') if params[:source_protection]
-
-    # TODO: do this with nested attributes
-    @project.flags.new(status: 'disable', flag: 'publish') if params[:disable_publishing]
-
-    if @project.valid? && @project.store
-      flash[:success] = "Project '#{elide(@project.name)}' was created successfully"
-      redirect_to action: 'show', project: @project.name
-    else
-      flash[:error] = "Failed to save project '#{elide(@project.name)}'. #{@project.errors.full_messages.to_sentence}."
-      redirect_back(fallback_location: root_path)
-    end
   end
 
   def restore
@@ -217,32 +243,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       flash[:error] = 'Project was never deleted.'
       redirect_back(fallback_location: root_path)
-    end
-  end
-
-  def edit
-    authorize @project, :update?
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def update
-    authorize @project, :update?
-    respond_to do |format|
-      if @project.update(project_params)
-        format.html do
-          flash[:success] = 'Project was successfully updated.'
-          redirect_to project_show_path(@project)
-        end
-        format.js { flash.now[:success] = 'Project was successfully updated.' }
-      else
-        format.html do
-          flash[:error] = 'Failed to update project'
-          redirect_to project_show_path(@project)
-        end
-        format.js
-      end
     end
   end
 

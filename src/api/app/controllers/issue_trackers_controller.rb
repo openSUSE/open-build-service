@@ -15,6 +15,16 @@ class IssueTrackersController < ApplicationController
     end
   end
 
+  # GET /issue_trackers/<name>
+  def show
+    @issue_tracker = IssueTracker.find_by_name(params[:name])
+    render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:name]}'") && return unless @issue_tracker
+
+    respond_to do |format|
+      format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
+    end
+  end
+
   # POST /issue_trackers
   def create
     xml = Nokogiri::XML(request.raw_post, &:strict).root
@@ -33,16 +43,6 @@ class IssueTrackersController < ApplicationController
       else
         format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
       end
-    end
-  end
-
-  # GET /issue_trackers/<name>
-  def show
-    @issue_tracker = IssueTracker.find_by_name(params[:name])
-    render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:name]}'") && return unless @issue_tracker
-
-    respond_to do |format|
-      format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
     end
   end
 

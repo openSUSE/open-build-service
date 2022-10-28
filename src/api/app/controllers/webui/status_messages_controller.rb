@@ -7,6 +7,10 @@ class Webui::StatusMessagesController < Webui::WebuiController
     authorize StatusMessage
   end
 
+  def edit
+    @status_message = authorize StatusMessage.find(params[:id])
+  end
+
   def create
     status_message = authorize StatusMessage.new(status_message_params)
 
@@ -17,10 +21,6 @@ class Webui::StatusMessagesController < Webui::WebuiController
     end
 
     redirect_to(controller: 'main', action: 'index')
-  end
-
-  def edit
-    @status_message = authorize StatusMessage.find(params[:id])
   end
 
   def update

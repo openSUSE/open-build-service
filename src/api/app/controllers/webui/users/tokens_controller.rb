@@ -9,6 +9,10 @@ class Webui::Users::TokensController < Webui::WebuiController
     @tokens = policy_scope(Token).page(params[:page])
   end
 
+  def show
+    authorize @token
+  end
+
   def new
     @token = Token.new
     authorize @token
@@ -16,6 +20,25 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   def edit
     authorize @token
+  end
+
+  def create
+    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session, package: @package))
+
+    authorize @token
+
+    respond_to do |format|
+      format.html do
+        if @token.save
+          flash[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
+          session[:show_token] = 'true'
+          redirect_to token_path(@token)
+        else
+          flash[:error] = "Failed to create token: #{@token.errors.full_messages.to_sentence}."
+          render :new
+        end
+      end
+    end
   end
 
   def update
@@ -43,34 +66,11 @@ class Webui::Users::TokensController < Webui::WebuiController
     end
   end
 
-  def create
-    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session, package: @package))
-
-    authorize @token
-
-    respond_to do |format|
-      format.html do
-        if @token.save
-          flash[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
-          session[:show_token] = 'true'
-          redirect_to token_path(@token)
-        else
-          flash[:error] = "Failed to create token: #{@token.errors.full_messages.to_sentence}."
-          render :new
-        end
-      end
-    end
-  end
-
   def destroy
     authorize @token
     @token.destroy
     flash[:success] = 'Token was successfully deleted.'
     redirect_to tokens_url
-  end
-
-  def show
-    authorize @token
   end
 
   private

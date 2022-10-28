@@ -8,6 +8,24 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
   before_action :set_staging_workflow, except: [:new, :create]
   after_action :verify_authorized, except: [:show]
 
+  def show
+    @project = @staging_workflow.project
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
+                                         .select { |project| VALID_STATES_WITH_REQUESTS.include?(project.overall_state) }
+                                         .sort_by! { |project| project_weight(project) }
+    @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
+    @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
+    @ready_requests = @staging_workflow.ready_requests.first(5)
+    @more_ready_requests = @staging_workflow.ready_requests.count - @ready_requests.size
+    @excluded_requests = @staging_workflow.excluded_requests.includes(:request_exclusion).first(5)
+    @more_excluded_requests = @staging_workflow.excluded_requests.count - @excluded_requests.size
+    @empty_projects = @staging_workflow.staging_projects.without_staged_requests
+    @managers = @staging_workflow.managers_group
+
+    @groups_hash = ::Staging::Workflow.load_groups
+    @users_hash = ::Staging::Workflow.load_users(@staging_projects)
+  end
+
   def new
     if @project.staging
       authorize @project.staging
@@ -16,6 +34,13 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     end
 
     @staging_workflow = authorize @project.build_staging
+  end
+
+  def edit
+    authorize @staging_workflow
+
+    @project = @staging_workflow.project
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).order(:name)
   end
 
   def create
@@ -43,29 +68,17 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     end
   end
 
-  def show
-    @project = @staging_workflow.project
-    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
-                                         .select { |project| VALID_STATES_WITH_REQUESTS.include?(project.overall_state) }
-                                         .sort_by! { |project| project_weight(project) }
-    @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
-    @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
-    @ready_requests = @staging_workflow.ready_requests.first(5)
-    @more_ready_requests = @staging_workflow.ready_requests.count - @ready_requests.size
-    @excluded_requests = @staging_workflow.excluded_requests.includes(:request_exclusion).first(5)
-    @more_excluded_requests = @staging_workflow.excluded_requests.count - @excluded_requests.size
-    @empty_projects = @staging_workflow.staging_projects.without_staged_requests
-    @managers = @staging_workflow.managers_group
-
-    @groups_hash = ::Staging::Workflow.load_groups
-    @users_hash = ::Staging::Workflow.load_users(@staging_projects)
-  end
-
-  def edit
+  def update
     authorize @staging_workflow
 
-    @project = @staging_workflow.project
-    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).order(:name)
+    @staging_workflow.managers_group = Group.find_by(title: params[:managers_title])
+    if @staging_workflow.save
+      flash[:success] = 'Managers group was successfully assigned'
+    else
+      flash[:error] = "Managers group couldn't be assigned: #{@staging_workflow.errors.full_messages.to_sentence}."
+    end
+
+    redirect_to edit_staging_workflow_path(@staging_workflow.project)
   end
 
   def destroy
@@ -83,19 +96,6 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
       flash[:error] = "Staging for #{elide(@project.name)} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
       render js: "window.location='#{staging_workflow_path(@staging_workflow.project)}'"
     end
-  end
-
-  def update
-    authorize @staging_workflow
-
-    @staging_workflow.managers_group = Group.find_by(title: params[:managers_title])
-    if @staging_workflow.save
-      flash[:success] = 'Managers group was successfully assigned'
-    else
-      flash[:error] = "Managers group couldn't be assigned: #{@staging_workflow.errors.full_messages.to_sentence}."
-    end
-
-    redirect_to edit_staging_workflow_path(@staging_workflow.project)
   end
 
   private
