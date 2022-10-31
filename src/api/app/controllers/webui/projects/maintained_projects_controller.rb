@@ -15,6 +15,20 @@ module Webui
         end
       end
 
+      def create
+        authorize @project, :update?
+
+        @project.maintained_projects.create!(project: @maintained_project)
+
+        flash_message = if @project.valid? && @project.store
+                          { success: "Enabled Maintenance for #{@maintained_project}" }
+                        else
+                          { error: "Failed to enable Maintenance for #{@maintained_project}: #{@project.errors.full_messages.to_sentence}" }
+                        end
+
+        redirect_to(project_maintained_projects_path(project_name: @project.name), flash_message)
+      end
+
       def destroy
         authorize @project, :destroy?
 
@@ -26,20 +40,6 @@ module Webui
                           { success: "Disabled maintenance for #{maintenance_project.project}" }
                         else
                           { error: "Failed to disable Maintenance for #{maintenance_project.project}: #{@project.errors.full_messages.to_sentence}" }
-                        end
-
-        redirect_to(project_maintained_projects_path(project_name: @project.name), flash_message)
-      end
-
-      def create
-        authorize @project, :update?
-
-        @project.maintained_projects.create!(project: @maintained_project)
-
-        flash_message = if @project.valid? && @project.store
-                          { success: "Enabled Maintenance for #{@maintained_project}" }
-                        else
-                          { error: "Failed to enable Maintenance for #{@maintained_project}: #{@project.errors.full_messages.to_sentence}" }
                         end
 
         redirect_to(project_maintained_projects_path(project_name: @project.name), flash_message)

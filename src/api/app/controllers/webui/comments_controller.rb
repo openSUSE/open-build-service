@@ -32,6 +32,34 @@ class Webui::CommentsController < Webui::WebuiController
     end
   end
 
+  def update
+    comment = Comment.find(params[:id])
+    authorize comment, :update?
+    comment.assign_attributes(permitted_params)
+
+    status = if comment.save
+               flash.now[:success] = 'Comment updated successfully.'
+               :ok
+             else
+               flash.now[:error] = "Failed to update comment: #{comment.errors.full_messages.to_sentence}."
+               :unprocessable_entity
+             end
+
+    respond_to do |format|
+      format.html do
+        if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+          render(partial: 'webui/comment/beta/comments_thread',
+                 locals: { comment: comment.root, commentable: comment.commentable, level: 1 },
+                 status: status)
+        else
+          render(partial: 'webui/comment/comment_list',
+                 locals: { commentable: comment.commentable },
+                 status: status)
+        end
+      end
+    end
+  end
+
   # TODO: Once we ship this and we remove the flipper check, this methods will
   # get simpler, so I'll just shut rubocop up for now.
   # rubocop:disable Metrics/CyclomaticComplexity
@@ -69,34 +97,6 @@ class Webui::CommentsController < Webui::WebuiController
   end
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
-
-  def update
-    comment = Comment.find(params[:id])
-    authorize comment, :update?
-    comment.assign_attributes(permitted_params)
-
-    status = if comment.save
-               flash.now[:success] = 'Comment updated successfully.'
-               :ok
-             else
-               flash.now[:error] = "Failed to update comment: #{comment.errors.full_messages.to_sentence}."
-               :unprocessable_entity
-             end
-
-    respond_to do |format|
-      format.html do
-        if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
-          render(partial: 'webui/comment/beta/comments_thread',
-                 locals: { comment: comment.root, commentable: comment.commentable, level: 1 },
-                 status: status)
-        else
-          render(partial: 'webui/comment/comment_list',
-                 locals: { commentable: comment.commentable },
-                 status: status)
-        end
-      end
-    end
-  end
 
   def preview
     markdown = helpers.render_as_markdown(permitted_params[:body])

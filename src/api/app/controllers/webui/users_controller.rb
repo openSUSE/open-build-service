@@ -38,6 +38,8 @@ class Webui::UsersController < Webui::WebuiController
     @submit_btn_text = params[:submit_btn_text] || 'Sign up'
   end
 
+  def edit; end
+
   def create
     begin
       UnregisteredUser.register(create_params)
@@ -59,24 +61,6 @@ class Webui::UsersController < Webui::WebuiController
       else
         redirect_to root_path
       end
-    end
-  end
-
-  def destroy
-    user = User.find_by(login: params[:login])
-    if user.delete
-      flash[:success] = "Marked user '#{user}' as deleted."
-    else
-      flash[:error] = "Marking user '#{user}' as deleted failed: #{user.errors.full_messages.to_sentence}"
-    end
-    redirect_to(users_path)
-  end
-
-  def edit; end
-
-  def edit_account
-    respond_to do |format|
-      format.js
     end
   end
 
@@ -103,6 +87,22 @@ class Webui::UsersController < Webui::WebuiController
         format.js { flash.now[:error] = message }
       end
       redirect_back(fallback_location: user_path(@displayed_user)) if request.format.symbol == :html
+    end
+  end
+
+  def destroy
+    user = User.find_by(login: params[:login])
+    if user.delete
+      flash[:success] = "Marked user '#{user}' as deleted."
+    else
+      flash[:error] = "Marking user '#{user}' as deleted failed: #{user.errors.full_messages.to_sentence}"
+    end
+    redirect_to(users_path)
+  end
+
+  def edit_account
+    respond_to do |format|
+      format.js
     end
   end
 

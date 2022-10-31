@@ -46,32 +46,6 @@ class Webui::PackageController < Webui::WebuiController
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
   end
 
-  def edit
-    authorize @package, :update?
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def update
-    authorize @package, :update?
-    respond_to do |format|
-      if @package.update(package_details_params)
-        format.html do
-          flash[:success] = 'Package was successfully updated.'
-          redirect_to package_show_path(@package)
-        end
-        format.js { flash.now[:success] = 'Package was successfully updated.' }
-      else
-        format.html do
-          flash[:error] = 'Failed to update package'
-          redirect_to package_show_path(@package)
-        end
-        format.js
-      end
-    end
-  end
-
   def show
     # FIXME: Remove this statement when scmsync is fully supported
     if @project.scmsync.present?
@@ -129,6 +103,52 @@ class Webui::PackageController < Webui::WebuiController
       format.html
       format.js
       format.json { render template: 'webui/package/show', formats: [:html] }
+    end
+  end
+
+  def new
+    authorize Package.new(project: @project), :create?
+  end
+
+  def edit
+    authorize @package, :update?
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def create
+    @package = @project.packages.build(package_params)
+    authorize @package, :create?
+
+    @package.flags.build(flag: :sourceaccess, status: :disable) if params[:source_protection]
+    @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
+
+    if @package.save
+      flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
+      redirect_to action: :show, project: params[:project], package: @package.name
+    else
+      flash[:error] = "Failed to create package: #{@package.errors.full_messages.join(', ')}"
+      redirect_to controller: :project, action: :show, project: params[:project]
+    end
+  end
+
+  def update
+    authorize @package, :update?
+    respond_to do |format|
+      if @package.update(package_details_params)
+        format.html do
+          flash[:success] = 'Package was successfully updated.'
+          redirect_to package_show_path(@package)
+        end
+        format.js { flash.now[:success] = 'Package was successfully updated.' }
+      else
+        format.html do
+          flash[:error] = 'Failed to update package'
+          redirect_to package_show_path(@package)
+        end
+        format.js
+      end
     end
   end
 
@@ -287,26 +307,6 @@ class Webui::PackageController < Webui::WebuiController
     elsif @rev != @last_rev
       @submit_message = "Revert #{@project.name}/#{@package.name} to revision #{@rev}"
       @submit_url_opts[:target_project] = @project.name
-    end
-  end
-
-  def new
-    authorize Package.new(project: @project), :create?
-  end
-
-  def create
-    @package = @project.packages.build(package_params)
-    authorize @package, :create?
-
-    @package.flags.build(flag: :sourceaccess, status: :disable) if params[:source_protection]
-    @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
-
-    if @package.save
-      flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
-      redirect_to action: :show, project: params[:project], package: @package.name
-    else
-      flash[:error] = "Failed to create package: #{@package.errors.full_messages.join(', ')}"
-      redirect_to controller: :project, action: :show, project: params[:project]
     end
   end
 

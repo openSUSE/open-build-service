@@ -10,86 +10,6 @@ class Webui::RequestController < Webui::WebuiController
 
   after_action :verify_authorized, only: [:create]
 
-  def create
-    @bs_request = BsRequest.new(bs_request_params)
-    @bs_request.set_add_revision if params.key?(:add_revision)
-    authorize @bs_request, :create?
-
-    begin
-      @bs_request.save!
-      redirect_to request_show_path(@bs_request.number)
-      return
-    # FIXME: Use validations in the model instead of raising whenever something is wrong
-    rescue BsRequestAction::MissingAction
-      flash[:error] = 'Unable to submit, sources are unchanged'
-    rescue Project::Errors::UnknownObjectError
-      flash[:error] = "Unable to submit: The source of package #{elide(params[:project_name])}/#{elide(params[:package_name])} is broken"
-    rescue APIError, ActiveRecord::RecordInvalid => e
-      flash[:error] = e.message
-    rescue Backend::Error => e
-      flash[:error] = e.summary
-    end
-
-    if params.key?(:package_name)
-      redirect_to(package_show_path(params[:project_name], params[:package_name]))
-    else
-      redirect_to(project_show_path(params[:project_name]))
-    end
-  end
-
-  def add_reviewer
-    request = BsRequest.find_by_number(params[:number])
-    if request.nil?
-      flash[:error] = "Unable to add review to request with id '#{params[:number]}': the request was not found."
-    else
-      begin
-        request.addreview(addreview_opts)
-      rescue BsRequestPermissionCheck::AddReviewNotPermitted
-        flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
-      rescue ActiveRecord::RecordInvalid, APIError => e
-        flash[:error] = "Unable to add review to request with id '#{params[:number]}': #{e.message}"
-      end
-    end
-    redirect_to controller: :request, action: 'show', number: params[:number]
-  end
-
-  def modify_review_set_request
-    review_params = params.slice(:comment, :review_id)
-    review = Review.find_by(id: review_params[:review_id])
-    unless review
-      flash[:error] = 'Unable to load review'
-      return review_params, nil
-    end
-    review_params[:by_package] = review.by_package
-    review_params[:by_project] = review.by_project
-    review_params[:by_user] = review.by_user
-    review_params[:by_group] = review.by_group
-    [review_params, review.bs_request]
-  end
-
-  def modify_review
-    review_params, request = modify_review_set_request
-    if request.nil?
-      flash[:error] = 'Unable to load request'
-      redirect_back(fallback_location: user_path(User.session!))
-      return
-    elsif !new_state.in?(['accepted', 'declined'])
-      flash[:error] = 'Unknown state to set'
-    else
-      begin
-        request.permission_check_change_review!(review_params)
-        request.change_review_state(new_state, review_params)
-        flash[:success] = 'Successfully submitted review'
-      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
-        flash[:error] = "Not permitted to change review state: #{e.message}"
-      rescue APIError => e
-        flash[:error] = "Unable changing review state: #{e.message}"
-      end
-    end
-
-    redirect_to request_show_path(number: request)
-  end
-
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
@@ -171,6 +91,86 @@ class Webui::RequestController < Webui::WebuiController
         format.js { render_request_update }
       end
     end
+  end
+
+  def create
+    @bs_request = BsRequest.new(bs_request_params)
+    @bs_request.set_add_revision if params.key?(:add_revision)
+    authorize @bs_request, :create?
+
+    begin
+      @bs_request.save!
+      redirect_to request_show_path(@bs_request.number)
+      return
+    # FIXME: Use validations in the model instead of raising whenever something is wrong
+    rescue BsRequestAction::MissingAction
+      flash[:error] = 'Unable to submit, sources are unchanged'
+    rescue Project::Errors::UnknownObjectError
+      flash[:error] = "Unable to submit: The source of package #{elide(params[:project_name])}/#{elide(params[:package_name])} is broken"
+    rescue APIError, ActiveRecord::RecordInvalid => e
+      flash[:error] = e.message
+    rescue Backend::Error => e
+      flash[:error] = e.summary
+    end
+
+    if params.key?(:package_name)
+      redirect_to(package_show_path(params[:project_name], params[:package_name]))
+    else
+      redirect_to(project_show_path(params[:project_name]))
+    end
+  end
+
+  def add_reviewer
+    request = BsRequest.find_by_number(params[:number])
+    if request.nil?
+      flash[:error] = "Unable to add review to request with id '#{params[:number]}': the request was not found."
+    else
+      begin
+        request.addreview(addreview_opts)
+      rescue BsRequestPermissionCheck::AddReviewNotPermitted
+        flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
+      rescue ActiveRecord::RecordInvalid, APIError => e
+        flash[:error] = "Unable to add review to request with id '#{params[:number]}': #{e.message}"
+      end
+    end
+    redirect_to controller: :request, action: 'show', number: params[:number]
+  end
+
+  def modify_review_set_request
+    review_params = params.slice(:comment, :review_id)
+    review = Review.find_by(id: review_params[:review_id])
+    unless review
+      flash[:error] = 'Unable to load review'
+      return review_params, nil
+    end
+    review_params[:by_package] = review.by_package
+    review_params[:by_project] = review.by_project
+    review_params[:by_user] = review.by_user
+    review_params[:by_group] = review.by_group
+    [review_params, review.bs_request]
+  end
+
+  def modify_review
+    review_params, request = modify_review_set_request
+    if request.nil?
+      flash[:error] = 'Unable to load request'
+      redirect_back(fallback_location: user_path(User.session!))
+      return
+    elsif !new_state.in?(['accepted', 'declined'])
+      flash[:error] = 'Unknown state to set'
+    else
+      begin
+        request.permission_check_change_review!(review_params)
+        request.change_review_state(new_state, review_params)
+        flash[:success] = 'Successfully submitted review'
+      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
+        flash[:error] = "Not permitted to change review state: #{e.message}"
+      rescue APIError => e
+        flash[:error] = "Unable changing review state: #{e.message}"
+      end
+    end
+
+    redirect_to request_show_path(number: request)
   end
 
   # TODO: Remove this once request_show_redesign is rolled out

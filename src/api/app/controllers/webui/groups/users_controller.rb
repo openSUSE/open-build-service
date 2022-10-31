@@ -25,18 +25,6 @@ module Webui
         redirect_to group_path(@group)
       end
 
-      def destroy
-        authorize @group, :update?
-
-        if @group.remove_user(@user)
-          flash[:success] = "Removed user '#{@user}' from group '#{@group}'"
-        else
-          flash[:error] = "Couldn't remove user '#{@user}' from group '#{@group}'"
-        end
-
-        redirect_to group_path(@group)
-      end
-
       def update
         authorize @group, :update?
 
@@ -57,6 +45,18 @@ module Webui
           flash.now[:success] = "Removed maintainer rights from '#{@user}'"
           render 'flash', status: :ok
         end
+      end
+
+      def destroy
+        authorize @group, :update?
+
+        if @group.remove_user(@user)
+          flash[:success] = "Removed user '#{@user}' from group '#{@group}'"
+        else
+          flash[:error] = "Couldn't remove user '#{@user}' from group '#{@group}'"
+        end
+
+        redirect_to group_path(@group)
       end
 
       private

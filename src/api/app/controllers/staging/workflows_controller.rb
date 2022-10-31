@@ -23,15 +23,6 @@ class Staging::WorkflowsController < Staging::StagingController
     end
   end
 
-  def destroy
-    authorize @staging_workflow
-
-    @staging_workflow.staging_projects.destroy_all if params[:with_staging_projects].present?
-
-    @staging_workflow.destroy!
-    render_ok
-  end
-
   def update
     authorize @staging_workflow
 
@@ -46,6 +37,15 @@ class Staging::WorkflowsController < Staging::StagingController
         message: "Staging #{@staging_workflow} couldn't be updated: #{@staging_workflow.errors.to_sentence}"
       )
     end
+  end
+
+  def destroy
+    authorize @staging_workflow
+
+    @staging_workflow.staging_projects.destroy_all if params[:with_staging_projects].present?
+
+    @staging_workflow.destroy!
+    render_ok
   end
 
   private

@@ -8,6 +8,18 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_action :require_login, except: [:show]
   before_action :set_patchinfo, only: [:show, :edit]
 
+  def show
+    @pkg_names = @project.packages.pluck(:name)
+    @pkg_names.delete('patchinfo')
+    @packager = User.where(login: @patchinfo.packager).first
+  end
+
+  def edit
+    # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
+    @tracker = ::Configuration.default_tracker
+    @patchinfo.binaries.each { |bin| @binarylist.delete(bin) }
+  end
+
   def create
     authorize @project, :update?, policy_class: ProjectPolicy
 
@@ -23,18 +35,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
     redirect_to edit_patchinfo_path(project: @project, package: @package)
-  end
-
-  def edit
-    # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
-    @tracker = ::Configuration.default_tracker
-    @patchinfo.binaries.each { |bin| @binarylist.delete(bin) }
-  end
-
-  def show
-    @pkg_names = @project.packages.pluck(:name)
-    @pkg_names.delete('patchinfo')
-    @packager = User.where(login: @patchinfo.packager).first
   end
 
   def update

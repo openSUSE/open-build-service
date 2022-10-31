@@ -7,6 +7,25 @@ module Webui
       before_action :set_staging_workflow
       after_action :verify_authorized, except: :show
 
+      def show
+        @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
+
+        unless @staging_project
+          redirect_back(fallback_location: staging_workflow_path(@staging_workflow))
+          flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging."
+          return
+        end
+
+        @staging_project_log_entries = @staging_project.project_log_entries
+                                                       .staging_history
+                                                       .includes(:bs_request)
+                                                       .order(datetime: :desc)
+        @project = @staging_workflow.project
+
+        @groups_hash = ::Staging::Workflow.load_groups
+        @users_hash = ::Staging::Workflow.load_users(@staging_project)
+      end
+
       def create
         authorize @staging_workflow
 
@@ -30,25 +49,6 @@ module Webui
         end
 
         flash[:error] = "#{elide(staging_project.name)} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
-      end
-
-      def show
-        @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
-
-        unless @staging_project
-          redirect_back(fallback_location: staging_workflow_path(@staging_workflow))
-          flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging."
-          return
-        end
-
-        @staging_project_log_entries = @staging_project.project_log_entries
-                                                       .staging_history
-                                                       .includes(:bs_request)
-                                                       .order(datetime: :desc)
-        @project = @staging_workflow.project
-
-        @groups_hash = ::Staging::Workflow.load_groups
-        @users_hash = ::Staging::Workflow.load_users(@staging_project)
       end
 
       def destroy

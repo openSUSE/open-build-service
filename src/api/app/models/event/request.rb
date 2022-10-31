@@ -105,7 +105,7 @@ module Event
     def source_or_target_project_watchers(project_type:)
       # TODO: remove old `find_watchers` implementation after rolling out `new_watchlist` from beta program
       watchers = find_watchers(project_type) +
-                 payload['actions'].map { |action| action[project_type] }
+                 payload['actions'].pluck(project_type)
                                    .map { |project_name| Project.find_by_name(project_name) }
                                    .compact.map(&:watched_items)
                                    .flatten.map(&:user)
@@ -146,7 +146,7 @@ module Event
     end
 
     def find_watchers(project_key)
-      project_names = payload['actions'].map { |action| action[project_key] }.uniq
+      project_names = payload['actions'].pluck(project_key).uniq
       watched_projects = WatchedProject.where(project: Project.where(name: project_names))
       User.where(id: watched_projects.select(:user_id))
     end

@@ -21,7 +21,7 @@ module ConsistencyCheckJobService
     end
 
     def dir_to_array(xmlhash)
-      xmlhash.elements('entry').collect { |e| e['name'] }.sort
+      xmlhash.elements('entry').pluck('name').sort
     end
   end
 end
