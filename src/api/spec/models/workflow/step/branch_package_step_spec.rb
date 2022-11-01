@@ -387,6 +387,37 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
           it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
           it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
         end
+
+        context 'on a package level with a subdir query' do
+          subdir = '?subdir=my_awesome_pkg'
+          before do
+            package.update(scmsync: scmsync_url + subdir)
+          end
+
+          it { expect(subject.call.scmsync).to eq(scmsync_url + subdir + '#' + long_commit_sha) }
+          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+        end
+
+        context 'on a package level with a branch fragment' do
+          fragment = '#my-test-branch'
+          before do
+            package.update(scmsync: scmsync_url + fragment)
+          end
+
+          it { expect(subject.call.scmsync).to eq(scmsync_url + '#' + long_commit_sha) }
+          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+        end
+
+        context 'on a package level with a subdir query and a branch fragment' do
+          subdir = '?subdir=my_test_pkg'
+          fragment = '#my-branch'
+          before do
+            package.update(scmsync: scmsync_url + subdir + fragment)
+          end
+
+          it { expect(subject.call.scmsync).to eq(scmsync_url + subdir + '#' + long_commit_sha) }
+          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+        end
       end
     end
 
