@@ -200,10 +200,14 @@ class Staging::StagedRequests
   end
 
   def send_to_backlog_declined_request(request, staging_project)
-    request.with_lock do
-      request.change_state(newstate: 'new', force: true, user: User.session!.login, comment: 'Reopened via staging workflow.')
-      add_review_for_unstaged_request(request, staging_project)
-      request.change_state(newstate: 'declined', force: true, user: User.session!.login, comment: 'Declined via staging workflow.')
+    decline_user = User.find_by!(request.approver) if request.approver
+    decline_user ||= User.session!
+    decline_user.run_as do
+      request.with_lock do
+        request.change_state(newstate: 'new', force: true, user: User.session!.login, comment: 'Reopened via staging workflow.')
+        add_review_for_unstaged_request(request, staging_project)
+        request.change_state(newstate: 'declined', force: true, user: User.session!.login, comment: 'Declined via staging workflow.')
+      end
     end
   end
 end
