@@ -12,6 +12,8 @@ class EventSubscription
       event.class.receiver_roles.each do |receiver_role|
         # Find the users/groups who are receivers for this event
         receivers = event.send("#{receiver_role}s")
+        next if receivers.blank?
+
         receivers = expand_receivers(receivers, channel)
 
         options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
