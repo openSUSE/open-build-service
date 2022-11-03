@@ -2,12 +2,19 @@ module ScmSyncEnabledStep
   extend ActiveSupport::Concern
 
   def set_scmsync_on_target_package
-    updated_scmsync_url = if scmsync_url.include?('subdir=') || scm_synced_project?
-                            "#{scmsync_url}?subdir=#{source_package_name}##{scm_webhook.payload[:commit_sha]}"
-                          else
-                            "#{scmsync_url}##{scm_webhook.payload[:commit_sha]}"
-                          end
-    target_package.update(scmsync: updated_scmsync_url)
+    # only change the fragment here and leave the query alone!
+    parsed_scmsync_url = Addressable::URI.parse(scmsync_url)
+    parsed_scmsync_url.fragment = scm_webhook.payload[:commit_sha]
+
+    # if we use scmsync to sync a whole project, then each package will be
+    # fetched from a subdirectory
+    if scm_synced_project?
+      query = parsed_scmsync_url.query_values || {}
+      query['subdir'] = source_package_name
+      parsed_scmsync_url.query_values = query
+    end
+
+    target_package.update(scmsync: parsed_scmsync_url.to_s)
   end
 
   def scm_synced?
