@@ -99,6 +99,8 @@ gem 'faraday'
 gem 'sprockets-rails'
 # Use ESM with importmap to manage modern JavaScript in Rails without transpiling or bundling
 gem 'importmap-rails'
+# Use Stimulus, a JavaScript framework with modest ambitions. It doesn’t seek to take over your entire front-end
+gem 'stimulus-rails'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083

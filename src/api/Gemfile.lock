@@ -449,6 +449,8 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    stimulus-rails (1.1.1)
+      railties (>= 6.0.0)
     strong_migrations (1.4.0)
       activerecord (>= 5.2)
     strscan (3.0.1)
@@ -598,6 +600,7 @@ DEPENDENCIES
   simplecov
   single_test
   sprockets-rails
+  stimulus-rails
   strong_migrations
   strscan (= 3.0.1)
   test-unit
