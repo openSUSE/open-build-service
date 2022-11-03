@@ -50,7 +50,7 @@ EOF"
       sh './contrib/rabbitmqadmin declare exchange name=pubsub type=topic durable=true auto_delete=false internal=false'
       # configure the app
       sh 'docker-compose -f docker-compose.sre.yml -f docker-compose.yml up -d db'
-      sh 'docker-compose -f docker-compose.sre.yml -f docker-compose.yml run --no-deps --rm frontend bundle exec rake dev:sre:configure'
+      sh 'docker-compose -f docker-compose.sre.yml -f docker-compose.yml run --no-deps --rm frontend bundle exec rake sre:configure'
     ensure
       sh 'docker-compose -f docker-compose.sre.yml -f docker-compose.yml stop'
     end
