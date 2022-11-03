@@ -18,7 +18,7 @@ namespace :requests do
     User.session = requestor
 
     # Set source project, packages and files
-    source_project = find_or_create_project(requestor.home_project_name, requestor) # home:Admin
+    source_project = RakeSupport.find_or_create_project(requestor.home_project_name, requestor) # home:Admin
     source_package_a = Package.where(name: 'package_a', project: source_project).first || create(:package, name: 'package_a', project: source_project)
     source_package_b = Package.where(name: 'package_b', project: source_project).first || create(:package, name: 'package_b', project: source_project)
     # Add files to the newly created source package A
