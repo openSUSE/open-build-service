@@ -702,7 +702,7 @@ class SourceController < ApplicationController
     end
 
     job_params = params.slice(
-      :cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice
+      :cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice, :resign
     ).permit!.to_h
     job_params[:user] = User.session!.login
 
