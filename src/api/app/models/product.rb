@@ -20,7 +20,7 @@ class Product < ApplicationRecord
   end
 
   def self.all_products(project, expand = nil)
-    return project.expand_all_products if expand
+    return project.expand_all_products if expand == '1'
 
     joins(package: :package_kinds).where(packages: { project: project }, package_kinds: { kind: 'product' })
   end
