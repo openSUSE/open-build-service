@@ -1,3 +1,5 @@
+require 'tasks/dev/helper_methods'
+
 namespace :requests do
   # Run this task with: rails requests:multiple_actions_request
   desc 'Creates a request with multiple actions'

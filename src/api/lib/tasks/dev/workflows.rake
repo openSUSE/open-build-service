@@ -1,3 +1,5 @@
+require 'tasks/dev/helper_methods'
+
 namespace :workflows do
   # Run this task with: rails workflows:create_workflow_runs
   desc 'Creates a workflow token, workflow runs, artifacts and some of their dependencies'
