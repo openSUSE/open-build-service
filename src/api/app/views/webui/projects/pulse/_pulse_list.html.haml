@@ -77,7 +77,7 @@
       %hr
       .collapse.show.collapse-collaboration
         %ul.list-unstyled
-          - collaboration.sort_by(&:datetime).reverse_each.each do |log_entry|
+          - collaboration.sort_by(&:datetime).reverse_each do |log_entry|
             %li
               = render partial: 'pulse_list_entry', locals: { log_entry: log_entry, project: project }
 
