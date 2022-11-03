@@ -16,6 +16,11 @@ namespace :lint do
     sh 'find public/apidocs-new -name  \'*.yaml\' | xargs -P8 -I % ruby -e "require \'yaml\'; YAML.load_file(\'%\',  permitted_classes: [Time])"'
   end
 
+  desc 'Run the JavaScript linter'
+  task :javascript do
+    sh 'jshint ./app/assets/javascripts/'
+  end
+
   namespace :rubocop do
     desc 'Run the ruby linter in rails and in root'
     task all: [:root, :rails]
