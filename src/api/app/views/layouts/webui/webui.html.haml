@@ -22,6 +22,7 @@
       %meta{ property: 'errbit:host', content: CONFIG['errbit_javascript_host'] }
 
     = stylesheet_link_tag 'webui/application'
+    = javascript_importmap_tags
     = javascript_include_tag 'webui/application'
 
     = yield :content_for_head

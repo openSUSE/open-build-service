@@ -97,6 +97,8 @@ gem 'faraday'
 # Asset packaging system that concatenates and serves JavaScript, CoffeeScript, CSS, Sass, and SCSS
 # This cannot be in the assets group since Sprockets is loaded in config/application.rb
 gem 'sprockets-rails'
+# Use ESM with importmap to manage modern JavaScript in Rails without transpiling or bundling
+gem 'importmap-rails'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083
