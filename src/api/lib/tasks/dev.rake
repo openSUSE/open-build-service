@@ -2,11 +2,12 @@
 
 require 'fileutils'
 require 'yaml'
+require 'tasks/dev/rake_support'
 
 namespace :dev do
   task :prepare do
     puts 'Setting up the database configuration...'
-    copy_example_file('config/database.yml')
+    RakeSupport.copy_example_file('config/database.yml')
     database_yml = YAML.load_file('config/database.yml') || {}
     database_yml['test']['host'] = 'db'
     database_yml['development']['host'] = 'db'
@@ -14,13 +15,13 @@ namespace :dev do
     File.write('config/database.yml', YAML.dump(database_yml))
 
     puts 'Setting up the application configuration...'
-    copy_example_file('config/options.yml')
+    RakeSupport.copy_example_file('config/options.yml')
     puts 'Copying thinking sphinx example...'
-    copy_example_file('config/thinking_sphinx.yml')
+    RakeSupport.copy_example_file('config/thinking_sphinx.yml')
 
     puts 'Setting up the cloud uploader'
-    copy_example_file('../../dist/aws_credentials')
-    copy_example_file('../../dist/ec2utils.conf')
+    RakeSupport.copy_example_file('../../dist/aws_credentials')
+    RakeSupport.copy_example_file('../../dist/ec2utils.conf')
   end
 
   desc 'Bootstrap the application'
@@ -131,7 +132,7 @@ namespace :dev do
         return
       end
 
-      copy_example_file('config/options.yml')
+      RakeSupport.copy_example_file('config/options.yml')
       options_yml = YAML.load_file('config/options.yml') || {}
       options_yml['development']['influxdb_hosts'] = ['influx']
       options_yml['development']['amqp_namespace'] = 'opensuse.obs'
@@ -194,8 +195,8 @@ namespace :dev do
       User.session = requestor
 
       # Projects
-      admin_home_project = admin.home_project || create_and_assign_project(admin.home_project_name, admin)
-      requestor_project = Project.find_by(name: 'requestor_project') || create_and_assign_project('requestor_project', requestor)
+      admin_home_project = admin.home_project || RakeSupport.create_and_assign_project(admin.home_project_name, admin)
+      requestor_project = Project.find_by(name: 'requestor_project') || RakeSupport.create_and_assign_project('requestor_project', requestor)
 
       repetitions.times do |repetition|
         package_name = "package_#{Time.now.to_i}_#{repetition}"
@@ -411,16 +412,6 @@ namespace :dev do
   end
 end
 
-def copy_example_file(example_file)
-  if File.exist?(example_file) && !ENV['FORCE_EXAMPLE_FILES']
-    example_file = File.join(File.expand_path(File.dirname(__FILE__) + '/../..'), example_file)
-    puts "WARNING: You already have the config file #{example_file}, make sure it works with docker"
-  else
-    puts "Creating config/#{example_file} from config/#{example_file}.example"
-    FileUtils.copy_file("#{example_file}.example", example_file)
-  end
-end
-
 def request_for_staging(staging_project, maintainer_project, suffix)
   requester = create(:confirmed_user, login: "requester_#{suffix}")
   source_project = create(:project, name: "source_project_#{suffix}")
@@ -436,20 +427,6 @@ def request_for_staging(staging_project, maintainer_project, suffix)
   )
 
   request.reviews.each { |review| review.change_state(:accepted, 'Accepted') }
-end
-
-def create_and_assign_project(project_name, user)
-  create(:project, name: project_name).tap do |project|
-    create(:relationship, project: project, user: user, role: Role.hashed['maintainer'])
-  end
-end
-
-def find_or_create_project(project_name, user)
-  project = Project.joins(:relationships)
-                   .where(projects: { name: project_name }, relationships: { user: user }).first
-  return project if project
-
-  create_and_assign_project(project_name, user)
 end
 
 def subscribe_to_all_notifications(user)

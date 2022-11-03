@@ -16,7 +16,7 @@ namespace :workflows do
 
     admin = User.get_default_admin
     User.session = admin
-    project = find_or_create_project(admin.home_project_name, admin)
+    project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
     workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token, executor: admin, description: 'Testing token')
 
