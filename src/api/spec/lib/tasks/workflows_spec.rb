@@ -47,7 +47,7 @@ RSpec.describe 'workflows' do
   let!(:workflow_run_running_pr_merge) { create(:workflow_run_gitlab_running, request_payload: gitlab_request_payload_merge) }
 
   describe 'cleanup_non_closed_projects' do
-    let(:task) { 'workflows:cleanup_non_closed_projects' }
+    let(:task) { 'dev:workflows:cleanup_non_closed_projects' }
 
     it { expect { rake_task.invoke }.to change(WorkflowRun.where(status: 'running'), :count).from(4).to(1) }
 

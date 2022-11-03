@@ -404,7 +404,7 @@ namespace :dev do
       Rake::Task['dev:notifications:data'].invoke(2)
 
       # Create a workflow token, some workflow runs and their related data
-      Rake::Task['workflows:create_workflow_runs'].invoke
+      Rake::Task['dev:workflows:create_workflow_runs'].invoke
 
       # Create a request with multiple actions
       Rake::Task['requests:multiple_actions_request'].invoke
