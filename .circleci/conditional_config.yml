@@ -173,7 +173,7 @@ jobs:
           name: Run rubocop
           command: |
             cd src/api;
-            bundle exec rake dev:lint:rubocop:all
+            bundle exec rake lint:rubocop:all
       - *save_rubocop_cache
       - when:
           condition: << pipeline.parameters.run-javascripts-linter >>
@@ -198,7 +198,7 @@ jobs:
                 name: Run HAML linter
                 command: |
                   cd src/api
-                  bundle exec rake dev:lint:haml
+                  bundle exec rake lint:haml
       - when:
           condition: << pipeline.parameters.run-apidocs-linter >>
           steps:
@@ -206,7 +206,7 @@ jobs:
                 name: Run Documentation linter
                 command: |
                   cd src/api
-                  bundle exec rake dev:lint:apidocs
+                  bundle exec rake lint:apidocs
 
   rspec:
     parallelism: 3
