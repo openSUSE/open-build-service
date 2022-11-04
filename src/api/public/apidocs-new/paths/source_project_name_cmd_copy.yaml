@@ -65,6 +65,16 @@ post:
       description: Set to `1` not to run source services.
       example: 1
     - in: query
+      name: resign
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to resign all binaries with the target project key.
+      example: 1
+    - in: query
       name: withbinaries
       schema:
         type: string
