@@ -48,6 +48,16 @@ post:
       description: Make origin older. Set to `1` to extend the source vrev.
       example: 1
     - in: query
+      name: nodelay
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: By default the copying is done as a deferred job. Set to `1` to perform the copy right away.
+      example: 1
+    - in: query
       name: noservice
       schema:
         type: string
@@ -76,16 +86,6 @@ post:
           - 0
       default: 0
       description: Set to `1` to also copy binaries.
-      example: 1
-    - in: query
-      name: nodelay
-      schema:
-        type: string
-        enum:
-          - 1
-          - 0
-      default: 0
-      description: By default the copying is done as a deferred job. Set to `1` to perform the copy right away.
       example: 1
     - in: query
       name: withhistory
