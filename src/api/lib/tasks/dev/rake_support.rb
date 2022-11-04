@@ -22,4 +22,21 @@ module RakeSupport
       FileUtils.copy_file("#{example_file}.example", example_file)
     end
   end
+
+  def self.request_for_staging(staging_project, maintainer_project, suffix)
+    requester = create(:confirmed_user, login: "requester_#{suffix}")
+    source_project = create(:project, name: "source_project_#{suffix}")
+    target_package = create(:package, name: "target_package_#{suffix}", project: maintainer_project)
+    source_package = create(:package, name: "source_package_#{suffix}", project: source_project)
+    request = create(
+      :bs_request_with_submit_action,
+      state: :new,
+      creator: requester,
+      target_package: target_package,
+      source_package: source_package,
+      staging_project: staging_project
+    )
+
+    request.reviews.each { |review| review.change_state(:accepted, 'Accepted') }
+  end
 end
