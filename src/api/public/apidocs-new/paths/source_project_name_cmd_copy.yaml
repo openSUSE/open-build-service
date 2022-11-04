@@ -22,13 +22,6 @@ post:
       description: Origin project name
       example: home:Iggy:source
     - in: query
-      name: opackage
-      schema:
-        type: string
-      required: true
-      description: Origin package name
-      example: "ctris"
-    - in: query
       name: comment
       schema:
         type: string
