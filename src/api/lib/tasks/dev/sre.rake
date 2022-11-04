@@ -10,7 +10,7 @@ namespace :dev do
       end
 
       RakeSupport.copy_example_file('config/options.yml')
-      options_yml = YAML.load_file('config/options.yml') || {}
+      options_yml = YAML.load_file('config/options.yml', aliases: true) || {}
       options_yml['development']['influxdb_hosts'] = ['influx']
       options_yml['development']['amqp_namespace'] = 'opensuse.obs'
       options_yml['development']['amqp_options'] = { host: 'rabbit', port: '5672', user: 'guest', pass: 'guest', vhost: '/' }
