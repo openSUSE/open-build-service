@@ -987,6 +987,7 @@ Rails/RakeEnvironment:
   Exclude:
     - 'lib/tasks/coverage.rake'
     - 'lib/tasks/dev.rake'
+    - 'lib/tasks/dev/*.rake'
     - 'lib/tasks/migrate_options_yml.rake'
 
 # Offense count: 6
