@@ -140,7 +140,7 @@ RSpec.describe TriggerController, vcr: true do
     let(:project) { user.home_project }
     let(:package) { create(:package_with_service, name: 'apache2', project: project) }
     let(:token) { Token::Service.create(executor: user, package: package) }
-    let(:signature) { 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), service_token.string, body) }
+    let(:signature) { "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), service_token.string, body)}" }
 
     shared_examples 'it verifies the signature' do
       before do

@@ -1,7 +1,7 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
 
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 require 'source_controller'
 
 class MaintenanceTests < ActionDispatch::IntegrationTest
@@ -124,7 +124,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     ### Here starts the kgraft team
     # create a update patch based on former kernel incident
-    post '/source/' + kernel_incident_project + '/kgraft-incident-' + kernel_incident_id, params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', maintenance: 1 }
+    post "/source/#{kernel_incident_project}/kgraft-incident-#{kernel_incident_id}", params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', maintenance: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}/packageNew.spec",
             File.read("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec")
@@ -175,21 +175,21 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     incident_id = incident_project.gsub(/^My:Maintenance:/, '')
 
     # validate sources
-    get '/source/' + incident_project
+    get "/source/#{incident_project}"
     assert_response :success
     assert_xml_tag tag: 'directory', attributes: { count: 4 }
     assert_xml_tag tag: 'entry', attributes: { name: 'BaseDistro2.Channel' }
     assert_xml_tag tag: 'entry', attributes: { name: 'kgraft-GA.BaseDistro2.0' }
     assert_xml_tag tag: 'entry', attributes: { name: 'kgraft-incident-0.My_Maintenance_0' }
     assert_xml_tag tag: 'entry', attributes: { name: 'patchinfo' }
-    get '/source/' + incident_project + '/kgraft-incident-0.My_Maintenance_0/_link'
+    get "/source/#{incident_project}/kgraft-incident-0.My_Maintenance_0/_link"
     assert_response :success
-    get '/source/' + incident_project + '/kgraft-incident-0.My_Maintenance_0/_meta'
+    get "/source/#{incident_project}/kgraft-incident-0.My_Maintenance_0/_meta"
     assert_response :success
     assert_xml_tag tag: 'releasename', content: 'kgraft-incident-0'
 
     # validate repos
-    get '/source/' + incident_project + '/_meta'
+    get "/source/#{incident_project}/_meta"
     assert_response :success
     assert_xml_tag parent: { tag: 'repository', attributes: { name: kernel_incident_project.tr(':', '_') } },
                    tag: 'path', attributes: { project: kernel_incident_project, repository: 'BaseDistro2.0_LinkedUpdateProject' }
@@ -200,7 +200,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # add disabled target repo
     post "/source/#{incident_project}?cmd=modifychannels&mode=enable_all"
     assert_response :success
-    get '/source/' + incident_project + '/_meta'
+    get "/source/#{incident_project}/_meta"
     assert_response :success
 
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro2Channel' } },
@@ -279,13 +279,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job(incident_project, 'kgraft-GA.BaseDistro2.0', 'BaseDistro2.0', 'x86_64')
 
     # lock kernelIncident to be sure that nothing can be released to
-    get '/source/' + kernel_incident_project + '/_meta'
+    get "/source/#{kernel_incident_project}/_meta"
     assert_response :success
     assert_no_xml_tag tag: 'lock' # or our fixtures have changed
     doc = REXML::Document.new(@response.body)
     doc.elements['/project'].add_element 'lock'
     doc.elements['/project/lock'].add_element 'enable'
-    put '/source/' + kernel_incident_project + '/_meta', params: doc.to_s
+    put "/source/#{kernel_incident_project}/_meta", params: doc.to_s
     assert_response :success
 
     # collect the job results

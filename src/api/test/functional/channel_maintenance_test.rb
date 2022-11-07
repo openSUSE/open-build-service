@@ -1,7 +1,7 @@
 # rubocop:disable Layout/LineLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 require 'source_controller'
 
 class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
@@ -268,10 +268,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal incident_project, maintenance_not_new_project
 
     # validate releasename
-    get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/_meta'
+    get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag tag: 'releasename', content: 'pack2'
-    get '/source/' + incident_project + '/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta'
+    get "/source/#{incident_project}/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag tag: 'releasename', content: 'pack2.linked'
 
@@ -544,7 +544,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
 
     # check published search db
-    get "/search/published/binary/id?match=project='" + incident_project + "'"
+    get "/search/published/binary/id?match=project='#{incident_project}'"
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { name: 'package', project: incident_project, package: 'patchinfo',
                                                 repository: 'BaseDistro3', version: '1.0', release: '1', arch: 'i586',
@@ -556,7 +556,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                                 filename: 'package-1.0-1.i586.rpm',
                                                 filepath: 'My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm',
                                                 baseproject: 'BaseDistro3Channel', type: 'rpm' }
-    get "/search/published/repoinfo/id?match=project='" + incident_project + "'"
+    get "/search/published/repoinfo/id?match=project='#{incident_project}'"
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '3' }
     assert_xml_tag tag: 'repoinfo', attributes: { repository: 'BaseDistro3Channel', project: incident_project }

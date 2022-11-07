@@ -10,7 +10,7 @@ module Webui::WebuiHelper
 
     assignee = email_list.first if email_list
     if email_list.length > 1
-      cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
+      cc = "&cc=#{email_list[1..-1].join('&cc=')}" if email_list
     end
 
     Addressable::URI.escape(
@@ -24,7 +24,7 @@ module Webui::WebuiHelper
       return 'now' # rails' 'less than a minute' is a bit long
     end
 
-    human_time_ago = time_ago_in_words(time) + ' ago'
+    human_time_ago = "#{time_ago_in_words(time)} ago"
 
     if with_fulltime
       raw("<span title='#{l(time.utc)}' class='fuzzy-time'>#{human_time_ago}</span>")
@@ -154,7 +154,7 @@ module Webui::WebuiHelper
     style += "border-width: 0 0 0 0;\n" if opts[:no_border] || opts[:read_only]
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
-    style + "}\n"
+    "#{style}}\n"
   end
 
   def package_link(pack, opts = {})

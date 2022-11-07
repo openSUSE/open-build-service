@@ -13,7 +13,7 @@ RSpec.describe Worker::StatusController, vcr: true do
     let(:worker_status_response) { file_fixture('worker_status_response.xml') }
 
     before do
-      stub_request(:get, CONFIG['source_url'] + '/build/_workerstatus').and_return(body: worker_status_response)
+      stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: worker_status_response)
     end
 
     subject! { get :index, params: { format: :xml } }

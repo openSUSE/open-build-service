@@ -269,7 +269,7 @@ RSpec.describe Project, vcr: true do
 
       it 'end with :' do
         property_of do
-          string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(0, 198)) { string(/[-+\w.:]/) } + ':'
+          string = "#{sized(1) { string(/[a-zA-Z0-9\-+]/) }}#{sized(range(0, 198)) { string(/[-+\w.:]/) }}:"
           guard(string !~ /:[:._]/)
           string
         end.check do |string|

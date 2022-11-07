@@ -121,7 +121,7 @@ RSpec.describe 'Repositories', js: true, vcr: true do
     end
 
     it 'add DoD repositories via meta editor' do
-      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml')
+      fixture_file = File.read("#{Rails.root}test/fixtures/backend/download_on_demand/project_with_dod.xml")
                          .gsub('user5', admin_user.login)
 
       visit(project_meta_path(project_name: admin_user.home_project_name))

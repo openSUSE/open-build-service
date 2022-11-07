@@ -21,7 +21,7 @@ namespace :statistics do
             commits = week['total']
 
             line = Time.at(timestamp).strftime('%Y-%m-%d') + ", #{commits}"
-            file.write(line + "\n")
+            file.write("#{line}\n")
           end
         end
 

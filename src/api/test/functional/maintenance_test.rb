@@ -2,7 +2,7 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 require 'source_controller'
 
 class MaintenanceTests < ActionDispatch::IntegrationTest
@@ -962,32 +962,32 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # correct branched ?
-    get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/_link'
+    get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
     assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' })
-    get '/source/' + incident_project
+    get "/source/#{incident_project}"
     assert_response :success
     assert_xml_tag(tag: 'directory', attributes: { count: '3' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.BaseDistro3' })
-    get '/source/' + incident_project + '/_meta'
+    get "/source/#{incident_project}/_meta"
     assert_response :success
     assert_xml_tag(tag: 'path', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', repository: 'BaseDistro2LinkedUpdateProject_repo' })
     assert_xml_tag(tag: 'releasetarget', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', repository: 'BaseDistro2LinkedUpdateProject_repo', trigger: 'maintenance' })
     assert_xml_tag(tag: 'releasetarget', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', trigger: 'maintenance' })
     # correct vrev ?
-    get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject?expand=1'
+    get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject?expand=1"
     assert_response :success
     assert_xml_tag(tag: 'directory', attributes: { vrev: '4.2' })
     # validate package meta
-    get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/_meta'
+    get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag(parent: { tag: 'build' }, tag: 'enable', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' })
-    get '/source/' + incident_project + '/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta'
+    get "/source/#{incident_project}/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag(parent: { tag: 'build' }, tag: 'enable', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' })
-    get '/source/' + incident_project + '/pack2.BaseDistro3/_meta'
+    get "/source/#{incident_project}/pack2.BaseDistro3/_meta"
     assert_response :success
     assert_xml_tag(parent: { tag: 'build' }, tag: 'enable', attributes: { repository: 'BaseDistro3' })
     # set lock disabled to check later the valid result when enabling
@@ -998,10 +998,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # create some changes, including issue tracker references
     Timecop.freeze(1)
-    put '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', params: 'DUMMY bnc#1042'
+    put "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", params: 'DUMMY bnc#1042'
     assert_response :success
     Timecop.freeze(1)
-    post '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1'
+    post "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1"
     assert_response :success
     assert_match(/DUMMY bnc#1042/, @response.body)
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
@@ -1029,12 +1029,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'patchinfo')
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' }, content: incident_project)
     # add reader role for adrian
-    get '/source/' + incident_project + '/_meta'
+    get "/source/#{incident_project}/_meta"
     assert_response :success
     meta = Nokogiri::XML(@response.body, &:strict).root
     meta.add_child('<person userid="adrian" role="reader"/>')
     Timecop.freeze(1)
-    put '/source/' + incident_project + '/_meta', params: meta.to_xml
+    put "/source/#{incident_project}/_meta", params: meta.to_xml
     assert_response :success
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
@@ -1077,7 +1077,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # add another issue and update patchinfo
     Timecop.freeze(1)
-    put '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', params: 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
+    put "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", params: 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
     assert_response :success
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
@@ -1306,12 +1306,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' })
     assert_no_xml_tag(tag: 'target', attributes: { project: 'BaseDistro3', package: 'pack2' })
     assert_no_xml_tag(tag: 'target', attributes: { project: incident_project })
-    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2.' + incident_id })
-    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2.linked.' + incident_id })
-    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'packNew.' + incident_id })
-    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'patchinfo.' + incident_id })
-    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro3', package: 'pack2.' + incident_id })
-    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro3', package: 'patchinfo.' + incident_id })
+    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: "pack2.#{incident_id}" })
+    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: "pack2.linked.#{incident_id}" })
+    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: "packNew.#{incident_id}" })
+    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: "patchinfo.#{incident_id}" })
+    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro3', package: "pack2.#{incident_id}" })
+    assert_xml_tag(tag: 'target', attributes: { project: 'BaseDistro3', package: "patchinfo.#{incident_id}" })
     assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
     assert_xml_tag(tag: 'review', attributes: { by_user: 'fred' }) # BaseDistro2:Update pack2
     assert_xml_tag(tag: 'priority', content: 'important') # from patchinfo rating

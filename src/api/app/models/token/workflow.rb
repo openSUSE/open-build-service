@@ -1,6 +1,5 @@
 class Token::Workflow < Token
-  AUTHENTICATION_DOCUMENTATION_LINK = (::Workflow::SCM_CI_DOCUMENTATION_URL +
-                                       '#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs').freeze
+  AUTHENTICATION_DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs".freeze
 
   has_many :workflow_runs, dependent: :destroy, foreign_key: 'token_id', inverse_of: false
   has_and_belongs_to_many :users,

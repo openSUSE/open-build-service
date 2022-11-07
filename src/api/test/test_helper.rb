@@ -229,7 +229,7 @@ module Webui
 
     teardown do
       dirpath = Rails.root.join('tmp', 'capybara')
-      htmlpath = dirpath.join(name + '.html')
+      htmlpath = dirpath.join("#{name}.html")
       if !passed?
         Dir.mkdir(dirpath) unless Dir.exist?(dirpath)
         save_page(htmlpath)
@@ -271,7 +271,7 @@ module ActionDispatch
     end
 
     def prepare_request_with_user(user, passwd)
-      @@auth = 'Basic ' + Base64.encode64(user + ':' + passwd)
+      @@auth = "Basic #{Base64.encode64("#{user}:#{passwd}")}"
     end
 
     # will provide a user without special permissions

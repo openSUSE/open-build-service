@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 require 'trigger_controller'
 
 class TriggerControllerTest < ActionDispatch::IntegrationTest

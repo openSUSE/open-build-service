@@ -21,7 +21,7 @@ end
 backendtempdir = ENV.fetch('OBS_BACKEND_TEMP', nil) || "#{Rails.root}/tmp"
 backend_config = "#{backendtempdir}/config#{backend_dir_suffix}"
 backend_data   = "#{backendtempdir}/data#{backend_dir_suffix}"
-require __dir__ + '/../test/test_helper'
+require "#{__dir__}/../test/test_helper"
 
 Backend::Test.do_not_start_test_backend
 
@@ -106,7 +106,7 @@ srcsrv = Thread.new do
       line = srcsrv_out.gets
       break if line.nil?
 
-      logger.debug 'bs_srcserver: ' + line.strip unless line.empty?
+      logger.debug "bs_srcserver: #{line.strip}" unless line.empty?
     rescue IOError
       break
     end
@@ -123,7 +123,7 @@ reposrv = Thread.new do
       line = reposrv_out.gets
       break if line.nil?
 
-      logger.debug 'bs_repserver: ' + line.strip unless line.empty?
+      logger.debug "bs_repserver: #{line.strip}" unless line.empty?
     rescue IOError
       break
     end
@@ -165,7 +165,7 @@ servicesrv = Thread.new do
       line = servicesrv_out.gets
       break if line.nil?
 
-      logger.debug 'bs_service: ' + line.strip unless line.empty?
+      logger.debug "bs_service: #{line.strip}" unless line.empty?
     rescue IOError
       break
     end
@@ -197,7 +197,7 @@ while publishsrv_out && !dienow
     line = publishsrv_out.gets
     break if line.nil?
 
-    logger.debug 'bs_publish: ' + line.strip unless line.empty?
+    logger.debug "bs_publish: #{line.strip}" unless line.empty?
   rescue IOError
     break
   end

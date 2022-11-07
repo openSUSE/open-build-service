@@ -34,7 +34,7 @@ RSpec.describe Kiwi::Repository do
       ['dir', 'iso', 'smb', 'this'].each do |protocol|
         it 'valid' do
           property_of do
-            protocol + '://' + sized(range(1, 199)) { string(/./) }
+            "#{protocol}://#{sized(range(1, 199)) { string(/./) }}"
           end.check(3) do |string|
             expect(subject).to allow_value(string).for(:source_path)
           end
@@ -45,7 +45,7 @@ RSpec.describe Kiwi::Repository do
         it 'valid' do
           property_of do
             # TODO: improve regular expression to generate the URI
-            protocol + '://' + sized(range(1, 199)) { string(/\w/) }
+            "#{protocol}://#{sized(range(1, 199)) { string(/\w/) }}"
           end.check(3) do |string|
             expect(subject).to allow_value(string).for(:source_path)
           end
@@ -93,7 +93,7 @@ RSpec.describe Kiwi::Repository do
             index = range(0, (string.length - 1))
             uri_character = sized(1) { string(/[{]/) }
             string[index] = uri_character
-            protocol + '://' + string
+            "#{protocol}://#{string}"
           end.check(3) do |string|
             expect(subject).not_to allow_value(string).for(:source_path)
           end

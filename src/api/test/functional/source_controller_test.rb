@@ -1,6 +1,6 @@
 # rubocop:disable Layout/LineLength
 # rubocop:disable Metrics/ClassLength
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 require 'source_controller'
 
 class SourceControllerTest < ActionDispatch::IntegrationTest
@@ -698,7 +698,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_s + '</xml>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: "#{doc}</xml>"
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'validation_failed' }
 
@@ -1437,7 +1437,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s + '</xml>'
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: "#{doc}</xml>"
     assert_response 400
 
     login_king

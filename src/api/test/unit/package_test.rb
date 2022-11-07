@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 
 SimpleCov.command_name('test:api')
 
@@ -324,7 +324,7 @@ class PackageTest < ActiveSupport::TestCase
     # binary files
     generate_suffixes(['exe', 'bin', 'bz', 'bz2', 'gem', 'gif', 'jpg', 'jpeg', 'ttf', 'zip', 'gz', 'png']).each do |suffix|
       file_paths.each do |file_path|
-        filename = file_path + '.' + suffix
+        filename = "#{file_path}.#{suffix}"
         assert Package.is_binary_file?(filename), "File #{filename} should be treated as binary"
       end
     end
@@ -332,7 +332,7 @@ class PackageTest < ActiveSupport::TestCase
     # these aren't binary
     generate_suffixes(['diff', 'txt', 'csv', 'pm', 'c', 'rb', 'h']).each do |suffix|
       file_paths.each do |file_path|
-        filename = file_path + '.' + suffix
+        filename = "#{file_path}.#{suffix}"
         assert_not Package.is_binary_file?(filename), "File #{filename} should not be treated as binary"
       end
     end

@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 
 class IssueControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
@@ -262,7 +262,7 @@ Aha bnc#123456 github#openSUSE/build#123\n
     put '/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository', params: changes
     assert_response :success
     raw_post '/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1',
-             ' <directory> <entry name="file.changes" md5="' + Digest::MD5.hexdigest(changes) + '" /> </directory> '
+             " <directory> <entry name=\"file.changes\" md5=\"#{Digest::MD5.hexdigest(changes)}\" /> </directory> "
     assert_response :success
 
     get '/source/home:Iggy:branches:BaseDistro/pack1?view=issues'
@@ -299,7 +299,7 @@ Blubber bnc#15\n
     put '/source/home:Iggy:branches:BaseDistro/new_package/file.changes?rev=repository', params: changes
     assert_response :success
     raw_post '/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1',
-             ' <directory> <entry name="file.changes" md5="' + Digest::MD5.hexdigest(changes) + '" /> </directory> '
+             " <directory> <entry name=\"file.changes\" md5=\"#{Digest::MD5.hexdigest(changes)}\" /> </directory> "
     assert_response :success
 
     get '/source/home:Iggy:branches:BaseDistro/new_package?view=issues'

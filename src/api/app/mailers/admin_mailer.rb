@@ -16,7 +16,7 @@ class AdminMailer < ActionMailer::Base
   end
 
   def mail_sender
-    'OBS Admin Notification <' + ::Configuration.admin_email + '>'
+    "OBS Admin Notification <#{::Configuration.admin_email}>"
   end
 
   def error(message)

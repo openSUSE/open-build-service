@@ -106,15 +106,15 @@ namespace :db do
             record['static_permission'] = perm.title
           end
           ['db_project', 'project', 'develproject', 'maintenance_project'].each do |prefix|
-            next unless record.key?(prefix + '_id')
+            next unless record.key?("#{prefix}_id")
 
-            p = Project.find(record.delete(prefix + '_id'))
+            p = Project.find(record.delete("#{prefix}_id"))
             prefix = 'project' if prefix == 'db_project'
             record[prefix] = p.name.tr(':', '_')
           end
           ['package', 'develpackage', 'links_to'].each do |prefix|
-            if record.key?(prefix + '_id')
-              p = Package.find(record.delete(prefix + '_id'))
+            if record.key?("#{prefix}_id")
+              p = Package.find(record.delete("#{prefix}_id"))
               record[prefix] = p.fixtures_name
             end
           end

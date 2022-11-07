@@ -409,7 +409,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
             project.update(scmsync: scmsync_url)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + '?subdir=' + package.name + '#' + commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}?subdir=#{package.name}##{commit_sha}") }
           it { expect { subject.call }.to(change(Package, :count).by(1)) }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
           it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -421,7 +421,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
             package.update(scmsync: scmsync_url)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + '#' + commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{commit_sha}") }
           it { expect { subject.call }.to(change(Package, :count).by(1)) }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
           it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }

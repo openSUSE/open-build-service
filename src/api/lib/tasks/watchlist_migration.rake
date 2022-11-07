@@ -14,7 +14,7 @@ namespace :watchlist do
 
       users_emails.push(user.email)
     end
-    puts 'List of emails to send the warn of the watchlist migration: ' + users_emails.join(',')
+    puts "List of emails to send the warn of the watchlist migration: #{users_emails.join(',')}"
   end
 
   desc 'Copy projects from the old watchlist to the new one'

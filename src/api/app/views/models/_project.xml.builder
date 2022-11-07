@@ -51,7 +51,7 @@ xml.project(project_attributes) do
       end
       repo.path_elements.includes(:link).order(kind: :desc).each do |pe|
         project_name = if pe.link.remote_project_name.present?
-                         pe.link.project.name + ':' + pe.link.remote_project_name
+                         "#{pe.link.project.name}:#{pe.link.remote_project_name}"
                        else
                          pe.link.project.name
                        end

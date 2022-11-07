@@ -11,7 +11,7 @@ class PublicController < ApplicationController
     required_parameters :project
 
     if params[:project] == '_result'
-      pass_to_backend('/build/_result' + build_query_from_hash(params, [:scmrepository, :scmbranch, :locallink, :multibuild, :lastbuild, :code]))
+      pass_to_backend("/build/_result#{build_query_from_hash(params, [:scmrepository, :scmbranch, :locallink, :multibuild, :lastbuild, :code])}")
       return
     end
     # project visible/known ?
@@ -60,7 +60,7 @@ class PublicController < ApplicationController
         return
       end
       # path has multiple package= parameters
-      path += '?' + request.query_string
+      path += "?#{request.query_string}"
       path += '&nofilename=1' unless params[:nofilename]
     when 'verboseproductlist'
       @products = Product.all_products(@project, params[:expand])
@@ -164,7 +164,7 @@ class PublicController < ApplicationController
         dist_id = dist.id
         @binary_links[dist_id] ||= {}
         binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first
-        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp')) } if binary && dist.vendor == 'openSUSE'
+        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, "#{@pkg.name}.ymp")) } if binary && dist.vendor == 'openSUSE'
 
         @binary_links[dist_id][:binary] ||= []
         binary_map[repo.name].each do |b|
@@ -206,7 +206,7 @@ class PublicController < ApplicationController
     end
 
     # generic access checks
-    key = 'public_package:' + project_name + ':' + package_name
+    key = "public_package:#{project_name}:#{package_name}"
     allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
       Package.get_by_project_and_name(project_name, package_name, use_source: false)
       true

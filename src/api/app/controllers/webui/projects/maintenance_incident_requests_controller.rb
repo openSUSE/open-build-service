@@ -15,7 +15,7 @@ module Webui
 
         @project.repositories.each do |repository|
           release_target = repository.release_targets.first
-          @release_targets.push(release_target.repository.project.name + '/' + release_target.repository.name) if release_target
+          @release_targets.push("#{release_target.repository.project.name}/#{release_target.repository.name}") if release_target
         end
       end
 

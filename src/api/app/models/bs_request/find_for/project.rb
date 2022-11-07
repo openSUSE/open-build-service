@@ -33,7 +33,7 @@ class BsRequest
                         if subprojects.blank?
                           "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
                         else
-                          "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
+                          "(bs_request_actions.#{source_or_target}_project like #{quote("#{project}:%")})"
                         end
                       else
                         "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " \

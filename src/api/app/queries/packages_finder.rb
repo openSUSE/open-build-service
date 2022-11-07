@@ -61,9 +61,9 @@ class PackagesFinder
 
   def build_sql_find_by_attribute(package = nil)
     if package
-      base_query + find_by_attribute + ' AND pack.name = ? GROUP by pack.id'
+      "#{base_query}#{find_by_attribute} AND pack.name = ? GROUP by pack.id"
     else
-      base_query + find_by_attribute + ' GROUP by pack.id'
+      "#{base_query}#{find_by_attribute} GROUP by pack.id"
     end
   end
 
@@ -76,9 +76,9 @@ class PackagesFinder
 
   def build_sql_find_by_attribute_and_value(package = nil)
     if package
-      base_query + find_by_attribute_and_value + ' AND pack.name = ?'
+      "#{base_query}#{find_by_attribute_and_value} AND pack.name = ?"
     else
-      base_query + find_by_attribute_and_value + ' GROUP by pack.id'
+      "#{base_query}#{find_by_attribute_and_value} GROUP by pack.id"
     end
   end
 end

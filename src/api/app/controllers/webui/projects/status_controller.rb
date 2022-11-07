@@ -67,7 +67,7 @@ module Webui
         pname = package.name
 
         currentpack['requests_from'] = []
-        key = @api_obj.name + '/' + pname
+        key = "#{@api_obj.name}/#{pname}"
         if @submits.key?(key)
           return if @ignore_pending
 

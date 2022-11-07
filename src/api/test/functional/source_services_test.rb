@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require "#{File.expand_path("#{File.dirname(__FILE__)}/..")}/test_helper"
 require 'source_controller'
 
 class SourceServicesTest < ActionDispatch::IntegrationTest
@@ -424,8 +424,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # do a commit to trigger the service
     put '/source/home:tom/service/filename?rev=repository', params: 'CONTENT'
     assert_response :success
-    filelist = '<directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> <entry name="_service" md5="' +
-               md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
+    filelist = "<directory> <entry name=\"filename\" md5=\"45685e95985e20822fb2538a522a5ccf\" /> <entry name=\"_service\" md5=\"#{md5sum_service}\" /> <entry name=\"pack.spec\" md5=\"#{md5sum_spec}\" /> </directory> "
     raw_post '/source/home:tom/service?cmd=commitfilelist', filelist
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
@@ -433,7 +432,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     get '/source/home:tom/service/_history'
     # do another commit, check that the service files are kept
-    filelist = '<directory> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
+    filelist = "<directory> <entry name=\"_service\" md5=\"#{md5sum_service}\" /> <entry name=\"pack.spec\" md5=\"#{md5sum_spec}\" /> </directory> "
     raw_post '/source/home:tom/service?cmd=commitfilelist', filelist
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'

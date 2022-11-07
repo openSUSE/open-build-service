@@ -29,7 +29,7 @@ class MemoryDebugger
   def log_line(logger, d, prefix = '')
     logger.debug prefix + d.line.inspect
     d.lines.each do |l|
-      log_line(logger, l, prefix + '  ')
+      log_line(logger, l, "#{prefix}  ")
     end
   end
 

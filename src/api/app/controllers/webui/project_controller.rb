@@ -480,7 +480,7 @@ class Webui::ProjectController < Webui::WebuiController
     return unless result.key?('state')
 
     @repostatushash[repo][arch] = if result.key?('dirty')
-                                    'outdated_' + result['state']
+                                    "outdated_#{result['state']}"
                                   else
                                     result['state']
                                   end

@@ -231,7 +231,7 @@ class Project < ApplicationRecord
       dbp = find_by_name(name, skip_check_access: true)
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
-        return dbp.name + ':' + remote_name if dbp
+        return "#{dbp.name}:#{remote_name}" if dbp
 
         raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
       end
@@ -312,7 +312,7 @@ class Project < ApplicationRecord
       path = "/source/#{project}"
       path = Addressable::URI.escape(path)
       path += "/#{ERB::Util.url_encode(file)}" if file.present?
-      path += '?' + opts.to_query if opts.present?
+      path += "?#{opts.to_query}" if opts.present?
       path
     end
 
@@ -371,12 +371,12 @@ class Project < ApplicationRecord
       end
 
       unless linking_repositories.empty?
-        str = linking_repositories.map! { |l| l.project.name + '/' + l.name }.join("\n")
+        str = linking_repositories.map! { |l| "#{l.project.name}/#{l.name}" }.join("\n")
         return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}" }
       end
 
       unless linking_target_repositories.empty?
-        str = linking_target_repositories.map { |l| l.project.name + '/' + l.name }.join("\n")
+        str = linking_target_repositories.map { |l| "#{l.project.name}/#{l.name}" }.join("\n")
         return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}" }
       end
       {}
@@ -795,7 +795,7 @@ class Project < ApplicationRecord
     if processed[self]
       str = name
       processed.keys.each do |key|
-        str = str + ' -- ' + key.name
+        str = "#{str} -- #{key.name}"
       end
       raise CycleError, "There is a cycle in project link defintion at #{str}"
     end
@@ -1228,8 +1228,8 @@ class Project < ApplicationRecord
                          .pluck(:number)
 
     maintenance_release = if is_maintenance?
-                            BsRequest.with_target_subprojects(name + ':%')
-                                     .or(BsRequest.with_source_subprojects(name + ':%'))
+                            BsRequest.with_target_subprojects("#{name}:%")
+                                     .or(BsRequest.with_source_subprojects("#{name}:%"))
                                      .in_states(:new)
                                      .with_types(:maintenance_release)
                                      .pluck(:number)

@@ -113,7 +113,7 @@ RSpec.describe Webui::PackageHelper do
     RSpec.shared_examples 'file with extension' do |extension, extension_class|
       it 'returns correct extension' do
         property_of do
-          sized(1) { string(/[\w+\-:]/) } + sized(range(0, 190)) { string(/[\w+\-:.]/) } + '.' + extension
+          "#{sized(1) { string(/[\w+\-:]/) }}#{sized(range(0, 190)) { string(/[\w+\-:.]/) }}.#{extension}"
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq(extension_class)
         end
@@ -127,7 +127,7 @@ RSpec.describe Webui::PackageHelper do
 
       it 'when it ends by .service' do
         property_of do
-          sized(range(1, 191)) { string(/./) } + '.service'
+          "#{sized(range(1, 191)) { string(/./) }}.service"
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('xml')
         end
@@ -142,7 +142,7 @@ RSpec.describe Webui::PackageHelper do
     context 'is shell' do
       it 'with rc-scripts' do
         property_of do
-          'rc' + sized(range(1, 197)) { string(/[\w-]/) }
+          "rc#{sized(range(1, 197)) { string(/[\w-]/) }}"
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('shell')
         end
@@ -152,7 +152,7 @@ RSpec.describe Webui::PackageHelper do
     context 'is python' do
       it 'when it ends in rpmlintrc' do
         property_of do
-          sized(range(0, 190)) { string(/./) } + 'rpmlintrc'
+          "#{sized(range(0, 190)) { string(/./) }}rpmlintrc"
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('python')
         end
@@ -170,7 +170,7 @@ RSpec.describe Webui::PackageHelper do
     context 'is spec' do
       it 'when it starts with macros.' do
         property_of do
-          'macros.' + sized(range(1, 192)) { string(/\w/) }
+          "macros.#{sized(range(1, 192)) { string(/\w/) }}"
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('spec')
         end
@@ -228,7 +228,7 @@ RSpec.describe Webui::PackageHelper do
     context 'is dockerfile' do
       it 'when it starts with Dockerfile.' do
         property_of do
-          'Dockerfile.' + sized(range(1, 192)) { string(/\w/) }
+          "Dockerfile.#{sized(range(1, 192)) { string(/\w/) }}"
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq('dockerfile')
         end
