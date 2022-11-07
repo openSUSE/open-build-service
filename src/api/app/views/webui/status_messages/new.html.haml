@@ -12,7 +12,7 @@
                 = f.label(:message) do
                   Message:
                   %abbr.text-danger{ title: 'required' } *
-                = f.text_area(:message, rows: 3, required: true, class: 'form-control')
+                = render WriteAndPreviewComponent.new(f, preview_status_messages_path)
               .form-group
                 = f.label(:severity) do
                   Severity:
