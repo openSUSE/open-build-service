@@ -511,6 +511,7 @@ my $gctx = {
   'delayedfetchprojpacks' => {},	# projpacks fetches we have delayed till prp check time
 
   'nextmed' => {},
+  'nexthigh' => {},
   'retryevents' => BSSched::EventSource::Retry->new(),
 
   # stats
@@ -1221,11 +1222,7 @@ eval {
 
     my $now = time();
     $gctx->{'prplastcheck'}->{$prp} = $now;
-    if ($ctx->{'prpchecktime'}) {
-      $gctx->{'nextmed'}->{$prp} = $now + 10 * $ctx->{'prpchecktime'};
-    } else {
-      delete $gctx->{'nextmed'}->{$prp};
-    }
+    BSSched::Lookat::setdelayed($gctx, $prp, $ctx->{'prpchecktime'});
 
     if ($now - $lastschedinfo > 60) {
       # update scheduler stats
