@@ -222,7 +222,7 @@ namespace :dev do
       Rake::Task['dev:workflows:create_workflow_runs'].invoke
 
       # Create a request with multiple actions
-      Rake::Task['requests:multiple_actions_request'].invoke
+      Rake::Task['dev:requests:multiple_actions_request'].invoke
     end
   end
 end
