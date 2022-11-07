@@ -5,7 +5,7 @@ namespace :dev do
     task :all do
       Rake::Task['dev:lint:haml'].invoke
       Rake::Task['dev:lint:rubocop:all'].invoke
-      sh 'jshint ./app/assets/javascripts/'
+      Rake::Task['dev:lint:js'].invoke
     end
 
     desc 'Run the haml linter'
@@ -16,6 +16,11 @@ namespace :dev do
     desc 'Run apidocs linter'
     task :apidocs do
       sh 'find public/apidocs-new -name  \'*.yaml\' | xargs -P8 -I % ruby -e "require \'yaml\'; YAML.load_file(\'%\',  permitted_classes: [Time])"'
+    end
+
+    desc 'Run JavaScript linter'
+    task :js do
+      sh 'jshint ./app/assets/javascripts/'
     end
 
     namespace :rubocop do
