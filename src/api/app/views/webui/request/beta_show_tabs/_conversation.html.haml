@@ -3,6 +3,9 @@
   open_reviews = bs_request.reviews.opened.for_non_staging_projects
   accepted_reviews = bs_request.reviews.accepted.for_non_staging_projects
   declined_reviews = bs_request.reviews.declined.for_non_staging_projects
+  can_add_reviews = policy(bs_request).add_reviews?
+  my_open_reviews = bs_request.open_reviews_for_user(User.session)
+
 .row
   .col-md-12
     .mb-4#description-text
@@ -77,6 +80,10 @@
     .comment_new.mt-3
       = render partial: 'webui/comment/new', locals: { commentable: bs_request }
     %hr
-    = render RequestDecisionComponent.new(bs_request: bs_request, action: action,
-                                          is_target_maintainer: is_target_maintainer,
-                                          is_author: is_author)
+    = render RequestDecisionComponent.new(bs_request: bs_request,
+                                          action: action,
+                                          can_accept_request: policy(bs_request).accept?,
+                                          can_revoke_request: policy(bs_request).revoke?,
+                                          can_reopen_request: policy(bs_request).reopen?,
+                                          can_handle_request: policy(bs_request).handle?,
+                                          can_decline_request: policy(bs_request).decline?)
