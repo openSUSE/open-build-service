@@ -1,3 +1,8 @@
+:ruby
+  # TODO: This looks like it could be a View Component
+  open_reviews = bs_request.reviews.opened.for_non_staging_projects
+  accepted_reviews = bs_request.reviews.accepted.for_non_staging_projects
+  declined_reviews = bs_request.reviews.declined.for_non_staging_projects
 .row
   .col-md-12
     .mb-4#description-text
@@ -26,7 +31,7 @@
         %span.nav-item-name Add a Review
       = render partial: 'add_reviewer_dialog'
 
-    - open_reviews_for_staging_projects.each do |review|
+    - bs_request.reviews.opened.for_staging_projects.each do |review|
       .pl-3
         %i.fas.fa-info-circle.text-info
         - staging_project = review.project
