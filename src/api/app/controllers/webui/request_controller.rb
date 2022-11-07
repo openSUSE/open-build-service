@@ -132,44 +132,7 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     else
-      @diff_limit = params[:full_diff] ? 0 : nil
-      @diff_to_superseded_id = params[:diff_to_superseded]
-      @is_author = @bs_request.creator == User.possibly_nobody.login
-
-      @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-      @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
-
-      @history = @bs_request.history_elements.includes(:user)
-
-      # retrieve a list of all package maintainers that are assigned to at least one target package
-      @package_maintainers = target_package_maintainers
-
-      # search for a project, where the user is not a package maintainer but a project maintainer and show
-      # a hint if that package has some package maintainers (issue#1970)
-      @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
-      @comments = @bs_request.comments
-      @comment = Comment.new
-
-      if User.session && params[:notification_id]
-        @current_notification = Notification.find(params[:notification_id])
-        authorize @current_notification, :update?, policy_class: NotificationPolicy
-      end
-
-      @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
-      @action = @actions.first
-      @active = @action[:name]
-      # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-      @not_full_diff = BsRequest.truncated_diffs?(@actions)
-
-      reviews = @bs_request.reviews.where(state: 'new')
-      user = User.session # might be nil
-      @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
-      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
-      respond_to do |format|
-        format.html
-        format.js { render_request_update }
-      end
+      legacy_show
     end
   end
 
@@ -433,5 +396,46 @@ class Webui::RequestController < Webui::WebuiController
       show_project_maintainer_hint: @show_project_maintainer_hint,
       actions: @actions
     }
+  end
+
+  def legacy_show
+    @diff_limit = params[:full_diff] ? 0 : nil
+    @diff_to_superseded_id = params[:diff_to_superseded]
+    @is_author = @bs_request.creator == User.possibly_nobody.login
+
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+    @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
+
+    @history = @bs_request.history_elements.includes(:user)
+
+    # retrieve a list of all package maintainers that are assigned to at least one target package
+    @package_maintainers = target_package_maintainers
+
+    # search for a project, where the user is not a package maintainer but a project maintainer and show
+    # a hint if that package has some package maintainers (issue#1970)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+    @comments = @bs_request.comments
+    @comment = Comment.new
+
+    if User.session && params[:notification_id]
+      @current_notification = Notification.find(params[:notification_id])
+      authorize @current_notification, :update?, policy_class: NotificationPolicy
+    end
+
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
+    @action = @actions.first
+    @active = @action[:name]
+    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+
+    reviews = @bs_request.reviews.where(state: 'new')
+    user = User.session # might be nil
+    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
+    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
+    respond_to do |format|
+      format.html
+      format.js { render_request_update }
+    end
   end
 end
