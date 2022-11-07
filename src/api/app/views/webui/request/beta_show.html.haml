@@ -63,10 +63,8 @@
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: bs_request, can_add_reviews: can_add_reviews,
-                                                                             my_open_reviews: my_open_reviews,
-                                                                             action: action,
-                                                                             is_target_maintainer: is_target_maintainer, is_author: is_author }
+        = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: bs_request,
+                                                                                 action: action }
       - if action[:sprj] || action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: staging_project || action[:sprj],

@@ -1002,11 +1002,15 @@ class BsRequest < ApplicationRecord
   end
 
   def is_author?(user)
-    creator === user
+    creator == user
   end
 
   def can_add_reviews?(is_author, is_target_maintainer, my_open_reviews)
     state.in?([:new, :review]) && (is_author || is_target_maintainer || my_open_reviews.present?)
+  end
+
+  def open_reviews_for_user(user)
+    reviews.where(state: 'new').select { |review| review.matches_user?(user) }
   end
 
   private

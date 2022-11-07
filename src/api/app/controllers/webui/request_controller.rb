@@ -93,11 +93,6 @@ class Webui::RequestController < Webui::WebuiController
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
-      is_author = @bs_request.is_author?(User.possibly_nobody.login)
-      is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-      my_open_reviews = @bs_request.reviews.where(state: 'new').select { |review| review.matches_user?(User.session) }
-      can_add_reviews = @bs_request.can_add_reviews?(is_author, is_target_maintainer, my_open_reviews)
-
       diff_limit = params[:full_diff] ? 0 : nil
       diff_to_superseded_id = params[:diff_to_superseded]
 
@@ -131,10 +126,6 @@ class Webui::RequestController < Webui::WebuiController
             active_action: active_action,
             diff_to_superseded_id: diff_to_superseded_id,
             diff_limit: diff_limit,
-            can_add_reviews: can_add_reviews,
-            my_open_reviews: my_open_reviews,
-            is_author: is_author,
-            is_target_maintainer: is_target_maintainer,
             refresh: refresh,
             staging_project: staging_project
           }
