@@ -1001,6 +1001,14 @@ class BsRequest < ApplicationRecord
     !staging_project_id.nil?
   end
 
+  def is_author?(user)
+    creator === user
+  end
+
+  def can_add_reviews?(is_author, is_target_maintainer, my_open_reviews)
+    state.in?([:new, :review]) && (is_author || is_target_maintainer || my_open_reviews.present?)
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore
