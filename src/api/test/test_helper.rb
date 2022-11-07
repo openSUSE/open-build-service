@@ -38,7 +38,7 @@ require 'webmock/minitest'
 require_relative 'node_matcher'
 
 require 'test/unit/assertions'
-require 'mocha/setup'
+require 'mocha/minitest'
 
 require 'capybara/rails'
 Capybara.default_max_wait_time = 6
