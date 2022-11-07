@@ -1,7 +1,7 @@
 class Webui::StatusMessagesController < Webui::WebuiController
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth
-  after_action :verify_authorized
+  after_action :verify_authorized, except: [:preview]
 
   def new
     authorize StatusMessage
@@ -54,6 +54,13 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
     respond_to do |format|
       format.js { render controller: 'status_message', action: 'acknowledge' }
+    end
+  end
+
+  def preview
+    markdown = helpers.render_as_markdown(status_message_params[:message])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
     end
   end
 
