@@ -229,7 +229,7 @@ function adapt_worker_jobs {
   rm -f $backenddir/workers/*/* 2> /dev/null
   # create repo directory or apache fails when nothing got published
   mkdir -p $backenddir/repos
-  chown obsrun.obsrun $backenddir/repos
+  chown obsrun:obsrun $backenddir/repos
 }
 ###############################################################################
 function prepare_database_setup {
@@ -283,7 +283,7 @@ function prepare_database_setup {
   fi
 
   logline "Setting ownership of '$backenddir' obsrun"
-  chown obsrun.obsrun $backenddir
+  chown obsrun:obsrun $backenddir
 
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
