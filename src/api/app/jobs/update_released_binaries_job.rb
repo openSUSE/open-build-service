@@ -9,4 +9,9 @@ class UpdateReleasedBinariesJob < CreateJob
 
     BinaryRelease.update_binary_releases(repo, pl['payload'], event.created_at)
   end
+
+  def max_run_time
+    # twice the time of the default (8 hours now)
+    28800
+  end
 end
