@@ -17,4 +17,6 @@ Bugfixes
 Backend:
  * Retrying automatically when a remote OBS instance could not be
    reached correctly (esp. when using a proxy)
+ * fixing access to project config to a remote instance when using
+   a proxy
 
