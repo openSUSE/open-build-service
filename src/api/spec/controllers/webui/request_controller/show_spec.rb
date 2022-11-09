@@ -86,7 +86,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
       context 'when the request has a maintenance release request action'
       context 'when the request has a set bugowner request action'
 
-      # Use case with accepted reviews
       context 'when having an accepted review' do
         let(:project) { create(:project) }
         let(:bs_request) do
@@ -122,7 +121,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         it { expect(response.body).to have_text("The mentioned issues aren't here yet") }
       end
 
-      # Use case with declined reviews
       context 'when having a declined review' do
         let(:project) { create(:project) }
         let(:bs_request) do
@@ -333,7 +331,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         it { expect(response.body).to have_text("The mentioned issues aren't here yet") }
       end
 
-      # TODO: Check build results if any
       context 'when having build results' do
         context 'for requests against non staging projects' do
           let(:data_project) { bs_request.bs_request_actions.first.source_project }
@@ -354,7 +351,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
           it { expect(response.body).to have_text("The mentioned issues aren't here yet") }
         end
 
-        # TODO: Check build results for staged request
         context 'for requests against staging projects' do
           let(:staging_workflow) { create(:staging_workflow_with_staging_projects) }
           let(:group) { staging_workflow.managers_group }
@@ -383,7 +379,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         end
       end
 
-      # TODO: Check source diff component loading
       context 'when refreshing the changes' do
         let(:bs_request) do
           create(:bs_request_with_submit_action,
