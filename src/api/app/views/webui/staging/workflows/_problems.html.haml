@@ -1,7 +1,7 @@
 :ruby
   max_shown = 5
   project_class = staging_project.name.tr(':.', '_')
-  item_project_class = 'hidden-item-' + project_class
+  item_project_class = "hidden-item-#{project_class}"
   build_problems = merge_broken_packages(staging_project.broken_packages)
   checks, build_problems, remaining_checks, remaining_build_problems =
     pick_max_problems(staging_project.checks.failed.to_a, build_problems, max_shown)

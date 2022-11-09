@@ -31,7 +31,7 @@
                 = repository_status_icon(status: build_result.state)
                 %span.ml-1
                   = link_to(build_result.architecture, { action: :monitor,
-                                                  "#{valid_xml_id('repo_' + repository)}": 1,
+                                                  "#{valid_xml_id("repo_#{repository}")}": 1,
                                                   "arch_#{build_result.architecture}": 1,
                                                   project: project.name,
                                                   succeeded: 1,
@@ -54,7 +54,7 @@
                     %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
                     = link_to("#{status_count.code}: #{status_count.count}",
                       { action: :monitor,
-                        "#{valid_xml_id('repo_' + repository)}": 1,
+                        "#{valid_xml_id("repo_#{repository}")}": 1,
                         "arch_#{build_result.architecture}": 1,
                         project: params[:project],
                         "#{status_count.code}": 1,
