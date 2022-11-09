@@ -19,11 +19,14 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
     context 'when the user is part of the beta program' do
       render_views
 
+      before do
+        Flipper.enable(:request_show_redesign, receiver)
+      end
+
       context 'when the user has only one submit action' do
         let!(:comment) { create(:comment, commentable: bs_request) }
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
           get :show, params: { number: bs_request.number }
         end
@@ -52,7 +55,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         let!(:comment) { create(:comment, commentable: bs_request) }
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
 
           bs_request.bs_request_actions << create(:bs_request_action_submit,
@@ -81,7 +83,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         let(:set_bugowner_action) { create(:bs_request_action_set_bugowner) }
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
 
           bs_request.bs_request_actions << set_bugowner_action
@@ -109,7 +110,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         let!(:comment) { create(:comment, commentable: bs_request) }
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
 
           # TODO: Move this to a factory so we can crank out accepted reviews
@@ -146,7 +146,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         let!(:comment) { create(:comment, commentable: bs_request) }
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
 
           # TODO: Move this to a factory so we can crank out declined reviews
@@ -173,11 +172,12 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
 
       # when being able to add reviews
       context 'when the user is the author' do
+        before { Flipper.enable(:request_show_redesign, submitter) }
+
         context 'and having a review in new state' do
           let!(:comment) { create(:comment, commentable: bs_request) }
 
           before do
-            Flipper.enable(:request_show_redesign, submitter)
             login submitter
 
             get :show, params: { number: bs_request.number }
@@ -203,7 +203,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
 
           before do
             bs_request.update(state: :declined)
-            Flipper.enable(:request_show_redesign, submitter)
             login submitter
 
             get :show, params: { number: bs_request.number }
@@ -226,7 +225,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         let!(:comment) { create(:comment, commentable: bs_request) }
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
 
           get :show, params: { number: bs_request.number }
@@ -305,7 +303,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
 
           before do
             group.users << receiver
-            Flipper.enable(:request_show_redesign, receiver)
             login receiver
 
             get :show, params: { number: bs_request.number }
@@ -333,7 +330,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
 
         before do
           comment
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
 
           get :show, params: { number: bs_request.number }
@@ -355,7 +351,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
           let(:data_package) { bs_request.bs_request_actions.first.source_package }
 
           before do
-            Flipper.enable(:request_show_redesign, receiver)
             login receiver
             get :show, params: { number: bs_request.number }
           end
@@ -387,7 +382,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
 
           before do
             group.users << receiver
-            Flipper.enable(:request_show_redesign, receiver)
             login receiver
             get :show, params: { number: bs_request.number }
           end
@@ -409,7 +403,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         end
 
         before do
-          Flipper.enable(:request_show_redesign, receiver)
           login receiver
           # rubocop:disable RSpec/AnyInstance
           allow_any_instance_of(BsRequest).to receive(:webui_actions).and_return([{
