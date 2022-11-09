@@ -243,6 +243,7 @@ Metrics/BlockLength:
     - 'app/models/branch_package.rb'
     - 'app/models/bs_request.rb'
     - 'app/models/bs_request_action.rb'
+    - 'app/models/event_subscription/find_for_event.rb'
     - 'app/models/patchinfo.rb'
     - 'app/models/product.rb'
     - 'app/models/user_ldap_strategy.rb'
