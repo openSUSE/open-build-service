@@ -32,6 +32,7 @@ use BSSched::Checker;
 use BSSched::BuildResult;
 use BSSched::BuildRepo;
 use BSSched::ProjPacks;
+use BSSched::Lookat;
 use BSSched::BuildJob;
 use BSSched::BuildJob::Upload;
 use BSSched::BuildJob::Import;
@@ -238,10 +239,9 @@ sub event_check {
   }
   if (%admincheck) {
     my $lookat_high = $gctx->{'lookat_high'};
-    my $nextmed = $gctx->{'nextmed'};
     @$lookat_high = grep {!$admincheck{$_}} @$lookat_high;
     unshift @$lookat_high, sort keys %admincheck;
-    delete $nextmed->{$_} for keys %admincheck;
+    BSSched::Lookat::setdelayed($gctx, $_, 0) for sort keys %admincheck;
     $gctx->{'notlow'} = 0;
     $gctx->{'notmed'} = 0;
   }
@@ -370,9 +370,7 @@ sub event_wipenotyet {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
-  my $prp = "$ev->{'project'}/$ev->{'repository'}";
-  my $nextmed = $gctx->{'nextmed'} || {};
-  delete $nextmed->{$prp};
+  BSSched::Lookat::setdelayed($gctx, "$ev->{'project'}/$ev->{'repository'}", 0);
 }
 
 =head2 event_wipe - TODO: add summary

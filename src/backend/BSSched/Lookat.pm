@@ -156,17 +156,18 @@ sub nextlookat {
   my $lookat_high = $gctx->{'lookat_high'};
   my $lookat_next = $gctx->{'lookat_next'};
   my $nextmed = $gctx->{'nextmed'};
+  my $nexthigh = $gctx->{'nexthigh'};
   my $notlow = $gctx->{'notlow'};
   my $notmed = $gctx->{'notmed'};
 
   sub check_queue {
-    my ($lookat, $nextmed) = @_;
+    my ($lookat, $next) = @_;
     my $prp = shift @$lookat;
 
-    if ($nextmed && $nextmed->{$prp}) {
+    if ($next && $next->{$prp}) {
       my $now = time();
       my @notyet;
-      while ($nextmed->{$prp} && $now < $nextmed->{$prp}) {
+      while ($next->{$prp} && $now < $next->{$prp}) {
 	print "  not yet $prp\n";
 	push @notyet, $prp;
 	$prp = shift @$lookat;
@@ -190,7 +191,7 @@ sub nextlookat {
     $notlow = 0 if $notlow > 10;	# don't try so often
     $lookattype = 'med',  last if @$lookat_med && $notmed > 2  && defined($prp = check_queue($lookat_med,  $nextmed));
     $notmed = 0 if $notmed > 2;	# don't try so often
-    $lookattype = 'high', last if @$lookat_high                && defined($prp = check_queue($lookat_high, $nextmed));
+    $lookattype = 'high', last if @$lookat_high                && defined($prp = check_queue($lookat_high, $nexthigh));
     $lookattype = 'med',  last if @$lookat_med                 && defined($prp = check_queue($lookat_med,  $nextmed));
     $lookattype = 'low',  last if @$lookat_low                 && defined($prp = check_queue($lookat_low));
     $lookattype = 'high', last if @$lookat_high                && defined($prp = check_queue($lookat_high));
@@ -222,8 +223,28 @@ sub lookatprp {
     @$lookat_med = grep {$_ ne $prp} @$lookat_med;
   }
   delete $gctx->{'nextmed'}->{$prp};
+  delete $gctx->{'nexthigh'}->{$prp};
   BSUtil::printlog("looking at $lookattype prio $prp".
     " (".@$lookat_high."/".@$lookat_med."/".@$lookat_low."/".(keys %$lookat_next)."/".@{$gctx->{'prps'}}.")");
+}
+
+sub setdelayed {
+  my ($gctx, $prp, $checktime) = @_;
+  if (!$checktime) {
+    delete $gctx->{'nextmed'}->{$prp};
+    delete $gctx->{'nexthigh'}->{$prp};
+    return;
+  }
+  my $medfactor = 1 + @{$gctx->{'lookat_med'}} / 100;
+  my $highfactor = 1 + @{$gctx->{'lookat_high'}} / 10;
+  $medfactor = 4 if $medfactor > 4;
+  $highfactor = 4 if $highfactor > 4;
+  $medfactor *= ($BSConfig::delayscale_med ? $BSConfig::delayscaler_med : 10);
+  $highfactor *= ($BSConfig::delayscale_high ? $BSConfig::delayscale_high : 1);
+  $medfactor = $highfactor if $medfactor < $highfactor;
+  my $now = time();
+  $gctx->{'nextmed'}->{$prp} = $now + $medfactor * $checktime;
+  $gctx->{'nexthigh'}->{$prp} = $now + $highfactor * $checktime;
 }
 
 1;
