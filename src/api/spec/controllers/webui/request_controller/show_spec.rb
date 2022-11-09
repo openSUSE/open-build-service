@@ -48,7 +48,6 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         it { expect(response.body).to have_text("The mentioned issues aren't here yet") }
       end
 
-      # TODO: prepare one use case per action and check the dropdown shows the corresponding action
       context 'when the request has multiple submit actions' do
         let(:target_project2) { receiver.home_project }
         let(:target_package2) { create(:package_with_file, name: 'goal2', project_id: target_project2.id) }
@@ -79,23 +78,13 @@ RSpec.describe Webui::RequestController, '#show', vcr: true do
         it { expect(response.body).to have_text("The mentioned issues aren't here yet") }
       end
 
-      context 'when the request has a set bugowner action' do
-        let(:set_bugowner_action) { create(:bs_request_action_set_bugowner) }
-
-        before do
-          login receiver
-
-          bs_request.bs_request_actions << set_bugowner_action
-
-          get :show, params: { number: bs_request.number }
-        end
-
-        xit { expect(controller).to render_template('webui/request/_actions_details') }
-        xit { expect(response.body).to have_text('This request contains multiple actions') }
-        xit { expect(controller).to render_template('webui/request/_action_text') }
-        # TODO: Find why the bug owner action is not triggering the _action_details stuff
-        xit { expect(response).to have_link('Set Bugowner') }
-      end
+      context 'when the request has an add maintainer request action'
+      context 'when the request has an add bugowner request action'
+      context 'when the request has a submit request action'
+      context 'when the request has a delete request action'
+      context 'when the request has a maintenance incident request action'
+      context 'when the request has a maintenance release request action'
+      context 'when the request has a set bugowner request action'
 
       # Use case with accepted reviews
       context 'when having an accepted review' do
