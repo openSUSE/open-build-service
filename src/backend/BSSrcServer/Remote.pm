@@ -176,7 +176,7 @@ sub fetchremoteproj {
     $rproj = BSRPC::rpc($param, $BSXML::proj);
   };
   $rproj = {'error' => $@, 'proto' => 1} if $@;
-  $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject};
+  $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject remoteproxy};
   $rproj->{'config'} = $c if defined $c;
   mapprojectdata($rproj, $proj);
   $remotemap->{$projid} = $rproj if $remotemap;
@@ -195,7 +195,7 @@ sub fetchremoteconfig {
       return $rproj->{'config'} if defined $rproj->{'config'};
     } else {
       $rproj = {'proto' => 1};
-      $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject};
+      $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject remoteproxy};
       $remotemap->{$projid} = $rproj;
     }
   }
