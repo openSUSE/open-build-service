@@ -34,6 +34,9 @@ class Webui::RequestController < Webui::WebuiController
       @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
       @refresh = @action[:diff_not_cached]
 
+      # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
+      @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff['issues']) }
+
       # Handling build results
       @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 

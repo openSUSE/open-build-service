@@ -49,6 +49,12 @@
   @include collapsible($maxHeight: 2.75em, $maxWidth: 'none', $moreButtonLabel: 'Expand name ', $lessButtonLabel: 'Shrink name ');
 }
 
+#mentioned-issues .list-group-item {
+  max-width: 75ch;
+  @include collapsible($maxHeight: 2.75em, $maxWidth: 75ch);
+}
+
+// TODO: Remove this when the request_show_redesign is removed
 #issue-summary {
   @include collapsible($maxHeight: 1.5em);
   .obs-collapsible-textbox {  @extend .pr-0; }
