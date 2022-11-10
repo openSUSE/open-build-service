@@ -17,9 +17,8 @@ module Webui::BuildresultHelper
   }.with_indifferent_access.freeze
 
   # NOTE: There is a JavaScript version of this method in project_monitor.js
-  # TODO: Refactor this! A good start would be to never ever use an instance variable in a helper method... please!
   def arch_repo_table_cell(repo, arch, package_name, status = nil)
-    status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }
+    status ||= { 'package' => package_name }
     status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
     link_title = status['details']
     code = ''
