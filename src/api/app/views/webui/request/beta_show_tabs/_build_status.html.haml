@@ -5,7 +5,6 @@
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
     = label_tag 'show_all' do
       %u.custom-label #{label_message} excluded/disabled results
-
 - buildresults.results.each_pair do |package, results|
   %h5.text-primary.mb-3
     = package
@@ -42,8 +41,9 @@
                 %span.d-none.d-lg-inline
                   Package build
                 %p.d-none.d-sm-inline
-                  = arch_repo_table_cell(result.repository, result.architecture,
-                      package, 'code' => result.code, 'details' => result.details)
+                  = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
+                                                              project_name: project.name, package_name: package,
+                                                              build_status: result.code, build_details: result.details))
                 %i.fa.fa-question-circle.text-info{ data: { placement: 'top',
                                                             toggle: 'popover',
                                                             content: "#{Buildresult.status_description(result.code)}" } }
