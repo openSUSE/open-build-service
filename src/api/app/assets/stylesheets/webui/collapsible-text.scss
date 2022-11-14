@@ -31,6 +31,8 @@
   }
 }
 
+// FIXME: All rules defined below this comment are changing all elements which happen to match them.
+//        It's problematic since those elements might not even have anything to do with the collapsible text component.
 #description-text {
   p { @extend .mb-4; }
   @include collapsible($maxHeight: 15em);
