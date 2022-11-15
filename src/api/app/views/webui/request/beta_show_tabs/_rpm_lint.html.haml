@@ -6,7 +6,7 @@
     ajax_data['is_staged_request'] = h(is_staged_request) if is_staged_request
 
   .rpm-lint-content{ data: ajax_data }
-    .d-flex.align-items-start.justify-content-between
+    .pt-1.pb-3.bg-white.d-flex.align-items-start.justify-content-between.sticky-top
       .result
       .btn.btn-outline-primary.rpm-lint-refresh{ onclick: 'updateRpmLintResultBeta()',
                                                  accesskey: 'r', title: 'Refresh Rpm Lint Results',
