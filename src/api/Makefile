@@ -41,6 +41,7 @@ config: prepare_dirs
 	$(INSTALL) -m 644  config/database.yml.example 				config/database.yml
 	$(INSTALL) -m 644  config/options.yml.example 				config/options.yml
 	$(INSTALL) -m 644 config/thinking_sphinx.yml.example 	config/thinking_sphinx.yml
+	$(INSTALL) -m 640 config/public-analytics.htpasswd 	config/public-analytics.htpasswd
 	# TODO: see if these configuration work in real life
 	$(INSTALL) -m 644  config/database.yml.example 				$(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
 	$(INSTALL) -m 644  config/options.yml.example 				$(DESTDIR)$(OBS_API_PREFIX)/config/options.yml

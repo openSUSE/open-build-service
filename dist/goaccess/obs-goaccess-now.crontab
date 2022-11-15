@@ -1,0 +1,1 @@
+*/15 * * * * wwwrun goaccess /srv/www/obs/api/log/access.log -p /etc/goaccess/obs-goaccess.conf --ignore-panel=VISITORS -o /srv/www/obs/api/public/analytics/index.html

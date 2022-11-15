@@ -10,5 +10,9 @@
   create 664 wwwrun www
   su wwwrun www
   sharedscripts
+  postrotate
+    # Generate analytics if the obs-api-analytics package is installed...
+    test -f /usr/bin/obs-goaccess-last-7-days.sh && /usr/bin/obs-goaccess-last-7-days.sh
+  endscript
 }
 

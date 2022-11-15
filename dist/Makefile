@@ -2,7 +2,7 @@ include ../Makefile.include
 -include ../Makefile.local
 
 LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
-OBS_BIN_SCRIPTS       := obs_productconvert
+OBS_BIN_SCRIPTS       := obs_productconvert obs-goaccess-last-7-days.sh obs-goaccess-last-month.sh
 OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus obsscheduler obsworker obsstoragesetup
 SYSTEMD_TARGET_FILES  := obs-api-support
 SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-delayedjob-queue-staging obs-delayedjob-queue-scm obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obssourcepublish obsgetbinariesproxy obsclouduploadserver obsclouduploadworker obsscheduler obsworker obsstoragesetup obsapisetup obsnotifyforward obsredis
@@ -10,7 +10,7 @@ SYSTEMD_SERVICE_FILES_WITHOUT_LINK := obs-delayedjob-queue-quick@
 
 UNITDIR=/usr/lib/systemd/system/
 
-install: install_obsapisetup install_apache install_project_update install_logrotate install_slp install_obs_bin install_overview install_tests_appliance install_crontabs install_systemd_services
+install: install_obsapisetup install_apache install_project_update install_logrotate install_slp install_obs_bin install_overview install_tests_appliance install_crontabs install_systemd_services install_goaccess_conf
 
 #install_overview
 
@@ -56,6 +56,8 @@ install_obs_bin: system_dirs
 
 install_crontabs:
 	$(INSTALL) -m 644 cleanup_scm_cache.cron $(DESTDIR)/etc/cron.d/cleanup_scm_cache
+	$(INSTALL) -m 644 goaccess/obs-goaccess-last-month.crontab $(DESTDIR)/etc/cron.d/obs-goaccess-last-month
+	$(INSTALL) -m 644 goaccess/obs-goaccess-now.crontab $(DESTDIR)/etc/cron.d/obs-goaccess-now
 
 system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)
@@ -70,6 +72,11 @@ system_dirs:
 install_overview:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
 	$(INSTALL) -m 644 overview.html.TEMPLATE $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
+
+install_goaccess_conf:
+	$(INSTALL) -d -m 755 $(DESTDIR)/etc/goaccess/
+	$(INSTALL) -m 644 goaccess/obs-goaccess.conf $(DESTDIR)/etc/goaccess/obs-goaccess.conf
+	$(INSTALL) -m 644 goaccess/obs-browsers.list $(DESTDIR)/etc/goaccess/obs-browsers.list
 
 install_tests_appliance:
 	cp -r ./t/*	$(DESTDIR)/usr/lib/obs/tests/appliance/

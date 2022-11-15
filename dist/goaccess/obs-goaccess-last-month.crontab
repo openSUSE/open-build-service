@@ -1,0 +1,1 @@
+0 0 5 * * wwwrun /usr/bin/obs-goaccess-last-month.sh

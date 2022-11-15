@@ -438,6 +438,22 @@ Requires:       obs-server
 %files  -n obs-backend-testsuite
 %{obs_backend_dir}/t
 
+%package -n obs-backend-analytics
+Summary:        The Open Build Service -- Analytics Suite
+Group:          Productivity/Networking/Web/Utilities
+Requires:       obs-api goaccess
+
+%description  -n obs-api-analytics
+
+%files  -n obs-api-analytics
+%defattr(-,root,root)
+%{_bindir}/obs-goaccess-last-7-days.sh
+%{_bindir}/obs-goaccess-last-month.sh
+/etc/cron.d/obs-goaccess-last-month
+/etc/cron.d/obs-goaccess-now
+%config(noreplace) %{__obs_api_prefix}/config/public-analytics.htpasswd
+%config(noreplace) /etc/goaccess/obs-goaccess.conf
+
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
