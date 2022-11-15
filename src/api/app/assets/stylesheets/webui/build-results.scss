@@ -3,6 +3,11 @@
   max-height: 35rem;
 }
 
+.rpm-lint-content .rpmlint-result {
+  @extend .rpmlint-result;
+  max-height: none;
+}
+
 #buildresult-box {
   .nav-link {
     .fa-sync-alt { @extend .invisible; }
