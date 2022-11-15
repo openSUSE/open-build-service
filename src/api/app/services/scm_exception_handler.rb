@@ -67,13 +67,17 @@ class SCMExceptionHandler
     @workflow_run.save_scm_report_failure("Failed to report back to #{scm}: #{SCMExceptionMessage.for(exception: exception, scm: scm)}",
                                           {
                                             api_endpoint: @event_subscription_payload[:api_endpoint],
-                                            target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
                                             commit_sha: @event_subscription_payload[:commit_sha],
                                             state: @state,
                                             status_options: {
                                               context: "OBS: #{@event_payload[:package]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
                                               target_url: target_url
-                                            }
+                                            },
+                                            # GitHub / Gitea
+                                            target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
+                                            # GitLab
+                                            project_id: @event_subscription_payload[:project_id],
+                                            path_with_namespace: @event_subscription_payload[:path_with_namespace]
                                           })
   end
 end
