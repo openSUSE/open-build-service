@@ -3,8 +3,9 @@
     ajax_data = {}
     ajax_data['project'] = h(project) if project
     ajax_data['package'] = h(package) if package
+    ajax_data['is_staged_request'] = h(is_staged_request) if is_staged_request
 
-  .rpm-lint-results-content{ data: ajax_data }
+  .rpm-lint-content{ data: ajax_data }
     .d-flex.justify-content-end
       .btn.btn-outline-primary.rpm-lint-refresh{ onclick: 'updateRpmLintResultBeta()',
                                                  accesskey: 'r', title: 'Refresh Rpm Lint Results',
@@ -22,6 +23,6 @@
     updateRpmLintResultBeta();
 
 - else
-  .rpm-lint-results-content
+  .rpm-lint-content
     .result
       %i No RPM lint results available
