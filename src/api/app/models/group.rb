@@ -20,7 +20,7 @@ class Group < ApplicationRecord
                           inverse_of: :token_workflow
 
   validates :title,
-            format: { with: /\A[\w.\-]*\z/,
+            format: { with: /\A[\w.-]*\z/,
                       message: 'must not contain invalid characters' }
   validates :title,
             length: { in: 2..100,
