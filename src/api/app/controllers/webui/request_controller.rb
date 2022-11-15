@@ -37,6 +37,9 @@ class Webui::RequestController < Webui::WebuiController
       # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
       @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
+      # retrieve a list of all package maintainers that are assigned to at least one target package
+      @package_maintainers = target_package_maintainers
+
       # Handling build results
       @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
