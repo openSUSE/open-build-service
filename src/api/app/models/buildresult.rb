@@ -1,4 +1,6 @@
 class Buildresult
+  attr_accessor :status
+
   AVAIL_STATUS_VALUES = {
     succeeded: 0,
     failed: 1,
@@ -38,6 +40,10 @@ class Buildresult
     locked: 'The package is frozen',
     unknown: 'The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.'
   }.with_indifferent_access.freeze
+
+  def initialize(status)
+    @status = status
+  end
 
   def self.find_hashed(opts = {})
     begin
@@ -99,5 +105,21 @@ class Buildresult
     return index if index
 
     raise ArgumentError, "code '#{code}' unknown #{AVAIL_STATUS_VALUES.inspect}"
+  end
+
+  def successful_final_status?
+    status.in?(['succeeded'])
+  end
+
+  def unsuccessful_final_status?
+    status.in?(['failed', 'unresolvable', 'broken'])
+  end
+
+  def in_progress_status?
+    status.in?(['blocked', 'dispatching', 'scheduled', 'building', 'finished', 'signing', 'locked', 'deleting', 'unknown'])
+  end
+
+  def refused_status?
+    status.in?(['disabled', 'excluded'])
   end
 end
