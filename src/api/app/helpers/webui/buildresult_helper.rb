@@ -16,33 +16,6 @@ module Webui::BuildresultHelper
     unknown: 'fa-question'
   }.with_indifferent_access.freeze
 
-  # NOTE: There is a JavaScript version of this method in project_monitor.js
-  # TODO: Refactor this! A good start would be to never ever use an instance variable in a helper method... please!
-  def arch_repo_table_cell(repo, arch, package_name, status = nil)
-    status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }
-    status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
-    link_title = status['details']
-    code = ''
-    css_class = ' '
-
-    if status['code']
-      code = status['code']
-      css_class = "build-state-#{code}"
-      # special case for scheduled jobs with constraints limiting the workers a lot
-      css_class = 'text-warning' if code == 'scheduled' && link_title.present?
-    end
-
-    capture do
-      if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-        concat(tag.span(code, id: status_id, class: "#{css_class} toggle-build-info", title: 'Click to keep it open'))
-      else
-        concat(link_to(code.gsub(/\s/, '&nbsp;'),
-                       package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
-                       rel: 'nofollow', class: css_class))
-      end
-    end
-  end
-
   def repository_expanded?(collapsed_repositories, repository_name, key = 'project')
     return collapsed_repositories[key].exclude?(repository_name) if collapsed_repositories[key]
 

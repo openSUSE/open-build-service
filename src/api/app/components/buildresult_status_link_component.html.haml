@@ -1,0 +1,5 @@
+- if show_link?
+  = link_to(@build_status, package_live_build_log_path(project: @project_name, package: @package_name, repository: @repository_name,
+                                                       arch: @architecture_name), rel: 'nofollow', class: css_class)
+- else
+  %span{ id: span_id, class: "#{css_class} toggle-build-info", title: 'Click to keep it open' }= @build_status
