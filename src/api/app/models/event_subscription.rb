@@ -37,7 +37,7 @@ class EventSubscription < ApplicationRecord
   belongs_to :group, inverse_of: :event_subscriptions, optional: true
   belongs_to :token, inverse_of: :event_subscriptions, optional: true
   belongs_to :package, optional: true
-  belongs_to :workflow_run, optional: true
+  belongs_to :workflow_run, inverse_of: :event_subscriptions, optional: true
 
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,

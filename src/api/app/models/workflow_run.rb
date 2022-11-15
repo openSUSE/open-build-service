@@ -29,6 +29,7 @@ class WorkflowRun < ApplicationRecord
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
   has_many :scm_status_reports, class_name: 'SCMStatusReport', dependent: :destroy
+  has_many :event_subscriptions, dependent: :destroy
 
   paginates_per 20
 
