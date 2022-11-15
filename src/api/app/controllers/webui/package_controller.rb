@@ -579,8 +579,12 @@ class Webui::PackageController < Webui::WebuiController
     if @repo_list.empty?
       render partial: 'no_repositories', locals: { project: @project }
     else
-      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                  repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+      # TODO: this is part of the temporary changes done for 'request_show_redesign'.
+      request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
+
+      render partial: (request_show_redesign_partial || 'rpmlint_result'), locals: { index: params[:index], project: @project, package: @package,
+                                                                                     repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
+                                                                                     is_staged_request: params[:is_staged_request] }
     end
   end
 
