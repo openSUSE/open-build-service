@@ -36,11 +36,13 @@ class GitlabStatusReporter < SCMExceptionHandler
     end
   end
 
-  # TODO: extract to a parent class
+  # TODO: Extract to a parent class, but only the common keys.
+  #       This isn't always the same depending on the SCM.
   def request_context
     {
       api_endpoint: @event_subscription_payload[:api_endpoint],
-      target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
+      project_id: @event_subscription_payload[:project_id],
+      path_with_namespace: @event_subscription_payload[:path_with_namespace],
       commit_sha: @event_subscription_payload[:commit_sha],
       state: @state,
       status_options: status_options
