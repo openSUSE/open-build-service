@@ -6,7 +6,8 @@
     ajax_data['is_staged_request'] = h(is_staged_request) if is_staged_request
 
   .rpm-lint-content{ data: ajax_data }
-    .d-flex.justify-content-end
+    .d-flex.align-items-start.justify-content-between
+      .result
       .btn.btn-outline-primary.rpm-lint-refresh{ onclick: 'updateRpmLintResultBeta()',
                                                  accesskey: 'r', title: 'Refresh Rpm Lint Results',
                                                  data: { rpm_lint_results_url: rpmlint_result_path } }
@@ -17,7 +18,7 @@
       %p.font-italic
         From staging project
         = link_to(project, project_show_path(project))
-    .result
+    %pre.rpmlint-result.text-pre-wrap
 
   :javascript
     updateRpmLintResultBeta();
