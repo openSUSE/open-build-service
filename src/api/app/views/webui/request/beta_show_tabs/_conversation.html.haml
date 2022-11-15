@@ -6,51 +6,15 @@
       - else
         %i No description set
 .row
-  .col-md-4.order-md-2.order-sm-1.mb-4#side-links
-    - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
-      .d-flex.justify-content-between
-        %h4
-          Reviews
-        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
-                                                can_add_reviews: can_add_reviews,
-                                                my_open_reviews: my_open_reviews)
-      = render AddReviewCollapsibleComponent.new
-      .mb-4
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
-
-    - if can_add_reviews
-      = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review') do
-        %i.fas.fa-plus-circle.fa-lg.mr-1
-        %span.nav-item-name Add a Review
-      = render partial: 'add_reviewer_dialog'
-
-    - open_reviews_for_staging_projects.each do |review|
-      .pl-3
-        %i.fas.fa-info-circle.text-info
-        - staging_project = review.project
-        Is staged in
-        = link_to(review.by_project, staging_workflow_staging_project_path(staging_project.staging_workflow.project, staging_project.name))
-
-    - unless package_maintainers.empty?
-      .mt-5
-        %h4
-          Maintainers
-        %p
-          - size_limit = 5
-          - if package_maintainers.size <= size_limit
-            - package_maintainers.pluck(:login).each do |package_maintainer|
-              %div
-                = user_with_realname_and_icon(package_maintainer, short: true)
-          - else
-            - package_maintainers.take(size_limit).pluck(:login).each do |package_maintainer|
-              %div
-                = user_with_realname_and_icon(package_maintainer, short: true)
-            %p.mt-3
-              = link_to('Show all maintainers', '#', class: 'btn btn-outline-secondary show_dialog',
-                        data: { toggle: 'modal', target: '#show-maintainers-modal' })
-              = render partial: 'webui/request/show_package_maintainers', locals: { package_maintainers: package_maintainers }
+  = render partial: 'webui/request/beta_show_tabs/conversation_aside',
+           locals: { bs_request: bs_request,
+             can_add_reviews: can_add_reviews,
+             my_open_reviews: my_open_reviews,
+             accepted_reviews: accepted_reviews,
+             declined_reviews: declined_reviews,
+             open_reviews: open_reviews,
+             open_reviews_for_staging_projects: open_reviews_for_staging_projects,
+             package_maintainers: package_maintainers }
 
   .col-md-8.order-md-1.order-sm-2
     %h4.list-group.mb-4 Comments & Request History
