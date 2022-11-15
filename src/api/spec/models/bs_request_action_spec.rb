@@ -360,4 +360,40 @@ RSpec.describe BsRequestAction do
       end
     end
   end
+
+  describe '#check_for_expand_errors' do
+    let(:project) { user.home_project }
+    let(:target_package) do
+      create(:package_with_file, name: 'package_encoding_1', project: project)
+    end
+    let(:source_package) do
+      create(:package_with_file, name: 'package_encoding_2', project: project)
+    end
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    context 'when there is a problem with the backend' do
+      let(:mocked_backend) { class_double(Backend::Api::Sources::Package).as_stubbed_const }
+
+      before do
+        allow(mocked_backend).to receive('files').and_raise(Backend::Error, 'Oops!')
+      end
+
+      context 'and we have a revision' do
+        before { bs_request_action.source_rev = '1234' }
+
+        it 'returns an error message' do
+          expect { bs_request_action.send(:check_for_expand_errors!, true) }
+            .to raise_error(ExpandError, 'The source of package home:request_user/package_encoding_2 for revision 1234 is broken')
+        end
+      end
+
+      context 'but we do not have a revision' do
+        it 'also returns an error message' do
+          expect { bs_request_action.send(:check_for_expand_errors!, true) }
+            .to raise_error(ExpandError, 'The source of package home:request_user/package_encoding_2 is broken')
+        end
+      end
+    end
+  end
 end

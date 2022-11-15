@@ -804,7 +804,8 @@ class BsRequestAction < ApplicationRecord
         self.source_rev = dir['srcmd5']
       end
     rescue Backend::Error
-      raise ExpandError, "The source of package #{source_project}/#{source_package}#{source_rev ? " for revision #{source_rev}" : ''} is broken"
+      revision_message = " for revision #{source_rev}" if source_rev
+      raise ExpandError, "The source of package #{source_project}/#{source_package}#{revision_message} is broken"
     end
   end
 
