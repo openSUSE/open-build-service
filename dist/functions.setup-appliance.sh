@@ -241,7 +241,7 @@ function prepare_database_setup {
     echo "Initialize MySQL databases (first time only)"
     DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
     echo " - reconfiguring datadir in $DATADIR_FILE"
-    perl -p -i -e 's#.*datadir\s*=\s*/var/lib/mysql$#datadir= /srv/obs/MySQL#' $DATADIR_FILE
+    sed -i -E '0,/(#\s*)?datadir/ s!#\s*datadir\s*=\s*/var/lib/mysql$!datadir = /srv/obs/MySQL!' $DATADIR_FILE
     echo " - installing to new datadir"
     mysql_install_db
     echo " - changing ownership for new datadir"
