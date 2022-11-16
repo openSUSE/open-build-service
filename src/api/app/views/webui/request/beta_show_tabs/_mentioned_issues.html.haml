@@ -1,5 +1,13 @@
-%p
-  The mentioned issues aren't here yet, but they will be displayed here in the future.
+- if issues.empty?
+  %p No issues are mentioned for this request action.
+- else
+  %ul.list-group.list-group-flush
+    - issues.each do |issue_name, issue_details|
+      %li.list-group-item
+        = link_to(issue_name, issue_details[:url], target: '_blank', rel: 'noopener')
+        - if issue_details[:owner] && issue_details[:state]
+          %span.ml-3= issue_details[:state]&.capitalize
+          %span.ml-3= user_with_realname_and_icon issue_details[:owner], short: true
 
-%p
-  %i The OBS team
+        - if issue_details[:summary]
+          = render partial: 'webui/shared/collapsible_text', locals: { text: issue_details[:summary], extra_css_classes: 'mt-2' }
