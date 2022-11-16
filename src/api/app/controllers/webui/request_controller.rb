@@ -15,7 +15,6 @@ class Webui::RequestController < Webui::WebuiController
     if Flipper.enabled?(:request_show_redesign, User.session)
       @is_author = @bs_request.creator == User.possibly_nobody.login
       @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-      @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
       reviews = @bs_request.reviews.where(state: 'new')
       @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
       @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)

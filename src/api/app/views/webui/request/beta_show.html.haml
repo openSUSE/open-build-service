@@ -77,7 +77,7 @@
                       open_reviews: @open_reviews, accepted_reviews: @accepted_reviews,
                       declined_reviews: @declined_reviews, open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
                       my_open_reviews: @my_open_reviews, package_maintainers: @package_maintainers, action: @action,
-                      is_target_maintainer: @is_target_maintainer, is_author: @is_author, can_handle_request: @can_handle_request,
+                      is_target_maintainer: @is_target_maintainer, is_author: @is_author,
                       show_project_maintainer_hint: @show_project_maintainer_hint }
       - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
