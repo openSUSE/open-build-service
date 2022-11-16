@@ -1,27 +1,6 @@
-- if package
-  :ruby
-    ajax_data = {}
-    ajax_data['project'] = h(project) if project
-    ajax_data['package'] = h(package) if package
+%p
+  The RPM Lint results aren't here yet. For now, you can see them on the request's
+  source package page. We're working on having them here in the future.
 
-  .rpm-lint-results-content{ data: ajax_data }
-    .d-flex.justify-content-end
-      .btn.btn-outline-primary.rpm-lint-refresh{ onclick: 'updateRpmLintResultBeta()',
-                                                 accesskey: 'r', title: 'Refresh Rpm Lint Results',
-                                                 data: { rpm_lint_results_url: rpmlint_result_path } }
-        Refresh
-        %i.fas.fa-sync-alt{ id: 'rpm-lint-reload' }
-    -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
-    - if is_staged_request
-      %p.font-italic
-        From staging project
-        = link_to(project, project_show_path(project))
-    .result
-
-  :javascript
-    updateRpmLintResultBeta();
-
-- else
-  .rpm-lint-results-content
-    .result
-      %i No RPM lint results available
+%p
+  %i The OBS team

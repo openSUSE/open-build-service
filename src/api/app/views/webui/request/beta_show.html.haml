@@ -84,7 +84,7 @@
         .tab-pane.fade.p-2#rpm-lint-result{ 'aria-labelledby': 'rpm-lint-result-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/rpm_lint_result', locals: { project: @action[:sprj],
                                                                                       package: @action[:spkg],
-                                                                                      is_staged_request: @staging_project.present? }
+                                                                                      bs_request: @bs_request }
       - if @action[:type].in?(actions_for_diff)
         .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/changes', locals: { bs_request: @bs_request, action: @action, refresh: @refresh }
