@@ -105,6 +105,7 @@ $BSSrcServer::Service::handlelinks = \&BSSrcServer::Link::handlelinks;
 $BSSrcServer::Scmsync::notify = \&notify;
 $BSSrcServer::Scmsync::notify_repservers = \&notify_repservers;
 $BSSrcServer::Scmsync::runservice = \&BSSrcServer::Service::runservice_obsscm;
+$BSSrcServer::Scmsync::addrev = \&addrev;
 
 $BSSrcServer::Blame::getrev = \&getrev;
 $BSSrcServer::Blame::lsrev_expanded = \&lsrev_expanded;

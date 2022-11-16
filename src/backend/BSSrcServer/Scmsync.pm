@@ -16,6 +16,8 @@
 #
 package BSSrcServer::Scmsync;
 
+use Digest::MD5 ();
+
 use BSConfiguration;
 use BSUtil;
 use BSRevision;
@@ -34,6 +36,7 @@ my $uploaddir = "$srcrep/:upload";
 our $notify = sub {};
 our $notify_repservers = sub {};
 our $runservice = sub {};
+our $addrev = sub { die("BSSrcServer::Scmsync::addrev not implemented\n") };
 
 #
 # low level helpers
@@ -84,8 +87,26 @@ sub putconfig {
 #
 # sync functions
 #
+sub sync_locallink {
+  my ($cgi, $projid, $packid, $link) = @_;
+  my $files;
+  eval {
+    my $lastrev = BSRevision::getrev_local($projid, $packid);
+    $files = BSSrcrep::lsfiles($projid, $packid, $lastrev->{'srcmd5'}) if $lastrev;
+  };
+  my $linkxml = BSUtil::toxml($link, $BSXML::link);
+  return if $files && scalar(%$files) == 1 && $files->{'_link'} eq Digest::MD5::md5_hex($linkxml);
+  local $cgi->{'comment'} ||= 'update _link';
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/sync_locallink$$", undef, $linkxml);
+  $files = {};
+  $files->{'_link'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/sync_locallink$$", '_link');
+  print "scmsync: update _link in $projid/$packid\n";
+  $addrev->($cgi, $projid, $packid, $files);
+}
+
 sub sync_package {
-  my ($cgi, $projid, $packid, $pack, $info) = @_;
+  my ($cgi, $projid, $packid, $pack, $info, $link) = @_;
 
   if (!$pack) {
     return unless -e "$projectsdir/$projid.pkg/$packid.xml";
@@ -115,6 +136,11 @@ sub sync_package {
       $notify_repservers->('package', $projid, $packid);
     }
     $notify->($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
+  }
+
+  if ($link) {
+    sync_locallink($cgi, $projid, $packid, $link);
+    return;
   }
 
   my $needtrigger;
@@ -176,11 +202,29 @@ sub sync_project {
       warn($@);
       next;
     }
+    my $linkent = $files{"$packid.link"};
+    my $link;
+    if ($linkent && $linkent->{'size'} < 100000) {
+      eval {
+	my $linkxml = BSCpio::extract($cpiofd, $linkent);
+	$link = BSUtil::fromxml($linkxml, $BSXML::link);
+	BSVerify::verify_link($link);
+	die("link must not contain a project\n") if exists $link->{'project'};
+      };
+      if ($@) {
+	warn($@);
+	undef $link;
+      }
+    }
+    if ($link && $pack->{'scmsync'}) {
+      warn("ignoring link file as the package has a scmsync element\n");
+      undef $link;
+    }
     my $info;
     my $infoent = $files{"$packid.info"};
     $info = BSCpio::extract($cpiofd, $infoent) if $infoent && $infoent->{'size'} < 100000;
     chomp $info if $info;
-    sync_package($cgi, $projid, $packid, $pack, $info);
+    sync_package($cgi, $projid, $packid, $pack, $info, $link);
   }
 
   # delete packages that no longer exist
