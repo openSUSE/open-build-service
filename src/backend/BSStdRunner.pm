@@ -100,7 +100,10 @@ sub dispatch {
   }
 
   if ($conf->{'inprogress'}) {
-    rename("$myeventdir/$evname", "$myeventdir/${evname}::inprogress");
+    if (!rename("$myeventdir/$evname", "$myeventdir/${evname}::inprogress")) {
+      warn("rename $myeventdir/$evname $myeventdir/${evname}::inprogress: $!\n");
+      return undef;
+    }
     $req->{'inprogress'} = 1;
   }
 
@@ -117,7 +120,10 @@ sub dispatch {
     if ($r) {
       unlink("$myeventdir/${evname}::inprogress");
     } else {
-      rename("$myeventdir/${evname}::inprogress", "$myeventdir/$evname");
+      if (!rename("$myeventdir/${evname}::inprogress", "$myeventdir/$evname")) {
+        warn("rename $myeventdir/${evname}::inprogress $myeventdir/$evname: $!\n");
+        return undef;
+      }
     }
     delete $req->{'inprogress'};
   } else {
@@ -241,7 +247,7 @@ sub run {
 
   if ($conf->{'inprogress'}) {
     for my $evname (grep {s/::inprogress$//s} ls($myeventdir)) {
-      rename("$myeventdir/${evname}::inprogress", "$myeventdir/$evname");
+      rename("$myeventdir/${evname}::inprogress", "$myeventdir/$evname") || warn("rename $myeventdir/${evname}::inprogress $myeventdir/$evname: $!\n");
     }
   }
 
