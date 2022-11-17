@@ -26,25 +26,45 @@
       Is staged in
       = link_to(review.by_project, staging_workflow_staging_project_path(staging_project.staging_workflow.project, staging_project.name))
 
-  -# MAINTAINERS
+  -# PACKAGE MAINTAINERS
   - unless package_maintainers.empty?
     .mt-5
       %h4
-        Maintainers
+        Package Maintainers
       %p
-        - size_limit = 5
-        - if package_maintainers.size <= size_limit
+        - package_size_limit = 5
+        - if package_maintainers.size <= package_size_limit
           - package_maintainers.pluck(:login).each do |package_maintainer|
-            %div
+            .pl-3
               = user_with_realname_and_icon(package_maintainer, short: true)
         - else
-          - package_maintainers.take(size_limit).pluck(:login).each do |package_maintainer|
-            %div
+          - package_maintainers.take(package_size_limit).pluck(:login).each do |package_maintainer|
+            .pl-3
               = user_with_realname_and_icon(package_maintainer, short: true)
           %p.mt-3
-            = link_to('Show all maintainers', '#', class: 'btn btn-outline-secondary show_dialog',
+            = link_to('Show all', '#', class: 'btn btn-outline-secondary show_dialog',
                       data: { toggle: 'modal', target: '#show-maintainers-modal' })
             = render partial: 'webui/request/show_package_maintainers', locals: { package_maintainers: package_maintainers }
+
+  -# PROJECT MAINTAINERS
+  - unless project_maintainers.empty?
+    .mt-5
+      %h4
+        Project Maintainers
+      %p
+        - project_size_limit = 5
+        - if project_maintainers.size <= project_size_limit
+          - project_maintainers.pluck(:login).each do |project_maintainer|
+            .pl-3
+              = user_with_realname_and_icon(project_maintainer, short: true)
+        - else
+          - project_maintainers.take(project_size_limit).pluck(:login).each do |project_maintainer|
+            .pl-3
+              = user_with_realname_and_icon(project_maintainer, short: true)
+          %p.mt-3
+            = link_to('Show all', '#', class: 'btn btn-outline-secondary show_dialog',
+                      data: { toggle: 'modal', target: '#show-project-maintainers-modal' })
+            = render partial: 'webui/request/show_project_maintainers', locals: { project_maintainers: project_maintainers }
 
       - if policy(bs_request).handle_request? && show_project_maintainer_hint
         .alert.alert-warning
