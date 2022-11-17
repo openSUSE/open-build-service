@@ -929,7 +929,7 @@ sub signjob {
       # signing failed, either retry, rebuild or fail
       my $error = $@;
       unlink("$uploaddir/signer.$$") if $signkey;
-      if ($error =~ /Need RSA key for openssl sign/i) {
+      if ($error =~ /Need RSA key for openssl sign/i || $error =~ /Not an? RSA key/i) {
 	$error = "Need an RSA key for openssl signing, please create a new key\n";
 	$jobstatus->{'result'} = 'failed';
       }

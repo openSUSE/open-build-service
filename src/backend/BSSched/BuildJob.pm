@@ -673,7 +673,10 @@ sub fakejobfinished {
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($needsign) {
-    BSSched::EventSource::Directory::sendevent($gctx, $ev, 'signer', "finished:$myarch:$job");
+    my $evname = "finished:$myarch:$job";
+    $evname = "finished:::".Digest::MD5::md5_hex($evname) if length($evname) > 240;
+    $ev->{'time'} = time();
+    BSSched::EventSource::Directory::sendevent($gctx, $ev, 'signer', $evname);
   } else {
     BSSched::EventSource::Directory::sendevent($gctx, $ev, $myarch, "finished:$job");
   }
