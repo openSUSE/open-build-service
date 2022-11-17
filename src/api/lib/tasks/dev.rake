@@ -61,7 +61,7 @@ namespace :dev do
   end
 
   # This is automatically run in Review App or manually in development env.
-  namespace :development_testdata do
+  namespace :test_data do
     desc 'Creates test data to play with in dev and CI environments'
     task create: :environment do
       unless Rails.env.development?
