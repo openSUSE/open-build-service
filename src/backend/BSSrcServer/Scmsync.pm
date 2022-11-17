@@ -95,7 +95,7 @@ sub sync_locallink {
     $files = BSSrcrep::lsfiles($projid, $packid, $lastrev->{'srcmd5'}) if $lastrev;
   };
   my $linkxml = BSUtil::toxml($link, $BSXML::link);
-  return if $files && scalar(%$files) == 1 && $files->{'_link'} eq Digest::MD5::md5_hex($linkxml);
+  return if $files && scalar(keys %$files) == 1 && $files->{'_link'} eq Digest::MD5::md5_hex($linkxml);
   local $cgi->{'comment'} ||= 'update _link';
   mkdir_p($uploaddir);
   writestr("$uploaddir/sync_locallink$$", undef, $linkxml);

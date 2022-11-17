@@ -419,7 +419,7 @@ sub undelete_rev {
     if ($packid eq '_project') {
       extract_old_prjsource($projid, $nrev);
     } else {
-      updatelinkinfodb($projid, $packid, $rev, lsrev($nrev));
+      updatelinkinfodb($projid, $packid, $nrev, lsrev($nrev));
     }
   } elsif ($revfileto =~ /\.mrev$/) {
     BSRevision::extract_old_meta($projid, $packid, $nrev);
