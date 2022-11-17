@@ -2,10 +2,10 @@
   - unless repository_list.empty?
     .form-inline
       = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort),
-                   class: 'custom-select', onchange: 'updateRpmLintArchitectures()')
+                   class: 'custom-select mb-3', onchange: 'updateRpmLintArchitectures()')
       - repo_arch_hash.each do |repository, architectures|
         = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse),
-                     class: 'rpmlint_arch_select custom-select', onchange: 'updateRpmLintLog()')
+                     class: 'rpmlint_arch_select custom-select mb-3', onchange: 'updateRpmLintLog()')
 
 :javascript
   updateRpmLintArchitectures();
