@@ -93,6 +93,12 @@ OBSApi::Application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
+  # Mount Action Cable outside main process or domain.
+  # config.action_cable.mount_path = nil
+  # config.action_cable.url = 'ws://localhost:3000/cable'
+  # config.action_cable.disable_request_forgery_protection = true
+  # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
+
   # Bullet configuration
   config.after_initialize do
     Bullet.enable = true

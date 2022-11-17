@@ -19,6 +19,14 @@ class Notification < ApplicationRecord
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
 
+  after_initialize do |_notification|
+    NotificationsChannel.broadcast_to(
+      User.first,
+      title: 'New things!',
+      body: 'All the news fit to print'
+    )
+  end
+
   def event
     @event ||= event_type.constantize.new(event_payload)
   end
