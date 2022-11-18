@@ -42,9 +42,13 @@
             .pl-3
               = render UserAvatarComponent.new(package_maintainer)
           %p.mt-3
+            - modal_id = 'show-package-maintainers-modal'
             = link_to('Show all', '#', class: 'btn btn-outline-secondary show_dialog',
-                      data: { toggle: 'modal', target: '#show-maintainers-modal' })
-            = render partial: 'webui/request/show_package_maintainers', locals: { package_maintainers: package_maintainers }
+                      data: { toggle: 'modal', target: "##{modal_id}" })
+            = render partial: 'webui/request/show_maintainers',
+                     locals: { modal_id: modal_id,
+                      entity_type: 'Package',
+                      maintainers: package_maintainers }
 
   -# PROJECT MAINTAINERS
   - unless project_maintainers.empty?
@@ -62,9 +66,13 @@
             .pl-3
               = render UserAvatarComponent.new(project_maintainer)
           %p.mt-3
+            - modal_id = 'show-project-maintainers-modal'
             = link_to('Show all', '#', class: 'btn btn-outline-secondary show_dialog',
-                      data: { toggle: 'modal', target: '#show-project-maintainers-modal' })
-            = render partial: 'webui/request/show_project_maintainers', locals: { project_maintainers: project_maintainers }
+                      data: { toggle: 'modal', target: "##{modal_id}" })
+            = render partial: 'webui/request/show_maintainers',
+                     locals: { modal_id: modal_id,
+                      entity_type: 'Project',
+                      maintainers: project_maintainers }
 
       - if policy(bs_request).handle_request? && show_project_maintainer_hint
         .alert.alert-warning
