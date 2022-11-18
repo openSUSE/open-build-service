@@ -10,12 +10,12 @@
     = package
   - if results.present?
     - results.group_by(&:repository).each_pair do |repository, results_per_repository|
-      .row.mb-4
-        .col-12
+      .float-left.mb-4
+        %div
           = link_to(word_break(repository, 22),
             package_binaries_path(project: project, package: package, repository: repository),
             title: "Binaries for #{repository}")
-        .col-12.results.d-flex.flex-wrap.p-2
+        .results.d-flex.flex-wrap
           - results_per_repository.sort_by! { |result| Buildresult::AVAIL_STATUS_VALUES[result.code.to_sym] }
           - results_per_repository.each do |result|
             = render BuildResultForArchitectureComponent.new(result, project, package)

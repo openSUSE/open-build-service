@@ -1,29 +1,9 @@
 .build-result {
-  // One element per row
-  // The div width is 100% minus the sum of its margins: ml-2 + mr-2 = 0.5rem + 0.5rem = 1rem
-  width: calc(100% - 1rem);
+  width: 220px;
   border-left: thick solid $gray-300;
   cursor: help;
 
   &:hover {
     background-color: $gray-100;
-  }
-
-  @include media-breakpoint-up(sm) {
-    // Up to 2 elements in a row
-    // The div width is 50% minus the sum of its margins: ml-2 + mr-5 = 0.5rem + 3rem = 3.5rem
-    width: calc(50% - 3.5rem);
-  }
-
-  @include media-breakpoint-up(lg) {
-    // Up to 4 elements in a row
-    // The div width is 25% minus the sum of its margins: ml-2 + mr-5 = 0.5rem + 3rem = 3.5rem
-    width: calc(25% - 3.5rem);
-  }
-
-  @include media-breakpoint-up(xxl) {
-    // Up to 5 elements in a row
-    // The div width is 20% minus the sum of its margins: ml-2 + mr-5 = 0.5rem + 3rem = 3.5rem
-    width: calc(20% - 3.5rem);
   }
 }
