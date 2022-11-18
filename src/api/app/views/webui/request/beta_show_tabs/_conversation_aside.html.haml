@@ -36,11 +36,11 @@
         - if package_maintainers.size <= package_size_limit
           - package_maintainers.pluck(:login).each do |package_maintainer|
             .pl-3
-              = user_with_realname_and_icon(package_maintainer, short: true)
+              = render UserAvatarComponent.new(package_maintainer)
         - else
           - package_maintainers.take(package_size_limit).pluck(:login).each do |package_maintainer|
             .pl-3
-              = user_with_realname_and_icon(package_maintainer, short: true)
+              = render UserAvatarComponent.new(package_maintainer)
           %p.mt-3
             = link_to('Show all', '#', class: 'btn btn-outline-secondary show_dialog',
                       data: { toggle: 'modal', target: '#show-maintainers-modal' })
@@ -56,11 +56,11 @@
         - if project_maintainers.size <= project_size_limit
           - project_maintainers.pluck(:login).each do |project_maintainer|
             .pl-3
-              = user_with_realname_and_icon(project_maintainer, short: true)
+              = render UserAvatarComponent.new(project_maintainer)
         - else
           - project_maintainers.take(project_size_limit).pluck(:login).each do |project_maintainer|
             .pl-3
-              = user_with_realname_and_icon(project_maintainer, short: true)
+              = render UserAvatarComponent.new(project_maintainer)
           %p.mt-3
             = link_to('Show all', '#', class: 'btn btn-outline-secondary show_dialog',
                       data: { toggle: 'modal', target: '#show-project-maintainers-modal' })
