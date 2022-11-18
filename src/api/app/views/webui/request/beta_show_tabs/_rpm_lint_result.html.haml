@@ -1,6 +1,11 @@
-%p
-  The RPM Lint results aren't here yet. For now, you can see them on the request's
-  source package page. We're working on having them here in the future.
+#rpmlint-log{ data: { project: project.name, package: package.name } }
+  - unless repository_list.empty?
+    .form-inline
+      = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort),
+                   class: 'custom-select mb-3', onchange: 'updateRpmLintArchitectures()')
+      - repo_arch_hash.each do |repository, architectures|
+        = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse),
+                     class: 'rpmlint_arch_select custom-select mb-3', onchange: 'updateRpmLintLog()')
 
-%p
-  %i The OBS team
+:javascript
+  updateRpmLintArchitectures();

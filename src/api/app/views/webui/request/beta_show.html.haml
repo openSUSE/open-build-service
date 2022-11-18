@@ -54,7 +54,7 @@
           = link_to('Build Results', '#build-results', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
         %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('RPM Lint', '#rpm-lint-result', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint-result',
+          = link_to('RPM Lint', '#rpm-lint', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint',
                     'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
       - if @action[:type].in?(actions_for_diff)
         %li.nav-item.scrollable-tab-link{ role: 'presentation', 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
@@ -81,10 +81,10 @@
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @staging_project || @action[:sprj],
                                                                                     package: @action[:spkg],
                                                                                     is_staged_request: @staging_project.present? }
-        .tab-pane.fade.p-2#rpm-lint-result{ 'aria-labelledby': 'rpm-lint-result-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/rpm_lint_result', locals: { project: @action[:sprj],
-                                                                                      package: @action[:spkg],
-                                                                                      bs_request: @bs_request }
+        .tab-pane.fade.p-2#rpm-lint{ 'aria-labelledby': 'rpm-lint-tab', role: 'tabpanel' }
+          = render partial: 'webui/request/beta_show_tabs/rpm_lint', locals: { project: @action[:sprj],
+                                                                               package: @action[:spkg],
+                                                                               is_staged_request: @staging_project.present? }
       - if @action[:type].in?(actions_for_diff)
         .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/changes', locals: { bs_request: @bs_request, action: @action, refresh: @refresh }

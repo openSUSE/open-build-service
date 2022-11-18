@@ -3,6 +3,11 @@
   max-height: 35rem;
 }
 
+.rpm-lint-content .rpmlint-result {
+  @extend .rpmlint-result;
+  max-height: none;
+}
+
 #buildresult-box {
   .nav-link {
     .fa-sync-alt { @extend .invisible; }
@@ -25,6 +30,8 @@
 .build-results .sticky-top, #log-space-wrapper #log-info.position-sticky {
   top: $top-navigation-height;
 }
+
+.rpm-lint-content .sticky-top { top: $top-navigation-height; }
 
 .toggle-build-info { cursor: pointer; }
 .toggle-build-info-parent { z-index: 2; }
