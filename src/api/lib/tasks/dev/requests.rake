@@ -66,5 +66,35 @@ namespace :dev do
 
       puts "* Request #{request.number} has been created."
     end
+
+    desc 'Creates a  request with submit action and diff'
+    task request_with_submit_action_and_diff: :environment do
+      unless Rails.env.development?
+        puts "You are running this rake task in #{Rails.env} environment."
+        puts 'Please only run this task with RAILS_ENV=development'
+        puts 'otherwise it will destroy your database data.'
+        return
+      end
+
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      puts 'Creating a request with submit action and diff...'
+
+      iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
+      User.session = iggy
+      admin = User.get_default_admin
+      iggy_home_project = RakeSupport.find_or_create_project(iggy.home_project_name, iggy)
+      home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+
+      request_action = create(:bs_request_action_submit_with_diff,
+                              creator: iggy,
+                              source_project_name: iggy_home_project.name,
+                              source_package_name: 'package_with_diff',
+                              target_project_name: home_admin_project.name,
+                              target_package_name: 'package_with_diff')
+
+      puts "* Request #{request_action.bs_request.number} has been created."
+    end
   end
 end

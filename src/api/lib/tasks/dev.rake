@@ -109,12 +109,6 @@ namespace :dev do
         source_package: ruby_iggy
       )
 
-      create(:bs_request_action_submit_with_diff,
-             creator: iggy,
-             source_project_name: home_admin.name,
-             source_package_name: 'package_with_diff',
-             target_package_name: 'package_with_diff')
-
       test_package = create(:package, name: 'hello_world', project: home_admin)
       backend_url = "/source/#{CGI.escape(home_admin.name)}/#{CGI.escape(test_package.name)}"
       Backend::Connection.put("#{backend_url}/hello_world.spec", File.read('../../dist/t/spec/fixtures/hello_world.spec'))
@@ -229,6 +223,9 @@ namespace :dev do
 
       # Create a request with multiple actions
       Rake::Task['dev:requests:multiple_actions_request'].invoke
+
+      # Create a request with a submit action and diff
+      Rake::Task['dev:requests:request_with_submit_action_and_diff'].invoke
     end
   end
 end
