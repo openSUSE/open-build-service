@@ -226,6 +226,9 @@ namespace :dev do
 
       # Create a request with a submit action and diff
       Rake::Task['dev:requests:request_with_submit_action_and_diff'].invoke
+
+      # Create a request wich builds and produces build results
+      Rake::Task['dev:requests:request_with_build_results'].invoke
     end
   end
 end
