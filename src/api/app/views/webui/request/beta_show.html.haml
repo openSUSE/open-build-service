@@ -33,6 +33,10 @@
           - if @bs_request.superseded_by.present?
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
+
+        - if @bs_request.accept_at.present?
+          %span.badge.alert-warning.ml-1 auto-accept
+
       %p.font-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
