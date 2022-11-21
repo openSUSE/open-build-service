@@ -5,6 +5,7 @@
   overflow: auto;
   white-space: nowrap;
   padding: 0.5rem 1rem 0rem 1rem;
+  margin-bottom: -1px; // border-width
 
   a.scrollable-tab-link {
     display: inline-block;
@@ -24,6 +25,7 @@
 ul.scrollable-tabs {
   display: block;
   overflow-y: hidden;
+  margin-bottom: -1px;
 
   li.scrollable-tab-link {
     display: inline-block;
