@@ -1,0 +1,9 @@
+.build-result {
+  width: 220px;
+  border-left: thick solid $gray-300;
+  cursor: help;
+
+  &:hover {
+    background-color: $gray-100;
+  }
+}
