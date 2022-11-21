@@ -72,6 +72,28 @@
     .comment_new.mt-3
       = render partial: 'webui/comment/new', locals: { commentable: bs_request }
     %hr
+
+    - if bs_request.accept_at.present?
+      .alert.alert-warning.p-2.mb-3
+        %i.fas.fa-exclamation-triangle
+        %span The current request
+        - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
+          %span
+            was
+            %strong auto-accepted
+            at
+            %span.fuzzy-time{ title: "#{I18n.l bs_request.accept_at}" }
+            = succeed '.' do
+              = I18n.l bs_request.accept_at, format: :only_date
+        - elsif bs_request.accept_at.past?
+          %span
+            will be
+            %strong auto-accepted
+            after all the reviews are submitted.
+        - else
+          will be
+          %strong auto-accepted
+          in #{time_ago_in_words(bs_request.accept_at)}.
     = render RequestDecisionComponent.new(bs_request: bs_request, action: action,
                                           is_target_maintainer: is_target_maintainer,
                                           is_author: is_author)
