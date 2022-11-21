@@ -43,7 +43,7 @@
             %i.fas.fa-code-commit.text-dark
             = link_to(realname_with_login(creator), user_path(creator))
             created this request
-            = link_to('#request-creation', title: l(bs_request.created_at.utc), name: 'request-creation') do
+            = link_to('#request-creation', title: I18n.l(bs_request.created_at.utc), name: 'request-creation') do
               #{time_ago_in_words(bs_request.created_at)} ago
             - if bs_request.superseding.any?
               superseding
