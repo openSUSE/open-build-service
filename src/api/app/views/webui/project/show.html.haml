@@ -34,21 +34,20 @@
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name }
   .list
     .card
-      .bg-light
-        %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap#packages-tabs{ role: 'tablist' }
+      %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap#packages-tabs{ role: 'tablist' }
+        %li.nav-item
+          %a.nav-link#packages-tab{ href: '#packages', role: 'tab', data: { toggle: 'tab' },
+          aria: { controls: 'packages', selected: 'false' } }
+            Packages
+            %span.badge.badge-primary
+              = @packages.length
+        - if @inherited_packages.present?
           %li.nav-item
-            %a.nav-link#packages-tab{ href: '#packages', role: 'tab', data: { toggle: 'tab' },
-            aria: { controls: 'packages', selected: 'false' } }
-              Packages
+            %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
+            aria: { controls: 'inherited-packages', selected: 'false' } }
+              Inherited Packages
               %span.badge.badge-primary
-                = @packages.length
-          - if @inherited_packages.present?
-            %li.nav-item
-              %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
-              aria: { controls: 'inherited-packages', selected: 'false' } }
-                Inherited Packages
-                %span.badge.badge-primary
-                  = @inherited_packages.length
+                = @inherited_packages.length
       .tab-content#packages-tabs-content
         .tab-pane.fade#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
           = render partial: 'project_packages', locals: { project: @project, packages: @packages }

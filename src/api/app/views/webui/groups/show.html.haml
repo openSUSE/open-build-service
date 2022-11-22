@@ -1,8 +1,8 @@
 - @pagetitle = "Group #{@group}"
 
 .card
-  .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
+  %div
+    %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
         %a.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' },
           data: { toggle: 'tab' }, href: '#group-members', role: 'tab' }

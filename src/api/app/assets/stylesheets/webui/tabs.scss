@@ -5,7 +5,7 @@
   overflow: auto;
   white-space: nowrap;
   padding: 0.5rem 1rem 0rem 1rem;
-  margin-bottom: -1px; // border-width
+  margin-bottom: -$card-border-width;
 
   a.scrollable-tab-link {
     display: inline-block;
@@ -14,9 +14,10 @@
     &.active {
       font-weight: 600;
       border: 1px solid;
-      border-color: $gray-300;
-      border-bottom-color: $white;
-      background-color: $white;
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+      background-color: $card-bg;
+      @include border-top-radius($nav-tabs-border-radius);
     }
   }
 }
@@ -25,7 +26,7 @@
 ul.scrollable-tabs {
   display: block;
   overflow-y: hidden;
-  margin-bottom: -1px;
+  margin-bottom: -$card-border-width;
 
   li.scrollable-tab-link {
     display: inline-block;
@@ -34,9 +35,10 @@ ul.scrollable-tabs {
     & > a.active {
       font-weight: 600;
       border: 1px solid;
-      border-color: $gray-300;
-      border-bottom-color: $white;
-      background-color: $white;
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+      background-color: $card-bg;
+      @include border-top-radius($nav-tabs-border-radius);
     }
   }
 }
@@ -57,7 +59,7 @@ ul.nav.nav-tabs li.nav-item {
 
       span.badge {
         color: $link-hover-color;
-        background-color: $white;
+        background-color: $card-bg;
       }
     }
   }
