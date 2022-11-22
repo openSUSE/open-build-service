@@ -72,14 +72,13 @@
             %span.badge.badge-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
-                                                                             open_reviews: @open_reviews,
-                                                                             accepted_reviews: @accepted_reviews,
-                                                                             declined_reviews: @declined_reviews,
-                                                                             open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
-                                                                             my_open_reviews: @my_open_reviews,
-                                                                             action: @action,
-                                                                             is_target_maintainer: @is_target_maintainer, is_author: @is_author }
+        = render partial: 'webui/request/beta_show_tabs/conversation',
+            locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
+                      open_reviews: @open_reviews, accepted_reviews: @accepted_reviews,
+                      declined_reviews: @declined_reviews, open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
+                      my_open_reviews: @my_open_reviews, package_maintainers: @package_maintainers, action: @action,
+                      is_target_maintainer: @is_target_maintainer, is_author: @is_author,
+                      project_maintainers: @project_maintainers, show_project_maintainer_hint: @show_project_maintainer_hint }
       - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @staging_project || @action[:sprj],

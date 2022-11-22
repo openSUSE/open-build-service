@@ -66,4 +66,5 @@
 
 - if @can_add_reviews
   = render partial: 'webui/request/add_reviewer_dialog'
-= render partial: 'webui/request/show_package_maintainers', locals: { package_maintainers: @package_maintainers }
+= render partial: 'webui/request/show_maintainers', locals: { modal_id: 'show-package-maintainers-modal',
+                                                              entity_type: 'Package', maintainers: @package_maintainers }

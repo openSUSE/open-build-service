@@ -37,6 +37,16 @@ class Webui::RequestController < Webui::WebuiController
       # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
       @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
+      # retrieve a list of all package maintainers that are assigned to at least one target package
+      @package_maintainers = target_package_maintainers
+
+      # retrieve a list of all project maintainers
+      @project_maintainers = Project.find_by_name(@bs_request.target_project_name).maintainers
+
+      # search for a project, where the user is not a package maintainer but a project maintainer and show
+      # a hint if that package has some package maintainers (issue#1970)
+      @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+
       # Handling build results
       @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
