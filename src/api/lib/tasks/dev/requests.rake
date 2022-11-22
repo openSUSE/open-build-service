@@ -87,12 +87,12 @@ namespace :dev do
 
       source_package = create(:package_with_file,
                               project: iggy_home_project,
-                              name: 'source_package_with_multiple_submit_request_and_diff',
+                              name: "source_package_with_multiple_submit_request_and_diff_#{Time.now.to_i}",
                               file_name: 'somefile.txt',
                               file_content: '# This will be replaced')
       target_package = create(:package_with_file,
                               project: home_admin_project,
-                              name: 'another_package_with_diff',
+                              name: "another_package_with_diff_#{Time.now.to_i}",
                               file_name: 'somefile.txt',
                               file_content: '# This will be replaced')
 
