@@ -26,7 +26,7 @@ RSpec.configure do |config|
   config.include Haml::Helpers
 
   # load ActiveRecord fixtures
-  config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  config.fixture_path = Rails.root.join('spec/fixtures')
 
   # set spec type based on their file location
   config.infer_spec_type_from_file_location!
