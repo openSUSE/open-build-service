@@ -342,4 +342,36 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         .to have_text("This request will be automatically accepted in #{ApplicationController.helpers.time_ago_in_words(bs_request.accept_at)}.")
     end
   end
+
+  describe 'for a request with an existing target project' do
+    let!(:delete_bs_request) do
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter)
+    end
+
+    before do
+      Flipper.enable(:request_show_redesign)
+    end
+
+    it 'shows the project maintainers' do
+      visit request_show_path(delete_bs_request)
+      expect(page).to have_text('Project Maintainers')
+    end
+  end
+
+  describe 'for a request with a deleted target project' do
+    let!(:delete_bs_request) do
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, state: :accepted)
+    end
+
+    before do
+      Flipper.enable(:request_show_redesign)
+      # Faking that the target project was destroyed when the delete request was accepted
+      target_project.destroy
+    end
+
+    it 'does not show the project maintainers' do
+      visit request_show_path(delete_bs_request)
+      expect(page).not_to have_text('Project Maintainers')
+    end
+  end
 end
