@@ -4,4 +4,4 @@
         else
           link_to(event['project'], project_users_url(event['project'], only_path: false, host: @host))
         end
-#{event['who']} made you #{event['role']} of #{url}.
+#{event['who']} made #{event_relationship_recipient(event)} #{event['role']} of #{url}.
