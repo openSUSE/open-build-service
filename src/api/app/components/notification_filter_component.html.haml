@@ -1,9 +1,9 @@
-.row.list-group-flush
+.list-group.list-group-flush.my-2
   = render NotificationFilterLinkComponent.new(text: 'Unread', amount: @count['unread'],
                                                filter_item: { type: 'unread' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Read', filter_item: { type: 'read' },
                                                selected_filter: @selected_filter)
-.row.list-group-flush.mt-5
+.list-group.list-group-flush.mt-5.mb-2
   %h5.ml-3 Filter
   = render NotificationFilterLinkComponent.new(text: 'Comments', amount: @count['Comment'],
                                                filter_item: { type: 'comments' }, selected_filter: @selected_filter)
@@ -19,13 +19,13 @@
                                                filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
 
 - unless @projects_for_filter.empty?
-  .row.list-group-flush.mt-5
+  .list-group.list-group-flush.mt-5.mb-2
     %h5.ml-3 Projects
     - @projects_for_filter.each_pair do |project_name, amount|
       = render NotificationFilterLinkComponent.new(text: project_name, amount: amount, filter_item: { project: project_name },
                                                    selected_filter: @selected_filter)
 - unless @groups_for_filter.empty?
-  .row.list-group-flush.mt-5
+  .list-group.list-group-flush.mt-5.mb-2
     %h5.ml-3 Groups
     - @groups_for_filter.each_pair do |group_title, amount|
       = render NotificationFilterLinkComponent.new(text: group_title, amount: amount, filter_item: { group: group_title },
