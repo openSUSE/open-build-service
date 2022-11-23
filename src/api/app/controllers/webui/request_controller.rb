@@ -41,7 +41,11 @@ class Webui::RequestController < Webui::WebuiController
       @package_maintainers = target_package_maintainers
 
       # retrieve a list of all project maintainers
-      @project_maintainers = Project.find_by_name(@bs_request.target_project_name).maintainers
+      @project_maintainers = if Project.deleted?(@bs_request.target_project_name)
+                               []
+                             else
+                               Project.find_by_name(@bs_request.target_project_name).maintainers
+                             end
 
       # search for a project, where the user is not a package maintainer but a project maintainer and show
       # a hint if that package has some package maintainers (issue#1970)
