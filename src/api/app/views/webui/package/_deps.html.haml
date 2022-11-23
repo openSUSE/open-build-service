@@ -85,3 +85,16 @@
           %tr
             %td{ colspan: '2' }
               %em No recommends
+
+  .table-responsive.col-sm-12.col-md-6.mt-4
+    %h4 Files
+    - if fileinfo['filelist']
+      %table.table.table-bordered.table-hover.table-sm
+        %thead
+          %tr
+            %th Filename
+        - fileinfo.elements('filelist') do |package_file|
+          %tr
+            %td.text-word-break-all= package_file
+    - else
+      %i No files

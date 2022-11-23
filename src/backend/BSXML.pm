@@ -476,6 +476,7 @@ our $fileinfo = [
       [ 'supplements' ],
       [ 'suggests' ],
       [ 'enhances' ],
+      [ 'filelist' ],
 
      [[ 'provides_ext' =>
 	    'dep',
