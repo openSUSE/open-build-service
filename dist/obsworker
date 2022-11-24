@@ -167,6 +167,13 @@ if [ "$OBS_VM_TYPE" = "zvm" ]; then
     fi
 fi
 
+# Only enable network for kvm (now the only one supported)
+if [ "$OBS_VM_TYPE" = "kvm" ]; then
+    if [ "x${OBS_VM_ENABLE_NET}" = "xyes" ]; then
+        OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-network"
+    fi
+fi
+
 if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#qemu:}" != "$OBS_VM_TYPE" -o "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
     # we start up in VM mode, check for the worker disk options
     if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
