@@ -119,7 +119,7 @@ RSpec.describe EventMailer, vcr: true do
     context 'for an event of type Event::RelationshipCreate' do
       let(:who) { create(:confirmed_user) }
       let(:project) { create(:project) }
-      let(:group) { create(:group_with_user, user: receiver) }
+      let(:group) { create(:group_with_user, user: receiver, email: nil) }
       let!(:subscription) { create(:event_subscription_relationship_create, user: receiver) }
       let(:mail) { EventMailer.with(subscribers: Event::RelationshipCreate.last.subscribers, event: Event::RelationshipCreate.last).notification_email.deliver_now }
 
@@ -187,7 +187,7 @@ RSpec.describe EventMailer, vcr: true do
     context 'for an event of type Event::RelationshipDelete' do
       let(:who) { create(:confirmed_user) }
       let(:project) { create(:project) }
-      let(:group) { create(:group_with_user, user: receiver) }
+      let(:group) { create(:group_with_user, user: receiver, email: nil) }
       let!(:subscription) { create(:event_subscription_relationship_delete, user: receiver) }
       let(:mail) { EventMailer.with(subscribers: Event::RelationshipDelete.last.subscribers, event: Event::RelationshipDelete.last).notification_email.deliver_now }
 

@@ -65,6 +65,8 @@ class EventSubscription
       receivers_and_subscriptions.values.flatten
     end
 
+    private
+
     def expand_receivers(receivers, channel)
       receivers.inject([]) do |new_receivers, receiver|
         case receiver
@@ -72,17 +74,14 @@ class EventSubscription
           new_receivers << receiver if receiver.is_active?
           puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.is_active?
         when Group
-          new_receivers += expand_receivers_for_groups(new_receivers, receiver, channel)
+          new_receivers += expand_receivers_for_groups(receiver, channel)
         end
 
         new_receivers
       end
     end
 
-    def expand_receivers_for_groups(_new_receivers, receiver, channel)
-      # We don't subscribe Groups so we have to get the group's users to get the subscriptions
-      return receiver.users if event.instance_of?(Event::RelationshipCreate) || event.instance_of?(Event::RelationshipDelete)
-
+    def expand_receivers_for_groups(receiver, channel)
       # We don't split events which come through the web channel, for a group subscriber.
       # They are split in the NotificationService::WebChannel service, if needed.
       return [receiver] if channel == :web || receiver.email.present?
