@@ -19,14 +19,6 @@ else
     xml.ignore_auth_services(my_model.ignore_auth_services) if my_model.is_admin?
 
     # Show the watchlist only to the user for privacy reasons
-    if Flipper.enabled?(:new_watchlist, User.session) && watchlist
-      render partial: 'person/watchlist', locals: { builder: xml, my_model: my_model }
-    elsif watchlist
-      xml.watchlist do
-        my_model.watched_projects.each do |wp|
-          xml.project(name: wp.project.name)
-        end
-      end
-    end
+    render partial: 'person/watchlist', locals: { builder: xml, my_model: my_model } if watchlist
   end
 end

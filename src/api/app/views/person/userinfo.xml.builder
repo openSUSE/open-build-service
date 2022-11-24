@@ -1,3 +1,4 @@
+# TODO: remove this view, the corresponding action no longer exists
 xml.person do
   xml.login @render_user.login
   xml.email @render_user.email

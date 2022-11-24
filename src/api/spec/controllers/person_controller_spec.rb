@@ -117,7 +117,6 @@ RSpec.describe PersonController do
 
       before do
         create(:package, project: project, name: 'test-pkg')
-        Flipper.enable_actor(:new_watchlist, admin_user)
         login admin_user
         put :put_userinfo, params: { login: test_user.login, format: :xml }, body: xml
       end
@@ -198,7 +197,6 @@ RSpec.describe PersonController do
       before do
         project = create(:project, name: 'test-proj')
         package = create(:package, project: project, name: 'test-pkg')
-        Flipper.enable_actor(:new_watchlist, user)
         user.watched_items.create(watchable: project)
         user.watched_items.create(watchable: package)
         login user
@@ -227,7 +225,6 @@ RSpec.describe PersonController do
       let!(:package) { create(:package, project: project, name: 'test-pkg') }
 
       before do
-        Flipper.enable_actor(:new_watchlist, user)
         login user
         put :put_watchlist, params: { login: user.login, format: :xml }, body: xml
       end
