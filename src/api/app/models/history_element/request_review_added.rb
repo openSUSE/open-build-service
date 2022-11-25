@@ -1,12 +1,28 @@
 module HistoryElement
   class RequestReviewAdded < HistoryElement::Request
-    # self.description_extension is review id
     def description
       'Request got a new review request'
     end
 
     def user_action
-      'added a reviewer'
+      "#{user_action_prefix} #{action_target} #{user_action_suffix}"
+    end
+
+    def user_action_prefix
+      'added'
+    end
+
+    def action_target
+      review.reviewed_by
+    end
+
+    def user_action_suffix
+      'as a reviewer'
+    end
+
+    # self.description_extension is review id
+    def review
+      ::Review.find(description_extension)
     end
   end
 end
