@@ -173,12 +173,12 @@ RSpec.describe EventMailer, vcr: true do
         end
 
         it 'contains the correct text' do
-          expect(mail.body.encoded).to include("#{who} made you maintainer of #{project}")
+          expect(mail.body.encoded).to include("#{who} made #{group} maintainer of #{project}")
           expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
         end
 
         it 'renders link to the users page' do
-          expected_html = "made you maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expected_html = "made #{group} maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
           expect(mail.html_part.to_s).to include(expected_html)
         end
       end
@@ -241,12 +241,12 @@ RSpec.describe EventMailer, vcr: true do
         end
 
         it 'contains the correct text' do
-          expect(mail.body.encoded).to include("#{who} removed you as maintainer of #{project}")
+          expect(mail.body.encoded).to include("#{who} removed #{group} as maintainer of #{project}")
           expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
         end
 
         it 'renders link to the users page' do
-          expected_html = "removed you as maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expected_html = "removed #{group} as maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
           expect(mail.html_part.to_s).to include(expected_html)
         end
       end

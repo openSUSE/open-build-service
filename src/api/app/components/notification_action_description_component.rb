@@ -5,6 +5,8 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     @notification = notification
     @role = @notification.event_payload['role']
     @user = @notification.event_payload['who']
+    # If a notification is for a group, the notified user needs to know for which group. Otherwise, the user is simply referred to as 'you'.
+    @recipient = @notification.event_payload.fetch('group', 'you')
     @target_object = if @notification.event_payload['package']
                        "#{@notification.event_payload['project']} / #{@notification.event_payload['package']}"
                      else
@@ -23,9 +25,9 @@ class NotificationActionDescriptionComponent < ApplicationComponent
         commentable = @notification.notifiable.commentable
         "#{commentable.project.name} / #{commentable.name}"
       when 'Event::RelationshipCreate'
-        "#{@user} made you #{@role} of #{@target_object}"
+        "#{@user} made #{@recipient} #{@role} of #{@target_object}"
       when 'Event::RelationshipDelete'
-        "#{@user} removed you as #{@role} of #{@target_object}"
+        "#{@user} removed #{@recipient} as #{@role} of #{@target_object}"
       end
     end
   end

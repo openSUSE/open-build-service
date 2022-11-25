@@ -111,4 +111,68 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       expect(rendered_content).to have_selector('div.smart-overflow', text: 'my_project_2 / my_package_2')
     end
   end
+
+  context 'when the notification is for a Event::RelationshipCreate' do
+    context 'with the recipient being a user' do
+      let(:project) { create(:project, name: 'some_awesome_project') }
+      let(:notification) do
+        create(:notification, :relationship_create_for_project, notifiable: project, originator: 'Jane', role: 'maintainer')
+      end
+
+      before do
+        render_inline(described_class.new(notification))
+      end
+
+      it 'renders a div containing who added the recipient and their new role in the project' do
+        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane made you maintainer of some_awesome_project')
+      end
+    end
+
+    context 'with the recipient being a group' do
+      let(:project) { create(:project, name: 'some_awesome_project') }
+      let(:notification) do
+        create(:notification, :relationship_create_for_project, notifiable: project, originator: 'Jane', recipient_group: 'group_1', role: 'maintainer')
+      end
+
+      before do
+        render_inline(described_class.new(notification))
+      end
+
+      it "renders a div containing who added the recipient's group and their new role in the project" do
+        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane made group_1 maintainer of some_awesome_project')
+      end
+    end
+  end
+
+  context 'when the notification is for a Event::RelationshipDelete' do
+    context 'with the recipient being a user' do
+      let(:project) { create(:project, name: 'some_awesome_project') }
+      let(:notification) do
+        create(:notification, :relationship_delete_for_project, notifiable: project, originator: 'Jane', role: 'maintainer')
+      end
+
+      before do
+        render_inline(described_class.new(notification))
+      end
+
+      it "renders a div containing who removed the recipient's role in the project" do
+        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane removed you as maintainer of some_awesome_project')
+      end
+    end
+
+    context 'with the recipient being a group' do
+      let(:project) { create(:project, name: 'some_awesome_project') }
+      let(:notification) do
+        create(:notification, :relationship_delete_for_project, notifiable: project, originator: 'Jane', recipient_group: 'group_1', role: 'maintainer')
+      end
+
+      before do
+        render_inline(described_class.new(notification))
+      end
+
+      it "renders a div containing who removed the recipient's group role in the project" do
+        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane removed group_1 as maintainer of some_awesome_project')
+      end
+    end
+  end
 end

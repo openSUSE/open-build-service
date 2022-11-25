@@ -6,5 +6,5 @@ else
    url_for(controller: 'webui/project', action: :users, project: event['project'], only_path: false, host: @host)]
 end
 -%>
-<%= "#{event['who']} removed you as #{event['role']} of #{target_object}." %>
+<%= "#{event['who']} removed #{event_relationship_recipient(event)} as #{event['role']} of #{target_object}." %>
 Visit <%= url %>.
