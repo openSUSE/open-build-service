@@ -28,9 +28,7 @@ class Webui::RequestController < Webui::WebuiController
                                           diffs: true, action_id: action_id.to_i, cacheonly: 1).first
       @active_action = @bs_request.bs_request_actions.find(action_id)
 
-      @open_reviews = @bs_request.reviews.opened.for_non_staging_projects
-      @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
-      @declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
+      @request_reviews = @bs_request.reviews.for_non_staging_projects
       @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
       @refresh = @action[:diff_not_cached]
 

@@ -1,0 +1,5 @@
+- if can_add_reviews
+  %button.btn.btn-outline-secondary.btn-sm{ data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add Reviewer' }
+    %i.fas.fa-plus-circle.mr-1.text-outline-secondary
+    %span.nav-item-name Add Reviewer
+  = render partial: 'add_reviewer_dialog'

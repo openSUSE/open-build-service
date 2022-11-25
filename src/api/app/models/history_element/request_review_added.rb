@@ -6,7 +6,7 @@ module HistoryElement
     end
 
     def user_action
-      'added review'
+      'added a reviewer'
     end
   end
 end

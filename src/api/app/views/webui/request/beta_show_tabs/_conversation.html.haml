@@ -1,18 +1,17 @@
 .row
   .col-md-12
-    .mb-4#description-text
-      - if bs_request.description.present?
-        = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
-      - else
-        %i No description set
+    .d-flex.justify-content-between.mb-4
+      #description-text
+        - if bs_request.description.present?
+          = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
+        - else
+          %i No description set
 .row
   = render partial: 'webui/request/beta_show_tabs/conversation_aside',
            locals: { bs_request: bs_request,
              can_add_reviews: can_add_reviews,
              my_open_reviews: my_open_reviews,
-             accepted_reviews: accepted_reviews,
-             declined_reviews: declined_reviews,
-             open_reviews: open_reviews,
+             request_reviews: request_reviews,
              open_reviews_for_staging_projects: open_reviews_for_staging_projects,
              package_maintainers: package_maintainers,
              project_maintainers: project_maintainers,
