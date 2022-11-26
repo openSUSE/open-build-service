@@ -39,251 +39,15 @@ http_interactions:
           <description></description>
           <person userid="kody" role="maintainer"/>
         </project>
-  recorded_at: Tue, 22 Jun 2021 11:38:51 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - d7ddc992-74df-44c8-af17-1b9d1211bf84
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:01 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kody/_keyinfo?donotcreatecert=1&withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - d7ddc992-74df-44c8-af17-1b9d1211bf84
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '11'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo/>\n"
-  recorded_at: Tue, 22 Jun 2021 11:39:01 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kody/_result?view=summary
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 8274ca31-a8c4-4689-8c17-05f42ead2352
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:02 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - bb08f093-8625-4973-ae17-b6c70b26592a
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:02 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - bca9567a-45c2-44c1-bfb1-baa6bb7c5152
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:03 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kody/_result?view=summary
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - fca42e2d-f857-4774-b0ab-10c7fed66f94
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:03 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - f2977ec9-7628-4ea1-b743-320f66a1b445
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:03 GMT
+  recorded_at: Sat, 26 Nov 2022 00:25:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/watchlist_test_project/_meta?user=kody
+    uri: http://backend:5352/source/watchlist_test_project_a/_meta?user=kody
     body:
       encoding: UTF-8
       string: |
-        <project name="watchlist_test_project">
-          <title>Vile Bodies</title>
+        <project name="watchlist_test_project_a">
+          <title>Precious Bane</title>
           <description/>
         </project>
     headers:
@@ -305,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '114'
     body:
       encoding: UTF-8
       string: |
-        <project name="watchlist_test_project">
-          <title>Vile Bodies</title>
+        <project name="watchlist_test_project_a">
+          <title>Precious Bane</title>
           <description></description>
         </project>
-  recorded_at: Tue, 22 Jun 2021 11:39:03 GMT
+  recorded_at: Sat, 26 Nov 2022 00:25:48 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 40a5ed3d-dc94-45c6-880e-5a56606685be
+      - 8712463a-990e-4075-8003-d91c98c7b7a6
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -347,16 +111,16 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 22 Jun 2021 11:39:04 GMT
+  recorded_at: Sat, 26 Nov 2022 00:25:48 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/watchlist_test_project/_result?view=summary
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 198c19f5-66c7-4a90-9d8e-d735a7622124
+      - 6ee2c8a8-5827-4463-9558-a59736b9eb9f
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -381,16 +145,54 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 22 Jun 2021 11:39:04 GMT
+  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/watchlist_test_project_b/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project_b">
+          <title>If Not Now, When?</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '118'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project_b">
+          <title>If Not Now, When?</title>
+          <description></description>
+        </project>
+  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/watchlist_test_project_b/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 64afed5f-bdde-4c45-bf65-8830654d6e04
+      - 55f998a3-832d-4be7-bddb-ef6b585bf941
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -415,16 +217,16 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 22 Jun 2021 11:39:04 GMT
+  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/watchlist_test_project_b/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - d16e5094-dd72-40d1-8b9c-2a121a6fcdaf
+      - a109d30e-5862-4c5a-a4cf-fe371f66dd78
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -449,16 +251,120 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 22 Jun 2021 11:39:04 GMT
+  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="watchlist_test_package" project="watchlist_test_project_a">
+          <title>Postern of Fate</title>
+          <description>At eos illum recusandae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="watchlist_test_package" project="watchlist_test_project_a">
+          <title>Postern of Fate</title>
+          <description>At eos illum recusandae.</description>
+        </package>
+  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/watchlist_test_project/_result?view=summary
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 77f12386-1327-4262-845e-45b3f75fad8f
+      - f5621bd8-a46d-49d3-b098-d66dec08d22a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ce55c9dd-3a8c-406b-9d08-444f5fbdd3ab
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -483,39 +389,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 22 Jun 2021 11:39:05 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - e80caadc-e5f8-4870-822f-be12f22e3609
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Tue, 22 Jun 2021 11:39:05 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+recorded_with: VCR 6.1.0

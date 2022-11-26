@@ -2,55 +2,72 @@ require 'browser_helper'
 
 RSpec.describe 'Watchlists', js: true, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'kody') }
-  let(:project) { create(:project, name: 'watchlist_test_project') }
-  let(:user_with_watched_project) do
-    other_user = create(:confirmed_user, login: 'brian')
-    other_user.watched_projects << create(:watched_project,
-                                          project: create(:project, name: "#{other_user.login}_s_watched_project"))
-    other_user
-  end
+  let(:project_a) { create(:project, name: 'watchlist_test_project_a') }
+  let(:project_b) { create(:project, name: 'watchlist_test_project_b') }
+  let(:package) { create(:package, project: project_a, name: 'watchlist_test_package') }
+  let(:request) { create(:bs_request_with_submit_action) }
 
-  it 'add projects to watchlist' do
+  it 'add and remove items from watchlist' do
     login user
-    visit project_show_path(user.home_project)
 
+    visit project_show_path(project: project_a)
     click_on('Watchlist')
     expect(page).to have_content('Projects you are watching')
-    expect(page).to have_css('.list-group .list-group-item', count: 0)
+    expect(page).to have_content('There are no projects in the watchlist yet')
+    expect(page).to have_content('There are no packages in the watchlist yet')
+    expect(page).to have_content('There are no requests in the watchlist yet')
 
-    expect(page).to have_css('#toggle-watch', text: 'Watch this project')
+    # Add project
     click_link('Watch this project')
+    within('.watchlist-collapse') do
+      expect(page).not_to have_content('There are no projects in the watchlist yet')
+      expect(page).to have_content('Remove this project from Watchlist')
+      expect(page).to have_content(project_a.name)
+    end
 
+    # Add another project
+    visit project_show_path(project: project_b)
     click_on('Watchlist')
-    expect(page).to have_css('.list-group .list-group-item a', text: user.home_project_name)
-    expect(page).to have_css('.list-group .list-group-item', count: 1)
-
-    visit project_show_path(project: project.name)
-    click_on('Watchlist')
-    expect(page).to have_css('#toggle-watch', text: 'Watch this project')
     click_link('Watch this project')
+    within('.watchlist-collapse') do
+      expect(page).to have_content('Remove this project from Watchlist')
+      expect(page).to have_content(project_a.name)
+      expect(page).to have_content(project_b.name)
+    end
 
+    # Add package
+    visit package_show_path(project: project_a.name, package: package.name)
     click_on('Watchlist')
-    expect(page).to have_css('.list-group .list-group-item a', text: user.home_project_name)
-    expect(page).to have_css('.list-group .list-group-item a', text: project.name)
-    expect(page).to have_css('.list-group .list-group-item', count: 2)
-  end
+    click_link('Watch this package')
+    within('.watchlist-collapse') do
+      expect(page).to have_content('Remove this package from Watchlist')
+      expect(page).to have_content(project_a.name)
+      expect(page).to have_content(project_b.name)
+      expect(page).to have_content(package.name)
+    end
 
-  it 'remove projects from watchlist' do
-    login user_with_watched_project
-    visit project_show_path(project: 'brian_s_watched_project')
-
+    # Add request
+    visit request_show_path(number: request.number)
     click_on('Watchlist')
-    expect(page).to have_content('Projects you are watching')
-    expect(page).to have_css('.list-group .list-group-item a', text: 'brian_s_watched_project')
-    expect(page).to have_css('.list-group .list-group-item', count: 1)
-    expect(page).to have_css('#toggle-watch', text: 'Remove this project from Watchlist')
+    click_link('Watch this request')
+    within('.watchlist-collapse') do
+      expect(page).to have_content('Remove this request from Watchlist')
+      expect(page).to have_content(project_a.name)
+      expect(page).to have_content(project_b.name)
+      expect(page).to have_content(package.name)
+      expect(page).to have_content("##{request.number} Submit")
+    end
 
-    click_link('Remove this project from Watchlist')
-
-    visit project_show_path(project: 'brian_s_watched_project')
-    click_on('Watchlist')
-    expect(page).to have_css('.list-group .list-group-item', count: 0)
-    expect(page).to have_css('#toggle-watch', text: 'Watch this project')
+    # Remove request
+    click_link('Remove this request from Watchlist')
+    within('#delete-item-from-watchlist-modal') do
+      click_button('Remove')
+    end
+    within('.watchlist-collapse') do
+      expect(page).to have_content(project_a.name)
+      expect(page).to have_content(project_b.name)
+      expect(page).to have_content(package.name)
+      expect(page).not_to have_content("##{request.number} Submit")
+    end
   end
 end
