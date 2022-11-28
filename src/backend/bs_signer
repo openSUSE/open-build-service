@@ -1038,6 +1038,8 @@ sub signevent {
   };
   if ($@) {
     signstats($req, $job, $prpa_stats, 'failed', $starttime, time());
+    # retry in 3 minutes
+    BSStdRunner::setdue($req, time() + 3 * 60);
     die("sign failed: $@");
   }
   if (defined($res)) {
