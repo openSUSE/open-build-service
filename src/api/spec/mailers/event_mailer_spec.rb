@@ -136,8 +136,8 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
         it 'sends an email to the subscribed user' do
@@ -164,11 +164,11 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
-        it 'sends an email to the user the user belonging to the subscribed group' do
+        it 'sends an email to the user belonging to the subscribed group' do
           expect(mail.to).to include(receiver.email)
         end
 
@@ -204,8 +204,8 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
         it 'sends an email to the subscribed user' do
@@ -232,11 +232,11 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
-        it 'sends an email to the user the user belonging to the subscribed group' do
+        it 'sends an email to the user belonging to the subscribed group' do
           expect(mail.to).to include(receiver.email)
         end
 

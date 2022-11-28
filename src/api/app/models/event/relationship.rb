@@ -25,5 +25,9 @@ module Event
 
       nil
     end
+
+    def originator
+      payload_address('who')
+    end
   end
 end
