@@ -253,7 +253,7 @@ module Event
       package = Package.get_by_project_and_name(payload['project'], payload['package'], { follow_multibuild: true, follow_project_links: false, use_source: false })
       return [] if package.blank?
 
-      package.watched_items.map(&:user)
+      package.watched_items.includes(:user).map(&:user)
     rescue Package::Errors::UnknownObjectError, Project::Errors::UnknownObjectError
       []
     end
@@ -262,7 +262,7 @@ module Event
       bs_request = BsRequest.find_by(number: payload['number'])
       return [] if bs_request.blank?
 
-      bs_request.watched_items.map(&:user)
+      bs_request.watched_items.includes(:user).map(&:user)
     end
 
     def _roles(role, project, package = nil)
