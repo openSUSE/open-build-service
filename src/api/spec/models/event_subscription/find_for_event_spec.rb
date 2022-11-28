@@ -164,7 +164,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         before do
-          watcher.add_watched_project(project.name)
+          watcher.watched_items.create(watchable: project)
         end
 
         it 'returns a new subscription for the watcher based on the default subscription' do

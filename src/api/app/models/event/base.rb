@@ -246,7 +246,7 @@ module Event
       project = ::Project.find_by_name(payload['project'])
       return [] if project.blank?
 
-      project.watched_projects.map(&:user).concat(project.watched_items.map(&:user)).uniq
+      project.watched_items.includes(:user).map(&:user)
     end
 
     def package_watchers
