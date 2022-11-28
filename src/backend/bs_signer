@@ -414,12 +414,7 @@ sub signappx {
 
   if ((!$signkey || length($signkey) <= 2) && $BSConfig::sign_type) {
     # special signkey, ask for cert again with signtype appx
-    my $param = {
-      'uri' => "$BSConfig::srcserver/getsslcert",
-      'timeout' => 60,
-    };
-    $cert = BSRPC::rpc($param, undef, "project=$projid", "signtype=appx");
-    die("returned cert is empty") unless $cert && length($cert) >= 16;
+    $cert = getsslcert($projid, 'appx');
     splice(@signargs, $BSConfig::sign_project ? 2 : 0, 0, '--signtype', 'appx') if $BSConfig::sign_type;
   }
   my $ocfile = "$jobdir/othercerts.der";
@@ -632,6 +627,21 @@ sub updateredisjobstatus {
   BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, $details) if $info;
 }
 
+sub getsslcert {
+  my ($projid, $signtype) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getsslcert",
+    'timeout' => 60,
+  };
+  my @args;
+  push @args, "project=$projid";
+  push @args, "signtype=$signtype" if $signtype;
+  push @args, "autoextend=1" unless $signtype;
+  my $cert = BSRPC::rpc($param, undef, @args);
+  die("returned cert is empty") unless $cert && length($cert) >= 16;
+  return $cert;
+}
+
 sub getsignkey {
   my ($projid, $needpubkey, $needcert) = @_;
   my $param = {
@@ -674,19 +684,8 @@ sub getsignkey {
     # try to get algo from public key
     eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
   }
-  my $cert;
-  if ($needcert) {
-    # this is kind of racy. should do it with one call.
-    my $param = {
-      'uri' => "$BSConfig::srcserver/getsslcert",
-      'timeout' => 60,
-    };
-    my @args;
-    push @args, "project=$projid";
-    push @args, "autoextend=1";
-    $cert = BSRPC::rpc($param, undef, @args);
-    die("returned cert is empty") unless $cert && length($cert) >= 16;
-  }
+  # this is kind of racy. should add a "withcert" option to the above call.
+  my $cert = $needcert ? getsslcert($projid) : undef;
   return ($algo, $signkey, $pubkey, $cert);
 }
 
