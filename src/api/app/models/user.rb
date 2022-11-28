@@ -798,32 +798,6 @@ class User < ApplicationRecord
     NotificationsFinder.new(notifications.for_web).unread.size
   end
 
-  def watched_project_names
-    Rails.cache.fetch(['watched_project_names', self]) do
-      Project.where(id: watched_projects.select(:project_id)).order(:name).pluck(:name)
-    end
-  end
-
-  def add_watched_project(name)
-    watched_projects.create(project: Project.find_by_name!(name))
-    clear_watched_projects_cache
-  end
-
-  def remove_watched_project(name)
-    watched_projects.joins(:project).where(projects: { name: name }).delete_all
-    clear_watched_projects_cache
-  end
-
-  # Needed to clear cache even when user's updated_at timestamp did not change,
-  # aka. changes within the same second. Mainly an issue when in our test suite
-  def clear_watched_projects_cache
-    Rails.cache.delete(['watched_project_names', self])
-  end
-
-  def watches?(name)
-    watched_project_names.include?(name)
-  end
-
   def update_globalroles(global_roles)
     roles.replace(global_roles + roles.where(global: false))
   end
