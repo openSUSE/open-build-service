@@ -1,6 +1,7 @@
 module NotificationService
   class Notifier
-    EVENTS_TO_NOTIFY = ['Event::RequestStatechange',
+    EVENTS_TO_NOTIFY = ['Event::BuildFail',
+                        'Event::RequestStatechange',
                         'Event::RequestCreate',
                         'Event::ReviewWanted',
                         'Event::CommentForProject',

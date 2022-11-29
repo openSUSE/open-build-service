@@ -35,6 +35,11 @@ module Event
       }
     end
 
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Package',
+                  notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id)
+    end
+
     private
 
     def duration_in_seconds
