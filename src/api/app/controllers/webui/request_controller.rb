@@ -1,11 +1,11 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action]
-  before_action :set_superseded_request, only: [:show, :request_action]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes]
+  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
   after_action :verify_authorized, only: [:create]
@@ -198,6 +198,30 @@ class Webui::RequestController < Webui::WebuiController
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    @diff_to_superseded_id = params[:diff_to_superseded]
+    @refresh = @action[:diff_not_cached]
+
+    if @refresh
+      bs_request_action = BsRequestAction.find(@action[:id])
+      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def request_action_changes
+    # TODO: Change @diff_limit to a local variable
+    @diff_limit = params[:full_diff] ? 0 : nil
+    # TODO: Change @actions to a local variable
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
+                                         action_id: params['id'].to_i, cacheonly: 1)
+    @action = @actions.find { |action| action[:id] == params['id'].to_i }
+    # TODO: Check if @not_full_diff is really needed
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    # TODO: Check if @diff_to_superseded_id is really needed
     @diff_to_superseded_id = params[:diff_to_superseded]
     @refresh = @action[:diff_not_cached]
 
