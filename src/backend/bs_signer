@@ -932,7 +932,7 @@ sub signjob {
 	$error = "Need an RSA key for openssl signing, please create a new key\n";
 	$jobstatus->{'result'} = 'failed';
       }
-      $jobstatus->{'result'} = 'failed' if !$jobstatus->{'result'} && $error =~ s/^fatal: //;
+      $jobstatus->{'result'} = 'failed' if $error =~ s/^fatal: //;
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
         warn("rebuilding: $error\n");
 	if ($info->{'followupfile'}) {
@@ -948,7 +948,7 @@ sub signjob {
       }
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'failed') {
         warn("failed: $error\n");
-	BSUtil::appendstr("$jobdir/logfile", "\n\n$error");
+	BSUtil::appendstr("$jobdir/logfile", "\n\nsigning failed: $error");
 	$jobstatus->{'code'} = 'finished';
 	writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
 	updateredisjobstatus($arch, $job, $info, 'finished');
