@@ -3,6 +3,11 @@
     &.d-flex.justify-content-between {
       h5 { @extend .mb-0 }
     }
+
+    &.nav-tabs .nav-link.active {
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+    }
   }
   .card-body {
     h1, h2, h3, h4, h5, h6 {

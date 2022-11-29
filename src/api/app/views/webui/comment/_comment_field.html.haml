@@ -4,7 +4,7 @@ class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_com
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
   = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"
   .card
-    %ul.nav.nav-tabs.bg-light.px-3.pt-2.disable-link-generation{ role: 'tablist' }
+    %ul.card-header.nav.nav-tabs.px-3.pt-2.pb-0.disable-link-generation{ role: 'tablist' }
       %li.nav-item
         = link_to('Write', "#write_#{element_suffix}", class: 'nav-link active', data: { toggle: 'tab' }, role: 'tab',
         aria: { controls: 'write-comment-tab', selected: 'true' })

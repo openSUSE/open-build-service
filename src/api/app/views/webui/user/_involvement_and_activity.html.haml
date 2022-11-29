@@ -5,8 +5,8 @@
 
   - if contribution_graph?
     -# Tabs
-    .bg-light.d-none.d-md-block
-      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
+    .d-none.d-md-block
+      %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
           = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link text-nowrap',
                     data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: false }) do
