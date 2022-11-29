@@ -169,9 +169,7 @@ function loadDiffs(element){
 
 function loadChanges() { // jshint ignore:line
   $('.loading-diff').removeClass('invisible');
-  var element = $('#changes-item');
-  // Always retrieve the changes of the first request action, by now
-  // TODO: request-action-id should be retrieved from the select component, when it is introduced
+  var element = $('#changes-tab');
   var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
   $.ajax({
     url: url,
