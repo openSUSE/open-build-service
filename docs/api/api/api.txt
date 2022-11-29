@@ -992,7 +992,7 @@ POST /request
 XmlResult: request
 
   Commands on processing requests
-  create: to crfeate a new request
+  create: to create a new request
 
 Parameters:
 
