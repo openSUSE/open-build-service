@@ -1283,7 +1283,7 @@ sub getbinary_info {
   }
   my @s = stat($path);
   die("404 $bin: $!\n") unless @s;
-  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'filelist' => 1) || {};
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1) || {};
   if (!%$res && $path =~ /\/updateinfo\.xml$/) {
     my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
     if ($updateinfos && @{$updateinfos->{'update'} || []} == 1) {
