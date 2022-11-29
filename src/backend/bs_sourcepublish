@@ -160,14 +160,20 @@ sub syncsource {
   my @rsync_extra_options;
   @rsync_extra_options = split(' ', $BSConfig::rsync_extra_options) if $BSConfig::rsync_extra_options;
   # we can trust our sym links...
-  qsystem('echo', "$projid/$packid/$srcmd5\0", 'rsync', '-ar0', '--copy-unsafe-links', '--no-munge-links', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $rsyncserver) && die("    rsync failed at ".localtime(time).": $?\n");
+  my $server = $rsyncserver;
+  my $command = "rsync";
+  if ($server =~ /^rsync-ssl:/) {
+    $server =~ s/^rsync-ssl:/rsync:/;
+    $command = "rsync-ssl";
+  }
+  qsystem('echo', "$projid/$packid/$srcmd5\0", $command, '-ar0', '--copy-unsafe-links', '--no-munge-links', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $server) && die("    rsync failed at ".localtime(time).": $?\n");
 
 }
 
 sub sourcepublish {
   my ($projid, $packid, $srcmd5, $included) = @_;
 
-  return unless $BSConfig::sourcepublish_sync && $BSConfig::sourcepublish_sync =~ /^rsync:\//;
+  return unless $BSConfig::sourcepublish_sync && $BSConfig::sourcepublish_sync =~ /^rsync(-ssl)?:\//;
   # Filtering by $BSConfig::sourcepublish_filter happens in bs_publish since
   # it must happend by released project name and not build project.
 
