@@ -780,10 +780,15 @@ if [ "$1" == 2 ]; then
   if [ -e /etc/init.d/rc3.d/S50obsapidelayed ];then
     touch %{_rundir}/enable_obs-api-support.target
   fi
-  if systemctl --quiet is-active  obsapidelayed.service;then
+  if systemctl --quiet is-active obsapidelayed.service; then
     touch %{_rundir}/start_obs-api-support.target
     systemctl stop    obsapidelayed.service
-    systemctl disable obsapidelayed.service
+    if systemd-detect-virt --chroot; then
+      # systemctl is-active always exits with 0 in chroots, we don't know if the service runs or even exists
+      systemctl disable obsapidelayed.service || :
+    else
+      systemctl disable obsapidelayed.service
+    fi
   fi
 fi
 
