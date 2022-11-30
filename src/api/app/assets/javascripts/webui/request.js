@@ -166,3 +166,15 @@ function loadDiffs(element){
     }
   });
 }
+
+function loadChanges() { // jshint ignore:line
+  $('.loading-diff').removeClass('invisible');
+  var element = $('#changes-tab');
+  var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
+  $.ajax({
+    url: url,
+    success: function() {
+      $('.loading-diff').addClass('invisible');
+    }
+  });
+}
