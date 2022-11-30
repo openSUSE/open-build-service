@@ -90,9 +90,17 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   def test_watchlist_with_admin_user
     project_names = ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy']
+    package_names = ['Tidy', 'TestPack']
+    request_numbers = ['1000', '4']
     user = User.find_by(login: 'tom')
     project_names.each do |name|
-      user.watched_projects << WatchedProject.create(project: Project.find_by_name!(name), user: user)
+      user.watched_items << WatchedItem.create(watchable: Project.find_by!(name: name), user: user)
+    end
+    package_names.each do |name|
+      user.watched_items << WatchedItem.create(watchable: Package.find_by!(name: name), user: user)
+    end
+    request_numbers.each do |number|
+      user.watched_items << WatchedItem.create(watchable: BsRequest.find_by!(number: number), user: user)
     end
     user.save!
 
@@ -104,11 +112,17 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
         assert_select 'project', name: 'Apache'
         assert_select 'project', name: 'BaseDistro3'
         assert_select 'project', name: 'home:Iggy'
+        assert_select 'package', name: 'Tidy', project: 'Apache'
+        assert_select 'package', name: 'TestPack', project: 'home:Iggy'
+        assert_select 'request', number: '1000'
+        assert_select 'request', number: '4'
       end
     end
   end
 
   def test_update_watchlist
+    user_tom = User.find_by(login: 'tom')
+
     xml = <<~XML
       <person>
       <login>tom</login>
@@ -119,6 +133,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
       <project name="home:tom"/>
       <project name="BaseDistro3"/>
       <project name="Apache"/>
+      <package name="Tidy" project="Apache"/>
       </watchlist>
       </person>
     XML
@@ -129,8 +144,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_select 'status', code: 'ok' do
       assert_select 'summary', 'Ok'
     end
+
     assert_equal ['Apache', 'BaseDistro3', 'home:tom'],
-                 User.find_by(login: 'tom').watched_project_names.sort
+                 Project.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
+    assert_equal ['Tidy'],
+                 Package.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
 
     xml = <<~XML
       <person>
@@ -143,6 +161,9 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
       <project name="home:Iggy"/>
       <project name="Apache"/>
       <project name="Devel:BaseDistro:Update"/>
+      <package name="apache2" project="Apache"/>
+      <package name="pack2" project="BaseDistro3"/>
+      <request number="1000"/>
       </watchlist>
       </person>
     XML
@@ -154,8 +175,13 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
       assert_select 'summary', 'Ok'
     end
     assert_equal ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy'],
-                 User.find_by(login: 'tom').watched_project_names.sort
+                 Project.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
+    assert_equal ['apache2', 'pack2'],
+                 Package.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
+    assert_equal [1000],
+                 BsRequest.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:number).sort
 
+    # When trying to watch a non-existing project, it's simply ignored
     xml = <<~XML
       <person>
       <login>tom</login>
@@ -171,13 +197,12 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
     prepare_request_valid_user
     put '/person/tom', params: xml
-    assert_response 404
-    assert_select 'status', code: 'not_found' do
-      assert_select 'summary', /Couldn't find Project/
+    assert_response :success
+    assert_select 'status', code: 'ok' do
+      assert_select 'summary', 'Ok'
     end
-    assert_equal ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy'],
-                 User.find_by(login: 'tom').watched_project_names.sort,
-                 'Should not change watched projects in case of failing API request'
+    assert_equal ['BaseDistro3'],
+                 Project.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
   end
 
   def test_update_user_info
