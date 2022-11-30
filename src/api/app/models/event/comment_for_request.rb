@@ -5,6 +5,7 @@ module Event
     self.description = 'New comment for request created'
     payload_keys :request_number
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher,
+                   :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
     def subject

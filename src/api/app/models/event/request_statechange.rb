@@ -4,6 +4,7 @@ module Event
     self.description = 'Request state was changed'
     payload_keys :oldstate, :duration
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher,
+                   :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
     def subject
