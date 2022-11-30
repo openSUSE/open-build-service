@@ -7,11 +7,9 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     @user = @notification.event_payload['who']
     # If a notification is for a group, the notified user needs to know for which group. Otherwise, the user is simply referred to as 'you'.
     @recipient = @notification.event_payload.fetch('group', 'you')
-    @target_object = if @notification.event_payload['package']
-                       "#{@notification.event_payload['project']} / #{@notification.event_payload['package']}"
-                     else
-                       @notification.event_payload['project']
-                     end
+    project = @notification.event_payload['project']
+    package = @notification.event_payload['package']
+    @target_object = [project, package].compact.join(' / ')
   end
 
   def call
@@ -28,6 +26,8 @@ class NotificationActionDescriptionComponent < ApplicationComponent
         "#{@user} made #{@recipient} #{@role} of #{@target_object}"
       when 'Event::RelationshipDelete'
         "#{@user} removed #{@recipient} as #{@role} of #{@target_object}"
+      when 'Event::BuildFail'
+        "Reason for the build: #{@notification.event_payload['reason']}"
       end
     end
   end

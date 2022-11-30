@@ -13,7 +13,11 @@ class NotificationComponent < ApplicationComponent
     when 'Comment'
       tag.i(class: ['fas', 'fa-comments'], title: 'Comment notification')
     else
-      tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
+      if @notification.event_type == 'Event::BuildFail'
+        tag.i(class: ['fas', 'fa-times-circle'], title: 'Package notification')
+      else
+        tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
+      end
     end
   end
 end
