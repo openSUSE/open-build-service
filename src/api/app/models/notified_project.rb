@@ -9,9 +9,9 @@ end
 #
 # Table name: notified_projects
 #
-#  id              :integer          not null, primary key
+#  id              :bigint           not null, primary key
 #  created_at      :datetime         not null
-#  notification_id :integer          not null, indexed, indexed => [project_id]
+#  notification_id :bigint           not null, indexed, indexed => [project_id]
 #  project_id      :integer          not null, indexed => [notification_id]
 #
 # Indexes
