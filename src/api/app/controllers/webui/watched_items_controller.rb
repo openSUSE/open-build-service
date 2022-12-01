@@ -1,6 +1,5 @@
 class Webui::WatchedItemsController < Webui::WebuiController
   before_action :require_login
-  before_action :check_user_belongs_feature_flag
   before_action :set_watchable
   before_action :set_current_object
 
@@ -53,12 +52,5 @@ class Webui::WatchedItemsController < Webui::WebuiController
                       end
 
     @current_object = @watchable if @current_object.nil?
-  end
-
-  def check_user_belongs_feature_flag
-    return if Flipper.enabled?(:new_watchlist, User.session)
-
-    flash[:error] = 'This page is not accessible unless you enabled the "New watchlist" beta feature in the beta program.'
-    redirect_back(fallback_location: root_path)
   end
 end

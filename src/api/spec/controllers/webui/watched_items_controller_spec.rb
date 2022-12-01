@@ -3,10 +3,6 @@ require 'rails_helper'
 RSpec.describe Webui::WatchedItemsController do
   describe '#toggle_watched_item' do
     context 'when the user belongs to the beta group' do
-      before do
-        Flipper.enable(:new_watchlist, user)
-      end
-
       context 'when the package is not already watched' do
         let(:user) { create(:confirmed_user) }
         let(:package) { create(:package) }
@@ -47,26 +43,6 @@ RSpec.describe Webui::WatchedItemsController do
 
         it 'removes the item from the watchlist' do
           expect(user.watched_items).not_to exist(watchable: package)
-        end
-      end
-    end
-
-    context 'when the user does not belongs to the beta group' do
-      before do
-        Flipper.disable(:new_watchlist, user)
-      end
-
-      context 'when the item is not already watched' do
-        let(:user) { create(:confirmed_user) }
-        let(:package) { create(:package) }
-
-        before { login user }
-
-        subject { put :toggle_watched_item, params: { package_name: package, project_name: package.project } }
-
-        it 'redirects and assigns flash error' do
-          expect(subject).to redirect_to(root_url)
-          expect(subject.request.flash[:error]).to eq('This page is not accessible unless you enabled the "New watchlist" beta feature in the beta program.')
         end
       end
     end
