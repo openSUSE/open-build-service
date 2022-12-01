@@ -115,7 +115,7 @@ RSpec.describe EventSubscription::FindForEvent do
       end
 
       before do
-        watcher.add_watched_project(source_project.name)
+        watcher.watched_items.create(watchable: source_project)
         request
       end
 
