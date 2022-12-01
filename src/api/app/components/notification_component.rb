@@ -14,7 +14,7 @@ class NotificationComponent < ApplicationComponent
       tag.i(class: ['fas', 'fa-comments'], title: 'Comment notification')
     else
       if @notification.event_type == 'Event::BuildFail'
-        tag.i(class: ['fas', 'fa-times-circle'], title: 'Package notification')
+        tag.i(class: ['fas', helpers.build_status_icon(:failed)], title: 'Package notification')
       else
         tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
       end
