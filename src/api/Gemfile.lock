@@ -468,7 +468,7 @@ GEM
       riddle (~> 2.3)
     thor (1.2.1)
     tilt (2.0.11)
-    timecop (0.9.5)
+    timecop (0.9.6)
     timeout (0.3.0)
     tins (1.32.1)
       sync
