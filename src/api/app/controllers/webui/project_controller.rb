@@ -5,15 +5,14 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :lockout_spiders, only: [:requests, :buildresults]
 
-  before_action :require_login, only: [:create, :toggle_watch, :destroy, :new, :release_request,
+  before_action :require_login, only: [:create, :destroy, :new, :release_request,
                                        :new_release_request, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
                                      :edit, :release_request,
                                      :show, :buildresult,
                                      :destroy, :remove_path_from_target,
-                                     :requests, :save, :monitor, :toggle_watch,
-                                     :edit_comment,
+                                     :requests, :save, :monitor, :edit_comment,
                                      :unlock, :save_person, :save_group, :remove_role,
                                      :move_path, :clear_failed_comment, :pulse,
                                      :keys_and_certificates]
@@ -27,7 +26,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
                                             :autocomplete_repositories, :users, :subprojects, :new, :show,
                                             :buildresult, :requests, :monitor, :new_release_request,
-                                            :remove_target_request, :toggle_watch, :edit_comment, :edit_comment_form,
+                                            :remove_target_request, :edit_comment, :edit_comment_form,
                                             :keys_and_certificates]
 
   def index
@@ -321,22 +320,6 @@ class Webui::ProjectController < Webui::WebuiController
       repohash[repo] = arch_hash.keys.sort!
     end
     @repoarray = repohash.sort
-  end
-
-  def toggle_watch
-    if User.session!.watches?(@project.name)
-      logger.debug "Remove #{@project} from watchlist for #{User.session!}"
-      User.session!.remove_watched_project(@project.name)
-    else
-      logger.debug "Add #{@project} to watchlist for #{User.session!}"
-      User.session!.add_watched_project(@project.name)
-    end
-
-    if request.env['HTTP_REFERER']
-      redirect_back(fallback_location: root_path)
-    else
-      redirect_to action: :show, project: @project
-    end
   end
 
   def clear_failed_comment
