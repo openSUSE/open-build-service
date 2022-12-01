@@ -22,10 +22,13 @@ module NotificationService
         # Having a single notification for a subscriber_type Group won't allow users of
         # this group to have their own notifications (like marking them as read/unread).
         # We need to create a notification for every group member.
+        options = { eventtype: @subscription.eventtype, receiver_role: @subscription.receiver_role, channel: :web }
+        default_subscription = EventSubscription.defaults.find_by(options)
+
         @subscription.subscriber.web_users.map do |user|
           finder = finder_class.new(notification_scope(user: user), @parameters_for_notification.merge!(subscriber: user))
 
-          renew_notification(finder: finder)
+          renew_notification(finder: finder) if subscribed?(user, options, default_subscription)
         end
       else
         # Subscriber is a user
@@ -77,6 +80,12 @@ module NotificationService
 
     def event_parameters
       @event&.parameters_for_notification || {}
+    end
+
+    def subscribed?(user, options, default_subscription)
+      # There is no filtering of subscriptions to events for individual users of the group earlier in the chain, so we are doing it here
+      user_subscription = EventSubscription.for_subscriber(user).find_by(options) || default_subscription
+      user != @event.originator && user_subscription.present? && user_subscription.enabled?
     end
   end
 end
