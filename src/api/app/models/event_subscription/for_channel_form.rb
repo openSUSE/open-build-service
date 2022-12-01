@@ -1,6 +1,6 @@
 class EventSubscription
   class ForChannelForm
-    DISABLE_FOR_EVENTS = ['Event::BuildFail', 'Event::ServiceFail'].freeze
+    DISABLE_FOR_EVENTS = ['Event::ServiceFail'].freeze
 
     attr_reader :name, :subscription
 
