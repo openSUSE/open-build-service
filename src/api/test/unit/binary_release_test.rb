@@ -69,6 +69,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
     BinaryRelease.update_binary_releases_via_json(r, json)
     count = BinaryRelease.all.length
+
     # no new entries
     BinaryRelease.update_binary_releases_via_json(r, json)
     assert_equal count, BinaryRelease.all.length
@@ -87,7 +88,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
               'version' => '1.0', 'release' => '1', 'repository' => 'BaseDistro3_repo',
               'name' => 'package_newweaktags', 'buildtime' => '1409642057' }]
     BinaryRelease.update_binary_releases_via_json(r, json)
-    assert_equal count, BinaryRelease.all.length - 1 # one entry added
+    assert_equal count + 1, BinaryRelease.all.length # one entry added
   end
 
   def test_container_handling

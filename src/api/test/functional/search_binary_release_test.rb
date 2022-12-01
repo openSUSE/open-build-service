@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'xmlhash'
 
-class BinaryReleaseTest < ActionDispatch::IntegrationTest
+class SearchBinaryReleaseTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
