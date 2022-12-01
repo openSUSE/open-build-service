@@ -289,7 +289,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
-          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, project: project.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, user: user.login, project: project.name) }
 
           before do
             event_subscription = create(
@@ -309,7 +309,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         context 'and there is no subscription for the target user' do
-          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, project: project.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, user: user.login, project: project.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -318,7 +318,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, project: project.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, project: project.name) }
 
           before do
             event_subscription = create(
@@ -338,7 +338,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         context 'and there is no subscription for the target group' do
-          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, project: project.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, project: project.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -348,7 +348,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
       context 'when dealing with packages' do
         context 'and there is a subscription for the target user' do
-          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, package: package.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, user: user.login, package: package.name) }
 
           before do
             event_subscription = create(
@@ -368,7 +368,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         context 'and there is no subscription for the target user' do
-          let(:event) { Event::RelationshipCreate.create!(who: owner, user: user.login, package: package.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, user: user.login, package: package.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -377,7 +377,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, package: package.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, package: package.name) }
 
           before do
             event_subscription = create(
@@ -397,7 +397,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         context 'and there is no subscription for the target group' do
-          let(:event) { Event::RelationshipCreate.create!(who: owner, group: group.title, package: package.name) }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, package: package.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -419,7 +419,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
-          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, project: project.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, user: user.login, project: project.name) }
 
           before do
             event_subscription = create(
@@ -439,7 +439,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         context 'and there is no subscription for the target user' do
-          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, project: project.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, user: user.login, project: project.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -448,7 +448,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, project: project.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, group: group.title, project: project.name) }
 
           before do
             event_subscription = create(
@@ -469,7 +469,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and there is no subscription for the target group' do
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, project: project.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, group: group.title, project: project.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -479,7 +479,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
       context 'when dealing with packages' do
         context 'and there is a subscription for the target user' do
-          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, package: package.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, user: user.login, package: package.name) }
 
           before do
             event_subscription = create(
@@ -499,7 +499,7 @@ RSpec.describe EventSubscription::FindForEvent do
         end
 
         context 'and there is no subscription for the target user' do
-          let(:event) { Event::RelationshipDelete.create!(who: owner, user: user.login, package: package.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, user: user.login, package: package.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
@@ -508,7 +508,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, package: package.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, group: group.title, package: package.name) }
 
           before do
             event_subscription = create(
@@ -529,7 +529,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and there is no subscription for the target group' do
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipDelete.create!(who: owner, group: group.title, package: package.name) }
+          let(:event) { Event::RelationshipDelete.create!(who: owner.login, group: group.title, package: package.name) }
 
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
