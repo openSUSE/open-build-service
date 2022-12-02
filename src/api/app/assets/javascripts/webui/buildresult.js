@@ -74,6 +74,7 @@ function updateRpmlintDisplay(index) {
   });
 }
 
+// TODO: Stop using toggleBuildInfo in favor of the generic toggleCollapsibleTooltip
 function toggleBuildInfo() { // jshint ignore:line
   $('.toggle-build-info').on('click', function(){
     var replaceTitle = $(this).attr('title') === 'Click to keep it open' ? 'Click to close it' : 'Click to keep it open';
