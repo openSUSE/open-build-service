@@ -226,7 +226,6 @@ OBSApi::Application.routes.draw do
         url_string = '?' << url_string unless url_string.empty?
         "/project/monitor/#{request.query_parameters[:project]}#{url_string}"
       }, constraints: ->(request) { request.query_parameters['project'].present? }
-      # TODO: this should be POST (and the link AJAX)
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
