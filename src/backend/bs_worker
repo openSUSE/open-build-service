@@ -207,7 +207,7 @@ sub cleanup_job {
 sub kill_job {
   my @args;
   # same args as in the build call
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
@@ -228,7 +228,7 @@ sub kill_job {
 sub sysrq_job {
   my ($sysrq) = @_;
   my @args;
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
@@ -245,7 +245,7 @@ sub sysrq_job {
 
 sub wipe_all {
   my @args;
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
@@ -3085,7 +3085,7 @@ sub dobuild {
   }
 
   push @args, "$statedir/build/build";
-  if ($vm =~ /(xen|kvm|zvm|emulator|qemu|pvm)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm)/) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
@@ -3193,7 +3193,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
@@ -3767,7 +3767,7 @@ if ($@) {
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
-  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|emulator)/;
+  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|qemu|emulator)/;
   # if it was a follow up build, prepend old logfile
   if (-s "$buildsrcdir/logfile") {
     local *F;
