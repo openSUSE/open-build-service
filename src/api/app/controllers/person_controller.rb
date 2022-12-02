@@ -1,9 +1,6 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-  # TODO: action userinfo no longer exists, remove these validations
-  validate_action userinfo: { method: :get, response: :user }
-  validate_action userinfo: { method: :put, request: :user, response: :status }
   validate_action grouplist: { method: :get, response: :directory }
   validate_action register: { method: :put, response: :status }
   validate_action register: { method: :post, response: :status }

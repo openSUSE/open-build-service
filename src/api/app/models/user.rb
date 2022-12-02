@@ -15,8 +15,6 @@ class User < ApplicationRecord
   has_secure_password validations: false
 
   has_many :watched_items, dependent: :destroy
-  # FIXME: We will remove the following association when new_watchlist goes out of beta
-  has_many :watched_projects, dependent: :destroy, inverse_of: :user
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
   has_many :relationships, inverse_of: :user, dependent: :destroy
@@ -796,32 +794,6 @@ class User < ApplicationRecord
 
   def unread_notifications
     NotificationsFinder.new(notifications.for_web).unread.size
-  end
-
-  def watched_project_names
-    Rails.cache.fetch(['watched_project_names', self]) do
-      Project.where(id: watched_projects.select(:project_id)).order(:name).pluck(:name)
-    end
-  end
-
-  def add_watched_project(name)
-    watched_projects.create(project: Project.find_by_name!(name))
-    clear_watched_projects_cache
-  end
-
-  def remove_watched_project(name)
-    watched_projects.joins(:project).where(projects: { name: name }).delete_all
-    clear_watched_projects_cache
-  end
-
-  # Needed to clear cache even when user's updated_at timestamp did not change,
-  # aka. changes within the same second. Mainly an issue when in our test suite
-  def clear_watched_projects_cache
-    Rails.cache.delete(['watched_project_names', self])
-  end
-
-  def watches?(name)
-    watched_project_names.include?(name)
   end
 
   def update_globalroles(global_roles)

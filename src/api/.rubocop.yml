@@ -363,7 +363,7 @@ Style/StringConcatenation:
     - 'test/unit/status_helper_test.rb'
     - 'test/unit/user_ldap_strategy_test.rb'
     - 'test/unit/validator_test.rb'
-    - 'test/unit/watched_project_test.rb'
+    - 'test/unit/watched_item_test.rb'
 
 ##################### Metrics ##################################
 
