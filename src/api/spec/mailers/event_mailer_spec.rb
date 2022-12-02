@@ -252,6 +252,31 @@ RSpec.describe EventMailer, vcr: true do
       end
     end
 
+    context 'for an maintainer group with an email address' do
+      let(:group) { create(:group_with_user) }
+      let(:source_project) { create(:project, name: 'source_project', maintainer: [group]) }
+      let!(:comment) { create(:comment_project, commentable: source_project, body: "Hey @#{receiver.login} how are things? Look at [bug](/project/show/apache) please.") }
+      let(:originator) { comment.user }
+      let(:mail) { EventMailer.with(subscribers: Event::CommentForProject.last.subscribers, event: Event::CommentForProject.last).notification_email.deliver_now }
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'has subscribers' do
+        expect(mail.to).to eq(Event::CommentForProject.last.subscribers.map(&:email))
+      end
+
+      it 'has a subject' do
+        expect(mail.subject).to eq("New comment in project #{comment.commentable.name} by #{originator.login}")
+      end
+
+      it 'has custom headers' do
+        expect(mail['X-OBS-Request-Commenter'].value).to eq(originator.login)
+        expect(mail['Message-ID'].value).to eq('<notrandom@build.example.com>')
+      end
+    end
+
     context 'when the subscriber has no email' do
       let(:group) { create(:group, email: nil) }
       let(:event) { Event::RequestCreate.first }

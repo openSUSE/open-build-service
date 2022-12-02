@@ -52,7 +52,7 @@ class EventSubscription
               channel: default_subscription.channel,
               subscriber: receiver
             )
-          elsif channel == :web && receiver.instance_of?(Group) && receiver.web_users.any? { |u| EventSubscription.for_subscriber(u).find_by(options).present? }
+          elsif receiver.instance_of?(Group) && (receiver.web_users.any? { |u| EventSubscription.for_subscriber(u).find_by(options).present? } || receiver.email.present?)
             # There is no default subscription for groups, so we are using the existing details
             receivers_and_subscriptions[receiver] = EventSubscription.new(options.merge({ subscriber: receiver }))
           elsif @debug && default_subscription.present? && !default_subscription.enabled?
