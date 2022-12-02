@@ -261,8 +261,8 @@ class BsRequestPermissionCheck
       c = Backend::Api::Sources::Package.files(action.source_project, action.source_package, expand: 1)
       data = REXML::Document.new(c)
       unless action.source_rev == data.elements['directory'].attributes['srcmd5']
-        raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package}" \
-                             "are not on revision #{action.source_rev} anymore."
+        raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package} " \
+                             "is not on revision #{action.source_rev} anymore."
       end
     end
 
