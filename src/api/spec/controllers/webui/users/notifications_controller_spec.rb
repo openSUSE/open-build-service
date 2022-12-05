@@ -12,6 +12,7 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:comment_for_request_notification) { create(:web_notification, :comment_for_request, subscriber: user) }
   let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: true) }
   let(:notifications_for_other_users) { create(:web_notification, :request_state_change, subscriber: other_user) }
+  let(:build_failure) { create(:web_notification, :build_failure, subscriber: user) }
 
   shared_examples 'returning success' do
     it 'returns ok status' do
@@ -62,6 +63,20 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it 'sets @notifications to all delivered notifications regardless of type' do
         expect(assigns[:notifications]).to include(read_notification)
+      end
+    end
+
+    context "when param type is 'build_failures'" do
+      let(:params) { default_params.merge(type: 'build_failures') }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it "sets @notifications to all undelivered notifications of 'build_failures' type" do
+        expect(assigns[:notifications]).to include(build_failure)
       end
     end
 

@@ -35,6 +35,10 @@ class NotificationsFinder
     @relation.where(event_type: 'Event::RelationshipDelete', delivered: false)
   end
 
+  def for_failed_builds
+    @relation.where(event_type: 'Event::BuildFail', delivered: false)
+  end
+
   # rubocop:disable Metrics/CyclomaticComplexity
   # We need to refactor this method, the `case` statement is way too big
   def for_notifiable_type(type = 'unread')
@@ -55,6 +59,8 @@ class NotificationsFinder
       notifications.for_relationships_created
     when 'relationships_deleted'
       notifications.for_relationships_deleted
+    when 'build_failures'
+      notifications.for_failed_builds
     else
       notifications.unread
     end

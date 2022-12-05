@@ -63,6 +63,11 @@ FactoryBot.define do
       event_type { 'Event::RelationshipDelete' }
       association :notifiable, factory: :project
     end
+
+    trait :build_failure do
+      event_type { 'Event::BuildFail' }
+      association :notifiable, factory: :package
+    end
   end
 
   factory :rss_notification, parent: :notification do

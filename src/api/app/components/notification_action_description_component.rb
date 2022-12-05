@@ -27,7 +27,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
       when 'Event::RelationshipDelete'
         "#{@user} removed #{@recipient} as #{@role} of #{@target_object}"
       when 'Event::BuildFail'
-        "Reason for the build: #{@notification.event_payload['reason']}"
+        "Build was triggered because of #{@notification.event_payload['reason']}"
       end
     end
   end
