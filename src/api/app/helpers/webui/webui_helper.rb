@@ -290,7 +290,8 @@ module Webui::WebuiHelper
 
   def feature_css_class
     css_classes = []
-    css_classes << 'new-watchlist' if feature_enabled?(:new_watchlist)
+    # NOTE: add a CSS class to wrap the CSS under the new feature flag. Example:
+    # css_classes << 'new-foo' if feature_enabled?(:new_foo)
     css_classes.join(' ')
   end
 

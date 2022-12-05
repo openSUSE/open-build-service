@@ -9,14 +9,8 @@ class EventSubscription
     end
 
     def call
-      @roles = receiver_roles.map { |role| EventSubscription::ForRoleForm.new(role, event_class, subscriber).call }
+      @roles = event_class.receiver_roles.map { |role| EventSubscription::ForRoleForm.new(role, event_class, subscriber).call }
       self
-    end
-
-    private
-
-    def receiver_roles
-      event_class.receiver_roles & EventSubscription.receiver_roles_to_display(@subscriber)
     end
   end
 end

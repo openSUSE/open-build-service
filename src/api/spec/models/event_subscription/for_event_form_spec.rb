@@ -13,8 +13,7 @@ RSpec.describe EventSubscription::ForEventForm do
     context 'for Event::CommentForProject' do
       let(:event_class) { Event::CommentForProject }
       let(:expected_receiver_roles) do
-        # FIXME: revert it back as `event_class.receiver_roles` when we remove the new_watchlist feature flag
-        event_class.receiver_roles - EventSubscription::BETA_RECEIVER_ROLE_TEXTS.keys
+        event_class.receiver_roles
       end
 
       it { expect(subject.event_class).to eq(event_class) }
@@ -24,8 +23,7 @@ RSpec.describe EventSubscription::ForEventForm do
     context 'for Event::CommentForRequest' do
       let(:event_class) { Event::CommentForRequest }
       let(:expected_receiver_roles) do
-        # FIXME: revert it back to `event_class.receiver_roles` when we remove the new_watchlist feature flag
-        event_class.receiver_roles - EventSubscription::BETA_RECEIVER_ROLE_TEXTS.keys
+        event_class.receiver_roles
       end
 
       it { expect(subject.event_class).to eq(event_class) }
