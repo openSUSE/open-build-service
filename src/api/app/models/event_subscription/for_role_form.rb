@@ -2,6 +2,14 @@ class EventSubscription
   class ForRoleForm
     attr_reader :name, :channels, :subscriber
 
+    # TODO: Remove this constant after successfully migrating all event subscriptions to the new receiver_role
+    # name `project_watcher`
+    RECEIVER_ROLE_MAPPING = {
+      'project_watcher' => 'watcher',
+      'source_project_watcher' => 'source_watcher',
+      'target_project_watcher' => 'target_watcher'
+    }.freeze
+
     def initialize(role_name, event, subscriber)
       @subscriber = subscriber
       @name = role_name
@@ -35,10 +43,20 @@ class EventSubscription
     end
 
     def find_subscription_for_subscriber(event_class, role, channel)
+      # TODO: remove this if clause after we finish renaming *watcher to *project_watcher
+      # We have to do this in order to still render the checkboxes correctly for the 'old'
+      # existing subscription for the `watcher` role
+      role = RECEIVER_ROLE_MAPPING[role] if role.in?(RECEIVER_ROLE_MAPPING.keys)
+
       subscriber_subscriptions.find { |s| s.event_class == event_class && s.receiver_role == role && s.channel == channel }
     end
 
     def find_default_subscription(event_class, role, channel)
+      # TODO: remove this if clause after we finish renaming *watcher to *project_watcher
+      # We have to do this in order to still render the checkboxes correctly for the 'old'
+      # existing subscription for the `watcher` role
+      role = RECEIVER_ROLE_MAPPING[role] if role.in?(RECEIVER_ROLE_MAPPING.keys)
+
       default_subscriptions.find { |s| s.event_class == event_class && s.receiver_role == role && s.channel == channel }
     end
 
