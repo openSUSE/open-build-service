@@ -12,7 +12,7 @@ RSpec.describe NotificationFilterComponent, type: :component do
       render_inline(described_class.new(selected_filter: { type: 'unread' }))
     end
 
-    ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests'].each do |filter_name|
+    ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests', 'Build Failures'].each do |filter_name|
       it "displays a '#{filter_name}' filter" do
         expect(rendered_content).to have_link(filter_name)
       end
@@ -38,7 +38,7 @@ RSpec.describe NotificationFilterComponent, type: :component do
       render_inline(described_class.new(selected_filter: { type: 'unread' }))
     end
 
-    ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests'].each do |filter_name|
+    ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests', 'Build Failures'].each do |filter_name|
       it "displays a '#{filter_name}' filter" do
         expect(rendered_content).to have_link(filter_name)
       end
