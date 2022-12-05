@@ -2,6 +2,13 @@ class EventSubscription
   class Form
     attr_reader :subscriber
 
+    # TODO: remove this constant after we finish renaming *watcher to *project_watcher
+    RECEIVER_ROLE_MAPPING = {
+      'project_watcher' => 'watcher',
+      'source_project_watcher' => 'source_watcher',
+      'target_project_watcher' => 'target_watcher'
+    }.freeze
+
     def initialize(subscriber = nil)
       @subscriber = subscriber
     end
@@ -27,7 +34,7 @@ class EventSubscription
     private
 
     def find_or_initialize_subscription(eventtype, receiver_role, channel)
-      opts = { eventtype: eventtype, receiver_role: receiver_role, channel: channel }
+      opts = { eventtype: eventtype, channel: channel }
 
       if subscriber.is_a?(User) && subscriber.is_active?
         opts[:user] = subscriber
@@ -38,7 +45,15 @@ class EventSubscription
         opts[:group] = nil
       end
 
-      EventSubscription.find_or_initialize_by(opts)
+      # TODO: remove this if clause after we finish renaming *watcher to *project_watcher
+      if receiver_role.in?(RECEIVER_ROLE_MAPPING.keys)
+        old_receiver_role = RECEIVER_ROLE_MAPPING[receiver_role]
+        old_event_subscription = EventSubscription.find_by(opts.merge({ receiver_role: old_receiver_role }))
+
+        return old_event_subscription if old_event_subscription.present?
+      end
+
+      EventSubscription.find_or_initialize_by(opts.merge({ receiver_role: receiver_role }))
     end
   end
 end
