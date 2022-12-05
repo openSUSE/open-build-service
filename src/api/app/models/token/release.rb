@@ -1,27 +1,43 @@
 class Token::Release < Token
   include MaintenanceHelper
 
+  def release(package_to_release, source_repository, target_repository, time_now, options)
+      opts = { filter_source_repository: source_repository,
+               manual: true,
+               comment: 'Releasing via trigger event' }
+      opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
+      opts[:filter_architecture] = options[:arch] if options[:arch].present?
+      release_package(package_to_release,
+                      target_repository,
+                      package_to_release.release_target_name(target_repository, time_now),
+                      opts)
+  end
+
   def call(options)
     set_triggered_at
     return unless options[:package]
 
-    # FIXME: Take repository and arch into account
-    package_to_release = options[:package]
-    manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
-    raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
-
     # uniq timestring for all targets
     time_now = Time.now.utc
 
+    # FIXME: Take repository and arch into account
+    package_to_release = options[:package]
+    if options[:targetproject].present? && options[:targetrepository].present? && options[:filter_source_repository].present?
+      source_repository = Repository.find_by_project_and_name(options[:project].name, options[:filter_source_repository])
+      target_repository = Repository.find_by_project_and_name(options[:targetproject], options[:targetrepository])
+      unless User.session!.can_modify?(target_repository.project)
+        raise CmdExecutionNoPermission, "no permission to write in project #{target_repository.project.name}"
+      end
+      release(package_to_release, source_repository, target_repository, time_now, options)
+      return
+    end
+
+    manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
+    raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
+
+    # releasing ...
     manual_release_targets.each do |release_target|
-      opts = { filter_source_repository: release_target.repository,
-               manual: true,
-               comment: 'Releasing via trigger event' }
-      opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
-      release_package(package_to_release,
-                      release_target.target_repository,
-                      package_to_release.release_target_name(release_target.target_repository, time_now),
-                      opts)
+      release(package_to_release, release_target.repository, release_target.target_repository, time_now, options)
     end
   end
 
