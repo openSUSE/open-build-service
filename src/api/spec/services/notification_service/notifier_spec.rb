@@ -338,5 +338,58 @@ RSpec.describe NotificationService::Notifier do
         end
       end
     end
+
+    context 'and I have an build failure event' do
+      let(:group) { create(:group_with_user) }
+      let(:user) { group.users.first }
+      let(:project) { create(:project_with_repository) }
+      let(:package) { create(:package, project: project) }
+      let(:repository) { project.repositories.first }
+      let(:arch) { repository.architectures.first }
+      let(:event) do
+        Event::BuildFail.create!(package: package.name,
+                                 project: project.name,
+                                 repository: repository,
+                                 arch: arch,
+                                 reason: 'Some dependencies problem')
+      end
+
+      before do
+        create(:event_subscription,
+               eventtype: 'Event::BuildFail',
+               receiver_role: 'maintainer',
+               user: user,
+               group: nil,
+               channel: :web)
+      end
+
+      context 'and there is a maintainer for the project' do
+        before do
+          project.add_maintainer(user)
+          project.save!
+        end
+
+        it 'creates a new notification for the project maintainer' do
+          expect { NotificationService::Notifier.new(event).call }.to change(Notification, :count).to(1)
+        end
+      end
+
+      context 'and there is a maintainer for the package' do
+        before do
+          package.add_maintainer(user)
+          package.save!
+        end
+
+        it 'creates a new notification for the package maintainer' do
+          expect { NotificationService::Notifier.new(event).call }.to change(Notification, :count).to(1)
+        end
+      end
+
+      context 'but there is no maintainer' do
+        it 'creates a new notification for the package maintainer' do
+          expect { NotificationService::Notifier.new(event).call }.not_to change(Notification, :count)
+        end
+      end
+    end
   end
 end
