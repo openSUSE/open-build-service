@@ -332,8 +332,8 @@ RSpec.describe EventSubscription::FindForEvent do
             event_subscription.payload = { project: project.name }
           end
 
-          it 'includes the target user' do
-            expect(subject.map(&:subscriber)).to include(user)
+          it 'includes the target group' do
+            expect(subject.map(&:subscriber)).to include(group)
           end
         end
 
@@ -391,8 +391,8 @@ RSpec.describe EventSubscription::FindForEvent do
             event_subscription.payload = { package: package.name }
           end
 
-          it 'includes the target user' do
-            expect(subject.map(&:subscriber)).to include(user)
+          it 'includes the target group' do
+            expect(subject.map(&:subscriber)).to include(group)
           end
         end
 
@@ -462,8 +462,8 @@ RSpec.describe EventSubscription::FindForEvent do
             event_subscription.payload = { project: project.name }
           end
 
-          it 'includes the target user' do
-            expect(subject.map(&:subscriber)).to include(user)
+          it 'includes the target group' do
+            expect(subject.map(&:subscriber)).to include(group)
           end
         end
 
@@ -522,8 +522,8 @@ RSpec.describe EventSubscription::FindForEvent do
             event_subscription.payload = { package: package.name }
           end
 
-          it 'includes the target user' do
-            expect(subject.map(&:subscriber)).to include(user)
+          it 'includes the target group' do
+            expect(subject.map(&:subscriber)).to include(group)
           end
         end
 
