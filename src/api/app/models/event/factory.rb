@@ -8,7 +8,7 @@ module Event
         ('::Event::' + type.downcase.camelcase).constantize.new(params)
       rescue NameError => e
         bt = e.backtrace.join("\n")
-        Rails.logger.debug { "NameError #{e.inspect} #{bt}" }
+        logger.debug { "NameError #{e.inspect} #{bt}" }
         nil
       end
     end

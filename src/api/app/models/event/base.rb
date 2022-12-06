@@ -222,23 +222,23 @@ module Event
     end
 
     def maintainers
-      Rails.logger.debug { "Maintainers #{payload.inspect}" }
+      logger.debug { "Maintainers #{payload.inspect}" }
       ret = _roles('maintainer', payload['project'], payload['package'])
-      Rails.logger.debug { "Maintainers ret #{ret.inspect}" }
+      logger.debug { "Maintainers ret #{ret.inspect}" }
       ret
     end
 
     def bugowners
-      Rails.logger.debug { "Maintainers #{payload.inspect}" }
+      logger.debug { "Maintainers #{payload.inspect}" }
       ret = _roles('bugowner', payload['project'], payload['package'])
-      Rails.logger.debug { "Maintainers ret #{ret.inspect}" }
+      logger.debug { "Maintainers ret #{ret.inspect}" }
       ret
     end
 
     def readers
-      Rails.logger.debug { "Readers #{payload.inspect}" }
+      logger.debug { "Readers #{payload.inspect}" }
       ret = _roles('reader', payload['project'])
-      Rails.logger.debug { "Readers ret #{ret.inspect}" }
+      logger.debug { "Readers ret #{ret.inspect}" }
       ret
     end
 

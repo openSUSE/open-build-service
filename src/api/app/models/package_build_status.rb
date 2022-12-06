@@ -70,7 +70,7 @@ class PackageBuildStatus
   def check_repo_arch_status(srep, arch)
     check_everbuilt(srep, arch)
 
-    Rails.logger.debug { "arch:#{arch} md5:#{@srcmd5} successed:#{@eversucceeded} built:#{@everbuilt}" }
+    logger.debug { "arch:#{arch} md5:#{@srcmd5} successed:#{@eversucceeded} built:#{@everbuilt}" }
     missingdeps = check_missingdeps(srep, arch)
 
     # if the package does not appear in build history, check flags

@@ -41,7 +41,7 @@ class BinaryRelease < ApplicationRecord
         # check for existing entry
         matching_binaries = oldlist.where(hash)
         if matching_binaries.count > 1
-          Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}"
+          logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}"
           # double definition means broken DB entries
           matching_binaries.offset(1).destroy_all
         end

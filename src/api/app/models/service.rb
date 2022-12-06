@@ -69,7 +69,7 @@ class Service
       Backend::Api::Sources::Package.wait_service(project.name, package.name)
       Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
     rescue Backend::Error, Timeout::Error => e
-      Rails.logger.debug { "Error while executing backend command: #{e.message}" }
+      logger.debug { "Error while executing backend command: #{e.message}" }
     end
   end
 

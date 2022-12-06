@@ -25,9 +25,9 @@ class UpdateNotificationEvents
         rescue StandardError => e
           if Rails.env.test?
             # make debug output useful in test suite, not just showing backtrace to Airbrake
-            Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
-            Rails.logger.info e.inspect
-            Rails.logger.info e.backtrace
+            logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
+            logger.info e.inspect
+            logger.info e.backtrace
           end
           Airbrake.notify("Failed to create Event : #{type.inspect}: #{data} #{e}")
         end
@@ -39,7 +39,7 @@ class UpdateNotificationEvents
 
   def perform
     if semaphore.locked?
-      Rails.logger.debug 'skip lastnotifications, still locked'
+      logger.debug 'skip lastnotifications, still locked'
       return
     end
 

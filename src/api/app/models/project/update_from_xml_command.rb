@@ -149,7 +149,7 @@ class Project
 
       # delete remaining repositories in @repocache
       @repocache.each do |name, object|
-        Rails.logger.debug { "offending repo: #{object.inspect}" }
+        logger.debug { "offending repo: #{object.inspect}" }
         unless force
           # find repositories that link against this one and issue warning if found
           list = PathElement.where(repository_id: object.id)
@@ -160,7 +160,7 @@ class Project
             "Repository #{project.name}/#{name} cannot be deleted because following repos define it as release target:/"
           )
         end
-        Rails.logger.debug { "deleting repository '#{name}'" }
+        logger.debug { "deleting repository '#{name}'" }
         project.repositories.destroy(object)
       end
       # save memory
@@ -177,10 +177,10 @@ class Project
     def update_repository_without_path_element(xml_hash)
       current_repo = @repocache[xml_hash['name']]
       unless current_repo
-        Rails.logger.debug { "adding repository '#{xml_hash['name']}'" }
+        logger.debug { "adding repository '#{xml_hash['name']}'" }
         current_repo = project.repositories.new(name: xml_hash['name'])
       end
-      Rails.logger.debug { "modifying repository '#{xml_hash['name']}'" }
+      logger.debug { "modifying repository '#{xml_hash['name']}'" }
 
       update_repository_flags(current_repo, xml_hash)
       update_release_targets(current_repo, xml_hash)

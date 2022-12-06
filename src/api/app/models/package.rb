@@ -486,7 +486,7 @@ class Package < ApplicationRecord
         current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
       rescue IssueTracker::NotFoundError => e
         # if the issue is invalid, we ignore it
-        Rails.logger.debug e
+        logger.debug e
       end
     else
       # onlyissues backend call gets the issues from .changes files
@@ -502,7 +502,7 @@ class Package < ApplicationRecord
     begin
       answer = Backend::Connection.post(source_path(nil, query))
     rescue Backend::Error => e
-      Rails.logger.debug { "failed to parse issues: #{e.inspect}" }
+      logger.debug { "failed to parse issues: #{e.inspect}" }
       return {}
     end
     xml = Xmlhash.parse(answer.body)
@@ -1099,7 +1099,7 @@ class Package < ApplicationRecord
     if li
       bp.error = li['error']
 
-      Rails.logger.debug { "Syncing link #{project.name}/#{name} -> #{li['project']}/#{li['package']}" }
+      logger.debug { "Syncing link #{project.name}/#{name} -> #{li['project']}/#{li['package']}" }
       # we have to be careful - the link target can be nowhere
       bp.links_to = Package.find_by_project_and_name(li['project'], li['package'])
     else
