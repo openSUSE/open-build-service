@@ -887,8 +887,9 @@ class BsRequest < ApplicationRecord
           change_state(newstate: 'revoked', comment: 'Target disappeared')
         rescue PostRequestNoPermission
           change_state(newstate: 'revoked', comment: 'Permission problem')
-        rescue APIError
-          change_state(newstate: 'declined', comment: 'Unhandled error during accept')
+        rescue APIError => e
+          logger.info("Failed to accept BsRequest #{number} with #{auto_accept_user.login}. #{e.class.name}: #{e}")
+          change_state(newstate: 'declined', comment: 'Unhandled error during accept, contact your admin.')
         end
       end
     end
