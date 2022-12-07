@@ -163,6 +163,11 @@ function loadDiffs(element){
     url: url,
     success: function(){
       $('.loading-diff').addClass('invisible');
+      if (document.location.hash === '#comments-list') {
+        // After loading the diffs, the viewport is shifted.
+        // Move the viewport back to the list of comments assigning the location hash
+        document.location.hash = '#comments-list';
+      }
     }
   });
 }
