@@ -124,7 +124,7 @@ def run_instance(obs_worker_id):
         # Multilaunching is managed at higher level to create unique tags etc.
         instances_min = 1
         instances_max = 1
-        worker_customization = "#!/bin/sh\nhostname " + obs_worker_id +\
+        worker_customization = "#!/bin/bash\nhostname " + obs_worker_id +\
             ";echo " + obs_worker_id + " > /etc/HOSTNAME;"
 
         global aws_ami_image
