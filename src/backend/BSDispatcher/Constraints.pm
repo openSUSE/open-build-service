@@ -74,26 +74,26 @@ sub getmbsize {
 
 =cut
 
-sub oracle { 
+sub oracle {
   my ($worker, $constraints) = @_;
-  for my $l (@{$constraints->{'hostlabel'} || []}) { 
+  for my $l (@{$constraints->{'hostlabel'} || []}) {
     if ($l->{'exclude'} && $l->{'exclude'} eq 'true') {
       return 0 if grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
     } else {
       return 0 unless grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
     }
   }
-  if ($constraints->{'sandbox'} && $constraints->{'sandbox'}->{'_content'}) {
-    if ($constraints->{'sandbox'}->{'exclude'} && $constraints->{'sandbox'}->{'exclude'} eq 'true') {
-      return 0 if $constraints->{'sandbox'}->{'_content'} eq ($worker->{'sandbox'} || ''); 
+  for my $s (@{$constraints->{'sandbox'} || []}) {
+    if ($s->{'exclude'} && $s->{'exclude'} eq 'true') {
+      return 0 if $s->{'_content'} eq ($worker->{'sandbox'} || '');
     } else {
-      if ($constraints->{'sandbox'}->{'_content'} eq 'secure') {
+      if ($s->{'_content'} eq 'secure') {
         return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
-      } else { 
-        return 0 unless $constraints->{'sandbox'}->{'_content'} eq ($worker->{'sandbox'} || '');
+      } else {
+        return 0 unless $s->{'_content'} eq ($worker->{'sandbox'} || '');
       }
     }
-  } 
+  }
   if ($constraints->{'linux'}) {
     return 0 unless $worker->{'linux'};
     return 0 if $constraints->{'linux'}->{'flavor'} && $constraints->{'linux'}->{'flavor'} ne ($worker->{'linux'}->{'flavor'} || '');
@@ -127,22 +127,6 @@ sub oracle {
   return 1;
 }
 
-=head2 mergeconstraints_sandbox - merge two sandbox constraints
-
-=cut
-
-sub mergeconstraints_sandbox {
-  my ($sb, $sb2) = @_;
-  return $sb unless $sb2 && $sb2->{'_content'};
-  return $sb2 unless $sb && $sb->{'_content'};
-  my $ex = $sb->{'exclude'} && $sb->{'exclude'} eq 'true' ? 1 : 0;
-  my $ex2 = $sb2->{'exclude'} && $sb2->{'exclude'} eq 'true' ? 1 : 0;
-  return $sb2 if $ex == $ex2;		# overwrite if both are of same type
-  ($sb, $sb2) = ($sb2, $sb) if $ex;	# include+exclude. bring include to front
-  return { '_content' => 'cannot_merge_sandbox' } if ($sb->{'_content'} eq 'secure' && $secure_sandboxes{$sb2->{'_content'}}) || $sb->{'_content'} eq $sb2->{'_content'};
-  return $sb;
-}
-
 =head2 mergeconstraints - merge two constraint files
 
   and return the merged constraints
@@ -158,7 +142,7 @@ sub mergeconstraints {
       $con->{'hostlabel'} = [ @{$con->{'hostlabel'} || []},  @{$con2->{'hostlabel'}} ];
     }
     if ($con2->{'sandbox'}) {
-      $con->{'sandbox'} = mergeconstraints_sandbox($con->{'sandbox'}, $con2->{'sandbox'});
+      $con->{'sandbox'} = [ @{$con->{'sandbox'} || []},  @{$con2->{'sandbox'}} ];
     }
     if ($con2->{'linux'}) {
       $con->{'linux'}->{'flavor'} = $con2->{'linux'}->{'flavor'} if $con2->{'linux'}->{'flavor'};

@@ -48,7 +48,7 @@
           <text/>
         </element>
       </zeroOrMore>
-      <optional>
+      <zeroOrMore>
         <element name="sandbox">
           <optional>
             <attribute name="exclude">
@@ -60,7 +60,7 @@
           </optional>
           <ref name="build-sandbox"/>
         </element>
-      </optional>
+      </zeroOrMore>
       <optional>
         <element name="linux">
            <optional>

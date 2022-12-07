@@ -1806,11 +1806,11 @@ our @constraint = (
         [],
         '_content' # workers might get labels defined by admin, for example for benchmarking.
      ]],
-      [ 'sandbox' =>
+     [[ 'sandbox' =>
 	    'exclude',   # true or false. default is false.
 	    [],
 	    '_content' # xen/kvm/zvm/lxc/emulator/chroot/secure
-      ],
+     ]],
       [ 'linux' =>
 	  [ 'version' =>
 		[],
