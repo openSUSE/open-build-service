@@ -248,33 +248,23 @@ function prepare_database_setup {
   RAILS_ENV=production bin/rails db:migrate:status > /dev/null 2>&1
 
   if [[ $? > 0 ]];then
-    echo "Initialize MySQL databases (first time only)"
-    DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
-    echo " - reconfiguring datadir in $DATADIR_FILE"
-    sed -i -E '0,/(#\s*)?datadir/ s!#\s*datadir\s*=\s*/var/lib/mysql$!datadir = /srv/obs/MySQL!' $DATADIR_FILE
-    echo " - installing to new datadir"
-    mysql_install_db
-    echo " - changing ownership for new datadir"
-    chown mysql:mysql -R /srv/obs/MySQL
-    MYSQL_LOG=$(grep log-error /etc/my.cnf.d/*.cnf|perl -p -e 's/.*:log-error=(.*)/$1/')
-    if [ -n "$MYSQL_LOG" ];then
-      echo " - prepare log file $MYSQL_LOG"
-      LOG_DIR=`dirname $MYSQL_LOG`
-      if [ ! -d $LOG_DIR ];then
-        mkdir -p $LOG_DIR
-        chown mysql:mysql $LOG_DIR
+    if ! [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]];then
+      echo "Initialize MySQL databases (first time only)"
+      DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
+      echo " - reconfiguring datadir in $DATADIR_FILE"
+      sed -i -E '0,/(#\s*)?datadir/ s!#\s*datadir\s*=\s*/var/lib/mysql$!datadir = /srv/obs/MySQL!' $DATADIR_FILE
+      echo " - installing to new datadir"
+      mysql_install_db
+      echo " - changing ownership for new datadir"
+      chown mysql:mysql -R /srv/obs/MySQL
+      MYSQL_LOG=$(grep log-error /etc/my.cnf.d/*.cnf|perl -p -e 's/.*:log-error=(.*)/$1/')
+      if [ -n "$MYSQL_LOG" ];then
+        echo " - prepare log file $MYSQL_LOG"
+        LOG_DIR=`dirname $MYSQL_LOG`
+        if [ ! -d $LOG_DIR ];then
+          mkdir -p $LOG_DIR
+          chown mysql:mysql $LOG_DIR
       fi
-      touch $MYSQL_LOG
-      chown mysql:mysql $MYSQL_LOG
-    fi
-    echo " - restarting mysql"
-    systemctl restart $MYSQL_SERVICE
-    echo " - setting new password for user root in mysql"
-    mysqladmin -u $MYSQL_USER password $MYSQL_PASS
-    if [[ $? > 0 ]];then
-      echo "ERROR: Your mysql setup doesn't fit your rails setup"
-      echo "Please check your database settings for mysql and rails"
-      exit 1
     fi
     RUN_INITIAL_SETUP="true"
   fi
@@ -519,7 +509,11 @@ function prepare_apache2 {
 
   PKG2INST=""
   for pkg in $APACHE_ADDITIONAL_PACKAGES;do
-    rpm -q $pkg >/dev/null || PKG2INST="$PKG2INST $pkg"
+    if [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]]; then
+      dpkg -l $pkg >/dev/null 2>&1 || PKG2INST="$PKG2INST $pkg"
+    else
+      rpm -q $pkg >/dev/null || PKG2INST="$PKG2INST $pkg"
+    fi
   done
 
   if [[ -n $PKG2INST ]];then
@@ -528,12 +522,12 @@ function prepare_apache2 {
 
   if [ "$CONFIGURE_APACHE" == 1 ];then
     MODULES="passenger rewrite proxy proxy_http headers socache_shmcb xforward"
+    FLAGS=""
+    [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]] && MODULES="$MODULES ssl" || FLAGS=SSL
 
     for mod in $MODULES;do
       a2enmod -q $mod || a2enmod $mod
     done
-
-    FLAGS=SSL
 
     for flag in $FLAGS;do
       a2enflag $flag >/dev/null
@@ -544,6 +538,7 @@ function prepare_apache2 {
 ###############################################################################
 function prepare_passenger {
 
+  [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]] && return
   perl -p -i -e \
     's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby3.1"#' \
       $MOD_PASSENGER_CONF
@@ -654,6 +649,21 @@ function prepare_os_settings {
         INST_PACKAGES_CMD="dnf -y install"
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE mod_xforward mod_passenger memcached"
         CONFIGURE_APACHE=0
+        OBS_SIGND=signd
+        SIGND_BIN="/usr/sbin/signd"
+      ;;
+      ubuntu|debian)
+        MYSQL_SERVICE=mariadb
+        HTTPD_SERVICE=apache2
+        HTTPD_USER=www-data
+        HTTPD_GROUP=www-data
+        PASSENGER_CONF=/etc/$HTTPD_SERVICE/mods-available/passenger.conf
+        TRUST_ANCHORS_DIR=/usr/local/share/ca-certificates
+        UPDATE_SSL_TRUST_BIN=update-ca-certificates
+        MOD_PASSENGER_CONF=/etc/$HTTPD_SERVICE/mods-available/passenger.conf
+        INST_PACKAGES_CMD="apt-get install -qq -y"
+        APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE libapache2-mod-xforward libapache2-mod-passenger passenger memcached"
+        CONFIGURE_APACHE=1
         OBS_SIGND=signd
         SIGND_BIN="/usr/sbin/signd"
       ;;

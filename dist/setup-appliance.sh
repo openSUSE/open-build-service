@@ -20,8 +20,13 @@ MYSQL_PASS=opensuse
 PID_FILE=/run/setup-appliance.pid
 
 # package or appliance defaults
-if [ -e /etc/sysconfig/obs-server ]; then
-  source /etc/sysconfig/obs-server
+if [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]]; then
+  defaultsfile="/etc/default/obs-server"
+else
+  defaultsfile="/etc/sysconfig/obs-server"
+fi
+if [ -e "$defaultsfile" ]; then
+  source "$defaultsfile"
 fi
 
 # Set default directories
@@ -112,7 +117,6 @@ fi
 
 echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
-OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 if [ -e /etc/os-release ];then
   # execute in subshell to preserve the values of the variables
   # $NAME and $VERSION as these are very generic
@@ -122,6 +126,12 @@ if [ -e /etc/os-release ];then
 else
   OS="UNKNOWN"
 fi
+if [[ "$OS_NAME" =~ ^(Debian|Ubuntu)$ ]]; then
+  OBSVERSION=`dpkg-query --showformat='${Version}' --show obs-server`
+else
+  OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
+fi
+
 RUN_INITIAL_SETUP=""
 
 prepare_database_setup
@@ -157,7 +167,11 @@ if [[ $DETECTED_CERT_CHANGE && ! $SETUP_ONLY ]];then
     systemctl reload $HTTPD_SERVICE.service
 fi
 
-check_unit obs-api-support.target
+if [[ "$OS_NAME" =~ ^(Debian|Ubuntu)$ ]]; then
+  check_unit obs-api.target
+else
+  check_unit obs-api-support.target
+fi
 
 create_issue_file
 
