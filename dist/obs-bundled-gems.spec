@@ -43,8 +43,6 @@ BuildRequires:  libtool
 BuildRequires:  libffi-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libxslt-devel
-# libyaml-devel is required by psych rubygem
-BuildRequires:  libyaml-devel
 BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
