@@ -10,7 +10,7 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       source_branch: 'test_branch',
       target_branch: 'master',
       action: 'opened',
-      repository_full_name: 'openSUSE/open-build-service',
+      target_repository_full_name: 'openSUSE/open-build-service',
       event: 'pull_request'
     }
   end
@@ -43,6 +43,20 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       let(:payload) { github_extractor_payload }
 
       it { expect(subject.size).to be(2) }
+    end
+
+    context 'with placeholder variables' do
+      let(:workflows_yml_file) { Rails.root.join('spec/support/files/multiple_workflows.yml').expand_path }
+      let(:payload) { github_extractor_payload }
+
+      it 'maps them to their values from the webhook event payload' do
+        expect(subject.first.workflow_instructions).to include(steps: [{ branch_package: { source_project: 'test-project:openSUSE', source_package: 'open-build-service',
+                                                                                           target_project: 'test-target-project' } }])
+
+        expect(subject.second.workflow_instructions).to include(steps: [{ branch_package: { source_project: 'test-project',
+                                                                                            source_package: 'test-package:387185b7df2b572377712994116c19cd7dd13150',
+                                                                                            target_project: 'test-target-project:PR-123' } }])
+      end
     end
 
     context 'with webhook payload from gitlab' do
