@@ -47,6 +47,14 @@
                     = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your new SCM token')
                   .form-text.text-muted
                     Leaving this text field empty will not update your SCM token.
+                .form-group#workflow-configuration-path-group
+                  = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')
+                  %abbr.text-danger{ title: 'required' } *
+                  .input-group
+                    = f.text_field(:workflow_configuration_path, class: 'form-control', required: true,
+                                                                 placeholder: 'Eg: .my_subdir/my_workflows_file.yml')
+                  .form-text.text-muted
+                    The default path is '.obs/workflows.yml'
           .actions
             = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
             = f.submit('Update', class: 'btn btn-primary px-4 mt-3 mt-sm-0')

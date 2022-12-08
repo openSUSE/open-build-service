@@ -16,7 +16,7 @@ class Token::Workflow < Token
                           dependent: :destroy,
                           inverse_of: :groups
 
-  validates :scm_token, presence: true
+  validates :scm_token, :workflow_configuration_path, presence: true
 
   def call(options)
     set_triggered_at
@@ -66,14 +66,15 @@ end
 #
 # Table name: tokens
 #
-#  id           :integer          not null, primary key
-#  description  :string(64)       default("")
-#  scm_token    :string(255)      indexed
-#  string       :string(255)      indexed
-#  triggered_at :datetime
-#  type         :string(255)
-#  executor_id  :integer          not null, indexed
-#  package_id   :integer          indexed
+#  id                          :integer          not null, primary key
+#  description                 :string(64)       default("")
+#  scm_token                   :string(255)      indexed
+#  string                      :string(255)      indexed
+#  triggered_at                :datetime
+#  type                        :string(255)
+#  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
+#  executor_id                 :integer          not null, indexed
+#  package_id                  :integer          indexed
 #
 # Indexes
 #

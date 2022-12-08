@@ -17,7 +17,7 @@ module Workflows
       begin
         parsed_workflows_yaml = YAML.safe_load(File.read(@yaml_file))
       rescue Psych::SyntaxError => e
-        raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse .obs/workflows.yml: #{e.message}"
+        raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
       end
 
       parsed_workflows_yaml
