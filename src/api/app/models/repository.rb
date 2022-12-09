@@ -160,7 +160,7 @@ class Repository < ApplicationRecord
 
     merged_cycles = []
     cycles.each do |cycle|
-      intersecting_cycles = merged_cycles.select { |another_cycle| (cycle & another_cycle).any? }
+      intersecting_cycles = merged_cycles.select { |another_cycle| cycle.intersect?(another_cycle) }
       intersecting_cycles.each do |intersecting_cycle|
         deleted = merged_cycles.delete(intersecting_cycle)
         cycle.concat(deleted)

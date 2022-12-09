@@ -105,7 +105,7 @@ def ignore_by_class?(notice)
                           'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'ActionDispatch::Http::MimeNegotiation::InvalidType',
                           'ActionController::UnknownFormat', 'Backend::NotFoundError']
 
-  (notice[:errors].pluck(:type) & exceptions_to_ignore).any?
+  notice[:errors].pluck(:type).intersect?(exceptions_to_ignore)
 end
 
 def ignore_exception?(notice)
