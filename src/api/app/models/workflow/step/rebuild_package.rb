@@ -1,4 +1,4 @@
-class Workflow::Step::RebuildPackage < ::Workflow::Step
+class Workflow::Step::RebuildPackage < Workflow::Step
   include Triggerable
 
   REQUIRED_KEYS = [:project, :package].freeze

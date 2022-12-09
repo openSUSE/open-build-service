@@ -581,7 +581,7 @@ RSpec.describe User do
     end
 
     before do
-      allow(::Configuration).to receive(:allow_user_to_create_home_project).and_return('true')
+      allow(Configuration).to receive(:allow_user_to_create_home_project).and_return('true')
     end
 
     it 'allows creating home projects' do

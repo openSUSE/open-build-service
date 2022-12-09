@@ -12,7 +12,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
 
     context 'Can load project config' do
       before do
-        allow(::ProjectConfigurationService::ProjectConfigurationPresenter).to receive(:new) {
+        allow(ProjectConfigurationService::ProjectConfigurationPresenter).to receive(:new) {
           -> { OpenStruct.new(valid?: true, config: '') }
         }
       end
@@ -22,7 +22,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
 
     context 'Can not load project config' do
       before do
-        allow(::ProjectConfigurationService::ProjectConfigurationPresenter).to receive(:new) {
+        allow(ProjectConfigurationService::ProjectConfigurationPresenter).to receive(:new) {
           -> { OpenStruct.new(valid?: false, errors: 'yada yada') }
         }
       end
@@ -38,7 +38,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
 
     context 'can save a project config' do
       before do
-        allow(::ProjectConfigurationService::ProjectConfigurationUpdater).to receive(:new) {
+        allow(ProjectConfigurationService::ProjectConfigurationUpdater).to receive(:new) {
           -> { OpenStruct.new(saved?: true) }
         }
         post :update, params: { project_name: user.home_project.name, config: 'save config' }
@@ -50,7 +50,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
 
     context 'cannot save a project config' do
       before do
-        allow(::ProjectConfigurationService::ProjectConfigurationUpdater).to receive(:new) {
+        allow(ProjectConfigurationService::ProjectConfigurationUpdater).to receive(:new) {
           -> { OpenStruct.new(saved?: false, errors: 'yay') }
         }
         post :update, params: { project_name: user.home_project.name, config: '' }

@@ -37,7 +37,7 @@ RSpec.describe UnregisteredUser do
         let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed', ignore_auth_services: false) }
 
         before do
-          allow(::Configuration).to receive(:registration).and_return('allow')
+          allow(Configuration).to receive(:registration).and_return('allow')
         end
 
         subject! { UnregisteredUser.register(user_attributes) }
@@ -51,7 +51,7 @@ RSpec.describe UnregisteredUser do
         let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'unconfirmed', ignore_auth_services: false) }
 
         before do
-          allow(::Configuration).to receive(:registration).and_return('confirmation')
+          allow(Configuration).to receive(:registration).and_return('confirmation')
         end
 
         subject { UnregisteredUser.register(user_attributes) }
@@ -68,7 +68,7 @@ RSpec.describe UnregisteredUser do
       let(:user_count_before) { User.count }
 
       before do
-        allow(::Configuration).to receive(:registration).and_return('deny')
+        allow(Configuration).to receive(:registration).and_return('deny')
       end
 
       subject { UnregisteredUser.register(user_attributes) }

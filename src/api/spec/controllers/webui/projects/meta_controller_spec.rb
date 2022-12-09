@@ -26,7 +26,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
     context 'with a valid project' do
       context 'without a valid meta' do
         before do
-          allow(::MetaControllerService::ProjectUpdater).to receive(:new) {
+          allow(MetaControllerService::ProjectUpdater).to receive(:new) {
             -> { OpenStruct.new(valid?: false, errors: 'yada') }
           }
 
@@ -39,7 +39,7 @@ RSpec.describe Webui::Projects::MetaController, vcr: true do
 
       context 'with a valid meta' do
         before do
-          allow(::MetaControllerService::ProjectUpdater).to receive(:new) {
+          allow(MetaControllerService::ProjectUpdater).to receive(:new) {
             -> { OpenStruct.new(valid?: true, errors: '') }
           }
           post :update, params: { project_name: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true

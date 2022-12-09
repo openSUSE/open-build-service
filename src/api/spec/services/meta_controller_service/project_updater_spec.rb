@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ::MetaControllerService::ProjectUpdater do
+RSpec.describe MetaControllerService::ProjectUpdater do
   let(:project) { create(:project, name: 'openSUSE_41') }
   let(:admin_user) { create(:admin_user, login: 'Admin') }
 
@@ -17,7 +17,7 @@ RSpec.describe ::MetaControllerService::ProjectUpdater do
       HEREDOC
     end
 
-    let(:project_updater) { ::MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta)) }
+    let(:project_updater) { MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta)) }
 
     before do
       project_updater.call
@@ -45,7 +45,7 @@ RSpec.describe ::MetaControllerService::ProjectUpdater do
       HEREDOC
     end
 
-    let(:project_updater) { ::MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta)) }
+    let(:project_updater) { MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta)) }
 
     before do
       project_updater.call
