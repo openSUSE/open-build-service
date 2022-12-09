@@ -1545,6 +1545,8 @@ sub sync_to_stage {
   }
 
   return unless @stageservers;
+  my $stageserver_configs;
+  $stageserver_configs = $BSConfig::stageserver_configs if $BSConfig::stageserver_configs;
 
   my $syncroot;
   my $extdir;
@@ -1568,12 +1570,31 @@ sub sync_to_stage {
 
   for my $stageserver (@stageservers) {
     if ($stageserver =~ /^rsync:\/\//) {
+      # syntax rsync://[user@]hostname/module[/path]
       $stageserver .= $dbgsplit if $dbgsplit && $stageservers;
       print "    running rsync to $stageserver at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
       # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
       qsystem('echo', "$extdirx\0", 'rsync', '-ar0', @rsync_extra_options, '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
       qsystem('echo', "$extdirx\0", 'rsync', '-ar0', @rsync_extra_options, '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+    }
+    if ($stageserver =~ /^config:\/\/([^\/]*)\/(.*)/) {
+      # syntax config://entry::module[/path]
+      die ("no config for $1 at ".localtime(time)."\n") unless $stageserver_configs->{$1};
+      my $conf = $stageserver_configs->{$1};
+      my $rsync_e_options = "ssh -i $conf->{'key'} -l $conf->{'ssh-user'}";
+      my $rsync_remote_path = $2;
+      my $rsync_url = "rsync://";
+      $rsync_url .= "$conf->{'rsync-user'}\@" if $conf->{'rsync-user'};
+      $rsync_url .= "$conf->{'hostname'}/$rsync_remote_path";
+      $rsync_url .= $dbgsplit if $dbgsplit && $stageservers;
+      print "    running rsync using -e \"$rsync_e_options\" to $rsync_url at ".localtime(time)."\n";
+      my @pass_options;
+      push @pass_options, "--password-file=$conf->{'rsync-passfile'}" if $conf->{'rsync-passfile'};
+      # rsync with a timeout of 1 hour
+      # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '-e', $rsync_e_options, @rsync_extra_options, @pass_options, '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '-e', $rsync_e_options, @rsync_extra_options, @pass_options, '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
     }
     if ($stageserver =~ /^script:(\/.*)$/) {
       print "    running sync script $1 at ".localtime(time)."\n";
