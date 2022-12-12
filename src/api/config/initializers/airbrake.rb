@@ -51,7 +51,8 @@ Airbrake.configure do |c|
   # Airbrake. By default, all "password" attributes will have their contents
   # replaced.
   # https://github.com/airbrake/airbrake-ruby#blocklist_keys
-  c.blacklist_keys = [/password/i, /authorization/i]
+  # FIXME: `string` is a column from the Tokens table, this column should be renamed.
+  c.blacklist_keys = [/password/i, /authorization/i, /scm_token/i, /string/i]
 
   # Alternatively, you can integrate with Rails' filter_parameters.
   # Read more: https://goo.gl/gqQ1xS
