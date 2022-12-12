@@ -89,6 +89,7 @@ my $vmdisk_filesystem;
 my $vmdisk_filesystem_options;
 my $vmdisk_mount_options;
 my $vmdisk_clean;
+my $vm_network;
 my $emulator_script;
 my $hugetlbfs;
 my $workerid;
@@ -331,6 +332,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --vmdisk-filesystem <none|ext3|ext4>
                    : filesystem to use for autosetup root disk image
 
+       --vm-network: enable network (kvm)
+
        --emulator-script <script>
                    : Define the emulator script 
 
@@ -508,6 +511,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-worker-nr') {
     shift @ARGV;
     $vm_worker_instance = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-network') {
+    shift @ARGV;
+    $vm_network = 1;
     next;
   }
   if ($ARGV[0] eq '--vm-enable-console') {
@@ -3720,6 +3728,7 @@ sub dobuild {
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
     push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
+    push @args, '--vm-network' if $vm eq 'kvm' && $vm_network;
     push @args, '--vm-enable-console' if $vm_enable_console;
   } elsif ($vm eq 'openstack') {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
