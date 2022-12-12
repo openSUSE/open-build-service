@@ -147,6 +147,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
+    date (3.3.1)
     deep_cloneable (3.2.0)
       activerecord (>= 3.1.0, < 8)
     delayed_job (4.1.11)
@@ -277,7 +278,8 @@ GEM
       ruby2_keywords (>= 0.0.5)
     multi_xml (0.6.0)
     mysql2 (0.5.4)
-    net-imap (0.3.1)
+    net-imap (0.3.2)
+      date
       net-protocol
     net-pop (0.1.2)
       net-protocol
