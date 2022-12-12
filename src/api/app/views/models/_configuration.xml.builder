@@ -1,10 +1,10 @@
 xml.configuration do
-  keys = ::Configuration::OPTIONS_YML.keys
+  keys = Configuration::OPTIONS_YML.keys
   keys.each do |key|
     value = my_model.send(key.to_s)
     next if value.nil?
 
-    if ::Configuration::ON_OFF_OPTIONS.include? key
+    if Configuration::ON_OFF_OPTIONS.include? key
       value = value ? 'on' : 'off'
     end
     xml.send(key.to_s, value)

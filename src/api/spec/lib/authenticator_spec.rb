@@ -26,7 +26,7 @@ RSpec.describe Authenticator do
 
       context 'and registration is disabled' do
         before do
-          allow(::Configuration).to receive(:registration).and_return('deny')
+          allow(Configuration).to receive(:registration).and_return('deny')
         end
 
         context 'and the user already registered to OBS' do

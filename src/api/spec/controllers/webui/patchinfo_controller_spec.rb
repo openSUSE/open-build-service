@@ -138,7 +138,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     it { expect(response).to have_http_status(:success) }
     it { expect(assigns(:patchinfo).binaries).to be_a(Array) }
-    it { expect(assigns(:tracker)).to eq(::Configuration.default_tracker) }
+    it { expect(assigns(:tracker)).to eq(Configuration.default_tracker) }
   end
 
   describe 'GET #show' do

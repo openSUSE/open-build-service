@@ -42,7 +42,7 @@ FactoryBot.define do
           end
           staging_workflow.managers_group.users.first.run_as do
             target_packages.each do |package|
-              ::Staging::StagedRequests.new(
+              Staging::StagedRequests.new(
                 request_numbers: [package.target_of_bs_requests.first.number],
                 staging_workflow: staging_workflow,
                 staging_project: staging_workflow.staging_projects.sample,

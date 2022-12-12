@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'ostruct'
 
-RSpec.describe ::WebuiControllerService::UserChecker do
+RSpec.describe WebuiControllerService::UserChecker do
   let(:user_checker) { described_class.new(http_request: request, config: config) }
 
   describe '#call' do

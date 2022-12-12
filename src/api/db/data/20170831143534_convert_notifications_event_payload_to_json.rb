@@ -26,7 +26,7 @@ def yaml_to_json(yaml)
 end
 
 # Notification model only for migration in order to avoid errors coming from the serialization in the actual Notification model
-class Notification20170831143534 < ::ApplicationRecord
+class Notification20170831143534 < ApplicationRecord
   self.table_name = 'notifications'
   self.inheritance_column = :_type_disabled
 end

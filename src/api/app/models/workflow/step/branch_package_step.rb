@@ -1,4 +1,4 @@
-class Workflow::Step::BranchPackageStep < ::Workflow::Step
+class Workflow::Step::BranchPackageStep < Workflow::Step
   include ScmSyncEnabledStep
 
   REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze

@@ -45,7 +45,7 @@ namespace :dev do
       Rake::Task['assets:precompile'].invoke
       if args.old_test_suite
         puts 'Old test suite. Enforcing project keys...'
-        ::Configuration.update(enforce_project_keys: true)
+        Configuration.update(enforce_project_keys: true)
       end
     end
 
@@ -53,7 +53,7 @@ namespace :dev do
       # This is needed to make the signer setup
       puts 'Configure default signing'
       Rake::Task['assets:clobber'].invoke
-      ::Configuration.update(enforce_project_keys: true)
+      Configuration.update(enforce_project_keys: true)
     end
 
     puts 'Enable feature toggles for their group'

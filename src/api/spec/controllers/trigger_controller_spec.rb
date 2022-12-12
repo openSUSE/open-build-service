@@ -12,7 +12,7 @@ RSpec.describe TriggerController, vcr: true do
   before do
     # FIXME: fix the rubocop complain
     # rubocop:disable RSpec/AnyInstance
-    allow_any_instance_of(::TriggerControllerService::TokenExtractor).to receive(:call).and_return(token)
+    allow_any_instance_of(TriggerControllerService::TokenExtractor).to receive(:call).and_return(token)
     # rubocop:enable RSpec/AnyInstance
     package
   end

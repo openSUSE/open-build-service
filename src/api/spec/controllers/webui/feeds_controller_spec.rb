@@ -88,13 +88,13 @@ RSpec.describe Webui::FeedsController do
     context 'with a working token' do
       render_views
       before do
-        ::Configuration.update(obs_url: 'http://localhost')
+        Configuration.update(obs_url: 'http://localhost')
         user.create_rss_token(executor: user)
         get :notifications, params: { token: user.rss_token.string, format: 'rss' }
       end
 
       after do
-        ::Configuration.update(obs_url: nil)
+        Configuration.update(obs_url: nil)
       end
 
       it { expect(assigns(:notifications)).to eq(user.combined_rss_feed_items) }

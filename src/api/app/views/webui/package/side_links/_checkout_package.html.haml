@@ -5,5 +5,5 @@
     Checkout Package
   .collapse.collapse-checkout.border#collapse-checkout-package
     %code
-      - api_url = ::Configuration.api_url ? " -A #{::Configuration.api_url}" : ''
+      - api_url = Configuration.api_url ? " -A #{Configuration.api_url}" : ''
       osc#{api_url} checkout #{project}/#{package} && cd $_

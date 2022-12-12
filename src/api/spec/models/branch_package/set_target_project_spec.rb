@@ -34,7 +34,7 @@ RSpec.describe BranchPackage::SetTargetProject, vcr: true do
 
   describe '#auto_cleanup' do
     before do
-      allow(::Configuration).to receive(:cleanup_after_days).and_return(3)
+      allow(Configuration).to receive(:cleanup_after_days).and_return(3)
     end
 
     context 'with target_project and autocleanup' do

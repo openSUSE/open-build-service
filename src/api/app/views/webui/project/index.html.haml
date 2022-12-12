@@ -26,7 +26,7 @@
         = link_to('#', class: 'toggle-projects') do
           %i.fas.fa-toggle-off.text-primary#toggle-icon
           %span#toggle-text
-            Include #{::Configuration.unlisted_projects_filter_description}
+            Include #{Configuration.unlisted_projects_filter_description}
       - if User.session
         - content_for :actions do
           %li.nav-item
