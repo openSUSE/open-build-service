@@ -100,6 +100,10 @@
                       </attribute>
                     </optional>
                     <text />
+                    <a:documentation>
+                     All cpu flags from /proc/cpuinfo can required here. In addition also pseudo helper
+                     flags for an architecture level: power7, power8, power9, EL0, x86-64-v2, x86-64-v3, x86-64-v4
+                    </a:documentation>
                   </element>
                 </oneOrMore> 
               </element>
