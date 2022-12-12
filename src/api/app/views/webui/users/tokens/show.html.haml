@@ -48,6 +48,14 @@
           .form-row
             .col
               .form-group
+                %label.font-weight-bold
+                  Workflows Configuration File:
+                %span
+                  = @token.workflow_configuration_path
+
+          .form-row
+            .col
+              .form-group
                 %label.col-form-label.mr-2.font-weight-bold
                   Token trigger url:
                 .input-group

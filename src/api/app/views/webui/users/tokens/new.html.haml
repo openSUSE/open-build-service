@@ -38,12 +38,20 @@
               .form-group.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.
 
-          .form-row
+          .form-row.d-none#fieldsets-token
             .col-12.col-md-10.col-lg-9
-              .form-group.d-none#fieldset-token-scm-token
+              .form-group
                 = f.label(:scm_token, 'SCM Token:')
                 %abbr.text-danger{ title: 'required' } *
                 = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your SCM token')
+              .form-group
+                = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')
+                %abbr.text-danger{ title: 'required' } *
+                .input-group
+                  = f.text_field(:workflow_configuration_path, value: '.obs/workflows.yml', class: 'form-control', required: true,
+                                                               placeholder: 'Eg: .my_subdir/my_workflows_file.yml')
+                .form-text.text-muted
+                  The default path is '.obs/workflows.yml'
 
           .actions
             = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
@@ -54,12 +62,12 @@
     // Shows/Hide SCM Token input field
     $('input[type=radio]').on('change', function() {
       if (this.value == 'workflow') {
-        $('#fieldset-token-scm-token').removeClass('d-none');
+        $('#fieldsets-token').removeClass('d-none');
         $('#package-project-form').addClass('d-none');
         $('#token_scm_token').attr('required', true);
       }
-      else if (!$('#fieldset-token-scm-token').attr('disabled')) {
-        $('#fieldset-token-scm-token').addClass('d-none');
+      else if (!$('#fieldsets-token').attr('disabled')) {
+        $('#fieldsets-token').addClass('d-none');
         $('#package-project-form').removeClass('d-none');
         $('#token_scm_token').attr('required', false);
       }
