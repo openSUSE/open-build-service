@@ -1,5 +1,9 @@
 module Workflows
   class YAMLToWorkflowsService
+    include WorkflowPlaceholderVariablesInstrumentation # for track_placeholder_variables
+
+    SUPPORTED_PLACEHOLDER_VARIABLES = ['SCM_ORGANIZATION_NAME', 'SCM_REPOSITORY_NAME', 'SCM_PR_NUMBER', 'SCM_COMMIT_SHA'].freeze
+
     def initialize(yaml_file:, scm_webhook:, token:, workflow_run:)
       @yaml_file = yaml_file
       @scm_webhook = scm_webhook
@@ -31,8 +35,11 @@ module Workflows
       target_repository_full_name = @scm_webhook.payload.values_at(:target_repository_full_name, :path_with_namespace).compact.first
       scm_organization_name, scm_repository_name = target_repository_full_name.split('/')
 
+      workflows_file_content = File.read(file_path)
+      track_placeholder_variables(workflows_file_content)
+
       # Mapping the placeholder variables to their values from the webhook event payload
-      format(File.read(file_path),
+      format(workflows_file_content,
              SCM_ORGANIZATION_NAME: scm_organization_name,
              SCM_REPOSITORY_NAME: scm_repository_name,
              # If someone uses this placeholder variable in a workflow which runs for pull request webhook events, we have a default
