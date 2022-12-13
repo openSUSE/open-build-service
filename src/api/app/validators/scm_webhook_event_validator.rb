@@ -1,5 +1,5 @@
 class SCMWebhookEventValidator < ActiveModel::Validator
-  ALLOWED_GITHUB_AND_GITEA_EVENTS = ['pull_request', 'push'].freeze
+  ALLOWED_GITHUB_AND_GITEA_EVENTS = ['pull_request', 'push', 'ping'].freeze
   ALLOWED_GITLAB_EVENTS = ['Merge Request Hook', 'Push Hook', 'Tag Push Hook'].freeze
 
   def validate(record)
