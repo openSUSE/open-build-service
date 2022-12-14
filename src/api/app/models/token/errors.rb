@@ -1,8 +1,6 @@
 require 'api_error'
 
 module Token::Errors
-  extend ActiveSupport::Concern
-
   class NoReleaseTargetFound < APIError
     setup 404
   end

@@ -1,6 +1,4 @@
 module BsRequest::Errors
-  extend ActiveSupport::Concern
-
   class InvalidStateError < APIError
     setup 'request_not_modifiable', 404
   end

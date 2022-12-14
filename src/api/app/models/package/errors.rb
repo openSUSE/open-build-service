@@ -1,6 +1,4 @@
 module Package::Errors
-  extend ActiveSupport::Concern
-
   class PackageError < StandardError; end
 
   class CycleError < APIError

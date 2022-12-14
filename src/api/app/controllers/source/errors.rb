@@ -1,6 +1,4 @@
 module Source::Errors
-  extend ActiveSupport::Concern
-
   class IllegalRequest < APIError
     setup 404, 'Illegal request'
   end

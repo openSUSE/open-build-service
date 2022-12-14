@@ -1,6 +1,4 @@
 module Trigger::Errors
-  extend ActiveSupport::Concern
-
   class InvalidToken < APIError
     setup 'permission_denied',
           403,

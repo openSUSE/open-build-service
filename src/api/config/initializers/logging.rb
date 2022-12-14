@@ -1,7 +1,5 @@
 module APIInstrumentation
   module ControllerRuntime
-    extend ActiveSupport::Concern
-
     protected
 
     def append_info_to_payload(payload)
