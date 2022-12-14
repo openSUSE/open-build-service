@@ -189,7 +189,8 @@ module TriggerControllerService
       # We need this for Workflow::Step#target_package_name
       # 'target_branch' will contain a commit SHA
       payload.merge!({ tag_name: payload_ref.sub('refs/tags/', ''),
-                       target_branch: @payload[:after] })
+                       target_branch: @payload.dig(:head_commit, :id),
+                       commit_sha: @payload.dig(:head_commit, :id) })
     end
   end
 end
