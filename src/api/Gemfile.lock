@@ -482,7 +482,7 @@ GEM
     unicode-display_width (2.3.0)
     uniform_notifier (1.16.0)
     vcr (6.1.0)
-    view_component (2.78.0)
+    view_component (2.79.0)
       activesupport (>= 5.0.0, < 8.0)
       concurrent-ruby (~> 1.0)
       method_source (~> 1.0)
