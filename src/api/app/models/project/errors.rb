@@ -1,6 +1,4 @@
 module Project::Errors
-  extend ActiveSupport::Concern
-
   class CycleError < APIError
     setup 'project_cycle'
   end

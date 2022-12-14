@@ -1,6 +1,4 @@
 module BsRequestAction::Errors
-  extend ActiveSupport::Concern
-
   # a diff error can have many reasons, but most likely something within us
   class DiffError < APIError; setup 404; end
 
