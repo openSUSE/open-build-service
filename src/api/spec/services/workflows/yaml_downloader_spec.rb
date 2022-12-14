@@ -48,21 +48,37 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
     end
 
     context 'gitea' do
-      let(:payload) do
-        {
-          scm: 'gitea',
-          target_branch: 'main',
-          target_repository_full_name: 'iggy/target_repo',
-          api_endpoint: 'https://gitea.opensuse.org'
-        }
-      end
-      let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/branch/#{payload[:target_branch]}/.obs/workflows.yml" }
-
       before do
         yaml_downloader.call
       end
 
-      it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+      context 'for a tag push event' do
+        let(:payload) do
+          {
+            scm: 'gitea',
+            target_repository_full_name: 'iggy/target_repo',
+            api_endpoint: 'https://gitea.opensuse.org',
+            tag_name: '3.0'
+          }
+        end
+        let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/tag/#{payload[:tag_name]}/.obs/workflows.yml" }
+
+        it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+      end
+
+      context 'for a push or pull request event' do
+        let(:payload) do
+          {
+            scm: 'gitea',
+            target_branch: 'main',
+            target_repository_full_name: 'iggy/target_repo',
+            api_endpoint: 'https://gitea.opensuse.org'
+          }
+        end
+        let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/branch/#{payload[:target_branch]}/.obs/workflows.yml" }
+
+        it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+      end
     end
   end
 end
