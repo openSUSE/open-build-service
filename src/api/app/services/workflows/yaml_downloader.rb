@@ -32,7 +32,7 @@ module Workflows
         # This GitLab URL admits both a branch name and a commit sha.
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
       when 'gitea'
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
+        gitea_download_url
       end
     rescue Octokit::InvalidRepository => e
       raise Token::Errors::NonExistentRepository, e.message
@@ -40,6 +40,14 @@ module Workflows
       # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
       raise Token::Errors::NonExistentWorkflowsFile,
             "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}: #{e.message}"
+    end
+
+    def gitea_download_url
+      if @scm_payload[:tag_name].present?
+        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/tag/#{@scm_payload[:tag_name]}/#{@token.workflow_configuration_path}"
+      else
+        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
+      end
     end
   end
 end
