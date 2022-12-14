@@ -73,9 +73,7 @@ RSpec.describe Webui::FeedsController do
     end
   end
 
-  describe 'GET latest_updates' do
-    skip
-  end
+  describe 'GET latest_updates'
 
   describe 'GET #notifications' do
     let(:user) { create(:confirmed_user) }

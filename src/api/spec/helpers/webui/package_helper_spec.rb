@@ -97,17 +97,11 @@ RSpec.describe Webui::PackageHelper do
     end
   end
 
-  describe '#file_url' do
-    skip
-  end
+  describe '#file_url'
 
-  describe '#rpm_url' do
-    skip
-  end
+  describe '#rpm_url'
 
-  describe '#human_readable_fsize' do
-    skip
-  end
+  describe '#human_readable_fsize'
 
   describe '#guess_code_class' do
     RSpec.shared_examples 'file with extension' do |extension, extension_class|

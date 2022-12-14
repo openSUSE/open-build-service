@@ -145,7 +145,5 @@ RSpec.describe Relationship do
     end
   end
 
-  it '.discard_cache' do
-    skip
-  end
+  xit '.discard_cache'
 end

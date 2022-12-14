@@ -11,7 +11,5 @@ RSpec.describe Webui::ProjectHelper do
     end
   end
 
-  describe '#rebuild_time_col' do
-    skip
-  end
+  describe '#rebuild_time_col'
 end

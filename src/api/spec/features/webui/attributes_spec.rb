@@ -25,9 +25,7 @@ RSpec.describe 'Attributes', js: true do
     end
 
     describe 'with values that are not allowed' do
-      it 'add attribute should fail' do
-        skip
-      end
+      xit 'add attribute should fail'
     end
 
     describe 'without permissions' do
