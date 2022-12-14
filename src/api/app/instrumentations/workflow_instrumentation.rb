@@ -17,7 +17,7 @@ module WorkflowInstrumentation
   end
 
   def track_execution
-    RabbitmqBus.send_to_bus('metrics', 'workflow,action=execution count=1')
+    RabbitmqBus.send_to_bus('metrics', "workflow,action=execution,default_configuration_path=#{token.workflow_configuration_path_default?} count=1")
   end
 
   def track_workflow_filters

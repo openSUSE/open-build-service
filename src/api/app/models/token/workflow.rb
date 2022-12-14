@@ -53,6 +53,10 @@ class Token::Workflow < Token
     executor == some_user || users.include?(some_user) || groups.map(&:users).flatten.include?(some_user)
   end
 
+  def workflow_configuration_path_default?
+    workflow_configuration_path == '.obs/workflows.yml'
+  end
+
   private
 
   def validation_errors
