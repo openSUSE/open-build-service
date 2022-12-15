@@ -25,13 +25,6 @@ RSpec.describe WorkflowRunDetailComponent, type: :component do
     render_inline(described_class.new(workflow_run: workflow_run))
   end
 
-  context 'every single workflow run' do
-    it { expect(rendered_content).to have_text('Request') }
-    it { expect(rendered_content).to have_text('Response') }
-    it { expect(rendered_content).to have_text('pull_request') }
-    it { expect(rendered_content).to have_text('foo') }
-  end
-
   context 'when the payload cannot be parsed' do
     let(:request_payload) { 'Unparseable payload' }
 

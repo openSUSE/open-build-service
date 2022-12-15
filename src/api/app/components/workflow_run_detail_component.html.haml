@@ -14,18 +14,21 @@
 .tab-content.p-3#workflow-run-tabs-content
   .tab-pane.fade{ id: "incoming-webhook-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "incoming-webhook-tab#{id}" } }
-    %h5 Webhook URL
-    %pre.border.p-2#response-url
-      = response_url
+    - if response_url.present?
+      %h5 Webhook URL
+      %pre.border.p-2#response-url
+        = response_url
     %h5 Webhook Request Headers
     %pre.border.p-2#request-headers
       = request_headers
-    %h5 Webhook Response Body
-    %pre.border.p-2#response-body
-      = response_body
-    %h5 Webhook Request Payload
-    %pre.border.p-2#request-payload
-      = pretty_request_payload
+    - if response_body.present?
+      %h5 Webhook Response Body
+      %pre.border.p-2#response-body
+        = response_body
+    - if pretty_request_payload.present?
+      %h5 Webhook Request Payload
+      %pre.border.p-2#request-payload
+        = pretty_request_payload
   .tab-pane.fade{ id: "scm-reports-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "scm-reports-tab#{id}" } }
     - if status_reports.any?
@@ -35,13 +38,15 @@
             %h6 Response body
             %p
               %span.badge{ class: status_report.status_class }= status_report.status&.humanize
-            %pre.border.p-2#status-report-response-body
-              = status_report.response_body
-            %h6 Request parameters
-            %pre.border.p-2#status-report-request-parameters
-              = status_report.pretty_request_parameters
-            %small.text-nowrap{ title: l(status_report.created_at.utc) }
-              Sent #{time_ago_in_words(status_report.created_at)} ago
+            - if status_report.response_body.present?
+              %pre.border.p-2#status-report-response-body
+                = status_report.response_body
+            - if status_report.pretty_request_parameters.present?
+              %h6 Request parameters
+              %pre.border.p-2#status-report-request-parameters
+                = status_report.pretty_request_parameters
+              %small.text-nowrap{ title: l(status_report.created_at.utc) }
+                Sent #{time_ago_in_words(status_report.created_at)} ago
     - else
       No status reports
   .tab-pane.fade{ id: "artifacts-tab-content#{id}", role: 'tabpanel',
