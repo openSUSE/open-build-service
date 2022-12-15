@@ -1,0 +1,19 @@
+#
+# Open Build Service 2.10.19
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Bugfixes
+========
+Frontend:
+ * Update rails-html-sanitizer to 1.4.4
+   - CVE-2022-32209 Rails::Html::Sanitizer vulnerable to Cross-site Scripting 
+ *  Fix support for qemu system emulated builds via bs_worker
