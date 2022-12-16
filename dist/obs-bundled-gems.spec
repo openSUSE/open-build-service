@@ -166,12 +166,12 @@ find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
 # use the ruby interpreter set by this spec file in all installed ruby scripts
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin || true
-  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin || true
+  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
 done
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
-  sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin || true
-  sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin || true
+  sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
