@@ -191,6 +191,7 @@ our $packinfo = [
 	  [ 'buildtimeservice' ],
 	  [ 'onlynative' ],
 	  [ 'alsonative' ],
+	  [ 'constraint' ],
 	  [ 'imagetype' ],	# kiwi
 	  [ 'imagearch' ],	# kiwi
 	    'nodbgpkgs',	# kiwi
@@ -570,6 +571,7 @@ our $buildinfo = [
 	'ccache',
 	'constraintsmd5',
       [ 'prjconfconstraint' ],
+      [ 'constraint' ],	# recipe constraint
       [ 'subpack' ],
       [ 'imagetype' ],	# kiwi
 	'nodbgpkgs',	# kiwi

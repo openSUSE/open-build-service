@@ -434,8 +434,8 @@ sub getconstraints {
 }
 
 sub getprjconfconstraints {
-  my ($info) = @_;
-  my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
+  my ($lines) = @_;
+  my @l = map { [ split(' ', $_) ] } @{$lines || []};
   my $constraints;
   eval {
     $constraints = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@l);
@@ -443,7 +443,7 @@ sub getprjconfconstraints {
   };
   if ($@) {
     chomp $@;
-    return [ "bad prjconfconstraints: $@" ];
+    return [ $@ ];
   }
   return $constraints;
 }
@@ -938,7 +938,7 @@ while (1) {
     }
   }
 
-  # drop prjconfconstraints cache from time to time
+  # drop prjconfconstraints cache from time to time to get rid of no longer used entries
   if (($prjconfconstraintscache_lastdrop || 0) + 1800 < $now) {
     %prjconfconstraintscache = ();
     $prjconfconstraintscache_lastdrop = $now;
@@ -1304,13 +1304,28 @@ while (1) {
 	}
 	$constraints = BSDispatcher::Constraints::overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
       }
+      if ($info->{'constraint'}) {
+	my $cachekey = join("\n", @{$info->{'constraint'}});
+	my $pkgconstraints = $prjconfconstraintscache{$cachekey};
+	$prjconfconstraintscache{$cachekey} = $pkgconstraints = getprjconfconstraints($info->{'constraint'}) unless $pkgconstraints;
+	if (ref($pkgconstraints) eq 'ARRAY') {
+	  my $err = "bad recipe constraints: $pkgconstraints->[0]";
+	  warn("$arch/$job: $err\n");
+	  failjob($info, $arch, $job, $err);
+	  next;
+	}
+	if (%{$pkgconstraints || {}}) {
+	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($pkgconstraints, $constraints) : $pkgconstraints;
+	}
+      }
       if ($info->{'prjconfconstraint'}) {
 	my $cachekey = join("\n", @{$info->{'prjconfconstraint'}});
 	my $prjconfconstraints = $prjconfconstraintscache{$cachekey};
-	$prjconfconstraintscache{$cachekey} = $prjconfconstraints = getprjconfconstraints($info) unless $prjconfconstraints;
+	$prjconfconstraintscache{$cachekey} = $prjconfconstraints = getprjconfconstraints($info->{'prjconfconstraint'}) unless $prjconfconstraints;
 	if (ref($prjconfconstraints) eq 'ARRAY') {
-	  warn("$arch/$job: $prjconfconstraints->[0]\n");
-	  failjob($info, $arch, $job, $prjconfconstraints->[0]);
+	  my $err = "bad prjconfconstraints: $prjconfconstraints->[0]";
+	  warn("$arch/$job: $err\n");
+	  failjob($info, $arch, $job, $err);
 	  next;
 	}
 	if (%{$prjconfconstraints || {}}) {
