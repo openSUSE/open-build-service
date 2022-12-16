@@ -46,13 +46,18 @@
                 = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your SCM token')
               .form-group
                 = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')
-                %abbr.text-danger{ title: 'required' } *
                 .input-group
-                  = f.text_field(:workflow_configuration_path, value: '.obs/workflows.yml', class: 'form-control', required: true,
+                  = f.text_field(:workflow_configuration_path, value: '.obs/workflows.yml', class: 'form-control',
                                                                placeholder: 'Eg: .my_subdir/my_workflows_file.yml')
                 .form-text.text-muted
-                  The default path is '.obs/workflows.yml'
-
+                  The default path is '.obs/workflows.yml'.
+              .form-group
+                = f.label(:workflow_configuration_url, 'URL to Workflows Configuration File:')
+                .input-group
+                  = f.text_field(:workflow_configuration_url, class: 'form-control',
+                                                              placeholder: 'Eg: https://example.com/.my_subdir/my_workflows_file.yml')
+                .form-text.text-muted
+                  When the URL is given, the path will be ignored. The URL should be accessible for the OBS instance.
           .actions
             = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
             = f.submit('Create', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
