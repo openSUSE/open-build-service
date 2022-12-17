@@ -195,7 +195,7 @@ GEM
       activesupport (>= 5.0)
     gssapi (1.3.1)
       ffi (>= 1.0.1)
-    haml (6.0.12)
+    haml (6.1.1)
       temple (>= 0.8.2)
       thor
       tilt
@@ -204,8 +204,8 @@ GEM
       activesupport (>= 5.1)
       haml (>= 4.0.6)
       railties (>= 5.1)
-    haml_lint (0.42.0)
-      haml (>= 4.0, < 6.1)
+    haml_lint (0.43.0)
+      haml (>= 4.0, < 6.2)
       parallel (~> 1.10)
       rainbow
       rubocop (>= 0.50.0)
