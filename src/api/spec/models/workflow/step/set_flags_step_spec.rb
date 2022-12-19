@@ -173,6 +173,45 @@ RSpec.describe Workflow::Step::SetFlags do
                                         ])
       end
     end
+
+    context 'when the flag exists but the status differs' do
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'pull_request',
+                         action: 'opened',
+                         pr_number: 1,
+                         target_repository_full_name: 'openSUSE/repo123',
+                         commit_sha: '123'
+                       })
+      end
+      let(:step_instructions) do
+        {
+          flags:
+            [
+              {
+                type: 'publish',
+                status: 'enable',
+                project: 'home:Iggy',
+                repository: 'openSUSE_Tumbleweed',
+                architecture: 'x86_64'
+              }
+            ]
+        }
+      end
+
+      before do
+        target_project.add_flag('publish', 'disable', 'openSUSE_Tumbleweed', 'x86_64')
+        target_project.save!
+      end
+
+      it 'does not raise an error and updates the status' do
+        expect { subject.call }.not_to(change(Flag, :count))
+        expect(Flag.all).to match_array([
+                                          have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'publish')
+                                        ])
+      end
+    end
   end
 
   describe '#validate_flags' do
