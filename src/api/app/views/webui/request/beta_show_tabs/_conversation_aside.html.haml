@@ -1,23 +1,18 @@
 .col-md-4.order-md-2.order-sm-1.mb-4#side-links
   -# REVIEWERS
-  - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
-    .d-flex.justify-content-between
-      %h6
-        Reviews
-      = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
+  - if request_reviews.present?
+    .mt-4
+      .text-right
+        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
                                               can_add_reviews: can_add_reviews,
                                               my_open_reviews: my_open_reviews)
-    = render AddReviewCollapsibleComponent.new
-    .mb-4
-      = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
-      = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
-      = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
-
-  - if can_add_reviews
-    = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review', class: 'ml-3') do
-      %i.fas.fa-plus-circle.fa-lg.mr-1
-      %span.nav-item-name Add a Review
-    = render partial: 'add_reviewer_dialog'
+      .mb-2
+        %h6
+          Reviewers
+      = render AddReviewCollapsibleComponent.new
+      .mb-4
+        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
+  = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { can_add_reviews: can_add_reviews }
 
   - open_reviews_for_staging_projects.each do |review|
     .pl-3
