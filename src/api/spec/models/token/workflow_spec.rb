@@ -201,5 +201,15 @@ RSpec.describe Token::Workflow do
         expect(SCMStatusReporter).to have_received(:new).once
       end
     end
+
+    context 'validates presence of either workflow configuration path or url' do
+      let(:workflow_token_a) { build(:workflow_token, workflow_configuration_path: nil) }
+      let(:workflow_token_b) { build(:workflow_token, workflow_configuration_path: nil, workflow_configuration_url: 'https://example.com/subdir/config_file.yml') }
+      let(:workflow_token_c) { build(:workflow_token, workflow_configuration_path: 'subdir/config_file.yml', workflow_configuration_url: nil) }
+
+      it { expect(workflow_token_a).not_to be_valid }
+      it { expect(workflow_token_b).to be_valid }
+      it { expect(workflow_token_c).to be_valid }
+    end
   end
 end
