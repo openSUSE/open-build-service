@@ -21,6 +21,32 @@ module Event
       attribs['error'] = attribs['error'][0..800]
       super(attribs, keys)
     end
+
+    def metric_measurement
+      'service'
+    end
+
+    def metric_tags
+      error = case payload['error']
+              when start_with?('bad link:')
+                'bad_link'
+              when /^ 400 remote error:.*.service  No such file or directory/
+                'service_missing'
+              when /^ 400 remote error:.*service parameter.*is not defined/
+                'unknown_service_parameter'
+              else
+                'unknown'
+              end
+
+      {
+        status: 'fail',
+        error: error
+      }
+    end
+
+    def metric_fields
+      { value: 1 }
+    end
   end
 end
 
