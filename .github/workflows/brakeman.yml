@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install Brakeman
       run: |
-        gem install --no-format-executable brakeman -v 5.1.1
+        gem install --no-format-executable brakeman -v 5.4.0
     - name: Brakeman
       run: |
-        brakeman --rails6 -p src/api
+        brakeman -p src/api
