@@ -21,8 +21,9 @@ class Badge
 
   def status(results)
     return 'failed' if results.any? { |r| r.code == 'failed' }
+    return 'succeeded' if results.all? { |r| r.code == 'succeeded' }
 
-    'succeeded' if results.all? { |r| r.code == 'succeeded' }
+    'unknown'
   end
 
   def process_percent(file)
