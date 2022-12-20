@@ -16,4 +16,4 @@ jobs:
         gem install --no-format-executable brakeman -v 5.4.0
     - name: Brakeman
       run: |
-        brakeman --rails6 -p src/api
+        brakeman -p src/api
