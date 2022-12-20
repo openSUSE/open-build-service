@@ -7,7 +7,7 @@ module WorkflowPlaceholderVariablesInstrumentation
     return if placeholder_variables.blank?
 
     supported_placeholder_variables = placeholder_variables.select do |placeholder_variable|
-      Workflows::YAMLToWorkflowsService::SUPPORTED_PLACEHOLDER_VARIABLES.include?(placeholder_variable)
+      Workflows::YAMLToWorkflowsService::SUPPORTED_PLACEHOLDER_VARIABLES.include?(placeholder_variable.to_sym)
     end
 
     # The matches are not supported placeholder variables

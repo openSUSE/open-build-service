@@ -2,7 +2,8 @@ module Workflows
   class YAMLToWorkflowsService
     include WorkflowPlaceholderVariablesInstrumentation # for track_placeholder_variables
 
-    SUPPORTED_PLACEHOLDER_VARIABLES = ['SCM_ORGANIZATION_NAME', 'SCM_REPOSITORY_NAME', 'SCM_PR_NUMBER', 'SCM_COMMIT_SHA'].freeze
+    # If the order of the values in this constant change, do not forget to change the mapping of the placeholder variable values
+    SUPPORTED_PLACEHOLDER_VARIABLES = [:SCM_ORGANIZATION_NAME, :SCM_REPOSITORY_NAME, :SCM_PR_NUMBER, :SCM_COMMIT_SHA].freeze
 
     def initialize(yaml_file:, scm_webhook:, token:, workflow_run:)
       @yaml_file = yaml_file
@@ -35,17 +36,18 @@ module Workflows
       target_repository_full_name = @scm_webhook.payload.values_at(:target_repository_full_name, :path_with_namespace).compact.first
       scm_organization_name, scm_repository_name = target_repository_full_name.split('/')
 
+      # The PR number is only present in webhook events for pull requests, so we have a default value in case someone doesn't use
+      # this correctly. Here, we cannot inform users about this since we're processing the whole workflows file
+      pr_number = @scm_webhook.payload.fetch(:pr_number, 'NO_PR_NUMBER')
+
+      commit_sha = @scm_webhook.payload.fetch(:commit_sha)
+
       workflows_file_content = File.read(file_path)
       track_placeholder_variables(workflows_file_content)
 
       # Mapping the placeholder variables to their values from the webhook event payload
-      format(workflows_file_content,
-             SCM_ORGANIZATION_NAME: scm_organization_name,
-             SCM_REPOSITORY_NAME: scm_repository_name,
-             # If someone uses this placeholder variable in a workflow which runs for pull request webhook events, we have a default
-             # value even though this is wrong. Here, we cannot inform users about this since we're processing the whole workflows file
-             SCM_PR_NUMBER: @scm_webhook.payload.fetch(:pr_number, 'NO_PR_NUMBER'),
-             SCM_COMMIT_SHA: @scm_webhook.payload.fetch(:commit_sha))
+      placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha]).to_h
+      format(workflows_file_content, placeholder_variables)
     end
   end
 end
