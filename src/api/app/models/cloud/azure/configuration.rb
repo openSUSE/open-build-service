@@ -25,6 +25,7 @@ module Cloud
       private
 
       def encrypt_credentials
+        # FIXME: From brakeman - Use of padding mode PKCS1 (default if not specified), which is known to be insecure. Use OAEP instead
         public_key = OpenSSL::PKey::RSA.new(::Backend::Api::Cloud.public_key)
 
         self.application_id = Base64.encode64(public_key.public_encrypt(application_id)) if application_id_changed?
