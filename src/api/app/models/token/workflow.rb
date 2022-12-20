@@ -16,7 +16,11 @@ class Token::Workflow < Token
                           dependent: :destroy,
                           inverse_of: :groups
 
-  validates :scm_token, :workflow_configuration_path, presence: true
+  validates :scm_token, presence: true
+  # Either a url referring to the worklflow configuration file or a filepath to the config inside the
+  # SCM repository has to be provided
+  validates :workflow_configuration_path, presence: true, unless: -> { workflow_configuration_url.present? }
+  validates :workflow_configuration_url, presence: true, unless: -> { workflow_configuration_path.present? }
 
   def call(options)
     set_triggered_at
@@ -84,6 +88,7 @@ end
 #  triggered_at                :datetime
 #  type                        :string(255)
 #  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
+#  workflow_configuration_url  :string(255)
 #  executor_id                 :integer          not null, indexed
 #  package_id                  :integer          indexed
 #

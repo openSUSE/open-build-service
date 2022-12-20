@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_08_125517) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_16_234231) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -1024,6 +1024,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_08_125517) do
     t.string "description", limit: 64, default: ""
     t.datetime "triggered_at", precision: nil
     t.string "workflow_configuration_path", default: ".obs/workflows.yml"
+    t.string "workflow_configuration_url"
     t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"

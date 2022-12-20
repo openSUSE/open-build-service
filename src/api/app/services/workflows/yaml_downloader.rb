@@ -17,12 +17,17 @@ module Workflows
     def download_yaml_file
       Down.download(download_url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
+      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
+
       # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
       raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}." \
                                                      "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}"
     end
 
     def download_url
+      # When an external URL is given, it prevails over the path.
+      return @token.workflow_configuration_url if @token.workflow_configuration_url.present?
+
       case @scm_payload[:scm]
       when 'github'
         client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])

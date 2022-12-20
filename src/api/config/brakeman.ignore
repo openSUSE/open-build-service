@@ -63,31 +63,11 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "3c8a644a0f40a3d1051aeb8874a2c3bd541d53b206432d55ee9496f3bf128564",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/webui/request_controller.rb",
-      "line": 120,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Delayed::Job.where(\"handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{BsRequestAction.find(BsRequest.find_by!(:number => params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by!(:number => params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => (params[:action_id] or BsRequest.find_by!(:number => params[:number]).bs_request_actions.first.id).to_i, :cacheonly => 1).first[:id]).to_global_id.uri}%'\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Webui::RequestController",
-        "method": "show"
-      },
-      "user_input": "BsRequestAction.find(BsRequest.find_by!(:number => params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by!(:number => params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => (params[:action_id] or BsRequest.find_by!(:number => params[:number]).bs_request_actions.first.id).to_i, :cacheonly => 1).first[:id]).to_global_id",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
       "fingerprint": "425cc6614ece3076fd4dee2f72c0dea417e7ee2b20962f48eaaed13d7f22d82f",
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/controllers/webui/request_controller.rb",
-      "line": 188,
+      "line": 206,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "Delayed::Job.where(\"handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{BsRequestAction.find(BsRequest.find_by!(:number => params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by!(:number => params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => params[\"id\"].to_i, :cacheonly => 1).find do\n (action[:id] == params[\"id\"].to_i)\n end[:id]).to_global_id.uri}%'\")",
       "render_path": null,
@@ -98,7 +78,7 @@
       },
       "user_input": "BsRequestAction.find(BsRequest.find_by!(:number => params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by!(:number => params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => params[\"id\"].to_i, :cacheonly => 1).find do\n (action[:id] == params[\"id\"].to_i)\n end[:id]).to_global_id",
       "confidence": "Medium",
-      "note": "Passing a hash to find_by! is safe as the hash values are escaped."
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -175,7 +155,7 @@
           "type": "controller",
           "class": "Webui::Staging::ProjectsController",
           "method": "show",
-          "line": 52,
+          "line": 27,
           "file": "app/controllers/webui/staging/projects_controller.rb",
           "rendered": {
             "name": "webui/staging/projects/show",
@@ -389,13 +369,44 @@
       "note": ""
     },
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 4,
+      "fingerprint": "da4f7d031e3969d18c911af411d8c4b771b71999bb82f4acf26263082c98cdbd",
+      "check_name": "LinkToHref",
+      "message": "Potentially unsafe model attribute in `link_to` href",
+      "file": "app/views/webui/users/tokens/show.html.haml",
+      "line": 64,
+      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
+      "code": "link_to(Token.find(params[:id]).workflow_configuration_url, Token.find(params[:id]).workflow_configuration_url)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::Users::TokensController",
+          "method": "show",
+          "line": 14,
+          "file": "app/controllers/webui/users/tokens_controller.rb",
+          "rendered": {
+            "name": "webui/users/tokens/show",
+            "file": "app/views/webui/users/tokens/show.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/users/tokens/show"
+      },
+      "user_input": "Token.find(params[:id]).workflow_configuration_url",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "e1bbb06930340f39e377f9e599a372d33b45861686454d7775bf5961f22a5e55",
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/controllers/webui/request_controller.rb",
-      "line": 192,
+      "line": 230,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "Delayed::Job.where(\"handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{BsRequestAction.find(BsRequest.find_by!(:number => params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by!(:number => params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => params[\"id\"].to_i, :cacheonly => 1).find do\n (action[:id] == params[\"id\"].to_i)\n end[:id]).to_global_id.uri}%'\")",
       "render_path": null,
@@ -426,7 +437,7 @@
       },
       "user_input": "if package_name.blank? then\n  \"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})\"\nelse\n  \"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)} and reviews.by_package=#{quote(package_name)})\"\nend",
       "confidence": "Weak",
-      "note": "All fields are quoted, so this is safe."
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -435,7 +446,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/controllers/webui/request_controller.rb",
-      "line": 121,
+      "line": 59,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "Delayed::Job.where(\"handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{BsRequestAction.find(BsRequest.find_by!(:number => params[:number]).webui_actions(:filelimit => ((0 or nil)), :tarlimit => ((0 or nil)), :diff_to_superseded => BsRequest.find_by!(:number => params[:number]).superseding.find_by(:number => params[:diff_to_superseded]), :diffs => true, :action_id => (params[:request_action_id] or BsRequest.find_by!(:number => params[:number]).bs_request_actions.first.id).to_i, :cacheonly => 1).first[:id]).to_global_id.uri}%'\")",
       "render_path": null,
@@ -449,6 +460,6 @@
       "note": ""
     }
   ],
-  "updated": "2022-09-12 09:02:28 +0000",
+  "updated": "2022-12-20 09:11:57 +0000",
   "brakeman_version": "5.1.1"
 }
