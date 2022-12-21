@@ -1,6 +1,6 @@
 class Webui::UserPolicy < ApplicationPolicy
   def initialize(user, record, opts = {})
-    super(user, record, opts.merge(ensure_logged_in: true))
+    super(user, record, { ensure_logged_in: true }.merge(opts))
   end
 
   # This is a stub: right now the authorization logic lives in Webui::UsersController.

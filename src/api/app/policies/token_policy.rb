@@ -1,6 +1,6 @@
 class TokenPolicy < ApplicationPolicy
   def initialize(user, record, opts = {})
-    super(user, record, opts.merge(ensure_logged_in: true))
+    super(user, record, { ensure_logged_in: true }.merge(opts))
   end
 
   class Scope < Scope
