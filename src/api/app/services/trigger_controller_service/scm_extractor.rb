@@ -14,49 +14,13 @@ module TriggerControllerService
       when 'github'
         SCMWebhook.new(payload: GithubPayloadExtractor.new(@event, @payload).payload)
       when 'gitlab'
-        SCMWebhook.new(payload: gitlab_extractor_payload)
+        SCMWebhook.new(payload: GitlabPayloadExtractor.new(@event, @payload).payload)
       when 'gitea'
         SCMWebhook.new(payload: gitea_extractor_payload)
       end
     end
 
     private
-
-    def gitlab_extractor_payload
-      http_url = @payload.dig(:project, :http_url)
-
-      payload = {
-        scm: 'gitlab',
-        object_kind: @payload[:object_kind],
-        http_url: http_url,
-        event: @event,
-        api_endpoint: gitlab_api_endpoint(http_url)
-      }
-
-      case @event
-      when 'Merge Request Hook'
-        payload.merge!({ commit_sha: @payload.dig(:object_attributes, :last_commit, :id),
-                         pr_number: @payload.dig(:object_attributes, :iid),
-                         source_branch: @payload.dig(:object_attributes, :source_branch),
-                         target_branch: @payload.dig(:object_attributes, :target_branch),
-                         action: @payload.dig(:object_attributes, :action),
-                         project_id: @payload.dig(:object_attributes, :source_project_id),
-                         path_with_namespace: @payload.dig(:project, :path_with_namespace) })
-      when 'Push Hook'
-        payload.merge!({ commit_sha: @payload[:after],
-                         # We need this for Workflows::YAMLDownloader#download_url
-                         target_branch: @payload[:ref].sub('refs/heads/', ''),
-                         # We need this for Workflows::YAMLDownloader#download_url
-                         path_with_namespace: @payload.dig(:project, :path_with_namespace),
-                         # We need this for SCMStatusReporter#call
-                         project_id: @payload[:project_id],
-                         # We need this for SCMWebhookEventValidator#valid_push_event
-                         ref: @payload[:ref] })
-      when 'Tag Push Hook'
-        gitlab_payload_tag(payload)
-      end
-      payload
-    end
 
     def gitea_extractor_payload
       http_url = @payload.dig(:repository, :clone_url)
@@ -87,28 +51,6 @@ module TriggerControllerService
       url = URI.parse(http_url)
 
       "#{url.scheme}://#{url.host}"
-    end
-
-    def gitlab_api_endpoint(http_url)
-      return unless http_url
-
-      uri = URI.parse(http_url)
-      "#{uri.scheme}://#{uri.host}"
-    end
-
-    def gitlab_payload_tag(payload)
-      payload.merge!({ # We need this for Workflow::Step#target_package_name
-                       tag_name: @payload[:ref].sub('refs/tags/', ''),
-                       # We need this for Workflows::YAMLDownloader#download_url
-                       # This will contain a commit SHA
-                       target_branch: @payload[:after],
-                       # We need this for Workflows::YAMLDownloader#download_url
-                       path_with_namespace: @payload.dig(:project, :path_with_namespace),
-                       # We need this for SCMWebhookEventValidator#valid_push_event
-                       ref: @payload[:ref],
-                       # We need this for Workflow::Step#branch_request_content_{github,gitlab}
-                       commit_sha: @payload[:after]
-                     })
     end
 
     def gitea_payload_push(payload)
