@@ -186,7 +186,7 @@ RSpec.describe 'Packages', js: true, vcr: true do
     login user
 
     visit package_show_path(project: user.home_project, package: package)
-    click_link('Add File')
+    click_link('Add empty file or service')
 
     fill_in 'Filename', with: 'new_file'
     click_button('Add File')
@@ -199,7 +199,7 @@ RSpec.describe 'Packages', js: true, vcr: true do
     login user
 
     visit package_show_path(project: user.home_project, package: package)
-    click_link('Add File')
+    click_link('Add empty file or service')
 
     fill_in 'Filename', with: 'inv/alid'
     click_button('Add File')
