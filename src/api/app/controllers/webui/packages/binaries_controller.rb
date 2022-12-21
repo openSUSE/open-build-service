@@ -12,12 +12,13 @@ module Webui
 
       before_action :set_project
       before_action :set_package
-      before_action :set_repository
-      before_action :set_architecture, only: [:show]
+      before_action :set_repository, only: [:show, :index, :dependency]
+      before_action :set_architecture, only: [:show, :dependency]
 
       prepend_before_action :lockout_spiders
 
       before_action :require_login, except: [:index]
+      after_action :verify_authorized, only: [:destroy]
 
       def index
         results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: ['binarylist', 'status'])
@@ -59,6 +60,52 @@ module Webui
           format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
         end
       end
+
+      def destroy
+        authorize @package, :update?
+
+        opts = params.slice(:arch, :repository)
+        opts[:package] = @package.name
+        opts[:project] = @project.name
+        if @package.wipe_binaries(opts)
+          flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package.name)} successfully."
+        else
+          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
+        end
+
+        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository: @repository)
+      end
+
+      def dependency
+        dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
+        unless dependant_project
+          flash[:error] = "Project '#{elide(params[:dependant_project])}' is invalid."
+          redirect_back(fallback_location: root_path)
+          return
+        end
+
+        # FIXME: It can't check repositories of remote projects
+        project_repositories = dependant_project.remoteurl.blank? ? dependant_project.repositories.pluck(:name) : []
+        unless project_repositories.include?(params[:dependant_repository])
+          flash[:error] = "Repository '#{params[:dependant_repository]}' is invalid."
+          redirect_back(fallback_location: project_show_path(project: @project.name))
+          return
+        end
+
+        @dependant_repository = params[:dependant_repository]
+        @dependant_project = params[:dependant_project]
+        @package_name = "#{@package}:#{params[:dependant_name]}"
+        # Ensure it really is just a file name, no '/..', etc.
+        @filename = File.basename(params[:binary_filename])
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
+                                                                      @architecture, params[:dependant_name])
+        return if @fileinfo # avoid displaying an error for non-existing packages
+
+        redirect_back(fallback_location: project_package_repository_binary_url(project_name: @project, package_name: @package,
+                                                                               repository: @repository, arch: @architecture, filename: @filename))
+      end
+
+      private
 
       # Get an URL to a binary produced by the build.
       # In the published repo for everyone, in the backend directly only for logged in users.

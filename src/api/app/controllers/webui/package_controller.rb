@@ -3,15 +3,15 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::PackageHelper
   include Webui::ManageRelationships
 
-  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :requests, :statistics, :revisions,
+  before_action :set_project, only: [:show, :edit, :update, :index, :users, :requests, :statistics, :revisions,
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
+                                     :trigger_services, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
 
-  before_action :require_package, only: [:edit, :update, :show, :dependency, :requests, :statistics, :revisions,
+  before_action :require_package, only: [:edit, :update, :show, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
+                                         :trigger_services, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
 
   before_action :validate_xml, only: [:save_meta]
 
@@ -26,9 +26,9 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
-  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :requests]
+  prepend_before_action :lockout_spiders, only: [:revisions, :rdiff, :requests]
 
-  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :save_meta, :save, :abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -145,47 +145,6 @@ class Webui::PackageController < Webui::WebuiController
   def main_object
     @package # used by mixins
   end
-
-  # rubocop:disable Lint/NonLocalExitFromIterator
-  def dependency
-    dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
-    unless dependant_project
-      flash[:error] = "Project '#{elide(params[:dependant_project])}' is invalid."
-      redirect_back(fallback_location: root_path)
-      return
-    end
-
-    unless Architecture.archcache.include?(params[:arch])
-      flash[:error] = "Architecture '#{params[:arch]}' is invalid."
-      redirect_back(fallback_location: project_show_path(project: @project.name))
-      return
-    end
-
-    # FIXME: It can't check repositories of remote projects
-    project_repositories = dependant_project.remoteurl.blank? ? dependant_project.repositories.pluck(:name) : []
-    [:repository, :dependant_repository].each do |repo_key|
-      next if project_repositories.include?(params[repo_key])
-
-      flash[:error] = "Repository '#{params[repo_key]}' is invalid."
-      redirect_back(fallback_location: project_show_path(project: @project.name))
-      return
-    end
-
-    @arch = params[:arch]
-    @repository = params[:repository]
-    @dependant_repository = params[:dependant_repository]
-    @dependant_project = params[:dependant_project]
-    @package_name = "#{params[:package]}:#{params[:dependant_name]}"
-    # Ensure it really is just a file name, no '/..', etc.
-    @filename = File.basename(params[:filename])
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
-                                                                  @arch, params[:dependant_name])
-    return if @fileinfo # avoid displaying an error for non-existing packages
-
-    redirect_back(fallback_location: project_package_repository_binary_path(project_name: params[:project], package_name: params[:package],
-                                                                            repository_name: @repository, arch: @arch, filename: @filename))
-  end
-  # rubocop:enable Lint/NonLocalExitFromIterator
 
   def statistics
     @repository = params[:repository]
@@ -399,18 +358,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = rebuild_trigger.error_message
       redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
     end
-  end
-
-  def wipe_binaries
-    authorize @package, :update?
-
-    if @package.wipe_binaries(params)
-      flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package.name)} successfully."
-    else
-      flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
-    end
-
-    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
   end
 
   def devel_project

@@ -1,7 +1,7 @@
 - @pagetitle = "Dependency information about #{@filename}"
 
 .card
-  = render partial: 'tabs', locals: { package: @package, project: @project }
+  = render partial: 'webui/package/tabs', locals: { package: @package, project: @project }
 
   .card-body
     %h3 Dependency of #{@filename}
@@ -23,4 +23,4 @@
                                             project: @project,
                                             package: @package,
                                             repository: @repository,
-                                            architecture: @arch }
+                                            architecture: @architecture }

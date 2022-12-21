@@ -77,7 +77,6 @@ OBSApi::Application.routes.draw do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/branch_diff_info/:project/:package' => :branch_diff_info, as: 'package_branch_diff_info', constraints: cons
-        get 'package/dependency/:project/:package' => :dependency, constraints: cons, as: 'package_dependency'
         # For backward compatibility
         get 'package/binary/:project/:package/:repository/:arch/:filename', to: redirect('/projects/%{project}/packages/%{package}/repositories/%{repository}/%{arch}/%{filename}'),
                                                                             constraints: cons
@@ -101,7 +100,6 @@ OBSApi::Application.routes.draw do
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
           get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
           post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
-          delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons, as: 'package_wipe_binaries'
         end
         get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
@@ -290,7 +288,11 @@ OBSApi::Application.routes.draw do
         resources :repositories, only: [], param: :name do
           resources :binaries, controller: 'webui/packages/binaries', only: [:index], constraints: cons
           # Binaries with the exact same name can exist in multiple architectures, so we have to use arch param here additionally
-          resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename, path: 'binaries/:arch/'
+          resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename, path: 'binaries/:arch/' do
+            get :dependency
+          end
+          # We can only wipe all binaries at once, so this is a resource instead of resources
+          resource :binaries, controller: 'webui/packages/binaries', only: [:destroy]
         end
       end
 

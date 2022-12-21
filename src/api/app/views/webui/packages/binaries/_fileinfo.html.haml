@@ -31,9 +31,9 @@
     #{btime}
     = render TimeComponent.new(time: btime)
 
-= render partial: 'webui/package/deps', locals: { fileinfo: fileinfo,
-                                                  filename: filename,
-                                                  project: project,
-                                                  package: package,
-                                                  repository: repository,
-                                                  architecture: architecture }
+= render partial: 'deps', locals: { fileinfo: fileinfo,
+                                    filename: filename,
+                                    project: project,
+                                    package: package,
+                                    repository: repository,
+                                    architecture: architecture }
