@@ -1,0 +1,337 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Oh! To be in England</title>
+          <description>Qui aut sunt omnis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Oh! To be in England</title>
+          <description>Qui aut sunt omnis.</description>
+        </package>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '500'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="121" vrev="121" srcmd5="9f80d2e45f45baf7eac5da20296f5e78">
+          <entry name="empty_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983118"/>
+          <entry name="first_file" md5="9893532233caff98cd083a116b013c0b" size="12" mtime="1667983883"/>
+          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667488907"/>
+          <entry name="second_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983883"/>
+        </directory>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="122" vrev="122">
+          <srcmd5>9f80d2e45f45baf7eac5da20296f5e78</srcmd5>
+          <version>unknown</version>
+          <time>1671625850</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Oh! To be in England</title>
+          <description>Qui aut sunt omnis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Oh! To be in England</title>
+          <description>Qui aut sunt omnis.</description>
+        </package>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '500'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="122" vrev="122" srcmd5="9f80d2e45f45baf7eac5da20296f5e78">
+          <entry name="empty_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983118"/>
+          <entry name="first_file" md5="9893532233caff98cd083a116b013c0b" size="12" mtime="1667983883"/>
+          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667488907"/>
+          <entry name="second_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983883"/>
+        </directory>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="122" vrev="122" srcmd5="9f80d2e45f45baf7eac5da20296f5e78" verifymd5="9f80d2e45f45baf7eac5da20296f5e78">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '500'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="122" vrev="122" srcmd5="9f80d2e45f45baf7eac5da20296f5e78">
+          <entry name="empty_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983118"/>
+          <entry name="first_file" md5="9893532233caff98cd083a116b013c0b" size="12" mtime="1667983883"/>
+          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667488907"/>
+          <entry name="second_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983883"/>
+        </directory>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5227ab0dfcdb1b4c44e0a82acdb2bec6">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="my_package" rev="122" srcmd5="9f80d2e45f45baf7eac5da20296f5e78"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Wed, 21 Dec 2022 12:30:50 GMT
+recorded_with: VCR 6.1.0
