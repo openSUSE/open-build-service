@@ -5,7 +5,7 @@
 .card.mb-3
   .card-header.d-flex.justify-content-between
     %h5
-      News
+      = link_to_if(status_message_policy.index?, 'News', status_messages_path)
     .float-right
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss

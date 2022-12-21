@@ -26,4 +26,4 @@
                 - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
                 = form.select(:communication_scope, options_for_select(options, @status_message.communication_scope), {}, class: 'custom-select')
               = form.submit 'Update', class: 'btn btn-primary mr-4'
-              = link_to('Back', root_path, class: 'btn btn-outline-secondary', role: 'button')
+              = link_to('Back', request.referer.presence || status_messages_path, class: 'btn btn-outline-secondary', role: 'button')
