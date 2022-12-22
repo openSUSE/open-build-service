@@ -22,15 +22,7 @@ class GitlabPayloadExtractor
     when 'Merge Request Hook'
       return GitlabPayload::MergeRequest.new(event, webhook_payload).payload
     when 'Push Hook'
-      payload.merge!({ commit_sha: webhook_payload[:after],
-                       # We need this for Workflows::YAMLDownloader#download_url
-                       target_branch: webhook_payload[:ref].sub('refs/heads/', ''),
-                       # We need this for Workflows::YAMLDownloader#download_url
-                       path_with_namespace: webhook_payload.dig(:project, :path_with_namespace),
-                       # We need this for SCMStatusReporter#call
-                       project_id: webhook_payload[:project_id],
-                       # We need this for SCMWebhookEventValidator#valid_push_event
-                       ref: webhook_payload[:ref] })
+      return GitlabPayload::Push.new(event, webhook_payload).payload
     when 'Tag Push Hook'
       gitlab_payload_tag(payload)
     end
