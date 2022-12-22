@@ -1,4 +1,9 @@
 class GithubPayloadExtractor < ScmPayloadExtractor
+  EVENT_CLASSES = {
+    'pull_request' => Github::PullRequest,
+    'push' => Github::Push
+  }.freeze
+  
   attr_reader :event, :webhook_payload
 
   def initialize(event, webhook_payload)
@@ -8,33 +13,7 @@ class GithubPayloadExtractor < ScmPayloadExtractor
   end
 
   def payload
-    payload = {
-      scm: 'github',
-      event: event,
-      api_endpoint: github_api_endpoint
-    }
-
-    case event
-    when 'pull_request'
-      return Github::PullRequest.new(event, webhook_payload).payload
-    when 'push' # GitHub doesn't have different push events for commits and tags
-      return Github::Push.new(event, webhook_payload).payload
-    end
-
-    payload
-  end
-
-  private
-
-  def github_api_endpoint
-    sender_url = webhook_payload.dig(:sender, :url)
-    return unless sender_url
-
-    host = URI.parse(sender_url).host
-    if host.start_with?('api.github.com')
-      "https://#{host}"
-    else
-      "https://#{host}/api/v3/"
-    end
+    # TODO: Implement a null object for when we don't hit any event class
+    EVENT_CLASSES[event].new(event, webhook_payload).payload
   end
 end
