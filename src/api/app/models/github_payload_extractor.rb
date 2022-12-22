@@ -3,7 +3,7 @@ class GithubPayloadExtractor < ScmPayloadExtractor
     'pull_request' => Github::PullRequest,
     'push' => Github::Push
   }.freeze
-  
+
   attr_reader :event, :webhook_payload
 
   def initialize(event, webhook_payload)
