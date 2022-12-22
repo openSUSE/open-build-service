@@ -68,7 +68,7 @@ RSpec.describe 'Projects', js: true do
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
       expect(page).to have_current_path(project_show_path(project: "#{user.home_project_name}:coolstuff"))
-      expect(find_by_id('project-title').text).to eq("#{user.home_project_name}:coolstuff")
+      expect(find_by_id('project-title').text).to start_with("#{user.home_project_name}:coolstuff")
     end
   end
 
