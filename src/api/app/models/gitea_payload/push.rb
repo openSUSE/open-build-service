@@ -2,6 +2,7 @@ class GiteaPayload::Push < GiteaPayload
   def payload
     payload_ref = webhook_payload.fetch(:ref, '')
     payload = default_payload.merge(
+      event: 'push',
       # We need this for Workflow::Step#branch_request_content_github
       source_repository_full_name: webhook_payload.dig(:repository, :full_name),
       # We need this for SCMStatusReporter#call

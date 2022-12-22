@@ -1,15 +1,7 @@
-class GithubPayload
-  attr_reader :event, :webhook_payload
-
-  def initialize(event, webhook_payload)
-    @event = event
-    @webhook_payload = webhook_payload
-  end
-
+class GithubPayload < ScmPayload
   def default_payload
     {
       scm: 'github',
-      event: event,
       api_endpoint: api_endpoint
     }
   end

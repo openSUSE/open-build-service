@@ -1,6 +1,7 @@
 class GitlabPayload::Push < GitlabPayload
   def payload
-    default_payload.merge(commit_sha: webhook_payload[:after],
+    default_payload.merge(event: 'Push Hook',
+                          commit_sha: webhook_payload[:after],
                           # We need this for Workflows::YAMLDownloader#download_url
                           target_branch: webhook_payload[:ref].sub('refs/heads/', ''),
                           # We need this for Workflows::YAMLDownloader#download_url

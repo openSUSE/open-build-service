@@ -1,23 +1,17 @@
-class GiteaPayload
-  attr_reader :event, :http_url, :webhook_payload
+class GiteaPayload < ScmPayload
+  attr_reader :http_url
 
-  def initialize(event, webhook_payload)
-    @event = event
-    @webhook_payload = webhook_payload
+  def initialize(webhook_payload)
+    super(webhook_payload)
     @http_url = webhook_payload.dig(:repository, :clone_url)
   end
 
   def default_payload
     {
       scm: 'gitea',
-      event: event,
       api_endpoint: api_endpoint,
       http_url: http_url
     }
-  end
-
-  def payload
-    raise AbstractMethodCalled
   end
 
   private

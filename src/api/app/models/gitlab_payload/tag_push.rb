@@ -1,6 +1,7 @@
 class GitlabPayload::TagPush < GitlabPayload
   def payload
     default_payload.merge( # We need this for Workflow::Step#target_package_name
+      event: 'Tag Push Hook',
       tag_name: webhook_payload[:ref].sub('refs/tags/', ''),
       # We need this for Workflows::YAMLDownloader#download_url
       # This will contain a commit SHA

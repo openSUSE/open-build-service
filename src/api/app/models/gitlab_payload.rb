@@ -1,9 +1,8 @@
-class GitlabPayload
-  attr_reader :event, :http_url, :webhook_payload
+class GitlabPayload < ScmPayload
+  attr_reader :http_url
 
-  def initialize(event, webhook_payload)
-    @event = event
-    @webhook_payload = webhook_payload
+  def initialize(webhook_payload)
+    super(webhook_payload)
     @http_url = webhook_payload.dig(:project, :http_url)
   end
 
@@ -12,13 +11,8 @@ class GitlabPayload
       scm: 'gitlab',
       object_kind: webhook_payload[:object_kind],
       http_url: http_url,
-      event: event,
       api_endpoint: api_endpoint
     }
-  end
-
-  def payload
-    raise AbstractMethodCalled
   end
 
   private

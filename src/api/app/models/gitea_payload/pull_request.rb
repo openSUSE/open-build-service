@@ -1,6 +1,7 @@
 class GiteaPayload::PullRequest < GiteaPayload
   def payload
-    default_payload.merge(commit_sha: webhook_payload.dig(:pull_request, :head, :sha),
+    default_payload.merge(event: 'pull_request',
+                          commit_sha: webhook_payload.dig(:pull_request, :head, :sha),
                           pr_number: webhook_payload[:number],
                           source_branch: webhook_payload.dig(:pull_request, :head, :ref),
                           target_branch: webhook_payload.dig(:pull_request, :base, :ref),
