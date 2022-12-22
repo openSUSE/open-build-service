@@ -1,4 +1,4 @@
-class Github::PullRequest < Github
+class GithubPayload::PullRequest < GithubPayload
   def payload
     default_payload.merge(
       commit_sha: webhook_payload.dig(:pull_request, :head, :sha),

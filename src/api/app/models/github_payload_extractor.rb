@@ -1,7 +1,7 @@
 class GithubPayloadExtractor < ScmPayloadExtractor
   EVENT_CLASSES = {
-    'pull_request' => Github::PullRequest,
-    'push' => Github::Push
+    'pull_request' => GithubPayload::PullRequest,
+    'push' => GithubPayload::Push
   }.freeze
 
   attr_reader :event, :webhook_payload

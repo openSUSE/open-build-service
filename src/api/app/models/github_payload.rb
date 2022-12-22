@@ -1,4 +1,4 @@
-class Github
+class GithubPayload
   attr_reader :event, :webhook_payload
 
   def initialize(event, webhook_payload)

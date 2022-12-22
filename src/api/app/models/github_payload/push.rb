@@ -1,4 +1,4 @@
-class Github::Push < Github
+class GithubPayload::Push < GithubPayload
   def payload
     payload_ref = webhook_payload.fetch(:ref, '')
     payload = default_payload.merge(
