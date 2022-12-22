@@ -17,6 +17,10 @@ class GitlabPayload
     }
   end
 
+  def payload
+    raise AbstractMethodCalled
+  end
+
   private
 
   def api_endpoint
