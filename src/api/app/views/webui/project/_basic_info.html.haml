@@ -1,6 +1,9 @@
 .basic-info.in-place-editing
   %h3#project-title
     = project.title.presence || project
+    - if User.session
+      .d-inline.ml-1#watchlist-icon-wrapper
+        = render WatchlistIconComponent.new(user: User.session!, project: project, current_object: project)
   - if project.categories.any?
     - project.categories.each do |category|
       = category_badge(category)
