@@ -69,14 +69,34 @@ RSpec.describe Badge do
 
         it 'displays the correct unknown state' do
           xml = Capybara.string(badge.xml)
-          expect(xml).to have_text(expected_unknown)
+          expect(xml).to have_text('unknown')
+        end
+      end
+
+      describe 'succeeded with disabled resultlist' do
+        let(:body) do
+          %(<resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
+              <result project="home:tom" repository="openSUSE_Leap_42.1" arch="x86_64" code="succeeded" state="building">
+                <status package="my_package" code="succeeded" />
+              </result>
+              <result project="home:tom" repository="images" arch="x86_64" code="succeeded" state="building">
+                <status package="my_package" code="succeeded" />
+              </result>
+              <result project="home:tom" repository="openSUSE_Leap_42.1" arch="x86_64" code="disabled" state="building">
+                <status package="my_package" code="disabled" />
+              </result>
+            </resultlist>)
+        end
+
+        it 'filters out the disabled' do
+          xml = Capybara.string(badge.xml)
+          expect(xml).to have_text(expected_success)
         end
       end
     end
     context 'without type specified' do
       let(:expected_success) { 'succeeded' }
       let(:expected_failure) { 'failed' }
-      let(:expected_unknown) { 'unknown' }
       let(:type) { '' }
 
       include_examples 'tests for badge xml'
@@ -85,7 +105,6 @@ RSpec.describe Badge do
     context 'with percent type specified' do
       let(:expected_success) { '100%' }
       let(:expected_failure) { '50%' }
-      let(:expected_unknown) { '0%' }
       let(:type) { 'percent' }
 
       include_examples 'tests for badge xml'
