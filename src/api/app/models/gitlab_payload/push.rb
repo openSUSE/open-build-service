@@ -1,3 +1,4 @@
+# This class is used in TriggerControllerService::ScmExtractor to handle push events coming from Gitlab.
 class GitlabPayload::Push < GitlabPayload
   def payload
     default_payload.merge(event: 'Push Hook',

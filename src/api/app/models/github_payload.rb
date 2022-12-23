@@ -1,3 +1,4 @@
+# This class is used as a common foundation for the pull request and push events coming from Github.
 class GithubPayload < ScmPayload
   def default_payload
     {

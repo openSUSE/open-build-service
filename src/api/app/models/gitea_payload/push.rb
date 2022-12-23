@@ -1,3 +1,5 @@
+# This class is used in TriggerControllerServicve::ScmExtractor to handle push events coming from Gitea.
+# It's basically the same than the pushes coming from Github but with some customizations on top.
 class GiteaPayload::Push < GithubPayload::Push
   def payload
     super.merge(scm: 'gitea',

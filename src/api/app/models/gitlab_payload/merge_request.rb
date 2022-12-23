@@ -1,3 +1,4 @@
+# This class is used in TriggerControllerService::ScmExtractor to handle merge request events coming from Gitlab.
 class GitlabPayload::MergeRequest < GitlabPayload
   def payload
     default_payload.merge(event: 'Merge Request Hook',

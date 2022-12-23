@@ -1,3 +1,4 @@
+# This class is used in TriggerControllerService::ScmExtractor to handle pull request events coming from Github.
 class GithubPayload::PullRequest < GithubPayload
   def payload
     default_payload.merge(

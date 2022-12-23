@@ -1,3 +1,4 @@
+# This class is used in TriggerControllerService::ScmExtractor to handle tag push events coming from Gitlab.
 class GitlabPayload::TagPush < GitlabPayload
   def payload
     default_payload.merge( # We need this for Workflow::Step#target_package_name

@@ -1,3 +1,4 @@
+# This class is used as a common foundation for the merge request, push and tag push events coming from Gitlab.
 class GitlabPayload < ScmPayload
   attr_reader :http_url
 

@@ -1,3 +1,4 @@
+# This class is used as a common foundation in GithubPayload and GitlabPayload.
 class ScmPayload
   attr_reader :webhook_payload
 

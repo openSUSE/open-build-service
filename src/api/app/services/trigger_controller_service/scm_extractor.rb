@@ -1,5 +1,4 @@
 module TriggerControllerService
-  # NOTE: this class is coupled to GitHub pull requests events and GitLab merge requests events.
   class SCMExtractor
     SCM_EXTRACTORS = {
       'github' => {

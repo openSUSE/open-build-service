@@ -1,3 +1,4 @@
+# This class is used in TriggerControllerService::ScmExtractor to handle push events coming from Github.
 class GithubPayload::Push < GithubPayload
   def payload
     payload_ref = webhook_payload.fetch(:ref, '')
