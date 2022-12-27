@@ -15,7 +15,7 @@
   = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { can_add_reviews: can_add_reviews }
 
   - open_reviews_for_staging_projects.each do |review|
-    .pl-3
+    .ps-3
       %i.fas.fa-info-circle.text-info
       - staging_project = review.project
       Is staged in
@@ -30,11 +30,11 @@
         - package_size_limit = 3
         - if package_maintainers.size <= package_size_limit
           - package_maintainers.pluck(:login).each do |package_maintainer|
-            .pl-3
+            .ps-3
               = render UserAvatarComponent.new(package_maintainer)
         - else
           - package_maintainers.take(package_size_limit).pluck(:login).each do |package_maintainer|
-            .pl-3
+            .ps-3
               = render UserAvatarComponent.new(package_maintainer)
           %p.mt-3.ms-3
             - modal_id = 'show-package-maintainers-modal'
@@ -54,11 +54,11 @@
         - project_size_limit = 3
         - if project_maintainers.size <= project_size_limit
           - project_maintainers.pluck(:login).each do |project_maintainer|
-            .pl-3
+            .ps-3
               = render UserAvatarComponent.new(project_maintainer)
         - else
           - project_maintainers.take(project_size_limit).pluck(:login).each do |project_maintainer|
-            .pl-3
+            .ps-3
               = render UserAvatarComponent.new(project_maintainer)
           %p.mt-3.ms-3
             - modal_id = 'show-project-maintainers-modal'

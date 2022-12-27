@@ -3,7 +3,7 @@
 .card.mb-3
   .card-body
     %h3= @pagetitle
-    .col-lg-6.pl-0
+    .col-lg-6.ps-0
       = form_for(Group.new, url: groups_path, method: :post) do |form|
         .mb-3
           = form.label(:title)

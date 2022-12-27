@@ -1,5 +1,5 @@
 .d-flex.flex-row.pt-1
-  .pl-3
+  .ps-3
     - if review.accepted?
       %i.fas.fa-sm.fa-check.text-primary.align-middle.pe-1
     - if review.declined?
@@ -9,7 +9,7 @@
 
   = render BsRequestOverviewAvatarsComponent.new(review)
 
-  .pl-1
+  .ps-1
     - if review.for_user?
       = user_with_realname_and_icon(review.by_user, short: true, no_icon: true)
     - elsif review.for_group?

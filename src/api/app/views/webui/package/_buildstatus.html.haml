@@ -22,7 +22,7 @@
           repository_name = result.repository.tr('.', '_')
           expanded = repository_expanded?(collapsed_repositories, repository_name, package_name)
         - if result.repository != previous_repo
-          .d-flex.flex-row.py-1.bg-light.pl-1.pl-sm-2
+          .d-flex.flex-row.py-1.bg-light.ps-1.ps-sm-2
             = link_to(word_break(result.repository, 22),
               package_binaries_path(project: project, package: package, repository: result.repository),
               title: "Binaries for #{result.repository}")
@@ -39,7 +39,7 @@
               %span.ms-1
                 = result.architecture
             .build-state.toggle-build-info-parent
-              %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
+              %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.toggle-build-info{ title: 'Click to keep it open' }
               = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
                                                           project_name: project.name, package_name: package,
                                                           build_status: result.code, build_details: result.details))
@@ -50,7 +50,7 @@
                 %div
                   - if result.is_repository_in_db
                     = repository_status_icon(status: result.state)
-                    %span.pl-1= repository_info(result.state)
+                    %span.ps-1= repository_info(result.state)
                   - else
                     %i.fas.fa-clock.text-warning
                     This result is outdated
