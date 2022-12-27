@@ -23,7 +23,7 @@
     %pre.plain.mb-0.text-pre-wrap
       = commit['comment']
 
-  %ul.nav.float-right
+  %ul.nav.float-end
     - if commit['rev'] != '1'
       %li.nav-item
         = link_to(package_rdiff_path(project, package, rev: commit['rev'], linkrev: 'base'), class: 'nav-link') do

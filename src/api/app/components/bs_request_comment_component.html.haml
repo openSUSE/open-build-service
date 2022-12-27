@@ -9,7 +9,7 @@
 .timeline-item-comment
   .comment-bubble
     - if policy(comment).update? || policy(comment).destroy?
-      .dropdown.dropleft.float-right
+      .dropdown.dropleft.float-end
         = link_to('#', role: 'button', 'data-toggle': 'dropdown', 'aria-expanded': 'false', class: 'text-dark') do
           %i.fas.fa-ellipsis
         .dropdown-menu

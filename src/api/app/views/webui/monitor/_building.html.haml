@@ -11,14 +11,14 @@
                                                   max_color: max_color, time_now: time_now, project_filter: project_filter }
     %h5.mt-3 Job Time Legend
     .clearfix
-      .float-left.mx-1
+      .float-start.mx-1
         = distance_of_time_in_words(time_now, dead_line)
       - max_color.downto(0) do |n|
         - color = "rgb(255,#{n},0)"
         -# haml-lint:disable InlineStyles
-        .m-0.float-left{ style: "background-color: #{color}; width: 3px ; height: 1em;" }  
+        .m-0.float-start{ style: "background-color: #{color}; width: 3px ; height: 1em;" }  
         -# haml-lint:enable InlineStyles
-      .float-left.ml-1
+      .float-start.ml-1
         = distance_of_time_in_words(time_now, dead_line - (max_color * interval_steps * 60))
   - else
     .info
