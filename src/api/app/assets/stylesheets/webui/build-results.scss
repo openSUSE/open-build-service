@@ -177,7 +177,7 @@
   .build-info .triangle.left { left: .25rem; }
 }
 
-@include media-breakpoint-between(sm, md) {
+@include media-breakpoint-between(sm, lg) {
   .build-info .triangle {
     &.center { margin-left: calc(38% + .75rem); }
     &.left { left: .5rem; }
