@@ -1,6 +1,6 @@
 .list-group-item.px-0.px-md-1.py-3
   .row
-    .col-auto.pr-0
+    .col-auto.pe-0
       .form-check
         = check_box_tag('notification_ids[]', @notification.id, false,
                         id: "notification_ids_#{@notification.id}", class: 'form-check-input')
@@ -16,7 +16,7 @@
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, params[:page], params[:show_more])
       .row.mt-1.pl-sm-4
-        .col-auto.pr-0
+        .col-auto.pe-0
           = render NotificationAvatarsComponent.new(@notification)
         .col-auto.pl-xs-2
           = render NotificationActionDescriptionComponent.new(@notification)

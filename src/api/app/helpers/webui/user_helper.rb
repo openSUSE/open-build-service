@@ -4,7 +4,7 @@ module Webui::UserHelper
       link_to(user) do
         safe_join(
           [
-            tag.i(class: 'fas fa-trash-alt pr-2'),
+            tag.i(class: 'fas fa-trash-alt pe-2'),
             "Clear current search #{display_filters(filters.keys).to_sentence}"
           ]
         )
@@ -20,13 +20,13 @@ module Webui::UserHelper
     safe_join(
       [
         link_to(edit_user_path(user.login)) do
-          tag.i(nil, class: 'fas fa-edit text-secondary pr-1', title: 'Edit User')
+          tag.i(nil, class: 'fas fa-edit text-secondary pe-1', title: 'Edit User')
         end,
         mail_to(user.email) do
-          tag.i(nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
+          tag.i(nil, class: 'fas fa-envelope text-secondary pe-1', title: 'Send Email to User')
         end,
         link_to('#', title: 'Delete User', data: { toggle: 'modal', target: '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
-          tag.i(nil, class: 'fas fa-times-circle text-danger pr-1')
+          tag.i(nil, class: 'fas fa-times-circle text-danger pe-1')
         end
       ]
     )

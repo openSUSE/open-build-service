@@ -10,7 +10,7 @@
             %span= EventSubscription::RECEIVER_ROLE_TEXTS[role.name]
             .d-flex.flex-column.flex-sm-row{ class: "#{role.name}" }
               - role.channels.each do |channel|
-                .form-check.my-2.my-sm-0.pr-2
+                .form-check.my-2.my-sm-0.pe-2
                   = check_box_tag "subscriptions[#{i}][enabled]", true, channel.enabled?,
                                   disabled: channel.disabled_checkbox?,
                                   class: 'form-check-input',
