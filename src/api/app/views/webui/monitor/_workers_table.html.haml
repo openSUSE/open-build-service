@@ -1,5 +1,5 @@
 %form.row.row-cols-auto.float-sm-end{ action: '/' }
-  %label.mr-2 Show:
+  %label.me-2 Show:
   - worker_display_options = [['Package name', 'package'], ['Project', 'project'], ['Repository', 'repository'], ['Architecture', 'arch']]
   = select_tag(:worker_display, options_for_select(worker_display_options, 'package'), id: 'worker-display', class: 'form-select')
 

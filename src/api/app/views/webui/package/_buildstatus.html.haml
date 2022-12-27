@@ -43,7 +43,7 @@
               = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
                                                           project_name: project.name, package_name: package,
                                                           build_status: result.code, build_details: result.details))
-            .build-info.mt-1.ml-3.mb-3.mr-3.collapsed
+            .build-info.mt-1.ml-3.mb-3.me-3.collapsed
               .triangle.center
               .build-info-content
                 %p.py-1= Buildresult.status_description(result.code)

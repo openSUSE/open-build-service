@@ -95,8 +95,8 @@ module Webui::Staging::WorkflowHelper
     output += link_to('#', class: 'collapsed', 'data-toggle': 'collapse', href: ".collapse-#{staging_project.id}",
                            role: 'button', aria: { expanded: 'false', controls: "collapse-#{staging_project.id}" }) do
       safe_join([
-                  tag.i(nil, class: 'fas fa-chevron-up collapser text-secondary ml-1 mr-1'),
-                  tag.i(nil, class: 'fas fa-chevron-down expander text-secondary ml-1 mr-1')
+                  tag.i(nil, class: 'fas fa-chevron-up collapser text-secondary ml-1 me-1'),
+                  tag.i(nil, class: 'fas fa-chevron-down expander text-secondary ml-1 me-1')
                 ])
     end
     output + tag.div(class: "collapse collapse-#{staging_project.id}") do

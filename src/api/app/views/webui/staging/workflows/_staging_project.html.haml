@@ -8,7 +8,7 @@
         .col-10.p-0
           = render StagingProjectLinkComponent.new(staging_project: staging_project, staging_workflow: staging_workflow)
         .col-2.p-0.text-end
-          %span.mr-1
+          %span.me-1
             = link_to(preview_copy_staging_workflow_staging_project_path(staging_workflow.project, staging_project), title: 'Copy Staging Project') do
               %i.fas.fa-clone.text-secondary
             - if can_delete_staging_project

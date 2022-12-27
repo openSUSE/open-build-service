@@ -32,7 +32,7 @@
         .row
           .col
             .mb-3
-              %label.col-form-label.mr-2.fw-bold
+              %label.col-form-label.me-2.fw-bold
                 Type:
               %span
                 = @token.token_name
@@ -72,7 +72,7 @@
           .row
             .col
               .mb-3
-                %label.col-form-label.mr-2.fw-bold
+                %label.col-form-label.me-2.fw-bold
                   Token trigger url:
                 .input-group
                   = render CopyToClipboardInputComponent.new(input_text: trigger_workflow_url(id: @token.id))

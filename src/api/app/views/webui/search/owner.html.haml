@@ -15,7 +15,7 @@
         .row
           .d-flex.flex-wrap.flex-column.flex-sm-row
             .mb-3.row.row-cols-auto
-              .form-check.form-switch.ml-1.mr-4
+              .form-check.form-switch.ml-1.me-4
                 = hidden_field_tag('devel', 'off', id: 'nodevel')
                 = check_box_tag('devel', 'on', @owner_devel.nil? || @owner_devel == '1', id: 'devel', class: 'form-check-input')
                 %label.form-check-label{ for: 'devel' } Follow Devel Projects

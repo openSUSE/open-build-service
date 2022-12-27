@@ -2,7 +2,7 @@
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'All', amount: @count['all'],
                                               filter_item: {}, selected_filter: @selected_filter)
 .row.list-group-flush.mt-5
-  %h5.ml-3.mr-2 Status
+  %h5.ml-3.me-2 Status
   %i.fa.fa-question-circle.text-info{ data: { placement: 'bottom', toggle: 'popover', html: 'true',
                                               content: '<p>Filter your workflow runs by the current state</p>
                                                         <p><b>Succeeded: </b>Workflow run execution was successful</p>
@@ -15,7 +15,7 @@
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Failed', amount: @count['fail'],
                                               filter_item: { status: 'fail' }, selected_filter: @selected_filter)
 .row.list-group-flush.mt-5
-  %h5.ml-3.mr-2 Event Type
+  %h5.ml-3.me-2 Event Type
   %i.fa.fa-question-circle.text-info{ data: { placement: 'bottom', toggle: 'popover', html: 'true',
                                               content: '<p>Filter your workflow runs by the event reported by the SCM,
                                                         which triggered the execution in the Open Build Service</p>
