@@ -1,6 +1,6 @@
 module Webui::UserHelper
   def display_applied_filters(filters, user)
-    tag.span(class: 'd-block ml-4 mb-3') do
+    tag.span(class: 'd-block ms-4 mb-3') do
       link_to(user) do
         safe_join(
           [

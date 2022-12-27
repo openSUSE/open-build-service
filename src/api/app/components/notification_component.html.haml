@@ -12,8 +12,8 @@
           = render NotificationNotifiableLinkComponent.new(@notification)
           %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
           - if @notification.notifiable_type == 'BsRequest'
-            = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ml-1')
-        .col-auto.actions.ml-auto.align-self-end.align-self-md-start
+            = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ms-1')
+        .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, params[:page], params[:show_more])
       .row.mt-1.pl-sm-4
         .col-auto.pr-0

@@ -1,7 +1,7 @@
 %h5.pt-2.text-light{ class: navigation == :left ? 'pl-2' : '' }
   %span.section-name Places
 
-%ul.ml-auto.pt-0.text-nowrap.menu-options.mb-4{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
+%ul.ms-auto.pt-0.text-nowrap.menu-options.mb-4{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
   - if User.session
     - if navigation != :left
       %li.nav-item

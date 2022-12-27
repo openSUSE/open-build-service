@@ -8,13 +8,13 @@
 #top-navigation-area {
   .fixed-top { height: $top-navigation-height; }
   .toggler {
-    @extend .ml-2;
+    @extend .ms-2;
     @extend .d-none;
     @extend .d-xl-flex;
     @extend .align-items-center;
     cursor: pointer;
     &.text-center { min-width: 3.875rem; }
-    &:first-of-type { @extend .ml-3;  }
+    &:first-of-type { @extend .ms-3;  }
   }
 
   .nav .nav-link {

@@ -36,7 +36,7 @@
           - package_maintainers.take(package_size_limit).pluck(:login).each do |package_maintainer|
             .pl-3
               = render UserAvatarComponent.new(package_maintainer)
-          %p.mt-3.ml-3
+          %p.mt-3.ms-3
             - modal_id = 'show-package-maintainers-modal'
             = link_to('Show all', '#', class: 'btn btn-outline-secondary btn-sm show_dialog',
                       data: { toggle: 'modal', target: "##{modal_id}" })
@@ -60,7 +60,7 @@
           - project_maintainers.take(project_size_limit).pluck(:login).each do |project_maintainer|
             .pl-3
               = render UserAvatarComponent.new(project_maintainer)
-          %p.mt-3.ml-3
+          %p.mt-3.ms-3
             - modal_id = 'show-project-maintainers-modal'
             = link_to('Show all', '#', class: 'btn btn-outline-secondary btn-sm show_dialog',
                       data: { toggle: 'modal', target: "##{modal_id}" })

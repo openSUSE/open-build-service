@@ -10,12 +10,12 @@
         .mb-3.d-flex
           = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true, required: true, class: 'form-control',
                            id: 'search_input')
-          %button.btn.btn-primary.ml-1{ type: 'submit', title: 'Search' }
+          %button.btn.btn-primary.ms-1{ type: 'submit', title: 'Search' }
             %i.fa.fa-search
         .row
           .d-flex.flex-wrap.flex-column.flex-sm-row
             .mb-3.row.row-cols-auto
-              .form-check.form-switch.ml-1.me-4
+              .form-check.form-switch.ms-1.me-4
                 = hidden_field_tag('devel', 'off', id: 'nodevel')
                 = check_box_tag('devel', 'on', @owner_devel.nil? || @owner_devel == '1', id: 'devel', class: 'form-check-input')
                 %label.form-check-label{ for: 'devel' } Follow Devel Projects

@@ -19,7 +19,7 @@
             %p There are no workflow runs available
         - else
           .text-center
-            %span.ml-3= page_entries_info(@workflow_runs)
+            %span.ms-3= page_entries_info(@workflow_runs)
           .accordion.pt-3#workflow-runs-accordion
             - @workflow_runs.each do |workflow_run|
               .card-header{ id: "workflow-run-heading#{workflow_run.id}" }

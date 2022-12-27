@@ -36,14 +36,14 @@
                 = repository_status_icon(status: result.state)
               - else
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
-              %span.ml-1
+              %span.ms-1
                 = result.architecture
             .build-state.toggle-build-info-parent
               %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
               = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
                                                           project_name: project.name, package_name: package,
                                                           build_status: result.code, build_details: result.details))
-            .build-info.mt-1.ml-3.mb-3.me-3.collapsed
+            .build-info.mt-1.ms-3.mb-3.me-3.collapsed
               .triangle.center
               .build-info-content
                 %p.py-1= Buildresult.status_description(result.code)

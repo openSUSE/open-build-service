@@ -76,7 +76,7 @@ function addIssuesHtml(issueTracker, issueId, issueUrl, issueSum) {
         $('<a>', { href: issueUrl, target: '_blank', rel: 'noopener' }).append(
           $('<i>', { class: 'fa fa-bug text-danger' })
         ).append(' ' + issueTracker + '#' + issueId),
-        $('<a>', { id: 'delete_issue_' + identifier, href: '#', title: 'Delete', class: 'ml-1' }).append(
+        $('<a>', { id: 'delete_issue_' + identifier, href: '#', title: 'Delete', class: 'ms-1' }).append(
           $('<i>', { class: 'fas fa-times-circle text-danger' })
         ),
         $('<input>', { type: 'hidden', name: 'patchinfo[issueid][]', id: 'issueid_' + identifier, value: issueId, multiple: true }),

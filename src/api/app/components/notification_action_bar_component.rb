@@ -21,7 +21,7 @@ class NotificationActionBarComponent < ApplicationComponent
   end
 
   def disable_with_content(all: false)
-    spinner = tag.i(class: 'fas fa-spinner fa-spin ml-2')
+    spinner = tag.i(class: 'fas fa-spinner fa-spin ms-2')
     button_text(all: all) + spinner
   end
 

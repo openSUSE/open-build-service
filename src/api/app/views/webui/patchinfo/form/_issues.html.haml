@@ -21,7 +21,7 @@
         .d-flex.w-100.mb-1
           %i.fa.fa-bug.text-danger.pt-1.me-1
           = patchinfo_issue_link(issue[1], issue[0], issue[2])
-          = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ml-1') do
+          = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ms-1') do
             %i.fas.fa-times-circle.text-danger
 
           - issue_types.each_with_index do |type, index|
