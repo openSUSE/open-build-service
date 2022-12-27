@@ -39,14 +39,14 @@
           %a.nav-link#packages-tab{ href: '#packages', role: 'tab', data: { toggle: 'tab' },
           aria: { controls: 'packages', selected: 'false' } }
             Packages
-            %span.badge.badge-primary
+            %span.badge.bg-primary
               = @packages.length
         - if @inherited_packages.present?
           %li.nav-item
             %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
             aria: { controls: 'inherited-packages', selected: 'false' } }
               Inherited Packages
-              %span.badge.badge-primary
+              %span.badge.bg-primary
                 = @inherited_packages.length
       .tab-content#packages-tabs-content
         .tab-pane.fade#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
@@ -57,7 +57,7 @@
     .card#comments-list
       %h5.card-header.text-word-break-all
         Comments
-        %span.badge.badge-primary{ id: "comment-counter-project-#{@project.id}" }
+        %span.badge.bg-primary{ id: "comment-counter-project-#{@project.id}" }
           = @comments.length
       .card-body#comments
         = render partial: 'webui/comment/show', locals: { commentable: @project,

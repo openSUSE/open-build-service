@@ -8,6 +8,6 @@ class BsRequestStateBadgeComponent < ApplicationComponent
 
   def call
     tag.span(@bs_request.state,
-             class: ['badge', "badge-#{helpers.request_badge_color(@bs_request.state)}", @css_class])
+             class: ['badge', "bg-#{helpers.request_badge_color(@bs_request.state)}", @css_class])
   end
 end

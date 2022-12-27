@@ -6,7 +6,7 @@
         %i No architecture selected
       - else
         - repository.architectures.pluck(:name).each do |architecture|
-          %span.badge.badge-primary= architecture
+          %span.badge.bg-primary= architecture
     - if repository.is_dod_repository?
       = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository,
                  available_architectures: available_architectures }

@@ -1,5 +1,5 @@
 %span.badge{ class: "state-#{staging_project.overall_state}" }
-  %span.badge.badge-light
+  %span.badge.bg-light
     = render StagingProjectLinkComponent.new(staging_project: staging_project, staging_workflow: staging_workflow,
                                              link_options: { data: { content: staging_project.description,
                                                                      placement: 'bottom',
