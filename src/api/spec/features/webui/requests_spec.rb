@@ -54,7 +54,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
 
     describe 'request history entries' do
       it_behaves_like 'expandable element' do
-        let(:element) { '.media-body .obs-collapsible-textbox' }
+        let(:element) { '.history .obs-collapsible-textbox' }
       end
     end
   end
