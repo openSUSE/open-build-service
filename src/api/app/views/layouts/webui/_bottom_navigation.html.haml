@@ -3,7 +3,7 @@
     - if User.session
       %li.nav-item
         = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
-          %i.fas.fa-bookmark
+          %i.far.fa-eye
           %span.d-block Watchlist
       %li.nav-item.border-left.border-gray-500
         = link_to(my_notifications_path, id: 'bottom-notifications-counter', class: 'nav-link text-light px-1 py-2', alt: 'Notifications') do
