@@ -8,14 +8,14 @@
       .mb-3
         = text_area_tag('comment', '', rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
       .mb-3
-        .custom-control.custom-radio
-          = radio_button_tag('new_state', 'Decline', true, class: 'custom-control-input', aria: { describedby: 'decline-description' })
-          = label_tag('Decline', 'Decline', for: 'new_state_Decline', class: 'custom-control-label')
+        .form-check
+          = radio_button_tag('new_state', 'Decline', true, class: 'form-check-input', aria: { describedby: 'decline-description' })
+          = label_tag('Decline', 'Decline', for: 'new_state_Decline', class: 'form-check-label')
           %small.form-text.text-muted#decline-description
             Veto the review. This will also decline the request.
-        .custom-control.custom-radio
-          = radio_button_tag('new_state', 'Approve', false, class: 'custom-control-input', aria: { describedby: 'approve-description' })
-          = label_tag('Approve', for: 'new_state_Approve', class: 'custom-control-label') do
+        .form-check
+          = radio_button_tag('new_state', 'Approve', false, class: 'form-check-input', aria: { describedby: 'approve-description' })
+          = label_tag('Approve', for: 'new_state_Approve', class: 'form-check-label') do
             Approve
           %small.form-text.text-muted#approve-description
             Give your consent for the review. The request will move forward.
