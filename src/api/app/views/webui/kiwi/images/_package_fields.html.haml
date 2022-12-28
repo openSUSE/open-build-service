@@ -24,9 +24,8 @@
           .mb-3.ui-front
             = f.label :name
             .input-group
-              .input-group-prepend
-                %span.input-group-text
-                  %i.fas.fa-search
+              %span.input-group-text
+                %i.fas.fa-search
               = f.text_field :name, required: true,
                                     placeholder: 'Type to autocomplete...',
                                     class: 'form-control kiwi-package-search',

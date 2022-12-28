@@ -4,9 +4,8 @@
     = form.label(:name, 'Subproject Name:')
     %abbr.text-danger{ title: 'Required' } *
     .input-group
-      .input-group-prepend
-        %span.input-group-text
-          #{namespace}:
+      %span.input-group-text
+        #{namespace}:
       = form.text_field(:name, required: true, class: 'form-control', autofocus: true)
   - else
     = form.label(:name, 'Project Name:')

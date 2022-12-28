@@ -2,9 +2,8 @@
   = hidden_field_tag('generic_event_type', @generic_event_type)
   = label_tag('request_action', 'Action', class: 'visually-hidden')
   .input-group.me-sm-2
-    .input-group-prepend
-      .input-group-text
-        Action
+    .input-group-text
+      Action
     = select_tag('request_action',
                   options_for_select(@filter_options, @request_action),
                   class: 'form-control form-select')

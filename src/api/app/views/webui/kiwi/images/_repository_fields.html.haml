@@ -26,9 +26,8 @@
               .mb-3.ui-front
                 = label_tag 'Project'
                 .input-group
-                  .input-group-prepend
-                    %span.input-group-text
-                      %i.fas.fa-search
+                  %span.input-group-text
+                    %i.fas.fa-search
                   = text_field_tag 'target_project', f.object.project_for_type_obs,
                                    required: true,
                                    placeholder: 'Type to autocomplete...',
