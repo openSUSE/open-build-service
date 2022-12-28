@@ -1,10 +1,5 @@
 @import "cm2/bootstrap";
 
-.custom-file-label-with-overflow {
-    @extend .form-label;
-    overflow: hidden;
-}
-
 .short-progress {
     height: 5px;
 }
