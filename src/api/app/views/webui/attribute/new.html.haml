@@ -6,7 +6,7 @@
   .card-body
     %h3= @pagetitle
     = form_for(@attribute) do |form|
-      .form-row
+      .row
         = form.hidden_field(:project_id)
         - if @attribute.package_id
           = form.hidden_field(:package_id)

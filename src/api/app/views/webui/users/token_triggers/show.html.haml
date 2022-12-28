@@ -6,7 +6,7 @@
 
     -# "as: :token" to have a consistent name across all various token classes
     = form_for(@token, as: :token, url: token_trigger_path, method: :put, local: false) do |f|
-      .form-row
+      .row
         .col-12.col-md-10.col-lg-9
           .form-group
             = f.label(:id, 'Id:')

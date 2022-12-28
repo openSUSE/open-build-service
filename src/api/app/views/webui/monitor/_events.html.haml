@@ -2,7 +2,7 @@
 - unless available_arch_list.empty?
   .d-flex.justify-content-center
     = form_tag(controller: 'main', action: 'index') do
-      .form-row
+      .row
         .col-sm-12.col-md-6.py-2
           %label Architecture:
           = select_tag(:architecture_display, options_for_select(available_arch_list, default_architecture), class: 'custom-select')

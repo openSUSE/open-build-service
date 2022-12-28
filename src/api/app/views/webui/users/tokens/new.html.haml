@@ -8,7 +8,7 @@
     .row
       .col-12.col-md-10.col-lg-8
         = form_with(model: @token ||= Token.new, method: :post, local: true) do |f|
-          .form-row
+          .row
             .col
               .form-group
                 = f.label(:type, 'Type:', class: 'col-form-label mr-2')
@@ -19,7 +19,7 @@
                     = radio.radio_button(class: 'custom-control-input')
                     = radio.label(class: 'custom-control-label')
 
-          .form-row
+          .row
             .col-sm
               .form-group.ui-front
                 = f.label(:description, 'Description:')
@@ -27,7 +27,7 @@
                 .form-text.text-muted
                   Optional: provide a description to your token.
 
-          .form-row#package-project-form
+          .row#package-project-form
             .col-sm
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_name', label: 'Project name', required: false,
                                                                        data: { source: autocomplete_projects_path(local: true) } }
@@ -38,7 +38,7 @@
               .form-group.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.
 
-          .form-row.d-none#fieldsets-token
+          .row.d-none#fieldsets-token
             .col-12.col-md-10.col-lg-9
               .form-group
                 = f.label(:scm_token, 'SCM Token:')
