@@ -1,4 +1,4 @@
-= form_with(url: token_workflow_runs_path(@token_id), method: :get, local: true, class: 'form-inline') do
+= form_with(url: token_workflow_runs_path(@token_id), method: :get, local: true, class: 'row row-cols-auto') do
   = hidden_field_tag('generic_event_type', @generic_event_type)
   = label_tag('request_action', 'Action', class: 'visually-hidden')
   .input-group.mr-sm-2

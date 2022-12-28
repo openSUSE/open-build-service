@@ -2,7 +2,7 @@
 
 .mt-3.mb-3{ id: "rpmlin-log-#{index}", data: { project: project.name, package: package.name } }
   - unless repository_list.empty?
-    .form-inline
+    .row.row-cols-auto
       = select_tag("rpmlint_repo_select_#{index}", options_for_select(repository_list.sort),
                    class: 'custom-select', onchange: "updateArchDisplay('#{index}')")
       - repo_arch_hash.each do |repository, architectures|

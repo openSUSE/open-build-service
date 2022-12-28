@@ -15,7 +15,7 @@
 .d-none#involvement
   .card.sticky-top.border-0#involved-filters
     .card-body
-      = form_with(model: displayed_user, method: :get, local: true, class: 'form-inline justify-content-between') do
+      = form_with(model: displayed_user, method: :get, local: true, class: 'row row-cols-auto justify-content-end') do
         .form-group
           %input.form-control{ 'aria-label': 'Search', name: 'search_text', placeholder: 'Search', type: 'text', value: filters[:search_text] }
         %span.dropdown.form-group#involved-project-package

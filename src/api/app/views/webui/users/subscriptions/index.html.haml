@@ -13,7 +13,7 @@
             .card.p-2.m-2
               - group = group_user.group
               = link_to(group.title, group_path(group), class: 'pr-4')
-              .form-inline
+              .row.row-cols-auto
                 .custom-control.custom-control-inline.custom-checkbox.my-2
                   = check_box_tag "groups[#{group_user.group.title}][email]", '1', group_user.email, class: 'custom-control-input',
                     data: { url: update_my_subscriptions_path, method: :put, remote: true },
