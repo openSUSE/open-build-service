@@ -6,13 +6,13 @@
       = form_for(user, url: user_path, method: :patch) do |f|
         .modal-body
           = f.hidden_field(:login, id: 'user')
-          .form-group
+          .mb-3
             = f.label(:realname, 'Name:')
             = f.text_field(:realname, class: 'form-control')
-          .form-group
+          .mb-3
             = f.label(:email, 'Email:')
             = f.text_field(:email, required: true, email: true, class: 'form-control')
-          .form-group
+          .mb-3
             = f.label(:biography) do
               Biography:
             = f.text_area(:biography, rows: 6, class: 'form-control', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED)

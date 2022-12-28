@@ -3,15 +3,15 @@
   = hidden_field_tag(:id, package.id)
   = hidden_field_tag(:project, project)
   = hidden_field_tag(:package, package.name)
-  .form-group
+  .mb-3
     = form.label(:title, 'Title:')
     = form.text_field(:title, class: 'form-control', autofocus: true)
-  .form-group
+  .mb-3
     = form.label(:url, 'URL:')
     = form.text_field(:url, class: 'form-control')
-  .form-group
+  .mb-3
     = form.label(:description, 'Description:')
     = form.text_area(:description, rows: 8, class: 'form-control')
-  .form-group.text-right
+  .mb-3.text-right
     = button_tag('Cancel', type: 'reset', class: 'cancel btn btn-outline-danger px-4', id: 'cancel-in-place-editing')
     = submit_tag('Update', class: 'btn btn-primary px-4')

@@ -8,7 +8,7 @@
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'staging_request_exclusion[number]',
                                                                   label: 'Request', value: f.object.number,
                                                                   data: { source: autocomplete_excluded_requests_path(staging_workflow_project) } }
-          .form-group
+          .mb-3
             = f.label :description
             = f.text_area :description,
               required: true, placeholder: 'Explain why this request will be excluded', class: 'form-control', maxlength: 255

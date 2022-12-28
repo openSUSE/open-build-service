@@ -8,18 +8,18 @@
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
                                                                    data: { source: autocomplete_projects_path } }
 
-          .form-group
+          .mb-3
             = label_tag :repositories do
               %strong Repositories:
             = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                   disabled: true,
                                                                   class: 'repository-dropdown custom-select',
                                                                   data: { source: autocomplete_repositories_path }
-          .form-group
+          .mb-3
             = label_tag :name do
               %strong Name:
             = text_field_tag :repository, '', size: 60, disabled: false, required: true, class: 'repository-name form-control'
-          .form-group
+          .mb-3
             = label_tag :architectures, class: 'w-100' do
               %strong Architectures:
             - Architecture.available.each do |architecture|

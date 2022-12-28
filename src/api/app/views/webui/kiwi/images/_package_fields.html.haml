@@ -21,7 +21,7 @@
             The name can not be empty!
 
         .modal-body
-          .form-group.ui-front
+          .mb-3.ui-front
             = f.label :name
             .input-group
               .input-group-prepend
@@ -31,7 +31,7 @@
                                     placeholder: 'Type to autocomplete...',
                                     class: 'form-control kiwi-package-search',
                                     data: { source: autocomplete_binaries_kiwi_image_path, default: f.object.name }
-          .form-group
+          .mb-3
             = f.label :arch, 'Arch:'
             = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control'
             = f.label :replaces, 'Replaces:'

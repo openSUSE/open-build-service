@@ -5,19 +5,19 @@
     %p= link_to 'Use this link to Sign Up', proxy_auth_register_page
 - else
   = form_tag(users_path, method: :post, class: 'sign-up', autocomplete: 'off') do
-    .form-group
+    .mb-3
       = label_tag 'login', 'Username:'
       %abbr.text-danger{ title: 'required' } *
       = text_field_tag 'login', nil, placeholder: 'Username', autocomplete: 'off', class: 'form-control', required: true
-    .form-group
+    .mb-3
       = label_tag 'email', 'Email:'
       %abbr.text-danger{ title: 'required' } *
       = text_field_tag 'email', nil, placeholder: 'Email address', autocomplete: 'off', class: 'form-control', type: 'email', required: true
-    .form-group
+    .mb-3
       = label_tag 'password', 'Password:'
       %abbr.text-danger{ title: 'required' } *
       = password_field_tag :password, nil, id: 'pwd', placeholder: 'Enter a password', autocomplete: 'off', class: 'form-control', required: true
-    .form-group
+    .mb-3
       = label_tag 'password_confirmation', 'Password confirmation:'
       %abbr.text-danger{ title: 'required' } *
       = password_field_tag(:password_confirmation, nil, id: 'pwd_confirmation', placeholder: 'Password confirmation', autocomplete: 'off',
