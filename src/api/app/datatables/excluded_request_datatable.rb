@@ -39,7 +39,7 @@ class ExcludedRequestDatatable < Datatable
   # rubocop:enable Rails/OutputSafety
 
   def link_to_delete(request_exclusion)
-    link_to('#', title: 'Include back this request?', data: { toggle: 'modal', target: '#delete-excluded-request-modal',
+    link_to('#', title: 'Include back this request?', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-excluded-request-modal',
                                                               action: excluded_request_path(@staging_workflow.project, request_exclusion) }) do
       tag.i(nil, class: 'fas fa-times-circle text-danger')
     end

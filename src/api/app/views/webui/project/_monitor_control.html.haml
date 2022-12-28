@@ -3,7 +3,7 @@
     = form_tag(project_monitor_path, project: project, method: :get) do
       = hidden_field_tag :defaults, 0
       %span.dropdown#project-monitor-status-dropdown
-        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
           %span.caret
           Status
         .dropdown-menu.keep-open
@@ -17,7 +17,7 @@
                 %label.form-check-label{ for: valid_xml_id(status) }
                   = status
       %span.dropdown#project-monitor-architectures-dropdown
-        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
           %span.caret
           Architecture
         .dropdown-menu.keep-open
@@ -31,7 +31,7 @@
                 %label.form-check-label{ for: valid_xml_id("arch_#{architecture}") }
                   = architecture
       %span.dropdown#project-monitor-repositories-dropdown
-        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
           %span.caret
           Repository
         .dropdown-menu.keep-open
@@ -54,7 +54,7 @@
       %i.fas.fa-lg.fa-sync-alt.fa-spin.ms-3#table-spinner
 
       %button.btn.btn-outline-secondary.float-end{ type: :button,
-      data: { toggle: 'modal', target: '#build-monitor-legend' }, title: 'Build status legend' }
+      data: { 'bs-toggle': 'modal', 'bs-target': '#build-monitor-legend' }, title: 'Build status legend' }
         Legend
 
 .modal.fade#build-monitor-legend{ tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
@@ -70,5 +70,5 @@
               #{status}:
             = description
         .modal-footer
-          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
             Cancel

@@ -12,7 +12,7 @@ RSpec.describe 'Subscriptions', js: true do
         subscription_by_role = notification_field.find(".#{role}")
         subscription_by_role.check('email')
         expect(page).to have_css('#flash', text: 'Notifications settings updated')
-        find('#flash button[data-dismiss]').click
+        find('#flash button[data-bs-dismiss]').click
       end
 
       visit path

@@ -38,7 +38,7 @@
       - bs_request.superseding.each do |superseding_request|
         .timeline-item.pb-4
           = link_to('#collapse-superseding', class: 'd-flex align-items-center',
-              data: { toggle: 'collapse' },
+              data: { 'bs-toggle': 'collapse' },
               aria: { expanded: false, controls: 'collapse-superseding' }) do
             %i.timeline-break.expander>
             %i.timeline-offset.collapser>

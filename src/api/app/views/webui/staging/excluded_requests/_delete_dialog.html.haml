@@ -9,7 +9,7 @@
         %p Please confirm that you want to stop excluding this request
         = form_tag nil, method: :delete do
           .modal-footer
-            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
             = submit_tag('Accept', class: 'btn btn-sm btn-danger px-4')
 - content_for :ready_function do

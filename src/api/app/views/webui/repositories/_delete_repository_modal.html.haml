@@ -12,7 +12,7 @@
           repository
       .modal-footer
         = form_tag(nil, method: :post) do
-          %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+          %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
             Cancel
           = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
 - content_for :ready_function do

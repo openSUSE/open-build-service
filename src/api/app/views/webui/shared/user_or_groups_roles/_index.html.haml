@@ -35,7 +35,7 @@
   - if user_is_maintainer
     .pt-4
       = render(partial: 'webui/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param })
-      = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user') do
+      = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-user-role-modal' }, id: 'add-user') do
         %i.fas.fa-plus-circle.text-primary
         Add User
       = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-role-modal', method: :post)
@@ -64,7 +64,7 @@
   - if user_is_maintainer
     .pt-4
       = render(partial: 'webui/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })
-      = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-group') do
+      = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-role-modal' }, id: 'add-group') do
         %i.fas.fa-plus-circle.text-primary
         Add Group
 

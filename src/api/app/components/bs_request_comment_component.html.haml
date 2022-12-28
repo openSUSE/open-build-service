@@ -10,15 +10,15 @@
   .comment-bubble
     - if policy(comment).update? || policy(comment).destroy?
       .dropdown.dropleft.float-end
-        = link_to('#', role: 'button', 'data-toggle': 'dropdown', 'aria-expanded': 'false', class: 'text-dark') do
+        = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false', class: 'text-dark') do
           %i.fas.fa-ellipsis
         .dropdown-menu
           - if policy(comment).update?
-            = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-toggle': 'collapse',
+            = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                       class: 'dropdown-item collapsed') do
               Edit
           - if policy(comment).destroy?
-            = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment.id}" },
+            = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': "#delete-comment-modal-#{comment.id}" },
                       class: 'dropdown-item delete_link', title: 'Delete comment') do
               Delete
 
@@ -34,7 +34,7 @@
 
   - if User.session
     .mb-2
-      = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-toggle': 'collapse',
+      = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                 class: 'font-italic small collapsed') do
         Reply
       .collapse{ id: "reply_form_of_#{comment.id}" }

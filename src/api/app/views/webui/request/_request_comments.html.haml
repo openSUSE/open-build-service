@@ -1,7 +1,7 @@
 .bg-light
   %ul.nav.nav-tabs.disable-link-generation{ role: 'tablist' }
     %li.nav-item
-      = link_to('#comments', class: 'nav-link text-nowrap active', data: { toggle: 'tab' }, role: 'tab') do
+      = link_to('#comments', class: 'nav-link text-nowrap active', data: { 'bs-toggle': 'tab' }, role: 'tab') do
         Comments for request #{bs_request.number}
         %span.badge.bg-primary{ id: "comment-counter-request-#{bs_request.number}" }
           = comments.size
@@ -9,7 +9,7 @@
       - if superseded.comments.any?
         %li.nav-item
           = link_to("#superseded-#{superseded.number}", title: "This request was superseded by request #{superseded.superseded_by}",
-            class: 'nav-link text-nowrap', data: { toggle: 'tab' }, role: 'tab') do
+            class: 'nav-link text-nowrap', data: { 'bs-toggle': 'tab' }, role: 'tab') do
             Comments for request #{superseded.number}
             %span.badge.bg-primary{ id: "comment-counter-request-#{superseded.number}" }
               = superseded.comments.size

@@ -32,7 +32,7 @@
       - if User.session
         %ul.nav
           %li.nav-item
-            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#request-bugowner-change-modal' }) do
+            = link_to('#', class: 'nav-link', data: { 'bs-toggle': 'modal', 'bs-target': '#request-bugowner-change-modal' }) do
               %i.fas.fa-exchange-alt.text-primary
               Request bugowner change
         - projects_and_packages = @results.map { |result| { project: result.project, package: result.package } }

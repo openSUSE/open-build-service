@@ -9,8 +9,8 @@
         = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
       - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
-          = link_to('#', title: 'Delete all built binaries', data: { toggle: 'modal',
-                                                                     target: '#delete-all-binaries-modal' }) do
+          = link_to('#', title: 'Delete all built binaries', data: { 'bs-toggle': 'modal',
+                                                                     'bs-target': '#delete-all-binaries-modal' }) do
             %i.fas.fa-times-circle.text-danger
             Delete all built binaries
           = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-all-binaries-modal',

@@ -1,7 +1,7 @@
 - @pagetitle = "Manage Staging Projects for #{@project}"
 - content_for :actions do
   %li.nav-item
-    = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#staging-managers-group-modal' }, title: 'Change Managers') do
+    = link_to('#', class: 'nav-link', data: { 'bs-toggle': 'modal', 'bs-target': '#staging-managers-group-modal' }, title: 'Change Managers') do
       %i.fas.fa-lg.me-2.fa-users
       %span.nav-item-name Change Managers
 
@@ -12,7 +12,7 @@
       .card-body
         %h3
           = @pagetitle
-          = link_to('#', title: 'Create Staging Project', data: { toggle: 'modal', target: '#create-staging-projects-modal' }) do
+          = link_to('#', title: 'Create Staging Project', data: { 'bs-toggle': 'modal', 'bs-target': '#create-staging-projects-modal' }) do
             %i.fas.fa-xs.fa-plus-circle.text-primary
 
         = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }

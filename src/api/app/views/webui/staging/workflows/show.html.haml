@@ -16,7 +16,7 @@
           - if policy(@staging_workflow).destroy?
             - content_for(:actions) do
               %li.nav-item
-                = link_to('#', title: 'Delete Staging', data: { toggle: 'modal', target: '#delete-staging-workflow' }, class: 'nav-link') do
+                = link_to('#', title: 'Delete Staging', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-staging-workflow' }, class: 'nav-link') do
                   %i.fas.fa-lg.me-2.fa-times-circle
                   %span.nav-item-name Delete Staging
         - if policy(@staging_workflow).destroy? # This is outside of the h3 to prevent the font in the modal to be oversized

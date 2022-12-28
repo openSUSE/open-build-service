@@ -33,8 +33,8 @@
                       %i.fas.fa-edit.text-secondary
                   = link_to('#',
                             title: 'Delete attribute',
-                            data: { toggle: 'modal',
-                                    target: '#delete-attribute-modal',
+                            data: { 'bs-toggle': 'modal',
+                                    'bs-target': '#delete-attribute-modal',
                                     action: attrib_path(attribute),
                                     confirmation_text: "Please confirm the deletion of the attribute '#{attribute.fullname}'" }) do
                     %i.fas.fa-times-circle.text-danger

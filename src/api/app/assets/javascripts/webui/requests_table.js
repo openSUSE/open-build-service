@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $('#requests').find('a[data-toggle="tab"]').on('shown.bs.tab', function(){
+  $('#requests').find('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(){
     $($.fn.dataTable.tables(true)).DataTable()
        .columns.adjust();
   });

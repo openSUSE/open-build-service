@@ -11,8 +11,8 @@
               %span.d-inline
                 = slice
           = link_to('#', class: 'text-light ms-auto',
-                    data: { toggle: 'modal',
-                            target: '#delete-item-from-watchlist-modal',
+                    data: { 'bs-toggle': 'modal',
+                            'bs-target': '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this package from the watchlist?',
                             confirmation_text: "Please confirm you want to remove '#{name}' from the watchlist.",
                             action: project_package_toggle_watched_item_path(project_name: item.project.name,
@@ -28,8 +28,8 @@
               %span.d-inline
                 = slice
           = link_to('#', class: 'text-light ms-auto',
-                    data: { toggle: 'modal',
-                            target: '#delete-item-from-watchlist-modal',
+                    data: { 'bs-toggle': 'modal',
+                            'bs-target': '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this project from the watchlist?',
                             confirmation_text: "Please confirm you want to remove '#{name}' from the watchlist.",
                             action: project_toggle_watched_item_path(project_name: name, current_object: current_object_params) }) do
@@ -42,8 +42,8 @@
             = name
           %i.fa.fa-question-circle.text-light.px-2.collapsible-tooltip{ title: 'Click to keep it open' }
           = link_to('#', class: 'text-light ms-auto',
-                    data: { toggle: 'modal',
-                            target: '#delete-item-from-watchlist-modal',
+                    data: { 'bs-toggle': 'modal',
+                            'bs-target': '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this request from the watchlist?',
                             confirmation_text: "Please confirm you want to remove '#{name}' from the watchlist.",
                             action: toggle_watched_item_request_path(number: item.number, current_object: current_object_params) }) do

@@ -1,14 +1,14 @@
 %ul.nav.nav-tabs#workflow-run-tabs{ role: 'tablist' }
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "incoming-webhook-tab#{id}", data: { toggle: 'tab' }, href: "#incoming-webhook-tab-content#{id}",
+    %a.nav-link{ id: "incoming-webhook-tab#{id}", data: { 'bs-toggle': 'tab' }, href: "#incoming-webhook-tab-content#{id}",
                  role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'false' } }
       Webhook from #{scm_vendor}
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "scm-reports-tab#{id}", data: { toggle: 'tab' }, href: "#scm-reports-tab-content#{id}",
+    %a.nav-link{ id: "scm-reports-tab#{id}", data: { 'bs-toggle': 'tab' }, href: "#scm-reports-tab-content#{id}",
                  role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
       Reports to the SCM
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "artifacts#{id}", data: { toggle: 'tab' }, href: "#artifacts-tab-content#{id}",
+    %a.nav-link{ id: "artifacts#{id}", data: { 'bs-toggle': 'tab' }, href: "#artifacts-tab-content#{id}",
                  role: 'tab', aria: { controls: "artifacts-tab-content#{id}", selected: 'false' } }
       Artifacts
 .tab-content.p-3#workflow-run-tabs-content

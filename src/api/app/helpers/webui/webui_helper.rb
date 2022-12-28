@@ -285,7 +285,7 @@ module Webui::WebuiHelper
         link_content('Sign Up', css_class, 'fa-user-plus')
       end
     else
-      link_to('#', class: css_class, data: { toggle: 'modal', target: '#sign-up-modal' }) do
+      link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#sign-up-modal' }) do
         link_content('Sign Up', css_class, 'fa-user-plus')
       end
     end
@@ -297,7 +297,7 @@ module Webui::WebuiHelper
         link_content('Log In', css_class, 'fa-sign-in-alt')
       end
     else
-      link_to('#', class: css_class, data: { toggle: 'modal', target: '#log-in-modal' }) do
+      link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#log-in-modal' }) do
         link_content('Log In', css_class, 'fa-sign-in-alt')
       end
     end

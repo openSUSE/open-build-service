@@ -1,6 +1,6 @@
 %li
   = link_to('#', 'aria-controls': 'badge-modal', role: 'button',
-    data: { toggle: 'modal', target: '#badge-modal' }) do
+    data: { 'bs-toggle': 'modal', 'bs-target': '#badge-modal' }) do
     %i.fas.fa-certificate
     Create Badge
 
@@ -11,7 +11,7 @@
         .modal-header
           %h5.modal-title#badge-modal-label
             Create Build Results Badge
-          %button.btn.btn-close.float-end{ type: 'button', 'data-dismiss': 'modal', 'aria-label': 'Close' }
+          %button.btn.btn-close.float-end{ type: 'button', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' }
         .modal-body
           %p
             Embed a build result badge whereever you need it. Select from

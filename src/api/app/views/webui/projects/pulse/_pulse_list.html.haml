@@ -23,7 +23,7 @@
     - if package_changes.present?
       %h5#pulse-packages
         = link_to('.collapse-package-changes', aria: { controls: 'collapse-package-changes', expanded: 'true' },
-                  'data-toggle' => 'collapse', role: 'button') do
+                  'data-bs-toggle' => 'collapse', role: 'button') do
           Package Changes
           %small
             %span.collapser (Hide)
@@ -38,7 +38,7 @@
     - if project_changes.present?
       %h5#pulse-project
         = link_to('.collapse-project-changes', aria: { controls: 'collapse-project-changes', expanded: 'true' },
-                  'data-toggle' => 'collapse', role: 'button') do
+                  'data-bs-toggle' => 'collapse', role: 'button') do
           Project Changes
           %small
             %span.collapser (Hide)
@@ -52,7 +52,7 @@
 
     - if builds.present?
       %h5#pulse-builds
-        = link_to('.collapse-builds', aria: { controls: 'collapse-builds', expanded: 'true' }, 'data-toggle' => 'collapse', role: 'button') do
+        = link_to('.collapse-builds', aria: { controls: 'collapse-builds', expanded: 'true' }, 'data-bs-toggle' => 'collapse', role: 'button') do
           Builds
           %small
             (in the last 24 hours)
@@ -69,7 +69,7 @@
     - if collaboration.present?
       %h5#pulse-collaboration
         = link_to('.collapse-collaboration', aria: { controls: 'collapse-collaboration', expanded: 'true' },
-                  'data-toggle' => 'collapse', role: 'button') do
+                  'data-bs-toggle' => 'collapse', role: 'button') do
           Collaboration
           %small
             %span.collapser (Hide)
@@ -83,7 +83,7 @@
 
     - if requests.present?
       %h5#pulse-requests
-        = link_to('.collapse-requests', aria: { controls: 'collapse-requests', expanded: 'true' }, 'data-toggle' => 'collapse', role: 'button') do
+        = link_to('.collapse-requests', aria: { controls: 'collapse-requests', expanded: 'true' }, 'data-bs-toggle' => 'collapse', role: 'button') do
           Requests
           %small
             %span.collapser (Hide)

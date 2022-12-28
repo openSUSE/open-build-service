@@ -19,7 +19,7 @@
                 %i.fas.fa-edit.text-secondary
                 Edit patchinfo
             %li.list-inline-item
-              = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-patchinfo-modal' }) do
+              = link_to('#', class: 'nav-link', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-patchinfo-modal' }) do
                 %i.fas.fa-times-circle.text-danger
                 Delete patchinfo
           = render partial: 'delete_patchinfo_modal', locals: { project: @project, package: @package }

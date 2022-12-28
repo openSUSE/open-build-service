@@ -55,23 +55,23 @@
       %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }
         %li.nav-item.scrollable-tab-link{ role: 'presentation' }
           = link_to('Conversation', '#conversation', id: 'conversation-tab', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
-                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                    'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
         - if @action[:sprj] || @action[:spkg]
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Build Results', '#build-results', id: 'build-results-tab', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('RPM Lint', '#rpm-lint', id: 'rpm-lint-tab', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint',
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Changes', '#changes', id: 'changes-tab', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
                       'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id],
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('#mentioned-issues', id: 'mentioned-issues-tab', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab') do
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab') do
               Mentioned Issues
               %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content

@@ -11,8 +11,8 @@
           - if policy(GroupsUser.new(group: group, user: user)).destroy?
             = link_to('#',
                       title: 'Remove member from group',
-                      data: { toggle: 'modal',
-                              target: '#delete-group-members-modal',
+                      data: { 'bs-toggle': 'modal',
+                              'bs-target': '#delete-group-members-modal',
                               confirmation_text: "Please confirm deletion of '#{user}' from this group",
                               action: group_user_path(group_title: group.title, user_login: user.login) }) do
               .float-end
@@ -37,7 +37,7 @@
   .pt-4
     %ul.list-inline
       %li.list-inline-item
-        = link_to('#', class: 'nav-link', title: 'Add Member', data: { toggle: 'modal', target: '#add-group-user-modal' }) do
+        = link_to('#', class: 'nav-link', title: 'Add Member', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-user-modal' }) do
           %i.fas.fa-plus-circle.text-primary
           Add Member
   = render partial: 'add_group_user_modal', locals: { group: group }

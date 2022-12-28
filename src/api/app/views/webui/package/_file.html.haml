@@ -16,8 +16,8 @@
       = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
         %i.fas.fa-download.text-secondary
       - if can_be_removed
-        = link_to('#', title: 'Delete file', data: { toggle: 'modal',
-                                                     target: '#delete-file-modal',
+        = link_to('#', title: 'Delete file', data: { 'bs-toggle': 'modal',
+                                                     'bs-target': '#delete-file-modal',
                                                      confirmation_text: "Please confirm deletion of file '#{file[:name]}'",
                                                      action: url_for(action: :remove_file,
                                                                      project: project,
