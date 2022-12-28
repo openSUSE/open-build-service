@@ -13,6 +13,8 @@ class SourceController < ApplicationController
 
   skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
   skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
+  # we use an array for the "file" parameter for: package_command_diff, package_command_linkdiff and package_command_servicediff
+  skip_before_action :validate_params, only: [:package_command]
 
   before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public,
                                                       :global_command_orderkiwirepos, :global_command_branch,

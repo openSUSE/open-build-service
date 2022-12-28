@@ -77,9 +77,11 @@ module Backend
 
         if hash[key].nil?
           # just a boolean argument ?
-          [hash[key]].flat_map { key }.join('&')
+          key
+        elsif hash[key].is_a?(Array)
+          hash[key].map { |value| "#{key}=#{CGI.escape(value.to_s)}" }.join('&')
         else
-          [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join('&')
+          "#{key}=#{CGI.escape(hash[key].to_s)}"
         end
       end
       query.empty? ? '' : "?#{query.compact.join('&')}"
