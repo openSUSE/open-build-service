@@ -39,7 +39,7 @@
             - result[:binaries].each do |binary|
               %tr
                 %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
-                %td.text-nowrap.text-right.px-2
+                %td.text-nowrap.text-end.px-2
                   - render_partial = render partial: 'webui/package/binaries/binaries_actions', locals: { project: @project,
                                                                                                                  package_name: params[:package],
                                                                                                                  package: @package,

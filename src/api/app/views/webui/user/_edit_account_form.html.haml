@@ -14,7 +14,7 @@
         = title.upcase
   .mb-3
     = f.text_area(:biography, rows: 6, placeholder: 'Biography', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED, class: 'form-control')
-    = f.label(:biography, class: 'd-block text-right') do
+    = f.label(:biography, class: 'd-block text-end') do
       %small.form-text#bio-chars-counter
   .mb-3
     = f.text_field(:email, required: true, email: true, placeholder: 'Email', readonly: behind_proxy, class: 'form-control')
@@ -23,6 +23,6 @@
     %p
       You are behind a proxy. You can modify other data related to your profile by
       = link_to(' this link.', account_edit_link)
-  .mb-3.text-right
+  .mb-3.text-end
     = button_tag 'Cancel', id: 'cancel-in-place-editing', class: 'cancel btn btn-outline-danger px-4'
     = submit_tag('Update', class: 'btn btn-primary px-4')

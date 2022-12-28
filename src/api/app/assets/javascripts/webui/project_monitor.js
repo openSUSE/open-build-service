@@ -55,7 +55,7 @@ function initializeMonitorDataTable() {
       {
         width: 150,
         targets: 0,
-        className: 'text-left',
+        className: 'text-start',
         data: null,
         render: function (packageName) {
           var url = '/package/show/' + projectName + '/' + packageName;
