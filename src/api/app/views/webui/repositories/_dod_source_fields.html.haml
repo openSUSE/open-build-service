@@ -8,12 +8,12 @@
           = f.label :arch, 'Architecture', class: 'col-sm-4 col-form-label'
           .col-sm-8
             = f.select :arch, options_for_select(available_architectures, download_on_demand.try(:arch)), {}, required: true,
-                              class: 'custom-select'
+                              class: 'form-select'
         .mb-3.row
           = f.label :repotype, 'Type', class: 'col-sm-4 col-form-label'
           .col-sm-8
             = f.select :repotype, options_for_select(DownloadRepository::REPOTYPES, download_on_demand.try(:repotype)), {},
-                                  class: 'custom-select'
+                                  class: 'form-select'
         .mb-3.row
           = f.label :url, 'Url', class: 'col-sm-4 col-form-label'
           .col-sm-8

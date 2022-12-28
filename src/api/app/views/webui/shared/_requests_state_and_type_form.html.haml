@@ -5,7 +5,7 @@
     = select_tag('request_type_select',
                  options_for_select(Webui::RequestHelper::AVAILABLE_TYPES, selected_type),
                  data: { table: 'all_requests_table' },
-                 class: 'form-control custom-select dataTables_length')
+                 class: 'form-control form-select dataTables_length')
 
   .mb-3.input-group.col-sm-12.col-md
     .input-group-prepend
@@ -13,7 +13,7 @@
     = select_tag('request_state_select',
                  options_for_select(Webui::RequestHelper::AVAILABLE_STATES, selected_state),
                  data: { table: 'all_requests_table' },
-                 class: 'form-control custom-select dataTables_length')
+                 class: 'form-control form-select dataTables_length')
 
 
 

@@ -5,11 +5,11 @@
       .row
         .col-sm-12.col-md-6.py-2
           %label Architecture:
-          = select_tag(:architecture_display, options_for_select(available_arch_list, default_architecture), class: 'custom-select')
+          = select_tag(:architecture_display, options_for_select(available_arch_list, default_architecture), class: 'form-select')
         .col-sm-12.col-md-6.py-2
           %label Timeframe:
           - options = [['1 day', '24'], ['1 hour', 1], ['1 week', '168'], ['1 month', '720'], ['1 year', '8760']]
-          = select_tag(:time_display, options_for_select(options, '24'), class: 'custom-select')
+          = select_tag(:time_display, options_for_select(options, '24'), class: 'form-select')
 
 .row#graphs{ data: { arch_to_show: default_architecture, monitor_path: monitor_events_path, time_to_show: '24' } }
   .col-md-12.col-lg-6.py-4.text-center

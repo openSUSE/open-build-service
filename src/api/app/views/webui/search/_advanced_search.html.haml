@@ -16,4 +16,4 @@
         .col-12.col-md-6
           %label.d-block{ for: 'attrib_list' } Require attribute:
           = select_tag(:attrib_type_id, options_for_select(attrib_type_list, params[:attrib_type_id]),
-                       id: 'attribute_list', class: 'custom-select')
+                       id: 'attribute_list', class: 'form-select')
