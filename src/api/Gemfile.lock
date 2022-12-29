@@ -244,8 +244,8 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
-    launchy (2.5.0)
-      addressable (~> 2.7)
+    launchy (2.5.2)
+      addressable (~> 2.8)
     lograge (0.12.0)
       actionpack (>= 4)
       activesupport (>= 4)
