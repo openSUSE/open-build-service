@@ -116,6 +116,62 @@ post:
           value: ppc64le
         x86_64:
           value: x86_64
+    - in: query
+      name: targetproject
+      description: |
+        TODO: please remove this line and add a description of what this parameter is used for.
+
+        Only used when the operation is 'release'.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        home:user1:
+          value: home:user1
+    - in: query
+      name: targetrepository
+      description: |
+        TODO: please remove this line and add a description of what this parameter is used for.
+
+        Only used when the operation is 'release'.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        openSUSE_Factory:
+          value: openSUSE_Factory
+        SLE_15_SP3:
+          value: SLE_15_SP3
+    - in: query
+      name: filter_source_repository
+      description: |
+        TODO: please remove this line and add a description of what this parameter is used for.
+
+        Only used when the operation is 'release'.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+    - in: query
+      name: multibuild_flavor
+      description: |
+        TODO: please remove this line and add a description of what this parameter is used for.
+
+        Only used when the operation is 'rebuild' or 'release'.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        obs-server:obs-api-testsuite-rspec:
+          value: obs-server:obs-api-testsuite-rspec
   requestBody:
     description: Payload.
     content:
