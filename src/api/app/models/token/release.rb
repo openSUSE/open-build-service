@@ -2,15 +2,15 @@ class Token::Release < Token
   include MaintenanceHelper
 
   def release(package_to_release, source_repository, target_repository, time_now, options)
-      opts = { filter_source_repository: source_repository,
-               manual: true,
-               comment: 'Releasing via trigger event' }
-      opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
-      opts[:filter_architecture] = options[:arch] if options[:arch].present?
-      release_package(package_to_release,
-                      target_repository,
-                      package_to_release.release_target_name(target_repository, time_now),
-                      opts)
+    opts = { filter_source_repository: source_repository,
+             manual: true,
+             comment: 'Releasing via trigger event' }
+    opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
+    opts[:filter_architecture] = options[:arch] if options[:arch].present?
+    release_package(package_to_release,
+                    target_repository,
+                    package_to_release.release_target_name(target_repository, time_now),
+                    opts)
   end
 
   def call(options)
@@ -25,9 +25,8 @@ class Token::Release < Token
     if options[:targetproject].present? && options[:targetrepository].present? && options[:filter_source_repository].present?
       source_repository = Repository.find_by_project_and_name(options[:project].name, options[:filter_source_repository])
       target_repository = Repository.find_by_project_and_name(options[:targetproject], options[:targetrepository])
-      unless User.session!.can_modify?(target_repository.project)
-        raise CmdExecutionNoPermission, "no permission to write in project #{target_repository.project.name}"
-      end
+      raise CmdExecutionNoPermission, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
+
       release(package_to_release, source_repository, target_repository, time_now, options)
       return
     end
