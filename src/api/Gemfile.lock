@@ -302,7 +302,7 @@ GEM
       ast (~> 2.4.1)
     pkg-config (1.5.1)
     popper_js (1.16.1)
-    power_assert (2.0.1)
+    power_assert (2.0.3)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
