@@ -1,10 +1,11 @@
 class Badge
   RED = '#e05d44'.freeze
   GREEN = '#4c1'.freeze
+  FAILED = %w[failed unresolvable broken].freeze
 
   def initialize(type, states)
     @type = 'unknown'
-    finalstates = states&.select { |r| ['succeeded', 'failed'].any?(r.code) }
+    finalstates = states&.select { |r| ['succeeded', *FAILED].any?(r.code) }
     return if finalstates.blank?
 
     # Ratio of the successful to all results
@@ -21,7 +22,7 @@ class Badge
   private
 
   def status(finalstates)
-    return 'failed' if finalstates.any? { |r| r.code == 'failed' }
+    return 'failed' if finalstates.any? { |r| FAILED.include?(r.code) }
     return 'succeeded' if finalstates.all? { |r| r.code == 'succeeded' }
 
     'unknown'
