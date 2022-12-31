@@ -463,7 +463,7 @@ GEM
       unicode-display_width (>= 1.1.1, < 3)
     test-unit (3.5.5)
       power_assert
-    thinking-sphinx (5.4.0)
+    thinking-sphinx (5.5.0)
       activerecord (>= 4.2.0)
       builder (>= 2.1.2)
       innertube (>= 1.0.2)
