@@ -1,5 +1,6 @@
 - user_can_modify_package = User.possibly_nobody.can_modify?(package) && package.scmsync.blank?
 - nobody = !User.session
+- check_upgrade = package.check_upgrade
 
 .card-body
   - if files.present?
@@ -39,6 +40,18 @@
   - elsif srcmd5
     %h5
       Source MD5 is #{srcmd5} (latest revision is #{current_rev})
+- if check_upgrade
+  %h5.card-header.border-top Check Upgrade 
+  .card-body
+    - if check_upgrade.state != 'error'
+      %h6
+        = check_upgrade.output
+    - else
+      %h6.text-danger
+        = "An error has occurred"
+    %h6.text-black-50
+      Last check updated at 
+      = check_upgrade.updated_at.strftime("%d %b %Y %H:%M:%S")
 
 - content_for :ready_function do
   initializeDataTable('#files-table');

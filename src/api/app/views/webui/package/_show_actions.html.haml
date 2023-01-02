@@ -19,6 +19,9 @@
 
       - if services.present?
         = render partial: 'webui/package/show_actions/trigger_services', locals: { package: package, project: project }
+
+      = render partial: 'webui/package/show_actions/check_upgrade', locals: { package: package, project: project }
+
     - else
       = render partial: 'webui/package/show_actions/request_role_addition', locals: { package: package, project: project }
       = render partial: 'webui/package/show_actions/request_deletion', locals: { package: package, project: project }

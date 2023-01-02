@@ -6878,6 +6878,27 @@ sub orderkiwirepos {
   return ($kiwi, $BSKiwiXML::kiwidesc);
 }
 
+sub checkupgraderun {
+  my ($params) = @_; 
+  my $user = $params->{"user"};
+  return 'User is not defined!' if !$user;
+  my $cmd = '/usr/lib/obs/service/check_upgrade';
+  return '/usr/lib/obs/service/check_upgrade command not found!' if ! -e $cmd;
+  return '/usr/lib/obs/service/check_upgrade is not executable!' if ! -x $cmd;
+  my $urlsrc = $params->{"urlsrc"};
+  my $regexurl = $params->{"regexurl"};
+  my $regexver = $params->{"regexver"};
+  my $currentver = $params->{"currentver"};
+  my $separator = $params->{"separator"};
+  $separator = '.' if !$separator;
+  my $debug = $params->{"debug"};
+  $debug = 'false' if !$debug;
+  $cmd = "${cmd} --urlsrc='${urlsrc}' --regexurl='${regexurl}' --regexver='${regexver}'";
+  $cmd = "${cmd} --currentver='${currentver}' --separator='${separator}' --debug='${debug}'";
+  my $ret = `$cmd`;
+  return $ret;
+}
+
 ####################################################################
 
 sub add_redis_notifications {
@@ -7553,6 +7574,7 @@ my $dispatches = [
   'POST:/source cmd=orderkiwirepos' => \&orderkiwirepos,
   'POST:/source cmd=triggerscmsync scmrepository:? scmbranch:? isdefaultbranch:?' => \&triggerscmsync,
   'POST:/source cmd: *:*' => \&unknowncmd,
+  'POST:/source/checkupgrade cmd=checkupgrade user:? urlsrc:? regexurl:? regexver:? currentver:? separator:? debug:?' => \&checkupgraderun,
 
   # /source name space: manage project and package data
   '/source deleted:bool? project*' => \&getprojectlist,

@@ -1,0 +1,51 @@
+var decodeHTML = function (html) {
+	var txt = document.createElement('textarea');
+	txt.innerHTML = html;
+	return txt.value;
+};
+
+<% if flash[:success] %>
+	//This message will be displayed in the "package show" after redirect
+	window.location.href = "/package/show/<%= @project %>/<%= @package%>";
+<% end %>
+
+//Only show error message
+<% if flash[:error] %>
+	//Render flash messages
+	$("#flash").html("<%= j render partial: 'layouts/webui/flash.html.haml' %>");
+<% end %>
+
+//Hide the message when it comes back
+var message = document.querySelector("#message");
+message.style.display = "none";
+
+//Set the output when it comes back
+var output = document.querySelector("#output");
+output.value = decodeHTML("<%= @packageCheckUpgrade.output %>");
+
+//Set the state when it comes back
+var state = document.querySelector("#state");
+state.value = ''
+state.value = "<%= @packageCheckUpgrade.state %>";
+
+//Buttons rendering management
+var createDiv = document.querySelector("#createDiv");
+var modifyDiv = document.querySelector("#modifyDiv");
+var deleteDiv = document.querySelector("#deleteDiv");
+var id = document.querySelector("#id").value;
+if (state.value == '' || state.value == "<%= PackageCheckUpgrade::STATE_ERROR %>") {
+	if (createDiv)
+		createDiv.style.display = "none";
+	if (modifyDiv)
+		modifyDiv.style.display = "none";
+	if (deleteDiv)
+		deleteDiv.style.display = "block";
+}
+else {
+	if (id == '') 
+		createDiv.style.display = "block";
+	else {
+		modifyDiv.style.display = "block";
+		deleteDiv.style.display = "none";
+	}
+}

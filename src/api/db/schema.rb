@@ -697,6 +697,22 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_234231) do
     t.index ["notification_id"], name: "index_notified_projects_on_notification_id"
   end
 
+  create_table "package_check_upgrades", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "package_id"
+    t.string "urlsrc"
+    t.string "regexurl"
+    t.string "regexver"
+    t.string "currentver"
+    t.string "separator"
+    t.text "output"
+    t.column "state", "enum('uptodate','error','upgrade')", null: false
+    t.boolean "send_email", default: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "user_email"
+    t.index ["package_id"], name: "index_package_check_upgrades_on_package_id"
+  end
+
   create_table "package_issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id", null: false
     t.integer "issue_id", null: false

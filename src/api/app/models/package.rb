@@ -64,6 +64,7 @@ class Package < ApplicationRecord
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
+  before_destroy :remove_check_upgrade
 
   after_destroy :delete_from_sphinx
   after_save :write_to_backend
@@ -471,6 +472,10 @@ class Package < ApplicationRecord
 
   def is_of_kind?(kind)
     package_kinds.exists?(kind: kind)
+  end
+
+  def check_upgrade
+    return PackageCheckUpgrade.find_by(package_id: id)
   end
 
   def ignored_requests
@@ -1117,6 +1122,10 @@ class Package < ApplicationRecord
       devel_package.store
       devel_package.reset_cache
     end
+  end
+
+  def remove_check_upgrade
+    PackageCheckUpgrade.find_by(package_id: id).delete
   end
 
   def close_requests

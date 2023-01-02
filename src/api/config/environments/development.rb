@@ -27,9 +27,18 @@ OBSApi::Application.configure do
   end
 
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
-  config.action_mailer.delivery_method = :test
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_caching = false
+  config.action_mailer.smtp_settings = {
+  address:              "smtp.gmail.com",
+  port:                 587,
+  domain:               "gmail.com",
+  user_name:            "pandom79",
+  password:             "*********",
+  authentication:       "plain",
+  enable_starttls_auto: true }
 
   # Show full error reports and enable caching
   config.consider_all_requests_local = true
