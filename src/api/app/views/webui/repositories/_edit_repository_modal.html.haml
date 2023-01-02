@@ -1,7 +1,7 @@
 .modal.fade{ id: "edit-repository-#{repository.id}", tabindex: -1, role: 'dialog', aria: { labelledby: "edit-#{repository.id}", hidden: 'true' } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
-      = form_tag({ action: :update }, id: "update_target_form-#{valid_xml_id(repository)}") do
+      = form_tag({ action: :update }, id: "update_target_form-#{valid_xml_id(repository.to_s)}") do
         .modal-header
           %h5.modal-title{ id: "edit-#{repository.id}" } Edit #{repository}
         .modal-body
