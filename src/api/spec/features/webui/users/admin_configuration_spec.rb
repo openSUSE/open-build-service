@@ -26,9 +26,9 @@ RSpec.describe 'Admin user configuration page', js: true do
     within(find('td', text: /#{user.realname}/).ancestor('tr')) do
       expect(page).to have_css('td', text: 'confirmed')
       page.find('a[title="Delete User"]').click
-      # Accept the confirmation dialog
-      click_button('Delete')
     end
+    # Accept the confirmation dialog
+    click_button('Delete')
     expect(page).to have_css('td', text: 'deleted')
   end
 
