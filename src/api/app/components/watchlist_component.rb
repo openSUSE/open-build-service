@@ -15,6 +15,9 @@ class WatchlistComponent < ApplicationComponent
 
   private
 
+  # Some of the current_objects are not even accesible as they are remote or a multibuild flavor of a package.
+  # This methods return the item which is really accesible.
+  # If this returns nil, we won't offer the link to add/remove from watchlst.
   def object_to_be_watched(bs_request, package, project)
     return bs_request if bs_request
 
@@ -24,7 +27,7 @@ class WatchlistComponent < ApplicationComponent
     # there is no package, offer watching the project
     return project unless package
 
-    # maybe package is a multibuild flavor? Try do look up the object of the flavor.
+    # maybe package is a multibuild flavor? Try to look up the object of the flavor.
     package = Package.get_by_project_and_name(project, package, { follow_multibuild: true }) if package.is_a?(String)
 
     # the package is coming via a project link, don't offer watching it.

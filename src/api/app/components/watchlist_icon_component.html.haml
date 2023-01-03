@@ -1,0 +1,16 @@
+- if object_to_be_watched_in_watchlist?
+  = link_to('#', class: 'nav-link d-inline p-1 btn btn-outline-secondary',
+            title: "Remove #{watchable_type_text} from watchlist",
+            data: { toggle: 'modal',
+                    target: '#delete-item-from-watchlist-modal',
+                    modal_title: "Do you want to remove this #{watchable_type_text} from the watchlist?",
+                    confirmation_text: "Please confirm you want to remove this #{watchable_type_text} from the watchlist.",
+                    action: toggle_watchable_path }) do
+    %i.fas.fa-eye.text-secondary
+    Unwatch
+- else
+  = link_to(toggle_watchable_path, method: :put, remote: true,
+            class: 'nav-link d-inline p-1 btn btn-outline-secondary',
+            title: "Add #{watchable_type_text} to watchlist") do
+    %i.far.fa-eye.text-secondary
+    Watch

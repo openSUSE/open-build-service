@@ -7,7 +7,7 @@
       - if User.session
         .toggler.text-center.justify-content-center
           = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
-            %i.fas.fa-bookmark
+            %i.far.fa-eye
             %span.d-block Watchlist
         .toggler.text-center.justify-content-center
           = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
