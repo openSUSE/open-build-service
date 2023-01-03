@@ -5,6 +5,8 @@ module HistoryElement
     end
 
     def user_action
+      return 'added a reviewer' unless review
+
       "#{user_action_prefix} #{action_target} #{user_action_suffix}"
     end
 
@@ -20,8 +22,10 @@ module HistoryElement
       'as a reviewer'
     end
 
-    # self.description_extension is review id
+    # self.description_extension is review id, but it's not present in old history elements
     def review
+      return if description_extension.blank?
+
       ::Review.find(description_extension)
     end
   end

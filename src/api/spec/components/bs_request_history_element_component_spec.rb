@@ -14,7 +14,6 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
   context 'when the element provided is not a history element' do
     it_behaves_like 'raising an exception warning the user to provide an history element'
   end
-  # rubocop:enable RSpec/RepeatedExampleGroupBody
 
   context 'when the element provided is a history element superseded' do
     it 'renders the element telling this request was superseded'
@@ -25,4 +24,17 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
     it 'renders the element action'
     it 'renders the element comment'
   end
+
+  context 'when the element provided is a history element about review added' do
+    context 'and review is known' do
+      it 'renders the element action'
+      it 'renders the element comment'
+    end
+
+    context 'and review is unknown' do
+      it 'renders the element action'
+      it 'renders the element comment'
+    end
+  end
+  # rubocop:enable RSpec/RepeatedExampleGroupBody
 end
