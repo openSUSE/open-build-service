@@ -60,7 +60,7 @@ class Webui::MonitorController < Webui::WebuiController
 
     comb = status_history("squeue_next_#{arch}", range).collect do |time, value|
       clow = low[time] || 0
-      [1000 * time, clow + value]
+      [time * 1000, clow + value]
     end
 
     data['squeue_low'] = comb

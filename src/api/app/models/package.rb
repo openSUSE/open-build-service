@@ -1403,7 +1403,7 @@ class Package < ApplicationRecord
   # is called before_update
   def update_activity
     # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86_400
+    addon = (Time.now.to_f - updated_at_was.to_f) * 10 / 86_400
     addon = 10 if addon > 10
     new_activity = activity + addon
     new_activity > 100 ? 100 : new_activity

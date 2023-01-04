@@ -34,7 +34,7 @@ module MonitorControllerService
       delta = (Time.now - Time.at(starttime)).round
       delta = 5 if delta < 5
       delta = max_time if delta > max_time
-      delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
+      delta = (Math.sin(Math.acos(1 - (Float(delta) / max_time))) * 100).round
       delta = 100 if delta > 100
       delta
     end
