@@ -24,6 +24,11 @@
 
 .font-monospace { @extend .text-monospace; }
 
+.text-start { @extend .text-left; }
+.test-end { @extend .text-right; }
+
+.rounded-end { @extend .rounded-right; }
+
 .btn-close {
   @extend .fas;
   @extend .fa-xmark;
