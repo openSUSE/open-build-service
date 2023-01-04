@@ -1,3 +1,20 @@
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+    @each $prop, $abbrev in (margin: m, padding: p) {
+      @each $size, $length in $spacers {
+        .#{$abbrev}e#{$infix}-#{$size} {
+          #{$prop}-right: $length !important;
+        }
+        .#{$abbrev}s#{$infix}-#{$size} {
+          #{$prop}-left: $length !important;
+        }
+      }
+    }
+  }
+}
+
 .badge {
   @each $color, $value in $theme-colors {
     &.bg-#{$color} {
