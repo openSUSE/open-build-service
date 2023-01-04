@@ -3,3 +3,7 @@
 }
 
 .table-light { @extend .thead-light; }
+
+.float-start { @extend .float-left; }
+.float-end { @extend .float-right; }
+.float-sm-end { @extend .float-sm-left; }

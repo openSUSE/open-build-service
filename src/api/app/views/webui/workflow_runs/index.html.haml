@@ -6,7 +6,7 @@
       %strong.d-block.d-md-none.p-3{ data: { toggle: 'collapse', target: '#filters' },
                                   aria: { expanded: true, controls: 'filters' } }
         Filtered by: #{params[:status]&.humanize}
-        %i.float-right.mt-1.fa.fa-chevron-down#workflow-runs-dropdown-trigger
+        %i.float-end.mt-1.fa.fa-chevron-down#workflow-runs-dropdown-trigger
       .card-body.collapse#filters
         = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter, finder: @workflow_runs_finder)
   .col-md-8.col-lg-9.px-0.px-md-3#workflow-run-list

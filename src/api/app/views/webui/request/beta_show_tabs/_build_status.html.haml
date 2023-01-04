@@ -10,7 +10,7 @@
     = package
   - if results.present?
     - results.group_by(&:repository).each_pair do |repository, results_per_repository|
-      .float-left.mb-4
+      .float-start.mb-4
         %div
           = link_to(word_break(repository, 22),
             package_binaries_path(project: project, package: package, repository: repository),

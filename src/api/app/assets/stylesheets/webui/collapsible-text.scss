@@ -16,7 +16,7 @@
     .show-content {
       text-decoration: none;
       @extend .small;
-      @extend .float-right;
+      @extend .float-end;
       @extend .mt-2;
 
       &.more{

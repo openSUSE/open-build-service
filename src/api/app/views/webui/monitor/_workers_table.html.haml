@@ -1,4 +1,4 @@
-%form.form-inline.float-sm-right{ action: '/' }
+%form.form-inline.float-sm-end{ action: '/' }
   %label.mr-2 Show:
   - worker_display_options = [['Package name', 'package'], ['Project', 'project'], ['Repository', 'repository'], ['Architecture', 'arch']]
   = select_tag(:worker_display, options_for_select(worker_display_options, 'package'), id: 'worker-display', class: 'custom-select')
@@ -24,7 +24,7 @@
   .d-flex.flex-wrap
     - workers_sorted.each do |name, hash|
       %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
-        %li.builderbox.float-left
+        %li.builderbox.float-start
           %span.font-weight-bold #{name} (#{hash['_arch']})
           - hash.each do |subid, id|
             - if subid != '_arch'
