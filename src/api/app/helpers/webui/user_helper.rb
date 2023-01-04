@@ -25,8 +25,7 @@ module Webui::UserHelper
         mail_to(user.email) do
           tag.i(nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
         end,
-        render(partial: 'webui/users/delete_dialog', formats: [:html], locals: { user: user }),
-        link_to('#', data: { toggle: 'modal', target: "#delete-user-modal-#{user}" }, title: 'Delete User') do
+        link_to('#', title: 'Delete User', data: { toggle: 'modal', target: '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
           tag.i(nil, class: 'fas fa-times-circle text-danger pr-1')
         end
       ]

@@ -1,4 +1,4 @@
-.modal.fade{ id: "delete-user-modal-#{user}", tabindex: -1, role: 'dialog',
+.modal.fade{ id: 'delete-user-modal', tabindex: -1, role: 'dialog',
              aria: { labelledby: 'delete-user-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
@@ -6,9 +6,12 @@
         %h5.modal-title
           Delete User?
       .modal-body
-        %p Please confirm deletion of '#{user}'
+        %p
+          Please confirm deletion of '
+          %span.user-login>
+          '
 
-        = form_tag(user_path(user.login), method: :delete, class: 'delete-user-form') do
+        = form_tag nil, method: :delete do
           .modal-footer
             %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
               Cancel
