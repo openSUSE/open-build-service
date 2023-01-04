@@ -25,3 +25,4 @@
                 - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
                 = f.select(:communication_scope, options_for_select(options), {}, class: 'custom-select')
               = f.submit 'Create', class: 'btn btn-primary'
+              = link_to('Back', request.referer.presence || status_messages_path, class: 'btn btn-outline-secondary', role: 'button')

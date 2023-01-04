@@ -15,7 +15,7 @@ RSpec.describe Webui::StatusMessagesController do
       login(admin_user)
 
       post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(status_messages_path)
       message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
       expect(message).to exist
     end
@@ -26,13 +26,13 @@ RSpec.describe Webui::StatusMessagesController do
       expect do
         post :create, params: { status_message: { message: 'Some message' } }
       end.not_to change(StatusMessage, :count)
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(status_messages_path)
       expect(flash[:error]).to eq("Could not create status message: Severity can't be blank")
 
       expect do
         post :create, params: { status_message: { severity: 'green' } }
       end.not_to change(StatusMessage, :count)
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(status_messages_path)
       expect(flash[:error]).to eq("Could not create status message: Message can't be blank")
     end
 
@@ -43,8 +43,9 @@ RSpec.describe Webui::StatusMessagesController do
         post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
       end
 
-      it 'does not create a status message' do
+      it 'is not authorized to create a status message' do
         expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq('Sorry, you are not authorized to create this status message.')
         message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
         expect(message).not_to exist
       end
@@ -91,7 +92,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       subject { delete :destroy, params: { id: message.id } }
 
-      it { is_expected.to redirect_to(root_path) }
+      it { is_expected.to redirect_to(status_messages_path) }
       it { expect { subject }.to change(StatusMessage, :count).by(-1) }
     end
 
@@ -102,7 +103,11 @@ RSpec.describe Webui::StatusMessagesController do
 
       subject { delete :destroy, params: { id: message.id } }
 
-      it { is_expected.to redirect_to(root_path) }
+      it 'is not authorized to delete a status message' do
+        expect(subject).to redirect_to(root_path)
+        expect(flash[:error]).to eq('Sorry, you are not authorized to delete this status message.')
+      end
+
       it { expect { subject }.not_to(change(StatusMessage, :count)) }
     end
   end

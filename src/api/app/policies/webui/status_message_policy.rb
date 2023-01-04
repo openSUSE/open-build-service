@@ -7,6 +7,10 @@ class Webui::StatusMessagePolicy < ApplicationPolicy
     user.is_admin? || user.is_staff?
   end
 
+  def index?
+    create?
+  end
+
   def new?
     create?
   end

@@ -8,7 +8,7 @@ OBSApi::Application.routes.draw do
       mount Flipper::UI.app(Flipper) => '/flipper'
     end
 
-    resources :status_messages, only: [:new, :create, :edit, :update, :destroy], controller: 'webui/status_messages' do
+    resources :status_messages, only: [:index, :new, :create, :edit, :update, :destroy], controller: 'webui/status_messages' do
       collection do
         post 'preview'
       end
