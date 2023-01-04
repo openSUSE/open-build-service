@@ -273,7 +273,7 @@ OBSApi::Application.routes.draw do
         resources :submissions, controller: 'webui/requests/submissions', only: [:new, :create], constraints: cons
         resource :files, controller: 'webui/packages/files', only: [:new, :create, :update], constraints: cons
         put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
-        resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: ->(request) { request.format == :svg }
+        resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
