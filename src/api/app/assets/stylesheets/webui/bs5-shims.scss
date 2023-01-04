@@ -1,3 +1,5 @@
 .visually-hidden {
   @extend .sr-only;
 }
+
+.table-light { @extend .thead-light; }
