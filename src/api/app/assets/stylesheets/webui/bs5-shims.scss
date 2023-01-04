@@ -21,3 +21,8 @@
 .fw-light { @extend .font-weight-light; }
 
 .font-monospace { @extend .text-monospace; }
+
+.btn-close {
+  @extend .fas;
+  @extend .fa-xmark;
+}
