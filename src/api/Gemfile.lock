@@ -462,7 +462,7 @@ GEM
       execjs (>= 0.3.0, < 3)
     test-unit (3.5.5)
       power_assert
-    thinking-sphinx (5.4.0)
+    thinking-sphinx (5.5.1)
       activerecord (>= 4.2.0)
       builder (>= 2.1.2)
       innertube (>= 1.0.2)
