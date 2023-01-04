@@ -1,3 +1,11 @@
+.badge {
+  @each $color, $value in $theme-colors {
+    .bg-#{$color} {
+      @include badge-variant($value);
+    }
+  }
+}
+
 .visually-hidden {
   @extend .sr-only;
 }
