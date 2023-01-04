@@ -24,7 +24,7 @@
 
       -# TODO: Provide a comments field through a callback
       = render(partial: 'webui/shared/editor', locals: { text: @file, mode: guess_code_class(@filename),
-        save: { url: project_package_files_path(@project, @package), method: :post,
+        save: { url: project_package_files_path(@project, @package), method: :put,
         data: { project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev } } })
     - else
       = render(partial: 'webui/shared/editor', locals: { text: @file, mode: guess_code_class(@filename), style: { read_only: true } })

@@ -118,4 +118,56 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
       include_examples 'tests for create action'
     end
   end
+
+  describe 'POST #update' do
+    before do
+      login(user)
+    end
+
+    context 'as ajax request' do
+      def do_request(params)
+        post :update, xhr: true, params: params
+      end
+
+      let(:existing_file) do
+        post :create, xhr: true, project_name: source_project,
+                      package_name: source_package,
+                      files: [fixture_file_upload('newly_created_file')]
+      end
+
+      context 'modifies an existing file' do
+        before do
+          do_request(project_name: source_project,
+                     package_name: source_package,
+                     filename: 'newly_created_file')
+        end
+
+        it { expect(response).to have_http_status(:ok) }
+        it { expect(flash[:success]).to eq("'newly_created_file' has been successfully saved.") }
+        it { expect(source_package.source_file('newly_created_file')).to eq('') }
+      end
+    end
+
+    context 'as non-ajax request' do
+      def do_request(params)
+        post :update, params: params
+      end
+
+      let(:existing_file) do
+        post :create, xhr: true, project_name: source_project,
+                      package_name: source_package,
+                      files: [fixture_file_upload('newly_created_file')]
+      end
+
+      context 'modifies an existing file' do
+        it {
+          expect do
+            do_request(project_name: source_project,
+                       package_name: source_package,
+                       filename: 'newly_created_file')
+          end.to raise_error(Pundit::AuthorizationNotPerformedError)
+        }
+      end
+    end
+  end
 end
