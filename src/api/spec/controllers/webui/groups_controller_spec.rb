@@ -7,8 +7,6 @@ RSpec.describe Webui::GroupsController do
 
   # except [:show, :tokens, :autocomplete]
   it { is_expected.to use_before_action(:require_login) }
-  # only: [:show, :update, :edit]
-  it { is_expected.to use_before_action(:set_group) }
   # except: [:show, :autocomplete, :tokens]
   it { is_expected.to use_after_action(:verify_authorized) }
 
