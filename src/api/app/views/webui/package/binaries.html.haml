@@ -29,7 +29,7 @@
         = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
         = result[:arch]
       - if result[:binaries].empty?
-        %p.pl-2
+        %p.ps-2
           %i No built binaries
       - else
         .table-responsive

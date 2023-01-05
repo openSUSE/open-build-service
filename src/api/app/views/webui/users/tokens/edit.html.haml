@@ -35,7 +35,7 @@
                   = link_to("#{@token.package.project.name}/#{@token.package.name}",
                     package_show_path(project: @token.package.project, package: @token.package))
               .mb-3#regenerate-token-group
-                = link_to('Regenerate Token', '#', title: 'Regenerate Token', class: 'btn btn-outline-danger float-end ml-3 px-4',
+                = link_to('Regenerate Token', '#', title: 'Regenerate Token', class: 'btn btn-outline-danger float-end ms-3 px-4',
                   data: { toggle: 'modal', target: '#regenerate-token-modal' })
                 If your token has been lost, forgotten or compromised, you can regenerate it.
                 Don't forget to replace the string in any scripts or applications using this token.
@@ -62,7 +62,7 @@
                   .form-text.text-muted
                     When the URL is given, the path will be ignored. The URL should be accessible for the OBS instance.
           .actions
-            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
+            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
             = f.submit('Update', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
 
 .modal.fade#regenerate-token-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'regenerate-token-modal-label', hidden: true } }

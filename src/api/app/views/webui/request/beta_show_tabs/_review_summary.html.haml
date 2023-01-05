@@ -1,15 +1,15 @@
 .d-flex.flex-row.pt-1
-  .pl-3
+  .ps-3
     - if review.accepted?
-      %i.fas.fa-sm.fa-check.text-primary.align-middle.pr-1
+      %i.fas.fa-sm.fa-check.text-primary.align-middle.pe-1
     - if review.declined?
-      %i.fas.fa-times.text-danger.align-middle.pr-2
+      %i.fas.fa-times.text-danger.align-middle.pe-2
     - if review.new?
-      %i.fas.fa-2xs.fa-circle.text-warning.align-middle.pr-2
+      %i.fas.fa-2xs.fa-circle.text-warning.align-middle.pe-2
 
   = render BsRequestOverviewAvatarsComponent.new(review)
 
-  .pl-1
+  .ps-1
     - if review.for_user?
       = user_with_realname_and_icon(review.by_user, short: true, no_icon: true)
     - elsif review.for_group?

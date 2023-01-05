@@ -23,7 +23,7 @@
                         - first_template ||= template
                         .d-flex
                           = image_template_icon(template)
-                          .pl-3
+                          .ps-3
                             = link_to_if(!remote, title_or_name(template), package_show_path(project: project, package: template))
                             %small.description.text-muted.d-block= template.description
           - if project.packages.empty?

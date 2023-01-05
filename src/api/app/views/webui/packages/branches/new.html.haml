@@ -22,7 +22,7 @@
             = form_tag(packages_branches_path) do
               %details
                 %summary More options
-                .pt-2.pl-2
+                .pt-2.ps-2
                   = hidden_field_tag :linked_project, @project.name
                   = hidden_field_tag :linked_package, @package.name
                   = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: true,

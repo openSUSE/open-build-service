@@ -2,7 +2,7 @@
 
 .card
   .card-body#loginform
-    .col-lg-6.pl-0
+    .col-lg-6.ps-0
       - if kerberos_mode?
         %h3 Kerberos authentication required
         %p You are seeing this page, because you are not authenticated in the kerberos realm ('#{CONFIG['kerberos_realm']}').

@@ -28,15 +28,15 @@
     .card-title.p-4.mb-0
       %h3
         Request #{@bs_request.number}
-        %span.badge.ml-1{ class: "bg-#{request_badge_color(@bs_request.state)}" }
+        %span.badge.ms-1{ class: "bg-#{request_badge_color(@bs_request.state)}" }
           = @bs_request.state
           - if @bs_request.superseded_by.present?
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
         - if @bs_request.accept_at.present?
-          %span.badge.alert-warning.ml-1 auto-accept
+          %span.badge.alert-warning.ms-1 auto-accept
         - if User.session
-          .d-inline.align-bottom.ml-2#watchlist-icon-wrapper
+          .d-inline.align-bottom.ms-2#watchlist-icon-wrapper
             = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
 
       %p.font-italic

@@ -18,7 +18,7 @@
     .card
       .card-body
         .text-center
-          %span.ml-3= page_entries_info notifications, entry_name: ''
+          %span.ms-3= page_entries_info notifications, entry_name: ''
           = link_to_show_less_or_more unless notifications.total_pages == 1 && params[:show_more].nil?
         .list-group.list-group-flush.mt-3
           = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter)

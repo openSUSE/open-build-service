@@ -9,9 +9,9 @@
     %p
       Toggle the availability of architectures.
     .mb-3
-      = button_tag('All', type: 'submit', class: 'btn btn-outline-primary filter-button mr-1', value: true,
+      = button_tag('All', type: 'submit', class: 'btn btn-outline-primary filter-button me-1', value: true,
         data: { remote: true, url: bulk_update_availability_path(archs: { all: true }), method: :patch })
-      = button_tag('None', type: 'submit', class: 'btn btn-outline-primary filter-button mr-1', value: false,
+      = button_tag('None', type: 'submit', class: 'btn btn-outline-primary filter-button me-1', value: false,
         data: { remote: true, url: bulk_update_availability_path(archs: { all: false }), method: :patch })
       %i.fas.fa-spinner.invisible
     .mb-3.d-flex.flex-wrap
@@ -20,7 +20,7 @@
           = check_box_tag('available', true, arch.available, class: 'form-check-input', id: "arch-#{arch}",
             onchange: "this.setAttribute('data-params', this.name + '=' + this.checked)",
             data: { remote: true, url: architecture_path(arch), method: :patch })
-          %label.form-check-label.pr-2{ for: "arch-#{arch}" }
+          %label.form-check-label.pe-2{ for: "arch-#{arch}" }
             = arch.name
           %i.fas.fa-spinner.invisible
 

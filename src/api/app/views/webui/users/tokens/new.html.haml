@@ -11,7 +11,7 @@
           .row
             .col
               .mb-3
-                = f.label(:type, 'Type:', class: 'col-form-label mr-2')
+                = f.label(:type, 'Type:', class: 'col-form-label me-2')
                 .w-100.d-sm-none
                 = f.collection_radio_buttons(:type, type_options, :to_s, :to_s,
                                              checked: 'service', class: 'custom-control-input', include_hidden: false, required: true) do |radio|
@@ -59,7 +59,7 @@
                 .form-text.text-muted
                   When the URL is given, the path will be ignored. The URL should be accessible for the OBS instance.
           .actions
-            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
+            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
             = f.submit('Create', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
 
 - content_for :ready_function do

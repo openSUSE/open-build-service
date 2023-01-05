@@ -1,6 +1,6 @@
 .list-group-item.px-0.px-md-1.py-3
   .row
-    .col-auto.pr-0
+    .col-auto.pe-0
       .form-check
         = check_box_tag('notification_ids[]', @notification.id, false,
                         id: "notification_ids_#{@notification.id}", class: 'form-check-input')
@@ -12,14 +12,14 @@
           = render NotificationNotifiableLinkComponent.new(@notification)
           %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
           - if @notification.notifiable_type == 'BsRequest'
-            = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ml-1')
-        .col-auto.actions.ml-auto.align-self-end.align-self-md-start
+            = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ms-1')
+        .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, params[:page], params[:show_more])
-      .row.mt-1.pl-sm-4
-        .col-auto.pr-0
+      .row.mt-1.ps-sm-4
+        .col-auto.pe-0
           = render NotificationAvatarsComponent.new(@notification)
-        .col-auto.pl-xs-2
+        .col-auto.ps-xs-2
           = render NotificationActionDescriptionComponent.new(@notification)
-      .row.d-none.d-md-block.pl-4
+      .row.d-none.d-md-block.ps-4
         .col
           = render NotificationExcerptComponent.new(@notification)

@@ -42,7 +42,7 @@
 
 #involvement-description {
   @include collapsible($maxHeight: 2.75em, $maxWidth: 'none');
-  .obs-collapsible-textbox {  @extend .pr-0; }
+  .obs-collapsible-textbox {  @extend .pe-0; }
 }
 
 .list-group-item {
@@ -57,5 +57,5 @@
 // TODO: Remove this when the request_show_redesign is removed
 #issue-summary {
   @include collapsible($maxHeight: 1.5em);
-  .obs-collapsible-textbox {  @extend .pr-0; }
+  .obs-collapsible-textbox {  @extend .pe-0; }
 }

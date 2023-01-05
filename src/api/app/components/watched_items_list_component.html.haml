@@ -6,11 +6,11 @@
         - name = "#{item.project}/#{item}"
         .d-flex.flex-row.flex-wrap.align-items-baseline
           = link_to(package_show_path(item.project, item), class: 'd-flex flex-row flex-wrap align-items-baseline') do
-            %i.fas.fa-archive.mr-1
+            %i.fas.fa-archive.me-1
             - name.split(%r{(/)}).each_slice(2).map(&:join).map(&:strip).each do |slice|
               %span.d-inline
                 = slice
-          = link_to('#', class: 'text-light ml-auto',
+          = link_to('#', class: 'text-light ms-auto',
                     data: { toggle: 'modal',
                             target: '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this package from the watchlist?',
@@ -23,11 +23,11 @@
         - name = item.name
         .d-flex.flex-row.flex-wrap.align-items-baseline
           = link_to(project_show_path(item), class: 'd-flex flex-row flex-wrap align-items-baseline') do
-            %i.fas.fa-cubes.mr-1
+            %i.fas.fa-cubes.me-1
             - name.split(/(:)/).each_slice(2).map(&:join).map(&:strip).each do |slice|
               %span.d-inline
                 = slice
-          = link_to('#', class: 'text-light ml-auto',
+          = link_to('#', class: 'text-light ms-auto',
                     data: { toggle: 'modal',
                             target: '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this project from the watchlist?',
@@ -38,10 +38,10 @@
         - name = "##{item.number} #{helpers.request_type_of_action(item)}"
         .d-flex.flex-row.flex-wrap.align-items-baseline.collapsible-tooltip-parent
           = link_to(request_show_path(item.number), class: 'text-word-break-all') do
-            %i.fas.fa-code-pull-request.mr-1
+            %i.fas.fa-code-pull-request.me-1
             = name
           %i.fa.fa-question-circle.text-light.px-2.collapsible-tooltip{ title: 'Click to keep it open' }
-          = link_to('#', class: 'text-light ml-auto',
+          = link_to('#', class: 'text-light ms-auto',
                     data: { toggle: 'modal',
                             target: '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this request from the watchlist?',
@@ -51,7 +51,7 @@
         .extended-info.mt-2.mb-3.collapsed
           .triangle.left
           .extended-info-content
-            = render BsRequestStateBadgeComponent.new(bs_request: item, css_class: 'mt-2 ml-2')
+            = render BsRequestStateBadgeComponent.new(bs_request: item, css_class: 'mt-2 ms-2')
             %p.px-2.pt-2= render(BsRequestActionSourceAndTargetComponent.new(item))
 - else
   %p.text-muted= empty_list_text

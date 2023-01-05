@@ -23,7 +23,7 @@
             %span.caret
             Projects / Packages
             - if projects_packages_selected.positive?
-              %span.badge.bg-secondary.ml-2= projects_packages_selected
+              %span.badge.bg-secondary.ms-2= projects_packages_selected
           .dropdown-menu.keep-open
             - projects_packages.each do |project_or_package|
               - involved_html_id = "involved_#{project_or_package}"
@@ -37,7 +37,7 @@
             %span.caret
             Role
             - if roles_selected.positive?
-              %span.badge.bg-secondary.ml-2= roles_selected
+              %span.badge.bg-secondary.ms-2= roles_selected
           .dropdown-menu.keep-open
             - if owner_root_project_exists
               .dropdown-item
@@ -71,9 +71,9 @@
                   - if involved_item.is_a?(Package)
                     = link_to(involved_item.project, project_show_path(involved_item.project))
                     \/
-                    = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pr-2')
+                    = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pe-2')
                   - else
-                    = link_to(involved_item, project_show_path(involved_item), class: 'pr-2')
+                    = link_to(involved_item, project_show_path(involved_item), class: 'pe-2')
                 - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
                   %span.badge.bg-info Owner
                 - roles.each do |role|
