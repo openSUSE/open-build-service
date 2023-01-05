@@ -1406,7 +1406,7 @@ class Package < ApplicationRecord
     addon = (Time.now.to_f - updated_at_was.to_f) * 10 / 86_400
     addon = 10 if addon > 10
     new_activity = activity + addon
-    new_activity > 100 ? 100 : new_activity
+    [new_activity, 100].min
 
     self.activity_index = new_activity
   end
