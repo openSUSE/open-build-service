@@ -48,7 +48,8 @@ module Webui
       end
 
       def destroy
-        authorize @group, :update?
+        groups_user = GroupsUser.find_by(group: @group, user: @user)
+        authorize groups_user, :destroy?
 
         if @group.remove_user(@user)
           flash[:success] = "Removed user '#{@user}' from group '#{@group}'"

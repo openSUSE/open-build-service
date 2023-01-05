@@ -1,6 +1,5 @@
 class Webui::GroupsController < Webui::WebuiController
   before_action :require_login, except: [:show, :autocomplete]
-  before_action :set_group, only: :show
   after_action :verify_authorized, except: [:show, :autocomplete]
 
   def index
@@ -8,7 +7,15 @@ class Webui::GroupsController < Webui::WebuiController
     @groups = Group.all.includes(:users)
   end
 
-  def show; end
+  def show
+    @group = Group.includes(:users).find_by_title(params[:title])
+
+    # Group.find_by_title! is self implemented and would raise an 500 error
+    return if @group
+
+    flash[:error] = "Group '#{params[:title]}' does not exist"
+    redirect_back(fallback_location: { controller: 'main', action: 'index' })
+  end
 
   def new
     authorize Group.new, :create?
@@ -35,15 +42,5 @@ class Webui::GroupsController < Webui::WebuiController
 
   def group_params
     params.require(:group).permit(:title, :members)
-  end
-
-  def set_group
-    @group = Group.find_by_title(params[:title])
-
-    # Group.find_by_title! is self implemented and would raise an 500 error
-    return if @group
-
-    flash[:error] = "Group '#{params[:title]}' does not exist"
-    redirect_back(fallback_location: { controller: 'main', action: 'index' })
   end
 end
