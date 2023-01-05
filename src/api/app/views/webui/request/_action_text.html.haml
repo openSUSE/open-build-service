@@ -1,28 +1,28 @@
 - details = action.commit_details
 - if details
   - if details.key?('comment')
-    %p.mt-0.mb-0.font-weight-normal
+    %p.mt-0.mb-0.fw-normal
       = details['comment'].truncate(50)
-    %p.mb-0.mt-0.text-muted.font-weight-light.small
+    %p.mb-0.mt-0.text-muted.fw-light.small
       = action.name
   - else
-    %p.mt-0.mb-0.font-weight-normal
+    %p.mt-0.mb-0.fw-normal
       = action.name
   %span.float-end.ml-5
     = details['rev']
 - else
-  %p.mt-0.mb-0.font-weight-normal
+  %p.mt-0.mb-0.fw-normal
     = action.name
 -# add_role, delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
 - unless %w[add_role delete set_bugowner].include?(action.type)
-  %p.mb-0.mt-0.text-muted.font-weight-light.small
+  %p.mb-0.mt-0.text-muted.fw-light.small
     from
     = action.source_project
     - if action.source_package
       \/
       = action.source_package
 - if details
-  %p.mb-0.mt-0.text-muted.font-weight-light.small
+  %p.mb-0.mt-0.text-muted.fw-light.small
     by
     = details['user']
     #{ApplicationController.helpers.time_ago_in_words(details['time'].to_i)} ago

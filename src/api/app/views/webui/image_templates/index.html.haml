@@ -9,7 +9,7 @@
       - @projects.each do |project|
         - remote = Project.is_remote_project?(project.name)
         .row
-          .col-12.font-weight-bold
+          .col-12.fw-bold
             = link_to_if(!remote, title_or_name(project), project_show_path(project))
           .col-12
             .row

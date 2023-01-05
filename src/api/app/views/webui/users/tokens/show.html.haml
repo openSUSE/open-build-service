@@ -9,11 +9,11 @@
     .row
       .col-12.col-md-10.col-lg-8
         - if session[:show_token]
-          %p.font-weight-bold Your new OBS Personal Access Token
+          %p.fw-bold Your new OBS Personal Access Token
 
         .form-row
           .col-sm
-            %label.font-weight-bold
+            %label.fw-bold
               Id:
             %span
               = @token.id
@@ -23,7 +23,7 @@
           .form-row
             .col-12.col-md-10.col-lg-9
               %fieldset.form-group
-                %label.col-form-label.font-weight-bold
+                %label.col-form-label.fw-bold
                   Secret:
                 .input-group
                   = render CopyToClipboardInputComponent.new(input_text: @token.string)
@@ -32,7 +32,7 @@
         .form-row
           .col
             .form-group
-              %label.col-form-label.mr-2.font-weight-bold
+              %label.col-form-label.mr-2.fw-bold
                 Type:
               %span
                 = @token.token_name
@@ -40,7 +40,7 @@
         .form-row
           .col-sm
             .form-group.ui-front
-              %label.font-weight-bold
+              %label.fw-bold
                 Runs as:
               %span
                 = link_to(@token.executor.login, user_path(@token.executor))
@@ -49,7 +49,7 @@
           .form-row
             .col
               .form-group
-                %label.font-weight-bold
+                %label.fw-bold
                   Workflows Configuration File Path:
                 %span
                   = @token.workflow_configuration_path
@@ -57,7 +57,7 @@
           .form-row
             .col
               .form-group
-                %label.font-weight-bold
+                %label.fw-bold
                   Workflows Configuration File URL:
                 %span
                   - if @token.workflow_configuration_url.present?
@@ -72,7 +72,7 @@
           .form-row
             .col
               .form-group
-                %label.col-form-label.mr-2.font-weight-bold
+                %label.col-form-label.mr-2.fw-bold
                   Token trigger url:
                 .input-group
                   = render CopyToClipboardInputComponent.new(input_text: trigger_workflow_url(id: @token.id))
@@ -81,7 +81,7 @@
           .form-row
             .col-sm
               .form-group.ui-front
-                %label.font-weight-bold
+                %label.fw-bold
                   Project:
                 %span
                   = link_to(@token.package.project.name, project_show_path(@token.package.project))
@@ -89,7 +89,7 @@
           .form-row
             .col-sm
               .form-group.ui-front
-                %label.font-weight-bold
+                %label.fw-bold
                   Package:
                 %span
                   = link_to(@token.package.name, package_show_path(@token.package.project, @token.package))

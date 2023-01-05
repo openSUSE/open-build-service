@@ -25,7 +25,7 @@
     - workers_sorted.each do |name, hash|
       %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
         %li.builderbox.float-start
-          %span.font-weight-bold #{name} (#{hash['_arch']})
+          %span.fw-bold #{name} (#{hash['_arch']})
           - hash.each do |subid, id|
             - if subid != '_arch'
               .monitorpb.position-relative.mt-1{ id: "p#{id}" }
