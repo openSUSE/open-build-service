@@ -9,11 +9,11 @@
         #{time_ago_in_words(@status_message.created_at)} ago
       - if policy(@status_message).update? && policy(@status_message).destroy?
         .float-end
-          = link_to(edit_status_message_path(@status_message), title: 'Edit status message', class: 'mr-2') do
+          = link_to(edit_status_message_path(@status_message), title: 'Edit news item', class: 'mr-2') do
             %i.fas.fa-edit.text-secondary
-          = link_to('#', title: 'Delete status message', data: { toggle: 'modal',
-                                                                 target: '#delete-status-message-modal',
-                                                                 action: status_message_path(@status_message) }) do
+          = link_to('#', title: 'Delete news item', data: { toggle: 'modal',
+                                                       target: '#delete-news-item-modal',
+                                                       action: status_message_path(@status_message) }) do
 
             %i.fas.fa-times-circle.text-danger
       .mt-2.mb-0
