@@ -15,3 +15,9 @@
 .float-start { @extend .float-left; }
 .float-end { @extend .float-right; }
 .float-sm-end { @extend .float-sm-left; }
+
+.fw-bold { @extend .font-weight-bold; }
+.fw-normal { @extend .font-weight-normal; }
+.fw-light { @extend .font-weight-light; }
+
+.font-monospace { @extend .text-monospace; }
