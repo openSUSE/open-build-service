@@ -28,3 +28,6 @@
 }
 
 .g-0 { @extend .no-gutters; }
+
+.border-start { @extend .border-left; }
+.border-end { @extend .border-right; }
