@@ -27,7 +27,17 @@
   @extend .fa-xmark;
 }
 
+
 .g-0 { @extend .no-gutters; }
 
 .border-start { @extend .border-left; }
 .border-end { @extend .border-right; }
+
+.form-check {
+  @extend .custom-control;
+  @extend .custom-checkbox;
+  &.form-switch { @extend .custom-switch; }
+  
+  .form-check-input { @extend .custom-control-input; }
+  .form-check-label { @extend .custom-control-label; }
+}
