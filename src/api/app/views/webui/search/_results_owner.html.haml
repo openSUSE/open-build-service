@@ -20,7 +20,7 @@
             .d-flex.flex-wrap.flex-column.flex-md-row
               - records.each do |record|
                 .card.m-1.p-2.search-result
-                  .row.no-gutters
+                  .row.g-0
                     .col-auto
                       = link_to(user_or_group_path(record)) do
                         = image_tag_for(record, size: 60, custom_class: 'align-self-center shadow-lg border border-secondary rounded border-2')
