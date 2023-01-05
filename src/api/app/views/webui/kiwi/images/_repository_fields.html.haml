@@ -60,15 +60,15 @@
             = f.label :password, 'Password:'
             = f.text_field :password, data: { default: f.object.password }, class: 'form-control'
 
-            .custom-control.custom-checkbox
-              = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'custom-control-input'
-              = f.label :prefer_license, class: 'custom-control-label'
-            .custom-control.custom-checkbox
-              = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'custom-control-input'
-              = f.label :imageinclude, 'Image include', class: 'custom-control-label'
-            .custom-control.custom-checkbox
-              = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'custom-control-input'
-              = f.label :replaceable, class: 'custom-control-label'
+            .form-check
+              = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'form-check-input'
+              = f.label :prefer_license, class: 'form-check-label'
+            .form-check
+              = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'form-check-input'
+              = f.label :imageinclude, 'Image include', class: 'form-check-label'
+            .form-check
+              = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'form-check-input'
+              = f.label :replaceable, class: 'form-check-label'
 
         .modal-footer
           = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',

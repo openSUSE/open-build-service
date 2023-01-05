@@ -18,10 +18,10 @@
           on the beta program for more details.
 
       = form_with(url: user_path(@user), method: :patch) do |_form|
-        .custom-control.custom-switch
+        .form-check.form-switch
           = hidden_field_tag('user[in_beta]', false, id: nil)
-          = check_box_tag('user[in_beta]', !@user.in_beta, @user.in_beta, class: 'custom-control-input', onChange: 'this.form.submit()')
-          = label_tag('user[in_beta]', 'Beta program', class: 'custom-control-label')
+          = check_box_tag('user[in_beta]', !@user.in_beta, @user.in_beta, class: 'form-check-input', onChange: 'this.form.submit()')
+          = label_tag('user[in_beta]', 'Beta program', class: 'form-check-label')
 
     - if @user.in_beta?
       %hr
@@ -36,8 +36,8 @@
         .mb-2
           %h3= feature_toggle_name.humanize
           = form_with(url: my_beta_feature_path, method: :put) do |_form|
-            .custom-control.custom-switch
+            .form-check.form-switch
               = hidden_field_tag("feature[#{feature_toggle_name}]", 'disable', id: nil)
               = check_box_tag("feature[#{feature_toggle_name}]", 'enable', @disabled_beta_features.exclude?(feature_toggle_name),
-                              class: 'custom-control-input', onChange: 'this.form.submit()')
-              = label_tag("feature[#{feature_toggle_name}]", feature_toggle_description, class: 'custom-control-label')
+                              class: 'form-check-input', onChange: 'this.form.submit()')
+              = label_tag("feature[#{feature_toggle_name}]", feature_toggle_description, class: 'form-check-label')

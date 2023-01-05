@@ -5,8 +5,8 @@ module FeaturesCustomCheckbox
     # capybara throws an error because "is not clickable at point (596, 335). Other element
     # would receive the click".
     # Thus we have to remove bootstraps custom-control classes.
-    page.execute_script("$('##{html_id}').removeClass('custom-control-input')")
-    page.execute_script("$('label[for=#{html_id}]').removeClass('custom-control-label')")
+    page.execute_script("$('##{html_id}').removeClass('form-check-input')")
+    page.execute_script("$('label[for=#{html_id}]').removeClass('form-check-label')")
     find_field(html_id).click
     # FIXME: Needed to wait for the Ajax call to perform
     sleep(1)

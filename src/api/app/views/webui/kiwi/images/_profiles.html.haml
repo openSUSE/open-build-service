@@ -10,6 +10,6 @@
         - image.profiles.each do |profile|
           %li
             = f.fields_for(:profiles, profile) do |profile_fields|
-              .custom-control.custom-checkbox
-                = profile_fields.check_box(:selected, class: 'custom-control-input')
-                = profile_fields.label(:selected, profile.name, class: 'custom-control-label')
+              .form-check
+                = profile_fields.check_box(:selected, class: 'form-check-input')
+                = profile_fields.label(:selected, profile.name, class: 'form-check-label')

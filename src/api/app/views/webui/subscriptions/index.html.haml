@@ -12,6 +12,6 @@
 
 - content_for :ready_function do
   :plain
-    $('#notifications').on('ajax:before ajax:complete', '.custom-control-input', function() {
+    $('#notifications').on('ajax:before ajax:complete', '.form-check-input', function() {
       $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
     });

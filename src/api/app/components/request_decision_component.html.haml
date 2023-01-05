@@ -4,15 +4,15 @@
     = text_area_tag(:reason, nil, placeholder: 'Please explain your decision...', rows: 4, class: 'w-100 form-control mb-2')
     - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
       - if show_add_submitter_as_maintainer_option?
-        .custom-control.custom-checkbox.mb-2
-          = check_box_tag('add_submitter_as_maintainer_0', "#{@action[:tprj]}_#_#{@action[:tpkg]}", false, class: 'custom-control-input')
-          %label.custom-control-label{ for: 'add_submitter_as_maintainer_0' }
+        .form-check.mb-2
+          = check_box_tag('add_submitter_as_maintainer_0', "#{@action[:tprj]}_#_#{@action[:tpkg]}", false, class: 'form-check-input')
+          %label.form-check-label{ for: 'add_submitter_as_maintainer_0' }
             Add #{link_to(@bs_request.creator, user_path(@bs_request.creator))} as maintainer for
             #{helpers.project_or_package_link(project: @action[:tprj], package: @action[:tpkg], short: true)}
       - (@action[:forward] || []).each_with_index do |forward, index|
-        .custom-control.custom-checkbox.mb-2
-          = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'custom-control-input')
-          %label.custom-control-label{ for: "forward-#{index}" }
+        .form-check.mb-2
+          = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
+          %label.form-check-label{ for: "forward-#{index}" }
             Forward submit request to
             #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
     - if can_revoke_request?

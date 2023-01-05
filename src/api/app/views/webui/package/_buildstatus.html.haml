@@ -1,6 +1,6 @@
 - unless buildresults.excluded_counter.zero? && !buildresults.show_all
-  .mt-3.custom-control-checkbox
-    = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none',
+  .mt-3.form-check
+    = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'form-check-input d-none',
                     onchange: "updateBuildResult('#{index}')")
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
     = label_tag "show_all_#{index}" do

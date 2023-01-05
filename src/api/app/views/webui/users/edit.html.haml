@@ -16,9 +16,9 @@
             class: 'form-control')
         .mb-3
           = form.collection_check_boxes(:role_ids, Role.global, :id, :title, {}) do |checkbox|
-            .custom-control.custom-checkbox
-              = checkbox.check_box(class: 'custom-control-input')
-              = checkbox.label(class: 'custom-control-label')
+            .form-check
+              = checkbox.check_box(class: 'form-check-input')
+              = checkbox.label(class: 'form-check-label')
         .mb-3
           = form.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s, class: 'custom-control-input') do |radio|
             .custom-control.custom-radio.custom-control-inline
@@ -26,7 +26,7 @@
               = radio.label(class: 'custom-control-label')
         - if Configuration.ldap_enabled? && User.admin_session?
           .mb-3
-            .custom-control.custom-checkbox
-              = form.check_box(:ignore_auth_services, { class: 'custom-control-input' }, true)
-              = form.label(:ignore_auth_services, 'Local user', class: 'custom-control-label')
+            .form-check
+              = form.check_box(:ignore_auth_services, { class: 'form-check-input' }, true)
+              = form.label(:ignore_auth_services, 'Local user', class: 'form-check-label')
         = form.submit('Update', class: 'btn btn-primary', data: { disable_with: 'Updating...' })

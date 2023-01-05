@@ -3,15 +3,15 @@
     .card-body
       %label Search in:
       .mb-3
-        .custom-control.custom-checkbox
-          = check_box_tag('name', 1, params[:name].nil? || params[:name] == '1', class: 'custom-control-input')
-          %label.custom-control-label{ for: 'name' } Name
-        .custom-control.custom-checkbox
-          = check_box_tag('title', 1, params[:title] == '1', class: 'custom-control-input')
-          %label.custom-control-label{ for: 'title' } Title
-        .custom-control.custom-checkbox
-          = check_box_tag('description', 1, params[:description] == '1', class: 'custom-control-input')
-          %label.custom-control-label{ for: 'description' } Description
+        .form-check
+          = check_box_tag('name', 1, params[:name].nil? || params[:name] == '1', class: 'form-check-input')
+          %label.form-check-label{ for: 'name' } Name
+        .form-check
+          = check_box_tag('title', 1, params[:title] == '1', class: 'form-check-input')
+          %label.form-check-label{ for: 'title' } Title
+        .form-check
+          = check_box_tag('description', 1, params[:description] == '1', class: 'form-check-input')
+          %label.form-check-label{ for: 'description' } Description
       .mb-3.row
         .col-12.col-md-6
           %label.d-block{ for: 'attrib_list' } Require attribute:
