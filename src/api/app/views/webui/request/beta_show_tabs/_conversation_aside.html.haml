@@ -2,7 +2,7 @@
   -# REVIEWERS
   - if request_reviews.present?
     .mt-4
-      .text-right
+      .text-end
         = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
                                               can_add_reviews: can_add_reviews,
                                               my_open_reviews: my_open_reviews)

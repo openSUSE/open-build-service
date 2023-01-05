@@ -10,6 +10,6 @@
   .mb-3
     = form.label(:description, 'Description:')
     = form.text_area(:description, rows: 8, class: 'form-control')
-  .mb-3.text-right
+  .mb-3.text-end
     = link_to 'Cancel', project_show_path(project), class: 'cancel btn btn-outline-danger px-4', remote: true
     = submit_tag('Update', class: 'btn btn-primary px-4')
