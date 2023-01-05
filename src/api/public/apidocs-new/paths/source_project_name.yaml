@@ -1,3 +1,148 @@
+get:
+  summary: List packages of a project.
+  description: Get a list of packages belonging to a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: deleted
+      in: query
+      schema:
+        type: string
+      description: Set to `1` to list the deleted packages of a project.
+      example: 1
+    - in: query
+      name: expand
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to include packages from linked projects.
+      example: 1
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - issues
+          - productlist
+          - verboseproductlist
+      description: |
+        Specify which sections should be included in the packages list.
+
+        * `issues`: Show all tracked issues for all the packages.
+        * `productlist`: Show all contained products.
+        * `verboseproductlist`: List all contained products with detailed information about the product.
+
+        Example of a result when `issues` is selected:
+        ```
+        <project name="Base:System">
+          <package project="Base:System" name="xz">
+            <issue change="kept">
+              <created_at>2009-05-21 10:50:00 UTC</created_at>
+              <updated_at>2020-02-24 13:01:11 UTC</updated_at>
+              <name>505969</name>
+              <tracker>bnc</tracker>
+              <label>boo#505969</label>
+              <url>https://bugzilla.opensuse.org/show_bug.cgi?id=505969</url>
+              <state>CLOSED</state>
+              <summary>lzma, xz: missing manpages</summary>
+              <owner>
+                <login>coolo</login>
+                <email>coolo@suse.com</email>
+                <realname>Stephan Kulow</realname>
+              </owner>
+            </issue>
+            <issue change="kept">
+              <created_at>2009-06-04 14:35:00 UTC</created_at>
+              <updated_at>2020-02-24 13:01:11 UTC</updated_at>
+              <name>509945</name>
+              <tracker>bnc</tracker>
+              <label>boo#509945</label>
+              <url>https://bugzilla.opensuse.org/show_bug.cgi?id=509945</url>
+              <state>CLOSED</state>
+              <summary>Enforce packaging of static libraries by rpmlint check</summary>
+              <owner>
+                <login>dirkmueller</login>
+                <email>dmueller@suse.com</email>
+                <realname>Dirk Mueller</realname>
+              </owner>
+            </issue>
+          </package>
+        </project>
+
+        ```
+
+        Example of a result when `productlist` is selected:
+        ```
+        <productlist count="3">
+          <product name="openSUSE-Addon-NonOss" cpe="cpe:/o:opensuse:opensuse-addon-nonoss:20230108" originproject="openSUSE:Factory" originpackage="000product" mtime="1673224560"/>
+          <product name="openSUSE" cpe="cpe:/o:opensuse:opensuse:20230108" originproject="openSUSE:Factory" originpackage="000product" mtime="1673224560"/>
+          <product name="MicroOS" cpe="cpe:/o:opensuse:microos:20230108" originproject="openSUSE:Factory" originpackage="000product" mtime="1673224560"/>
+        </productlist>
+        ```
+
+        Example of a result when `verboseproductlist` is selected:
+        ```
+        <productlist count="3">
+          <product name="openSUSE-Addon-NonOss" originproject="openSUSE:Factory" originpackage="000product">
+            <cpe>cpe:/o:opensuse:opensuse-addon-nonoss:20230108</cpe>
+            <version>20230108</version>
+          </product>
+          <product name="openSUSE" originproject="openSUSE:Factory" originpackage="000product">
+            <cpe>cpe:/o:opensuse:opensuse:20230108</cpe>
+            <version>20230108</version>
+          </product>
+          <product name="MicroOS" originproject="openSUSE:Factory" originpackage="000product">
+            <cpe>cpe:/o:opensuse:microos:20230108</cpe>
+            <version>20230108</version>
+          </product>
+        </productlist>
+        ```
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            oneOf:
+              - $ref: '../components/schemas/source/project_packages.yaml'
+              - $ref: '../components/schemas/source/product_list.yaml'
+              - $ref: '../components/schemas/source/verbose_product_list.yaml'
+          # TODO: Due to this issue the examples of the responses can not be rendered:
+          # Issue: "Multiple responses using oneOf attribute do not appear in UI"
+          # https://github.com/swagger-api/swagger-ui/issues/3803
+          # The examples can be found in the description of the `view` parameter.
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not boolean:
+              description: Passing a non boolean value to the `deleted` query parameter.
+              value:
+                code: 400
+                summary: not boolean
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: unknown_project
+            summary: 'Project not found: home:nonExistentUser'
+  tags:
+    - Sources - Packages
+
 delete:
   summary: Delete a specified project.
   description: Deletes a specified project and all the packages of this project.
