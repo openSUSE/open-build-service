@@ -11,7 +11,7 @@ RSpec.describe Webui::StatusMessagesController do
   describe 'POST create' do
     it { is_expected.to use_after_action(:verify_authorized) }
 
-    it 'create a status message' do
+    it 'create a news item' do
       login(admin_user)
 
       post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
@@ -27,13 +27,13 @@ RSpec.describe Webui::StatusMessagesController do
         post :create, params: { status_message: { message: 'Some message' } }
       end.not_to change(StatusMessage, :count)
       expect(response).to redirect_to(status_messages_path)
-      expect(flash[:error]).to eq("Could not create status message: Severity can't be blank")
+      expect(flash[:error]).to eq("Could not create news item: Severity can't be blank")
 
       expect do
         post :create, params: { status_message: { severity: 'green' } }
       end.not_to change(StatusMessage, :count)
       expect(response).to redirect_to(status_messages_path)
-      expect(flash[:error]).to eq("Could not create status message: Message can't be blank")
+      expect(flash[:error]).to eq("Could not create news item: Message can't be blank")
     end
 
     context 'non-admin users' do
@@ -57,7 +57,7 @@ RSpec.describe Webui::StatusMessagesController do
         post :create, params: { status_message: { severity: 'green' } }
       end
 
-      it { expect(flash[:error]).to eq("Could not create status message: Message can't be blank") }
+      it { expect(flash[:error]).to eq("Could not create news item: Message can't be blank") }
     end
 
     context 'empty severity' do
@@ -66,7 +66,7 @@ RSpec.describe Webui::StatusMessagesController do
         post :create, params: { status_message: { message: 'Some message' } }
       end
 
-      it { expect(flash[:error]).to eq("Could not create status message: Severity can't be blank") }
+      it { expect(flash[:error]).to eq("Could not create news item: Severity can't be blank") }
     end
 
     context 'that fails at saving the message' do
@@ -117,7 +117,7 @@ RSpec.describe Webui::StatusMessagesController do
 
     it { is_expected.to use_after_action(:verify_authorized) }
 
-    context 'when the status message is not yet acknowledged' do
+    context 'when the news item is not yet acknowledged' do
       before do
         allow(RabbitmqBus).to receive(:send_to_bus)
         login(admin_user)
@@ -141,7 +141,7 @@ RSpec.describe Webui::StatusMessagesController do
       end
     end
 
-    context 'when the status message is already acknowledged' do
+    context 'when the news item is already acknowledged' do
       before do
         allow(RabbitmqBus).to receive(:send_to_bus)
         login(admin_user)

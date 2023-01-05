@@ -15,10 +15,10 @@
     .card-footer
       = link_to(new_status_message_path, class: 'nav-link') do
         %i.fas.fa-plus-circle.text-primary
-        Create Status Message
+        Create News Item
 
 - if status_message_policy.destroy?
-  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-status-message-modal',
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-news-item-modal',
                                                  method: :delete,
-                                                 options: { modal_title: 'Do you want to remove this status message?',
-                                                            confirmation_text: 'Please confirm the deletion of this status message' })
+                                                 options: { modal_title: 'Do you want to remove this news item?',
+                                                            confirmation_text: 'Please confirm the deletion of this news item' })

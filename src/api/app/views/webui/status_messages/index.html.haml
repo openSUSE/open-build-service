@@ -32,11 +32,11 @@
         = page_entries_info @status_messages, entry_name: 'news'
 
     .pt-4
-      = link_to(new_status_message_path, title: 'Create News') do
+      = link_to(new_status_message_path, title: 'Create News Item') do
         %i.fas.fa-plus-circle.text-primary
-        Create News
+        Create News Item
 
-= render DeleteConfirmationDialogComponent.new(modal_id: 'delete-status-message-modal',
+= render DeleteConfirmationDialogComponent.new(modal_id: 'delete-news-item-modal',
                                                 method: :delete,
-                                                options: { modal_title: 'Do you want to remove this status message?',
-                                                          confirmation_text: 'Please confirm the deletion of this status message' })
+                                                options: { modal_title: 'Do you want to remove this news item?',
+                                                          confirmation_text: 'Please confirm the deletion of this news item' })

@@ -27,9 +27,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
     status_message = authorize StatusMessage.new(status_message_params)
 
     if status_message.save
-      flash[:success] = 'Status message was successfully created.'
+      flash[:success] = 'News item was successfully created.'
     else
-      flash[:error] = "Could not create status message: #{status_message.errors.full_messages.to_sentence}"
+      flash[:error] = "Could not create news item: #{status_message.errors.full_messages.to_sentence}"
     end
 
     redirect_to(action: 'index')
@@ -39,9 +39,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
     status_message = authorize StatusMessage.find(params[:id])
 
     if status_message.update(status_message_params)
-      flash[:success] = 'Status message was successfully updated.'
+      flash[:success] = 'News item was successfully updated.'
     else
-      flash[:error] = "Could not update status message: #{status_message.errors.full_messages.to_sentence}"
+      flash[:error] = "Could not update news item: #{status_message.errors.full_messages.to_sentence}"
     end
 
     redirect_to(action: 'index')
@@ -51,9 +51,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
     status_message = authorize StatusMessage.find(params[:id])
 
     if status_message.destroy
-      flash[:success] = 'Status message was successfully deleted.'
+      flash[:success] = 'News item was successfully deleted.'
     else
-      flash[:error] = "Could not delete status message: #{status_message.errors.full_messages.to_sentence}"
+      flash[:error] = "Could not delete news item: #{status_message.errors.full_messages.to_sentence}"
     end
 
     redirect_back_or_to({ action: 'index' })
