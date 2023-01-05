@@ -23,9 +23,9 @@
             = label_tag :architectures, class: 'w-100' do
               %strong Architectures:
             - Architecture.available.each do |architecture|
-              .custom-control.custom-checkbox.custom-control-inline
-                = check_box_tag 'architectures[]', architecture.name, true, id: "architecture_#{architecture.name}", class: 'custom-control-input'
-                = label_tag :architecture, architecture.name, class: 'custom-control-label', for: "architecture_#{architecture.name}"
+              .form-check.custom-control-inline
+                = check_box_tag 'architectures[]', architecture.name, true, id: "architecture_#{architecture.name}", class: 'form-check-input'
+                = label_tag :architecture, architecture.name, class: 'form-check-label', for: "architecture_#{architecture.name}"
 
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons'

@@ -36,12 +36,12 @@
             = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control'
             = f.label :replaces, 'Replaces:'
             = f.text_field :replaces, data: { default: f.object.replaces }, class: 'form-control'
-          .custom-control.custom-checkbox
-            = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: 'custom-control-input'
-            = f.label :bootinclude, class: 'custom-control-label'
-          .custom-control.custom-checkbox
-            = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: 'custom-control-input'
-            = f.label :bootdelete, class: 'custom-control-label'
+          .form-check
+            = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: 'form-check-input'
+            = f.label :bootinclude, class: 'form-check-label'
+          .form-check
+            = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: 'form-check-input'
+            = f.label :bootdelete, class: 'form-check-label'
 
         .modal-footer
           = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-sm btn-outline-danger px-4')

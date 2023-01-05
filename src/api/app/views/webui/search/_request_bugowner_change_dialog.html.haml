@@ -24,13 +24,13 @@
                 tag = "#{project}/#{package}"
 
               - if projects_and_packages.length > 1
-                .custom-control.custom-checkbox
-                  = check_box_tag('project[]', tag, false, class: 'custom-control-input')
-                  = label_tag(project, tag, class: 'custom-control-label')
+                .form-check
+                  = check_box_tag('project[]', tag, false, class: 'form-check-input')
+                  = label_tag(project, tag, class: 'form-check-label')
               - else
-                .custom-control.custom-checkbox
-                  = check_box_tag('project', project, true, class: 'custom-control-input')
-                  = label_tag(project, tag, class: 'custom-control-label')
+                .form-check
+                  = check_box_tag('project', project, true, class: 'form-check-input')
+                  = label_tag(project, tag, class: 'form-check-label')
                 = hidden_field_tag('package', package)
           .mb-3
             = label_tag(:description, 'Description:')

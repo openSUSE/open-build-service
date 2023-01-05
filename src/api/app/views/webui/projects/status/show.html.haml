@@ -18,15 +18,15 @@
           = label_tag(:filter_devel, 'Devel project:')
           .col-sm-10
             = select_tag(:filter_devel, options_for_select(@develprojects, @current_develproject), class: 'form-control')
-      .custom-control.custom-checkbox
-        = check_box_tag(:ignore_pending, true, @ignore_pending, class: 'custom-control-input')
-        = label_tag(:ignore_pending, 'Ignore packages with pending requests to this project', class: 'custom-control-label')
-      .custom-control.custom-checkbox
-        = check_box_tag(:limit_to_fails, true, @limit_to_fails, class: 'custom-control-input')
-        = label_tag(:limit_to_fails, 'Limit to currently failing packages', class: 'custom-control-label')
-      .custom-control.custom-checkbox
-        = check_box_tag(:include_versions, true, @include_versions, class: 'custom-control-input')
-        = label_tag(:include_versions, 'Include version updates', class: 'custom-control-label')
+      .form-check
+        = check_box_tag(:ignore_pending, true, @ignore_pending, class: 'form-check-input')
+        = label_tag(:ignore_pending, 'Ignore packages with pending requests to this project', class: 'form-check-label')
+      .form-check
+        = check_box_tag(:limit_to_fails, true, @limit_to_fails, class: 'form-check-input')
+        = label_tag(:limit_to_fails, 'Limit to currently failing packages', class: 'form-check-label')
+      .form-check
+        = check_box_tag(:include_versions, true, @include_versions, class: 'form-check-input')
+        = label_tag(:include_versions, 'Include version updates', class: 'form-check-label')
       = submit_tag('Filter results', class: 'btn btn-primary mt-2')
 
     - if @packages.present?

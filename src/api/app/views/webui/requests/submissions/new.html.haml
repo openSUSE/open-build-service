@@ -41,11 +41,11 @@
               .mb-3.d-none#supersede-display
                 = label_tag(:supersede_requests, 'Supersede requests:')
                 #supersede-requests
-              .custom-control.custom-checkbox#sourceupdate-display
+              .form-check#sourceupdate-display
                 -# Avoid auto-removal of branch
                 - unchecked_value = @project.name.include?(':branches') ? 'update' : nil
-                = bs_request_action.check_box(:sourceupdate, { class: 'custom-control-input' }, 'cleanup', unchecked_value)
-                = bs_request_action.label(:sourceupdate, 'Remove local package if request is accepted', class: 'custom-control-label')
+                = bs_request_action.check_box(:sourceupdate, { class: 'form-check-input' }, 'cleanup', unchecked_value)
+                = bs_request_action.label(:sourceupdate, 'Remove local package if request is accepted', class: 'form-check-label')
             %p.d-none#devel-project-warning
               You are about to bypass the devel project, please submit to
               %b#devel-project-name

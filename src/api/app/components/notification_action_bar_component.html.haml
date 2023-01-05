@@ -1,9 +1,9 @@
 .card.sticky-top#notification-action-bar
   .card-body.py-3
     .d-flex.px-0.px-md-1
-      .custom-control.custom-checkbox
-        = check_box_tag('select-all-notifications', 1, false, class: 'custom-control-input')
-        %label.custom-control-label.align-middle.mr-4#select-all-label{ for: 'select-all-notifications' } Select All
+      .form-check
+        = check_box_tag('select-all-notifications', 1, false, class: 'form-check-input')
+        %label.form-check-label.align-middle.mr-4#select-all-label{ for: 'select-all-notifications' } Select All
       .mr-auto
         = button_tag(type: 'submit', class: 'btn btn-sm btn-outline-success px-3', id: 'done-button', disabled: 'disabled',
                      'data-disable-with': disable_with_content) do

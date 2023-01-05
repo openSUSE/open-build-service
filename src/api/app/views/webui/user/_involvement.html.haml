@@ -28,9 +28,9 @@
             - projects_packages.each do |project_or_package|
               - involved_html_id = "involved_#{project_or_package}"
               .dropdown-item
-                .custom-control.custom-checkbox
-                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'custom-control-input'
-                  %label.custom-control-label{ for: involved_html_id }
+                .form-check
+                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: involved_html_id }
                     = project_or_package.capitalize
         %span.dropdown.mb-3#involved-role
           %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
@@ -41,16 +41,16 @@
           .dropdown-menu.keep-open
             - if owner_root_project_exists
               .dropdown-item
-                .custom-control.custom-checkbox
-                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'custom-control-input'
-                  %label.custom-control-label{ for: 'role_owner' }
+                .form-check
+                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: 'role_owner' }
                     Owner
             - roles.each do |role|
               - role_html_id = "role_#{role}"
               .dropdown-item
-                .custom-control.custom-checkbox
-                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'custom-control-input'
-                  %label.custom-control-label{ for: role_html_id }
+                .form-check
+                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: role_html_id }
                     = role.to_s.capitalize
         .mb-3
           %button.btn.btn-primary.form-control#filter-button{ type: :submit }

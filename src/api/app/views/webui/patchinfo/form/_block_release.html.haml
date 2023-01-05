@@ -1,7 +1,7 @@
 .mb-3.col-md-6
-  .custom-control.custom-checkbox
-    = form.check_box(:block, class: 'custom-control-input')
-    = form.label(:block, 'Block release?', class: 'custom-control-label')
+  .form-check
+    = form.check_box(:block, class: 'form-check-input')
+    = form.label(:block, 'Block release?', class: 'form-check-label')
 .mb-3.col-md-6
   = form.label(:block_reason) do
     Reason
