@@ -7,12 +7,12 @@
           .col-12
             %h3= @pagetitle
           .col-12.col-md-9.col-lg-6
-            = form_for(StatusMessage.new, url: status_messages_path) do |f|
+            = form_for(StatusMessage.new, url: news_items_path) do |f|
               .mb-3
                 = f.label(:message) do
                   Message:
                   %abbr.text-danger{ title: 'required' } *
-                = render WriteAndPreviewComponent.new(f, preview_status_messages_path)
+                = render WriteAndPreviewComponent.new(f, preview_news_items_path)
               .mb-3
                 = f.label(:severity) do
                   Severity:
@@ -25,4 +25,4 @@
                 - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
                 = f.select(:communication_scope, options_for_select(options), {}, class: 'form-select')
               = f.submit 'Create', class: 'btn btn-primary'
-              = link_to('Back', request.referer.presence || status_messages_path, class: 'btn btn-outline-secondary', role: 'button')
+              = link_to('Back', request.referer.presence || news_items_path, class: 'btn btn-outline-secondary', role: 'button')

@@ -15,7 +15,7 @@ RSpec.describe Webui::StatusMessagesController do
       login(admin_user)
 
       post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
-      expect(response).to redirect_to(status_messages_path)
+      expect(response).to redirect_to(news_items_path)
       message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
       expect(message).to exist
     end
@@ -26,13 +26,13 @@ RSpec.describe Webui::StatusMessagesController do
       expect do
         post :create, params: { status_message: { message: 'Some message' } }
       end.not_to change(StatusMessage, :count)
-      expect(response).to redirect_to(status_messages_path)
+      expect(response).to redirect_to(news_items_path)
       expect(flash[:error]).to eq("Could not create news item: Severity can't be blank")
 
       expect do
         post :create, params: { status_message: { severity: 'green' } }
       end.not_to change(StatusMessage, :count)
-      expect(response).to redirect_to(status_messages_path)
+      expect(response).to redirect_to(news_items_path)
       expect(flash[:error]).to eq("Could not create news item: Message can't be blank")
     end
 
@@ -92,7 +92,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       subject { delete :destroy, params: { id: message.id } }
 
-      it { is_expected.to redirect_to(status_messages_path) }
+      it { is_expected.to redirect_to(news_items_path) }
       it { expect { subject }.to change(StatusMessage, :count).by(-1) }
     end
 

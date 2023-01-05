@@ -6,7 +6,7 @@
     %h3
       = @pagetitle
 
-    = form_tag(status_messages_path, method: :get, remote: true) do
+    = form_tag(news_items_path, method: :get, remote: true) do
       .row.mt-4
         .col-auto
           = label_tag do
@@ -32,7 +32,7 @@
         = page_entries_info @status_messages, entry_name: 'news'
 
     .pt-4
-      = link_to(new_status_message_path, title: 'Create News Item') do
+      = link_to(new_news_item_path, title: 'Create News Item') do
         %i.fas.fa-plus-circle.text-primary
         Create News Item
 
