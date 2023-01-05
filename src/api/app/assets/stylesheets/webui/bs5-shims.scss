@@ -1,6 +1,6 @@
 .badge {
   @each $color, $value in $theme-colors {
-    .bg-#{$color} {
+    &.bg-#{$color} {
       @include badge-variant($value);
     }
   }
