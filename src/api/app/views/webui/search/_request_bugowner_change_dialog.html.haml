@@ -5,7 +5,7 @@
         .modal-header
           %h5.modal-title#request-bugowner-change-modal-label Submit Request to Change Bugowner
         .modal-body
-          .form-group
+          .mb-3
             = label_tag(:review_type, 'Bugowner can be a user or a group:')
             = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'custom-select')
 
@@ -15,7 +15,7 @@
           .hideable.review-group.d-none
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'group', label: 'Group:', required: true,
                                                                      data: { source: autocomplete_groups_path } }
-          .form-group
+          .mb-3
             For:
             - projects_and_packages.each do |project_and_package|
               :ruby
@@ -32,7 +32,7 @@
                   = check_box_tag('project', project, true, class: 'custom-control-input')
                   = label_tag(project, tag, class: 'custom-control-label')
                 = hidden_field_tag('package', package)
-          .form-group
+          .mb-3
             = label_tag(:description, 'Description:')
             %abbr.text-danger{ title: 'required' } *
             ~ text_area_tag(:description, nil, size: '40x3', class: 'form-control', required: true)

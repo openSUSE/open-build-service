@@ -14,7 +14,7 @@
       = hidden_field_tag(:limit_to_fails, 'false', id: 'fails_hidden')
       = hidden_field_tag(:include_versions, 'false', id: 'versions_hidden')
       - if @develprojects.size > 2
-        .form-group
+        .mb-3
           = label_tag(:filter_devel, 'Devel project:')
           .col-sm-10
             = select_tag(:filter_devel, options_for_select(@develprojects, @current_develproject), class: 'form-control')

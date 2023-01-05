@@ -9,19 +9,19 @@
             %h3= @pagetitle
           .col-12.col-md-9.col-lg-6
             = form_for(@status_message) do |form|
-              .form-group
+              .mb-3
                 = form.label(:message) do
                   Message:
                   %abbr.text-danger{ title: 'required' } *
                 = render WriteAndPreviewComponent.new(form, preview_status_messages_path)
-              .form-group
+              .mb-3
                 = form.label(:severity) do
                   Severity:
                   %abbr.text-danger{ title: 'required' } *
                   %small.form-text With "Announcement", the message will be displayed on the top and all over the web site.
                 - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
                 = form.select(:severity, options_for_select(options, @status_message.severity), {}, class: 'custom-select')
-              .form-group
+              .mb-3
                 = form.label(:communication_scope, 'Communication Scope:')
                 - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
                 = form.select(:communication_scope, options_for_select(options, @status_message.communication_scope), {}, class: 'custom-select')

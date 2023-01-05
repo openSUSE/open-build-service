@@ -34,7 +34,7 @@
     - if first_template
       %hr
       = form_tag(packages_branches_path, id: 'appliance_form') do
-        .form-group
+        .mb-3
           = hidden_field_tag 'linked_project', first_template.project
           = hidden_field_tag 'linked_package', first_template.name
           = hidden_field_tag 'add_repositories_rebuild', 'copy'

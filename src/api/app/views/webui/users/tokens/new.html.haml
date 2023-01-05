@@ -10,7 +10,7 @@
         = form_with(model: @token ||= Token.new, method: :post, local: true) do |f|
           .row
             .col
-              .form-group
+              .mb-3
                 = f.label(:type, 'Type:', class: 'col-form-label mr-2')
                 .w-100.d-sm-none
                 = f.collection_radio_buttons(:type, type_options, :to_s, :to_s,
@@ -21,7 +21,7 @@
 
           .row
             .col-sm
-              .form-group.ui-front
+              .mb-3.ui-front
                 = f.label(:description, 'Description:')
                 = f.text_field(:description, class: 'form-control', placeholder: 'Eg: Rebuild vim package')
                 .form-text.text-muted
@@ -35,23 +35,23 @@
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_name', label: 'Package name', required: false,
                                                                        data: { source: autocomplete_packages_path }, disabled: true }
             .col-12
-              .form-group.form-text.text-muted
+              .mb-3.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.
 
           .row.d-none#fieldsets-token
             .col-12.col-md-10.col-lg-9
-              .form-group
+              .mb-3
                 = f.label(:scm_token, 'SCM Token:')
                 %abbr.text-danger{ title: 'required' } *
                 = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your SCM token')
-              .form-group
+              .mb-3
                 = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')
                 .input-group
                   = f.text_field(:workflow_configuration_path, value: '.obs/workflows.yml', class: 'form-control',
                                                                placeholder: 'Eg: .my_subdir/my_workflows_file.yml')
                 .form-text.text-muted
                   The default path is '.obs/workflows.yml'.
-              .form-group
+              .mb-3
                 = f.label(:workflow_configuration_url, 'URL to Workflows Configuration File:')
                 .input-group
                   = f.text_field(:workflow_configuration_url, class: 'form-control',

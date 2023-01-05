@@ -7,20 +7,20 @@
     .d-flex.justify-content-center
       = form_tag(search_owner_path, method: :get, class: 'my-3 w-75') do
         %input{ name: 'owner', type: 'hidden', value: '1' }
-        .form-group.d-flex
+        .mb-3.d-flex
           = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true, required: true, class: 'form-control',
                            id: 'search_input')
           %button.btn.btn-primary.ml-1{ type: 'submit', title: 'Search' }
             %i.fa.fa-search
         .row
           .d-flex.flex-wrap.flex-column.flex-sm-row
-            .form-group.row.row-cols-auto
+            .mb-3.row.row-cols-auto
               .custom-control.custom-switch.ml-1.mr-4
                 = hidden_field_tag('devel', 'off', id: 'nodevel')
                 = check_box_tag('devel', 'on', @owner_devel.nil? || @owner_devel == '1', id: 'devel', class: 'custom-control-input')
                 %label.custom-control-label{ for: 'devel' } Follow Devel Projects
 
-            .form-group.row.row-cols-auto
+            .mb-3.row.row-cols-auto
               - limit_options = options_for_select([['Newest', '1'], ['Oldest', '-1'], ['All', '0']], @owner_limit)
               = select_tag('limit', limit_options, class: 'custom-select border-0 pl-0 w-auto')
               %label#limit-label{ for: 'limit' }

@@ -45,7 +45,7 @@
             AmazonEC2FullAccess
           permission policy and create the role.
     = form_for @ec2_configuration, url: cloud_ec2_configuration_path, method: :put do |f|
-      .form-group
+      .mb-3
         = f.label :arn do
           Please enter now the obtained
           %b

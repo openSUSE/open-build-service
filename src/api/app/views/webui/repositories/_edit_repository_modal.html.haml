@@ -5,7 +5,7 @@
         .modal-header
           %h5.modal-title{ id: "edit-#{repository.id}" } Edit #{repository}
         .modal-body
-          .form-group
+          .mb-3
             = label_tag :architectures, class: 'w-100' do
               %strong Architectures:
             - available_architectures.each do |architecture|

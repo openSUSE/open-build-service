@@ -6,13 +6,13 @@
           %h5.modal-title#edit-project-modal-label Edit Project #{project}
         .modal-body
           = hidden_field_tag(:id, project.id)
-          .form-group
+          .mb-3
             = form.label(:title, 'Title:')
             = form.text_field(:title, class: 'form-control')
-          .form-group
+          .mb-3
             = form.label(:description, 'Description:')
             = form.text_area(:description, rows: 8, class: 'form-control')
-          .form-group
+          .mb-3
             = form.label(:url, 'URL:')
             = form.text_field(:url, class: 'form-control')
         .modal-footer

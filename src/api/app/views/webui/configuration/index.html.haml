@@ -8,17 +8,17 @@
     = form_for(@configuration, url: { action: :update }) do |f|
       .h5.mt-4 Frontpage Greeting
       %p Change the text that is displayed as greeting on the frontpage.
-      .form-group
+      .mb-3
         = f.label(:title) do
           Title
           %abbr.text-danger{ title: 'required' } *
         = f.text_field :title, required: true, autofocus: true, class: 'form-control'
-      .form-group
+      .mb-3
         = f.label(:description) do
           Description
           %abbr.text-danger{ title: 'required' } *
         ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
-      .form-group
+      .mb-3
         = f.label(:tos_url) do
           Terms Of Service URL
         ~ f.text_field :tos_url, required: false, class: 'form-control', type: :url
@@ -27,18 +27,18 @@
       %p
         %i.fas.fa-exclamation-triangle.text-warning
         Backend restart is needed after a change here.
-      .form-group
+      .mb-3
         = f.label(:name) do
           Name
           %abbr.text-danger{ title: 'required' } *
           %small.form-text The instance name which gets generated into each package. Short string only, no white spaces recommended.
         = f.text_field :name, required: true, class: 'form-control'
-      .form-group
+      .mb-3
         = f.label(:unlisted_projects_filter_description) do
           Unlisted projects filter description
           %small.form-text The description that will appear in projects list for explaining the exclusion filter.
         = f.text_field :unlisted_projects_filter_description, class: 'form-control'
-      .form-group
+      .mb-3
         = f.label(:unlisted_projects_filter) do
           Unlisted projects filter
           %small.form-text The exclusion filter itself. It is a Regular Expression (eg: ^home:.*).

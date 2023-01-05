@@ -1,10 +1,10 @@
 - if show_project_field
   %p
     %strong Change the branch destination
-  .form-group
+  .mb-3
     %label{ for: 'target_project' } Branch project name:
     = text_field_tag 'target_project', target_project, size: 80, maxlength: 200, class: 'form-control'
-.form-group
+.mb-3
   %label{ for: 'target_package' } Branch package name:
   = text_field_tag 'target_package', package.try(:name), size: 80, maxlength: 200, class: 'form-control'
 .custom-control.custom-checkbox

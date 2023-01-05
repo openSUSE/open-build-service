@@ -22,7 +22,7 @@
           - session[:show_token] = nil # Ensure we're only showing the token once
           .row
             .col-12.col-md-10.col-lg-9
-              %fieldset.form-group
+              %fieldset.mb-3
                 %label.col-form-label.fw-bold
                   Secret:
                 .input-group
@@ -31,7 +31,7 @@
 
         .row
           .col
-            .form-group
+            .mb-3
               %label.col-form-label.mr-2.fw-bold
                 Type:
               %span
@@ -39,7 +39,7 @@
 
         .row
           .col-sm
-            .form-group.ui-front
+            .mb-3.ui-front
               %label.fw-bold
                 Runs as:
               %span
@@ -48,7 +48,7 @@
         - if @token.type == 'Token::Workflow'
           .row
             .col
-              .form-group
+              .mb-3
                 %label.fw-bold
                   Workflows Configuration File Path:
                 %span
@@ -56,7 +56,7 @@
 
           .row
             .col
-              .form-group
+              .mb-3
                 %label.fw-bold
                   Workflows Configuration File URL:
                 %span
@@ -71,7 +71,7 @@
 
           .row
             .col
-              .form-group
+              .mb-3
                 %label.col-form-label.mr-2.fw-bold
                   Token trigger url:
                 .input-group
@@ -80,7 +80,7 @@
         - if @token.package
           .row
             .col-sm
-              .form-group.ui-front
+              .mb-3.ui-front
                 %label.fw-bold
                   Project:
                 %span
@@ -88,7 +88,7 @@
 
           .row
             .col-sm
-              .form-group.ui-front
+              .mb-3.ui-front
                 %label.fw-bold
                   Package:
                 %span

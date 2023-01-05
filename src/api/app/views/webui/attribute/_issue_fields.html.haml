@@ -1,5 +1,5 @@
 .nested-fields
-  .field.row.form-group
+  .field.row.mb-3
     .col-auto
       = f.collection_select(:issue_tracker_id, issue_trackers, :id, :name, {}, class: 'form-control')
     .col-auto.col-form-label

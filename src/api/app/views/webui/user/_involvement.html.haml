@@ -16,9 +16,9 @@
   .card.sticky-top.border-0#involved-filters
     .card-body
       = form_with(model: displayed_user, method: :get, local: true, class: 'row row-cols-auto justify-content-end') do
-        .form-group
+        .mb-3
           %input.form-control{ 'aria-label': 'Search', name: 'search_text', placeholder: 'Search', type: 'text', value: filters[:search_text] }
-        %span.dropdown.form-group#involved-project-package
+        %span.dropdown.mb-3#involved-project-package
           %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
             %span.caret
             Projects / Packages
@@ -32,7 +32,7 @@
                   = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'custom-control-input'
                   %label.custom-control-label{ for: involved_html_id }
                     = project_or_package.capitalize
-        %span.dropdown.form-group#involved-role
+        %span.dropdown.mb-3#involved-role
           %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
             %span.caret
             Role
@@ -52,7 +52,7 @@
                   = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'custom-control-input'
                   %label.custom-control-label{ for: role_html_id }
                     = role.to_s.capitalize
-        .form-group
+        .mb-3
           %button.btn.btn-primary.form-control#filter-button{ type: :submit }
             Apply Filter
 

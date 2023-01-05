@@ -23,7 +23,7 @@
         .modal-body
           .normal-mode
             .repository-autocomplete
-              .form-group.ui-front
+              .mb-3.ui-front
                 = label_tag 'Project'
                 .input-group
                   .input-group-prepend
@@ -34,7 +34,7 @@
                                    placeholder: 'Type to autocomplete...',
                                    class: 'form-control kiwi-repository-search',
                                    data: { source: autocomplete_projects_path, default: f.object.project_for_type_obs }
-              .form-group
+              .mb-3
                 = label_tag :repositories
                 = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                       disabled: true,

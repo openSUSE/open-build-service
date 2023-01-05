@@ -1,8 +1,8 @@
-.form-group
+.mb-3
   .card.mt-2.collapse#advanced-container
     .card-body
       %label Search in:
-      .form-group
+      .mb-3
         .custom-control.custom-checkbox
           = check_box_tag('name', 1, params[:name].nil? || params[:name] == '1', class: 'custom-control-input')
           %label.custom-control-label{ for: 'name' } Name
@@ -12,7 +12,7 @@
         .custom-control.custom-checkbox
           = check_box_tag('description', 1, params[:description] == '1', class: 'custom-control-input')
           %label.custom-control-label{ for: 'description' } Description
-      .form-group.row
+      .mb-3.row
         .col-12.col-md-6
           %label.d-block{ for: 'attrib_list' } Require attribute:
           = select_tag(:attrib_type_id, options_for_select(attrib_type_list, params[:attrib_type_id]),
