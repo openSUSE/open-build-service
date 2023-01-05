@@ -241,13 +241,6 @@ RSpec.describe Webui::PackageHelper do
     end
   end
 
-  describe '#uploadable?' do
-    it { expect(uploadable?('image.raw.xz', 'x86_64')).to be_truthy }
-    it { expect(uploadable?('image.vhdfixed.xz', 'x86_64')).to be_truthy }
-    it { expect(uploadable?('image.vhdfixed.xz', 'i386')).to be_falsy }
-    it { expect(uploadable?('apache2.rpm', 'x86_64')).to be_falsy }
-  end
-
   describe '#expand_diff?' do
     it { expect(expand_diff?('ctris.spec', 'added')).to be true }
     it { expect(expand_diff?('_patchinfo', 'added')).to be true }

@@ -1,6 +1,7 @@
 class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
   include Webui::PackageHelper
+  include Webui::Packages::BinariesHelper
   include Webui::ManageRelationships
   include BuildLogSupport
 
