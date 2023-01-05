@@ -11,7 +11,7 @@
         - if session[:show_token]
           %p.fw-bold Your new OBS Personal Access Token
 
-        .form-row
+        .row
           .col-sm
             %label.fw-bold
               Id:
@@ -20,7 +20,7 @@
 
         - if session[:show_token]
           - session[:show_token] = nil # Ensure we're only showing the token once
-          .form-row
+          .row
             .col-12.col-md-10.col-lg-9
               %fieldset.form-group
                 %label.col-form-label.fw-bold
@@ -29,7 +29,7 @@
                   = render CopyToClipboardInputComponent.new(input_text: @token.string)
               %hr
 
-        .form-row
+        .row
           .col
             .form-group
               %label.col-form-label.mr-2.fw-bold
@@ -37,7 +37,7 @@
               %span
                 = @token.token_name
 
-        .form-row
+        .row
           .col-sm
             .form-group.ui-front
               %label.fw-bold
@@ -46,7 +46,7 @@
                 = link_to(@token.executor.login, user_path(@token.executor))
 
         - if @token.type == 'Token::Workflow'
-          .form-row
+          .row
             .col
               .form-group
                 %label.fw-bold
@@ -54,7 +54,7 @@
                 %span
                   = @token.workflow_configuration_path
 
-          .form-row
+          .row
             .col
               .form-group
                 %label.fw-bold
@@ -69,7 +69,7 @@
                     %small.font-italic.text-muted
                       Nothing
 
-          .form-row
+          .row
             .col
               .form-group
                 %label.col-form-label.mr-2.fw-bold
@@ -78,7 +78,7 @@
                   = render CopyToClipboardInputComponent.new(input_text: trigger_workflow_url(id: @token.id))
 
         - if @token.package
-          .form-row
+          .row
             .col-sm
               .form-group.ui-front
                 %label.fw-bold
@@ -86,7 +86,7 @@
                 %span
                   = link_to(@token.package.project.name, project_show_path(@token.package.project))
 
-          .form-row
+          .row
             .col-sm
               .form-group.ui-front
                 %label.fw-bold

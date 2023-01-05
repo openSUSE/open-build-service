@@ -1,7 +1,7 @@
 .form-group.col-md-6
   = form.label(:binaries)
   - if binarylist.present? || binaries.present?
-    .form-row
+    .row
       .col
         %small.form-text Available binaries
         = select_tag(:available_binaries, options_for_select(binarylist.to_a), multiple: true, size: 6, class: 'custom-select')

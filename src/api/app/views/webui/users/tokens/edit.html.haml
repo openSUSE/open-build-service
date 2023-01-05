@@ -7,7 +7,7 @@
     .row
       .col-12.col-md-10.col-lg-8
         = form_with(url: token_path, scope: :token, method: :put, local: true) do |f|
-          .form-row.d-none#created-token
+          .row.d-none#created-token
             .col-12.col-md-10.col-lg-9
               %fieldset.form-group
                 = f.label(:string_readonly, 'Your new OBS Personal Access Token Secret', class: 'col-form-label col-form-label-lg')
@@ -15,7 +15,7 @@
                   = render CopyToClipboardInputComponent.new(input_text: @token.string)
               %hr
 
-          .form-row
+          .row
             .col-12.col-md-10.col-lg-9
               .form-group
                 = f.label(:id, 'Id:')
