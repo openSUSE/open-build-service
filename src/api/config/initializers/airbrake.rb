@@ -101,10 +101,10 @@ end
 def ignore_by_class?(notice)
   exceptions_to_ignore = ['ActiveRecord::RecordNotFound', 'ActionController::InvalidAuthenticityToken',
                           'CGI::Session::CookieStore::TamperedWithCookie', 'ActionController::UnknownAction',
-                          'AbstractController::ActionNotFound', 'ActionView::MissingTemplate',
-                          'Timeout::Error', 'Net::HTTPBadResponse',
+                          'AbstractController::ActionNotFound', 'ActionView::MissingTemplate', 'Bunny::TCPConnectionFailedForAllHosts',
+                          'Timeout::Error', 'Net::HTTPBadResponse', 'Errno::ECONNRESET', 'Interrupt',
                           'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'ActionDispatch::Http::MimeNegotiation::InvalidType',
-                          'ActionController::UnknownFormat', 'Backend::NotFoundError']
+                          'ActionController::UnknownFormat', 'Backend::NotFoundError', 'AMQ::Protocol::EmptyResponseError']
 
   notice[:errors].pluck(:type).intersect?(exceptions_to_ignore)
 end
