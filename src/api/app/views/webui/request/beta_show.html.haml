@@ -28,7 +28,7 @@
     .card-title.p-4.mb-0
       %h3
         Request #{@bs_request.number}
-        %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+        %span.badge.ml-1{ class: "bg-#{request_badge_color(@bs_request.state)}" }
           = @bs_request.state
           - if @bs_request.superseded_by.present?
             by
@@ -73,7 +73,7 @@
             = link_to('#mentioned-issues', id: 'mentioned-issues-tab', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
                       'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab') do
               Mentioned Issues
-              %span.badge.badge-primary.align-text-top= @issues.size
+              %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/conversation',

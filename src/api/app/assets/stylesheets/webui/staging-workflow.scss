@@ -62,11 +62,11 @@ ul .table-list-group-item {
 
     span.badge {
       &.state-unacceptable {
-        @extend .badge-dark;
+        @extend .bg-dark;
       }
 
       &.state-acceptable {
-        @extend .badge-success;
+        @extend .bg-success;
       }
 
       &.state-accepting {
@@ -75,11 +75,11 @@ ul .table-list-group-item {
       }
 
       &.state-testing {
-        @extend .badge-info;
+        @extend .bg-info;
       }
 
       &.state-building {
-        @extend .badge-warning;
+        @extend .bg-warning;
 
         span {
           @extend .text-dark;
@@ -87,15 +87,15 @@ ul .table-list-group-item {
       }
 
       &.state-failed {
-        @extend .badge-danger;
+        @extend .bg-danger;
       }
 
       &.state-review {
-        @extend .badge-secondary;
+        @extend .bg-secondary;
       }
 
       &.state-empty {
-        @extend .badge-light;
+        @extend .bg-light;
         @extend .border;
 
         span {
@@ -134,17 +134,17 @@ ul .table-list-group-item {
       }
 
       &.state-ready {
-        @extend .badge-success;
+        @extend .bg-success;
         background-color: $request-ready-color;
       }
 
       &.state-review {
-        @extend .badge-warning;
+        @extend .bg-warning;
         background-color: $request-review-color;
       }
 
       &.state-obsolete {
-        @extend .badge-info;
+        @extend .bg-info;
         background-color: $request-obsolete-color;
       }
 

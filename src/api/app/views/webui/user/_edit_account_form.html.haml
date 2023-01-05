@@ -10,7 +10,7 @@
     = f.text_field(:login, readonly: true, class: 'form-control')
   .form-group
     - role_titles.each do |title|
-      %span.badge.badge-secondary
+      %span.badge.bg-secondary
         = title.upcase
   .form-group
     = f.text_area(:biography, rows: 6, placeholder: 'Biography', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED, class: 'form-control')
