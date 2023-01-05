@@ -7,6 +7,6 @@
         Action
     = select_tag('request_action',
                   options_for_select(@filter_options, @request_action),
-                  class: 'form-control custom-select')
+                  class: 'form-control form-select')
   %button.btn.btn-primary#filter-button{ type: :submit }
     Apply

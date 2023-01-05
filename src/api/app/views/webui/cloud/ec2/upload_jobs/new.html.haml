@@ -25,7 +25,7 @@
       .mb-3.row
         = upload_job_form.label(:region, 'Region:', class: 'col-md-2 col-form-label')
         .col-md-10
-          = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions), class: 'custom-select w-auto')
+          = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions), class: 'form-select w-auto')
       .mb-3.row
         = upload_job_form.label(:vpc_subnet_id, 'VPC Subnet ID:', class: 'col-md-2 col-form-label')
         .col-md-10

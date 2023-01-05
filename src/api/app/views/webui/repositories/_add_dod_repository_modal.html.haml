@@ -16,12 +16,12 @@
             = label_tag :arch, 'Architecture', class: 'col-sm-4 col-form-label'
             .col-sm-8
               = select_tag :arch, options_for_select(available_architectures, ''), required: true,
-                                  class: 'custom-select'
+                                  class: 'form-select'
           .mb-3.row
             = label_tag :repotype, 'Type', class: 'col-sm-4 col-form-label'
             .col-sm-8
               = select_tag :repotype, options_for_select(DownloadRepository::REPOTYPES, ''),
-                                      class: 'custom-select'
+                                      class: 'form-select'
           .mb-3.row
             = label_tag :url, 'Url', class: 'col-sm-4 col-form-label'
             .col-sm-8

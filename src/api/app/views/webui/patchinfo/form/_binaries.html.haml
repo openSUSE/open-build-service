@@ -4,7 +4,7 @@
     .row
       .col
         %small.form-text Available binaries
-        = select_tag(:available_binaries, options_for_select(binarylist.to_a), multiple: true, size: 6, class: 'custom-select')
+        = select_tag(:available_binaries, options_for_select(binarylist.to_a), multiple: true, size: 6, class: 'form-select')
       .col-auto
         %br
         %button.btn.btn-sm.btn-secondary.mb-1#select-binary{ type: 'button', title: 'Select binary' } >
@@ -16,6 +16,6 @@
         %button.btn.btn-sm.btn-secondary.mb-1#unselect-binary{ type: 'button', title: 'Unselect binary' } <
       .col
         %small.form-text Selected binaries
-        = form.select(:binaries, options_for_select(binaries.to_a), { include_hidden: false }, multiple: true, size: 6, class: 'custom-select')
+        = form.select(:binaries, options_for_select(binaries.to_a), { include_hidden: false }, multiple: true, size: 6, class: 'form-select')
   - else
     %p.font-italic No binaries available

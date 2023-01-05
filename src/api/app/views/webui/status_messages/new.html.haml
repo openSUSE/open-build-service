@@ -19,10 +19,10 @@
                   %abbr.text-danger{ title: 'required' } *
                   %small.form-text With "Announcement", the message will be displayed on the top and all over the web site.
                 - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
-                = f.select(:severity, options_for_select(options), {}, class: 'custom-select')
+                = f.select(:severity, options_for_select(options), {}, class: 'form-select')
               .mb-3
                 = f.label(:communication_scope, 'Communication Scope:')
                 - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
-                = f.select(:communication_scope, options_for_select(options), {}, class: 'custom-select')
+                = f.select(:communication_scope, options_for_select(options), {}, class: 'form-select')
               = f.submit 'Create', class: 'btn btn-primary'
               = link_to('Back', request.referer.presence || status_messages_path, class: 'btn btn-outline-secondary', role: 'button')

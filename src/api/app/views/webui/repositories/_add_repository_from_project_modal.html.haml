@@ -13,7 +13,7 @@
               %strong Repositories:
             = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                   disabled: true,
-                                                                  class: 'repository-dropdown custom-select',
+                                                                  class: 'repository-dropdown form-select',
                                                                   data: { source: autocomplete_repositories_path }
           .mb-3
             = label_tag :name do

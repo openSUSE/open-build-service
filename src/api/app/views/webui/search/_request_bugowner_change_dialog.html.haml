@@ -7,7 +7,7 @@
         .modal-body
           .mb-3
             = label_tag(:review_type, 'Bugowner can be a user or a group:')
-            = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'custom-select')
+            = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'form-select')
 
           .hideable.review-user
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'user', label: 'User:', required: true,

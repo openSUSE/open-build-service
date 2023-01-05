@@ -10,7 +10,7 @@
             .input-group-text
               Text size
           = select_tag("fontsize_#{uid}", options_for_select(%w[0.5em 0.6em 0.75em 0.9em 1em 1.2em 1.5em]),
-            onchange: "editors[#{uid}].updateFontsize(this)", class: 'custom-select')
+            onchange: "editors[#{uid}].updateFontsize(this)", class: 'form-select')
 
       .modal-body
         .input-group
@@ -34,14 +34,14 @@
               ['---', '', { id: "x_#{uid}", selected: true }]
             ]
           = select_tag("mode_#{uid}", options_for_select(modes),
-            onchange: "editors[#{uid}].updateMode(this)", class: 'custom-select')
+            onchange: "editors[#{uid}].updateMode(this)", class: 'form-select')
       .modal-body
         .input-group
           .input-group-prepend
             .input-group-text
               Tab width
           = select_tag("tabsize_#{uid}", options_for_select(2..8),
-            onchange: "editors[#{uid}].updateTabsize(this)", class: 'custom-select')
+            onchange: "editors[#{uid}].updateTabsize(this)", class: 'form-select')
       .modal-body
         .row
           .col
