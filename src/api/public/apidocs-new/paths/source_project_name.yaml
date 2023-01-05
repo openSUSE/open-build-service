@@ -1,7 +1,6 @@
 delete:
-  summary: Delete a specified project
-  description: |
-    Deletes a specified project and all the packages of this project
+  summary: Delete a specified project.
+  description: Deletes a specified project and all the packages of this project.
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - name: force
@@ -23,8 +22,7 @@ delete:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
-      description: |
-        Unauthorized to delete project
+      description: Unauthorized to delete project.
       content:
         application/xml; charset=utf-8:
           schema:
