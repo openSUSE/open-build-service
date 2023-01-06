@@ -1,8 +1,8 @@
 .list-group-item
   .row
-    .col-1
-      %i.fa.fa-lg{ helpers.icon_for_severity(@status_message.severity) }
-    .col
+    .col-auto.pe-1
+      %i.fa.fa-lg.fa-fw{ helpers.icon_for_severity(@status_message.severity) }
+    .col.ps-1
       = helpers.user_with_realname_and_icon(@status_message.user, short: true)
       wrote
       %u
