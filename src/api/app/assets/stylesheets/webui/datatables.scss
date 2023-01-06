@@ -1,6 +1,6 @@
-@import 'datatables/dataTables.bootstrap4';
-@import 'datatables/extensions/Responsive/responsive.bootstrap4';
-@import 'datatables/extensions/FixedColumns/fixedColumns.bootstrap4';
+@import 'datatables/dataTables.bootstrap5';
+@import 'datatables/extensions/Responsive/responsive.bootstrap5';
+@import 'datatables/extensions/FixedColumns/fixedColumns.bootstrap5';
 
 table.table-fixed {
   table-layout: fixed
@@ -9,14 +9,6 @@ table.table-fixed {
 // TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/17
 table.dataTable.table-sm {
   min-width: 100%;
-
- .sorting:before,
- .sorting_asc:before,
- .sorting_desc:before {
-    top: initial;
-    right: 1em;
-    bottom: 0.3em;
-  }
 
   td {
     white-space: normal !important;
