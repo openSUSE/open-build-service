@@ -19,10 +19,10 @@
             = link_to(project_users_path(project: project)) do
               %i.fa.fa-cubes.text-secondary{ title: 'inherited from project' }
     - if User.session
-      %td.text-nowrap
+      %td.text-nowrap<
         - if mail_subject && record.email
           = mail_to(record.email, subject: mail_subject) do
-            %i.far.fa-envelope{ title: "Send email to #{type}" }
+            %i.far.fa-envelope.me-1{ title: "Send email to #{type}" }
         - if user_is_maintainer
           = link_to('#', class: "remove-#{type}",
             data: { toggle: 'modal',
