@@ -105,7 +105,10 @@ module Webui::Staging::WorkflowHelper
   end
 
   def info_link(request, excluded = false)
-    options = { data: { content: request.request_exclusion.description, placement: 'top', toggle: 'popover' } } if excluded
+    if excluded
+      options = { data: { 'bs-content': request.request_exclusion.description,
+                          'bs-placement': 'top', 'bs-toggle': 'popover' } }
+    end
     link_to(elide(request.first_target_package, 19), request_show_path(request.number), options)
   end
 end

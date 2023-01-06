@@ -1,5 +1,5 @@
 $(function () {
-  initializePopovers('[data-toggle="popover"]');
+  initializePopovers('[data-bs-toggle="popover"]');
 });
 
 function initializePopovers(cssSelector, params) {
@@ -9,8 +9,8 @@ function initializePopovers(cssSelector, params) {
   // Remove all popovers as they might be stagnant due to a partial page reload
   $('div.popover').remove();
 
-  $(cssSelector).popover(newParams).on('show.bs.popover', function() {
-    // Hide all popovers, so only the one triggering this event will be shown
-    $(cssSelector).popover('hide');
+  var popoverTriggerList = [].slice.call(document.querySelectorAll(cssSelector));
+  popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl, newParams);
   });
 }

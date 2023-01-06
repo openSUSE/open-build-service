@@ -22,7 +22,7 @@ function statusCell(meta, statusHash, tableInfo, projectName, packageName) {
 
     if (status.details !== undefined) {
       if (code === 'scheduled') klass = 'text-warning';
-      output += ' data-content="' + status.details + '" data-placement="right" data-toggle="popover"';
+      output += ' data-bs-content="' + status.details + '" data-bs-placement="right" data-bs-toggle="popover"';
     }
   }
   output += ' class="' + klass + '">' + code + '</a>';
@@ -90,10 +90,10 @@ function setupProjectMonitor() { // jshint ignore:line
   });
 
   $('#project-monitor-table').on('draw.dt', function () {
-    initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+    initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
   });
 
-  initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+  initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
 
   $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
 

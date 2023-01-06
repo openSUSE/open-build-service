@@ -3,11 +3,11 @@
                                               filter_item: {}, selected_filter: @selected_filter)
 .row.list-group-flush.mt-5
   %h5.ms-3.me-2 Status
-  %i.fa.fa-question-circle.text-info{ data: { placement: 'bottom', toggle: 'popover', html: 'true',
-                                              content: '<p>Filter your workflow runs by the current state</p>
-                                                        <p><b>Succeeded: </b>Workflow run execution was successful</p>
-                                                        <p><b>Running: </b>Workflow run is still in progress</p>
-                                                        <p><b>Failed: </b>Workflow run failed at some point</p>' } }
+  %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
+                                              'bs-content': '<p>Filter your workflow runs by the current state</p>
+                                                             <p><b>Succeeded: </b>Workflow run execution was successful</p>
+                                                             <p><b>Running: </b>Workflow run is still in progress</p>
+                                                             <p><b>Failed: </b>Workflow run failed at some point</p>' } }
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'],
                                               filter_item: { status: 'success' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'],
@@ -16,11 +16,12 @@
                                               filter_item: { status: 'fail' }, selected_filter: @selected_filter)
 .row.list-group-flush.mt-5
   %h5.ms-3.me-2 Event Type
-  %i.fa.fa-question-circle.text-info{ data: { placement: 'bottom', toggle: 'popover', html: 'true',
-                                              content: '<p>Filter your workflow runs by the event reported by the SCM,
-                                                        which triggered the execution in the Open Build Service</p>
-                                                        <p><b>Pull/Merge request: </b>A pull/merge request got opened against a selected branch</p>
-                                                        <p><b>Push: </b>A push event occured on a selected branch</p>' } }
+  %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
+                                              'bs-content': '<p>Filter your workflow runs by the event reported by the SCM,
+                                                             which triggered the execution in the Open Build Service</p>
+                                                             <p><b>Pull/Merge request: </b>
+                                                             A pull/merge request got opened against a selected branch</p>
+                                                             <p><b>Push: </b>A push event occured on a selected branch</p>' } }
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Pull/Merge Request', amount: @count['pull_request'],
                                               filter_item: { generic_event_type: 'pull_request' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push', amount: @count['push'],

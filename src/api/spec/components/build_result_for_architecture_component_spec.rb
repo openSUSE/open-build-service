@@ -24,7 +24,7 @@ RSpec.describe BuildResultForArchitectureComponent, type: :component do
     it { expect(rendered_content).to have_selector('.build-status span', text: 'succeeded') }
     it { expect(rendered_content).to have_selector('.repository-status i', class: 'fa-lock') }
     it { expect(rendered_content).to have_selector('.repository-status span', text: 'blocked') }
-    it { expect(rendered_content).not_to have_selector("div[data-content*='Details']") }
+    it { expect(rendered_content).not_to have_selector("div[data-bs-content*='Details']") }
   end
 
   context 'with excluded but visible result' do
@@ -44,6 +44,6 @@ RSpec.describe BuildResultForArchitectureComponent, type: :component do
     it { expect(rendered_content).to have_selector('.build-status span', text: 'excluded') }
     it { expect(rendered_content).to have_selector('.repository-status i', class: 'fa-truck') }
     it { expect(rendered_content).to have_selector('.repository-status span', text: 'published') }
-    it { expect(rendered_content).to have_selector("div[data-content*='fake details']") }
+    it { expect(rendered_content).to have_selector("div[data-bs-content*='fake details']") }
   end
 end
