@@ -11,6 +11,7 @@
     display: inline-block;
     padding: 0.5rem 1rem;
     text-align: center;
+    text-decoration: none;
     &.active {
       font-weight: 600;
       border: 1px solid;
@@ -32,6 +33,9 @@ ul.scrollable-tabs {
     display: inline-block;
     padding: 0.5rem 0 0 0;
     text-align: center;
+    a {
+      text-decoration: none;
+    }
     & > a.active {
       font-weight: 600;
       border: 1px solid;
@@ -48,6 +52,7 @@ ul.scrollable-tabs {
 ul.nav.nav-tabs li.nav-item {
   & a {
     color: $link-color;
+    text-decoration: none;
 
     &:hover {
       color: $link-hover-color;
