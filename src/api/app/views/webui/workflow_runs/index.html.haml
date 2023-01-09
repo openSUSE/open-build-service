@@ -20,7 +20,7 @@
         - else
           .text-center
             %span.ms-3= page_entries_info(@workflow_runs)
-          .accordion.pt-3#workflow-runs-accordion
+          .pt-3#workflow-runs
             - @workflow_runs.each do |workflow_run|
               .card-header{ id: "workflow-run-heading#{workflow_run.id}" }
                 .mb-0
