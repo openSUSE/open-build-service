@@ -1440,7 +1440,7 @@ end
 #  title           :string(255)
 #  url             :string(255)
 #  created_at      :datetime
-#  updated_at      :datetime         indexed
+#  updated_at      :datetime
 #  develpackage_id :integer          indexed
 #  kiwi_image_id   :integer          indexed
 #  project_id      :integer          not null, indexed => [name]
@@ -1450,7 +1450,6 @@ end
 #  devel_package_id_index           (develpackage_id)
 #  index_packages_on_kiwi_image_id  (kiwi_image_id)
 #  packages_all_index               (project_id,name) UNIQUE
-#  updated_at_index                 (updated_at)
 #
 # Foreign Keys
 #

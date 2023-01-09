@@ -26,7 +26,7 @@ end
 #  title               :string(255)
 #  url                 :string(255)
 #  created_at          :datetime
-#  updated_at          :datetime         indexed
+#  updated_at          :datetime
 #  develproject_id     :integer          indexed
 #  staging_workflow_id :integer          indexed
 #
@@ -35,5 +35,4 @@ end
 #  devel_project_id_index                 (develproject_id)
 #  index_projects_on_staging_workflow_id  (staging_workflow_id)
 #  projects_name_index                    (name) UNIQUE
-#  updated_at_index                       (updated_at)
 #
