@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_16_234231) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_09_131251) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -729,7 +729,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_234231) do
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
-    t.index ["updated_at"], name: "updated_at_index"
   end
 
   create_table "path_elements", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -817,7 +816,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_234231) do
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"
-    t.index ["updated_at"], name: "updated_at_index"
   end
 
   create_table "relationships", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
