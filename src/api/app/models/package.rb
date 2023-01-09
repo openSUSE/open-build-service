@@ -733,6 +733,7 @@ class Package < ApplicationRecord
   def write_to_backend
     reset_cache
     raise ArgumentError, 'no commit_user set' unless commit_user
+    raise InvalidParameterError, 'Project meta file can not be written via package model' if name == '_project'
 
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]

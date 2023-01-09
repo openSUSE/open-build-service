@@ -380,6 +380,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_package_project_route_is_read_only
+    login_tom
+    get '/source/home:tom/_project/_meta'
+    assert_response :success
+    raw_put '/source/home:tom/_project/_meta', '<package name="_project"><title/><description/></package>'
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
+  end
+
   def test_put_project_meta_with_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
