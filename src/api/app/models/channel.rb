@@ -94,7 +94,7 @@ class Channel < ApplicationRecord
     return false if disabled
 
     # no targets defined, the project has some
-    return true if channel_targets.size.zero?
+    return true if channel_targets.empty?
 
     channel_targets.where(disabled: false).present?
   end
