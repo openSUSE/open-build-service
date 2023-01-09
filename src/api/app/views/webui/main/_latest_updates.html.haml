@@ -23,4 +23,4 @@
                 = link_to(project_show_path(update[1])) do
                   = update[1]
             %p.mt-1.mb-0
-              = fuzzy_time(update[0])
+              = render FuzzyTimeComponent.new(time: update[0])

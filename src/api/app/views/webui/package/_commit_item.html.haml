@@ -15,7 +15,7 @@
   - else
     committed
 
-  %u= fuzzy_time(Time.zone.at(commit['time'].to_i))
+  %u= render FuzzyTimeComponent.new(time: Time.zone.at(commit['time'].to_i))
 
   (revision #{commit['rev']})
 
