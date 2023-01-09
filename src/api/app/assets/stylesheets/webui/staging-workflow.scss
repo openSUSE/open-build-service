@@ -134,17 +134,17 @@ ul .table-list-group-item {
       }
 
       &.state-ready {
-        @extend .bg-success;
+        color: white;
         background-color: $request-ready-color;
       }
 
       &.state-review {
-        @extend .bg-warning;
+        color: white;
         background-color: $request-review-color;
       }
 
       &.state-obsolete {
-        @extend .bg-info;
+        color: white;
         background-color: $request-obsolete-color;
       }
 
