@@ -1,14 +1,14 @@
 .list-group-item
   .row
-    .col-1
-      %i.fa.fa-lg{ helpers.icon_for_severity(@status_message.severity) }
-    .col
+    .col-auto.pe-1
+      %i.fa.fa-lg.fa-fw{ helpers.icon_for_severity(@status_message.severity) }
+    .col.ps-1
       = helpers.user_with_realname_and_icon(@status_message.user, short: true)
       wrote
       %u
         #{time_ago_in_words(@status_message.created_at)} ago
       - if policy(@status_message).update? && policy(@status_message).destroy?
-        .float-end
+        .float-end<
           = link_to(edit_status_message_path(@status_message), title: 'Edit news item', class: 'me-2') do
             %i.fas.fa-edit.text-secondary
           = link_to('#', title: 'Delete news item', data: { toggle: 'modal',
