@@ -12,12 +12,12 @@
           = label_tag do
             Severity:
           - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
-          = select_tag('severity', options_for_select(options, @severity), class: 'custom-select',
+          = select_tag('severity', options_for_select(options, @severity), class: 'form-select',
                        prompt: 'All severities', onchange: '$(this.form).submit();')
         .col-auto
           = label_tag('Communication Scope:')
           - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
-          = select_tag('communication_scope', options_for_select(options, @communication_scope), class: 'custom-select',
+          = select_tag('communication_scope', options_for_select(options, @communication_scope), class: 'form-select',
                        prompt: 'All communication scopes', onchange: '$(this.form).submit();')
     - if @status_messages.present?
       .row.justify-content-center.mt-5
