@@ -32,12 +32,6 @@
   @extend .text-danger;
 }
 
-#request-history .card-body {
-  .media .media-body {
-    @extend .text-break;
-  }
-}
-
 .scrollable-dropdown {
   overflow-y: scroll;
   height: 400px;

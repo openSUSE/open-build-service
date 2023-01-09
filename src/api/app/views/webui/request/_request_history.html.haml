@@ -1,7 +1,8 @@
-.media
-  - user = User.find_by_login(bs_request.creator)
-  = image_tag_for(user, size: 38, custom_class: 'me-3')
-  .media-body
+.d-flex
+  .flex-shrink-0
+    - user = User.find_by_login(bs_request.creator)
+    = image_tag_for(user, size: 38, custom_class: 'me-3')
+  .flex-grow-1.text-break.history
     %p
       = link_to(user, user_path(user))
       created request

@@ -37,9 +37,10 @@
       %h5.card-header Fixed bugs
       .card-body
         - @patchinfo.issues.each do |issue|
-          .media
-            %i.pt-1.me-1.fas.fa-bug.text-danger
-            .media-body.mb-3
+          .d-flex
+            .flex-shrink-0
+              %i.pt-1.me-1.fas.fa-bug.text-danger
+            .flex-grow-1.mb-3
               = patchinfo_issue_link(issue[1], issue[0], issue[2])
               - if issue[3].present?
                 %div= issue[3]
