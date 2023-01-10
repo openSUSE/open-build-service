@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:42 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_9
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_25
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Rosemary Sutcliff</title>
+          <title>To Sail Beyond the Sunset</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Rosemary Sutcliff</title>
+          <title>To Sail Beyond the Sunset</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:42 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_10
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_26
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>A Catskill Eagle</title>
-          <description>Libero vel omnis sunt.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Non ut nesciunt eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '176'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>A Catskill Eagle</title>
-          <description>Libero vel omnis sunt.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Non ut nesciunt eum.</description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:42 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Aut molestiae tempore. Quasi quae sed. Reiciendis doloribus enim.
+      string: Optio veniam qui. Suscipit omnis ut. Minus est ipsa.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="50" vrev="50">
-          <srcmd5>83ab96422d79dbd1c62a0b0103504902</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>f57c131eaf3329f66396bbea51659eb4</srcmd5>
           <version>unknown</version>
-          <time>1657902162</time>
+          <time>1673370902</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:42 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quisquam recusandae cupiditate. Hic aut placeat. Et cum ratione.
+      string: Nostrum molestiae dolores. Quae quaerat et. Ut cum optio.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,24 +185,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="51" vrev="51">
-          <srcmd5>333b7425387129bb0e6aa0d1375c6d18</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>7e10c1e73ba8e33b6a9aa1e8cb45ce02</srcmd5>
           <version>unknown</version>
-          <time>1657902163</time>
+          <time>1673370902</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_10
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_26
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>A Catskill Eagle</title>
-          <description>Libero vel omnis sunt.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Non ut nesciunt eum.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
     headers:
@@ -224,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '239'
+      - '245'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>A Catskill Eagle</title>
-          <description>Libero vel omnis sunt.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Non ut nesciunt eum.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -273,7 +273,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -311,7 +311,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -351,5 +351,5 @@ http_interactions:
           <description></description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#123</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:02 GMT
 recorded_with: VCR 6.1.0
