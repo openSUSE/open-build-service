@@ -26,7 +26,9 @@ module Backend
       if data.nil?
         @backend_logger.info '(no data)'
       elsif data.instance_of?(String) && data[0, 1] == '<'
-        @backend_logger.info data
+        # Reencode the data replacing invalid UTF-8 characters with the default unicode replacement character: '\ufffd'
+        # source: https://stackoverflow.com/a/24493972
+        @backend_logger.info data.encode('UTF-8', 'UTF-8', invalid: :replace)
       else
         @backend_logger.info "(non-XML data) #{data.class}"
       end
