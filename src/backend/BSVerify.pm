@@ -306,7 +306,6 @@ sub verify_proj {
 sub verify_pack {
   my ($pack, $packid) = @_;
   if (defined($packid)) {
-    die("illegal package name '$packid'\n") if $packid eq '_project';
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
   verify_projid($pack->{'project'}) if exists $pack->{'project'};
