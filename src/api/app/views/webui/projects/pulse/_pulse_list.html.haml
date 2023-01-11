@@ -22,9 +22,9 @@
     - package_changes = commits + new_packages + deleted_packages + updates
     - if package_changes.present?
       %h5#pulse-packages
+        Package Changes
         = link_to('.collapse-package-changes', aria: { controls: 'collapse-package-changes', expanded: 'true' },
                   'data-bs-toggle' => 'collapse', role: 'button') do
-          Package Changes
           %small
             %span.collapser (Hide)
             %span.expander (Show)
@@ -37,9 +37,9 @@
 
     - if project_changes.present?
       %h5#pulse-project
+        Project Changes
         = link_to('.collapse-project-changes', aria: { controls: 'collapse-project-changes', expanded: 'true' },
                   'data-bs-toggle' => 'collapse', role: 'button') do
-          Project Changes
           %small
             %span.collapser (Hide)
             %span.expander (Show)
@@ -52,10 +52,11 @@
 
     - if builds.present?
       %h5#pulse-builds
+        Builds
+        %small
+          (in the last 24 hours)
         = link_to('.collapse-builds', aria: { controls: 'collapse-builds', expanded: 'true' }, 'data-bs-toggle' => 'collapse', role: 'button') do
-          Builds
           %small
-            (in the last 24 hours)
             %span.collapser (Hide)
             %span.expander (Show)
       %hr
@@ -68,9 +69,9 @@
     - collaboration = branches + comments
     - if collaboration.present?
       %h5#pulse-collaboration
+        Collaboration
         = link_to('.collapse-collaboration', aria: { controls: 'collapse-collaboration', expanded: 'true' },
                   'data-bs-toggle' => 'collapse', role: 'button') do
-          Collaboration
           %small
             %span.collapser (Hide)
             %span.expander (Show)
@@ -83,8 +84,8 @@
 
     - if requests.present?
       %h5#pulse-requests
+        Requests
         = link_to('.collapse-requests', aria: { controls: 'collapse-requests', expanded: 'true' }, 'data-bs-toggle' => 'collapse', role: 'button') do
-          Requests
           %small
             %span.collapser (Hide)
             %span.expander (Show)
