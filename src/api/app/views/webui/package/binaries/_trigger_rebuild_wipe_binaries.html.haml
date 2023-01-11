@@ -1,11 +1,11 @@
-%li.list-inline-item
+%li.nav-item
   = link_to(package_trigger_rebuild_path(arch: result[:arch], project: project, package: package, repository: repository),
   title: 'Trigger rebuild', method: :post, class: 'nav-link') do
     %i.fas.fa-redo
     Trigger rebuild
-%li.list-inline-item
+%li.nav-item
   - unless result[:binaries].empty?
-    = link_to('#', title: 'Delete binaries',
+    = link_to('#', title: 'Delete binaries', class: 'nav-link',
       data: { 'bs-toggle': 'modal',
               'bs-target': '#delete-binaries-modal',
               confirmation_text: "Please confirm deletion of binaries for #{result[:arch]}",

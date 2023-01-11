@@ -2,14 +2,14 @@
   .container-fluid.d-flex.flex-nowrap.justify-content-between.w-100
     = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
       = image_tag('obs-logo_small.svg')
-    .d-flex
+    .d-flex.nav
       = render partial: 'layouts/webui/top_navigation_search'
       - if User.session
-        .toggler.text-center.justify-content-center
+        .toggler.text-center.justify-content-center.nav-item
           = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
             %i.far.fa-eye
             %span.d-block Watchlist
-        .toggler.text-center.justify-content-center
+        .toggler.text-center.justify-content-center.nav-item
           = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
             = render partial: 'layouts/webui/unread_notifications_counter'
         .toggler.text-center.justify-content-center.nav-item.dropdown

@@ -8,19 +8,19 @@
         = render partial: 'repository_entry', locals: { repository: repository, project: project, download_url: configuration['download_url'],
                     user_can_modify: user_can_modify, available_architectures: available_architectures }
 
-    %ul.list-inline.mb-0
+    %ul.nav.mb-0
       - if user_can_modify
         - if Distribution.any? || User.admin_session?
-          %li.list-inline-item
+          %li.nav-item
             = link_to(new_project_distribution_path(project_name: project), class: 'nav-link') do
               %i.fas.fa-plus-circle.text-primary
               Add from a Distribution
-        %li.list-inline-item
+        %li.nav-item
           = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-repository-from-project' }, class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add from a Project
       - if User.admin_session?
-        %li.list-inline-item
+        %li.nav-item
           = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-dod-repository-modal' }, class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add DoD Repository

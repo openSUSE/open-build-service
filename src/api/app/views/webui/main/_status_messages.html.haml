@@ -12,10 +12,11 @@
   .list-group.list-group-flush
     = render StatusMessageComponent.with_collection(status_messages)
   - if status_message_policy.create?
-    .card-footer
-      = link_to(new_news_item_path, class: 'nav-link') do
-        %i.fas.fa-plus-circle.text-primary
-        Create News Item
+    .card-footer.nav
+      .nav-item
+        = link_to(new_news_item_path, class: 'nav-link') do
+          %i.fas.fa-plus-circle.text-primary
+          Create News Item
 
 - if status_message_policy.destroy?
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-news-item-modal',

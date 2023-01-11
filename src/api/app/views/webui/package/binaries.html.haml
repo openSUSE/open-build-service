@@ -50,7 +50,7 @@
                     = render_partial
                   .d-sm-none
                     %i.fas.fa-ellipsis-h.text-secondary{ data: { 'bs-toggle': 'popover', 'bs-html': 'true', 'bs-content': "#{render_partial}" } }
-      %ul.list-inline
+      %ul.nav
         - if User.possibly_nobody.can_modify?(@package)
           = render partial: 'webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
                                                             package: params[:package], repository: @repository }

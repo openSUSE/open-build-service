@@ -43,8 +43,8 @@
         %em No attributes set
 
     - if can_update_container
-      %ul.list-inline
-        %li.list-inline-item
+      %ul.nav
+        %li.nav-item
           = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add Attribute', class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add Attribute
