@@ -36,7 +36,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     create_project_and_package
     return if scm_synced?
 
-    create_special_package
+    create_project_services
     create_link
   end
 
@@ -67,11 +67,9 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   end
 
   # NOTE: the next lines are a temporary fix the allow the service to run in a linked package. A project service is needed.
-  def create_special_package
-    return if Package.find_by_project_and_name(target_project, '_project')
-
-    special_package = target_project.packages.create(name: '_project')
-    special_package.save_file({ file: special_package_file_content, filename: '_service' })
+  def create_project_services
+    service_file = ProjectServiceFile.new(project_name: target_project)
+    service_file.save!({}, special_package_file_content)
   end
 
   def special_package_file_content

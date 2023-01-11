@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_13
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>The Millstone</title>
+          <title>Taming a Sea Horse</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>The Millstone</title>
+          <title>Taming a Sea Horse</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_14
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Mother Night</title>
-          <description>Ratione iste fugiat reprehenderit.</description>
+          <title>An Acceptable Time</title>
+          <description>Atque in voluptatum doloribus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Mother Night</title>
-          <description>Ratione iste fugiat reprehenderit.</description>
+          <title>An Acceptable Time</title>
+          <description>Atque in voluptatum doloribus.</description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Laborum et repellat. Voluptates fugit cupiditate. Tenetur voluptatibus
-        voluptas.
+      string: Inventore consectetur omnis. Saepe ex illum. Voluptates sequi optio.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="54" vrev="54">
-          <srcmd5>f59069495e37c0d6b1433a0c6d59213d</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>00a06a234a12ba7eb192bcdb43201454</srcmd5>
           <version>unknown</version>
-          <time>1657902163</time>
+          <time>1673370897</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Rerum sed sit. Amet quibusdam perferendis. Qui autem rerum.
+      string: Aspernatur ducimus ipsam. Alias debitis et. Id natus est.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="55" vrev="55">
-          <srcmd5>97b00e632ef6562e9efd0ad807a2c662</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>5dc9177341f65de9c1ed70865335ff5f</srcmd5>
           <version>unknown</version>
-          <time>1657902163</time>
+          <time>1673370897</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -234,7 +233,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -272,7 +271,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -312,5 +311,5 @@ http_interactions:
           <description></description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=bar_scm_synced_package#123</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 recorded_with: VCR 6.1.0

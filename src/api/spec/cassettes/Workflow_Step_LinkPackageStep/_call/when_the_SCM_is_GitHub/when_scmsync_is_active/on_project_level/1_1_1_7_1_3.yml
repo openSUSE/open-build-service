@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_17
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Clouds of Witness</title>
+          <title>Dance Dance Dance</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -75,20 +75,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Clouds of Witness</title>
+          <title>Dance Dance Dance</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_18
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Butter In a Lordly Dish</title>
-          <description>Blanditiis quas omnis praesentium.</description>
+          <title>Look Homeward, Angel</title>
+          <description>Dolor quae doloribus aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Butter In a Lordly Dish</title>
-          <description>Blanditiis quas omnis praesentium.</description>
+          <title>Look Homeward, Angel</title>
+          <description>Dolor quae doloribus aut.</description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Reprehenderit sit ratione. Dignissimos reiciendis a. Et excepturi atque.
+      string: Rerum reprehenderit voluptatem. Qui quis excepturi. Corporis tempora
+        deserunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +144,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="58" vrev="58">
-          <srcmd5>c4f5749cf468e6178479eb5366c3a372</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>cae1cc083fd9cd648ed7ea8d4431924d</srcmd5>
           <version>unknown</version>
-          <time>1657902164</time>
+          <time>1673370897</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Autem ullam totam. Sed libero accusantium. Sit hic pariatur.
+      string: Aliquam non quae. Quo repellendus repellat. Possimus quaerat velit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +182,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="59" vrev="59">
-          <srcmd5>87530e8e25f96ac9aaf444ccf5b5ceb5</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>d6120d8941e1ddd733644f3e2cec7e3b</srcmd5>
           <version>unknown</version>
-          <time>1657902164</time>
+          <time>1673370897</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -233,7 +234,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -271,7 +272,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -311,7 +312,7 @@ http_interactions:
           <description></description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=bar_scm_synced_package#123</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_branch_request
@@ -345,5 +346,5 @@ http_interactions:
           <summary>_branch_request: no such file</summary>
           <details>404 _branch_request: no such file</details>
         </status>
-  recorded_at: Fri, 15 Jul 2022 16:22:44 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:57 GMT
 recorded_with: VCR 6.1.0
