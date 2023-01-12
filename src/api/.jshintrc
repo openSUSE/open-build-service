@@ -12,6 +12,7 @@
     "ui" :       false,
     "window" :   false,
     "URL" :      false,
+    "bootstrap": false,
     // Defined in our views. FIXME: We might be able to solve these by not having inline js
     "isOutdatedUrl" : false,
     "mainProjects"  : false,

@@ -91,7 +91,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     end
 
     it { expect { subject.call }.to(change(Project, :count).by(1)) }
-    it { expect { subject.call }.to(change(Package, :count).by(2)) }
+    it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
@@ -99,8 +99,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call.source_file('_link') }.not_to raise_error }
     it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-    it { expect(subject.call.project.packages.map(&:name)).to include('_project') }
-    it { expect { subject.call.project.packages.find_by(name: '_project').source_file('_service') }.not_to raise_error }
+    it { expect { subject.call.project.source_file('_project/_service') }.not_to raise_error }
   end
 
   RSpec.shared_context 'successful on a new push event' do
@@ -113,7 +112,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     end
 
     it { expect { subject.call }.not_to(change(Project, :count)) }
-    it { expect { subject.call }.to(change(Package, :count).by(2)) }
+    it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq(target_project_name) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
@@ -121,8 +120,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call.source_file('_link') }.not_to raise_error }
     it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-    it { expect(subject.call.project.packages.map(&:name)).to include('_project') }
-    it { expect { subject.call.project.packages.find_by(name: '_project').source_file('_service') }.not_to raise_error }
+    it { expect { subject.call.project.source_file('_project/_service') }.not_to raise_error }
   end
 
   RSpec.shared_context 'successful update event when the linked_package already exists' do
@@ -178,7 +176,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       }
     end
 
-    it { expect { subject.call }.to(change(Package, :count).by(2)) }
+    it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
   end
 
@@ -366,7 +364,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         end
 
         it { expect { subject.call }.not_to(change(Project, :count)) }
-        it { expect { subject.call }.to(change(Package, :count).by(2)) }
+        it { expect { subject.call }.to(change(Package, :count).by(1)) }
         it { expect(subject.call.project.name).to eq(target_project_name) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
@@ -374,8 +372,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
         it { expect { subject.call.source_file('_link') }.not_to raise_error }
         it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-        it { expect(subject.call.project.packages.map(&:name)).to include('_project') }
-        it { expect { subject.call.project.packages.find_by(name: '_project').source_file('_service') }.not_to raise_error }
+        it { expect { subject.call.project.source_file('_project/_service') }.not_to raise_error }
 
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'project and package does not exist'

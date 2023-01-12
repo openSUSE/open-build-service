@@ -1,33 +1,32 @@
-.form-group
+.mb-3
   - if local_assigns.key?(:namespace)
     = hidden_field_tag(:namespace, namespace)
     = form.label(:name, 'Subproject Name:')
     %abbr.text-danger{ title: 'Required' } *
     .input-group
-      .input-group-prepend
-        %span.input-group-text
-          #{namespace}:
+      %span.input-group-text
+        #{namespace}:
       = form.text_field(:name, required: true, class: 'form-control', autofocus: true)
   - else
     = form.label(:name, 'Project Name:')
     %abbr.text-danger{ title: 'Required' } *
     = form.text_field(:name, required: true, class: 'form-control', autofocus: true)
-.form-group
+.mb-3
   = form.label(:title, 'Title:')
   = form.text_field(:title, class: 'form-control')
-.form-group
+.mb-3
   = form.label(:description, 'Description:')
   = form.text_area(:description, rows: 8, class: 'form-control')
 - unless configuration['hide_private_options']
-  .form-group.custom-control.custom-checkbox
-    = check_box_tag(:access_protection, 1, false, class: 'custom-control-input')
-    = label_tag(:access_protection, 'Hide the entire project', class: 'custom-control-label')
-  .form-group.custom-control.custom-checkbox
-    = check_box_tag(:source_protection, 1, false, class: 'custom-control-input')
-    = label_tag(:source_protection, 'Deny access to sources of project', class: 'custom-control-label')
-.form-group.custom-control.custom-checkbox
-  = check_box_tag(:disable_publishing, 1, false, class: 'custom-control-input')
-  = label_tag(:disable_publishing, 'Disable build results publishing', class: 'custom-control-label')
+  .mb-3.form-check
+    = check_box_tag(:access_protection, 1, false, class: 'form-check-input')
+    = label_tag(:access_protection, 'Hide the entire project', class: 'form-check-label')
+  .mb-3.form-check
+    = check_box_tag(:source_protection, 1, false, class: 'form-check-input')
+    = label_tag(:source_protection, 'Deny access to sources of project', class: 'form-check-label')
+.mb-3.form-check
+  = check_box_tag(:disable_publishing, 1, false, class: 'form-check-input')
+  = label_tag(:disable_publishing, 'Disable build results publishing', class: 'form-check-label')
 
 - if show_restore_message
   = hidden_field_tag(:restore_option_provided, true)

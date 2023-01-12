@@ -8,7 +8,7 @@ OBSApi::Application.routes.draw do
       mount Flipper::UI.app(Flipper) => '/flipper'
     end
 
-    resources :status_messages, only: [:new, :create, :edit, :update, :destroy], controller: 'webui/status_messages' do
+    resources :news_items, only: [:index, :new, :create, :edit, :update, :destroy], controller: 'webui/status_messages' do
       collection do
         post 'preview'
       end
@@ -271,9 +271,9 @@ OBSApi::Application.routes.draw do
         resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: [:new, :create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: [:new, :create], constraints: cons
-        resource :files, controller: 'webui/packages/files', only: [:new, :create], constraints: cons
+        resource :files, controller: 'webui/packages/files', only: [:new, :create, :update], constraints: cons
         put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
-        resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: ->(request) { request.format == :svg }
+        resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
@@ -347,7 +347,7 @@ OBSApi::Application.routes.draw do
       resources :patchinfos, only: [:index], controller: 'webui/users/patchinfos', as: :my_patchinfos
 
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
-      post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
+      post 'news_items/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_news_item
 
       resources :tokens, controller: 'webui/users/tokens' do
         resources :workflow_runs, only: [:index, :show], controller: 'webui/workflow_runs'

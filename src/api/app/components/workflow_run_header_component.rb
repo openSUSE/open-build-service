@@ -8,11 +8,11 @@ class WorkflowRunHeaderComponent < WorkflowRunRowComponent
   def status_class
     case status
     when 'fail'
-      'badge-danger'
+      'bg-danger'
     when 'success'
-      'badge-primary'
+      'bg-primary'
     else
-      'badge-warning'
+      'bg-warning'
     end
   end
 end

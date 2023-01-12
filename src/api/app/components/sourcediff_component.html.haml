@@ -8,7 +8,7 @@
     - else
       - (@action[:sourcediff] || []).each do |sourcediff|
         .clearfix.mb-2
-          .btn-group.float-right
+          .btn-group.float-end
             %button.btn.btn-outline-secondary.expand-diffs{ data: { package: @action[:spkg] } }
               Expand all
             %button.btn.btn-outline-secondary.collapse-diffs{ data: { package: @action[:spkg] } }

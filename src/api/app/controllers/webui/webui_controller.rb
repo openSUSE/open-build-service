@@ -223,7 +223,7 @@ class Webui::WebuiController < ActionController::Base
         ret << [(time1 + time2) / 2, value1 + value2]
       end
     end
-    ret << 0 if ret.length.zero?
+    ret << 0 if ret.empty?
     ret
   end
 

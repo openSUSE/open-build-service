@@ -1,0 +1,42 @@
+- @pagetitle = 'Manage News'
+
+.card.mb-3
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3
+      = @pagetitle
+
+    = form_tag(news_items_path, method: :get, remote: true) do
+      .row.mt-4
+        .col-auto
+          = label_tag do
+            Severity:
+          - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
+          = select_tag('severity', options_for_select(options, @severity), class: 'form-select',
+                       prompt: 'All severities', onchange: '$(this.form).submit();')
+        .col-auto
+          = label_tag('Communication Scope:')
+          - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
+          = select_tag('communication_scope', options_for_select(options, @communication_scope), class: 'form-select',
+                       prompt: 'All communication scopes', onchange: '$(this.form).submit();')
+    - if @status_messages.present?
+      .row.justify-content-center.mt-5
+        .col-md-4.col-lg-5
+          .list-group.list-group-flush.border#news-list
+            = render StatusMessageComponent.with_collection(@status_messages)
+      .row.justify-content-center.mt-2
+        .col-auto#news-pagination
+          = paginate @status_messages, remote: true
+    .row.justify-content-center.mt-2
+      .col-auto#news-page-entries-info
+        = page_entries_info @status_messages, entry_name: 'news'
+
+    .pt-4
+      = link_to(new_news_item_path, title: 'Create News Item') do
+        %i.fas.fa-plus-circle.text-primary
+        Create News Item
+
+= render DeleteConfirmationDialogComponent.new(modal_id: 'delete-news-item-modal',
+                                                method: :delete,
+                                                options: { modal_title: 'Do you want to remove this news item?',
+                                                          confirmation_text: 'Please confirm the deletion of this news item' })

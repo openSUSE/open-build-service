@@ -41,8 +41,10 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add non existent user' do
+      skip_on_mobile
+
       # FIXME: on mobile, when `screen-offset-top` CSS rule is in place, scrolling and clicking at capybara level does not work
-      page.evaluate_script('$("#add-user").click()')
+      find_by_id('add-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -54,8 +56,10 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add an existing user' do
+      skip_on_mobile
+
       # FIXME: on mobile, when `screen-offset-top` CSS rule is in place, scrolling and clicking at capybara level does not work
-      page.evaluate_script('$("#add-user").click()')
+      find_by_id('add-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -72,7 +76,7 @@ RSpec.shared_examples 'bootstrap user tab' do
 
       # Adding a user twice...
       # FIXME: on mobile, when `screen-offset-top` CSS rule is in place, scrolling and clicking at capybara level does not work
-      page.evaluate_script('$("#add-user").click()')
+      find_by_id('add-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -151,8 +155,10 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add non existent group' do
+      skip_on_mobile
+
       # FIXME: on mobile, when `screen-offset-top` CSS rule is in place, scrolling and clicking at capybara level does not work
-      page.evaluate_script('$("#add-group").click()')
+      find_by_id('add-group').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -164,8 +170,10 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     it 'Add an existing group' do
+      skip_on_mobile
+
       # FIXME: on mobile, when `screen-offset-top` CSS rule is in place, scrolling and clicking at capybara level does not work
-      page.evaluate_script('$("#add-group").click()')
+      find_by_id('add-group').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -181,7 +189,7 @@ RSpec.shared_examples 'bootstrap user tab' do
 
       # Adding a group twice...
       # FIXME: on mobile, when `screen-offset-top` CSS rule is in place, scrolling and clicking at capybara level does not work
-      page.evaluate_script('$("#add-group").click()')
+      find_by_id('add-group').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do

@@ -65,7 +65,7 @@ RSpec.describe 'Repositories', js: true, vcr: true do
     it 'edit download repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
-        find("[data-target='#edit-dod-source-modal-#{download_repository_source}']").click
+        find("[data-bs-target='#edit-dod-source-modal-#{download_repository_source}']").click
       end
 
       within("#edit-dod-source-modal-#{download_repository_source}") do
@@ -93,7 +93,7 @@ RSpec.describe 'Repositories', js: true, vcr: true do
     it 'delete download repository sources' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
-        find("[data-target='#delete-dod-source-modal-#{download_repository_source}']").click
+        find("[data-bs-target='#delete-dod-source-modal-#{download_repository_source}']").click
       end
 
       expect(find("#delete-dod-source-modal-#{download_repository_source}"))
@@ -106,7 +106,7 @@ RSpec.describe 'Repositories', js: true, vcr: true do
       expect(repository.download_repositories.count).to eq(1)
 
       within '.repository-card' do
-        find("[data-target='#delete-dod-source-modal-#{download_repository_source_2}']").click
+        find("[data-bs-target='#delete-dod-source-modal-#{download_repository_source_2}']").click
       end
 
       expect(find("#delete-dod-source-modal-#{download_repository_source_2}"))

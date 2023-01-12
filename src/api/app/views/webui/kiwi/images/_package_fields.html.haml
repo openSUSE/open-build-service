@@ -1,7 +1,7 @@
 .nested-fields.kiwi_fields.col-lg-2.col-md-3.col-sm-4
   .d-flex.justify-content-between.kiwi_list_item{ class: "#{'has-error' if f.object.errors.present?}" }
     %span.btn.btn-link.text-truncate{ title: f.object.name }
-      = link_to '', class: 'package_edit kiwi_element_name', data: { target: "#package-#{f.object.name}", toggle: 'modal' } do
+      = link_to '', class: 'package_edit kiwi_element_name', data: { 'bs-target': "#package-#{f.object.name}", 'bs-toggle': 'modal' } do
         = f.object.name
         - if f.object.arch.present?
           %small (#{f.object.arch})
@@ -21,27 +21,26 @@
             The name can not be empty!
 
         .modal-body
-          .form-group.ui-front
+          .mb-3.ui-front
             = f.label :name
             .input-group
-              .input-group-prepend
-                %span.input-group-text
-                  %i.fas.fa-search
+              %span.input-group-text
+                %i.fas.fa-search
               = f.text_field :name, required: true,
                                     placeholder: 'Type to autocomplete...',
                                     class: 'form-control kiwi-package-search',
                                     data: { source: autocomplete_binaries_kiwi_image_path, default: f.object.name }
-          .form-group
+          .mb-3
             = f.label :arch, 'Arch:'
             = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control'
             = f.label :replaces, 'Replaces:'
             = f.text_field :replaces, data: { default: f.object.replaces }, class: 'form-control'
-          .custom-control.custom-checkbox
-            = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: 'custom-control-input'
-            = f.label :bootinclude, class: 'custom-control-label'
-          .custom-control.custom-checkbox
-            = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: 'custom-control-input'
-            = f.label :bootdelete, class: 'custom-control-label'
+          .form-check
+            = f.check_box :bootinclude, data: { default: f.object.bootinclude }, class: 'form-check-input'
+            = f.label :bootinclude, class: 'form-check-label'
+          .form-check
+            = f.check_box :bootdelete, data: { default: f.object.bootdelete }, class: 'form-check-input'
+            = f.label :bootdelete, class: 'form-check-label'
 
         .modal-footer
           = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-sm btn-outline-danger px-4')

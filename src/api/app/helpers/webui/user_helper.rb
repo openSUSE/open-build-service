@@ -1,10 +1,10 @@
 module Webui::UserHelper
   def display_applied_filters(filters, user)
-    tag.span(class: 'd-block ml-4 mb-3') do
+    tag.span(class: 'd-block ms-4 mb-3') do
       link_to(user) do
         safe_join(
           [
-            tag.i(class: 'fas fa-trash-alt pr-2'),
+            tag.i(class: 'fas fa-trash-alt pe-2'),
             "Clear current search #{display_filters(filters.keys).to_sentence}"
           ]
         )
@@ -20,14 +20,14 @@ module Webui::UserHelper
     safe_join(
       [
         link_to(edit_user_path(user.login)) do
-          tag.i(nil, class: 'fas fa-edit text-secondary pr-1', title: 'Edit User')
+          tag.i(nil, class: 'fas fa-edit text-secondary pe-1', title: 'Edit User')
         end,
         mail_to(user.email) do
-          tag.i(nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
+          tag.i(nil, class: 'fas fa-envelope text-secondary pe-1', title: 'Send Email to User')
         end,
-        render(partial: 'webui/users/delete_dialog', formats: [:html], locals: { user: user }),
-        link_to('#', data: { toggle: 'modal', target: "#delete-user-modal-#{user}" }, title: 'Delete User') do
-          tag.i(nil, class: 'fas fa-times-circle text-danger pr-1')
+        link_to('#', title: 'Delete User', data: { 'bs-toggle': 'modal',
+                                                   'bs-target': '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
+          tag.i(nil, class: 'fas fa-times-circle text-danger pe-1')
         end
       ]
     )

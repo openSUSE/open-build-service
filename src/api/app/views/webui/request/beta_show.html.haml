@@ -28,19 +28,21 @@
     .card-title.p-4.mb-0
       %h3
         Request #{@bs_request.number}
-        %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+        %span.badge.ms-1{ class: "bg-#{request_badge_color(@bs_request.state)}" }
           = @bs_request.state
           - if @bs_request.superseded_by.present?
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
-
         - if @bs_request.accept_at.present?
-          %span.badge.alert-warning.ml-1 auto-accept
+          %span.badge.alert-warning.ms-1 auto-accept
+        - if User.session
+          .d-inline.align-bottom.ms-2#watchlist-icon-wrapper
+            = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
 
       %p.font-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
-        = fuzzy_time(@bs_request.created_at)
+        = render FuzzyTimeComponent.new(time: @bs_request.created_at)
         - if @bs_request.superseding.present?
           = '. Supersedes'
           - @bs_request.superseding.each do |supersed|
@@ -53,25 +55,25 @@
       %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }
         %li.nav-item.scrollable-tab-link{ role: 'presentation' }
           = link_to('Conversation', '#conversation', id: 'conversation-tab', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
-                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                    'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
         - if @action[:sprj] || @action[:spkg]
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Build Results', '#build-results', id: 'build-results-tab', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('RPM Lint', '#rpm-lint', id: 'rpm-lint-tab', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint',
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Changes', '#changes', id: 'changes-tab', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
                       'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id],
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('#mentioned-issues', id: 'mentioned-issues-tab', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
-                      'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab') do
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab') do
               Mentioned Issues
-              %span.badge.badge-primary.align-text-top= @issues.size
+              %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
         = render partial: 'webui/request/beta_show_tabs/conversation',

@@ -1,5 +1,5 @@
 - if result[:statistics]
-  %li.list-inline-item
+  %li.nav-item
     = link_to(package_statistics_path(project: project, package: package, repository: repository, arch: result[:arch]),
       title: 'Show statistics', class: 'nav-link') do
       %span.fa-stack.half-font-size
@@ -7,13 +7,13 @@
         %i.fas.fa-search.fa-stack-1x
       Show resources
 
-%li.list-inline-item
+%li.nav-item
   = link_to(index_package_job_history_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
   title: 'Job History', class: 'nav-link') do
     %i.fas.fa-history
     Job History
 
-%li.list-inline-item
+%li.nav-item
   = link_to(index_package_build_reason_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
   title: 'Build reason', class: 'nav-link') do
     %i.fas.fa-info-circle

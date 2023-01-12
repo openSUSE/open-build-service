@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:31:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_33
+    uri: http://backend:5352/source/foo_project/_meta?user=user_27
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>In Dubious Battle</title>
+          <title>Precious Bane</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>In Dubious Battle</title>
+          <title>Precious Bane</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:31:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_34
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_28
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>A Passage to India</title>
-          <description>Ut vitae nam deserunt.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Aut omnis qui ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>A Passage to India</title>
-          <description>Ut vitae nam deserunt.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Aut omnis qui ut.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:31:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Harum qui accusantium. Dignissimos voluptatem aut. Explicabo blanditiis
-        omnis.
+      string: Praesentium et aut. Doloremque omnis beatae. Itaque ea necessitatibus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1405" vrev="1405">
-          <srcmd5>9064f2382a824592a750dd39d7684ece</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>1575f67841c9c595ccbd054239d7fea8</srcmd5>
           <version>unknown</version>
-          <time>1642674677</time>
+          <time>1673370903</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:31:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Ea quos quidem. Nulla ut tempora. Adipisci exercitationem eaque.
+      string: Fuga ut corrupti. Maiores minima cupiditate. Doloribus modi qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1406" vrev="1406">
-          <srcmd5>6993cbf905612766ad542b9b6a529e60</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>41a953de29be17dc38732fcd8f86c9d6</srcmd5>
           <version>unknown</version>
-          <time>1642674677</time>
+          <time>1673370903</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:31:17 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Tue, 10 Jan 2023 17:15:03 GMT
+recorded_with: VCR 6.1.0

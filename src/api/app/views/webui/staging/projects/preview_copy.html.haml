@@ -13,7 +13,7 @@
           %li Users and Groups
 
         = form_tag(copy_staging_workflow_staging_project_path(@staging_workflow.project, @staging_project), method: :post) do
-          .form-group
+          .mb-3
             = label_tag(:staging_project_copy_name, 'Name of the Staging Project Copy:')
             = text_field_tag(:staging_project_copy_name, nil, placeholder: "Eg: #{@staging_project}-copy", class: 'form-control')
 

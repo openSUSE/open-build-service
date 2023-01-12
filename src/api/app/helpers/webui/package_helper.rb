@@ -71,10 +71,6 @@ module Webui::PackageHelper
     end.compact.reverse.join(' ')
   end
 
-  def uploadable?(filename, architecture)
-    ::Cloud::UploadJob.new(filename: filename, arch: architecture).uploadable?
-  end
-
   def expand_diff?(filename, state)
     state != 'deleted' && filename.exclude?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end

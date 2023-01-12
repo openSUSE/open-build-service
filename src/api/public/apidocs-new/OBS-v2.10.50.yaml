@@ -258,22 +258,22 @@ paths:
   # Sources - Projects
   /source:
     $ref: 'paths/source.yaml'
-  /source/{project_name}/_project:
-    $ref: 'paths/source_project_name_project.yaml'
-  /source/{project_name}/_attribute/{attribute_name}:
-    $ref: 'paths/source_project_name_attribute_name.yaml'
-  /source/{project_name}/:
+  /source/{project_name}:
     $ref: 'paths/source_project_name.yaml'
-  /source/{project_name}/_pubkey:
-    $ref: 'paths/source_project_name_pubkey.yaml'
-  /source/{project_name}/_pattern:
-    $ref: 'paths/source_project_name_pattern.yaml'
-  /source/{project_name}/_meta:
-    $ref: 'paths/source_project_name_meta.yaml'
-  /source/{project_name}/_project/{file_name}:
-    $ref: 'paths/source_project_name_project_file.yaml'
   /source/{project_name}/_config:
     $ref: 'paths/source_project_name_config.yaml'
+  /source/{project_name}/_meta:
+    $ref: 'paths/source_project_name_meta.yaml'
+  /source/{project_name}/_pattern:
+    $ref: 'paths/source_project_name_pattern.yaml'
+  /source/{project_name}/_project:
+    $ref: 'paths/source_project_name_project.yaml'
+  /source/{project_name}/_pubkey:
+    $ref: 'paths/source_project_name_pubkey.yaml'
+  /source/{project_name}/_attribute/{attribute_name}:
+    $ref: 'paths/source_project_name_attribute_name.yaml'
+  /source/{project_name}/_project/{file_name}:
+    $ref: 'paths/source_project_name_project_file.yaml'
   /source/{project_name}?cmd=addchannels:
     $ref: 'paths/source_project_name_cmd_addchannels.yaml'
   /source/{project_name}?cmd=copy:

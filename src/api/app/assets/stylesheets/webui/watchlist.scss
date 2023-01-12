@@ -52,7 +52,7 @@
   .main-info .triangle.left { left: .25rem; }
 }
 
-@include media-breakpoint-between(sm, md) {
+@include media-breakpoint-between(sm, lg) {
   .extended-info .triangle {
     &.left { left: .5rem; }
   }

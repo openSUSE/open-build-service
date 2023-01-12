@@ -68,6 +68,33 @@ module Webui
         status ||= 200
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
+
+      def update
+        return unless request.xhr?
+
+        authorize @package, :update?
+
+        errors = []
+
+        begin
+          @package.save_file(file: params[:file], filename: params[:filename],
+                             comment: params[:comment])
+        rescue APIError, StandardError => e
+          errors << e.message
+        rescue Backend::Error => e
+          errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
+        end
+
+        if errors.blank?
+          flash.now[:success] = "'#{params[:filename]}' has been successfully saved."
+        else
+          flash.now[:error] = "Error while adding '#{params[:filename]}': #{errors.compact.join("\n")}."
+          status = 400
+        end
+
+        status ||= 200
+        render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
+      end
     end
   end
 end

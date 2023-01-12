@@ -1,6 +1,6 @@
 -# TODO: drop this partial when `request_show_redesign` feature is rolled out
 - content_for :actions do
   %li.nav-item
-    = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link', title: 'Add a Review') do
-      %i.fas.fa-plus-circle.fa-lg.mr-2
+    = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-reviewer-modal' }, class: 'nav-link', title: 'Add a Review') do
+      %i.fas.fa-plus-circle.fa-lg.me-2
       %span.nav-item-name Add a Review

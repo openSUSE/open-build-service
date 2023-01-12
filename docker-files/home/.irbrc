@@ -3,9 +3,7 @@
 require 'irb/completion'
 require 'irb/ext/save-history'
 
-ARGV.concat ['--readline',
-             '--prompt-mode',
-             'simple']
+ARGV.push('--readline', '--prompt-mode', 'simple')
 
 # 500 entries in the list
 IRB.conf[:SAVE_HISTORY] = 500

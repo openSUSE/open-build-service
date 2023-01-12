@@ -1,14 +1,16 @@
 class Badge
   RED = '#e05d44'.freeze
   GREEN = '#4c1'.freeze
+  FAILED = %w[failed unresolvable broken].freeze
 
-  def initialize(type, results)
+  def initialize(type, states)
     @type = 'unknown'
-    return if results.blank?
+    finalstates = states&.select { |r| ['succeeded', *FAILED].any?(r.code) }
+    return if finalstates.blank?
 
     # Ratio of the successful to all results
-    @ratio = results.count { |r| r.code == 'succeeded' }.quo(results.length)
-    @type = type == 'percent' ? 'percent' : status(results)
+    @ratio = finalstates.count { |r| r.code == 'succeeded' }.quo(finalstates.length)
+    @type = type == 'percent' ? 'percent' : status(finalstates)
   end
 
   def xml
@@ -19,9 +21,9 @@ class Badge
 
   private
 
-  def status(results)
-    return 'failed' if results.any? { |r| r.code == 'failed' }
-    return 'succeeded' if results.all? { |r| r.code == 'succeeded' }
+  def status(finalstates)
+    return 'failed' if finalstates.any? { |r| FAILED.include?(r.code) }
+    return 'succeeded' if finalstates.all? { |r| r.code == 'succeeded' }
 
     'unknown'
   end

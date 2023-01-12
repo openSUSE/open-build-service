@@ -21,6 +21,6 @@
             = description_fields.text_field :specification, data: { default: description_fields.object.specification }, class: 'form-control'
 
       .modal-footer
-        %a.btn.btn-sm.btn-outline-danger.px-4{ data: { dismiss: 'modal' } }
+        %a.btn.btn-sm.btn-outline-danger.px-4{ data: { 'bs-dismiss': 'modal' } }
           Cancel
         = link_to('Continue', '#', title: 'Continue', class: 'btn btn-sm btn-primary px-4 close-description-dialog')

@@ -77,6 +77,7 @@ def ignore_by_class_and_message?(notice)
   notice[:errors].each do |error|
     return true if error[:type] == 'ActionController::RoutingError' && error[:message].match?(/Required Parameter|\[GET\]|Expected AJAX call/)
     return true if error[:type] == 'Backend::Error' && ignore_by_backend_400_message?(error[:message])
+    return true if ignore_by_message?(error[:message])
   end
 
   false
@@ -101,12 +102,19 @@ end
 def ignore_by_class?(notice)
   exceptions_to_ignore = ['ActiveRecord::RecordNotFound', 'ActionController::InvalidAuthenticityToken',
                           'CGI::Session::CookieStore::TamperedWithCookie', 'ActionController::UnknownAction',
-                          'AbstractController::ActionNotFound', 'ActionView::MissingTemplate',
-                          'Timeout::Error', 'Net::HTTPBadResponse',
+                          'AbstractController::ActionNotFound', 'ActionView::MissingTemplate', 'Bunny::TCPConnectionFailedForAllHosts',
+                          'Timeout::Error', 'Net::HTTPBadResponse', 'Errno::ECONNRESET', 'Interrupt',
                           'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'ActionDispatch::Http::MimeNegotiation::InvalidType',
-                          'ActionController::UnknownFormat', 'Backend::NotFoundError']
+                          'ActionController::UnknownFormat', 'Backend::NotFoundError', 'AMQ::Protocol::EmptyResponseError']
 
   notice[:errors].pluck(:type).intersect?(exceptions_to_ignore)
+end
+
+def ignore_by_message?(message)
+  messages_to_ignore = ["<summary>undefined method `server_properties' for #<AMQ::Protocol::Connection::Close",
+                        "<summary>undefined method `decode_payload' for #<AMQ::Protocol::HeartbeatFrame"].freeze
+
+  messages_to_ignore.any? { |message_to_ignore| message.include?(message_to_ignore) }
 end
 
 def ignore_exception?(notice)

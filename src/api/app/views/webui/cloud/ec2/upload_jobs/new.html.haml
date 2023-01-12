@@ -12,21 +12,21 @@
       = upload_job_form.hidden_field :filename
       = upload_job_form.hidden_field :target, value: 'ec2'
 
-      .form-group.row
+      .mb-3.row
         = label_tag(:filename, 'Filename:', class: 'col-md-2 col-form-label')
         .col-md-10.pt-2
           %b= @upload_job.filename
-      .form-group.row
+      .mb-3.row
         .col-md-2
           = upload_job_form.label(:ami_name, 'AMI Name:', class: 'col-form-label')
           %abbr.text-danger{ title: 'required' } *
         .col-md-10
           = text_field('cloud_backend_upload_job', 'ami_name', size: 35, required: true)
-      .form-group.row
+      .mb-3.row
         = upload_job_form.label(:region, 'Region:', class: 'col-md-2 col-form-label')
         .col-md-10
-          = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions), class: 'custom-select w-auto')
-      .form-group.row
+          = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions), class: 'form-select w-auto')
+      .mb-3.row
         = upload_job_form.label(:vpc_subnet_id, 'VPC Subnet ID:', class: 'col-md-2 col-form-label')
         .col-md-10
           = text_field('cloud_backend_upload_job', 'vpc_subnet_id', size: 35, placeholder: 'eg. subnet-12345678')

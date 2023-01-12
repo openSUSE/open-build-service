@@ -6,8 +6,8 @@
       %li.list-group-item
         = link_to(issue_name, issue_details[:url], target: '_blank', rel: 'noopener')
         - if issue_details[:owner] && issue_details[:state]
-          %span.ml-3= issue_details[:state]&.capitalize
-          %span.ml-3= user_with_realname_and_icon issue_details[:owner], short: true
+          %span.ms-3= issue_details[:state]&.capitalize
+          %span.ms-3= user_with_realname_and_icon issue_details[:owner], short: true
 
         - if issue_details[:summary]
           = render partial: 'webui/shared/collapsible_text', locals: { text: issue_details[:summary], extra_css_classes: 'mt-2' }

@@ -8,24 +8,24 @@
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
                                                                    data: { source: autocomplete_projects_path } }
 
-          .form-group
+          .mb-3
             = label_tag :repositories do
               %strong Repositories:
             = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                   disabled: true,
-                                                                  class: 'repository-dropdown custom-select',
+                                                                  class: 'repository-dropdown form-select',
                                                                   data: { source: autocomplete_repositories_path }
-          .form-group
+          .mb-3
             = label_tag :name do
               %strong Name:
             = text_field_tag :repository, '', size: 60, disabled: false, required: true, class: 'repository-name form-control'
-          .form-group
+          .mb-3
             = label_tag :architectures, class: 'w-100' do
               %strong Architectures:
             - Architecture.available.each do |architecture|
-              .custom-control.custom-checkbox.custom-control-inline
-                = check_box_tag 'architectures[]', architecture.name, true, id: "architecture_#{architecture.name}", class: 'custom-control-input'
-                = label_tag :architecture, architecture.name, class: 'custom-control-label', for: "architecture_#{architecture.name}"
+              .form-check.custom-control-inline
+                = check_box_tag 'architectures[]', architecture.name, true, id: "architecture_#{architecture.name}", class: 'form-check-input'
+                = label_tag :architecture, architecture.name, class: 'form-check-label', for: "architecture_#{architecture.name}"
 
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons'

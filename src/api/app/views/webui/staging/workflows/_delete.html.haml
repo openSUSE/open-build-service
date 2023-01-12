@@ -12,13 +12,13 @@
             -# TODO: Adding a "Select all staging projects" checkbox could be nice
             = f.collection_check_boxes(:staging_project_ids, staging_workflow.staging_projects,
                                        :id, :name, include_hidden: false) do |staging_project_fields|
-              .custom-control.custom-checkbox
-                = staging_project_fields.check_box(class: 'custom-control-input', checked: false)
-                = staging_project_fields.label(class: 'custom-control-label')
+              .form-check
+                = staging_project_fields.check_box(class: 'form-check-input', checked: false)
+                = staging_project_fields.label(class: 'form-check-label')
           %br
           .modal-footer
             %i.fas.fa-spinner.fa-spin.delete-spinner.d-none
-            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
             = f.submit('Delete', class: 'btn btn-sm btn-danger px-4')
 

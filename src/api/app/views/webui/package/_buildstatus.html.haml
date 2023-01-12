@@ -1,6 +1,6 @@
 - unless buildresults.excluded_counter.zero? && !buildresults.show_all
-  .mt-3.custom-control-checkbox
-    = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none',
+  .mt-3.form-check
+    = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'form-check-input d-none',
                     onchange: "updateBuildResult('#{index}')")
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
     = label_tag "show_all_#{index}" do
@@ -22,7 +22,7 @@
           repository_name = result.repository.tr('.', '_')
           expanded = repository_expanded?(collapsed_repositories, repository_name, package_name)
         - if result.repository != previous_repo
-          .d-flex.flex-row.py-1.bg-light.pl-1.pl-sm-2
+          .d-flex.flex-row.py-1.bg-light.ps-1.ps-sm-2
             = link_to(word_break(result.repository, 22),
               package_binaries_path(project: project, package: package, repository: result.repository),
               title: "Binaries for #{result.repository}")
@@ -36,21 +36,21 @@
                 = repository_status_icon(status: result.state)
               - else
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
-              %span.ml-1
+              %span.ms-1
                 = result.architecture
             .build-state.toggle-build-info-parent
-              %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
+              %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.toggle-build-info{ title: 'Click to keep it open' }
               = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
                                                           project_name: project.name, package_name: package,
                                                           build_status: result.code, build_details: result.details))
-            .build-info.mt-1.ml-3.mb-3.mr-3.collapsed
+            .build-info.mt-1.ms-3.mb-3.me-3.collapsed
               .triangle.center
               .build-info-content
                 %p.py-1= Buildresult.status_description(result.code)
                 %div
                   - if result.is_repository_in_db
                     = repository_status_icon(status: result.state)
-                    %span.pl-1= repository_info(result.state)
+                    %span.ps-1= repository_info(result.state)
                   - else
                     %i.fas.fa-clock.text-warning
                     This result is outdated

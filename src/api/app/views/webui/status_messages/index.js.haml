@@ -1,0 +1,17 @@
+newsList = '#{escape_javascript(render(StatusMessageComponent.with_collection(@status_messages)))}';
+$('#news-list').html(newsList);
+
+newsPagination ='#{escape_javascript(paginate(@status_messages, remote: true))}';
+$('#news-pagination').html(newsPagination);
+
+newsPageEntriesInfo ='#{escape_javascript(page_entries_info(@status_messages, entry_name: 'news'))}';
+$('#news-page-entries-info').html(newsPageEntriesInfo);
+
+-# Replicate the selected page, severity and communication scope in the URL
+   This doesn't happen since data is fetched through AJAX requests
+url = new URL(window.location);
+url.searchParams.set('page', '#{@page}');
+url.searchParams.set('severity', '#{@severity}');
+url.searchParams.set('communication_scope', '#{@communication_scope}');
+// This won't reload the page like `window.location = url` would
+window.history.pushState({}, '', url);

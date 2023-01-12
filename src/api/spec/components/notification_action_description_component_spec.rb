@@ -29,7 +29,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing only the target project' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'project_12345', exact: true)
+      expect(rendered_content).to have_selector('div.smart-overflow', exact_text: 'project_12345')
     end
   end
 

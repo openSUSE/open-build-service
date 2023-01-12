@@ -23,6 +23,6 @@
         - remaining_build_problems.each do |name, states|
           = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
       %li.list-group-item.table-list-group-item
-        %a{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
+        %a{ 'data-bs-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
           %span.expander See #{remain_count} more
           %span.collapser See #{remain_count} less

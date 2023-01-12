@@ -12,12 +12,12 @@
 
   - if User.possibly_nobody.can_modify?(project) && show_package_actions?
     .pt-4
-      %ul.list-inline
-        %li.list-inline-item
+      %ul.nav
+        %li.nav-item
           = link_to(new_package_path(project), class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Create Package
-        %li.list-inline-item
+        %li.nav-item
           = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
             %i.fas.fa-code-branch.text-primary
             Branch Package

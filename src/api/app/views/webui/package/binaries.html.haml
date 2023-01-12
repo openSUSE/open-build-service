@@ -9,8 +9,8 @@
         = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
       - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
-          = link_to('#', title: 'Delete all built binaries', data: { toggle: 'modal',
-                                                                     target: '#delete-all-binaries-modal' }) do
+          = link_to('#', title: 'Delete all built binaries', data: { 'bs-toggle': 'modal',
+                                                                     'bs-target': '#delete-all-binaries-modal' }) do
             %i.fas.fa-times-circle.text-danger
             Delete all built binaries
           = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-all-binaries-modal',
@@ -29,7 +29,7 @@
         = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
         = result[:arch]
       - if result[:binaries].empty?
-        %p.pl-2
+        %p.ps-2
           %i No built binaries
       - else
         .table-responsive
@@ -39,7 +39,7 @@
             - result[:binaries].each do |binary|
               %tr
                 %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
-                %td.text-nowrap.text-right.px-2
+                %td.text-nowrap.text-end.px-2
                   - render_partial = render partial: 'webui/package/binaries/binaries_actions', locals: { project: @project,
                                                                                                                  package_name: params[:package],
                                                                                                                  package: @package,
@@ -49,8 +49,8 @@
                   .d-none.d-sm-block
                     = render_partial
                   .d-sm-none
-                    %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
-      %ul.list-inline
+                    %i.fas.fa-ellipsis-h.text-secondary{ data: { 'bs-toggle': 'popover', 'bs-html': 'true', 'bs-content': "#{render_partial}" } }
+      %ul.nav
         - if User.possibly_nobody.can_modify?(@package)
           = render partial: 'webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
                                                             package: params[:package], repository: @repository }

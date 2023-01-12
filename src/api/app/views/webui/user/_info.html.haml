@@ -10,7 +10,7 @@
     - if user.rss_token && is_user
       = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
                                             title: 'RSS Feed for Notifications', class: 'd-block') do
-        %i.fas.fa-rss.mr-1
+        %i.fas.fa-rss.me-1
         RSS for Notifications
 
     - if groups.any?
@@ -19,5 +19,5 @@
         - groups.each do |group|
           %li.list-group-item.d-flex.justify-content-between.align-items-center.p-2
             = link_to(group.title, group_path(group))
-            %span.badge.badge-primary
+            %span.badge.bg-primary
               #{group.tasks} #{'task'.pluralize(group.tasks)}

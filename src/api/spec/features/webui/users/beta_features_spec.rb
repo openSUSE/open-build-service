@@ -37,7 +37,7 @@ RSpec.describe 'User beta features', js: true do
       end
 
       it 'updates the user' do
-        expect(page).to have_checked_field('user[in_beta]', visible: :hidden) # visible for custom Bootstrap checkbox
+        expect(page).to have_checked_field('user[in_beta]')
         expect(page).to have_text("User data for user 'jane_doe' successfully updated.")
         expect(user.reload.in_beta).to be_truthy
       end
@@ -65,7 +65,7 @@ RSpec.describe 'User beta features', js: true do
       end
 
       it 'updates the user as part of the beta program' do
-        expect(page).to have_unchecked_field('user[in_beta]', visible: :hidden) # visible for custom Bootstrap checkbox
+        expect(page).to have_unchecked_field('user[in_beta]')
         expect(page).to have_text("User data for user 'john_doe' successfully updated.")
         expect(user.reload.in_beta).to be_falsey
       end
@@ -82,7 +82,7 @@ RSpec.describe 'User beta features', js: true do
         within('#flash') do
           expect(page).to have_text("You enabled the beta feature 'Something cool'.")
         end
-        expect(page).to have_checked_field('feature[something_cool]', visible: :hidden) # visible for custom Bootstrap checkbox
+        expect(page).to have_checked_field('feature[something_cool]')
       end
     end
 
@@ -112,7 +112,7 @@ RSpec.describe 'User beta features', js: true do
         within('#flash') do
           expect(page).to have_text("You disabled the beta feature 'Something cool'.")
         end
-        expect(page).to have_unchecked_field('feature[something_cool]', visible: :hidden) # visible for custom Bootstrap checkbox
+        expect(page).to have_unchecked_field('feature[something_cool]')
       end
     end
 

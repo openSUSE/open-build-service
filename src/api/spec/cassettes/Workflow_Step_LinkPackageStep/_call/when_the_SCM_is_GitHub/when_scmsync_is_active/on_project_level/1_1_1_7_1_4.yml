@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_15
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_11
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Look Homeward, Angel</title>
+          <title>A Handful of Dust</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Look Homeward, Angel</title>
+          <title>A Handful of Dust</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_16
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_12
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>The Last Enemy</title>
-          <description>Soluta reprehenderit voluptas optio.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Corporis eveniet voluptate rem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>The Last Enemy</title>
-          <description>Soluta reprehenderit voluptas optio.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Corporis eveniet voluptate rem.</description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Quidem temporibus ratione. Et reprehenderit autem. Sequi ut ab.
+      string: Labore quos quidem. Sunt est reiciendis. At veniam odit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="56" vrev="56">
-          <srcmd5>a291c9f8d9c772af5f973edd76812e49</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>e35d48dfce8797e462eea829b076acfd</srcmd5>
           <version>unknown</version>
-          <time>1657902163</time>
+          <time>1673370898</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Recusandae ut eaque. Animi exercitationem doloremque. Rerum nemo voluptas.
+      string: Animi harum et. Ut rerum cupiditate. Sed ipsam voluptate.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="57" vrev="57">
-          <srcmd5>1583c185da85468e5272d255ade39f90</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>3717b56ea2599a7b192ba85cced05127</srcmd5>
           <version>unknown</version>
-          <time>1657902163</time>
+          <time>1673370898</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -233,7 +233,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -271,7 +271,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -311,5 +311,5 @@ http_interactions:
           <description></description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=bar_scm_synced_package#123</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:43 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:58 GMT
 recorded_with: VCR 6.1.0

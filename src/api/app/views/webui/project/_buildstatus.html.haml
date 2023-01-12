@@ -18,7 +18,7 @@
       - repository_name = repository.tr('.', '_')
       - expanded = repository_expanded?(collapsed_repositories, repository_name)
       .d-flex.flex-column
-        .d-flex.flex-row.py-1.bg-light.pl-1.pl-sm-2
+        .d-flex.flex-row.py-1.bg-light.ps-1.ps-sm-2
           = link_to(word_break(repository, 12),
             project_repository_state_path(project: project.name, repository: repository),
             title: "Repository #{repository}")
@@ -29,7 +29,7 @@
             .d-flex.flex-row.flex-nowrap.py-1
               .repository-state
                 = repository_status_icon(status: build_result.state)
-                %span.ml-1
+                %span.ms-1
                   = link_to(build_result.architecture, { action: :monitor,
                                                   "#{valid_xml_id("repo_#{repository}")}": 1,
                                                   "arch_#{build_result.architecture}": 1,
@@ -51,7 +51,7 @@
               .build-state.d-flex.flex-column
                 - build_result.summary.each do |status_count|
                   .toggle-build-info-parent.text-nowrap
-                    %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
+                    %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.toggle-build-info{ title: 'Click to keep it open' }
                     = link_to("#{status_count.code}: #{status_count.count}",
                       { action: :monitor,
                         "#{valid_xml_id("repo_#{repository}")}": 1,
@@ -59,13 +59,13 @@
                         project: params[:project],
                         "#{status_count.code}": 1,
                         defaults: 0 }, rel: 'nofollow', class: "nowrap build-state-#{status_count.code}")
-                  .build-info.p2.mb-2.mt-1.mr-sm-3.collapsed
+                  .build-info.p2.mb-2.mt-1.me-sm-3.collapsed
                     .triangle.left
                     .build-info-content
                       %p.py-1= Buildresult.status_description(status_count.code)
                       %div
                         = repository_status_icon(status: build_result.state)
-                        %span.pl-1= repository_info(build_result.state)
+                        %span.ps-1= repository_info(build_result.state)
 
 :javascript
   toggleBuildInfo();

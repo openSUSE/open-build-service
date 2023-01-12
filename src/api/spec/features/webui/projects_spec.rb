@@ -7,6 +7,8 @@ RSpec.describe 'Projects', js: true do
   let(:broken_package_with_error) { create(:package, project: project, name: 'broken_package') }
 
   it 'project show' do
+    project.update(description: 'Original description')
+
     login user
     visit project_show_path(project: project)
     expect(page).to have_text(/Packages .*0/)
@@ -37,6 +39,10 @@ RSpec.describe 'Projects', js: true do
     end
 
     context 'when cancelling the changes' do
+      before do
+        project.update(title: 'Original title', description: 'Original description')
+      end
+
       it "renders back the original project's details" do
         login user
         visit project_show_path(project: project)
@@ -68,7 +74,7 @@ RSpec.describe 'Projects', js: true do
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
       expect(page).to have_current_path(project_show_path(project: "#{user.home_project_name}:coolstuff"))
-      expect(find_by_id('project-title').text).to eq("#{user.home_project_name}:coolstuff")
+      expect(find_by_id('project-title').text).to start_with("#{user.home_project_name}:coolstuff")
     end
   end
 

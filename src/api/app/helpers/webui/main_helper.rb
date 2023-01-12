@@ -1,6 +1,6 @@
 module Webui::MainHelper
-  def icon_for_status(message)
-    case message.severity.to_sym
+  def icon_for_severity(severity)
+    case severity.to_sym
     when :green
       { class: 'fa-check-circle text-success', title: 'Success' }
     when :yellow

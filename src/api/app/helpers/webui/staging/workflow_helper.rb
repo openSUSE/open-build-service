@@ -24,7 +24,7 @@ module Webui::Staging::WorkflowHelper
   end
 
   def testing_progress(staging_project)
-    return 0 if staging_project.checks.size.zero?
+    return 0 if staging_project.checks.empty?
 
     not_done = staging_project.checks.pending.size + staging_project.missing_checks.size
     all_checks = staging_project.checks.size + staging_project.missing_checks.size
@@ -92,11 +92,11 @@ module Webui::Staging::WorkflowHelper
 
     output = safe_join(requests_links[0, requests_visible_by_default])
 
-    output += link_to('#', class: 'collapsed', 'data-toggle': 'collapse', href: ".collapse-#{staging_project.id}",
+    output += link_to('#', class: 'collapsed', 'data-bs-toggle': 'collapse', href: ".collapse-#{staging_project.id}",
                            role: 'button', aria: { expanded: 'false', controls: "collapse-#{staging_project.id}" }) do
       safe_join([
-                  tag.i(nil, class: 'fas fa-chevron-up collapser text-secondary ml-1 mr-1'),
-                  tag.i(nil, class: 'fas fa-chevron-down expander text-secondary ml-1 mr-1')
+                  tag.i(nil, class: 'fas fa-chevron-up collapser text-secondary ms-1 me-1'),
+                  tag.i(nil, class: 'fas fa-chevron-down expander text-secondary ms-1 me-1')
                 ])
     end
     output + tag.div(class: "collapse collapse-#{staging_project.id}") do
@@ -105,7 +105,10 @@ module Webui::Staging::WorkflowHelper
   end
 
   def info_link(request, excluded = false)
-    options = { data: { content: request.request_exclusion.description, placement: 'top', toggle: 'popover' } } if excluded
+    if excluded
+      options = { data: { 'bs-content': request.request_exclusion.description,
+                          'bs-placement': 'top', 'bs-toggle': 'popover' } }
+    end
     link_to(elide(request.first_target_package, 19), request_show_path(request.number), options)
   end
 end

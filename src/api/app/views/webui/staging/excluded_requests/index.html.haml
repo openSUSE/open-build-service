@@ -17,7 +17,7 @@
           %tbody
 
         - if request_exclusion_policy
-          = link_to('#', data: { toggle: 'modal', target: '#exclude-request-modal' }) do
+          = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#exclude-request-modal' }) do
             %i.fas.fa-plus-circle.text-primary
             Exclude request
 

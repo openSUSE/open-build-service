@@ -7,8 +7,8 @@
           - if issue[:owner] && issue[:state]
             .row
               = link_to(long_name, issue[:url], target: '_blank', rel: 'noopener')
-              %span.ml-3= issue[:state]&.capitalize
-              %span.ml-3= user_with_realname_and_icon issue[:owner], short: true
+              %span.ms-3= issue[:state]&.capitalize
+              %span.ms-3= user_with_realname_and_icon issue[:owner], short: true
           - else
             .row
               = link_to(long_name, issue[:url], target: '_blank', rel: 'noopener')

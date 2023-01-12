@@ -19,7 +19,7 @@ function updateBuildResultBeta() { // jshint ignore:line
     },
     complete: function() {
       $('#build-reload').removeClass('fa-spin');
-      initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+      initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
     }
   });
 }

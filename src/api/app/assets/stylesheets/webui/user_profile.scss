@@ -1,4 +1,4 @@
 #involved-filters {
   &.sticky-top { top: $top-navigation-height; }
-  .form-inline label { justify-content: left; }
+  .row.row-cols-auto label { justify-content: left; }
 }

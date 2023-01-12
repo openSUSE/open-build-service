@@ -41,7 +41,7 @@ class MaintainedProjectDatatable < Datatable
   # rubocop:enable Rails/OutputSafety
 
   def link_to_delete(project_name)
-    link_to('#', title: 'Delete Project', data: { toggle: 'modal', target: '#delete-maintained-project-modal',
+    link_to('#', title: 'Delete Project', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-maintained-project-modal',
                                                   action: project_maintained_project_path(project_name: @project, maintained_project: project_name) }) do
       tag.i(nil, class: 'fas fa-times-circle text-danger')
     end

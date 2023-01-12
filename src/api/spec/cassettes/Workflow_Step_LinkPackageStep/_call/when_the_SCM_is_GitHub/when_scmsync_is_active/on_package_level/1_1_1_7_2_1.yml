@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_1
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>When the Green Woods Laugh</title>
+          <title>No Longer at Ease</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>When the Green Woods Laugh</title>
+          <title>No Longer at Ease</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_2
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>The Last Temptation</title>
-          <description>Eos quis et magni.</description>
+          <title>Of Mice and Men</title>
+          <description>Fuga voluptatibus sunt et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>The Last Temptation</title>
-          <description>Eos quis et magni.</description>
+          <title>Of Mice and Men</title>
+          <description>Fuga voluptatibus sunt et.</description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Voluptates autem vitae. Quisquam alias aspernatur. Nobis nostrum quia.
+      string: Laboriosam aliquam sapiente. Dolor qui asperiores. Libero eaque inventore.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="42" vrev="42">
-          <srcmd5>5c53d1bb4117961d120003a21241f1f6</srcmd5>
+        <revision rev="11" vrev="11">
+          <srcmd5>40a2d825eeb39e118fe66c44cd5c78ec</srcmd5>
           <version>unknown</version>
-          <time>1657902161</time>
+          <time>1673370899</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptates sed et. Et iure illo. Quasi debitis velit.
+      string: Ipsa omnis enim. Animi fugit eum. Nam nemo voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,24 +185,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="43" vrev="43">
-          <srcmd5>3a4bb14829158590d5a09d81d29647f9</srcmd5>
+        <revision rev="12" vrev="12">
+          <srcmd5>9036cee85ae2c8a0742828c400cc3c30</srcmd5>
           <version>unknown</version>
-          <time>1657902161</time>
+          <time>1673370900</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_2
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>The Last Temptation</title>
-          <description>Eos quis et magni.</description>
+          <title>Of Mice and Men</title>
+          <description>Fuga voluptatibus sunt et.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
     headers:
@@ -224,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '238'
+      - '242'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>The Last Temptation</title>
-          <description>Eos quis et magni.</description>
+          <title>Of Mice and Men</title>
+          <description>Fuga voluptatibus sunt et.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -273,7 +273,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -311,7 +311,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -351,5 +351,5 @@ http_interactions:
           <description></description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#123</scmsync>
         </package>
-  recorded_at: Fri, 15 Jul 2022 16:22:41 GMT
+  recorded_at: Tue, 10 Jan 2023 17:15:00 GMT
 recorded_with: VCR 6.1.0

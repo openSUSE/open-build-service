@@ -2,7 +2,7 @@
 .card-body
   - if repository.path_elements.present?
     %strong Repository paths:
-    %ol.list-unstyled.ml-3
+    %ol.list-unstyled.ms-3
       - repository.path_elements.each_with_index do |path, index|
         - if index < number_paths
           = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path,
@@ -23,11 +23,11 @@
     - if user_can_modify
       .col
         = link_to('#', title: 'Edit Repository',
-                       data: { toggle: 'modal', target: "#edit-repository-#{repository.id}" }) do
+                       data: { 'bs-toggle': 'modal', 'bs-target': "#edit-repository-#{repository.id}" }) do
           %i.fas.fa-edit.text-secondary
       .col
         = link_to('#', title: 'Add Repository Path',
-                       data: { toggle: 'modal', target: "#add-repository-path-#{repository.id}" }) do
+                       data: { 'bs-toggle': 'modal', 'bs-target': "#add-repository-path-#{repository.id}" }) do
           %i.fas.fa-plus-circle.text-primary
     .col
       - url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
@@ -36,12 +36,12 @@
 
     - if user_can_modify
       .col
-        = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: '#delete-repository',
+        = link_to('#', title: 'Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-repository',
           action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
           %i.fas.fa-times-circle.text-danger
     - elsif User.session
       .col
-        = link_to('#', title: 'Request Delete Repository', data: { toggle: 'modal', target: '#request-delete-repository',
+        = link_to('#', title: 'Request Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#request-delete-repository',
           action: project_remove_target_request_path(project: project, repository: repository.name), repository: repository.name }) do
           %i.fas.fa-user-times.text-danger
 

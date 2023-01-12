@@ -1,7 +1,8 @@
 %hr
-.media
-  = image_tag_for(comment.user, size: 35, custom_class: 'mr-3 d-none d-sm-block')
-  .media-body
+.d-flex
+  .flex-shrink-0
+    = image_tag_for(comment.user, size: 35, custom_class: 'me-3 d-none d-sm-block')
+  .comment.flex-grow-1.text-break
     %p
       = link_to(comment.user, user_path(comment.user))
       wrote

@@ -229,6 +229,9 @@ namespace :dev do
 
       # Create a request wich builds and produces build results
       Rake::Task['dev:requests:request_with_build_results'].invoke
+
+      # Create news
+      Rake::Task['dev:news:data'].invoke
     end
   end
 end

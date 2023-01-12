@@ -6,10 +6,10 @@
           %h5.modal-title#add-reviewer-modal-label Add a reviewer to request #{params['number']}
         .modal-body
           = hidden_field_tag(:number, params['number'])
-          .form-group
+          .mb-3
             = label_tag(:review_type, 'Type:')
             = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group],
-                                                           %w[Project review-project], %w[Package review-package]]), class: 'custom-select')
+                                                           %w[Project review-project], %w[Package review-package]]), class: 'form-select')
           .hideable.review-user
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_user', label: 'User:', required: true,
                                                                      data: { source: autocomplete_users_path } }
@@ -25,7 +25,7 @@
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_package', label: 'Package:', required: true,
                                                                      data: { source: autocomplete_packages_path } }
 
-          .form-group
+          .mb-3
             = label_tag(:review_comment, 'Comment for reviewer:')
             = text_area_tag('review_comment', '', row: 3, class: 'form-control')
         .modal-footer

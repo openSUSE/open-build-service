@@ -73,7 +73,7 @@ RSpec.describe 'Packages', js: true, vcr: true do
       execute_script("$('.CodeMirror')[0].CodeMirror.setValue('added some new text')")
       click_button('Save')
 
-      expect(page).to have_text("The file 'somefile.txt' has been successfully saved.")
+      expect(page).to have_text("'somefile.txt' has been successfully saved.")
       expect(file_edit_test_package.source_file('somefile.txt')).to eq('added some new text')
     end
   end

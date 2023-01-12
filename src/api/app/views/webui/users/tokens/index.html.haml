@@ -26,7 +26,7 @@
             %span#token-id
         = form_tag nil, method: :delete do
           .modal-footer
-            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
             %input.btn.btn-sm.btn-danger.px-4{ type: 'submit', name: 'commit', value: 'Delete', data: { disable: { with: 'Delete' } } }
 

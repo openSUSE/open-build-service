@@ -3,21 +3,18 @@
     .modal-content
       .modal-header
         %h5.modal-title Editor settings
-        %button.close{ 'data-dismiss': 'modal' }
-          %span ×
+        %button.btn.btn-close.float-end{ type: 'button', 'data-bs-dismiss': 'modal' }
       .modal-body
         .input-group
-          .input-group-prepend
-            .input-group-text
-              Text size
+          .input-group-text
+            Text size
           = select_tag("fontsize_#{uid}", options_for_select(%w[0.5em 0.6em 0.75em 0.9em 1em 1.2em 1.5em]),
-            onchange: "editors[#{uid}].updateFontsize(this)", class: 'custom-select')
+            onchange: "editors[#{uid}].updateFontsize(this)", class: 'form-select')
 
       .modal-body
         .input-group
-          .input-group-prepend
-            .input-group-text
-              Highlighting
+          .input-group-text
+            Highlighting
           :ruby
             modes = [
               ['changes', 'rpm-changes', { id: "rpm-changes_#{uid}" }],
@@ -35,21 +32,20 @@
               ['---', '', { id: "x_#{uid}", selected: true }]
             ]
           = select_tag("mode_#{uid}", options_for_select(modes),
-            onchange: "editors[#{uid}].updateMode(this)", class: 'custom-select')
+            onchange: "editors[#{uid}].updateMode(this)", class: 'form-select')
       .modal-body
         .input-group
-          .input-group-prepend
-            .input-group-text
-              Tab width
+          .input-group-text
+            Tab width
           = select_tag("tabsize_#{uid}", options_for_select(2..8),
-            onchange: "editors[#{uid}].updateTabsize(this)", class: 'custom-select')
+            onchange: "editors[#{uid}].updateTabsize(this)", class: 'form-select')
       .modal-body
         .row
           .col
             %label Line wrapping:
-            %button.btn.btn-block.btn-danger{ onclick: "editors[#{uid}].Wrap(this)" }
+            %button.btn.d-block.w-100.btn-danger{ onclick: "editors[#{uid}].Wrap(this)" }
               off
           .col
             %label Parenthesis matching:
-            %button.btn.btn-block.btn-danger{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);" }
+            %button.btn.d-block.w-100.btn-danger{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);" }
               off

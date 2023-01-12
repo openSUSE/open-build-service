@@ -4,8 +4,7 @@
   %b
     = pluralize(people.count, 'person')
   added
-  = link_to('#pulse-collaboration') do
-    = pluralize(comments.count, 'comment')
+  = link_to(pluralize(comments.count, 'comment'), '#pulse-collaboration')
   in here.
 - else
   And no one commented in here.

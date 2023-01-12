@@ -7,54 +7,54 @@
     .row
       .col-12.col-md-10.col-lg-8
         = form_with(url: token_path, scope: :token, method: :put, local: true) do |f|
-          .form-row.d-none#created-token
+          .row.d-none#created-token
             .col-12.col-md-10.col-lg-9
-              %fieldset.form-group
+              %fieldset.mb-3
                 = f.label(:string_readonly, 'Your new OBS Personal Access Token Secret', class: 'col-form-label col-form-label-lg')
                 .input-group
                   = render CopyToClipboardInputComponent.new(input_text: @token.string)
               %hr
 
-          .form-row
+          .row
             .col-12.col-md-10.col-lg-9
-              .form-group
+              .mb-3
                 = f.label(:id, 'Id:')
                 = @token.id
-              .form-group
+              .mb-3
                 = f.label(:type, 'Operation:')
                 = @token.token_name.capitalize
-              .form-group
+              .mb-3
                 = f.label(:description, 'Description:')
                 %span.d-none#original-token-description
                   = @token.description
                 .input-group#token-description-text-field
                   = f.text_field(:description, class: 'form-control', placeholder: 'Eg: Rebuild vim package', maxlength: 64)
               - if @token.package.present?
-                .form-group
+                .mb-3
                   = f.label(:type, 'Package:')
                   = link_to("#{@token.package.project.name}/#{@token.package.name}",
                     package_show_path(project: @token.package.project, package: @token.package))
-              .form-group#regenerate-token-group
-                = link_to('Regenerate Token', '#', title: 'Regenerate Token', class: 'btn btn-outline-danger float-right ml-3 px-4',
-                  data: { toggle: 'modal', target: '#regenerate-token-modal' })
+              .mb-3#regenerate-token-group
+                = link_to('Regenerate Token', '#', title: 'Regenerate Token', class: 'btn btn-outline-danger float-end ms-3 px-4',
+                  data: { 'bs-toggle': 'modal', 'bs-target': '#regenerate-token-modal' })
                 If your token has been lost, forgotten or compromised, you can regenerate it.
                 Don't forget to replace the string in any scripts or applications using this token.
               - if @token.type == 'Token::Workflow'
-                .form-group#scm-token-group
+                .mb-3#scm-token-group
                   = f.label(:scm_token) do
                     SCM token:
                   .input-group
                     = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your new SCM token')
                   .form-text.text-muted
                     Leaving this text field empty will not update your SCM token.
-                .form-group#workflow-configuration-path-group
+                .mb-3#workflow-configuration-path-group
                   = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')
                   .input-group
                     = f.text_field(:workflow_configuration_path, class: 'form-control',
                                                                  placeholder: 'Eg: .my_subdir/my_workflows_file.yml')
                   .form-text.text-muted
                     The default path is '.obs/workflows.yml'.
-                .form-group#workflow-configuration-url-group
+                .mb-3#workflow-configuration-url-group
                   = f.label(:workflow_configuration_url, 'URL to Workflows Configuration File:')
                   .input-group
                     = f.text_field(:workflow_configuration_url, class: 'form-control',
@@ -62,7 +62,7 @@
                   .form-text.text-muted
                     When the URL is given, the path will be ignored. The URL should be accessible for the OBS instance.
           .actions
-            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 mr-3 mt-3 mt-sm-0')
+            = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
             = f.submit('Update', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
 
 .modal.fade#regenerate-token-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'regenerate-token-modal-label', hidden: true } }
@@ -75,6 +75,6 @@
           Please confirm that you want to regenerate this token string.
         = form_with(url: token_path, scope: :token, method: :put, local: false) do |f|
           .modal-footer
-            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
             = f.submit('Regenerate', class: 'btn btn-sm btn-danger px-4', data: { disable: { with: 'Regenerate' } })

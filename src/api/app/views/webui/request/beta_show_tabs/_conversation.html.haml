@@ -38,13 +38,13 @@
       - bs_request.superseding.each do |superseding_request|
         .timeline-item.pb-4
           = link_to('#collapse-superseding', class: 'd-flex align-items-center',
-              data: { toggle: 'collapse' },
+              data: { 'bs-toggle': 'collapse' },
               aria: { expanded: false, controls: 'collapse-superseding' }) do
             %i.timeline-break.expander>
             %i.timeline-offset.collapser>
 
-            %i.fas.fa-fw.fa-chevron-right.expander.mr-1{ title: 'Show history' }>
-            %i.fas.fa-fw.fa-chevron-down.collapser.mr-1{ title: 'Hide history' }>
+            %i.fas.fa-fw.fa-chevron-right.expander.me-1{ title: 'Show history' }>
+            %i.fas.fa-fw.fa-chevron-down.collapser.me-1{ title: 'Hide history' }>
             %span.expander
               Expand history from superseded request ##{superseding_request.number}
             %span.collapser

@@ -19,24 +19,6 @@ module Webui::WebuiHelper
     )
   end
 
-  def fuzzy_time(time, with_fulltime = true)
-    if Time.now - time < 60
-      return 'now' # rails' 'less than a minute' is a bit long
-    end
-
-    human_time_ago = time_ago_in_words(time) + ' ago'
-
-    if with_fulltime
-      raw("<span title='#{l(time.utc)}' class='fuzzy-time'>#{human_time_ago}</span>")
-    else
-      human_time_ago
-    end
-  end
-
-  def fuzzy_time_string(timestring)
-    fuzzy_time(Time.parse(timestring), false)
-  end
-
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
@@ -303,7 +285,7 @@ module Webui::WebuiHelper
         link_content('Sign Up', css_class, 'fa-user-plus')
       end
     else
-      link_to('#', class: css_class, data: { toggle: 'modal', target: '#sign-up-modal' }) do
+      link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#sign-up-modal' }) do
         link_content('Sign Up', css_class, 'fa-user-plus')
       end
     end
@@ -315,7 +297,7 @@ module Webui::WebuiHelper
         link_content('Log In', css_class, 'fa-sign-in-alt')
       end
     else
-      link_to('#', class: css_class, data: { toggle: 'modal', target: '#log-in-modal' }) do
+      link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#log-in-modal' }) do
         link_content('Log In', css_class, 'fa-sign-in-alt')
       end
     end

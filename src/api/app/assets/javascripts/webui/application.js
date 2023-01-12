@@ -30,7 +30,6 @@
 //= require webui/attributes.js
 //= require webui/packages.js
 //= require webui/live_build_log.js
-//= require webui/forms.js
 //= require webui/users_groups.js
 //= require webui/popover.js
 //= require webui/repositories.js

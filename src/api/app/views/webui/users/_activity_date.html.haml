@@ -8,7 +8,7 @@
   .h6.mt-3
     = pluralize(activities_per_day[:requests_created].size, 'request')
     created
-  .m-2.ml-3
+  .m-2.ms-3
     - count = activities_per_day[:requests_created].size - max_count
     - activities_per_day[:requests_created][0..(max_count - 1)].each do |number|
       = link_to(number, request_show_path(number))
@@ -17,7 +17,7 @@
   .h6.mt-3
     = pluralize(activities_per_day[:requests_reviewed].values.sum, 'review')
     done
-  .m-2.ml-3
+  .m-2.ms-3
     in requests:
     - count = activities_per_day[:requests_reviewed].size - max_count
     - activities_per_day[:requests_reviewed].keys[0..(max_count - 1)].each do |number|

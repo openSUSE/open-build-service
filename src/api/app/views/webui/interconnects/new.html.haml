@@ -27,7 +27,7 @@
       .list-group-item
         .d-flex.w-100.justify-content-between
           %h5 Custom OBS instance
-          = button_tag 'Add', class: 'btn btn-primary', data: { toggle: 'modal', target: '#interconnect-modal' }
+          = button_tag 'Add', class: 'btn btn-primary', data: { 'bs-toggle': 'modal', 'bs-target': '#interconnect-modal' }
         %div This project is representing a remote build service instance.
 
 = render partial: 'interconnect_modal'

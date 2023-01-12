@@ -11,11 +11,11 @@
       end
     .search_result.mt-3
       %h6
-        %i.mr-1.fa{ class: result.is_a?(Project) ? 'fa-cubes text-secondary' : 'fa-archive text-warning' }
+        %i.me-1.fa{ class: result.is_a?(Project) ? 'fa-cubes text-secondary' : 'fa-archive text-warning' }
         = project_or_package_link(project: project, package: package, short: false, trim_to: nil)
         %span.d-none= result.sphinx_attributes
         = ": #{result.title}" if result.title.present?
-      %p.pl-4
+      %p.ps-4
         - if result.description.blank?
           = '...'
         - else

@@ -7,15 +7,15 @@
     %table.responsive.table.table-sm.table-bordered.table-hover#user-table{ data: { source: users_path } }
       %thead
         %tr
-          %th
+          %th.all
             User
           %th
             Real Name
           %th
             Local User
-          %th
+          %th.all
             State
-          %th
+          %th.all
             Actions
       %tbody
 
@@ -23,6 +23,13 @@
       = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create', title: 'Create User')) do
         %i.fas.fa-plus-circle.text-primary
         Create User
+    = render partial: 'webui/users/delete_dialog'
 
 - content_for :ready_function do
-  initializeUserConfigurationDatatable("#{Configuration.ldap_enabled?}");
+  :plain
+    initializeUserConfigurationDatatable("#{Configuration.ldap_enabled?}");
+    $('#delete-user-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('.user-login').text(link.data('user-login'));
+      $(this).find('form').attr('action', link.data('action'));
+    });
