@@ -2,14 +2,7 @@ namespace :dev do
   namespace :requests do
     # Run this task with: rails dev:requests:multiple_actions_request
     desc 'Creates a request with multiple actions'
-    task multiple_actions_request: :environment do
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
-
+    task multiple_actions_request: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 
@@ -68,14 +61,7 @@ namespace :dev do
     end
 
     desc 'Creates several requests with submit actions and diffs'
-    task request_with_multiple_submit_actions_and_diffs: :environment do
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
-
+    task request_with_multiple_submit_actions_and_diffs: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 
@@ -115,14 +101,7 @@ namespace :dev do
     end
 
     desc 'Creates a request which builds and produces build results'
-    task request_with_build_results: :environment do
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
-
+    task request_with_build_results: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 

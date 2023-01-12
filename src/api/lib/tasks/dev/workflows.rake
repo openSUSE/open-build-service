@@ -2,14 +2,7 @@ namespace :dev do
   namespace :workflows do
     # Run this task with: rails dev:workflows:create_workflow_runs
     desc 'Creates a workflow token, workflow runs, artifacts and some of their dependencies'
-    task create_workflow_runs: :environment do
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
-
+    task create_workflow_runs: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 

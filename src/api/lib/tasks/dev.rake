@@ -24,6 +24,15 @@ namespace :dev do
     RakeSupport.copy_example_file('../../dist/ec2utils.conf')
   end
 
+  task development_environment: :environment do
+    unless Rails.env.development?
+      puts "You are running this rake task in #{Rails.env} environment."
+      puts 'Please only run this task with RAILS_ENV=development'
+      puts 'otherwise it will destroy your database data.'
+      exit(1)
+    end
+  end
+
   desc 'Bootstrap the application'
   task :bootstrap, [:old_test_suite] => [:prepare, :environment] do |_t, args|
     args.with_defaults(old_test_suite: false)
@@ -63,13 +72,7 @@ namespace :dev do
   # This is automatically run in Review App or manually in development env.
   namespace :test_data do
     desc 'Creates test data to play with in dev and CI environments'
-    task create: :environment do
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
+    task create: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
       require 'active_support/testing/time_helpers'
