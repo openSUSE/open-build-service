@@ -1,7 +1,10 @@
-- submit_actions = bs_request.bs_request_actions.where(type: 'submit')
-- if submit_actions.count > 1
+:ruby
+  submit_actions = bs_request.bs_request_actions.where(type: 'submit')
+  submit_actions_count = submit_actions.count
+
+- if submit_actions_count > 1
   .d-flex.align-items-center
-    %p.mb-0 This request contains multiple actions
+    %p.mb-0 This request contains #{submit_actions_count} actions
     .dropdown.ms-2#request-actions
       %button.btn.btn-outline-primary.btn-sm.dropdown-toggle{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                               :type => 'button', 'data-boundary' => 'viewport' }
@@ -21,7 +24,7 @@
                                                                         diff_to_superseded: diff_to_superseded_id),
                                                       class: "dropdown-item #{action_item.id == active_action.id ? 'disabled' : ''}")
 %p
-  = 'Showing' if submit_actions.count > 1
+  = 'Showing' if submit_actions_count > 1
   %span.font-italic= request_action_header(action, bs_request.creator)
 
 - content_for :ready_function do
