@@ -44,15 +44,20 @@ namespace :dev do
         source_package: source_package_a
       )
 
-      # Create an action to submit a new file to package B
-      action_attributes = {
-        source_package: source_package_b,
-        source_project: source_project,
-        target_project: target_project,
-        target_package: target_package_b
-      }
-      bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit', bs_request: request))
-      bs_req_action.save! if bs_req_action.valid?
+      # Create more actions to submit a new file to different packages
+      (1..30).each do |i|
+        target_package = Package.where(name: "package_#{i}", project: target_project).first || create(:package, name: "package_#{i}", project: target_project)
+
+        # Create an action to submit a new file to package C
+        action_attributes = {
+          source_package: source_package_b,
+          source_project: source_project,
+          target_project: target_project,
+          target_package: target_package
+        }
+        bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit', bs_request: request))
+        bs_req_action.save! if bs_req_action.valid?
+      end
 
       # Create an action to add role
       action_attributes = {
