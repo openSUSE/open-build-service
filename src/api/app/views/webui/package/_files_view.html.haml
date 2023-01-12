@@ -20,7 +20,7 @@
     %i This package has no files yet
   - if user_can_modify_package
     .pt-4
-      = form_tag(project_package_files_path(project, package), multipart: true, class: 'd-inline mr-1') do
+      = form_tag(project_package_files_path(project, package), multipart: true, class: 'd-inline me-1') do
         = file_field_tag 'file', class: 'd-none', id: 'filechooser'
         %label.btn-link{ for: 'filechooser' }
           %i.fas.fa-hard-drive.text-primary
