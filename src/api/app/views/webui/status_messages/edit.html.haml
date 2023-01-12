@@ -8,7 +8,7 @@
           .col-12
             %h3= @pagetitle
           .col-12.col-md-9.col-lg-6
-            = form_for(@status_message) do |form|
+            = form_for(@status_message, url: news_item_path) do |form|
               .mb-3
                 = form.label(:message) do
                   Message:
