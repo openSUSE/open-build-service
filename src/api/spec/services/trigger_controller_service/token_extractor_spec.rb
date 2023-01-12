@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'ostruct' # for OpenStruct
 require 'stringio' # for StringIO
 
-RSpec.describe ::TriggerControllerService::TokenExtractor do
+RSpec.describe TriggerControllerService::TokenExtractor do
   describe '#call' do
     subject { described_class.new(request).call }
 

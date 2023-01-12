@@ -1,6 +1,5 @@
 #comments {
-  .media .media-body {
-    @extend .text-break;
+  .comment {
 
     p:not(:first-child) {
       max-width: $seventy-five-chars;

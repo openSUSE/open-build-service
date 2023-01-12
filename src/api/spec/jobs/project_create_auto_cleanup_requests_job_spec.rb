@@ -30,7 +30,7 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, vcr: true do
     subject { described_class.perform_now }
 
     before do
-      allow(::Configuration).to receive(:cleanup_after_days).and_return(3)
+      allow(Configuration).to receive(:cleanup_after_days).and_return(3)
       login(admin)
       attribute
     end

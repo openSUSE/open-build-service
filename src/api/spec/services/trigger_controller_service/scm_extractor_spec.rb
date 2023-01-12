@@ -115,7 +115,10 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             sender: {
               url: 'https://api.github.com'
             },
-            base_ref: 'refs/heads/main'
+            base_ref: 'refs/heads/main',
+            head_commit: {
+              id: '8823eec73e46f29082cd343077ee3e97d8da0ec3'
+            }
           }
         end
         let(:expected_hash) do
@@ -123,8 +126,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             scm: 'github',
             event: 'push',
             api_endpoint: 'https://api.github.com',
-            commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
-            target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            commit_sha: '8823eec73e46f29082cd343077ee3e97d8da0ec3',
+            target_branch: '8823eec73e46f29082cd343077ee3e97d8da0ec3',
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/tags/release_abc',
@@ -384,7 +387,10 @@ RSpec.describe TriggerControllerService::SCMExtractor do
               full_name: 'iggy/repo123',
               clone_url: 'https://gitea.opensuse.org/krauselukas/test.git'
             },
-            base_ref: 'refs/heads/main'
+            base_ref: 'refs/heads/main',
+            head_commit: {
+              id: '8823eec73e46f29082cd343077ee3e97d8da0ec3'
+            }
           }
         end
         let(:expected_hash) do
@@ -392,8 +398,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             scm: 'gitea',
             event: 'push',
             api_endpoint: 'https://gitea.opensuse.org',
-            commit_sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
-            target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
+            commit_sha: '8823eec73e46f29082cd343077ee3e97d8da0ec3',
+            target_branch: '8823eec73e46f29082cd343077ee3e97d8da0ec3',
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/tags/release_abc',

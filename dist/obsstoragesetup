@@ -419,6 +419,7 @@ case "$1" in
 				fi
                         fi
 			# append user presets
+			[ -n "$OBS_VM_ENABLE_NET" ] && echo "OBS_VM_ENABLE_NET=\"$OBS_VM_ENABLE_NET\"" >> /etc/buildhost.config
 			echo "" >> /etc/buildhost.config
 			echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
 			if [ -e /etc/buildhost.config.presets ]; then

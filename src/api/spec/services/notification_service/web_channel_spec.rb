@@ -170,6 +170,7 @@ RSpec.describe NotificationService::WebChannel do
       context 'when having no previous notifications' do
         before do
           event_subscription_group
+          event_subscription_user
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago)
         end
 
@@ -190,6 +191,21 @@ RSpec.describe NotificationService::WebChannel do
         end
       end
 
+      context 'when having no user subscription' do
+        before do
+          event_subscription_group
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago)
+        end
+
+        subject do
+          described_class.new(event_subscription_group, event).call
+        end
+
+        it 'creates no notifications' do
+          expect(subject.compact).to be_empty
+        end
+      end
+
       context 'when having a previous unread notification' do
         let(:first_comment) do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 2.hours.ago, body: 'Previous comment')
@@ -205,6 +221,7 @@ RSpec.describe NotificationService::WebChannel do
 
         before do
           event_subscription_group
+          event_subscription_user
           first_comment
           previous_notification
           second_comment
@@ -242,6 +259,7 @@ RSpec.describe NotificationService::WebChannel do
 
         before do
           event_subscription_group
+          event_subscription_user
           first_comment
           previous_notification
           second_comment
@@ -257,6 +275,45 @@ RSpec.describe NotificationService::WebChannel do
 
         it 'the number of notifications stays the same' do
           expect { subject }.not_to change(Notification, :count)
+        end
+
+        it 'sets no last_seen_at date for the new notification' do
+          expect(subject.first.last_seen_at).to be_nil
+        end
+      end
+    end
+
+    context 'a user who belongs to a group, but is not a maintainer of the project' do
+      let(:group_maintainers) { create(:group, title: 'maintainers') }
+      let(:group_heroes) { create(:group, title: 'heroes') }
+      let(:owner) { create(:confirmed_user, login: 'bob', groups: [group_maintainers, group_heroes]) }
+      let(:project) { create(:project, name: 'bob_project', maintainer: [group_maintainers]) }
+
+      let(:event_subscription_group) do
+        create(:event_subscription_comment_for_request,
+               receiver_role: 'target_maintainer',
+               user: nil,
+               group: group_maintainers,
+               channel: :web)
+      end
+
+      context 'when having no previous notifications' do
+        before do
+          event_subscription_group
+          event_subscription_user
+          create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago)
+        end
+
+        subject do
+          described_class.new(event_subscription_group, event).call
+        end
+
+        it 'only creates one notification' do
+          expect(subject.count).to eq(1)
+        end
+
+        it 'creates a new notification for the group members' do
+          expect(subject.first.groups.pluck(:title)).to match_array([group_maintainers].pluck(:title))
         end
 
         it 'sets no last_seen_at date for the new notification' do

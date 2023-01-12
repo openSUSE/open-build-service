@@ -27,14 +27,14 @@
                   - unless attribute.issues.empty?
                     %li= attribute.issues.map(&:name).to_sentence
               - if can_update_container
-                %td
+                %td<
                   - if attribute.values_editable?
                     = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
                       %i.fas.fa-edit.text-secondary
                   = link_to('#',
-                            title: 'Delete attribute',
-                            data: { toggle: 'modal',
-                                    target: '#delete-attribute-modal',
+                            title: 'Delete attribute', class: 'ms-1',
+                            data: { 'bs-toggle': 'modal',
+                                    'bs-target': '#delete-attribute-modal',
                                     action: attrib_path(attribute),
                                     confirmation_text: "Please confirm the deletion of the attribute '#{attribute.fullname}'" }) do
                     %i.fas.fa-times-circle.text-danger
@@ -43,8 +43,8 @@
         %em No attributes set
 
     - if can_update_container
-      %ul.list-inline
-        %li.list-inline-item
+      %ul.nav
+        %li.nav-item
           = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add Attribute', class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add Attribute

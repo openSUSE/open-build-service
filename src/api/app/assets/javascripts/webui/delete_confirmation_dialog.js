@@ -5,8 +5,8 @@ function collectDeleteConfirmationModalsAndSetValues() { // jshint ignore:line
 }
 
 function modalIds() {
-  var targets = $('a[data-toggle="modal"][data-target^="#delete"]').toArray().map(
-    function(e) { return $(e).data('target');
+  var targets = $('a[data-bs-toggle="modal"][data-bs-target^="#delete"]').toArray().map(
+    function(e) { return $(e).data('bs-target');
   });
 
   return $.unique(targets);

@@ -16,7 +16,7 @@ function updateRpmLintResultBeta() { // jshint ignore:line
     },
     complete: function() {
       $('#rpm-lint-reload').removeClass('fa-spin');
-      initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+      initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
     }
   });
 }

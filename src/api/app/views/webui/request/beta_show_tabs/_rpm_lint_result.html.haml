@@ -1,11 +1,11 @@
 #rpmlint-log{ data: { project: project.name, package: package.name } }
   - unless repository_list.empty?
-    .form-inline
+    .row.row-cols-auto
       = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort),
-                   class: 'custom-select mb-3', onchange: 'updateRpmLintArchitectures()')
+                   class: 'form-select mb-3', onchange: 'updateRpmLintArchitectures()')
       - repo_arch_hash.each do |repository, architectures|
         = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse),
-                     class: 'rpmlint_arch_select custom-select mb-3', onchange: 'updateRpmLintLog()')
+                     class: 'rpmlint_arch_select form-select mb-3', onchange: 'updateRpmLintLog()')
 
 :javascript
   updateRpmLintArchitectures();

@@ -24,7 +24,7 @@ FactoryBot.define do
         end
 
         source_project do |evaluator|
-          Project.find_by_name!(evaluator.source_project_name) ||
+          Project.find_by_name(evaluator.source_project_name) ||
             create(:project, :as_submission_source, name: evaluator.source_project_name)
         end
         source_package do |evaluator|
@@ -49,10 +49,7 @@ FactoryBot.define do
         end
 
         bs_request do |evaluator|
-          create(:bs_request_with_submit_action,
-                 creator: evaluator.creator,
-                 target_package: target_package,
-                 source_package: source_package)
+          evaluator.bs_request || create(:bs_request_with_submit_action)
         end
       end
     end

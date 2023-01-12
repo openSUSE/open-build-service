@@ -106,25 +106,27 @@ RSpec.describe PersonController do
           <watchlist>
             <project name="test-proj"/>
             <package name="test-pkg" project="test-proj"/>
+            <request number="#{delete_request.number}"/>
           </watchlist>
         </userinfo>
       XML_DATA
     end
 
+    let(:delete_request) { create(:delete_bs_request) }
+
     context 'when watchlist is available in xml' do
       let(:test_user) { create(:confirmed_user, login: 'test-user', email: 'test-user@email.com') }
       let(:project) { create(:project, name: 'test-proj') }
+      let!(:package) { create(:package, project: project, name: 'test-pkg') }
 
       before do
-        create(:package, project: project, name: 'test-pkg')
-        Flipper.enable_actor(:new_watchlist, admin_user)
         login admin_user
         put :put_userinfo, params: { login: test_user.login, format: :xml }, body: xml
       end
 
-      it "adds projects and packages to user's watchlist" do
-        expect(test_user.watched_items.count).to eq(2)
-        expect(test_user.watched_items.collect(&:watchable)).to include(project)
+      it "adds projects, requests and packages to user's watchlist" do
+        expect(test_user.watched_items.count).to eq(3)
+        expect(test_user.watched_items.collect(&:watchable)).to include(project, package, delete_request)
       end
     end
 
@@ -191,16 +193,19 @@ RSpec.describe PersonController do
           <watchlist>
             <project name="test-proj"/>
             <package name="test-pkg" project="test-proj"/>
+            <request number="#{delete_request.number}"/>
           </watchlist>
         XML_DATA
       end
 
+      let(:project) { create(:project, name: 'test-proj') }
+      let(:package) { create(:package, project: project, name: 'test-pkg') }
+      let(:delete_request) { create(:delete_bs_request) }
+
       before do
-        project = create(:project, name: 'test-proj')
-        package = create(:package, project: project, name: 'test-pkg')
-        Flipper.enable_actor(:new_watchlist, user)
         user.watched_items.create(watchable: project)
         user.watched_items.create(watchable: package)
+        user.watched_items.create(watchable: delete_request)
         login user
       end
 
@@ -219,22 +224,23 @@ RSpec.describe PersonController do
           <watchlist>
             <project name="test-proj"/>
             <package name="test-pkg" project="test-proj"/>
+            <request number="#{delete_request.number}"/>
           </watchlist>
         XML_DATA
       end
 
       let!(:project) { create(:project, name: 'test-proj') }
       let!(:package) { create(:package, project: project, name: 'test-pkg') }
+      let(:delete_request) { create(:delete_bs_request) }
 
       before do
-        Flipper.enable_actor(:new_watchlist, user)
         login user
         put :put_watchlist, params: { login: user.login, format: :xml }, body: xml
       end
 
-      it "adds projects and packages to user's watchlist" do
-        expect(user.watched_items.count).to eq(2)
-        expect(user.watched_items.collect(&:watchable)).to include(project, package)
+      it "adds projects, packages and requests to user's watchlist" do
+        expect(user.watched_items.count).to eq(3)
+        expect(user.watched_items.collect(&:watchable)).to include(project, package, delete_request)
       end
     end
   end

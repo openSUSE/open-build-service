@@ -36,15 +36,15 @@
                   = link_to(display_name(user), user_or_group_path(user))
                 - if User.session
                   %td.text-nowrap
-                    = link_to('#', class: 'text-light ml-auto',
-                                   data: { toggle: 'modal',
-                                           target: '#delete-user-from-token-modal',
+                    = link_to('#', class: 'text-light ms-auto',
+                                   data: { 'bs-toggle': 'modal',
+                                           'bs-target': '#delete-user-from-token-modal',
                                            action: token_user_path(token_id: @token.id, id: user.id),
                                            confirmation_text: "Please confirm you want to remove this user #{user.login} from the token." }) do
                       %i.fa.fa-times-circle.text-danger{ title: 'Remove user from token' }
       .pt-4
         = render(partial: 'webui/users/tokens/users/add_user_to_token_dialog', locals: { token: @token })
-        = link_to('#', data: { toggle: 'modal', target: '#add-user-to-token-modal' }, id: 'add-user-to-token') do
+        = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-user-to-token-modal' }, id: 'add-user-to-token') do
           %i.fas.fa-plus-circle.text-primary
           Add User
 
@@ -66,15 +66,15 @@
                   = link_to(display_name(group), user_or_group_path(group))
                 - if User.session
                   %td.text-nowrap
-                    = link_to('#', class: 'text-light ml-auto',
-                                   data: { toggle: 'modal',
-                                           target: '#delete-group-from-token-modal',
+                    = link_to('#', class: 'text-light ms-auto',
+                                   data: { 'bs-toggle': 'modal',
+                                           'bs-target': '#delete-group-from-token-modal',
                                            action: token_group_path(token_id: @token.id, id: group.id),
                                            confirmation_text: "Please confirm you want to remove this group '#{group.title}' from the token." }) do
                       %i.fa.fa-times-circle.text-danger{ title: 'Remove group from token' }
       .pt-4
         = render(partial: 'webui/users/tokens/users/add_group_to_token_dialog', locals: { token: @token })
-        = link_to('#', data: { toggle: 'modal', target: '#add-group-to-token-modal' }, id: 'add-group-to-token') do
+        = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-to-token-modal' }, id: 'add-group-to-token') do
           %i.fas.fa-plus-circle.text-primary
           Add Group
 

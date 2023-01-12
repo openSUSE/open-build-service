@@ -7,22 +7,22 @@
     .d-flex.justify-content-center
       = form_tag(search_owner_path, method: :get, class: 'my-3 w-75') do
         %input{ name: 'owner', type: 'hidden', value: '1' }
-        .form-group.d-flex
+        .mb-3.d-flex
           = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true, required: true, class: 'form-control',
                            id: 'search_input')
-          %button.btn.btn-primary.ml-1{ type: 'submit', title: 'Search' }
+          %button.btn.btn-primary.ms-1{ type: 'submit', title: 'Search' }
             %i.fa.fa-search
-        .form-row
+        .row
           .d-flex.flex-wrap.flex-column.flex-sm-row
-            .form-group.form-inline
-              .custom-control.custom-switch.ml-1.mr-4
+            .mb-3.row.row-cols-auto
+              .form-check.form-switch.ms-1.me-4
                 = hidden_field_tag('devel', 'off', id: 'nodevel')
-                = check_box_tag('devel', 'on', @owner_devel.nil? || @owner_devel == '1', id: 'devel', class: 'custom-control-input')
-                %label.custom-control-label{ for: 'devel' } Follow Devel Projects
+                = check_box_tag('devel', 'on', @owner_devel.nil? || @owner_devel == '1', id: 'devel', class: 'form-check-input')
+                %label.form-check-label{ for: 'devel' } Follow Devel Projects
 
-            .form-group.form-inline
+            .mb-3.row.row-cols-auto
               - limit_options = options_for_select([['Newest', '1'], ['Oldest', '-1'], ['All', '0']], @owner_limit)
-              = select_tag('limit', limit_options, class: 'custom-select border-0 pl-0 w-auto')
+              = select_tag('limit', limit_options, class: 'form-select border-0 ps-0 w-auto')
               %label#limit-label{ for: 'limit' }
                 = 'package'.pluralize(@owner_limit.to_i.abs)
     -# TODO: Ajaxify this section, so whenever changing the filters above, it fetches and refreshes the results
@@ -32,7 +32,7 @@
       - if User.session
         %ul.nav
           %li.nav-item
-            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#request-bugowner-change-modal' }) do
+            = link_to('#', class: 'nav-link', data: { 'bs-toggle': 'modal', 'bs-target': '#request-bugowner-change-modal' }) do
               %i.fas.fa-exchange-alt.text-primary
               Request bugowner change
         - projects_and_packages = @results.map { |result| { project: result.project, package: result.package } }

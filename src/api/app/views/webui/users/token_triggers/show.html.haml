@@ -6,25 +6,25 @@
 
     -# "as: :token" to have a consistent name across all various token classes
     = form_for(@token, as: :token, url: token_trigger_path, method: :put, local: false) do |f|
-      .form-row
+      .row
         .col-12.col-md-10.col-lg-9
-          .form-group
+          .mb-3
             = f.label(:id, 'Id:')
             = @token.id
-          .form-group
+          .mb-3
             = f.label(:type, 'Operation:')
             = @token.token_name.capitalize
           - token_package = @token.package
           - if token_package.present?
             = fields_for(:package, token_package) do |token_fields|
-              .form-group
+              .mb-3
                 = token_fields.label(:project, 'Project:')
                 = token_package.project
-              .form-group
+              .mb-3
                 = token_fields.label(:package, 'Package:')
                 = token_package.name
           - else
-            .form-group.row
+            .mb-3.row
               .col-sm
                 = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project', label: 'Project:', required: true,
                                                                          data: { source: autocomplete_projects_path(local: true) } }

@@ -114,7 +114,9 @@ class Workflow
   # TODO: Extract this into a service
   def destroy_target_projects
     # Do not process steps for which there's nothing to do
-    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) }
+    processable_steps = steps.reject do |step|
+      step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) || step.instance_of?(::Workflow::Step::SetFlags)
+    end
     target_packages = processable_steps.map(&:target_package).uniq.compact
     EventSubscription.where(channel: 'scm', token: token, package: target_packages).delete_all
 

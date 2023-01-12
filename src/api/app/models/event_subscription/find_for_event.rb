@@ -52,6 +52,9 @@ class EventSubscription
               channel: default_subscription.channel,
               subscriber: receiver
             )
+          elsif channel == :web && receiver.instance_of?(Group) && receiver.web_users.any? { |u| EventSubscription.for_subscriber(u).find_by(options).present? }
+            # There is no default subscription for groups, so we are using the existing details
+            receivers_and_subscriptions[receiver] = EventSubscription.new(options.merge({ subscriber: receiver }))
           elsif @debug && default_subscription.present? && !default_subscription.enabled?
             puts "Skipped receiver #{receiver} because of a disabled default subscription"
           end
@@ -62,6 +65,8 @@ class EventSubscription
       receivers_and_subscriptions.values.flatten
     end
 
+    private
+
     def expand_receivers(receivers, channel)
       receivers.inject([]) do |new_receivers, receiver|
         case receiver
@@ -69,17 +74,14 @@ class EventSubscription
           new_receivers << receiver if receiver.is_active?
           puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.is_active?
         when Group
-          new_receivers += expand_receivers_for_groups(new_receivers, receiver, channel)
+          new_receivers += expand_receivers_for_groups(receiver, channel)
         end
 
         new_receivers
       end
     end
 
-    def expand_receivers_for_groups(_new_receivers, receiver, channel)
-      # We don't subscribe Groups so we have to get the group's users to get the subscriptions
-      return receiver.users if event.instance_of?(Event::RelationshipCreate) || event.instance_of?(Event::RelationshipDelete)
-
+    def expand_receivers_for_groups(receiver, channel)
       # We don't split events which come through the web channel, for a group subscriber.
       # They are split in the NotificationService::WebChannel service, if needed.
       return [receiver] if channel == :web || receiver.email.present?

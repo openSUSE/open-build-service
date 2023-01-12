@@ -1,6 +1,4 @@
 module Triggerable
-  extend ActiveSupport::Concern
-
   def set_project
     # By default we operate on the package association
     @project = @token.package.try(:project)

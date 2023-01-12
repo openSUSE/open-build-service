@@ -519,13 +519,18 @@ fi
 %fdupes $RPM_BUILD_ROOT%{__obs_document_root}
 %endif
 
+# create empty directories we own
+for dir in MySQL certs db diffcache remotecache repos sources trees upload workers; do
+    install -d "$RPM_BUILD_ROOT%{obs_backend_data_dir}/$dir"
+done
+
 # drop testcases for now
 rm -rf %{buildroot}%{__obs_api_prefix}/spec
 # only config for CI
-rm %{buildroot}%{__obs_api_prefix}/config/brakeman.ignore
+rm -f %{buildroot}%{__obs_api_prefix}/config/brakeman.ignore
 
 # Remove Gemfile.next and Gemfile.next.lock since they are only for testing the next Rails version in development and test environments
-rm %{buildroot}%{__obs_api_prefix}/Gemfile.next %{buildroot}%{__obs_api_prefix}/Gemfile.next.lock
+rm -f %{buildroot}%{__obs_api_prefix}/Gemfile.next %{buildroot}%{__obs_api_prefix}/Gemfile.next.lock
 
 # fail when Makefiles created a directory
 if ! test -L %{buildroot}%{obs_backend_dir}/build; then
@@ -912,14 +917,24 @@ fi
 # directory to symlink
 %ghost %{obs_backend_dir}/build
 %attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}
+%attr(0755, mysql,  mysql)  %dir %{obs_backend_data_dir}/MySQL
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/build
+%attr(0700, root,   root)   %dir %{obs_backend_data_dir}/certs
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/db
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/diffcache
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/events
-%attr(0700, root, root)     %dir %{obs_backend_data_dir}/gnupg
+%attr(0700, root,   root)   %dir %{obs_backend_data_dir}/gnupg
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/info
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/jobs
 %attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/log
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/projects
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/remotecache
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/repos
 %attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/run
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/sources
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/trees
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/upload
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/workers
 %attr(0755, obsservicerun, obsrun) %dir %{obs_backend_data_dir}/service
 %attr(0755, obsservicerun, obsrun) %dir %{obs_backend_data_dir}/service/log
 

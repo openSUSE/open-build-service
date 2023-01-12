@@ -28,15 +28,21 @@
     .card-title.p-4.mb-0
       %h3
         Request #{@bs_request.number}
-        %span.badge.ml-1{ class: "badge-#{request_badge_color(@bs_request.state)}" }
+        %span.badge.ms-1{ class: "bg-#{request_badge_color(@bs_request.state)}" }
           = @bs_request.state
           - if @bs_request.superseded_by.present?
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
+        - if @bs_request.accept_at.present?
+          %span.badge.alert-warning.ms-1 auto-accept
+        - if User.session
+          .d-inline.align-bottom.ms-2#watchlist-icon-wrapper
+            = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
+
       %p.font-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
-        = fuzzy_time(@bs_request.created_at)
+        = render FuzzyTimeComponent.new(time: @bs_request.created_at)
         - if @bs_request.superseding.present?
           = '. Supersedes'
           - @bs_request.superseding.each do |supersed|
@@ -45,37 +51,37 @@
         = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
                                                        diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
 
-    %ul.nav.nav-tabs.scrollable-tabs#request-tabs{ role: 'tablist' }
-      %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-        = link_to('Conversation', '#conversation', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
-                  'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
-      - if @action[:sprj] || @action[:spkg]
+    .border-bottom
+      %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }
         %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('Build Results', '#build-results', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
-                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
-        %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('RPM Lint', '#rpm-lint', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint',
-                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
-      - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link{ role: 'presentation', 'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id] }
-          = link_to('Changes', '#changes', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
-                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab')
-      - if @action[:type].in?(actions_for_diff)
-        %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('#mentioned-issues', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
-                    'aria-selected': 'false', 'data-toggle': 'tab', role: 'tab') do
-            Mentioned Issues
-            %span.badge.badge-primary.align-text-top= @issues.size
+          = link_to('Conversation', '#conversation', id: 'conversation-tab', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
+                    'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+        - if @action[:sprj] || @action[:spkg]
+          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
+            = link_to('Build Results', '#build-results', id: 'build-results-tab', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
+            = link_to('RPM Lint', '#rpm-lint', id: 'rpm-lint-tab', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint',
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+        - if @action[:type].in?(actions_for_diff)
+          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
+            = link_to('Changes', '#changes', id: 'changes-tab', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
+                      'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id],
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+        - if @action[:type].in?(actions_for_diff)
+          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
+            = link_to('#mentioned-issues', id: 'mentioned-issues-tab', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
+                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab') do
+              Mentioned Issues
+              %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
       .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/conversation', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
-                                                                             open_reviews: @open_reviews,
-                                                                             accepted_reviews: @accepted_reviews,
-                                                                             declined_reviews: @declined_reviews,
-                                                                             open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
-                                                                             my_open_reviews: @my_open_reviews,
-                                                                             action: @action,
-                                                                             is_target_maintainer: @is_target_maintainer, is_author: @is_author }
+        = render partial: 'webui/request/beta_show_tabs/conversation',
+            locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
+                      request_reviews: @request_reviews, open_reviews_for_staging_projects: @open_reviews_for_staging_projects,
+                      my_open_reviews: @my_open_reviews, package_maintainers: @package_maintainers, action: @action,
+                      is_target_maintainer: @is_target_maintainer, is_author: @is_author,
+                      project_maintainers: @project_maintainers, show_project_maintainer_hint: @show_project_maintainer_hint }
       - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @staging_project || @action[:sprj],
@@ -100,6 +106,11 @@
       $('.nav-tabs:not(.disable-link-generation) .nav-link[href="#changes"]').tab('show');
 
       $('#revision_details_' + file_index).attr('open', 'open');
+
+      document.location.hash = anchor;
+    }
+    else if (anchor == '#comments-list') {
+      $('#conversation-tab').tab('show');
 
       document.location.hash = anchor;
     }

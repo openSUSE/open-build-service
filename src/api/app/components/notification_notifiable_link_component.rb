@@ -37,10 +37,17 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       else
         "Removed as #{role} of a project"
       end
+    when 'Event::BuildFail'
+      project = @notification.event_payload['project']
+      package = @notification.event_payload['package']
+      repository = @notification.event_payload['repository']
+      arch = @notification.event_payload['arch']
+      "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def notifiable_link_path
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
@@ -67,6 +74,10 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       else
         Rails.application.routes.url_helpers.project_users_path(@notification.event_payload['project'])
       end
+    when 'Event::BuildFail'
+      Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
+                                                                       repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 end

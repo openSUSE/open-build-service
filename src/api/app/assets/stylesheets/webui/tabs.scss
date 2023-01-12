@@ -5,19 +5,22 @@
   overflow: auto;
   white-space: nowrap;
   padding: 0rem 1rem 0.5rem 1rem;
+  margin-bottom: -$card-border-width;
   transform: rotateX(180deg);
 
   a.scrollable-tab-link {
     display: inline-block;
     padding: 0.5rem 1rem;
     text-align: center;
+    text-decoration: none;
     transform: rotateX(180deg);
     &.active {
       font-weight: 600;
       border: 1px solid;
-      border-color: $gray-300;
-      border-bottom-color: $white;
-      background-color: $white;
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+      background-color: $card-bg;
+      @include border-top-radius($nav-tabs-border-radius);
     }
   }
 }
@@ -26,18 +29,23 @@
 ul.scrollable-tabs {
   display: block;
   overflow-y: hidden;
+  margin-bottom: -$card-border-width;
 
   li.scrollable-tab-link {
     display: inline-block;
     padding: 0.5rem 0 0 0;
     text-align: center;
     transform: rotateX(180deg);
+    a {
+      text-decoration: none;
+    }
     & > a.active {
       font-weight: 600;
       border: 1px solid;
-      border-color: $gray-300;
-      border-bottom-color: $white;
-      background-color: $white;
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+      background-color: $card-bg;
+      @include border-top-radius($nav-tabs-border-radius);
     }
   }
 }
@@ -47,6 +55,7 @@ ul.scrollable-tabs {
 ul.nav.nav-tabs li.nav-item {
   & a {
     color: $link-color;
+    text-decoration: none;
 
     &:hover {
       color: $link-hover-color;
@@ -58,7 +67,7 @@ ul.nav.nav-tabs li.nav-item {
 
       span.badge {
         color: $link-hover-color;
-        background-color: $white;
+        background-color: $card-bg;
       }
     }
   }

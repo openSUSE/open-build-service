@@ -1,11 +1,11 @@
 .card.write-and-preview
   %ul.nav.nav-tabs.px-3.pt-2.disable-link-generation{ role: 'tablist' }
     %li.nav-item
-      = link_to('Write', '#write_message', class: 'nav-link active', data: { toggle: 'tab' }, role: 'tab',
+      = link_to('Write', '#write_message', class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
       aria: { controls: 'write-message-tab', selected: 'true' })
     %li.nav-item
       = link_to('Preview', '#preview_message', class: 'nav-link preview-message-tab',
-      data: { toggle: 'tab', preview_message_url: preview_message_url },
+      data: { 'bs-toggle': 'tab', preview_message_url: preview_message_url },
       role: 'tab', aria: { controls: 'preview-message-tab', selected: 'false' })
   .tab-content.px-3
     .tab-pane.fade.show.active.my-3{ id: 'write_message', role: 'tabpanel', 'aria-labelledby': 'write-message-tab' }

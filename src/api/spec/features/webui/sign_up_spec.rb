@@ -21,7 +21,7 @@ RSpec.describe 'Sign up', js: true do
 
   it 'User with confirmation' do
     # Configure confirmation for signups
-    allow_any_instance_of(::Configuration).to receive(:registration).and_return('confirmation')
+    allow_any_instance_of(Configuration).to receive(:registration).and_return('confirmation')
 
     visit root_path
 
@@ -39,7 +39,7 @@ RSpec.describe 'Sign up', js: true do
 
   it 'User is denied' do
     # Deny signups
-    allow_any_instance_of(::Configuration).to receive(:registration).and_return('deny')
+    allow_any_instance_of(Configuration).to receive(:registration).and_return('deny')
 
     visit root_path
     expect(page).to have_link('Log In')

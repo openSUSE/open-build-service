@@ -1,6 +1,4 @@
 module ProjectDistribution
-  extend ActiveSupport::Concern
-
   # Check if the project has a path_element matching project and repository
   def has_distribution(project_name, repository)
     has_local_distribution(project_name, repository) || has_remote_distribution(project_name, repository)

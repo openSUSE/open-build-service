@@ -1,0 +1,13 @@
+.modal.fade{ id: modal_id, tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#confirm-modal-label
+          #{entity_type} Maintainers
+      .modal-body
+        - maintainers.pluck(:login).each do |maintainer|
+          %p
+            = user_with_realname_and_icon(maintainer, short: true)
+        .modal-footer
+          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+            OK

@@ -9,13 +9,13 @@
 
 .live-link-action {
   @extend .px-2;
-  @extend .mr-3;
+  @extend .me-3;
   @extend .mb-2;
   @extend .btn;
   @extend .btn-sm;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
   #log-space-wrapper {
     pre {
       font-size: 40%;

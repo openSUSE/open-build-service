@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_09_131251) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -668,7 +668,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
     t.index ["maintenance_db_project_id"], name: "index_maintenance_incidents_on_maintenance_db_project_id"
   end
 
-  create_table "notifications", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "event_type", null: false, collation: "utf8mb3_general_ci"
     t.text "event_payload", null: false
     t.string "subscription_receiver_role", null: false, collation: "utf8mb3_general_ci"
@@ -689,8 +689,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
     t.index ["subscriber_type", "subscriber_id"], name: "index_notifications_on_subscriber_type_and_subscriber_id"
   end
 
-  create_table "notified_projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.integer "notification_id", null: false
+  create_table "notified_projects", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "notification_id", null: false
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.index ["notification_id", "project_id"], name: "index_notified_projects_on_notification_id_and_project_id", unique: true
@@ -729,7 +729,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
-    t.index ["updated_at"], name: "updated_at_index"
   end
 
   create_table "path_elements", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -817,7 +816,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"
-    t.index ["updated_at"], name: "updated_at_index"
   end
 
   create_table "relationships", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1023,6 +1021,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_06_22_135133) do
     t.string "scm_token"
     t.string "description", limit: 64, default: ""
     t.datetime "triggered_at", precision: nil
+    t.string "workflow_configuration_path", default: ".obs/workflows.yml"
+    t.string "workflow_configuration_url"
     t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"

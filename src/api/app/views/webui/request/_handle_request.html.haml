@@ -4,12 +4,12 @@
       %ul.nav.nav-tabs.disable-link-generation{ role: 'tablist' }
         - if can_handle_request
           %li.nav-item
-            %a.nav-link.text-nowrap.active{ href: '#decision', data: { toggle: 'tab' }, role: 'tab' }
+            %a.nav-link.text-nowrap.active{ href: '#decision', data: { 'bs-toggle': 'tab' }, role: 'tab' }
               My decision
         - if can_add_reviews
           - my_open_reviews.each_with_index do |review, index|
             %li.nav-item
-              %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab',
+              %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { 'bs-toggle': 'tab' }, role: 'tab',
                   class: ('active' if index.zero? && !can_handle_request) }
                 Review for
                 - if review.by_package

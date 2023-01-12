@@ -1,7 +1,9 @@
-.bg-light.scrollable-tabs
-  = tab_link('Configuration', configuration_path, false, 'scrollable-tab-link')
-  = tab_link('Architectures', architectures_path, false, 'scrollable-tab-link')
-  = tab_link('Manage Users', users_path, false, 'scrollable-tab-link')
-  = tab_link('Manage Groups', groups_path, false, 'scrollable-tab-link')
-  = tab_link('Notifications', notifications_path, false, 'scrollable-tab-link')
-  = tab_link('Interconnect', new_interconnect_path, false, 'scrollable-tab-link')
+.card-header.p-0
+  .scrollable-tabs
+    = tab_link('Configuration', configuration_path, false, 'scrollable-tab-link')
+    = tab_link('Architectures', architectures_path, false, 'scrollable-tab-link')
+    = tab_link('Manage Users', users_path, false, 'scrollable-tab-link')
+    = tab_link('Manage Groups', groups_path, false, 'scrollable-tab-link')
+    = tab_link('Manage News', news_items_path, false, 'scrollable-tab-link')
+    = tab_link('Notifications', notifications_path, false, 'scrollable-tab-link')
+    = tab_link('Interconnect', new_interconnect_path, false, 'scrollable-tab-link')

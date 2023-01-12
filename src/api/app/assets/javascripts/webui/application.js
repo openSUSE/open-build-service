@@ -30,7 +30,6 @@
 //= require webui/attributes.js
 //= require webui/packages.js
 //= require webui/live_build_log.js
-//= require webui/forms.js
 //= require webui/users_groups.js
 //= require webui/popover.js
 //= require webui/repositories.js
@@ -55,10 +54,11 @@
 //= require webui/navigation.js
 //= require webui/user_profile.js
 //= require webui/long_text.js
-//= require webui/new_watchlist/collapsible_tooltip.js
+//= require webui/collapsible_tooltip.js
 //= require webui/request_show_redesign/add_review.js
 //= require webui/request_show_redesign/build_results.js
 //= require webui/request_show_redesign/rpm_lint_results.js
 //= require webui/delete_confirmation_dialog.js
 //= require webui/nav_tabs.js
 //= require webui/write_and_preview.js
+//= require webui/badge.js

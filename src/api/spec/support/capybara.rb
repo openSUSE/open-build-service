@@ -10,7 +10,7 @@ Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedr
 
 Capybara.register_driver :desktop do |app|
   Capybara::Selenium::Driver.load_selenium
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
+  browser_options = Selenium::WebDriver::Chrome::Options.new
   browser_options.args << '--disable-gpu'
   browser_options.args << '--headless'
   browser_options.args << '--no-sandbox' # to run in docker
@@ -20,7 +20,7 @@ end
 
 Capybara.register_driver :mobile do |app|
   Capybara::Selenium::Driver.load_selenium
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
+  browser_options = Selenium::WebDriver::Chrome::Options.new
   browser_options.args << '--disable-gpu'
   browser_options.args << '--headless'
   browser_options.args << '--no-sandbox' # to run in docker

@@ -1,38 +1,23 @@
 .row
   .col-md-12
-    .mb-4#description-text
-      - if bs_request.description.present?
-        = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
-      - else
-        %i No description set
+    .d-flex.justify-content-between.mb-4
+      #description-text
+        - if bs_request.description.present?
+          = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
+        - else
+          %i No description set
 .row
-  .col-md-4.order-md-2.order-sm-1.mb-4#side-links
-    - if accepted_reviews.present? || declined_reviews.present? || open_reviews.present?
-      .d-flex.justify-content-between
-        %h4
-          Reviews
-        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
-                                                can_add_reviews: can_add_reviews,
-                                                my_open_reviews: my_open_reviews)
-      = render AddReviewCollapsibleComponent.new
-      .mb-4
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: open_reviews, as: :review
+  = render partial: 'webui/request/beta_show_tabs/conversation_aside',
+           locals: { bs_request: bs_request,
+             can_add_reviews: can_add_reviews,
+             my_open_reviews: my_open_reviews,
+             request_reviews: request_reviews,
+             open_reviews_for_staging_projects: open_reviews_for_staging_projects,
+             package_maintainers: package_maintainers,
+             project_maintainers: project_maintainers,
+             show_project_maintainer_hint: show_project_maintainer_hint }
 
-    - if can_add_reviews
-      = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, title: 'Add a Review') do
-        %i.fas.fa-plus-circle.fa-lg.mr-1
-        %span.nav-item-name Add a Review
-      = render partial: 'add_reviewer_dialog'
-
-    - open_reviews_for_staging_projects.each do |review|
-      .pl-3
-        %i.fas.fa-info-circle.text-info
-        - staging_project = review.project
-        Is staged in
-        = link_to(review.by_project, staging_workflow_staging_project_path(staging_project.staging_workflow.project, staging_project.name))
-  .col-md-8.order-md-1.order-sm-2
+  .col-md-8.order-md-1.order-sm-2#comments-list
     %h4.list-group.mb-4 Comments & Request History
     .timeline{ data: { comment_counter: local_assigns[:comment_counter_id] } }
       .timeline-item
@@ -43,7 +28,7 @@
             %i.fas.fa-code-commit.text-dark
             = link_to(realname_with_login(creator), user_path(creator))
             created this request
-            = link_to('#request-creation', title: l(bs_request.created_at.utc), name: 'request-creation') do
+            = link_to('#request-creation', title: I18n.l(bs_request.created_at.utc), name: 'request-creation') do
               #{time_ago_in_words(bs_request.created_at)} ago
             - if bs_request.superseding.any?
               superseding
@@ -53,13 +38,13 @@
       - bs_request.superseding.each do |superseding_request|
         .timeline-item.pb-4
           = link_to('#collapse-superseding', class: 'd-flex align-items-center',
-              data: { toggle: 'collapse' },
+              data: { 'bs-toggle': 'collapse' },
               aria: { expanded: false, controls: 'collapse-superseding' }) do
             %i.timeline-break.expander>
             %i.timeline-offset.collapser>
 
-            %i.fas.fa-fw.fa-chevron-right.expander.mr-1{ title: 'Show history' }>
-            %i.fas.fa-fw.fa-chevron-down.collapser.mr-1{ title: 'Hide history' }>
+            %i.fas.fa-fw.fa-chevron-right.expander.me-1{ title: 'Show history' }>
+            %i.fas.fa-fw.fa-chevron-down.collapser.me-1{ title: 'Hide history' }>
             %span.expander
               Expand history from superseded request ##{superseding_request.number}
             %span.collapser
@@ -72,6 +57,28 @@
     .comment_new.mt-3
       = render partial: 'webui/comment/new', locals: { commentable: bs_request }
     %hr
+
+    - if bs_request.accept_at.present?
+      .alert.alert-warning.p-2.mb-3
+        %i.fas.fa-exclamation-triangle
+        %span The current request
+        - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
+          %span
+            was
+            %strong auto-accepted
+            at
+            %span.fuzzy-time{ title: "#{I18n.l bs_request.accept_at}" }
+            = succeed '.' do
+              = I18n.l bs_request.accept_at, format: :only_date
+        - elsif bs_request.accept_at.past?
+          %span
+            will be
+            %strong auto-accepted
+            after all the reviews are submitted.
+        - else
+          will be
+          %strong auto-accepted
+          in #{time_ago_in_words(bs_request.accept_at)}.
     = render RequestDecisionComponent.new(bs_request: bs_request, action: action,
                                           is_target_maintainer: is_target_maintainer,
                                           is_author: is_author)

@@ -1,11 +1,11 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action]
-  before_action :set_superseded_request, only: [:show, :request_action]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes]
+  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
   after_action :verify_authorized, only: [:create]
@@ -28,14 +28,26 @@ class Webui::RequestController < Webui::WebuiController
                                           diffs: true, action_id: action_id.to_i, cacheonly: 1).first
       @active_action = @bs_request.bs_request_actions.find(action_id)
 
-      @open_reviews = @bs_request.reviews.opened.for_non_staging_projects
-      @accepted_reviews = @bs_request.reviews.accepted.for_non_staging_projects
-      @declined_reviews = @bs_request.reviews.declined.for_non_staging_projects
+      @request_reviews = @bs_request.reviews.for_non_staging_projects
       @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
       @refresh = @action[:diff_not_cached]
 
       # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
       @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+
+      # retrieve a list of all package maintainers that are assigned to at least one target package
+      @package_maintainers = target_package_maintainers
+
+      # retrieve a list of all project maintainers
+      @project_maintainers = if Project.deleted?(@bs_request.target_project_name)
+                               []
+                             else
+                               Project.find_by_name(@bs_request.target_project_name).maintainers
+                             end
+
+      # search for a project, where the user is not a package maintainer but a project maintainer and show
+      # a hint if that package has some package maintainers (issue#1970)
+      @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
 
       # Handling build results
       @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
@@ -184,6 +196,30 @@ class Webui::RequestController < Webui::WebuiController
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    @diff_to_superseded_id = params[:diff_to_superseded]
+    @refresh = @action[:diff_not_cached]
+
+    if @refresh
+      bs_request_action = BsRequestAction.find(@action[:id])
+      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def request_action_changes
+    # TODO: Change @diff_limit to a local variable
+    @diff_limit = params[:full_diff] ? 0 : nil
+    # TODO: Change @actions to a local variable
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
+                                         action_id: params['id'].to_i, cacheonly: 1)
+    @action = @actions.find { |action| action[:id] == params['id'].to_i }
+    # TODO: Check if @not_full_diff is really needed
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+    # TODO: Check if @diff_to_superseded_id is really needed
     @diff_to_superseded_id = params[:diff_to_superseded]
     @refresh = @action[:diff_not_cached]
 

@@ -11,12 +11,6 @@ RSpec.describe SearchController, vcr: true do
     login user
   end
 
-  shared_examples 'find attribute' do
-    it { expect(response).to have_http_status(:success) }
-    it { expect(Xmlhash.parse(response.body)).to include('namespace' => namespace) }
-    it { expect(Xmlhash.parse(response.body)).to include('name' => name) }
-  end
-
   shared_examples 'find project' do
     it { expect(response).to have_http_status(:success) }
     it { expect(Xmlhash.parse(response.body)['project']['name']).to eq(project.name) }

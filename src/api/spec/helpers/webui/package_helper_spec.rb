@@ -97,17 +97,11 @@ RSpec.describe Webui::PackageHelper do
     end
   end
 
-  describe '#file_url' do
-    skip
-  end
+  describe '#file_url'
 
-  describe '#rpm_url' do
-    skip
-  end
+  describe '#rpm_url'
 
-  describe '#human_readable_fsize' do
-    skip
-  end
+  describe '#human_readable_fsize'
 
   describe '#guess_code_class' do
     RSpec.shared_examples 'file with extension' do |extension, extension_class|
@@ -245,13 +239,6 @@ RSpec.describe Webui::PackageHelper do
     context 'other' do
       it { expect(guess_code_class('other')).to eq('') }
     end
-  end
-
-  describe '#uploadable?' do
-    it { expect(uploadable?('image.raw.xz', 'x86_64')).to be_truthy }
-    it { expect(uploadable?('image.vhdfixed.xz', 'x86_64')).to be_truthy }
-    it { expect(uploadable?('image.vhdfixed.xz', 'i386')).to be_falsy }
-    it { expect(uploadable?('apache2.rpm', 'x86_64')).to be_falsy }
   end
 
   describe '#expand_diff?' do

@@ -61,7 +61,7 @@
     margin: 0 5px 5px 0;
     font-size: inherit;
     @extend .badge;
-    @extend .badge-secondary;
+    @extend .bg-secondary;
 
     .tag-remove {
       position: absolute;

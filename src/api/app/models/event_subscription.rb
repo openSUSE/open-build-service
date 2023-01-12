@@ -1,4 +1,5 @@
 class EventSubscription < ApplicationRecord
+  # TODO: remove watcher, source_watcher and target_watcher as soon as the renaming steps and migration are finished.
   RECEIVER_ROLE_TEXTS = {
     maintainer: 'Maintainer',
     bugowner: 'Bugowner',
@@ -11,9 +12,7 @@ class EventSubscription < ApplicationRecord
     watcher: 'Watching the project',
     source_watcher: 'Watching the source project',
     target_watcher: 'Watching the target project',
-    any_role: 'Any role'
-  }.freeze
-  BETA_RECEIVER_ROLE_TEXTS = {
+    any_role: 'Any role',
     package_watcher: 'Watching the package',
     source_package_watcher: 'Watching the source package',
     target_package_watcher: 'Watching the target package',
@@ -59,14 +58,6 @@ class EventSubscription < ApplicationRecord
   }
 
   after_save :measure_changes
-
-  def self.receiver_roles_to_display(user)
-    roles = RECEIVER_ROLE_TEXTS.keys
-    # We have to show the new_watchlist subscription options to the admin in order to allow the global
-    # configuration
-    roles += BETA_RECEIVER_ROLE_TEXTS.keys if Flipper.enabled?(:new_watchlist, user) || User.possibly_nobody.is_admin?
-    roles
-  end
 
   def subscriber
     if user_id.present?

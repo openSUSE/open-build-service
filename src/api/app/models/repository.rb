@@ -160,7 +160,7 @@ class Repository < ApplicationRecord
 
     merged_cycles = []
     cycles.each do |cycle|
-      intersecting_cycles = merged_cycles.select { |another_cycle| (cycle & another_cycle).any? }
+      intersecting_cycles = merged_cycles.select { |another_cycle| cycle.intersect?(another_cycle) }
       intersecting_cycles.each do |intersecting_cycle|
         deleted = merged_cycles.delete(intersecting_cycle)
         cycle.concat(deleted)
@@ -175,7 +175,7 @@ class Repository < ApplicationRecord
   # returns a list of repositories that include path_elements linking to this one
   # or empty list
   def linking_repositories
-    return [] if links.size.zero?
+    return [] if links.empty?
 
     # FIXME: This is the same as using a `has_many through:` association
     links.map(&:repository)
@@ -196,7 +196,7 @@ class Repository < ApplicationRecord
   end
 
   def linking_target_repositories
-    return [] if targetlinks.size.zero?
+    return [] if targetlinks.empty?
 
     # FIXME: This is the same as using a `has_many through:` association
     targetlinks.map(&:target_repository)

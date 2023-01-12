@@ -6,7 +6,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
   describe 'POST :create' do
     context 'workflows.yml do not exist' do
       let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { create(:workflow_token, executor: create(:confirmed_user, :in_beta)) }
       let(:github_payload) do
         {
@@ -26,7 +26,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
       end
 
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
         allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
@@ -50,7 +50,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'token different type' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { create(:service_token, executor: create(:confirmed_user, :in_beta)) }
 
       let(:github_payload) do
@@ -71,7 +71,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
       end
 
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
         request.headers['ACCEPT'] = '*/*'
         request.headers['CONTENT_TYPE'] = 'application/json'
@@ -85,10 +85,10 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'token is invalid' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
 
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(nil)
         post :create, params: { format: :json }
       end
@@ -97,11 +97,11 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'scm event is invalid' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
 
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
 
         post :create, params: { format: :json }
@@ -113,7 +113,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'scm action is invalid' do
       let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
       let(:github_payload) do
         {
@@ -133,7 +133,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
       end
 
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
         allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
@@ -149,11 +149,11 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'scm payload is invalid' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { create(:workflow_token, executor: create(:confirmed_user, :in_beta)) }
 
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
         request.headers['ACCEPT'] = '*/*'
         request.headers['CONTENT_TYPE'] = 'application/json'
@@ -178,7 +178,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'validation errors happening when triggering the token' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
       let(:github_payload) do
         {
@@ -200,7 +200,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
       before do
         allow(token).to receive(:call).and_return(['Event not supported.', 'Workflow steps are not present'])
 
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
 
         request.headers['ACCEPT'] = '*/*'
@@ -222,7 +222,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'no validation errors' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
       let(:github_payload) do
         {
@@ -244,7 +244,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
       before do
         allow(token).to receive(:call).and_return([])
 
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
 
         request.headers['ACCEPT'] = '*/*'
@@ -263,7 +263,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
     end
 
     context 'the SCM is unsupported' do
-      let(:token_extractor_instance) { instance_double(::TriggerControllerService::TokenExtractor) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
       let(:scm_payload) do
         { super: 'duper' }
@@ -272,7 +272,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
       before do
         allow(token).to receive(:call).and_return([])
 
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
 
         request.headers['ACCEPT'] = '*/*'

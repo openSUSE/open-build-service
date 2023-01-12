@@ -7,7 +7,7 @@
         .modal-body
           %p Do you really want to unlock #{link_to(project, project_show_path(project))}?
           = hidden_field_tag(:project, project)
-          .form-group
+          .mb-3
             = label_tag(:comment, 'Comment:')
             = text_area_tag(:comment, '', rows: 3, class: 'form-control')
         .modal-footer

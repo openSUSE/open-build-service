@@ -12,7 +12,7 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
     it 'displays a link with the active class and containing a badge of the light color' do
       expect(rendered_content).to have_css(link_selector, text: 'Comments')
 
-      expect(rendered_content).to have_css("#{link_selector} span.badge.badge-light", text: 20)
+      expect(rendered_content).to have_css("#{link_selector} span.badge.bg-light", text: 20)
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
     it 'displays a link without the active class, but containing a badge of the primary color' do
       expect(rendered_content).to have_css(link_selector, text: 'iron_maiden')
 
-      expect(rendered_content).to have_css("#{link_selector} span.badge.badge-primary", text: 10)
+      expect(rendered_content).to have_css("#{link_selector} span.badge.bg-primary", text: 10)
     end
   end
 

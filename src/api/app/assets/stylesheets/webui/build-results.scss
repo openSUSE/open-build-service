@@ -24,7 +24,7 @@
 }
 
 .build-results {
-  a[data-toggle="collapse"] { width: 1.875rem; }
+  a[data-bs-toggle="collapse"] { width: 1.875rem; }
 }
 
 .build-results .sticky-top, #log-space-wrapper #log-info.position-sticky {
@@ -90,8 +90,8 @@
 // Build state
 
 .build-state {
-  @extend .pl-1;
-  @extend .pl-sm-2;
+  @extend .ps-1;
+  @extend .ps-sm-2;
   flex-basis: 62%;
 }
 
@@ -147,8 +147,8 @@
 // Repository state
 
 .repository-state {
-  @extend .pl-1;
-  @extend .pl-sm-3;
+  @extend .ps-1;
+  @extend .ps-sm-3;
   @extend .text-nowrap;
   flex-basis: 38%;
 }
@@ -177,7 +177,7 @@
   .build-info .triangle.left { left: .25rem; }
 }
 
-@include media-breakpoint-between(sm, md) {
+@include media-breakpoint-between(sm, lg) {
   .build-info .triangle {
     &.center { margin-left: calc(38% + .75rem); }
     &.left { left: .5rem; }

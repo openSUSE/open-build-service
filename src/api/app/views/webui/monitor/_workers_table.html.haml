@@ -1,7 +1,7 @@
-%form.form-inline.float-sm-right{ action: '/' }
-  %label.mr-2 Show:
+%form.row.row-cols-auto.float-sm-end{ action: '/' }
+  %label.me-2 Show:
   - worker_display_options = [['Package name', 'package'], ['Project', 'project'], ['Repository', 'repository'], ['Architecture', 'arch']]
-  = select_tag(:worker_display, options_for_select(worker_display_options, 'package'), id: 'worker-display', class: 'custom-select')
+  = select_tag(:worker_display, options_for_select(worker_display_options, 'package'), id: 'worker-display', class: 'form-select')
 
 %h2.nowrap#workers-title
   Workers
@@ -24,8 +24,8 @@
   .d-flex.flex-wrap
     - workers_sorted.each do |name, hash|
       %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
-        %li.builderbox.float-left
-          %span.font-weight-bold #{name} (#{hash['_arch']})
+        %li.builderbox.float-start
+          %span.fw-bold #{name} (#{hash['_arch']})
           - hash.each do |subid, id|
             - if subid != '_arch'
               .monitorpb.position-relative.mt-1{ id: "p#{id}" }

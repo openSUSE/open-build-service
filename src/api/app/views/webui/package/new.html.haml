@@ -11,21 +11,21 @@
             %h3= @pagetitle
           .col-12.col-md-9.col-lg-6
             = form_for(:package, url: packages_url(@project)) do |f|
-              .form-group
+              .mb-3
                 = f.label(:name)
                 %abbr.text-danger{ title: 'required' } *
                 = f.text_field(:name, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name', autofocus: true)
-              .form-group
+              .mb-3
                 = f.label(:title)
                 = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
-              .form-group
+              .mb-3
                 = f.label(:description)
                 = f.text_area(:description, cols: 80, rows: 10, class: 'form-control')
               - unless @configuration['hide_private_options']
-                .form-group.custom-control.custom-checkbox
-                  = check_box_tag :source_protection, 1, false, class: 'custom-control-input', type: 'checkbox'
-                  %label.custom-control-label{ for: 'source_protection' } Deny access to source of package
-              .form-group.custom-control.custom-checkbox
-                = check_box_tag :disable_publishing, 1, false, class: 'custom-control-input', type: 'checkbox'
-                %label.custom-control-label{ for: 'disable_publishing' } Disable build results publishing
+                .mb-3.form-check
+                  = check_box_tag :source_protection, 1, false, class: 'form-check-input', type: 'checkbox'
+                  %label.form-check-label{ for: 'source_protection' } Deny access to source of package
+              .mb-3.form-check
+                = check_box_tag :disable_publishing, 1, false, class: 'form-check-input', type: 'checkbox'
+                %label.form-check-label{ for: 'disable_publishing' } Disable build results publishing
               = f.submit('Create', class: 'btn btn-primary px-4')

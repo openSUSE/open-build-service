@@ -119,7 +119,7 @@ RSpec.describe EventMailer, vcr: true do
     context 'for an event of type Event::RelationshipCreate' do
       let(:who) { create(:confirmed_user) }
       let(:project) { create(:project) }
-      let(:group) { create(:group_with_user, user: receiver) }
+      let(:group) { create(:group_with_user, user: receiver, email: nil) }
       let!(:subscription) { create(:event_subscription_relationship_create, user: receiver) }
       let(:mail) { EventMailer.with(subscribers: Event::RelationshipCreate.last.subscribers, event: Event::RelationshipCreate.last).notification_email.deliver_now }
 
@@ -136,8 +136,8 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
         it 'sends an email to the subscribed user' do
@@ -164,21 +164,21 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
-        it 'sends an email to the user the user belonging to the subscribed group' do
+        it 'sends an email to the user belonging to the subscribed group' do
           expect(mail.to).to include(receiver.email)
         end
 
         it 'contains the correct text' do
-          expect(mail.body.encoded).to include("#{who} made you maintainer of #{project}")
+          expect(mail.body.encoded).to include("#{who} made #{group} maintainer of #{project}")
           expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
         end
 
         it 'renders link to the users page' do
-          expected_html = "made you maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expected_html = "made #{group} maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
           expect(mail.html_part.to_s).to include(expected_html)
         end
       end
@@ -187,7 +187,7 @@ RSpec.describe EventMailer, vcr: true do
     context 'for an event of type Event::RelationshipDelete' do
       let(:who) { create(:confirmed_user) }
       let(:project) { create(:project) }
-      let(:group) { create(:group_with_user, user: receiver) }
+      let(:group) { create(:group_with_user, user: receiver, email: nil) }
       let!(:subscription) { create(:event_subscription_relationship_delete, user: receiver) }
       let(:mail) { EventMailer.with(subscribers: Event::RelationshipDelete.last.subscribers, event: Event::RelationshipDelete.last).notification_email.deliver_now }
 
@@ -204,8 +204,8 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
         it 'sends an email to the subscribed user' do
@@ -232,21 +232,21 @@ RSpec.describe EventMailer, vcr: true do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'always uses default for FROM' do
-          expect(mail.from).to include('unconfigured@openbuildservice.org')
+        it 'sends an email as the user from which the event originates' do
+          expect(mail.from).to include(who.email)
         end
 
-        it 'sends an email to the user the user belonging to the subscribed group' do
+        it 'sends an email to the user belonging to the subscribed group' do
           expect(mail.to).to include(receiver.email)
         end
 
         it 'contains the correct text' do
-          expect(mail.body.encoded).to include("#{who} removed you as maintainer of #{project}")
+          expect(mail.body.encoded).to include("#{who} removed #{group} as maintainer of #{project}")
           expect(mail.body.encoded).to include("Visit https://build.example.com/project/users/#{project}")
         end
 
         it 'renders link to the users page' do
-          expected_html = "removed you as maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
+          expected_html = "removed #{group} as maintainer of <a href=\"https://build.example.com/project/users/#{project}\">#{project}</a>"
           expect(mail.html_part.to_s).to include(expected_html)
         end
       end

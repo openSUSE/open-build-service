@@ -7,4 +7,4 @@
       = render partial: 'workers_table', locals: { workers_sorted: @workers_sorted }
       = render partial: 'events', locals: { available_arch_list: @available_arch_list, default_architecture: @default_architecture }
     - else
-      %p.font-weight-bold Unable to determine status of workers
+      %p.fw-bold Unable to determine status of workers

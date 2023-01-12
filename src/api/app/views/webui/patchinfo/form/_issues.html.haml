@@ -1,4 +1,4 @@
-.form-group.col-md-6
+.mb-3.col-md-6
   = form.label(:issues) do
     Issues
     %small.form-text
@@ -19,14 +19,14 @@
       - issue_name = "#{issue[1]}_#{issue[0]}"
       .list-group-item.flex-column.align-items-start.issue-element{ id: "issue_#{issue_name}" }
         .d-flex.w-100.mb-1
-          %i.fa.fa-bug.text-danger.pt-1.mr-1
+          %i.fa.fa-bug.text-danger.pt-1.me-1
           = patchinfo_issue_link(issue[1], issue[0], issue[2])
-          = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ml-1') do
+          = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ms-1') do
             %i.fas.fa-times-circle.text-danger
 
           - issue_types.each_with_index do |type, index|
             = form.hidden_field(type.to_sym, value: issue[index], id: "#{type}_#{issue_name}", multiple: true)
         %small.text-muted= issue[3]
-.form-group.col-md-6
+.mb-3.col-md-6
   = link_to('Update issues from sources', update_issues_patchinfo_path(project: project, package: package),
             data: { confirm: 'Attention! All unsaved data will be lost! Continue?' }, method: :post)

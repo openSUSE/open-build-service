@@ -4,6 +4,12 @@
 .basic-info
   %h3#package-title
     = package.title.presence || package.name
+    - if User.session
+      .d-inline.ms-1#watchlist-icon-wrapper
+        = render WatchlistIconComponent.new(user: User.session!,
+                                            package: package,
+                                            project: project,
+                                            current_object: package)
   - if package.url.present?
     = link_to(package.url, package.url, class: 'mb-3 d-block')
   #description-text
@@ -14,7 +20,7 @@
 
   - if policy(package).update?
     .pt-4
-      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link pl-0', title: 'Edit') do
+      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'ps-0', title: 'Edit') do
         %i.fas.fa-edit
         %span.nav-item-name Edit
 

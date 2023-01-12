@@ -17,11 +17,11 @@
               = bs_request_action.hidden_field(:type)
               = bs_request_action.hidden_field(:source_package)
               = bs_request_action.hidden_field(:source_rev)
-              .form-group
+              .mb-3
                 = bs_request_action.label(:source_project, 'From source project:')
                 = bs_request_action.text_field(:source_project, disabled: true, class: 'form-control text-truncate')
                 = bs_request_action.hidden_field(:source_project)
-              .form-group
+              .mb-3
                 -# Reproduce the naming convention for nested fields since we cannot use the FormBuilder (we replace ][, ] and [ by _)
                 = render partial: 'webui/shared/autocomplete',
                          locals: { html_id: "#{bs_request_action.object_name.gsub(/\]\[|\]|\[/, '_')}target_project",
@@ -30,22 +30,22 @@
                                    data: { source: autocomplete_projects_path,
                                            requests_url: request_list_small_path,
                                            develpackage_url: package_devel_project_path(@project, @package) } }
-              .form-group
+              .mb-3
                 = bs_request_action.label(:target_package, 'To target package:')
                 = bs_request_action.text_field(:target_package, class: 'form-control',
                                                placeholder: "Leave empty to keep the package's name")
-              .form-group
+              .mb-3
                 = f.label(:description, 'Please describe your reasons to submit this package:')
                 %abbr.text-danger{ title: 'required' } *
                 ~ f.text_area(:description, size: '40x3', class: 'form-control', required: true)
-              .form-group.d-none#supersede-display
+              .mb-3.d-none#supersede-display
                 = label_tag(:supersede_requests, 'Supersede requests:')
                 #supersede-requests
-              .custom-control.custom-checkbox#sourceupdate-display
+              .form-check#sourceupdate-display
                 -# Avoid auto-removal of branch
                 - unchecked_value = @project.name.include?(':branches') ? 'update' : nil
-                = bs_request_action.check_box(:sourceupdate, { class: 'custom-control-input' }, 'cleanup', unchecked_value)
-                = bs_request_action.label(:sourceupdate, 'Remove local package if request is accepted', class: 'custom-control-label')
+                = bs_request_action.check_box(:sourceupdate, { class: 'form-check-input' }, 'cleanup', unchecked_value)
+                = bs_request_action.label(:sourceupdate, 'Remove local package if request is accepted', class: 'form-check-label')
             %p.d-none#devel-project-warning
               You are about to bypass the devel project, please submit to
               %b#devel-project-name

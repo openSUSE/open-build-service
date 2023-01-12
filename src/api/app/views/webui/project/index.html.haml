@@ -22,16 +22,16 @@
   .card-body
     %h3= @pagetitle
     %ul.list-inline
-      %li.list-inline-item.mr-3
+      %li.list-inline-item.me-3
         = link_to('#', class: 'toggle-projects') do
           %i.fas.fa-toggle-off.text-primary#toggle-icon
           %span#toggle-text
-            Include #{::Configuration.unlisted_projects_filter_description}
+            Include #{Configuration.unlisted_projects_filter_description}
       - if User.session
         - content_for :actions do
           %li.nav-item
             = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
-              %i.fas.fa-lg.mr-2.fa-plus-circle
+              %i.fas.fa-lg.me-2.fa-plus-circle
               %span.nav-item-name Create Project
 
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),

@@ -1,3 +1,6 @@
+# It's completely fine to have rolled out feature toggles in this constant, since we need them in the development
+# environment and review apps to test changes for those features. Rolled-out feature toggles aren't displayed anyway
+# to users in the web UI for beta features.
 ENABLED_FEATURE_TOGGLES = [
   { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' }
 ].freeze

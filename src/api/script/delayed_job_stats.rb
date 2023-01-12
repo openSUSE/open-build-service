@@ -9,7 +9,7 @@ puts 'Backend jobs to do'.ljust(30) + undone_jobs.to_s
 puts '-------------DJ-STATS-------------'
 puts "There are currently #{Delayed::Job.count} jobs in the queues"
 puts '-----------Jobs by type-----------'
-(::ApplicationJob.subclasses + ::CreateJob.subclasses).each do |dj_name|
+(ApplicationJob.subclasses + CreateJob.subclasses).each do |dj_name|
   job_count = Delayed::Job.where("handler like '%#{dj_name}%'").count
   puts "#{dj_name.to_s.ljust(30)} #{job_count}" if job_count.positive?
 end

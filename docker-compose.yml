@@ -9,7 +9,7 @@ services:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/memcached
     ports:
       - "11211:11211"
-    command: /usr/sbin/memcached -u memcached
+    command: /usr/bin/memcached -u memcached
   backend:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:

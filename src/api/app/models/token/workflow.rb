@@ -17,6 +17,10 @@ class Token::Workflow < Token
                           inverse_of: :groups
 
   validates :scm_token, presence: true
+  # Either a url referring to the worklflow configuration file or a filepath to the config inside the
+  # SCM repository has to be provided
+  validates :workflow_configuration_path, presence: true, unless: -> { workflow_configuration_url.present? }
+  validates :workflow_configuration_url, presence: true, unless: -> { workflow_configuration_path.present? }
 
   def call(options)
     set_triggered_at
@@ -25,6 +29,13 @@ class Token::Workflow < Token
     raise Token::Errors::MissingPayload, 'A payload is required' if @scm_webhook.payload.blank?
 
     workflow_run.update(response_url: @scm_webhook.payload[:api_endpoint])
+
+    # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
+    if @scm_webhook.ping_event?
+      SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+      return []
+    end
+
     yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
     @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run: workflow_run).call
 
@@ -44,6 +55,10 @@ class Token::Workflow < Token
   def owned_by?(some_user)
     # TODO: remove the first condition if we migrate, with a data migration, the Token.executor to Token.users
     executor == some_user || users.include?(some_user) || groups.map(&:users).flatten.include?(some_user)
+  end
+
+  def workflow_configuration_path_default?
+    workflow_configuration_path == '.obs/workflows.yml'
   end
 
   private
@@ -66,14 +81,16 @@ end
 #
 # Table name: tokens
 #
-#  id           :integer          not null, primary key
-#  description  :string(64)       default("")
-#  scm_token    :string(255)      indexed
-#  string       :string(255)      indexed
-#  triggered_at :datetime
-#  type         :string(255)
-#  executor_id  :integer          not null, indexed
-#  package_id   :integer          indexed
+#  id                          :integer          not null, primary key
+#  description                 :string(64)       default("")
+#  scm_token                   :string(255)      indexed
+#  string                      :string(255)      indexed
+#  triggered_at                :datetime
+#  type                        :string(255)
+#  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
+#  workflow_configuration_url  :string(255)
+#  executor_id                 :integer          not null, indexed
+#  package_id                  :integer          indexed
 #
 # Indexes
 #

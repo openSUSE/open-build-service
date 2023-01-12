@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_215
+    uri: http://backend:5352/source/foo_project/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Beyond the Mexique Bay</title>
+          <title>The Wives of Bath</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Beyond the Mexique Bay</title>
+          <title>The Wives of Bath</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:32:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_216
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The World, the Flesh and the Devil</title>
-          <description>Mollitia aut rem rerum.</description>
+          <title>The Sun Also Rises</title>
+          <description>Delectus tenetur ducimus voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The World, the Flesh and the Devil</title>
-          <description>Mollitia aut rem rerum.</description>
+          <title>The Sun Also Rises</title>
+          <description>Delectus tenetur ducimus voluptas.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:32:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Minima quam reiciendis. Ducimus est saepe. Iusto est eum.
+      string: In iusto sed. Officia eum deleniti. Quia deserunt officia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1603" vrev="1603">
-          <srcmd5>3654f340f27717d60922dfe35a53d217</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>e6ddb73e54f8056e4a6795244c398444</srcmd5>
           <version>unknown</version>
-          <time>1642674737</time>
+          <time>1673370896</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:17 GMT
+  recorded_at: Tue, 10 Jan 2023 17:14:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Repudiandae ipsa ut. Laborum assumenda voluptatum. Reiciendis modi voluptas.
+      string: In sunt autem. Et id ipsam. In dolor quia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1604" vrev="1604">
-          <srcmd5>4c45468dc7a65a4af1da2fc9fef21ea1</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>6d6bf5cc2f0fd8c3fc151bc7d65090e9</srcmd5>
           <version>unknown</version>
-          <time>1642674737</time>
+          <time>1673370896</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:32:17 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Tue, 10 Jan 2023 17:14:56 GMT
+recorded_with: VCR 6.1.0

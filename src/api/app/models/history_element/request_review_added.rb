@@ -1,12 +1,32 @@
 module HistoryElement
   class RequestReviewAdded < HistoryElement::Request
-    # self.description_extension is review id
     def description
       'Request got a new review request'
     end
 
     def user_action
-      'added review'
+      return 'added a reviewer' unless review
+
+      "#{user_action_prefix} #{action_target} #{user_action_suffix}"
+    end
+
+    def user_action_prefix
+      'added'
+    end
+
+    def action_target
+      review.reviewed_by
+    end
+
+    def user_action_suffix
+      'as a reviewer'
+    end
+
+    # self.description_extension is review id, but it's not present in old history elements
+    def review
+      return if description_extension.blank?
+
+      ::Review.find(description_extension)
     end
   end
 end

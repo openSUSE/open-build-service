@@ -19,7 +19,7 @@ RSpec.describe 'Comments', js: true do
     visit project_show_path(user.home_project)
 
     click_button('Reply')
-    within('.media') do
+    within('.comment') do
       fill_in(placeholder: 'Write your comment here... (Markdown markup is supported)', with: 'Reply Body')
       click_button('Add comment')
     end
@@ -32,7 +32,7 @@ RSpec.describe 'Comments', js: true do
     login user
     visit project_show_path(user.home_project)
 
-    within('.media') do
+    within('.comment') do
       find('a', text: 'Delete').click
     end
 

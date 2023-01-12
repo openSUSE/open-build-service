@@ -81,10 +81,6 @@ aliases:
       paths:
         - "src/api/vendor/bundle"
 
-  - &wait_for_database
-    name: Wait for DB
-    command: mysqladmin ping -h db
-
   - &init_git_submodule
     name: Init submodule
     command: git submodule update --init --recursive --remote
@@ -216,7 +212,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *wait_for_database
       - run: *create_test_db
       - run: mkdir /home/frontend/rspec
       - run:
@@ -260,7 +255,6 @@ jobs:
       - attach_workspace:
          at: .
       - run: *init_git_submodule
-      - run: *wait_for_database
       - run: *bootstrap_old_test_suite
       - run: mkdir /home/frontend/minitest
       - run:
@@ -299,7 +293,6 @@ jobs:
       - attach_workspace:
          at: .
       - run: *init_git_submodule
-      - run: *wait_for_database
       - run:
           name: Run migrations
           command: |
@@ -331,7 +324,6 @@ jobs:
       - attach_workspace:
          at: .
       - run: *init_git_submodule
-      - run: *wait_for_database
       - run: *bootstrap_old_test_suite
       - run:
           name: Run spider
@@ -393,7 +385,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run: *wait_for_database
       - run: *create_test_db
       - run: mkdir /home/frontend/feature
       - run:
@@ -438,7 +429,6 @@ jobs:
       - run: *install_dependencies
       - run: *init_git_submodule
       - run: *create_test_db
-      - run: *wait_for_database
       - run:
           name: Run specs
           command: cd src/api && bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
@@ -465,7 +455,6 @@ jobs:
          at: .
       - run: *install_dependencies
       - run: *init_git_submodule
-      - run: *wait_for_database
       - run: *bootstrap_old_test_suite
       - run:
           name: Run minitest test suite

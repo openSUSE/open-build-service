@@ -117,7 +117,7 @@ $(document).ready(function(){
   if (element.length !== 0){
     loadDiffs($(element));
   }
-  $('.request-tab[data-toggle="tab"]').on('shown.bs.tab', function () {
+  $('.request-tab[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
     var diffs = $(this).data('tab-pane-id');
     var tabPanes = $('.tab-content.sourcediff .tab-pane.sourcediff');
 
@@ -162,6 +162,23 @@ function loadDiffs(element){
   $.ajax({
     url: url,
     success: function(){
+      $('.loading-diff').addClass('invisible');
+      if (document.location.hash === '#comments-list') {
+        // After loading the diffs, the viewport is shifted.
+        // Move the viewport back to the list of comments assigning the location hash
+        document.location.hash = '#comments-list';
+      }
+    }
+  });
+}
+
+function loadChanges() { // jshint ignore:line
+  $('.loading-diff').removeClass('invisible');
+  var element = $('#changes-tab');
+  var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
+  $.ajax({
+    url: url,
+    success: function() {
       $('.loading-diff').addClass('invisible');
     }
   });

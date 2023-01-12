@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'json'
 
-class ProjectTest < ActiveSupport::TestCase
+class ProductTest < ActiveSupport::TestCase
   fixtures :all
 
   def test_indexed_fixture

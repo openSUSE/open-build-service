@@ -191,6 +191,7 @@ our $packinfo = [
 	  [ 'buildtimeservice' ],
 	  [ 'onlynative' ],
 	  [ 'alsonative' ],
+	  [ 'constraint' ],
 	  [ 'imagetype' ],	# kiwi
 	  [ 'imagearch' ],	# kiwi
 	    'nodbgpkgs',	# kiwi
@@ -570,6 +571,7 @@ our $buildinfo = [
 	'ccache',
 	'constraintsmd5',
       [ 'prjconfconstraint' ],
+      [ 'constraint' ],	# recipe constraint
       [ 'subpack' ],
       [ 'imagetype' ],	# kiwi
 	'nodbgpkgs',	# kiwi
@@ -1806,11 +1808,11 @@ our @constraint = (
         [],
         '_content' # workers might get labels defined by admin, for example for benchmarking.
      ]],
-      [ 'sandbox' =>
+     [[ 'sandbox' =>
 	    'exclude',   # true or false. default is false.
 	    [],
 	    '_content' # xen/kvm/zvm/lxc/emulator/chroot/secure
-      ],
+     ]],
       [ 'linux' =>
 	  [ 'version' =>
 		[],

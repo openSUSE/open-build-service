@@ -3,7 +3,7 @@
     %span.btn.btn-link.text-truncate{ title: f.object.name }
       - name = f.object.name.gsub(/[^0-9a-z]/i, '')
       = link_to f.object.name,
-        data: { target: "##{f.object.source_path.present? ? "edit-#{name}" : "add-repository-#{name}"}", toggle: 'modal' },
+        data: { 'bs-target': "##{f.object.source_path.present? ? "edit-#{name}" : "add-repository-#{name}"}", 'bs-toggle': 'modal' },
         class: 'kiwi_element_name repository_edit' do
         = f.object.name
     %span.btn.btn-link.kiwi_actions
@@ -23,31 +23,30 @@
         .modal-body
           .normal-mode
             .repository-autocomplete
-              .form-group.ui-front
+              .mb-3.ui-front
                 = label_tag 'Project'
                 .input-group
-                  .input-group-prepend
-                    %span.input-group-text
-                      %i.fas.fa-search
+                  %span.input-group-text
+                    %i.fas.fa-search
                   = text_field_tag 'target_project', f.object.project_for_type_obs,
                                    required: true,
                                    placeholder: 'Type to autocomplete...',
                                    class: 'form-control kiwi-repository-search',
                                    data: { source: autocomplete_projects_path, default: f.object.project_for_type_obs }
-              .form-group
+              .mb-3
                 = label_tag :repositories
                 = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                       disabled: true,
-                                                                      class: 'repository-dropdown custom-select',
+                                                                      class: 'repository-dropdown form-select',
                                                                       data: { source: autocomplete_repositories_path }
               = label_tag 'Alias:'
               = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
           .collapse#collapse-expert
             = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
             = f.label :repo_type, 'Type:'
-            = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'custom-select'
+            = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'form-select'
             = f.label :priority, 'Priority:'
-            = f.number_field :priority, maxlength: 4, in: 0...99, data: { default: f.object.priority }, class: 'custom-select'
+            = f.number_field :priority, maxlength: 4, in: 0...99, data: { default: f.object.priority }, class: 'form-select'
             = f.label :alias, 'Alias:'
             = f.text_field :alias, data: { default: f.object.alias }, class: 'form-control'
             = f.label :source_path, 'Source:'
@@ -60,18 +59,18 @@
             = f.label :password, 'Password:'
             = f.text_field :password, data: { default: f.object.password }, class: 'form-control'
 
-            .custom-control.custom-checkbox
-              = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'custom-control-input'
-              = f.label :prefer_license, class: 'custom-control-label'
-            .custom-control.custom-checkbox
-              = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'custom-control-input'
-              = f.label :imageinclude, 'Image include', class: 'custom-control-label'
-            .custom-control.custom-checkbox
-              = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'custom-control-input'
-              = f.label :replaceable, class: 'custom-control-label'
+            .form-check
+              = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'form-check-input'
+              = f.label :prefer_license, class: 'form-check-label'
+            .form-check
+              = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'form-check-input'
+              = f.label :imageinclude, 'Image include', class: 'form-check-label'
+            .form-check
+              = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'form-check-input'
+              = f.label :replaceable, class: 'form-check-label'
 
         .modal-footer
           = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',
-                     role: 'button', data: { toggle: 'collapse' })
+                     role: 'button', data: { 'bs-toggle': 'collapse' })
           = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
           = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')

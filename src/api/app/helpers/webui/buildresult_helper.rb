@@ -6,14 +6,15 @@ module Webui::BuildresultHelper
     broken: 'fa-xmark text-danger',
     blocked: 'fa-shield text-warning',
     scheduled: 'fa-hourglass-half text-warning',
-    dispatching: 'fa-plane-departure',
-    building: 'fa-gear',
-    signing: 'fa-signature',
-    finished: 'fa-check',
-    disabled: 'fa-xmark text-warning',
-    excluded: 'fa-xmark text-warning',
+    dispatching: 'fa-plane-departure text-warning',
+    building: 'fa-gear text-warning',
+    signing: 'fa-signature text-warning',
+    finished: 'fa-check text-warning',
+    disabled: 'fa-xmark text-gray-500',
+    excluded: 'fa-xmark text-gray-500',
     locked: 'fa-lock text-warning',
-    unknown: 'fa-question'
+    deleting: 'fa-eraser text-warning',
+    unknown: 'fa-question text-warning'
   }.with_indifferent_access.freeze
 
   def repository_expanded?(collapsed_repositories, repository_name, key = 'project')
@@ -26,8 +27,8 @@ module Webui::BuildresultHelper
     collapse_id = repository_name ? "#{main_name}-#{repository_name}" : main_name
     collapse_text = repository_name ? 'repository' : 'package'
 
-    link_to('#', aria: { controls: "collapse-#{collapse_id}", expanded: expanded }, class: 'px-2 ml-auto',
-                 data: { toggle: 'collapse' }, href: ".collapse-#{collapse_id}", role: 'button') do
+    link_to('#', aria: { controls: "collapse-#{collapse_id}", expanded: expanded }, class: 'px-2 ms-auto',
+                 data: { 'bs-toggle': 'collapse' }, href: ".collapse-#{collapse_id}", role: 'button') do
       capture do
         concat(tag.i(nil, class: ['fas', 'fa-chevron-left', 'expander'], title: "Show build results for this #{collapse_text}"))
         concat(tag.i(nil, class: ['fas', 'fa-chevron-down', 'collapser'], title: "Hide build results for this #{collapse_text}"))

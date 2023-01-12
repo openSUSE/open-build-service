@@ -1198,6 +1198,7 @@ sub create {
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
   $binfo->{'nounchanged'} = 1 if $info->{'nounchanged'};
+  $binfo->{'constraint'} = $info->{'constraint'} if $info->{'constraint'};
   $binfo->{'ccache'} = $ccache if $ccache;
   if (!$ctx->{'isreposerver'} && ($proj->{'kind'} || '') eq 'maintenance_incident' && $pdata->{'releasename'}) {
     $binfo->{'releasename'} = $pdata->{'releasename'};

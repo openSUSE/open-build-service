@@ -15,44 +15,44 @@
 .d-none#involvement
   .card.sticky-top.border-0#involved-filters
     .card-body
-      = form_with(model: displayed_user, method: :get, local: true, class: 'form-inline justify-content-between') do
-        .form-group
+      = form_with(model: displayed_user, method: :get, local: true, class: 'row row-cols-auto justify-content-end') do
+        .mb-3
           %input.form-control{ 'aria-label': 'Search', name: 'search_text', placeholder: 'Search', type: 'text', value: filters[:search_text] }
-        %span.dropdown.form-group#involved-project-package
-          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
+        %span.dropdown.mb-3#involved-project-package
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { 'bs-toggle': :dropdown }, type: :button }
             %span.caret
             Projects / Packages
             - if projects_packages_selected.positive?
-              %span.badge.badge-secondary.ml-2= projects_packages_selected
+              %span.badge.bg-secondary.ms-2= projects_packages_selected
           .dropdown-menu.keep-open
             - projects_packages.each do |project_or_package|
               - involved_html_id = "involved_#{project_or_package}"
               .dropdown-item
-                .custom-control.custom-checkbox
-                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'custom-control-input'
-                  %label.custom-control-label{ for: involved_html_id }
+                .form-check
+                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: involved_html_id }
                     = project_or_package.capitalize
-        %span.dropdown.form-group#involved-role
-          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
+        %span.dropdown.mb-3#involved-role
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { 'bs-toggle': :dropdown }, type: :button }
             %span.caret
             Role
             - if roles_selected.positive?
-              %span.badge.badge-secondary.ml-2= roles_selected
+              %span.badge.bg-secondary.ms-2= roles_selected
           .dropdown-menu.keep-open
             - if owner_root_project_exists
               .dropdown-item
-                .custom-control.custom-checkbox
-                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'custom-control-input'
-                  %label.custom-control-label{ for: 'role_owner' }
+                .form-check
+                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: 'role_owner' }
                     Owner
             - roles.each do |role|
               - role_html_id = "role_#{role}"
               .dropdown-item
-                .custom-control.custom-checkbox
-                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'custom-control-input'
-                  %label.custom-control-label{ for: role_html_id }
+                .form-check
+                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: role_html_id }
                     = role.to_s.capitalize
-        .form-group
+        .mb-3
           %button.btn.btn-primary.form-control#filter-button{ type: :submit }
             Apply Filter
 
@@ -71,14 +71,14 @@
                   - if involved_item.is_a?(Package)
                     = link_to(involved_item.project, project_show_path(involved_item.project))
                     \/
-                    = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pr-2')
+                    = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pe-2')
                   - else
-                    = link_to(involved_item, project_show_path(involved_item), class: 'pr-2')
+                    = link_to(involved_item, project_show_path(involved_item), class: 'pe-2')
                 - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
-                  %span.badge.badge-info Owner
+                  %span.badge.bg-info Owner
                 - roles.each do |role|
                   - if involved_item.user_has_role?(displayed_user, role)
-                    %span.badge.badge-info= role.title.capitalize
+                    %span.badge.bg-info= role.title.capitalize
             .row.mt-1
               .col
                 #involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }

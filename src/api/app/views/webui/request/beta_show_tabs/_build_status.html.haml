@@ -1,6 +1,6 @@
 - unless buildresults.excluded_counter.zero? && !buildresults.show_all
-  .mt-3.custom-control-checkbox
-    = check_box_tag('show_all', true, buildresults.show_all, class: 'custom-control-input d-none',
+  .mt-3.form-check
+    = check_box_tag('show_all', true, buildresults.show_all, class: 'form-check-input d-none',
                     onchange: 'updateBuildResultBeta()')
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
     = label_tag 'show_all' do
@@ -9,44 +9,16 @@
   %h5.text-primary.mb-3
     = package
   - if results.present?
-    - results_grouped_by_repository = results.group_by(&:repository)
-    - results_grouped_by_repository.each_pair do |repository, results_per_repository|
-      .row.mb-4
-        .col-12
+    - results.group_by(&:repository).each_pair do |repository, results_per_repository|
+      .float-start.mb-4
+        %div
           = link_to(word_break(repository, 22),
             package_binaries_path(project: project, package: package, repository: repository),
             title: "Binaries for #{repository}")
-        .col-12
+        .results.d-flex.flex-wrap
+          - results_per_repository.sort_by! { |result| Buildresult::AVAIL_STATUS_VALUES[result.code.to_sym] }
           - results_per_repository.each do |result|
-            .row
-              .col-4
-                %p
-                  = result.architecture
-              .col-5
-                = repository_status_icon(status: result.state)
-                %p.d-none.d-sm-inline.d-lg-none
-                  = result.state
-                - result_help = repository_info(result.state) if result.is_repository_in_db
-                - result_help ||= 'This result is outdated'
-                %p.d-none.d-lg-inline
-                  = result_help
-                %i.fa.fa-question-circle.d-lg-none.text-info{ data: { placement: 'top', toggle: 'popover', content: "#{result_help}" } }
-              .col-3
-                - if result.code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-                  %i{ class: "fa #{build_status_icon(result.code)}" }
-                - else
-                  = link_to(package_live_build_log_path(project: project.to_s, package: package,
-                      repository: result.repository, arch: result.architecture), rel: 'nofollow') do
-                    %i{ class: "fa #{build_status_icon(result.code)}" }
-                %span.d-none.d-lg-inline
-                  Package build
-                %p.d-none.d-sm-inline
-                  = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
-                                                              project_name: project.name, package_name: package,
-                                                              build_status: result.code, build_details: result.details))
-                %i.fa.fa-question-circle.text-info{ data: { placement: 'top',
-                                                            toggle: 'popover',
-                                                            content: "#{Buildresult.status_description(result.code)}" } }
+            = render BuildResultForArchitectureComponent.new(result, project, package)
   - else
     All the results have state
     %strong excluded/disabled

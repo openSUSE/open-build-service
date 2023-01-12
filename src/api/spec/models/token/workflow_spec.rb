@@ -159,5 +159,57 @@ RSpec.describe Token::Workflow do
 
       it { expect { subject }.to change(workflow_token, :triggered_at) & change(workflow_run, :response_url).to('https://api.github.com') }
     end
+
+    context 'with a ping event' do
+      let(:scm) { 'github' }
+      let(:event) { 'ping' }
+      let(:github_payload) { { sender: { url: 'https://api.github.com' } } }
+      let(:github_extractor_payload) do
+        {
+          scm: 'github',
+          event: 'ping',
+          api_endpoint: 'https://api.github.com'
+        }
+      end
+      let(:scm_extractor) { TriggerControllerService::SCMExtractor.new(scm, event, github_payload) }
+      let(:scm_webhook) { SCMWebhook.new(payload: github_extractor_payload) }
+      let(:workflow) do
+        Workflow.new(scm_webhook: scm_webhook, token: workflow_token,
+                     workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
+      end
+      let(:workflows) { [workflow] }
+
+      before do
+        # Skipping call since it's tested in the Workflow model
+        allow(workflow).to receive(:call).and_return(true)
+
+        allow(TriggerControllerService::SCMExtractor).to receive(:new).with(scm, event, github_payload).and_return(scm_extractor)
+        allow(scm_extractor).to receive(:call).and_return(scm_webhook)
+        allow(SCMStatusReporter).to receive(:new).and_return(proc { true })
+      end
+
+      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
+
+      it 'returns before checking for validation errors' do
+        expect(subject).to be_empty
+      end
+
+      it { expect { subject }.to change(workflow_token, :triggered_at).and(change(workflow_run, :response_url).to('https://api.github.com')) }
+
+      it 'returns early with one report' do
+        subject
+        expect(SCMStatusReporter).to have_received(:new).once
+      end
+    end
+
+    context 'validates presence of either workflow configuration path or url' do
+      let(:workflow_token_a) { build(:workflow_token, workflow_configuration_path: nil) }
+      let(:workflow_token_b) { build(:workflow_token, workflow_configuration_path: nil, workflow_configuration_url: 'https://example.com/subdir/config_file.yml') }
+      let(:workflow_token_c) { build(:workflow_token, workflow_configuration_path: 'subdir/config_file.yml', workflow_configuration_url: nil) }
+
+      it { expect(workflow_token_a).not_to be_valid }
+      it { expect(workflow_token_b).to be_valid }
+      it { expect(workflow_token_c).to be_valid }
+    end
   end
 end

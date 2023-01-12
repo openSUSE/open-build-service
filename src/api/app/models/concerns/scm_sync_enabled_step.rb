@@ -1,6 +1,4 @@
 module ScmSyncEnabledStep
-  extend ActiveSupport::Concern
-
   def set_scmsync_on_target_package
     # only change the fragment here and leave the query alone!
     parsed_scmsync_url = Addressable::URI.parse(scmsync_url)

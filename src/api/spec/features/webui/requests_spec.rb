@@ -54,7 +54,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
 
     describe 'request history entries' do
       it_behaves_like 'expandable element' do
-        let(:element) { '.media-body .obs-collapsible-textbox' }
+        let(:element) { '.history .obs-collapsible-textbox' }
       end
     end
   end
@@ -87,7 +87,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -123,7 +123,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -155,7 +155,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -209,7 +209,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1')
-        expect(find('span.badge.badge-secondary')).to have_text('review')
+        expect(find('span.badge.bg-secondary')).to have_text('review')
         expect(page).to have_text('In state review')
         expect(Review.all.count).to eq(1)
         logout
@@ -340,6 +340,38 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
       visit request_show_path(bs_request)
       expect(page)
         .to have_text("This request will be automatically accepted in #{ApplicationController.helpers.time_ago_in_words(bs_request.accept_at)}.")
+    end
+  end
+
+  describe 'for a request with an existing target project' do
+    let!(:delete_bs_request) do
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter)
+    end
+
+    before do
+      Flipper.enable(:request_show_redesign)
+    end
+
+    it 'shows the project maintainers' do
+      visit request_show_path(delete_bs_request)
+      expect(page).to have_text('Project Maintainers')
+    end
+  end
+
+  describe 'for a request with a deleted target project' do
+    let!(:delete_bs_request) do
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, state: :accepted)
+    end
+
+    before do
+      Flipper.enable(:request_show_redesign)
+      # Faking that the target project was destroyed when the delete request was accepted
+      target_project.destroy
+    end
+
+    it 'does not show the project maintainers' do
+      visit request_show_path(delete_bs_request)
+      expect(page).not_to have_text('Project Maintainers')
     end
   end
 end

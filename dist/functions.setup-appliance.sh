@@ -229,7 +229,7 @@ function adapt_worker_jobs {
   rm -f $backenddir/workers/*/* 2> /dev/null
   # create repo directory or apache fails when nothing got published
   mkdir -p $backenddir/repos
-  chown obsrun.obsrun $backenddir/repos
+  chown obsrun:obsrun $backenddir/repos
 }
 ###############################################################################
 function prepare_database_setup {
@@ -241,7 +241,7 @@ function prepare_database_setup {
     echo "Initialize MySQL databases (first time only)"
     DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
     echo " - reconfiguring datadir in $DATADIR_FILE"
-    perl -p -i -e 's#.*datadir\s*=\s*/var/lib/mysql$#datadir= /srv/obs/MySQL#' $DATADIR_FILE
+    sed -i -E '0,/(#\s*)?datadir/ s!#\s*datadir\s*=\s*/var/lib/mysql$!datadir = /srv/obs/MySQL!' $DATADIR_FILE
     echo " - installing to new datadir"
     mysql_install_db
     echo " - changing ownership for new datadir"
@@ -283,7 +283,7 @@ function prepare_database_setup {
   fi
 
   logline "Setting ownership of '$backenddir' obsrun"
-  chown obsrun.obsrun $backenddir
+  chown obsrun:obsrun $backenddir
 
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
@@ -588,7 +588,7 @@ EOF
       rm /tmp/obs-gpg.$$
       sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       # ensure that $OBS_SIGND gets restarted if already started
-      systemctl is-enabled $OBS_SIGND 2>&1 > /dev/null
+      systemctl is-active $OBS_SIGND 2>&1 > /dev/null
       if [ $? -eq 0 ] ; then
         logline "Restarting $OBS_SIGND"
         systemctl restart $OBS_SIGND

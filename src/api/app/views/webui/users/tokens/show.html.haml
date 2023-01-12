@@ -1,3 +1,4 @@
+-# haml-lint:disable ViewLength
 - @pagetitle = "Token - #{@token.description.presence || 'No Description'}"
 
 .card
@@ -8,81 +9,105 @@
     .row
       .col-12.col-md-10.col-lg-8
         - if session[:show_token]
-          %p.font-weight-bold Your new OBS Personal Access Token
+          %p.fw-bold Your new OBS Personal Access Token
 
-        .form-row
+        .row
           .col-sm
-            %label.font-weight-bold
+            %label.fw-bold
               Id:
             %span
               = @token.id
 
         - if session[:show_token]
           - session[:show_token] = nil # Ensure we're only showing the token once
-          .form-row
+          .row
             .col-12.col-md-10.col-lg-9
-              %fieldset.form-group
-                %label.col-form-label.font-weight-bold
+              %fieldset.mb-3
+                %label.col-form-label.fw-bold
                   Secret:
                 .input-group
                   = render CopyToClipboardInputComponent.new(input_text: @token.string)
               %hr
 
-        .form-row
+        .row
           .col
-            .form-group
-              %label.col-form-label.mr-2.font-weight-bold
+            .mb-3
+              %label.col-form-label.me-2.fw-bold
                 Type:
               %span
                 = @token.token_name
 
-        .form-row
+        .row
           .col-sm
-            .form-group.ui-front
-              %label.font-weight-bold
+            .mb-3.ui-front
+              %label.fw-bold
                 Runs as:
               %span
                 = link_to(@token.executor.login, user_path(@token.executor))
 
         - if @token.type == 'Token::Workflow'
-          .form-row
+          .row
             .col
-              .form-group
-                %label.col-form-label.mr-2.font-weight-bold
+              .mb-3
+                %label.fw-bold
+                  Workflows Configuration File Path:
+                %span
+                  = @token.workflow_configuration_path
+
+          .row
+            .col
+              .mb-3
+                %label.fw-bold
+                  Workflows Configuration File URL:
+                %span
+                  - if @token.workflow_configuration_url.present?
+                    = link_to(@token.workflow_configuration_url, @token.workflow_configuration_url)
+                    %small.form-text.font-italic
+                      %i.fa.fa-lg.fa-question-circle.text-info
+                      The URL is set, the path will be ignored. The URL should be accessible for the OBS instance.
+                  - else
+                    %small.font-italic.text-muted
+                      Nothing
+
+          .row
+            .col
+              .mb-3
+                %label.col-form-label.me-2.fw-bold
                   Token trigger url:
                 .input-group
                   = render CopyToClipboardInputComponent.new(input_text: trigger_workflow_url(id: @token.id))
 
         - if @token.package
-          .form-row
+          .row
             .col-sm
-              .form-group.ui-front
-                %label.font-weight-bold
+              .mb-3.ui-front
+                %label.fw-bold
                   Project:
                 %span
                   = link_to(@token.package.project.name, project_show_path(@token.package.project))
 
-          .form-row
+          .row
             .col-sm
-              .form-group.ui-front
-                %label.font-weight-bold
+              .mb-3.ui-front
+                %label.fw-bold
                   Package:
                 %span
                   = link_to(@token.package.name, package_show_path(@token.package.project, @token.package))
 
         .actions
           - if policy(@token).edit?
-            = link_to(edit_token_path(@token), class: 'pl-2', title: 'Edit') do
+            = link_to(edit_token_path(@token), class: 'ps-2', title: 'Edit') do
               %i.fas.fa-edit
               %span.nav-item-name Edit
           - if policy(@token).webui_trigger?
-            = link_to(token_trigger_path(@token), class: 'pl-2', title: 'Trigger Token') do
+            = link_to(token_trigger_path(@token), class: 'ps-2', title: 'Trigger Token') do
               %i.fas.fa-project-diagram
               %span.nav-item-name Trigger Token
           - if @token.type == 'Token::Workflow'
-            = link_to(token_users_path(@token.id), class: 'pl-2', title: 'Share') do
+            = link_to(token_users_path(@token.id), class: 'ps-2', title: 'Share') do
               %i.fas.fa-users
               %span.nav-item-name Share
-            = link_to(token_workflow_runs_path(@token.id), class: 'pl-2', title: 'Workflow Runs') do
+            = link_to(token_workflow_runs_path(@token.id), class: 'ps-2', title: 'Workflow Runs') do
               %i.fas.fa-book-open
               %span.nav-item-name Workflow Runs
+-# haml-lint:enable ViewLength

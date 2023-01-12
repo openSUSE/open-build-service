@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ::SessionControllerService::SessionCreator do
+RSpec.describe SessionControllerService::SessionCreator do
   let!(:admin_user) { create(:admin_user, login: 'Admin') }
 
   describe '.new' do

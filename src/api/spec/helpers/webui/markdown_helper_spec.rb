@@ -10,7 +10,7 @@ RSpec.describe Webui::MarkdownHelper do
 
     it 'adds the OBS domain to relative links' do
       expect(render_as_markdown('[my link](/here)')).to eq(
-        "<p><a href=\"#{::Configuration.obs_url}/here\">my link</a></p>\n"
+        "<p><a href=\"#{Configuration.obs_url}/here\">my link</a></p>\n"
       )
     end
 

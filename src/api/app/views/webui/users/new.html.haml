@@ -1,6 +1,6 @@
 .card.mb-3
   .card-body
-    .col-lg-6.pl-0
+    .col-lg-6.ps-0
       - if can_register?
         %h3= @pagetitle.titleize
         = render SignUpComponent.new(create_page: params.key?(:submit_btn_text))

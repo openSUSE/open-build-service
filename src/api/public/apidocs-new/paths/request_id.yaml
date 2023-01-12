@@ -47,9 +47,12 @@ post:
           and the new reviewer in the `reviewer` parameter.
 
         - `changestate`: Modify the state of a given request.
-          **NOTE:** You need to pass the new state throug the `newstate` parameter. Changing
+          **NOTE:** You need to pass the new state through the `newstate` parameter. Changing
           from one state to another is in certain cases not allowed. You can still force
           the operation by using the `force=1` parameter.
+
+          To supersede the given request with another request, pass the ID of the other request
+          in the `superseded_by` parameter, in addition to `newstate=superseded`.
 
         - `changereviewstate`:
           Change the state of a review inside a given request.
@@ -84,6 +87,8 @@ post:
           value: cmd=assignreview&by_group=heroes&reviewer=foo
         changestate:
           value: cmd=changestate&newstate=accepted
+        "changestate (superseded)":
+          value: cmd=changestate&newstate=superseded&superseded_by=173
         changereviewstate:
           value: cmd=changereviewstate&by_group=heroes&newstate=new&comment=reopened
         setpriority:
@@ -101,6 +106,11 @@ post:
       schema:
         type: string
       description: Define the new state
+    - in: query
+      name: superseded_by
+      schema:
+        type: string
+      description: Required and used only with the combination of the `changestate` command and the `newstate=superseded` parameter - Supersede the given request with another request by passing its ID in this parameter
     - in: query
       name: priority
       schema:

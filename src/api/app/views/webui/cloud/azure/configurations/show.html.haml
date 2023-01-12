@@ -85,10 +85,10 @@
           data: { confirm: 'Do you really want to delete the current configuration?' }
     - else
       = form_for @azure_configuration, url: cloud_azure_configuration_path, method: :put do |f|
-        .form-group
+        .mb-3
           = f.label :application_id, 'Application ID:'
           = f.password_field :application_id, class: 'form-control'
-        .form-group
+        .mb-3
           = f.label :application_key, 'Application Key:'
           = f.password_field :application_key, class: 'form-control'
         = f.submit 'Submit', class: 'btn btn-primary'

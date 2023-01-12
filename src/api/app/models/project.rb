@@ -56,8 +56,6 @@ class Project < ApplicationRecord
   has_many :repository_architectures, -> { order('position') }, through: :repositories
 
   has_many :watched_items, as: :watchable, dependent: :destroy
-  # FIXME: We will remove the following association when new_watchlist goes out of beta
-  has_many :watched_projects, dependent: :destroy, inverse_of: :project
 
   has_many :flags, dependent: :delete_all, inverse_of: :project
 
@@ -1544,7 +1542,7 @@ end
 #  title               :string(255)
 #  url                 :string(255)
 #  created_at          :datetime
-#  updated_at          :datetime         indexed
+#  updated_at          :datetime
 #  develproject_id     :integer          indexed
 #  staging_workflow_id :integer          indexed
 #
@@ -1553,5 +1551,4 @@ end
 #  devel_project_id_index                 (develproject_id)
 #  index_projects_on_staging_workflow_id  (staging_workflow_id)
 #  projects_name_index                    (name) UNIQUE
-#  updated_at_index                       (updated_at)
 #

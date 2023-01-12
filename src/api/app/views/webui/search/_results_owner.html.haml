@@ -16,23 +16,23 @@
               = role.capitalize.pluralize
               - if emails.present? && User.session
                 = mail_to(emails) do
-                  %i.far.fa-envelope.ml-1{ title: "Send email to #{role.pluralize(records.size)}" }
+                  %i.far.fa-envelope.ms-1{ title: "Send email to #{role.pluralize(records.size)}" }
             .d-flex.flex-wrap.flex-column.flex-md-row
               - records.each do |record|
                 .card.m-1.p-2.search-result
-                  .row.no-gutters
+                  .row.g-0
                     .col-auto
                       = link_to(user_or_group_path(record)) do
                         = image_tag_for(record, size: 60, custom_class: 'align-self-center shadow-lg border border-secondary rounded border-2')
                     .col
-                      .card-body.p-0.pl-2
+                      .card-body.p-0.ps-2
                         %ul.list-unstyled
                           %li{ title: record.name }
                             = truncate(record.name, length: 40)
                           - if record.is_a?(User) && record.realname.present?
                             %li.small
                               = record.login
-                          %li.float-right
+                          %li.float-end
                             - if record.email.present? && User.session
                               = mail_to(record.email) do
                                 %i.far.fa-envelope{ title: "Send email to #{record.class.name.downcase}" }

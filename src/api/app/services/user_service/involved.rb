@@ -91,7 +91,7 @@ module UserService
     end
 
     def klass_filter_present?
-      (@filters.keys & KLASS_FILTER).present?
+      @filters.keys.intersect?(KLASS_FILTER)
     end
 
     def search_text_present?

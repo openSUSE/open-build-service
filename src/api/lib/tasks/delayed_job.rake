@@ -1,5 +1,5 @@
 desc('Write configuration to the backend now')
-task(writeconfiguration: :environment) { ::Configuration.first.write_to_backend }
+task(writeconfiguration: :environment) { Configuration.first.write_to_backend }
 
 desc('Update all package meta now')
 task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }

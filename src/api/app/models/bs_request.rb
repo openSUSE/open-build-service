@@ -681,7 +681,7 @@ class BsRequest < ApplicationRecord
     with_lock do
       new_review_state = new_review_state.to_sym
 
-      raise InvalidStateError, 'request is not in review state' unless state == :review || (state == :new && new_review_state == :new)
+      raise InvalidStateError, 'request is not in a changeable state (new, review or declined)' unless state == :review || (state.in?([:new, :declined]) && new_review_state == :new)
 
       check_if_valid_review!(opts)
       raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}" unless new_review_state.in?([:new, :accepted, :declined, :superseded])
@@ -887,8 +887,9 @@ class BsRequest < ApplicationRecord
           change_state(newstate: 'revoked', comment: 'Target disappeared')
         rescue PostRequestNoPermission
           change_state(newstate: 'revoked', comment: 'Permission problem')
-        rescue APIError
-          change_state(newstate: 'declined', comment: 'Unhandled error during accept')
+        rescue APIError => e
+          logger.info("Failed to accept BsRequest #{number} with #{auto_accept_user.login}. #{e.class.name}: #{e}")
+          change_state(newstate: 'declined', comment: 'Unhandled error during accept, contact your admin.')
         end
       end
     end

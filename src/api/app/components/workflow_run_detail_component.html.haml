@@ -1,31 +1,34 @@
 %ul.nav.nav-tabs#workflow-run-tabs{ role: 'tablist' }
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "incoming-webhook-tab#{id}", data: { toggle: 'tab' }, href: "#incoming-webhook-tab-content#{id}",
+    %a.nav-link{ id: "incoming-webhook-tab#{id}", data: { 'bs-toggle': 'tab' }, href: "#incoming-webhook-tab-content#{id}",
                  role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'false' } }
       Webhook from #{scm_vendor}
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "scm-reports-tab#{id}", data: { toggle: 'tab' }, href: "#scm-reports-tab-content#{id}",
+    %a.nav-link{ id: "scm-reports-tab#{id}", data: { 'bs-toggle': 'tab' }, href: "#scm-reports-tab-content#{id}",
                  role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
       Reports to the SCM
   %li.nav-item{ role: 'presentation' }
-    %a.nav-link{ id: "artifacts#{id}", data: { toggle: 'tab' }, href: "#artifacts-tab-content#{id}",
+    %a.nav-link{ id: "artifacts#{id}", data: { 'bs-toggle': 'tab' }, href: "#artifacts-tab-content#{id}",
                  role: 'tab', aria: { controls: "artifacts-tab-content#{id}", selected: 'false' } }
       Artifacts
 .tab-content.p-3#workflow-run-tabs-content
   .tab-pane.fade{ id: "incoming-webhook-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "incoming-webhook-tab#{id}" } }
-    %h5 Webhook URL
-    %pre.border.p-2#response-url
-      = response_url
+    - if response_url.present?
+      %h5 Webhook URL
+      %pre.border.p-2#response-url
+        = response_url
     %h5 Webhook Request Headers
     %pre.border.p-2#request-headers
       = request_headers
-    %h5 Webhook Response Body
-    %pre.border.p-2#response-body
-      = response_body
-    %h5 Webhook Request Payload
-    %pre.border.p-2#request-payload
-      = pretty_request_payload
+    - if response_body.present?
+      %h5 Webhook Response Body
+      %pre.border.p-2#response-body
+        = response_body
+    - if pretty_request_payload.present?
+      %h5 Webhook Request Payload
+      %pre.border.p-2#request-payload
+        = pretty_request_payload
   .tab-pane.fade{ id: "scm-reports-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "scm-reports-tab#{id}" } }
     - if status_reports.any?
@@ -35,13 +38,15 @@
             %h6 Response body
             %p
               %span.badge{ class: status_report.status_class }= status_report.status&.humanize
-            %pre.border.p-2#status-report-response-body
-              = status_report.response_body
-            %h6 Request parameters
-            %pre.border.p-2#status-report-request-parameters
-              = status_report.pretty_request_parameters
-            %small.text-nowrap{ title: l(status_report.created_at.utc) }
-              Sent #{time_ago_in_words(status_report.created_at)} ago
+            - if status_report.response_body.present?
+              %pre.border.p-2#status-report-response-body
+                = status_report.response_body
+            - if status_report.pretty_request_parameters.present?
+              %h6 Request parameters
+              %pre.border.p-2#status-report-request-parameters
+                = status_report.pretty_request_parameters
+              %small.text-nowrap{ title: l(status_report.created_at.utc) }
+                Sent #{time_ago_in_words(status_report.created_at)} ago
     - else
       No status reports
   .tab-pane.fade{ id: "artifacts-tab-content#{id}", role: 'tabpanel',

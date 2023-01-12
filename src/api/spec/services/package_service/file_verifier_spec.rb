@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ::PackageService::FileVerifier do
+RSpec.describe PackageService::FileVerifier do
   let(:file_verifier) { described_class.new(package: package, file_name: file_name, content: content) }
   let!(:project) { create(:project_with_package, name: 'openSUSE:Maintenance', package_name: 'chromium') }
 

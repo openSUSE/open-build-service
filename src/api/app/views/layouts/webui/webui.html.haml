@@ -76,13 +76,10 @@
 
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
-        - if feature_enabled?(:new_watchlist)
-          .navbar-collapse.watchlist-collapse.navbar-dark
-            = render WatchlistComponent.new(user: User.session!,
-                                            bs_request: @bs_request,
-                                            package: @package,
-                                            project: @project,
-                                            current_object: @bs_request || @package || @project)
-          = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-item-from-watchlist-modal', method: :put, options: { remote: true })
-        - else
-          = render partial: 'layouts/webui/watchlist'
+        .navbar-collapse.watchlist-collapse.navbar-dark
+          = render WatchlistComponent.new(user: User.session!,
+                                          bs_request: @bs_request,
+                                          package: @package,
+                                          project: @project,
+                                          current_object: @bs_request || @package || @project)
+        = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-item-from-watchlist-modal', method: :put, options: { remote: true })

@@ -6,6 +6,11 @@
     - if element.instance_of?(HistoryElement::RequestSuperseded)
       superseded this request with
       = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
+    - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
+      = element.user_action_prefix
+      %strong
+        = element.action_target
+      = element.user_action_suffix
     - else
       = element.user_action
     = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do

@@ -19,11 +19,11 @@
           = hidden_field_tag(:project, project)
           = hidden_field_tag(:package, package)
           - if package.develpackages.any?
-            .custom-control.custom-checkbox
-              = check_box_tag(:force, 'cleanup', cleanup_source, class: 'custom-control-input')
-              = label_tag(:force, 'Delete anyway?', class: 'custom-control-label')
+            .form-check
+              = check_box_tag(:force, 'cleanup', cleanup_source, class: 'form-check-input')
+              = label_tag(:force, 'Delete anyway?', class: 'form-check-label')
 
           .modal-footer
-            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
             = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

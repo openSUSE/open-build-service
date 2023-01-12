@@ -4,7 +4,10 @@ function setSpinnersForFlags() { // jshint ignore:line
     var icon = $('div[id="' + flag + '"] a');
     icon.addClass('d-none');
     icon.next().removeClass('d-none');
-    $('.popover').popover('hide');
+    var popoverList = [].slice.call(document.querySelectorAll('.flag-popup'));
+    popoverList.map(function (popover) {
+      bootstrap.Popover.getInstance(popover).hide();
+    });
   });
 }
 

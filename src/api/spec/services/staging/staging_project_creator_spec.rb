@@ -1,10 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe ::Staging::StagingProjectCreator do
+RSpec.describe Staging::StagingProjectCreator do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let!(:staging_workflow) { create(:staging_workflow, project: project) }
-  let(:staging_project_creator) { ::Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow, user) }
+  let(:staging_project_creator) { Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow, user) }
 
   let(:staging_projects) do
     lambda do |project_names|
@@ -55,7 +55,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
           it { expect(subject.errors).to be_empty }
         end
 
-        it { expect { subject }.to change(::Project, :count).by(1) }
+        it { expect { subject }.to change(Project, :count).by(1) }
         it { expect { subject }.to change(ProjectLogEntry, :count).by(2) }
       end
     end

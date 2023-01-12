@@ -318,6 +318,16 @@ OBS_VM_USE_TMPFS=""
 OBS_VM_CUSTOM_OPTION=""
 
 ## Path:        Applications/OBS
+## Description: Allow VMs to access the internet.
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+# yes: WARNING: this may not be safe and may prevent build reproductibility.
+#
+OBS_VM_ENABLE_NET=""
+
+## Path:        Applications/OBS
 ## Description: Memory allocated for each VM (512) if not set
 ## Type:        integer
 ## Default:     ""

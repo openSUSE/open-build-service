@@ -4,13 +4,13 @@
   %ul.list-unstyled
     - requests.each_with_index do |req, _index|
       %li
-        .custom-control.custom-checkbox
+        .form-check
           = check_box_tag('supersede_request_numbers[]', req.number, false,
-            id: "supersede_request_numbers#{req.number}", class: 'custom-control-input')
-          = label_tag("supersede_request_numbers#{req.number}", class: 'custom-control-label') do
+            id: "supersede_request_numbers#{req.number}", class: 'form-check-input')
+          = label_tag("supersede_request_numbers#{req.number}", class: 'form-check-label') do
             = link_to(req.number, controller: :request, action: :show, number: req.number)
             by
             = user_with_realname_and_icon(req.creator, short: true)
             = surround '(', ')' do
-              %u{ title: l(req.created_at.utc) }
+              %u{ title: I18n.l(req.created_at.utc) }
                 #{time_ago_in_words(req.created_at)} ago

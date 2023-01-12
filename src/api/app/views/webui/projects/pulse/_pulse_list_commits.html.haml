@@ -3,8 +3,7 @@
   %b
     = pluralize(people.count, 'person')
   added
-  = link_to('#pulse-packages') do
-    = pluralize(commits.count, 'commit')
+  = link_to(pluralize(commits.count, 'commit'), '#pulse-packages')
   to packages in this project.
   - if updates.any?
     Out of those commits,
