@@ -63,6 +63,8 @@ class Review < ApplicationRecord
   scope :for_staging_projects, -> { includes(:project).where.not(projects: { staging_workflow_id: nil }) }
   scope :for_non_staging_projects, -> { includes(:project).where(projects: { staging_workflow_id: nil }) }
 
+  scope :staging, ->(project) { for_staging_projects.or(where(group: Staging::Workflow.find_by(project:)&.managers_group)) }
+
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
   end
