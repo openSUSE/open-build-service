@@ -103,6 +103,19 @@ function requestAddAutocomplete(autocompleteElement) { // jshint ignore:line
     $('.hideable input:not(:visible)').attr('disabled', true);
 
     var selected = $(autocompleteElement+' option:selected').attr('value');
+    var reviewerMeaning = '';
+    if(selected === 'review-user') {
+      reviewerMeaning = 'The review will be requested from the selected user';
+    } else if(selected === 'review-group') {
+      reviewerMeaning = 'Any member of the selected group can review the request';
+    } else if(selected === 'review-project') {
+      reviewerMeaning = 'Any maintainer of the selected project can review the request';
+    } else if(selected === 'review-package') {
+      reviewerMeaning = 'Any maintainer of the project or package can review the request';
+    }
+
+    $('#reviewer-meaning').html(reviewerMeaning);
+
     $('.' + selected).removeClass('d-none');
     $('.hideable input:visible').removeAttr('disabled');
     if ($('#review_package').is(':visible') && !$('#review_project').val()) {

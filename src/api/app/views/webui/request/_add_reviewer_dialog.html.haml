@@ -7,9 +7,12 @@
         .modal-body
           = hidden_field_tag(:number, params['number'])
           .mb-3
-            = label_tag(:review_type, 'Type:')
-            = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group],
-                                                           %w[Project review-project], %w[Package review-package]]), class: 'form-select')
+            = label_tag(:review_type, 'Request review from:')
+            = select_tag(:review_type, options_for_select([['User', 'review-user'], ['Group Members', 'review-group'],
+                                                           ['Project Maintainers', 'review-project'], ['Package Maintainers', 'review-package']]),
+                                                           class: 'form-select')
+            %p.text-wrap.mt-1#reviewer-meaning
+              The review will be requested from the selected user
           .hideable.review-user
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_user', label: 'User:', required: true,
                                                                      data: { source: autocomplete_users_path } }
