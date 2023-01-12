@@ -5,7 +5,7 @@
 .basic-info
   - if configuration.accounts_editable?(user) && policy(user).update?
     .d-flex.flex-row-reverse
-      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link', remote: true, title: 'Edit Your Account') do
+      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', remote: true, title: 'Edit Your Account') do
         %i.fas.fa-user-edit
         %span.nav-item-name Edit
 

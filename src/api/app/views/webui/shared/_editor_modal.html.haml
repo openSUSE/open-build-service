@@ -3,20 +3,18 @@
     .modal-content
       .modal-header
         %h5.modal-title Editor settings
-        %button.btn.btn-close.float-end{ type: 'button', 'data-dismiss': 'modal' }
+        %button.btn.btn-close.float-end{ type: 'button', 'data-bs-dismiss': 'modal' }
       .modal-body
         .input-group
-          .input-group-prepend
-            .input-group-text
-              Text size
+          .input-group-text
+            Text size
           = select_tag("fontsize_#{uid}", options_for_select(%w[0.5em 0.6em 0.75em 0.9em 1em 1.2em 1.5em]),
             onchange: "editors[#{uid}].updateFontsize(this)", class: 'form-select')
 
       .modal-body
         .input-group
-          .input-group-prepend
-            .input-group-text
-              Highlighting
+          .input-group-text
+            Highlighting
           :ruby
             modes = [
               ['changes', 'rpm-changes', { id: "rpm-changes_#{uid}" }],
@@ -37,9 +35,8 @@
             onchange: "editors[#{uid}].updateMode(this)", class: 'form-select')
       .modal-body
         .input-group
-          .input-group-prepend
-            .input-group-text
-              Tab width
+          .input-group-text
+            Tab width
           = select_tag("tabsize_#{uid}", options_for_select(2..8),
             onchange: "editors[#{uid}].updateTabsize(this)", class: 'form-select')
       .modal-body

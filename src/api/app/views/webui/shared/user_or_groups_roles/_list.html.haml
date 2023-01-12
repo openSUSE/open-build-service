@@ -25,8 +25,8 @@
             %i.far.fa-envelope.me-1{ title: "Send email to #{type}" }
         - if user_is_maintainer
           = link_to('#', class: "remove-#{type}",
-            data: { toggle: 'modal',
-                    target: '#delete-role-modal',
+            data: { 'bs-toggle': 'modal',
+                    'bs-target': '#delete-role-modal',
                     modal_title: "Delete all roles of '#{type}'",
                     confirmation_text: "Please confirm deletion of all roles of the '#{record}' #{type}.",
                     action: user_or_groups_roles_delete_path(project, type, record, package),

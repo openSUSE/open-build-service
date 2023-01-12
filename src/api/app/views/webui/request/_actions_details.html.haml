@@ -3,10 +3,10 @@
   .d-flex.align-items-center
     %p.mb-0 This request contains multiple actions
     .dropdown.ms-2#request-actions
-      %button.btn.btn-outline-primary.btn-sm.dropdown-toggle{ 'aria-expanded' => 'false', 'data-toggle' => 'dropdown',
+      %button.btn.btn-outline-primary.btn-sm.dropdown-toggle{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                               :type => 'button', 'data-boundary' => 'viewport' }
         Select Action
-      %ul.dropdown-menu.dropdown-menu-left.scrollable-dropdown
+      %ul.dropdown-menu.dropdown-menu-start.scrollable-dropdown
         %li
           %h6.dropdown-header
             %span Action

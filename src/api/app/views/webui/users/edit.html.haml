@@ -20,10 +20,10 @@
               = checkbox.check_box(class: 'form-check-input')
               = checkbox.label(class: 'form-check-label')
         .mb-3
-          = form.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s, class: 'custom-control-input') do |radio|
-            .custom-control.custom-radio.custom-control-inline
-              = radio.radio_button(class: 'custom-control-input')
-              = radio.label(class: 'custom-control-label')
+          = form.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s, class: 'form-check-input') do |radio|
+            .form-check.custom-control-inline
+              = radio.radio_button(class: 'form-check-input')
+              = radio.label(class: 'form-check-label')
         - if Configuration.ldap_enabled? && User.admin_session?
           .mb-3
             .form-check

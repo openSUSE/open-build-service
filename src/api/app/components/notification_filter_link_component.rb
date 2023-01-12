@@ -13,7 +13,7 @@ class NotificationFilterLinkComponent < ApplicationComponent
   end
 
   def css_for_badge_color
-    notification_filter_matches? ? 'bg-light' : 'bg-primary'
+    notification_filter_matches? ? 'bg-light text-dark' : 'bg-primary'
   end
 
   private

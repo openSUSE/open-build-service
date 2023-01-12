@@ -4,7 +4,7 @@
       %i.fa.fa-archive.fa-lg.me-2
       %span.nav-item-name View Package
   %li.nav-item#link-edit-details{ class: "#{'d-none' unless is_edit_details_action}" }
-    = link_to('#', class: 'nav-link', data: { target: '#description-edit', toggle: 'modal' }, title: 'Edit Details') do
+    = link_to('#', class: 'nav-link', data: { 'bs-target': '#description-edit', 'bs-toggle': 'modal' }, title: 'Edit Details') do
       %i.fa.fa-edit.fa-lg.me-2
       %span.nav-item-name Edit Details
   - if User.session

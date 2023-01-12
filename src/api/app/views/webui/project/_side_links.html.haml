@@ -35,7 +35,7 @@
 
   - if linking_projects.present?
     %li
-      = link_to('#', data: { toggle: 'modal', target: '#linking-projects-modal' }) do
+      = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#linking-projects-modal' }) do
         %i.fa.fa-info-circle.text-info
         = pluralize(linking_projects.size, 'linking project')
 

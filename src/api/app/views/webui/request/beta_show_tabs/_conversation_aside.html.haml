@@ -39,7 +39,7 @@
           %p.mt-3.ms-3
             - modal_id = 'show-package-maintainers-modal'
             = link_to('Show all', '#', class: 'btn btn-outline-secondary btn-sm show_dialog',
-                      data: { toggle: 'modal', target: "##{modal_id}" })
+                      data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
             = render partial: 'webui/request/show_maintainers',
                      locals: { modal_id: modal_id,
                       entity_type: 'Package',
@@ -63,7 +63,7 @@
           %p.mt-3.ms-3
             - modal_id = 'show-project-maintainers-modal'
             = link_to('Show all', '#', class: 'btn btn-outline-secondary btn-sm show_dialog',
-                      data: { toggle: 'modal', target: "##{modal_id}" })
+                      data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
             = render partial: 'webui/request/show_maintainers',
                      locals: { modal_id: modal_id,
                       entity_type: 'Project',

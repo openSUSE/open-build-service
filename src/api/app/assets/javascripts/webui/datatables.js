@@ -1,8 +1,8 @@
 //= require datatables/jquery.dataTables
-//= require datatables/dataTables.bootstrap4
+//= require datatables/dataTables.bootstrap5
 //= require datatables/extensions/Responsive/dataTables.responsive
-//= require datatables/extensions/Responsive/responsive.bootstrap4
-//= require datatables/extensions/FixedColumns/fixedColumns.bootstrap4
+//= require datatables/extensions/Responsive/responsive.bootstrap5
+//= require datatables/extensions/FixedColumns/fixedColumns.bootstrap5
 //= require datatables/extensions/FixedColumns/dataTables.fixedColumns
 
 var DEFAULT_DT_PARAMS = {

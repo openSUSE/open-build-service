@@ -4,7 +4,7 @@
   }
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
   .dataTables_wrapper .dataTables_filter { 
     input[type=search] {
       margin-left: 0;

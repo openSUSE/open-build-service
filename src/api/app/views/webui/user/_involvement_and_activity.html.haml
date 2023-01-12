@@ -9,11 +9,11 @@
       %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
           = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link text-nowrap',
-                    data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: false }) do
+                    data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: false }) do
             Involved Projects/Packages
         %li.nav-item
           = link_to('#activity', id: 'activity-tab', class: 'nav-link text-nowrap',
-                    data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
+                    data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
             Contributions
 
   .card-body.p-0#involvement-and-activity

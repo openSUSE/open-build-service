@@ -36,14 +36,14 @@
     .card
       %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap#packages-tabs{ role: 'tablist' }
         %li.nav-item
-          %a.nav-link#packages-tab{ href: '#packages', role: 'tab', data: { toggle: 'tab' },
+          %a.nav-link#packages-tab{ href: '#packages', role: 'tab', data: { 'bs-toggle': 'tab' },
           aria: { controls: 'packages', selected: 'false' } }
             Packages
             %span.badge.bg-primary
               = @packages.length
         - if @inherited_packages.present?
           %li.nav-item
-            %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
+            %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { 'bs-toggle': 'tab' },
             aria: { controls: 'inherited-packages', selected: 'false' } }
               Inherited Packages
               %span.badge.bg-primary

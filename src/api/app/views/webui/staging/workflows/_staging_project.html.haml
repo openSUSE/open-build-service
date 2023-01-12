@@ -12,11 +12,12 @@
             = link_to(preview_copy_staging_workflow_staging_project_path(staging_workflow.project, staging_project), title: 'Copy Staging Project') do
               %i.fas.fa-clone.text-secondary
             - if can_delete_staging_project
-              = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
+              = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': "#confirm-modal-#{staging_project.id}" },
+                        title: "Delete #{staging_project}") do
                 %i.fas.fa-times-circle.text-danger
             - else
-              %i.fas.fa-times-circle.text-muted{ data: { toggle: 'popover', placement: 'bottom',
-                                                content: 'This project can not be deleted because it has staged requests' } }
+              %i.fas.fa-times-circle.text-muted{ data: { 'bs-toggle': 'popover', 'bs-placement': 'bottom',
+                                                'bs-content': 'This project can not be deleted because it has staged requests' } }
     .card-body.p-2.text-muted
       %small.d-block
         state:

@@ -6,10 +6,10 @@ class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_com
   .card
     %ul.card-header.nav.nav-tabs.px-3.pt-2.pb-0.disable-link-generation{ role: 'tablist' }
       %li.nav-item
-        = link_to('Write', "#write_#{element_suffix}", class: 'nav-link active', data: { toggle: 'tab' }, role: 'tab',
+        = link_to('Write', "#write_#{element_suffix}", class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
         aria: { controls: 'write-comment-tab', selected: 'true' })
       %li.nav-item
-        = link_to('Preview', "#preview_#{element_suffix}", class: 'nav-link preview-comment-tab', data: { toggle: 'tab' },
+        = link_to('Preview', "#preview_#{element_suffix}", class: 'nav-link preview-comment-tab', data: { 'bs-toggle': 'tab' },
         role: 'tab', aria: { controls: 'preview-comment-tab', selected: 'false' })
     .tab-content.px-3
       .tab-pane.fade.show.active.my-3{ id: "write_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'write-comment-tab' }

@@ -7,8 +7,8 @@
     .nav-item.pb-2.mb-4.border-bottom.border-gray-500
       - if object_to_be_watched_in_watchlist?
         = link_to('#', class: 'nav-link',
-                  data: { toggle: 'modal',
-                          target: '#delete-item-from-watchlist-modal',
+                  data: { 'bs-toggle': 'modal',
+                          'bs-target': '#delete-item-from-watchlist-modal',
                           modal_title: "Do you really want to remove this #{watchable_type_text} from the watchlist?",
                           confirmation_text: "Please confirm you want to remove this #{watchable_type_text} from the watchlist.",
                           action: toggle_watchable_path }) do

@@ -3,7 +3,7 @@
     %span.btn.btn-link.text-truncate{ title: f.object.name }
       - name = f.object.name.gsub(/[^0-9a-z]/i, '')
       = link_to f.object.name,
-        data: { target: "##{f.object.source_path.present? ? "edit-#{name}" : "add-repository-#{name}"}", toggle: 'modal' },
+        data: { 'bs-target': "##{f.object.source_path.present? ? "edit-#{name}" : "add-repository-#{name}"}", 'bs-toggle': 'modal' },
         class: 'kiwi_element_name repository_edit' do
         = f.object.name
     %span.btn.btn-link.kiwi_actions
@@ -26,9 +26,8 @@
               .mb-3.ui-front
                 = label_tag 'Project'
                 .input-group
-                  .input-group-prepend
-                    %span.input-group-text
-                      %i.fas.fa-search
+                  %span.input-group-text
+                    %i.fas.fa-search
                   = text_field_tag 'target_project', f.object.project_for_type_obs,
                                    required: true,
                                    placeholder: 'Type to autocomplete...',
@@ -72,6 +71,6 @@
 
         .modal-footer
           = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',
-                     role: 'button', data: { toggle: 'collapse' })
+                     role: 'button', data: { 'bs-toggle': 'collapse' })
           = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
           = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')

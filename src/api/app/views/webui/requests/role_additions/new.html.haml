@@ -25,20 +25,20 @@
                 = bs_request_actions.hidden_field(:type)
                 .mb-3
                   = bs_request_actions.label(:role, 'Role:', class: 'w-100 mb-2')
-                  .custom-control.custom-radio.custom-control-inline
-                    = bs_request_actions.radio_button(:role, 'maintainer', class: 'custom-control-input')
-                    = bs_request_actions.label(:role, 'Maintainer', value: 'maintainer', class: 'custom-control-label')
-                  .custom-control.custom-radio.custom-control-inline
-                    = bs_request_actions.radio_button(:role, 'bugowner', class: 'custom-control-input')
-                    = bs_request_actions.label(:role, 'Bugowner', value: 'bugowner', class: 'custom-control-label')
+                  .form-check.custom-control-inline
+                    = bs_request_actions.radio_button(:role, 'maintainer', class: 'form-check-input')
+                    = bs_request_actions.label(:role, 'Maintainer', value: 'maintainer', class: 'form-check-label')
+                  .form-check.custom-control-inline
+                    = bs_request_actions.radio_button(:role, 'bugowner', class: 'form-check-input')
+                    = bs_request_actions.label(:role, 'Bugowner', value: 'bugowner', class: 'form-check-label')
                 .mb-3
                   = label_tag(:role_type, 'Type:', class: 'w-100 mb-2')
-                  .custom-control.custom-radio.custom-control-inline
-                    = radio_button_tag(:role_type, 'user', true, class: 'custom-control-input')
-                    = label_tag(:role_type, 'User', for: 'role_type_user', class: 'custom-control-label')
-                  .custom-control.custom-radio.custom-control-inline
-                    = radio_button_tag(:role_type, 'group', false, class: 'custom-control-input')
-                    = label_tag(:role_type, 'Group', for: 'role_type_group', class: 'custom-control-label')
+                  .form-check.custom-control-inline
+                    = radio_button_tag(:role_type, 'user', true, class: 'form-check-input')
+                    = label_tag(:role_type, 'User', for: 'role_type_user', class: 'form-check-label')
+                  .form-check.custom-control-inline
+                    = radio_button_tag(:role_type, 'group', false, class: 'form-check-input')
+                    = label_tag(:role_type, 'Group', for: 'role_type_group', class: 'form-check-label')
                 .hideable.user
                   -# Reproduce the naming convention for nested fields since we cannot use the FormBuilder (we replace ][, ] and [ by _)
                   = render partial: 'webui/shared/autocomplete',

@@ -28,7 +28,7 @@
           = link_to(token_trigger_path(@token), title: 'Trigger Token') do
             %i.fas.fa-project-diagram
         = link_to '#', title: 'Delete Token',
-          data: { toggle: 'modal', target: '#delete-token-modal', token_id: @token.id, action: token_path(@token) } do
+          data: { 'bs-toggle': 'modal', 'bs-target': '#delete-token-modal', token_id: @token.id, action: token_path(@token) } do
           %i.fas.fa-times-circle.text-danger
         - if @token.type == 'Token::Workflow'
           = link_to(token_users_path(@token.id), title: 'Share Token') do

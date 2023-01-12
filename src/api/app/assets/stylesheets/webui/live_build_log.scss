@@ -15,7 +15,7 @@
   @extend .btn-sm;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
   #log-space-wrapper {
     pre {
       font-size: 40%;

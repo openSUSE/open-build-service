@@ -1,9 +1,9 @@
 %span.badge{ class: "state-#{staging_project.overall_state}" }
   %span.badge.bg-light
     = render StagingProjectLinkComponent.new(staging_project: staging_project, staging_workflow: staging_workflow,
-                                             link_options: { data: { content: staging_project.description,
-                                                                     placement: 'bottom',
-                                                                     toggle: 'popover' } })
+                                             link_options: { data: { 'bs-content': staging_project.description,
+                                                                     'bs-placement': 'bottom',
+                                                                     'bs-toggle': 'popover' } })
   %span
     %br
     = staging_project.overall_state

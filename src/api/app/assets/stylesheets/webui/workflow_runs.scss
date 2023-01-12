@@ -23,7 +23,7 @@ $workflow-runs-filter-box-height: 3.5rem;
   }
 }
 
-@include media-breakpoint-between(xs, sm) {
+@include media-breakpoint-between(xs, md) {
   #workflow-runs-filter-desktop {
     &.show { border-top: 1px solid $gray-300; }
     &.sticky-top { top: $top-navigation-height; }

@@ -36,7 +36,7 @@
                     package_show_path(project: @token.package.project, package: @token.package))
               .mb-3#regenerate-token-group
                 = link_to('Regenerate Token', '#', title: 'Regenerate Token', class: 'btn btn-outline-danger float-end ms-3 px-4',
-                  data: { toggle: 'modal', target: '#regenerate-token-modal' })
+                  data: { 'bs-toggle': 'modal', 'bs-target': '#regenerate-token-modal' })
                 If your token has been lost, forgotten or compromised, you can regenerate it.
                 Don't forget to replace the string in any scripts or applications using this token.
               - if @token.type == 'Token::Workflow'
@@ -75,6 +75,6 @@
           Please confirm that you want to regenerate this token string.
         = form_with(url: token_path, scope: :token, method: :put, local: false) do |f|
           .modal-footer
-            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
             = f.submit('Regenerate', class: 'btn btn-sm btn-danger px-4', data: { disable: { with: 'Regenerate' } })

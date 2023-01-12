@@ -1,7 +1,7 @@
 .nested-fields.kiwi_fields.col-lg-2.col-md-3.col-sm-4
   .d-flex.justify-content-between.kiwi_list_item{ class: "#{'has-error' if f.object.errors.present?}" }
     %span.btn.btn-link.text-truncate{ title: f.object.name }
-      = link_to '', class: 'package_edit kiwi_element_name', data: { target: "#package-#{f.object.name}", toggle: 'modal' } do
+      = link_to '', class: 'package_edit kiwi_element_name', data: { 'bs-target': "#package-#{f.object.name}", 'bs-toggle': 'modal' } do
         = f.object.name
         - if f.object.arch.present?
           %small (#{f.object.arch})
@@ -24,9 +24,8 @@
           .mb-3.ui-front
             = f.label :name
             .input-group
-              .input-group-prepend
-                %span.input-group-text
-                  %i.fas.fa-search
+              %span.input-group-text
+                %i.fas.fa-search
               = f.text_field :name, required: true,
                                     placeholder: 'Type to autocomplete...',
                                     class: 'form-control kiwi-package-search',

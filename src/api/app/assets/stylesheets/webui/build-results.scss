@@ -24,7 +24,7 @@
 }
 
 .build-results {
-  a[data-toggle="collapse"] { width: 1.875rem; }
+  a[data-bs-toggle="collapse"] { width: 1.875rem; }
 }
 
 .build-results .sticky-top, #log-space-wrapper #log-info.position-sticky {
@@ -177,7 +177,7 @@
   .build-info .triangle.left { left: .25rem; }
 }
 
-@include media-breakpoint-between(sm, md) {
+@include media-breakpoint-between(sm, lg) {
   .build-info .triangle {
     &.center { margin-left: calc(38% + .75rem); }
     &.left { left: .5rem; }
