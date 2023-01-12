@@ -141,6 +141,9 @@ class Project < ApplicationRecord
         # restore all package meta data objects in DB
         backend_packages = Xmlhash.parse(Backend::Api::Search.packages_for_project(project_name))
         backend_packages.elements('package') do |package|
+          # Restoring packages with invalid names can cause issues, we ignore them.
+          next unless Package.valid_name?(package['name'])
+
           package = project.packages.new(name: package['name'])
           package_meta = Xmlhash.parse(package.meta.content)
 
