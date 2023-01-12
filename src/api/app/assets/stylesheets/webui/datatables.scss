@@ -9,10 +9,19 @@ table.table-fixed {
 // TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/17
 table.dataTable.table-sm {
   min-width: 100%;
+  // This added margin breaks layout
+  margin: 0!important;
 
   td {
     white-space: normal !important;
     @extend .text-break;
+  }
+  // Fixed columns need a solid background to work properly
+  &.DTFC_Cloned {
+    background: $card-bg;
+    thead.header th {
+      &:before, &:after { display: none }
+    }
   }
 }
 
