@@ -12,16 +12,13 @@
             .mb-3.package-add-file
               %label{ for: :filename }
                 %strong Filename:
-              = text_field_tag :filename, '', size: 80, maxlength: 200, class: 'form-control',
-              required: true, placeholder: 'Taken from uploaded file if empty...'
+              = text_field_tag :filename, '', size: 80, maxlength: 200, class: 'form-control'
               %small.form-text.text-muted
                 If only a filename is provided, an empty file is created (touched).
             .mb-3.package-add-file
               %label{ for: :file_url }
                 %strong File URL:
-              = text_field_tag :file_url, '', size: 80, maxlength: 200, class: 'form-control', required: true, type: :url
+              = text_field_tag :file_url, '', size: 80, maxlength: 200, class: 'form-control', type: :url
               %small.form-text.text-muted
                 URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
-            .mb-3.package-add-file
-              = file_field_tag 'file', class: 'form-control', id: 'file', required: true
             = submit_tag 'Add File', class: 'btn btn-sm btn-primary', id: :submit_button
