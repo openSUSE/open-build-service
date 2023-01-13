@@ -65,6 +65,7 @@ our $oid_ed25519		= BSASN1::pack_obj_id(1, 3, 101, 112);
 our $oid_ed448			= BSASN1::pack_obj_id(1, 3, 101, 113);
 our $oid_pkcs7_data		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 7, 1);
 our $oid_pkcs7_signed_data	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 7, 2);
+our $oid_pkcs9_extension_request	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 9, 14);
 
 # certificate keyusage bits
 our $key_usage_digital_signature	= 0;
