@@ -34,7 +34,7 @@
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
         - if @bs_request.accept_at.present?
-          %span.badge.alert-warning.ms-1 auto-accept
+          %span.badge.alert.alert-warning.border-0.ms-1.mb-0.p-2 auto-accept
         - if User.session
           .d-inline.align-bottom.ms-2#watchlist-icon-wrapper
             = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
