@@ -2,7 +2,7 @@ namespace :dev do
   namespace :news do
     # Run this task with: rails "dev:news:data[3]"
     # replacing 3 with any number to indicate how many times you want this code to be executed.
-    desc 'Creates a notification and all its dependencies'
+    desc 'Create news for all the combinations of severities and communication scopes'
     task :data, [:repetitions] => :development_environment do |_t, args|
       args.with_defaults(repetitions: 1)
       repetitions = args.repetitions.to_i
