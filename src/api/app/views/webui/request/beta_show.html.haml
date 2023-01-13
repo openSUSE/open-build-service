@@ -26,21 +26,21 @@
 .card
   .card-body.p-0
     .card-title.p-4.mb-0
-      %h3
+      %h3<>
         Request #{@bs_request.number}
-        %span.badge.ms-1{ class: "bg-#{request_badge_color(@bs_request.state)}" }
+        %span.badge.ms-2{ class: "bg-#{request_badge_color(@bs_request.state)}" }>
           = @bs_request.state
           - if @bs_request.superseded_by.present?
             by
             = link_to(@bs_request.superseded_by, number: @bs_request.superseded_by)
         - if @staging_status
-          - staging_title = @staging_status[:title].capitalize
+          - staging_title = @staging_status[:title]
           - staging_title[0].capitalize
-          = link_to @staging_status[:name], @staging_status[:url], title: staging_title, class: 'badge text-bg-primary'
+          = link_to @staging_status[:name], @staging_status[:url], title: staging_title, class: 'badge badge-staging ms-2'
         - if @bs_request.accept_at.present?
-          %span.badge.alert.alert-warning.border-0.ms-1.mb-0.p-2 auto-accept
+          %span.badge.alert.alert-warning.border-0.ms-2.mb-0.p-2 auto-accept
         - if User.session
-          .d-inline.align-bottom.ms-2#watchlist-icon-wrapper
+          .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
             = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
 
       %p.font-italic
