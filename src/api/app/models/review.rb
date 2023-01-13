@@ -295,6 +295,10 @@ class Review < ApplicationRecord
     by_project? && by_package?
   end
 
+  def staging_project?
+    for_project? && !project.staging_workflow_id.nil?
+  end
+
   private
 
   def matches_maintainers?(user)
