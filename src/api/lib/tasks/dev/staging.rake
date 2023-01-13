@@ -2,14 +2,7 @@ namespace :dev do
   namespace :staging do
     # Run this task with: rails dev:staging:data
     desc 'Creates a staging workflow with a project and a confirmed user'
-    task data: :environment do
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
-
+    task data: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
       timestamp = Time.now.to_i

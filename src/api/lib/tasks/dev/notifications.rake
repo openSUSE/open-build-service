@@ -3,14 +3,7 @@ namespace :dev do
     # Run this task with: rails "dev:notifications:data[3]"
     # replacing 3 with any number to indicate how many times you want this code to be executed.
     desc 'Creates a notification and all its dependencies'
-    task :data, [:repetitions] => :environment do |_t, args|
-      unless Rails.env.development?
-        puts "You are running this rake task in #{Rails.env} environment."
-        puts 'Please only run this task with RAILS_ENV=development'
-        puts 'otherwise it will destroy your database data.'
-        return
-      end
-
+    task :data, [:repetitions] => :development_environment do |_t, args|
       args.with_defaults(repetitions: 1)
       repetitions = args.repetitions.to_i
       require 'factory_bot'
