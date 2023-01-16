@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_01_09_131251) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_16_143207) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -188,6 +188,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_09_131251) do
     t.index ["target_package_id"], name: "index_bs_request_actions_on_target_package_id"
     t.index ["target_project"], name: "index_bs_request_actions_on_target_project"
     t.index ["target_project_id"], name: "index_bs_request_actions_on_target_project_id"
+  end
+
+  create_table "bs_request_actions_seen_by_users", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "bs_request_action_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["bs_request_action_id", "user_id"], name: "bs_request_actions_seen_by_users_index"
   end
 
   create_table "bs_request_counter", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
