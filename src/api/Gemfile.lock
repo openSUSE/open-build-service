@@ -141,7 +141,7 @@ GEM
     crass (1.0.6)
     daemons (1.4.1)
     dalli (3.2.3)
-    data_migrate (8.4.2)
+    data_migrate (8.5.0)
       activerecord (>= 5.0)
       railties (>= 5.0)
     database_cleaner-active_record (2.0.1)
