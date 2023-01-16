@@ -28,4 +28,8 @@ module Token::Errors
   class WorkflowsYamlFormatError < APIError
     setup 400
   end
+
+  class InsufficientPermissionOnTargetRepository < APIError
+    setup 403
+  end
 end
