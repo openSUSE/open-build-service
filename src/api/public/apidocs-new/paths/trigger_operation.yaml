@@ -119,9 +119,10 @@ post:
     - in: query
       name: targetproject
       description: |
-        TODO: please remove this line and add a description of what this parameter is used for.
-
         Only used when the operation is 'release'.
+
+        Release binaries to the provided target project. Only works in combination
+        with the `targetrepository` and `filter_source_repository` parameters.
       schema:
         type: string
       examples:
@@ -133,9 +134,10 @@ post:
     - in: query
       name: targetrepository
       description: |
-        TODO: please remove this line and add a description of what this parameter is used for.
-
         Only used when the operation is 'release'.
+
+        Release binaries to the provided target repository. Only works in combination
+        with the `targetproject` and `filter_source_repository` parameters.
       schema:
         type: string
       examples:
@@ -149,9 +151,10 @@ post:
     - in: query
       name: filter_source_repository
       description: |
-        TODO: please remove this line and add a description of what this parameter is used for.
-
         Only used when the operation is 'release'.
+
+        Release binaries from the provided source repository. Only works in combination
+        with the `targetrepository` and `targetproject` parameters.
       schema:
         type: string
       examples:
@@ -161,9 +164,9 @@ post:
     - in: query
       name: multibuild_flavor
       description: |
-        TODO: please remove this line and add a description of what this parameter is used for.
-
         Only used when the operation is 'rebuild' or 'release'.
+
+        Trigger a 'rebuild' or 'release' operation for the specified multibuild flavor.
       schema:
         type: string
       examples:
