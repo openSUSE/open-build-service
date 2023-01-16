@@ -42,6 +42,7 @@ module MaintenanceHelper
 
   def release_package(source_package, target, target_package_name, opts = {})
     filter_source_repository = opts[:filter_source_repository]
+    filter_architecture      = opts[:filter_architecture]
     multibuild_container     = opts[:multibuild_container]
     action                   = opts[:action]
     setrelease               = opts[:setrelease]
@@ -69,9 +70,9 @@ module MaintenanceHelper
 
     # copy binaries
     u_ids = if target.is_a?(Repository)
-              copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
+              copy_binaries_to_repository(filter_source_repository, filter_architecture, source_package, target, target_package_name, multibuild_container, setrelease)
             else
-              copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease, manual)
+              copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name, target_project, multibuild_container, setrelease)
             end
 
     # create or update main package linking to incident package
@@ -179,8 +180,8 @@ module MaintenanceHelper
     action.set_acceptinfo(result['acceptinfo']) if action
   end
 
-  def copy_binaries(filter_source_repository, source_package, target_package_name, target_project,
-                    multibuild_container, setrelease, manual)
+  def copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name,
+                    target_project, multibuild_container, setrelease, manual)
     update_ids = []
     source_package.project.repositories.each do |source_repo|
       next if filter_source_repository && filter_source_repository != source_repo
@@ -188,9 +189,8 @@ module MaintenanceHelper
       source_repo.release_targets.each do |releasetarget|
         next if manual && releasetarget.trigger != 'manual'
 
-        # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == target_project
-          u_id = copy_binaries_to_repository(source_repo, source_package, releasetarget.target_repository,
+          u_id = copy_binaries_to_repository(source_repo, filter_architecture, source_package, releasetarget.target_repository,
                                              target_package_name, multibuild_container, setrelease)
           update_ids << u_id if u_id
         end
@@ -205,8 +205,9 @@ module MaintenanceHelper
     update_ids
   end
 
-  def copy_binaries_to_repository(source_repository, source_package, target_repo, target_package_name,
+  def copy_binaries_to_repository(source_repository, filter_architecture, source_package, target_repo, target_package_name,
                                   multibuild_container, setrelease)
+    # get updateinfo id in case the source package comes from a maintenance project
     u_id = get_updateinfo_id(source_package, target_repo)
     source_package_name = source_package.name
     if multibuild_container.present?
@@ -214,7 +215,10 @@ module MaintenanceHelper
       target_package_name = target_package_name.gsub(/:.*/, '') << ':' << multibuild_container
     end
     source_repository.architectures.each do |arch|
-      # get updateinfo id in case the source package comes from a maintenance project
+      # user architecture filter
+      next if filter_architecture.present? && arch.name != filter_architecture
+      # skip automatically because target lacks the architecture
+      next unless target_repo.architectures.include? arch
       copy_single_binary(arch, target_repo, source_package.project.name, source_package_name,
                          source_repository, target_package_name, u_id, setrelease)
     end
