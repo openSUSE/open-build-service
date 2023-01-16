@@ -1,7 +1,10 @@
-- submit_actions = bs_request.bs_request_actions.where(type: 'submit')
-- if submit_actions.count > 1
+:ruby
+  submit_actions = bs_request.bs_request_actions.where(type: 'submit')
+  submit_actions_count = submit_actions.count
+
+- if submit_actions_count > 1
   .d-flex.align-items-center
-    %p.mb-0 This request contains multiple actions
+    %p.mb-0 This request contains #{submit_actions_count} actions
     .dropdown.ms-2#request-actions
       %button.btn.btn-outline-primary.btn-sm.dropdown-toggle{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                               :type => 'button', 'data-boundary' => 'viewport' }
@@ -11,17 +14,21 @@
           %h6.dropdown-header
             %span Action
             %span.float-end Revision
-        - submit_actions.each do |action_item|
-          %li
-            %hr.dropdown-divider
-            = link_to((render partial: 'action_text', locals: { action: action_item }),
+        - submit_actions.each_with_index do |action_item, action_index|
+          %li.border-top
+            = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index }),
                                                       request_show_path(number: bs_request.number,
                                                                         request_action_id: action_item.id,
                                                                         full_diff: diff_limit,
                                                                         diff_to_superseded: diff_to_superseded_id),
-                                                      class: "dropdown-item #{action_item.id == active_action.id ? 'disabled' : ''}")
+                                                      class: "dropdown-item #{action_item.id == active_action.id ? 'active' : ''}",
+                                                      'aria-current': 'true')
 %p
-  = 'Showing' if submit_actions.count > 1
+  - if submit_actions_count > 1
+    - active_action_index = submit_actions.find_index(active_action) + 1
+    Showing
+    %em action ##{active_action_index}
+    \-
   %span.font-italic= request_action_header(action, bs_request.creator)
 
 - content_for :ready_function do
