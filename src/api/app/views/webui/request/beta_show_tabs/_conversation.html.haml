@@ -19,7 +19,7 @@
 
   .col-md-8.order-md-1.order-sm-2#comments-list
     %h4.list-group.mb-4 Comments & Request History
-    .timeline{ data: { comment_counter: local_assigns[:comment_counter_id] } }
+    .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
       .timeline-item
         .d-inline-flex
           - creator = User.find_by_login(bs_request.creator) || User.nobody
@@ -54,7 +54,7 @@
 
       = render BsRequestActivityTimelineComponent.new(bs_request: bs_request)
 
-    .comment_new.mt-3
+    .comment_new
       = render partial: 'webui/comment/new', locals: { commentable: bs_request }
     %hr
 
