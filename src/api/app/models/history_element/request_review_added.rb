@@ -11,6 +11,8 @@ module HistoryElement
     end
 
     def user_action_prefix
+      return 'set' if review&.staging_project?
+
       'added'
     end
 
@@ -19,6 +21,8 @@ module HistoryElement
     end
 
     def user_action_suffix
+      return 'as a staging project' if review&.staging_project?
+
       'as a reviewer'
     end
 

@@ -14,13 +14,6 @@
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
   = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { can_add_reviews: can_add_reviews }
 
-  - open_reviews_for_staging_projects.each do |review|
-    .ps-3
-      %i.fas.fa-info-circle.text-info
-      - staging_project = review.project
-      Is staged in
-      = link_to(review.by_project, staging_workflow_staging_project_path(staging_project.staging_workflow.project, staging_project.name))
-
   -# PACKAGE MAINTAINERS
   - unless package_maintainers.empty?
     .mt-4

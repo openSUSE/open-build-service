@@ -13,6 +13,14 @@
   background-color: $cyan;
 }
 
+.badge-staging {
+  color: $white;
+  background-color: $pink;
+  &:hover {
+    color: $gray-100;
+  }
+}
+
 .req-description-box {
   word-break: break-all;
   white-space: pre-line;

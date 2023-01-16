@@ -29,7 +29,7 @@ class Webui::RequestController < Webui::WebuiController
       @active_action = @bs_request.bs_request_actions.find(action_id)
 
       @request_reviews = @bs_request.reviews.for_non_staging_projects
-      @open_reviews_for_staging_projects = @bs_request.reviews.opened.for_staging_projects
+      @staging_status = staging_status(@bs_request)
       @refresh = @action[:diff_not_cached]
 
       # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
@@ -471,5 +471,20 @@ class Webui::RequestController < Webui::WebuiController
       show_project_maintainer_hint: @show_project_maintainer_hint,
       actions: @actions
     }
+  end
+
+  def staging_status(request)
+    target_project = Project.find_by(name: request.target_project_name)
+    return nil unless (staging_review = request.reviews.staging(target_project).last)
+
+    if staging_review.for_project?
+      { name: staging_review.project.name[target_project.name.length + 1..],
+        title: "staged in #{staging_review.project}",
+        url: staging_workflow_staging_project_path(target_project.name, staging_review.project.name) }
+    elsif staging_review.for_group?
+      { name: staging_review.accepted? ? 'Staged' : 'Unstaged',
+        title: 'submitted against a staging project',
+        url: staging_workflow_path(@bs_request.target_project_name) }
+    end
   end
 end
