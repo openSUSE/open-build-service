@@ -36,7 +36,7 @@
         = render_diff(diff_content, file_index: index)
   - else
     .card{ id: "revision_details_#{index}" }
-      .card-header
+      .card-header.py-3
         .div.w-75
           = calculate_filename(filename, file)
           %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
