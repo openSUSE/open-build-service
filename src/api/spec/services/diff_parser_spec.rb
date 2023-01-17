@@ -9,6 +9,14 @@ RSpec.describe DiffParser, type: :service do
   subject { parser.call }
 
   describe '#call' do
+    context 'nil diff' do
+      let(:content) { nil }
+
+      let(:result_array) { [] }
+
+      it { expect(subject).to eq(result) }
+    end
+
     context 'empty diff' do
       let(:content) { '' }
 
