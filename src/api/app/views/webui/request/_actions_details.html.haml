@@ -36,6 +36,11 @@
     var hashRegexp = new RegExp(`\#${HASH_PREFIX}.+`);
 
     $('#request-actions').on('shown.bs.dropdown', function () {
+      // Scrolls towards the current request action
+      var currentAction = $('a.dropdown-item.active');
+      currentAction[0].scrollIntoView({behavior: "smooth", block: "center"});
+
+      // Adapts Href according to seleted tab
       $.each($('#request-actions .dropdown-item'), function () {
         var href = $(this).attr('href');
         if (document.location.hash.search('#diff_') != -1 && href.search('#') == -1) {
