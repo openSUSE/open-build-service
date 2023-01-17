@@ -6,34 +6,36 @@
   }
 }
 
-.alert-success i.fas {
-  @extend .fa-check-circle;
-}
-
-.alert-error {
-  @extend .alert-danger;
-
-  i.fas {
-    @extend .fa-exclamation-circle;
+.alert {
+  &.alert-success i.fas {
+    @extend .fa-check-circle;
   }
-}
 
-.alert-alert {
-  @extend .alert-warning;
+  &.alert-error {
+    @extend .alert-danger;
 
-  i.fas {
-    @extend .fa-exclamation-triangle;
+    i.fas {
+      @extend .fa-exclamation-circle;
+    }
   }
-}
 
-.alert-notice {
-  @extend .alert-info;
+  &.alert-alert {
+    @extend .alert-warning;
 
-  i.fas {
-    @extend .fa-info-circle;
+    i.fas {
+      @extend .fa-exclamation-triangle;
+    }
   }
-}
 
-.alert-dismissible {
-  padding-right: 3rem;
+  &.alert-notice {
+    @extend .alert-info;
+
+    i.fas {
+      @extend .fa-info-circle;
+    }
+  }
+
+  &.alert-dismissible {
+    padding-right: 3rem;
+  }
 }
