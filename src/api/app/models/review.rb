@@ -296,7 +296,7 @@ class Review < ApplicationRecord
   end
 
   def staging_project?
-    for_project? && !project.staging_workflow_id.nil?
+    for_project? && !project&.staging_workflow_id.nil?
   end
 
   private
