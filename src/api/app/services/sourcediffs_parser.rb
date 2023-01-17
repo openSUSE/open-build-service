@@ -1,10 +1,10 @@
-class ActionSourcediffParser
-  def initialize(action_sourcediff:)
-    @action_sourcediff = action_sourcediff
+class SourcediffsParser
+  def initialize(sourcediffs:)
+    @sourcediffs = sourcediffs
   end
 
   def call
-    @action_sourcediff&.each do |sourcediff|
+    @sourcediffs&.each do |sourcediff|
       sourcediff['filenames']&.each do |filename|
         content = sourcediff['files'][filename].dig('diff', '_content')
 

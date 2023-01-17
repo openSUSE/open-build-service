@@ -299,6 +299,8 @@ class Webui::PackageController < Webui::WebuiController
     @not_full_diff = @files.any? { |file| file[1]['diff'].try(:[], 'shown') }
     @filenames = filenames['filenames']
 
+    SourcediffsParser.new(sourcediffs: [filenames]).call if Flipper.enabled?(:request_show_redesign, User.session)
+
     # FIXME: moved from the old view, needs refactoring
     @submit_url_opts = {}
     if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') && !@opackage.find_attribute('OBS', 'RejectRequests')
