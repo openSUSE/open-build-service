@@ -1,0 +1,35 @@
+#accordion-reviews-component {
+  // Remove the default rounded borders for the last accordion item to nicely fit on top of the next `.form-control` element
+  .accordion-item:last-of-type {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: 0;
+
+    .accordion-button.collapsed {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+  // Remove the default rounded borders for the `.form-control` element next to the last accordion item
+  // See https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
+  & ~ .request-decision form .form-control {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+  }
+
+  // Replicate the borders styling of the next `.form-control` element
+  --bs-accordion-border-color: #{$input-border-color};
+  --bs-accordion-border-width: #{$input-border-width};
+
+  // Import the CSS variables from `.alert-*` classes to later use them in rules
+  // See https://getbootstrap.com/docs/5.2/components/alerts/#variables
+  #heading-accepted-reviews .accordion-button { @extend .alert-success; }
+  #heading-pending-reviews .accordion-button { @extend .alert-warning; }
+  #heading-declined-reviews .accordion-button { @extend .alert-danger; }
+
+  .accordion-button {
+    // Using the CSS variables from `.alert-*` classes
+    color: var(--bs-alert-color);
+    background-color: var(--bs-alert-bg);
+  }
+}

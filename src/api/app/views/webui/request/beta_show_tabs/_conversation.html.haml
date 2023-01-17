@@ -58,7 +58,7 @@
     %hr
 
     - if bs_request.accept_at.present?
-      .alert.alert-warning.p-2.mb-3
+      .alert.alert-warning.p-2
         %i.fas.fa-exclamation-triangle
         %span The current request
         - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
@@ -78,6 +78,9 @@
           will be
           %strong auto-accepted
           in #{time_ago_in_words(bs_request.accept_at)}.
+
+    = render AccordionReviewsComponent.new(request_reviews, bs_request.state)
+
     = render RequestDecisionComponent.new(bs_request: bs_request, action: action,
                                           is_target_maintainer: is_target_maintainer,
                                           is_author: is_author)
