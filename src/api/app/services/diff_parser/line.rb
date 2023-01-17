@@ -9,5 +9,9 @@ class DiffParser
       @original_index = original_index
       @changed_index = changed_index
     end
+
+    def ==(other)
+      content == other.content && state == other.state && index == other.index && original_index == other.original_index && changed_index == other.changed_index
+    end
   end
 end
