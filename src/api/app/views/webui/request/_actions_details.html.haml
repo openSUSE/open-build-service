@@ -23,6 +23,13 @@
                                                                         diff_to_superseded: diff_to_superseded_id),
                                                       class: "dropdown-item #{action_item.id == active_action.id ? 'active' : ''}",
                                                       'aria-current': 'true')
+      -# TODO: make it clickable to toggle the state
+      - if @seen_by_user
+        %span
+          Marked as seen
+      - else
+        %span
+          Not marked as seen yet
 %p
   - if submit_actions_count > 1
     - active_action_index = submit_actions.find_index(active_action) + 1
