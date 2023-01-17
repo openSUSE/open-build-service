@@ -837,6 +837,16 @@ class BsRequestAction < ApplicationRecord
     package.commit(source_rev) || package.commit
   end
 
+  def toggle_seen_by(user)
+    return unless user
+
+    if seen_by_users.exists?({ id: user.id })
+      seen_by_users.destroy(user)
+    else
+      seen_by_users << user
+    end
+  end
+
   private
 
   def cache_diffs

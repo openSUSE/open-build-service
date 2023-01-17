@@ -396,4 +396,39 @@ RSpec.describe BsRequestAction do
       end
     end
   end
+
+  describe '#toggle_seen_by' do
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    subject do
+      bs_request_action.toggle_seen_by(user)
+      bs_request_action.seen_by_users
+    end
+
+    context 'mark the action as seen by the user' do
+      it 'adds the user to the seen_by_users association' do
+        expect(subject).to include(user)
+      end
+    end
+
+    context 'mark the action as not seen by the user' do
+      before do
+        # prepare the data with the association
+        bs_request_action.seen_by_users << user
+      end
+
+      it 'removes the user from the seen_by_users association' do
+        expect(subject).not_to include(user)
+      end
+    end
+
+    context 'mark the action as seen by a nil user' do
+      before do
+        bs_request_action.toggle_seen_by(nil)
+      end
+
+      it { expect(bs_request_action.seen_by_users).not_to include(user) }
+    end
+  end
 end
