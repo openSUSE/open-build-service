@@ -160,6 +160,9 @@ sub pk2keydata {
   } elsif ($algo == 17) {
     $algo = 'dsa';
     $nmpi = 4;
+  } elsif ($algo == 19) {
+    $algo = 'ecdsa';
+    $nmpi = 1;
   } elsif ($algo == 22) {
     $algo = 'eddsa';
     $nmpi = 1;
@@ -168,11 +171,12 @@ sub pk2keydata {
   }
   $pack = substr($pack, 1);
   my $curve;
-  if ($algo eq 'eddsa') {
+  if ($algo eq 'ecdsa' || $algo eq 'eddsa') {
     my $clen = unpack('C', $pack);
     die("bad curve len\n") if $clen == 0 || $clen == 255;
     $curve = unpack('H*', substr($pack, 1, $clen));
     $curve = 'ed25519' if $curve eq '2b06010401da470f01';
+    $curve = 'nistp256' if $curve eq '2a8648ce3d030107';
     $curve = 'ed448' if $curve eq '2b6571';
     $pack = substr($pack, 1 + $clen);
   }
@@ -185,6 +189,7 @@ sub pk2keydata {
   }
   my $keysize = ($mpis[0]->{'bits'} + 31) & ~31;
   $keysize = $mpis[0]->{'bits'} - 7 if $algo eq 'eddsa';
+  $keysize = ($mpis[0]->{'bits'} - 3) / 2 if $algo eq 'ecdsa';
   my $data = { 'algo' => $algo, 'mpis' => \@mpis, 'keysize' => $keysize };
   $data->{'curve'} = $curve if $curve;
   return $data;
@@ -249,6 +254,7 @@ sub pk2sigdata {
   }
   $d->{'algo'} = 'rsa' if $algo == 1;
   $d->{'algo'} = 'dsa' if $algo == 17;
+  $d->{'algo'} = 'ecdsa' if $algo == 19;
   $d->{'algo'} = 'eddsa' if $algo == 22;
   $d->{'hash'} = 'md5' if $hash == 1;
   $d->{'hash'} = 'sha1' if $hash == 2;
