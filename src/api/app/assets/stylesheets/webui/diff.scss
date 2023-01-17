@@ -9,3 +9,68 @@
   right: 0.55rem;
   z-index: 4;
 }
+
+.pre.scroll {
+  overflow: auto;
+  border-bottom-left-radius: calc(#{$card-border-radius} - #{$card-border-width});
+  border-bottom-right-radius: calc(#{$card-border-radius} - #{$card-border-width});
+  .diff {
+    min-width: 100%;
+    width: max-content;
+    font-family: $font-family-monospace;
+    .line {
+      display: flex;
+      .character {
+        width: 1ch;
+        white-space: pre;
+        padding-left: 1rem
+      }
+      a {
+        flex-shrink: 0;
+        position: sticky;
+        left: 0;
+        .number {
+          color: $text-muted;
+          width: 4rem;
+          text-align: right;
+          padding: 0 1rem;
+          border-right: $card-border-width solid $card-border-color;
+          user-select: none;
+          background-color: $card-bg;
+        }
+      }
+      &.added, &.added .number {
+        background-color: rgba(mix($card-bg, rgba($success, 0.2)), 1)
+      }
+      &.removed, &.removed .number {
+        background-color: rgba(mix($card-bg, rgba($danger, 0.2)), 1)
+      }
+      &.range, &.comment {
+        border-bottom: $card-border-width solid $card-border-color;
+        border-top: $card-border-width solid $card-border-color;
+        .offset {
+          padding-left: calc(8rem - #{$card-border-width});
+          position: sticky;
+          left: 0;
+          .text {
+            padding-left: 1rem;
+            border-left: $card-border-width solid $card-border-color;
+          }
+        }
+      }
+      .content {
+        margin-left: 1rem;
+        white-space: pre;
+      }
+      &:target {
+        .number {
+          background-color: rgba(mix($card-bg, rgba($warning, 0.5)), 1)
+        }
+        .value {
+          background-color: rgba($warning, 0.1);
+          width: 100%
+        }
+      }
+    }
+  }
+}

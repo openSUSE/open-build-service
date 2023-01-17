@@ -8,7 +8,32 @@
         .diff-card-header
           = calculate_filename(filename, file)
           %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
-      = render_diff(diff_content, file_index: index)
+      -# TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
+      - if Flipper.enabled?(:request_show_redesign, User.session)
+        .pre.scroll
+          .diff>
+            - diff_parsed_lines = file.dig('diff', 'parsed_lines')
+            - diff_parsed_lines&.each do |line|
+              - id = "diff_#{index}_n#{line.index}"
+              %div{ class: "line #{line.state}", id: }>
+                - case line.state
+                - when 'comment', 'range'
+                  .offset
+                    .text-muted.text
+                      = line.content
+                - else
+                  = link_to "##{id}", class: 'd-flex' do
+                    .number<
+                      = line.original_index
+                    .number<
+                      = line.changed_index
+                  .value<
+                    %span.character><
+                      = line.content[0]
+                    %span.content><
+                      = line.content[1..]
+      - else
+        = render_diff(diff_content, file_index: index)
   - else
     .card{ id: "revision_details_#{index}" }
       .card-header
