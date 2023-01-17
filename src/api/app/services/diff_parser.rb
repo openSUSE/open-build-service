@@ -1,6 +1,6 @@
 class DiffParser
-  def initialize(content: [])
-    @content = content
+  def initialize(content:)
+    @content = content || ''
     @original_index = 0
     @changed_index = 0
     @last_original_index = 0
