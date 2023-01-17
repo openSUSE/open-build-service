@@ -12,7 +12,7 @@ class SourcediffComponent < ApplicationComponent
     @index = index
     @refresh = refresh
 
-    ActionSourcediffParser.new(action_sourcediff: action[:sourcediff]).call
+    SourcediffsParser.new(sourcediffs: action[:sourcediff]).call
   end
 
   def file_view_path(filename, sourcediff)
