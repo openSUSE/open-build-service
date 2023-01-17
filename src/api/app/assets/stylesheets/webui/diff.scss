@@ -11,6 +11,13 @@
 }
 
 .pre.scroll {
+  --line-index-digits: 6ch;
+  @for $i from 1 through 10 {
+    .digits-#{$i} {
+      --line-index-digits: #{$i}ch;
+    }
+    
+  }
   overflow: auto;
   border-bottom-left-radius: calc(#{$card-border-radius} - #{$card-border-width});
   border-bottom-right-radius: calc(#{$card-border-radius} - #{$card-border-width});
@@ -31,7 +38,8 @@
         left: 0;
         .number {
           color: $text-muted;
-          width: 4rem;
+          font-family: monospace;
+          width: calc(var(--line-index-digits) + 2rem + #{$card-border-width});
           text-align: right;
           padding: 0 1rem;
           border-right: $card-border-width solid $card-border-color;
@@ -49,7 +57,8 @@
         border-bottom: $card-border-width solid $card-border-color;
         border-top: $card-border-width solid $card-border-color;
         .offset {
-          padding-left: calc(8rem - #{$card-border-width});
+          font-family: monospace;
+          padding-left: calc(4rem + (2 * var(--line-index-digits)) + #{$card-border-width});
           position: sticky;
           left: 0;
           .text {
