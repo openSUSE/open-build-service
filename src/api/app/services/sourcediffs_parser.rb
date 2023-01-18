@@ -6,7 +6,9 @@ class SourcediffsParser
   def call
     @sourcediffs&.each do |sourcediff|
       sourcediff['filenames']&.each do |filename|
-        content = sourcediff['files'][filename].dig('diff', '_content')
+        next unless sourcediff['files'][filename].key?('diff')
+
+        content = sourcediff['files'][filename]['diff']['_content']
 
         sourcediff['files'][filename]['diff']['parsed_lines'] = DiffParser.new(content: content).call
       end
