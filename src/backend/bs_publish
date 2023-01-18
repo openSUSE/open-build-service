@@ -396,6 +396,7 @@ sub addsizechecksum {
     'sha' => 'SHA-1',
     'sha1' => 'SHA-1',
     'sha256' => 'SHA-256',
+    'sha512' => 'SHA-512',
   );
   if ($known{$sum}) {
     my $ctx = Digest->new($known{$sum});
@@ -618,7 +619,9 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_release';
   push @createrepoargs, '--filelists_ext' if $options{'filelists_ext'};
   my @legacyargs;
-  if ($options{'legacy'}) {
+  if ($options{'sha512'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha512';
+  } elsif ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
     # the default in newer createrepos
@@ -702,7 +705,10 @@ sub createrepo_rpmmd {
     # things are a bit complex, as we have to merge the deltas, and we also have to add the checksum
     my %mergeddeltas;
     for my $d (values(%{$data->{'deltainfos'}})) {
-      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], $options{'legacy'} ? 'sha' : 'sha256');
+      my $checksum = 'sha256';
+      $checksum = 'sha' if $options{'legacy'};
+      $checksum = 'sha512' if $options{'sha512'};
+      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], $checksum);
       my $mkey = "$d->{'arch'}\0$d->{'name'}\0$d->{'epoch'}\0$d->{'version'}\0$d->{'release'}\0";
       if ($mergeddeltas{$mkey}) {
 	push @{$mergeddeltas{$mkey}->{'delta'}}, $d->{'delta'}->[0];
@@ -1306,7 +1312,9 @@ sub createpatterns_rpmmd {
   writexml("$extrep/repodata/patterns.xml", undef, $pats, $BSXML::patterns);
   my @legacyargs;
   my %options = map {$_ => 1} @{$options || []};
-  if ($options{'legacy'}) {
+  if ($options{'sha512'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha512';
+  } elsif ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
     # the default in newer createrepos
@@ -1382,7 +1390,9 @@ sub createpatterns_comps {
   writexml("$extrep/repodata/group.xml", undef, $comps, $BSXML::comps);
   my @legacyargs;
   my %options = map {$_ => 1} @{$options || []};
-  if ($options{'legacy'}) {
+  if ($options{'sha512'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha512';
+  } elsif ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
     # the default in newer createrepos
