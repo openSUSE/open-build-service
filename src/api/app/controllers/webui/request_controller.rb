@@ -27,7 +27,6 @@ class Webui::RequestController < Webui::WebuiController
       @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
                                           diffs: true, action_id: action_id.to_i, cacheonly: 1).first
       @active_action = @bs_request.bs_request_actions.find(action_id)
-      @seen_by_user = @active_action.seen_by_users.exists?(id: User.session)
 
       @request_reviews = @bs_request.reviews.for_non_staging_projects
       @staging_status = staging_status(@bs_request)

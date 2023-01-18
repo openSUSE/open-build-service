@@ -1,0 +1,12 @@
+- if seen_by_user
+  = link_to('', method: :put, remote: true,
+      class: 'btn btn-outline-secondary btn-sm border-0',
+      title: "Marked as seen") do
+    %i.fa-solid.fa-square-check
+    Marked as seen
+- else
+  = link_to('', method: :put, remote: true,
+      class: 'btn btn-outline-secondary btn-sm border-0',
+      title: "Not seen yet") do
+    %i.fa-regular.fa-square
+    Not seen yet
