@@ -97,7 +97,7 @@ module Webui::RequestHelper
   end
 
   def calculate_filename(filename, file_element)
-    return filename unless file_element['state'] == 'changed'
+    return filename unless ['changed', 'renamed'].include?(file_element['state'])
     return filename if file_element['old']['name'] == filename
 
     "#{file_element['old']['name']} -> #{filename}"

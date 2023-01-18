@@ -70,6 +70,15 @@ RSpec.describe Webui::RequestHelper do
       it { expect(calculate_filename(filename, file_element)).to eq(filename) }
       it { expect(calculate_filename(new_filename, file_element)).to eq("#{filename} -> #{new_filename}") }
     end
+
+    context 'for renamed files' do
+      let(:file_element) do
+        { state: 'renamed', old: { name: filename } }.with_indifferent_access
+      end
+      let(:new_filename) { 'apache3' }
+
+      it { expect(calculate_filename(new_filename, file_element)).to eq("#{filename} -> #{new_filename}") }
+    end
   end
 
   context 'source diffs' do
