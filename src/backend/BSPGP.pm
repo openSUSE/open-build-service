@@ -177,6 +177,7 @@ sub pk2keydata {
     $curve = unpack('H*', substr($pack, 1, $clen));
     $curve = 'ed25519' if $curve eq '2b06010401da470f01';
     $curve = 'nistp256' if $curve eq '2a8648ce3d030107';
+    $curve = 'nistp384' if $curve eq '2b81040022';
     $curve = 'ed448' if $curve eq '2b6571';
     $pack = substr($pack, 1 + $clen);
   }
