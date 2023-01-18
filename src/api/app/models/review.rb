@@ -60,10 +60,13 @@ class Review < ApplicationRecord
   scope :opened, -> { where(state: :new) }
   scope :accepted, -> { where(state: :accepted) }
   scope :declined, -> { where(state: :declined) }
-  scope :for_staging_projects, -> { includes(:project).where.not(projects: { staging_workflow_id: nil }) }
-  scope :for_non_staging_projects, -> { includes(:project).where(projects: { staging_workflow_id: nil }) }
+  scope :for_staging_projects, lambda { |project|
+                                 includes(:project).where(projects: { staging_workflow: Staging::Workflow.find_by(project:) })
+                                                   .where.not(projects: { staging_workflow_id: nil })
+                               }
+  scope :for_non_staging_projects, ->(project) { where.not(id: for_staging_projects(project)) }
 
-  scope :staging, ->(project) { for_staging_projects.or(where(group: Staging::Workflow.find_by(project:)&.managers_group)) }
+  scope :staging, ->(project) { for_staging_projects(project).or(where(group: Staging::Workflow.find_by(project:).managers_group)) }
 
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
