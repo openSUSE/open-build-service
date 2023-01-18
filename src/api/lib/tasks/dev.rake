@@ -37,10 +37,10 @@ namespace :dev do
   task :bootstrap, [:old_test_suite] => [:prepare, :environment] do |_t, args|
     args.with_defaults(old_test_suite: false)
 
-    puts 'Creating the database...'
     begin
       Rake::Task['db:version'].invoke
     rescue StandardError
+      puts 'Creating and seeding the database...'
       Rake::Task['db:setup'].invoke
       if args.old_test_suite
         puts 'Old test suite. Loading fixtures...'
@@ -83,6 +83,11 @@ namespace :dev do
 
       puts 'Enable feature toggles for their group'
       Rake::Task['flipper:enable_features_for_group'].invoke
+
+      # Issue trackers were seeded into the database but never written to the backend.
+      # If they are not in the backend, the issues won't be tracked from changes files or patchinfos.
+      puts 'Writing issue trackers into backend'
+      IssueTrackerWriteToBackendJob.perform_now
 
       iggy = create(:staff_user, login: 'Iggy')
       admin = User.get_default_admin
