@@ -51,6 +51,7 @@ our $oid_id_ecdsa_with_sha1	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 1);
 our $oid_id_ecdsa_with_sha256	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 3, 2);
 our $oid_id_ecdsa_with_sha512	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 3, 4);
 our $oid_prime256v1		= BSASN1::pack_obj_id(1, 2, 840, 10045, 3, 1, 7);
+our $oid_secp384r1		= BSASN1::pack_obj_id(1, 3, 132, 0, 34);
 our $oid_rsaencryption		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 1);
 our $oid_sha1withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 5);
 our $oid_sha256withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 11);
@@ -284,6 +285,22 @@ sub keydata_getmpi {
   return { 'bits' => $nb, 'data' => $p };
 }
 
+sub oid2curve {
+  my ($oid) = @_;
+  return undef unless $oid;
+  return 'prime256v1' if $oid eq $oid_prime256v1;
+  return 'secp384r1' if $oid eq $oid_secp384r1;
+  return undef;
+}
+
+sub curve2oid {
+  my ($curve) = @_;
+  return undef unless $curve;
+  return $oid_prime256v1 if $curve eq 'prime256v1';
+  return $oid_secp384r1 if $curve eq 'secp384r1';
+  return undef;
+}
+
 # pubkey introspection
 sub pubkey2keydata {
   my ($subjectpublickeyinfo) = @_;
@@ -301,17 +318,13 @@ sub pubkey2keydata {
     push @mpis, keydata_getmpi($_) for BSASN1::unpack_sequence($bits);
     $nbits = $mpis[0]->{'bits'};
   } elsif ($algo eq 'ecdsa') {
-    my $curve;
-    if ($algoparams eq $oid_prime256v1) {
-      $res->{'curve'} = 'prime256v1';
-      $nbits = 256;
-    } elsif (length($bits) > 1) {
-      my $f = unpack('C', $bits);
-      if ($f == 2 || $f == 3) {
-	$nbits = (length($bits) - 1) * 8;
-      } elsif ($f == 4) {
-	$nbits = (length($bits) - 1) / 2 * 8;
-      }
+    my $curve = oid2curve($algoparams);
+    $res->{'curve'} = $curve if $curve;
+    my $f = unpack('C', $bits);
+    if ($f == 2 || $f == 3) {
+      $nbits = (length($bits) - 1) * 8;	# compressed points
+    } elsif ($f == 4) {
+      $nbits = (length($bits) - 1) / 2 * 8;	# uncompressed points
     }
     $res->{'point'} = $bits;
   } elsif ($algo eq 'ed25519' || $algo eq 'ed448') {
@@ -336,7 +349,7 @@ sub keydata2pubkey {
   } elsif ($algo eq 'ecdsa') {
     $bits = $keydata->{'point'};
     die("need a curve for ecdsa\n") unless $keydata->{'curve'};
-    $algoparams = $oid_prime256v1 if $keydata->{'curve'} eq 'prime256v1';
+    $algoparams = curve2oid($keydata->{'curve'});
     die("unsupported curve $keydata->{'curve'}\n") unless $algoparams;
   } elsif ($algo eq 'ed25519' || $algo eq 'ed448') {
     $bits = $keydata->{'point'};
