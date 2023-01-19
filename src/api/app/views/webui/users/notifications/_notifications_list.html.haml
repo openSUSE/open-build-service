@@ -21,7 +21,9 @@
           %span.ms-3= page_entries_info notifications, entry_name: ''
           = link_to_show_less_or_more unless notifications.total_pages == 1 && params[:show_more].nil?
         .list-group.list-group-flush.mt-3
-          = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter)
+          = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter,
+                                                                        page: params[:page],
+                                                                        show_more: params[:show_more])
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
 
 - content_for :ready_function do

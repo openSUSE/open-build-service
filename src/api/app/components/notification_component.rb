@@ -1,9 +1,11 @@
 class NotificationComponent < ApplicationComponent
-  def initialize(notification:, selected_filter:)
+  def initialize(notification:, selected_filter:, page:, show_more:)
     super
 
     @notification = notification
     @selected_filter = selected_filter
+    @page = page
+    @show_more = show_more
   end
 
   def notification_icon
