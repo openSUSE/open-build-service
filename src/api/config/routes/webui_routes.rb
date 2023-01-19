@@ -302,6 +302,7 @@ OBSApi::Application.routes.draw do
     resources :requests, only: [], param: :number, controller: 'webui/bs_requests' do
       member do
         put :toggle_watched_item, controller: 'webui/watched_items'
+        put :toggle_action_seen_by_user, controller: 'webui/action_seen_by_users'
       end
     end
 

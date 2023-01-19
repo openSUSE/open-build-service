@@ -1,12 +1,9 @@
-- if seen_by_user
-  = link_to('', method: :put, remote: true,
-      class: 'btn btn-outline-secondary btn-sm border-0',
-      title: "Marked as seen") do
+= link_to(toggle_action_seen_by_user_request_path(action_id: @action.id),
+    class: 'btn btn-sm border-0',
+    title: 'Wether the action has been marked "as seen" or not yet',
+    method: :put, remote: true) do
+  - if seen_by_user
     %i.fa-solid.fa-square-check
-    Marked as seen
-- else
-  = link_to('', method: :put, remote: true,
-      class: 'btn btn-outline-secondary btn-sm border-0',
-      title: "Not seen yet") do
+  - else
     %i.fa-regular.fa-square
-    Not seen yet
+  Action seen
