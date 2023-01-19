@@ -374,4 +374,54 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
       expect(page).not_to have_text('Project Maintainers')
     end
   end
+
+  describe 'a request submitted against a non staging project' do
+    let!(:workflow) do
+      create(:staging_workflow, project: create(:project, name: 'home:titan:stage', maintainer: submitter))
+      Staging::Workflow.last
+    end
+    let(:staging_project) { workflow.staging_projects.first }
+
+    before do
+      Flipper.enable(:request_show_redesign)
+    end
+
+    it 'does not set badge for submit request' do
+      login submitter
+      visit request_show_path(bs_request)
+      click_on('Add Reviewer')
+      within '#add-reviewer-modal' do
+        select 'Project Maintainers', from: 'review_type'
+        fill_in 'Project', with: staging_project.name
+        click_button('Accept')
+      end
+      expect(page).not_to have_css('.badge-staging')
+    end
+  end
+
+  describe 'a request submitted against a staging project' do
+    let!(:workflow) do
+      create(:staging_workflow, project: target_project)
+      Staging::Workflow.last
+    end
+    let(:staging_project) { workflow.staging_projects.first }
+    let(:staging_request) { create(:delete_bs_request, target_project: target_project, creator: submitter) }
+    let(:staging_user) { User.find_by(login: staging_request.creator) }
+
+    before do
+      Flipper.enable(:request_show_redesign)
+    end
+
+    it 'sets badge for submit request' do
+      login staging_user
+      visit request_show_path(staging_request)
+      click_on('Add Reviewer')
+      within '#add-reviewer-modal' do
+        select 'Project Maintainers', from: 'review_type'
+        fill_in 'Project', with: staging_project.name
+        click_button('Accept')
+      end
+      expect(page).to have_css('.badge-staging')
+    end
+  end
 end
