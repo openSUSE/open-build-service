@@ -2,20 +2,31 @@ module RuboCop
   module Cop
     module ViewComponent
       class AvoidGlobalState < RuboCop::Cop::Base
-        # https://docs.rubocop.org/rubocop-ast/node_pattern.html#using-node-matcher-macros
-        def_node_search :params, <<~PATTERN
-          (send (send nil? :params) :[] (:sym ...)) # nil? -> https://docs.rubocop.org/rubocop-ast/node_pattern.html#nil-or-nil
+        # General documentation on `def_node_matcher`
+        # https://docs.rubocop.org/rubocop-ast/1.12/node_pattern.html#using-node-matcher-macros
+        #
+        # Documentation for node types (There is a `on_*` method for every Node type, so like `on_send`)
+        # https://docs.rubocop.org/rubocop-ast/1.12/node_types.html#node-types
+        #
+        # Documentation for the predicate nil?
+        # https://docs.rubocop.org/rubocop-ast/1.12/node_pattern.html#nil-or-nil
+        #
+        # Documentation for ... to match several subsequent nodes
+        # https://docs.rubocop.org/rubocop-ast/1.12/node_pattern.html#for-several-subsequent-nodes
+        def_node_matcher :params?, <<~PATTERN
+          (send (send nil? :params) :[] (:sym ...))
         PATTERN
 
-        MSG = 'View components should not rely on global state by using params. Instead, pass the required data to the initialize method.'.freeze
+        MESSAGE = 'View components should not rely on global state by using %<content>s. Instead, pass the required data to the initialize method.'.freeze
 
-        # Add an offense for every line using params
+        # Add an offense for using params
         #
         # @param [RuboCop::AST::ClassNode]
-        def on_class(node)
-          params(node).each do |param|
-            add_offense(param)
-          end
+        def on_send(node)
+          return unless params?(node)
+
+          # node.source is the code which the AST pattern matched, so as an example `params[:abc]`
+          add_offense(node, message: format(MESSAGE, content: node.source))
         end
       end
     end
