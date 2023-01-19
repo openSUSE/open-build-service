@@ -332,6 +332,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/request', params: { match: "state/@name='review' and review[@by_group='maintenance-team' and @state='new']" }
     assert_response :success
 
+    # osc supersede check for maintenance requests
+    get '/search/request', params: { match: "(target/@releaseproject='Apache' and action/@type='maintenance_incident')" }
+    assert_response :success
+
     get '/search/request', params: { match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )" }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { 'matches' => '1' }
