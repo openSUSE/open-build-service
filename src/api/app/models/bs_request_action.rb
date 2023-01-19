@@ -838,7 +838,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def toggle_seen_by(user)
-    return unless user
+    return unless user.is_a?(User)
 
     if seen_by_users.exists?({ id: user.id })
       seen_by_users.destroy(user)
