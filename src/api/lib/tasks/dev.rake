@@ -234,6 +234,9 @@ namespace :dev do
       # Create a request with multiple submit actions and diffs
       Rake::Task['dev:requests:request_with_multiple_submit_actions_and_diffs'].invoke
 
+      # Create a request with a couple of maintenance incident request actions
+      Rake::Task['dev:requests:request_with_maintenance_incident_actions'].invoke
+
       # Create news
       Rake::Task['dev:news:data'].invoke
     end
