@@ -8,5 +8,7 @@
   <watchlist>
     <project name="ASCIIParadize"/>
     <project name="crashtest"/>
+    <package name="emacs" project="Editors"/>
+    <request number="123456789"/>
   </watchlist>
 </person>
