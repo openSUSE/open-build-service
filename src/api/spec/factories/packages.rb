@@ -56,6 +56,22 @@ FactoryBot.define do
       end
     end
 
+    factory :package_with_changes_file do
+      transient do
+        changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read }
+        changes_file_name { "#{name}.changes" }
+      end
+
+      after(:create) do |package, evaluator|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+        if CONFIG['global_write_through']
+          full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.changes_file_name}"
+          Backend::Connection.put(Addressable::URI.escape(full_path), evaluator.changes_file_content)
+        end
+      end
+    end
+
     factory :multibuild_package do
       transient do
         flavors { ['flavor_a', 'flavor_b'] }
@@ -159,22 +175,6 @@ FactoryBot.define do
         if CONFIG['global_write_through']
           Backend::Connection.put(Addressable::URI.escape("/source/#{package.project.name}/#{package.name}/_service"),
                                   '<service>broken</service>')
-        end
-      end
-    end
-
-    factory :package_with_changes_file do
-      transient do
-        changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read }
-        changes_file_name { "#{name}.changes" }
-      end
-
-      after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.changes_file_name}"
-          Backend::Connection.put(Addressable::URI.escape(full_path), evaluator.changes_file_content)
         end
       end
     end
