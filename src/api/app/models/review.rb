@@ -299,6 +299,10 @@ class Review < ApplicationRecord
     for_project? && !project&.staging_workflow_id.nil?
   end
 
+  def reason_when_review_was_requested
+    HistoryElement::RequestReviewAdded.find_by(op_object_id: bs_request_id, description_extension: id.to_s)&.comment
+  end
+
   private
 
   def matches_maintainers?(user)
