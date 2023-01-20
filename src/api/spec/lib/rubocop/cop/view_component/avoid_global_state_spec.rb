@@ -12,7 +12,10 @@ RSpec.describe RuboCop::Cop::ViewComponent::AvoidGlobalState, :config do
         class MyComponent < ApplicationComponent
           def initialize
             @abc = params[:abc]
-                   ^^^^^^^^^^^^ View components should not rely on global state by using params. Instead, pass the required data to the initialize method.
+                   ^^^^^^^^^^^^ View components should not rely on global state by using params[:abc]. Instead, pass the required data to the initialize method.
+            @abc_def = params[:abc][:def]
+                       ^^^^^^^^^^^^ View components should not rely on global state by using params[:abc]. Instead, pass the required data to the initialize method.
+
           end
         end
       RUBY
