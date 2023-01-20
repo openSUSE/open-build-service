@@ -106,8 +106,8 @@ namespace :dev do
       create(:path_element, link: tw_repository, repository: admin_repository)
       ruby_admin = create(:package_with_file, name: 'ruby', project: home_admin, file_content: 'from admin home')
 
-      branches_iggy = create(:project, name: iggy.branch_project_name('home:Admin'))
       ruby_iggy = create(:package_with_file, name: 'ruby', project: branches_iggy, file_content: 'from iggies branch')
+      branches_iggy = RakeSupport.find_or_create_project(iggy.branch_project_name('home:Admin'), iggy)
       create(
         :bs_request_with_submit_action,
         creator: iggy,
