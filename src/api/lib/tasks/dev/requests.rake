@@ -117,11 +117,8 @@ namespace :dev do
       # Branch the hello_world package
       iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
       branches_iggy = Project.find_by(name: iggy.branch_project_name(home_admin_project.name)) || create(:project, name: iggy.branch_project_name(home_admin_project.name))
-      hello_world_iggy = create(:package, name: "hello_world_#{Faker::Lorem.word}", project: branches_iggy)
-      backend_url = "/source/#{CGI.escape(branches_iggy.name)}/#{CGI.escape(hello_world_iggy.name)}"
-      hello_world_spec = File.read('../../dist/t/spec/fixtures/hello_world.spec')
-      hello_world_spec.gsub('Most simple RPM package', Faker::Lorem.sentence(word_count: 4))
-      Backend::Connection.put("#{backend_url}/hello_world.spec", hello_world_spec)
+      # This will create a .spec file different from the hello_world.spec because it contains the new package name
+      hello_world_iggy = create(:package_with_files, name: "hello_world_#{Faker::Lorem.word}", project: branches_iggy)
 
       # Create the request
       request = create(
