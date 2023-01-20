@@ -8,45 +8,46 @@ namespace :dev do
 
       puts 'Creating a request with multiple actions...'
 
-      requestor = User.get_default_admin
-      User.session = requestor
+      admin = User.get_default_admin
+      User.session = admin
+      iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
 
-      # Set source project, packages and files
-      source_project = RakeSupport.find_or_create_project(requestor.home_project_name, requestor) # home:Admin
-      source_package_a = Package.where(name: 'package_a', project: source_project).first || create(:package, name: 'package_a', project: source_project)
-      source_package_b = Package.where(name: 'package_b', project: source_project).first || create(:package, name: 'package_b', project: source_project)
-      # Add files to the newly created source package A
-      ["#{source_package_a}.spec", "#{source_package_a}.changes"].each do |file_name|
-        source_package_a.save_file({ file: Faker::Lorem.paragraph, filename: file_name })
-      end
-      # Add a file to the newly created source package B
-      source_package_b.save_file({ file: Faker::Lorem.paragraph, filename: "#{source_package_b}.spec" })
+      # Set target project and package
+      target_project = Project.find_by(name: 'openSUSE:Factory') || create(:project, name: 'openSUSE:Factory') # openSUSE:Factory
+      target_package_a = Package.where(name: 'package_a', project: target_project).first ||
+                         create(:package_with_files, name: 'package_a', project: target_project)
 
-      # Set target project and packages
-      target_project = Project.find_by(name: 'openSUSE:Factory') || create(:project, name: 'openSUSE:Factory')
-      target_package_a = Package.where(name: 'package_a', project: target_project).first || create(:package, name: 'package_a', project: target_project)
-      target_package_b = Package.where(name: 'package_b', project: target_project).first || create(:package, name: 'package_b', project: target_project)
+      # Simulate the branching of source project by Iggy, then it modifies some packages
+      source_project = RakeSupport.find_or_create_project(iggy.branch_project_name(target_project.name), iggy) # home:Admin:branches:openSUSE:Factory
+      source_package_a = Package.where(name: 'package_a', project: source_project).first ||
+                         create(:package_with_files, name: 'package_a', project: source_project, changes_file_content: '- Fixes boo#2222222 and CVE-2011-2222')
 
       # Create request to submit new files to the target package A
       request = create(
         :bs_request_with_submit_action,
-        creator: requestor,
+        creator: iggy,
         target_project: target_project,
         target_package: target_package_a,
         source_project: source_project,
         source_package: source_package_a
       )
 
-      # Create more actions to submit a new file to different packages
-      (1..30).each do |i|
-        target_package = Package.where(name: "package_#{i}", project: target_project).first || create(:package, name: "package_#{i}", project: target_project)
+      # Create more actions to submit new files from different packages to package_b
+      ('b'..'z').each_with_index do |char, index|
+        figure = (index + 1).to_s.rjust(2, '0') # Generate the last two figures for the issue code
+        changes_file_content = "- Fixes boo#11111#{figure} CVE-2011-11#{figure}"
 
-        # Create an action to submit a new file to package C
+        source_package = Package.where(name: "package_#{char}", project: source_project).first ||
+                         create(:package_with_files, name: "package_#{char}", project: source_project, changes_file_content: changes_file_content)
+
+        target_package_b = Package.where(name: 'package_b', project: target_project).first ||
+                           create(:package, name: 'package_b', project: target_project)
+
         action_attributes = {
-          source_package: source_package_b,
+          source_package: source_package,
           source_project: source_project,
           target_project: target_project,
-          target_package: target_package
+          target_package: target_package_b
         }
         bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit', bs_request: request))
         bs_req_action.save! if bs_req_action.valid?
@@ -55,14 +56,19 @@ namespace :dev do
       # Create an action to add role
       action_attributes = {
         target_project: target_project,
-        target_package: target_package_b,
+        target_package: target_package_a,
         person_name: User.last.login,
-        role: Role.find_by_title!('maintainer')
+        role: Role.find_by_title!('maintainer'),
+        type: 'add_role',
+        bs_request: request
       }
-      bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'add_role', bs_request: request))
+      bs_req_action = build(:bs_request_action, action_attributes)
       bs_req_action.save! if bs_req_action.valid?
 
-      puts "* Request #{request.number} has been created."
+      puts "* Request #{request.number} contains multiple actions and mentioned issues."
+      puts 'To start the builds confirm or perfom the following steps:'
+      puts '- Create the interconnect with openSUSE.org'
+      puts '- Create a couple of repositories in project home:Iggy:branches:home:Admin'
     end
 
     desc 'Creates several requests with submit actions and diffs'
