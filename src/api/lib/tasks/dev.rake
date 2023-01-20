@@ -228,14 +228,11 @@ namespace :dev do
       # Create a workflow token, some workflow runs and their related data
       Rake::Task['dev:workflows:create_workflow_runs'].invoke
 
-      # Create a request with multiple actions
+      # Create a request with multiple actions and mentioned issues which produce build results
       Rake::Task['dev:requests:multiple_actions_request'].invoke
 
       # Create a request with multiple submit actions and diffs
       Rake::Task['dev:requests:request_with_multiple_submit_actions_and_diffs'].invoke
-
-      # Create a request wich builds and produces build results
-      Rake::Task['dev:requests:request_with_build_results'].invoke
 
       # Create news
       Rake::Task['dev:news:data'].invoke
