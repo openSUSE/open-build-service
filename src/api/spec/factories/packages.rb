@@ -56,6 +56,34 @@ FactoryBot.define do
       end
     end
 
+    # Creates a package with three files: README.txt, <name>.spec and <name>.changes.
+    factory :package_with_files do
+      transient do
+        file_name { 'README.txt' }
+        file_content { Faker::Lorem.paragraph }
+        spec_file_name { "#{name}.spec" }
+        spec_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.spec')).read.gsub('factory_package', name) }
+        changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read }
+        changes_file_name { "#{name}.changes" }
+      end
+
+      after(:create) do |package, evaluator|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+        if CONFIG['global_write_through']
+          Backend::Connection.put(
+            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.file_name}", evaluator.file_content
+          )
+          Backend::Connection.put(
+            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.spec_file_name}", evaluator.spec_file_content
+          )
+          Backend::Connection.put(
+            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.changes_file_name}", evaluator.changes_file_content
+          )
+        end
+      end
+    end
+
     factory :package_with_changes_file do
       transient do
         changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read }
