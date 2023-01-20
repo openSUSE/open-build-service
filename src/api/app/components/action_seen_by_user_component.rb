@@ -7,6 +7,6 @@ class ActionSeenByUserComponent < ApplicationComponent
   end
 
   def seen_by_user
-    @action.seen_by_users.exists?(id: @user.id)
+    @action.seen_by_users.exists?({ id: @user.id })
   end
 end
