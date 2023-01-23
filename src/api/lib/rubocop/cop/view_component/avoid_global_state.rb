@@ -17,16 +17,24 @@ module RuboCop
           (send (send nil? :params) :[] (:sym ...))
         PATTERN
 
-        MESSAGE = 'View components should not rely on global state by using %<content>s. Instead, pass the required data to the initialize method.'.freeze
+        def_node_matcher :user_model?, <<~PATTERN
+          (send (const nil? :User) ...)
+        PATTERN
 
-        # Add an offense for using params
+        MESSAGE = 'View components should not rely on global state by %<content>s. Instead, pass the required data to the initialize method.'.freeze
+
+        # Add an offense for using params or class methods from the User model
         #
         # @param [RuboCop::AST::ClassNode]
         def on_send(node)
-          return unless params?(node)
-
-          # node.source is the code which the AST pattern matched, so as an example `params[:abc]`
-          add_offense(node, message: format(MESSAGE, content: node.source))
+          case
+          when params?(node)
+            # node.source is the code which the AST pattern matched, so as an example `params[:abc]`
+            add_offense(node, message: format(MESSAGE, content: "using #{node.source}"))
+          when user_model?(node)
+            # node.source is the code which the AST pattern matched, so as an example `User.session`
+            add_offense(node, message: format(MESSAGE, content: "calling #{node.source}"))
+          end
         end
       end
     end

@@ -24,7 +24,9 @@
         class: 'form-control', required: true)
     = hidden_field_tag 'register', 'true'
     = submit_tag submit_btn_text, class: 'btn btn-primary w-100'
-    - unless User.session
+
+    -# This should be refactored to avoid relying on global state
+    - unless User.session # rubocop:disable ViewComponent/AvoidGlobalState
       .login-separator.text-center
         %hr.my-4
         %span.bg-white.px-3.text-muted or

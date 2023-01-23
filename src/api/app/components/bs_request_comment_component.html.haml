@@ -32,7 +32,8 @@
     - if policy(comment).destroy?
       = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
 
-  - if User.session
+  -# This should be refactored to avoid relying on global state
+  - if User.session # rubocop:disable ViewComponent/AvoidGlobalState
     .mb-2
       = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                 class: 'font-italic small collapsed') do
