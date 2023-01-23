@@ -12,6 +12,8 @@
       %ul.dropdown-menu.dropdown-menu-start.scrollable-dropdown
         %li
           %h6.dropdown-header
+            - if User.session
+              %span Seen
             %span Action
             %span.float-end Revision
         - submit_actions.each_with_index do |action_item, action_index|
@@ -25,11 +27,16 @@
                                                       'aria-current': 'true')
 %p
   - if submit_actions_count > 1
+    - if User.session
+      .d-inline#action-seen-by-user-wrapper
+        = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
+
     - active_action_index = submit_actions.find_index(active_action) + 1
-    Showing
-    %em action ##{active_action_index}
-    \-
-  %span.font-italic= request_action_header(action, bs_request.creator)
+    %span.ms-2.align-middle
+      Showing
+      %em action ##{active_action_index}
+      \-
+  %span.font-italic.align-middle= request_action_header(action, bs_request.creator)
 
 - content_for :ready_function do
   :plain

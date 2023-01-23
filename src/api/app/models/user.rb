@@ -45,6 +45,9 @@ class User < ApplicationRecord
   has_and_belongs_to_many :groups, -> { distinct }
   # users have a n:m relation to roles
   has_and_belongs_to_many :roles, -> { distinct }
+
+  has_and_belongs_to_many :bs_request_actions_seen, class_name: 'BsRequestAction', join_table: :bs_request_actions_seen_by_users
+
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
