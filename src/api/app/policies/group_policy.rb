@@ -15,4 +15,8 @@ class GroupPolicy < ApplicationPolicy
   def destroy?
     update?
   end
+
+  def display_email?
+    !user.is_nobody?
+  end
 end
