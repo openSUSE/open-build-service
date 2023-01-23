@@ -11,8 +11,12 @@
       -# TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
       - if Flipper.enabled?(:request_show_redesign, User.session)
         .pre.scroll
-          .diff>
-            - diff_parsed_lines = file.dig('diff', 'parsed_lines')
+          :ruby
+            diff_parsed_lines = file.dig('diff', 'parsed_lines') || []
+            last_line = diff_parsed_lines.reverse.find { |l| l.original_index || l.changed_index }
+            max_index = [last_line.original_index, last_line.changed_index].compact.max if last_line
+            index_width = max_index&.digits&.count || 6
+          .diff{ class: "digits-#{index_width}" }>
             - diff_parsed_lines&.each do |line|
               - id = "diff_#{index}_n#{line.index}"
               %div{ class: "line #{line.state}", id: }>
