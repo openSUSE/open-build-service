@@ -498,6 +498,7 @@ class Package < ApplicationRecord
   end
 
   def parse_issues_xml(query, force_state = nil)
+    # The issue trackers should have been written to the backend before this point (IssueTrackerWriteToBackendJob)
     begin
       answer = Backend::Connection.post(source_path(nil, query))
     rescue Backend::Error => e
