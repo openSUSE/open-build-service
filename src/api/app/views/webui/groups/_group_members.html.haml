@@ -1,4 +1,5 @@
 - write_access = policy(group).update?
+- display_group_email = policy(group).display_email? && group.email.present?
 
 - if group.users.blank?
   %p
@@ -33,13 +34,21 @@
                     Maintainer
                   %i.fas.fa-spinner.fa-spin.d-none
 
-- if write_access
+- if write_access || display_group_email
   .pt-4
     %ul.list-inline
-      %li.list-inline-item
-        = link_to('#', class: 'nav-link', title: 'Add Member', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-user-modal' }) do
-          %i.fas.fa-plus-circle.text-primary
-          Add Member
+      - if write_access
+        %li.list-inline-item
+          = link_to('#', class: 'nav-link', title: 'Add Member', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-user-modal' }) do
+            %i.fas.fa-plus-circle.text-primary
+            Add Member
+      - if display_group_email
+        %li.list-inline-item
+          = mail_to(group.email, class: 'nav-link') do
+            %i.far.fa-envelope.text-secondary{ title: "Send email to #{group}" }
+            Send email to group
+            %em= group.title
+
   = render partial: 'add_group_user_modal', locals: { group: group }
 
 = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-group-members-modal',
