@@ -26,6 +26,7 @@ AllCops:
     - 'app/jobs/old/consistency_check_job.rb'
     # Binaries are generated, so we don't lint them
     - 'bin/**/*'
+    - 'spec/fixtures/files/factory_package.spec'
   SuggestExtensions:
     # We don't want extra cops for minitest since we want to migrate those tests to RSpec
     rubocop-minitest: false

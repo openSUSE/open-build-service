@@ -106,8 +106,9 @@ namespace :dev do
       create(:path_element, link: tw_repository, repository: admin_repository)
       ruby_admin = create(:package_with_file, name: 'ruby', project: home_admin, file_content: 'from admin home')
 
-      branches_iggy = create(:project, name: iggy.branch_project_name('home:Admin'))
-      ruby_iggy = create(:package_with_file, name: 'ruby', project: branches_iggy, file_content: 'from iggies branch')
+      branches_iggy = RakeSupport.find_or_create_project(iggy.branch_project_name('home:Admin'), iggy)
+      ruby_iggy = create(:package_with_files, name: 'ruby', project: branches_iggy)
+
       create(
         :bs_request_with_submit_action,
         creator: iggy,
@@ -117,9 +118,7 @@ namespace :dev do
         source_package: ruby_iggy
       )
 
-      test_package = create(:package, name: 'hello_world', project: home_admin)
-      backend_url = "/source/#{CGI.escape(home_admin.name)}/#{CGI.escape(test_package.name)}"
-      Backend::Connection.put("#{backend_url}/hello_world.spec", File.read('../../dist/t/spec/fixtures/hello_world.spec'))
+      create(:package_with_files, name: 'hello_world', project: home_admin)
 
       leap = create(:project, name: 'openSUSE:Leap:15.0')
       leap_apache = create(:package_with_file, name: 'apache2', project: leap)
@@ -229,14 +228,11 @@ namespace :dev do
       # Create a workflow token, some workflow runs and their related data
       Rake::Task['dev:workflows:create_workflow_runs'].invoke
 
-      # Create a request with multiple actions
+      # Create a request with multiple actions and mentioned issues which produce build results
       Rake::Task['dev:requests:multiple_actions_request'].invoke
 
       # Create a request with multiple submit actions and diffs
       Rake::Task['dev:requests:request_with_multiple_submit_actions_and_diffs'].invoke
-
-      # Create a request wich builds and produces build results
-      Rake::Task['dev:requests:request_with_build_results'].invoke
 
       # Create news
       Rake::Task['dev:news:data'].invoke
