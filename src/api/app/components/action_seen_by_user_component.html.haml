@@ -1,8 +1,7 @@
-- css_class = 'btn-light' if seen_by_user
 - button_text = 'Action seen'
 
 = link_to(toggle_request_path(action_id: @action.id),
-    class: "btn #{css_class}",
+    class: 'btn btn-sm btn-outline-info',
     title: 'Wether the action has been marked "as seen" or not yet',
     method: :put, remote: true,
     'data-disable-with': tag.i(class: 'fa-solid fa-spinner fa-spin') + button_text) do
