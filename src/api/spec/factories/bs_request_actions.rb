@@ -4,7 +4,30 @@ FactoryBot.define do
       type { 'add_role' }
       role { Role.find_by_title('maintainer') }
       person_name { create(:user).login }
+
+      transient do
+        target_project_name { 'target_project' }
+        target_package_name { 'target_package' }
+      end
+
+      target_project do |evaluator|
+        Project.find_by_name(evaluator.target_project_name) ||
+          create(:project, name: target_project_name)
+      end
+      target_package do |evaluator|
+        Package.find_by_project_and_name(target_project.name, evaluator.target_package_name) ||
+          create(:package_with_file,
+                 project: target_project,
+                 name: target_package_name,
+                 file_name: 'somefile.txt',
+                 file_content: '# This will be replaced')
+      end
+
+      bs_request do |evaluator|
+        evaluator.bs_request || create(:bs_request_with_submit_action)
+      end
     end
+
     factory :bs_request_action_add_bugowner_role do
       type { 'add_role' }
       role { Role.find_by_title('bugowner') }

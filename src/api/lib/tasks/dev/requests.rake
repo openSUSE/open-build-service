@@ -1,7 +1,11 @@
 namespace :dev do
   namespace :requests do
     # Run this task with: rails dev:requests:multiple_actions_request
-    desc 'Creates a request with multiple actions'
+    # Creates a request with many (20+) actions of different types: 'submit', 'add_role'.
+    # Those actions add diffs with add, changed and deleted files.
+
+    # TODO: add more types
+    desc 'Creates a request with multiple actions of different types'
     task multiple_actions_request: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
@@ -23,7 +27,7 @@ namespace :dev do
                          create(:package_with_files, name: 'package_a', project: source_project, changes_file_content: '- Fixes boo#2222222 and CVE-2011-2222')
 
       # Create request to submit new files to the target package A
-      request = create(
+      bs_request = create(
         :bs_request_with_submit_action,
         creator: iggy,
         target_project: target_project,
@@ -41,34 +45,29 @@ namespace :dev do
                          create(:package_with_files, name: "package_#{char}", project: source_project, changes_file_content: changes_file_content)
 
         target_package_b = Package.where(name: 'package_b', project: target_project).first ||
-                           create(:package, name: 'package_b', project: target_project)
+                           create(:package_with_files, name: 'package_b', project: target_project)
 
-        action_attributes = {
-          source_package: source_package,
-          source_project: source_project,
-          target_project: target_project,
-          target_package: target_package_b
-        }
-        bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit', bs_request: request))
-        bs_req_action.save! if bs_req_action.valid?
+        create(:bs_request_action_submit_with_diff,
+               creator: iggy,
+               source_project_name: source_project.name,
+               source_package_name: source_package.name,
+               target_project_name: target_project.name,
+               target_package_name: target_package_b.name,
+               bs_request: bs_request)
       end
 
       # Create an action to add role
-      action_attributes = {
-        target_project: target_project,
-        target_package: target_package_a,
-        person_name: User.last.login,
-        role: Role.find_by_title!('maintainer'),
-        type: 'add_role',
-        bs_request: request
-      }
-      bs_req_action = build(:bs_request_action, action_attributes)
-      bs_req_action.save! if bs_req_action.valid?
+      create(:bs_request_action_add_maintainer_role,
+             target_project_name: target_project.name,
+             target_package_name: target_package_a.name,
+             person_name: User.last.login,
+             bs_request: bs_request)
 
-      puts "* Request #{request.number} contains multiple actions and mentioned issues."
-      puts 'To start the builds confirm or perfom the following steps:'
-      puts '- Create the interconnect with openSUSE.org'
-      puts '- Create a couple of repositories in project home:Iggy:branches:home:Admin'
+      puts "* Request ##{bs_request.number} contains multiple actions, diffs (deleted, added, changed files), mentioned issues and builds."
+      puts "  See http://localhost:3000/request/show/#{bs_request.number}."
+      puts '  To start the builds confirm or perfom the following steps:'
+      puts '  - Create the interconnect with openSUSE.org'
+      puts "  - Create a couple of repositories in project #{source_project.name}"
     end
 
     desc 'Creates several requests with submit actions and diffs'
