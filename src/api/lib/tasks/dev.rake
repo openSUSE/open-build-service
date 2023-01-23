@@ -232,7 +232,7 @@ namespace :dev do
       Rake::Task['dev:requests:multiple_actions_request'].invoke
 
       # Create a request with multiple submit actions and diffs
-      Rake::Task['dev:requests:request_with_multiple_submit_actions_and_diffs'].invoke
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke
 
       # Create news
       Rake::Task['dev:news:data'].invoke
