@@ -3,7 +3,7 @@
     .ms-1.me-3{ id: "action-seen-by-user-wrapper-in-select-#{action.id}" }
       = render ActionSeenByUserComponent.new(action: action, user: user, render_only: true)
 
-  .d-block
+  .d-block.w-100
     - details = action.commit_details
     - if details
       - if details.key?('comment')
