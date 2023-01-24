@@ -1,0 +1,25 @@
+#
+# Open Build Service 2.10.20
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Bugfixes
+========
+Frontend:
+ * Update globalid gem from 1.0.0 to 1.0.1
+   - Fixes CVE-2023-22799 ReDoS based DoS vulnerability in the GlobalID gem
+ * Update rack gem from 2.2.4 to 2.2.6.2
+   - Fixes CVE-2022-44571 Denial of service vulnerability in the Content-Disposition parsing
+     component of Rack.
+   - Fixes CVE-2022-44572 Denial of service vulnerability in the multipart parsing component
+     of Rack.
+   - Fixes CVE-2022-44570 Possible denial of service vulnerability in the Range header
+     parsing component of Rack.
