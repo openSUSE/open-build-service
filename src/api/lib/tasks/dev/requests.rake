@@ -71,8 +71,9 @@ namespace :dev do
       puts '- Create a couple of repositories in project home:Iggy:branches:home:Admin'
     end
 
-    desc 'Creates several requests with submit actions and diffs'
-    task request_with_multiple_submit_actions_and_diffs: :development_environment do
+    # Creates a request with two actions of the same type: 'submit'.
+    desc 'Creates a request with only submit actions and some diffs'
+    task request_with_multiple_submit_actions_builds_and_diffs: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 
@@ -82,15 +83,14 @@ namespace :dev do
       iggy_home_project = RakeSupport.find_or_create_project(iggy.home_project_name, iggy)
       home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
-      source_package = create(:package_with_file,
+      source_package = create(:package_with_files,
                               project: iggy_home_project,
                               name: "source_package_with_multiple_submit_request_and_diff_#{Time.now.to_i}",
-                              file_name: 'somefile.txt',
-                              file_content: '# This will be replaced')
-      target_package = create(:package_with_file,
+                              file_content: '# New content')
+
+      target_package = create(:package_with_files,
                               project: home_admin_project,
-                              name: "another_package_with_diff_#{Time.now.to_i}",
-                              file_name: 'somefile.txt',
+                              name: "another_package_with_diff_#{Time.now.to_i - 1.second}",
                               file_content: '# This will be replaced')
 
       bs_request = create(:bs_request_with_submit_action,
@@ -100,15 +100,31 @@ namespace :dev do
                           target_project: home_admin_project,
                           target_package: target_package)
 
+      another_source_package =
+        Package.find_by_project_and_name(iggy_home_project.name, 'source_package_with_multiple_submit_request_and_diff') ||
+        create(:package_with_files,
+               project: iggy_home_project,
+               name: 'source_package_with_multiple_submit_request_and_diff',
+               file_content: '# New content')
+
+      another_target_package = create(:package_with_files,
+                                      project: home_admin_project,
+                                      name: "another_package_with_diff_#{Time.now.to_i}",
+                                      file_content: '# This will be replaced')
+
       create(:bs_request_action_submit_with_diff,
              creator: iggy,
              source_project_name: iggy_home_project.name,
-             source_package_name: 'source_package_with_multiple_submit_request_and_diff',
+             source_package_name: another_source_package.name,
              target_project_name: home_admin_project.name,
-             target_package_name: 'package_with_diff',
+             target_package_name: another_target_package.name,
              bs_request: bs_request)
 
-      puts "* Request #{bs_request.number} has been created."
+      puts '* Request with multiple submit actions, builds, diffs and rpm lints.'
+      puts "  See http://localhost:3000/request/show/#{bs_request.number}."
+      puts '  To start the builds confirm or perfom the following steps:'
+      puts '  - Create the interconnect with openSUSE.org'
+      puts "  - Create a couple of repositories in project #{source_project.name}"
     end
   end
 end
