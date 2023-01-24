@@ -35,10 +35,6 @@ class BranchPackage
     @update_path_elements = true
   end
 
-  def logger
-    Rails.logger
-  end
-
   def branch
     #
     # 1) BaseProject <-- 2) UpdateProject <-- 3) DevelProject/Package
