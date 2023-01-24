@@ -69,6 +69,7 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $buildroot;
 my $port;
 my $proto;
+my $bindaddress;
 my $statedir;
 my $hostarch;
 my $vm = '';
@@ -413,6 +414,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--port') {
     shift @ARGV;
     $port = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--bindaddress') {
+    shift @ARGV;
+    $bindaddress = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--proto') {
@@ -4367,7 +4373,7 @@ unlink("$buildroot/.build.log");
 commitstate({'state' => 'idle'});
 
 # start server process...
-BSServer::serveropen($port ? $port : \$port);
+BSServer::serveropen($port ? $port : \$port, undef, undef, undef, $bindaddress);
 
 print "worker started on port $port code $workercode build $buildcode\n";
 mkdir($buildroot) unless -d $buildroot;

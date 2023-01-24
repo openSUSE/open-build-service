@@ -317,7 +317,7 @@ sub isrunning {
   return 1 unless $conf;	# can't check
   # hmm, might want to use a lock instead...
   eval {
-    BSServer::serveropen($conf->{'port'});
+    BSServer::serveropen($conf->{'port'}, undef, undef, $conf->{'socketfamily'}, $conf->{'bindaddress'});
     BSServer::serverclose();
   };
   return $@ && "$@" =~ /bind:/ ? 1 : 0;
@@ -403,6 +403,7 @@ sub server {
     $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
     $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
     $conf->{'ssl_verify'} ||= $BSConfig::ssl_verify if $BSConfig::ssl_verify;
+    $conf->{'bindaddress'} ||= $BSConfig::global_bindaddress if $BSConfig::global_bindaddress;
     BSDispatch::compile($conf);
   }
   if ($aconf) {
@@ -465,7 +466,7 @@ sub server {
       $port2 = "&=$ports[1]" if $port2 && defined $ports[1];
       POSIX::close($ports[1]) if !$port2 && defined $ports[1];
     }
-    BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup, $conf->{'socketfamily'});
+    BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup, $conf->{'socketfamily'}, $conf->{'bindaddress'});
   }
   if ($conf && $aconf) {
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'};
@@ -498,10 +499,11 @@ sub server {
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
+  my $bind = $conf->{'bindaddress'} ? " address $conf->{'bindaddress'}" : '';
   if ($conf->{'port2'}) {
-    BSServer::msg("$name started on ports $conf->{port} and $conf->{port2}");
+    BSServer::msg("$name started on ports $conf->{port} and $conf->{port2}$bind");
   } else {
-    BSServer::msg("$name started on port $conf->{port}");
+    BSServer::msg("$name started on port $conf->{port}$bind");
   }
   if ($conf->{'memoize'}) {
     $memoize_fn = $conf->{'memoize'};
