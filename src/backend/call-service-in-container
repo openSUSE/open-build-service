@@ -176,7 +176,7 @@ CONTAINER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v 
 JAILED=""
 
 if [ $SCM_COMMAND -eq 1 ];then
-  URL_HASH=`echo $PARAM_URL|sha256sum|cut -f1 -d\ `
+  URL_HASH=`echo ${PARAM_URL%\?*}|sha256sum|cut -f1 -d\ `
   OUTERSCMCACHE="$SERVICES_DIR/scm-cache/$URL_HASH"
   INNERSCMCACHE="$INNERBASEDIR/scm-cache"
   create_dir "$OUTERSCMCACHE"
