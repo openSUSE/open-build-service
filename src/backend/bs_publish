@@ -620,7 +620,7 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--filelists_ext' if $options{'filelists_ext'};
   my @legacyargs;
   if ($options{'sha512'}) {
-    push @legacyargs, '--simple-md-filenames', '--checksum=sha512';
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha512';
   } elsif ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
@@ -1313,7 +1313,7 @@ sub createpatterns_rpmmd {
   my @legacyargs;
   my %options = map {$_ => 1} @{$options || []};
   if ($options{'sha512'}) {
-    push @legacyargs, '--simple-md-filenames', '--checksum=sha512';
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha512';
   } elsif ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
@@ -1391,7 +1391,7 @@ sub createpatterns_comps {
   my @legacyargs;
   my %options = map {$_ => 1} @{$options || []};
   if ($options{'sha512'}) {
-    push @legacyargs, '--simple-md-filenames', '--checksum=sha512';
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha512';
   } elsif ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
