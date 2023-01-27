@@ -93,16 +93,17 @@ sub setup_watches {
       next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
       my $rproj = remoteprojid($gctx, $projid);
       next unless $rproj;			# not remote, so nothing to watch
-      my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+      my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : ($rproj->{'remoteurl'} // '');
+      my $rproj_remoteproject = $rproj->{'remoteproject'} // '';
 
       $needremoteproj{$projid} = $rproj if $rproj->{'partition'};	# we need to keep partition entries so we know where to watch
       my %packids = map {$_->{'package'} => 1} @{$projpacks_linked->{$projid}};
       if ($packids{':*'}) {
 	# we watch all packages
-        $watchremote->{$remoteurl}->{"package/$rproj->{'remoteproject'}"} = $projid;
+        $watchremote->{$remoteurl}->{"package/$rproj_remoteproject"} = $projid;
       } else {
         for my $packid (sort keys %packids) {
-          $watchremote->{$remoteurl}->{"package/$rproj->{'remoteproject'}/$packid"} = $projid;
+          $watchremote->{$remoteurl}->{"package/$rproj_remoteproject/$packid"} = $projid;
 	}
       }
     }
@@ -156,17 +157,18 @@ sub setup_watches {
     next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
     my $rproj = remoteprojid($gctx, $projid);
     next unless $rproj;		# not remote, so nothing to watch
-    my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+    my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : ($rproj->{'remoteurl'} // '');
+    my $rproj_remoteproject = $rproj->{'remoteproject'} // '';
 
     # we need the config for all path elements, so we also add a project watch
     # XXX: should make this implicit with the repository watch
     $needremoteproj{$projid} = $rproj;	# we need this one in remoteprojs
-    $watchremote->{$remoteurl}->{"project/$rproj->{'remoteproject'}"} = $projid;
+    $watchremote->{$remoteurl}->{"project/$rproj_remoteproject"} = $projid;
 
     # add watches for the repositories
     for my $repoidarch (sort @{$projdeps{$projid}}) {
       $needremoterepo{"$projid/$repoidarch"} = 1;
-      $watchremote->{$remoteurl}->{"repository/$rproj->{'remoteproject'}/$repoidarch"} = $projid;
+      $watchremote->{$remoteurl}->{"repository/$rproj_remoteproject/$repoidarch"} = $projid;
     }
   }
 
