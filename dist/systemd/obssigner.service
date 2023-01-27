@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS signer service
-After=obsapisetup.service obsstoragesetup.service signd.service
+After=network.target obsapisetup.service obsstoragesetup.service signd.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
