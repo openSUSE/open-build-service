@@ -45,28 +45,12 @@ module Webui
         end
 
         if errors.empty?
-          message = "The file '#{filename}' has been successfully saved."
-          # We have to check if it's an AJAX request or not
-          if request.xhr?
-            flash.now[:success] = message
-          else
-            redirect_to(package_show_path(project: @project, package: @package), success: message)
-            return
-          end
+          redirect_to(package_show_path(project: @project, package: @package),
+                      success: "The file '#{filename}' has been successfully saved.")
         else
-          message = "Error while creating '#{filename}' file: #{errors.compact.join("\n")}."
-          # We have to check if it's an AJAX request or not
-          if request.xhr?
-            flash.now[:error] = message
-            status = 400
-          else
-            redirect_back(fallback_location: root_path, error: message)
-            return
-          end
+          redirect_back(fallback_location: root_path,
+                        error: "Error while creating '#{filename}' file: #{errors.compact.join("\n")}.")
         end
-
-        status ||= 200
-        render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
 
       def update
