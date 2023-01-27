@@ -1241,8 +1241,7 @@ class Package < ApplicationRecord
     Package.verify_file!(self, opt[:filename], content)
     raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}" unless User.session!.can_modify?(self)
 
-    params = {}
-    params[:comment] = opt[:comment] if opt[:comment]
+    params = opt.slice(:comment, :rev) || {}
     params[:user] = User.session!.login
     Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
 

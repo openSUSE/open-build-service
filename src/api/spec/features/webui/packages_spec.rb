@@ -186,12 +186,12 @@ RSpec.describe 'Packages', js: true, vcr: true do
     login user
 
     visit package_show_path(project: user.home_project, package: package)
-    click_link('Add empty file or service')
+    click_link('Add an empty file or service')
 
     fill_in 'Filename', with: 'new_file'
     click_button('Add File')
 
-    expect(page).to have_text("The file 'new_file' has been successfully saved.")
+    expect(page).to have_text('new_file have been successfully saved.')
     expect(page).to have_link('new_file')
   end
 
@@ -199,12 +199,12 @@ RSpec.describe 'Packages', js: true, vcr: true do
     login user
 
     visit package_show_path(project: user.home_project, package: package)
-    click_link('Add empty file or service')
+    click_link('Add an empty file or service')
 
     fill_in 'Filename', with: 'inv/alid'
     click_button('Add File')
 
-    expect(page).to have_text("Error while creating 'inv/alid' file: 'inv/alid' is not a valid filename.")
+    expect(page).to have_text("Error while creating inv/alid files: 'inv/alid' is not a valid filename.")
 
     click_link(package.name)
     expect(page).not_to have_link('inv/alid')

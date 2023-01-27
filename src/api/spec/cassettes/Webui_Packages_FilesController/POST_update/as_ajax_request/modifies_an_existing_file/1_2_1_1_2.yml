@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Quibusdam qui porro non.</description>
+          <title>Cover Her Face</title>
+          <description>Facere non consequatur quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Quibusdam qui porro non.</description>
+          <title>Cover Her Face</title>
+          <description>Facere non consequatur quo.</description>
         </package>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -103,20 +103,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '500'
+      - '306'
     body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" rev="123" vrev="123" srcmd5="9f80d2e45f45baf7eac5da20296f5e78">
-          <entry name="empty_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983118"/>
-          <entry name="first_file" md5="9893532233caff98cd083a116b013c0b" size="12" mtime="1667983883"/>
-          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667488907"/>
-          <entry name="second_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983883"/>
-        </directory>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjkiIHZyZXY9IjkiIHNyY21kNT0iMjUwNmRiYWNhMjBjZDlmZWM4MGQzMGQ3YTBjNTA5YWMiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UiIHNpemU9IjAiIG10aW1lPSIxNjc0ODI2NjMyIi8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?comment=&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -139,19 +134,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="124" vrev="124">
-          <srcmd5>9f80d2e45f45baf7eac5da20296f5e78</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>2506dbaca20cd9fec80d30d7a0c509ac</srcmd5>
           <version>unknown</version>
-          <time>1671625851</time>
+          <time>1676383923</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -159,8 +154,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Quibusdam qui porro non.</description>
+          <title>Cover Her Face</title>
+          <description>Facere non consequatur quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -181,15 +176,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Quibusdam qui porro non.</description>
+          <title>Cover Her Face</title>
+          <description>Facere non consequatur quo.</description>
         </package>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -215,17 +210,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '500'
+      - '308'
     body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" rev="124" vrev="124" srcmd5="9f80d2e45f45baf7eac5da20296f5e78">
-          <entry name="empty_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983118"/>
-          <entry name="first_file" md5="9893532233caff98cd083a116b013c0b" size="12" mtime="1667983883"/>
-          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667488907"/>
-          <entry name="second_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983883"/>
-        </directory>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEwIiB2cmV2PSIxMCIgc3JjbWQ1PSIyNTA2ZGJhY2EyMGNkOWZlYzgwZDMwZDdhMGM1MDlhYyI+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZSIgc2l6ZT0iMCIgbXRpbWU9IjE2NzQ4MjY2MzIiLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNjc0ODI5MTU3Ii8+CjwvZGlyZWN0b3J5Pgo=
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?view=info
@@ -251,14 +241,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="124" vrev="124" srcmd5="9f80d2e45f45baf7eac5da20296f5e78" verifymd5="9f80d2e45f45baf7eac5da20296f5e78">
+        <sourceinfo package="my_package" rev="10" vrev="10" srcmd5="2506dbaca20cd9fec80d30d7a0c509ac" verifymd5="2506dbaca20cd9fec80d30d7a0c509ac">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -284,17 +274,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '500'
+      - '308'
     body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" rev="124" vrev="124" srcmd5="9f80d2e45f45baf7eac5da20296f5e78">
-          <entry name="empty_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983118"/>
-          <entry name="first_file" md5="9893532233caff98cd083a116b013c0b" size="12" mtime="1667983883"/>
-          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667488907"/>
-          <entry name="second_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1667983883"/>
-        </directory>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEwIiB2cmV2PSIxMCIgc3JjbWQ1PSIyNTA2ZGJhY2EyMGNkOWZlYzgwZDMwZDdhMGM1MDlhYyI+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZSIgc2l6ZT0iMCIgbXRpbWU9IjE2NzQ4MjY2MzIiLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNjc0ODI5MTU3Ii8+CjwvZGlyZWN0b3J5Pgo=
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -322,16 +307,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '300'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="523e8c832faf50460b7ab0833cfc7f7f">
+        <sourcediff key="b07b1d62d6ec69ca9855be6fee818470">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="my_package" rev="124" srcmd5="9f80d2e45f45baf7eac5da20296f5e78"/>
+          <new project="home:tom" package="my_package" rev="10" srcmd5="2506dbaca20cd9fec80d30d7a0c509ac"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 21 Dec 2022 12:30:51 GMT
+  recorded_at: Tue, 14 Feb 2023 14:12:03 GMT
 recorded_with: VCR 6.1.0

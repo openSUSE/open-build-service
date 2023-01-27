@@ -12,44 +12,38 @@ module Webui
       def create
         authorize @package, :update?
 
-        file = params[:file]
-        file_url = params[:file_url]
+        files = params[:files] || []
         filename = params[:filename]
+        files << ActionDispatch::Http::UploadedFile.new(tempfile: Tempfile.new(''), filename: filename) if filename.present?
+        file_url = params[:file_url]
 
         errors = []
 
-        begin
-          if file.present?
-            # We are getting an uploaded file
-            filename = file.original_filename if filename.blank?
-            @package.save_file(file: file, filename: filename, comment: params[:comment])
-          elsif file_url.present?
-            # we have a remote file URI, so we have to download and save it
-            services = @package.services
+        if file_url.present?
+          # we have a remote file URI, so we have to download and save it
+          services = @package.services
 
-            # detects automatically git://, src.rpm formats
-            services.add_download_url(file_url, filename)
+          # detects automatically git://, src.rpm formats
+          services.add_download_url(file_url, filename)
+          added_files = filename || '_service'
 
-            errors << "Failed to add file from URL '#{file_url}'" unless services.save
-          elsif filename.present? # No file is provided so we just create an empty new file (touch)
-            @package.save_file(filename: filename)
-          else
-            errors << 'No file or URI given'
-          end
-        rescue Backend::Error => e
-          errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
-        rescue APIError, StandardError => e
-          message = e.default_message if e.class.to_s == e.message
-          message = e.message if message.blank?
-          errors << message
+          errors << "Failed to add file from URL '#{file_url}'" unless services.save
+        elsif files.present?
+          # we get files to upload to the backend
+          upload_service = FileService::Uploader.new(@package, files, params[:comment])
+          upload_service.call
+          errors << upload_service.errors
+          added_files = upload_service.added_files
+        else
+          errors << 'No file or URI given'
         end
 
-        if errors.empty?
+        if errors.compact_blank.empty?
           redirect_to(package_show_path(project: @project, package: @package),
-                      success: "The file '#{filename}' has been successfully saved.")
+                      success: "#{added_files} have been successfully saved.")
         else
           redirect_back(fallback_location: root_path,
-                        error: "Error while creating '#{filename}' file: #{errors.compact.join("\n")}.")
+                        error: "Error while creating #{added_files} files: #{errors.compact_blank.join("\n")}.")
         end
       end
 

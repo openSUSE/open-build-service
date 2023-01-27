@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="package_test_user" role="maintainer"/>
         </project>
-  recorded_at: Wed, 22 Feb 2023 18:04:16 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=user_1
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Way Through the Woods</title>
-          <description>Dolor culpa tempora consequuntur.</description>
+          <title>Death Be Not Proud</title>
+          <description>Quia magnam et ipsum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Way Through the Woods</title>
-          <description>Dolor culpa tempora consequuntur.</description>
+          <title>Death Be Not Proud</title>
+          <description>Quia magnam et ipsum.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Culpa libero cum. Non earum id. Qui sapiente et.
+      string: Quia rem vitae. Sit magnam minus. Blanditiis magnam nemo.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -107,21 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="63" vrev="63">
-          <srcmd5>b9ffe042ca4a5ab0c863fa5ad41821f1</srcmd5>
+        <revision rev="84" vrev="84">
+          <srcmd5>a5092f2e1f469b8983f07c6e936622b4</srcmd5>
           <version>unknown</version>
-          <time>1677089057</time>
+          <time>1677161580</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quia eligendi odit. Aliquid qui qui. Natus corrupti mollitia.
+      string: Perferendis quae ab. In voluptas deserunt. Voluptatem neque molestias.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,15 +145,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="64" vrev="64">
-          <srcmd5>c832925a61302391edf832509e0eb195</srcmd5>
+        <revision rev="85" vrev="85">
+          <srcmd5>7b1d3c3d731eee918a212bee2c4a2ab2</srcmd5>
           <version>unknown</version>
-          <time>1677089057</time>
+          <time>1677161580</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
@@ -193,7 +193,7 @@ http_interactions:
           <description></description>
           <person userid="other_package_test_user" role="maintainer"/>
         </project>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=user_2
@@ -201,8 +201,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Moving Finger</title>
-          <description>Vitae aut laborum repellendus.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Accusamus ex et vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -223,21 +223,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_package_test_user">
-          <title>The Moving Finger</title>
-          <description>Vitae aut laborum repellendus.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Accusamus ex et vitae.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Non dolore in. Expedita autem laudantium. Quod molestiae quae.
+      string: Eos nihil dolor. Et impedit aut. Dolorem maxime eveniet.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -261,21 +261,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="57" vrev="57">
-          <srcmd5>28473c8e0ad5c3d4f9d83bc7917a91f3</srcmd5>
+        <revision rev="77" vrev="77">
+          <srcmd5>677c40e25965ef49946415e9ceab9d7b</srcmd5>
           <version>unknown</version>
-          <time>1677089057</time>
+          <time>1677161580</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Tempore cum nemo. Quia doloremque inventore. Quia odit qui.
+      string: Voluptatibus qui numquam. Iure itaque sit. Sit cumque repellendus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -299,15 +299,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="58" vrev="58">
-          <srcmd5>cbc6c49b48375fdf767aec4e7436e392</srcmd5>
+        <revision rev="78" vrev="78">
+          <srcmd5>7934eb9e0bf24ec8b2ab053c2dd6bc2b</srcmd5>
           <version>unknown</version>
-          <time>1677089057</time>
+          <time>1677161581</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:04:17 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -316,7 +316,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 9f102970-33bc-4c7e-b601-e76948985600
+      - 8ccc8352-571c-4398-acb8-3c68a09783c4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -339,15 +339,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:23 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=64
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=85
     body:
       encoding: US-ASCII
       string: ''
@@ -374,21 +374,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:23 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:package_test_user/test_package/_history?deleted=1&meta=1&rev=64
+    uri: http://backend:5352/source/home:package_test_user/test_package/_history?deleted=1&meta=1&rev=85
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 9f102970-33bc-4c7e-b601-e76948985600
+      - 8ccc8352-571c-4398-acb8-3c68a09783c4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -413,7 +413,7 @@ http_interactions:
       string: |
         <revisionlist>
         </revisionlist>
-  recorded_at: Wed, 22 Feb 2023 18:04:23 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -422,7 +422,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 9f102970-33bc-4c7e-b601-e76948985600
+      - 8ccc8352-571c-4398-acb8-3c68a09783c4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -445,12 +445,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:23 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -459,7 +459,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 9f102970-33bc-4c7e-b601-e76948985600
+      - 8ccc8352-571c-4398-acb8-3c68a09783c4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -482,12 +482,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:23 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package/_history?deleted=1&meta=1
@@ -496,7 +496,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 9f102970-33bc-4c7e-b601-e76948985600
+      - 8ccc8352-571c-4398-acb8-3c68a09783c4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -521,7 +521,7 @@ http_interactions:
       string: |
         <revisionlist>
         </revisionlist>
-  recorded_at: Wed, 22 Feb 2023 18:04:23 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -530,7 +530,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5e7f1d57-f3b2-4979-bd7e-216b8a4325c2
+      - ed92bb44-5c0a-4f7f-8153-8b4c333d7196
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -553,12 +553,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=test_package&view=status
@@ -567,7 +567,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5e7f1d57-f3b2-4979-bd7e-216b8a4325c2
+      - ed92bb44-5c0a-4f7f-8153-8b4c333d7196
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -592,7 +592,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -601,7 +601,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6a693e79-c72b-46d2-b054-32530eb79597
+      - 8de061a2-26e6-41c5-9af4-e5de5d5c143a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -624,12 +624,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:07 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=test_package&view=status
@@ -638,7 +638,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6a693e79-c72b-46d2-b054-32530eb79597
+      - 8de061a2-26e6-41c5-9af4-e5de5d5c143a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -663,7 +663,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
@@ -672,7 +672,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 685ebc47-272b-489f-8aef-f620d32dc1bc
+      - c798b075-ef88-46ef-8443-28fca9970b7d
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -697,7 +697,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -706,7 +706,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3a4b85a3-145f-464e-9436-89fa1fd3bda9
+      - 624ce57f-8e43-4aac-a460-0fd3171f6abc
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -729,12 +729,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -743,7 +743,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fd504c28-10c2-4269-90cf-e66c07d6488d
+      - 2d6ca277-4994-4bee-aeb5-d7c8ae09c473
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -766,21 +766,58 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="64" vrev="64" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2d6ca277-4994-4bee-aeb5-d7c8ae09c473
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '393'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="85" vrev="85" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
+          <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
+        </directory>
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:package_test_user/test_package/new_file?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/test_package/new_file?rev=repository&user=package_test_user
     body:
       encoding: UTF-8
       string: ''
     headers:
       X-Request-Id:
-      - fd504c28-10c2-4269-90cf-e66c07d6488d
+      - 2d6ca277-4994-4bee-aeb5-d7c8ae09c473
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -799,19 +836,55 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '219'
+      - '92'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="65" vrev="65">
-          <srcmd5>c832925a61302391edf832509e0eb195</srcmd5>
-          <version>unknown</version>
-          <time>1677089064</time>
-          <user>package_test_user</user>
-          <comment></comment>
-          <requestid/>
+        <revision rev="repository">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:package_test_user/test_package?cmd=commitfilelist&comment=&user=package_test_user
+    body:
+      encoding: UTF-8
+      string: <directory><entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015"/><entry
+        name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" hash="sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"/><entry
+        name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221"/></directory>
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 2d6ca277-4994-4bee-aeb5-d7c8ae09c473
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '393'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
+          <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
+        </directory>
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
@@ -819,8 +892,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Way Through the Woods</title>
-          <description>Dolor culpa tempora consequuntur.</description>
+          <title>Death Be Not Proud</title>
+          <description>Quia magnam et ipsum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -841,15 +914,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:package_test_user">
-          <title>The Way Through the Woods</title>
-          <description>Dolor culpa tempora consequuntur.</description>
+          <title>Death Be Not Proud</title>
+          <description>Quia magnam et ipsum.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -879,12 +952,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package?view=info
@@ -893,7 +966,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fd504c28-10c2-4269-90cf-e66c07d6488d
+      - 2d6ca277-4994-4bee-aeb5-d7c8ae09c473
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -916,10 +989,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195" verifymd5="c832925a61302391edf832509e0eb195">
+        <sourceinfo package="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2" verifymd5="7b1d3c3d731eee918a212bee2c4a2ab2">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -928,7 +1001,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fd504c28-10c2-4269-90cf-e66c07d6488d
+      - 2d6ca277-4994-4bee-aeb5-d7c8ae09c473
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -951,12 +1024,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:24 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -988,14 +1061,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="4b5d45dc9b83c2d5d940780ad86d9b58">
+        <sourcediff key="a4b8a94b39c36e2349e4fd2a3c8fa6a0">
           <old project="home:package_test_user" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:package_test_user" package="test_package" rev="65" srcmd5="c832925a61302391edf832509e0eb195"/>
+          <new project="home:package_test_user" package="test_package" rev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -1004,7 +1077,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5d862804-37c7-4898-bd4a-be71f3033efe
+      - 424d337f-626c-4e79-8ef1-c706cb5107a7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1027,15 +1100,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=65
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=86
     body:
       encoding: US-ASCII
       string: ''
@@ -1062,21 +1135,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:package_test_user/test_package/_history?deleted=1&meta=1&rev=65
+    uri: http://backend:5352/source/home:package_test_user/test_package/_history?deleted=1&meta=1&rev=86
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 5d862804-37c7-4898-bd4a-be71f3033efe
+      - 424d337f-626c-4e79-8ef1-c706cb5107a7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1101,7 +1174,7 @@ http_interactions:
       string: |
         <revisionlist>
         </revisionlist>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -1110,7 +1183,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5d862804-37c7-4898-bd4a-be71f3033efe
+      - 424d337f-626c-4e79-8ef1-c706cb5107a7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1133,12 +1206,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -1147,7 +1220,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5d862804-37c7-4898-bd4a-be71f3033efe
+      - 424d337f-626c-4e79-8ef1-c706cb5107a7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1170,12 +1243,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package/_history?deleted=1&meta=1
@@ -1184,7 +1257,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5d862804-37c7-4898-bd4a-be71f3033efe
+      - 424d337f-626c-4e79-8ef1-c706cb5107a7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1209,7 +1282,7 @@ http_interactions:
       string: |
         <revisionlist>
         </revisionlist>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -1218,7 +1291,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 78180faa-f785-4333-ae58-d9b2db52fce0
+      - a32f0d4c-d5e1-406f-a83b-d78988b27573
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1241,12 +1314,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=test_package&view=status
@@ -1255,7 +1328,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 78180faa-f785-4333-ae58-d9b2db52fce0
+      - a32f0d4c-d5e1-406f-a83b-d78988b27573
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1280,7 +1353,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/test_package
@@ -1289,7 +1362,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - adaa7f32-e89d-4623-b337-4072eff0cb50
+      - a106514d-ad76-45cd-a74a-fcd03a0676e3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1312,12 +1385,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="65" vrev="65" srcmd5="c832925a61302391edf832509e0eb195">
-          <entry name="_config" md5="989d47313b2bbb987e4a7ff1ffbbc857" size="48" mtime="1677089057"/>
+        <directory name="test_package" rev="86" vrev="86" srcmd5="7b1d3c3d731eee918a212bee2c4a2ab2">
+          <entry name="_config" md5="42bb3c86b9c20089cdae7daa91976015" size="57" mtime="1677161580"/>
           <entry name="new_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1676381155"/>
-          <entry name="somefile.txt" md5="21fd51a9401e348d8281cb06e82bf9d3" size="61" mtime="1677089057"/>
+          <entry name="somefile.txt" md5="0378a2f5a227cf207a886b28ae199221" size="70" mtime="1677161580"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=test_package&view=status
@@ -1326,7 +1399,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - adaa7f32-e89d-4623-b337-4072eff0cb50
+      - a106514d-ad76-45cd-a74a-fcd03a0676e3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1351,7 +1424,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
@@ -1360,7 +1433,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 0e6ae5e0-81a6-415d-bd49-95da547a7bef
+      - 37606adb-a4fd-45c5-888a-39ec8ac7010c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1385,5 +1458,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:04:25 GMT
+  recorded_at: Thu, 23 Feb 2023 14:13:09 GMT
 recorded_with: VCR 6.1.0

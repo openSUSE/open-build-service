@@ -1,74 +1,83 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:tom/my_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '438'
-    body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjM5IiB2cmV2PSIzOSIgc3JjbWQ1PSJkMDM4ZWUzM2UyZmNhZmVhM2VkZDBmN2VjMmFkMTk5ZiI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciLz4KICA8ZW50cnkgbmFtZT0iX3NlcnZpY2UiIG1kNT0iNTA2NTE1ZjQ1NTFmMjE0YzYyODg0ODQwZGFkODJkNGQiIHNpemU9IjIzNTgiIG10aW1lPSIxNjc2MjkyNDg2Ii8+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJiYWFiNmMxNmQ5MTQzNTIzYjc4NjVkNDY4OTZlNDU5NiIgc2l6ZT0iMTIiIG10aW1lPSIxNjc0ODI5MTU4Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
-  recorded_at: Mon, 13 Feb 2023 12:48:07 GMT
-- request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?user=tom
-    body:
-      encoding: UTF-8
-      string: some_content
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '205'
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <revision rev="40" vrev="40">
-          <srcmd5>bd10daa9862a44661030b7a50bcc012e</srcmd5>
-          <version>unknown</version>
-          <time>1676292487</time>
-          <user>tom</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 13 Feb 2023 12:48:07 GMT
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>All Passion Spent</title>
+          <description>Saepe est quis natus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>All Passion Spent</title>
+          <description>Saepe est quis natus.</description>
+        </package>
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -94,12 +103,182 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '438'
+      - '307'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjQwIiB2cmV2PSI0MCIgc3JjbWQ1PSJiZDEwZGFhOTg2MmE0NDY2MTAzMGI3YTUwYmNjMDEyZSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciLz4KICA8ZW50cnkgbmFtZT0iX3NlcnZpY2UiIG1kNT0iNTA2NTE1ZjQ1NTFmMjE0YzYyODg0ODQwZGFkODJkNGQiIHNpemU9IjIzNTgiIG10aW1lPSIxNjc2MjkyNDg2Ii8+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJiYWFiNmMxNmQ5MTQzNTIzYjc4NjVkNDY4OTZlNDU5NiIgc2l6ZT0iMTIiIG10aW1lPSIxNjc0ODI5MTU4Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
-  recorded_at: Mon, 13 Feb 2023 12:48:07 GMT
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjUiIHZyZXY9IjUiIHNyY21kNT0iNTkyODlkYjI3OTIyZDdhOWY5MmVjM2ZjNjE0MDA1YTkiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDhiZTMzYzNjZmViYmNhYjM4MDJlYjVhZTM4MTFhYjUiIHNpemU9IjEzIiBtdGltZT0iMTY3NjM4Mjg1MSIvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE2NzQ4MjkxNTciLz4KPC9kaXJlY3Rvcnk+Cg==
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '307'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjUiIHZyZXY9IjUiIHNyY21kNT0iNTkyODlkYjI3OTIyZDdhOWY5MmVjM2ZjNjE0MDA1YTkiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDhiZTMzYzNjZmViYmNhYjM4MDJlYjVhZTM4MTFhYjUiIHNpemU9IjEzIiBtdGltZT0iMTY3NjM4Mjg1MSIvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE2NzQ4MjkxNTciLz4KPC9kaXJlY3Rvcnk+Cg==
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?rev=repository&user=tom
+    body:
+      encoding: UTF-8
+      string: 'some_content
+
+'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="repository">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+        </revision>
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/my_package?cmd=commitfilelist&comment=&user=tom
+    body:
+      encoding: UTF-8
+      string: <directory><entry name="newly_created_file" md5="d8be33c3cfebbcab3802eb5ae3811ab5"
+        hash="sha256:c0b06a0697398b44fee1fd1b8a739f41a054fae684a8dee92e9a65a3ad2d103e"/><entry
+        name="学习总结" md5="6ba167d72e9cc60108a7567cdaec720f" hash=""/></directory>
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '307'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjYiIHZyZXY9IjYiIHNyY21kNT0iNTkyODlkYjI3OTIyZDdhOWY5MmVjM2ZjNjE0MDA1YTkiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDhiZTMzYzNjZmViYmNhYjM4MDJlYjVhZTM4MTFhYjUiIHNpemU9IjEzIiBtdGltZT0iMTY3NjM4Mjg1MSIvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE2NzQ4MjkxNTciLz4KPC9kaXJlY3Rvcnk+Cg==
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>All Passion Spent</title>
+          <description>Saepe est quis natus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>All Passion Spent</title>
+          <description>Saepe est quis natus.</description>
+        </package>
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '307'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjYiIHZyZXY9IjYiIHNyY21kNT0iNTkyODlkYjI3OTIyZDdhOWY5MmVjM2ZjNjE0MDA1YTkiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDhiZTMzYzNjZmViYmNhYjM4MDJlYjVhZTM4MTFhYjUiIHNpemU9IjEzIiBtdGltZT0iMTY3NjM4Mjg1MSIvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE2NzQ4MjkxNTciLz4KPC9kaXJlY3Rvcnk+Cg==
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?view=info
@@ -125,14 +304,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '228'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="40" vrev="40" srcmd5="bd10daa9862a44661030b7a50bcc012e">
-          <error>service in progress</error>
+        <sourceinfo package="my_package" rev="6" vrev="6" srcmd5="59289db27922d7a9f92ec3fc614005a9" verifymd5="59289db27922d7a9f92ec3fc614005a9">
+          <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Mon, 13 Feb 2023 12:48:07 GMT
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -158,12 +337,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '438'
+      - '307'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjQwIiB2cmV2PSI0MCIgc3JjbWQ1PSJiZDEwZGFhOTg2MmE0NDY2MTAzMGI3YTUwYmNjMDEyZSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciLz4KICA8ZW50cnkgbmFtZT0iX3NlcnZpY2UiIG1kNT0iNTA2NTE1ZjQ1NTFmMjE0YzYyODg0ODQwZGFkODJkNGQiIHNpemU9IjIzNTgiIG10aW1lPSIxNjc2MjkyNDg2Ii8+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJiYWFiNmMxNmQ5MTQzNTIzYjc4NjVkNDY4OTZlNDU5NiIgc2l6ZT0iMTIiIG10aW1lPSIxNjc0ODI5MTU4Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
-  recorded_at: Mon, 13 Feb 2023 12:48:07 GMT
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjYiIHZyZXY9IjYiIHNyY21kNT0iNTkyODlkYjI3OTIyZDdhOWY5MmVjM2ZjNjE0MDA1YTkiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDhiZTMzYzNjZmViYmNhYjM4MDJlYjVhZTM4MTFhYjUiIHNpemU9IjEzIiBtdGltZT0iMTY3NjM4Mjg1MSIvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE2NzQ4MjkxNTciLz4KPC9kaXJlY3Rvcnk+Cg==
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -186,21 +365,21 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '298'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '299'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="66ae156a7c61ae60d252b35ce0a77d19">
+        <sourcediff key="5c64a67ad46a5164682d38af32e33dfa">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="my_package" rev="40" srcmd5="bd10daa9862a44661030b7a50bcc012e"/>
+          <new project="home:tom" package="my_package" rev="6" srcmd5="59289db27922d7a9f92ec3fc614005a9"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 13 Feb 2023 12:48:07 GMT
+  recorded_at: Tue, 14 Feb 2023 14:07:29 GMT
 recorded_with: VCR 6.1.0

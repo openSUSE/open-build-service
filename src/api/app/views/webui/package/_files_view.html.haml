@@ -19,15 +19,16 @@
   - else
     %i This package has no files yet
   - if user_can_modify_package
-    .pt-4
-      = form_tag(project_package_files_path(project, package), multipart: true, class: 'd-inline me-1') do
-        = file_field_tag 'file', class: 'd-none', id: 'filechooser'
-        %label.btn-link{ for: 'filechooser' }
+    .nav
+      = form_tag(project_package_files_path(project, package), multipart: true, class: 'nav-item') do
+        = file_field_tag 'files[]', class: 'd-none', id: 'filechooser', multiple: true
+        %label.nav-link{ for: 'filechooser' }
           %i.fas.fa-hard-drive.text-primary
-          Add a local file
-      = link_to(new_project_package_files_path(project, package)) do
-        %i.fas.fa-plus-circle.text-primary
-        Add empty file or service
+          Add local files
+      .nav-item
+        = link_to(new_project_package_files_path(project, package), class: 'nav-link') do
+          %i.fas.fa-plus-circle.text-primary
+          Add an empty file or service
     = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-file-modal',
                                                    method: :post,
                                                    options: { modal_title: 'Do you really want to remove this file?' })
