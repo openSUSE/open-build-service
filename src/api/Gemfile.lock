@@ -205,7 +205,7 @@ GEM
       activesupport (>= 5.1)
       haml (>= 4.0.6)
       railties (>= 5.1)
-    haml_lint (0.43.0)
+    haml_lint (0.45.0)
       haml (>= 4.0, < 6.2)
       parallel (~> 1.10)
       rainbow
@@ -456,7 +456,7 @@ GEM
     strscan (3.0.1)
     sync (0.5.0)
     sysexits (1.2.0)
-    temple (0.9.1)
+    temple (0.10.0)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     terminal-table (3.0.2)
