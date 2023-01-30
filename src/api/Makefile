@@ -82,6 +82,10 @@ test_rack:
 	$(eval BUNDLE_RACK_VERSION:=$(shell basename `bundle show rack`))
 	@if [ "$(SYSTEM_RACK_VERSION)" != "$(BUNDLE_RACK_VERSION)" ]; then echo "rack version mismatch! System: $(SYSTEM_RACK_VERSION) / Bundle: $(BUNDLE_RACK_VERSION)"; exit 1; fi
 
+erds:
+	bundle exec erd
+	neato obs.dot -Tpdf -o tmp/obs-erds.pdf -Goverlap=false
+	rm obs.dot
 clean:
 	rm -rf ../../docs/api/html
 

@@ -1,0 +1,7 @@
+filename: obs
+filetype: dot
+orientation: horizontal
+title: Open Build Service
+indirect: true
+polymorphism: true
+exclude: ApplicationRecord

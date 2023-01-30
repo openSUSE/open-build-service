@@ -214,6 +214,8 @@ group :development do
   gem 'annotate'
   # toolkit to upgrade your Rails application
   gem 'next_rails'
+  # for model diagrams
+  gem 'rails-erd'
 end
 
 # Gems used only for assets and not required in production environments by default.
