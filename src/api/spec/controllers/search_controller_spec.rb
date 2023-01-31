@@ -88,9 +88,19 @@ RSpec.describe SearchController, vcr: true do
       let(:project) { create(:project, name: 'Foo') }
       let!(:attrib) { create(:maintained_attrib, project: project) }
 
-      subject! { get :project, params: { match: "[attribute/@name='OBS:Maintained']" } }
+      subject! { get :project, params: { match: "attribute/@name='OBS:Maintained'" } }
 
       it_behaves_like 'find project'
+    end
+  end
+
+  describe 'illegal predicates' do
+    it 'shows an error', :aggregate_failures do
+      get :bs_request, params: { match: '(' }, format: :xml
+
+      expect(response).to have_http_status(:bad_request)
+      expect(Nokogiri::XML(response.body).xpath('//status').attribute('code').value).to eq('illegal_xpath_error')
+      expect(Nokogiri::XML(response.body).xpath('//status/summary').inner_text).to match(/Error found searching elements 'request' with xpath predicate: '\('./)
     end
   end
 end
