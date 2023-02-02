@@ -441,7 +441,7 @@ class XpathEngine
 
         if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
-          raise XpathEngine::IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
+          raise IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
 
           @condition_values_needed.times { @condition_values << tvalues }
         elsif @last_key && @attribs[table][@last_key][:double]
