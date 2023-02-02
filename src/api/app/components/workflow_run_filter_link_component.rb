@@ -14,7 +14,7 @@ class WorkflowRunFilterLinkComponent < ApplicationComponent
   end
 
   def css_for_badge_color
-    workflow_run_filter_matches? ? 'bg-light' : 'bg-primary'
+    workflow_run_filter_matches? ? 'text-bg-light' : 'text-bg-primary'
   end
 
   private
