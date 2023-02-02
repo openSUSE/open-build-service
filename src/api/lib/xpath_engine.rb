@@ -3,9 +3,7 @@
 class XpathEngine
   require 'rexml/parsers/xpathparser'
 
-  class IllegalXpathError < APIError
-    setup 'illegal_xpath_error', 400
-  end
+  class IllegalXpathError < ArgumentError; end
 
   def initialize
     @lexer = REXML::Parsers::XPathParser.new
@@ -254,10 +252,10 @@ class XpathEngine
 
     begin
       @stack = @lexer.parse xpath
-    rescue NoMethodError => e
+    rescue NoMethodError
       # if the input contains a [ in random place, rexml will throw
       #  undefined method `[]' for nil:NilClass
-      raise IllegalXpathError, "failed to parse #{e.inspect}"
+      raise IllegalXpathError, 'failed to parse xpath expression'
     end
     # logger.debug "starting stack: #{@stack.inspect}"
 
