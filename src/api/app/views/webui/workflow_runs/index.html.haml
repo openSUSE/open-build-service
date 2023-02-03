@@ -7,7 +7,7 @@
                                   aria: { expanded: true, controls: 'filters' } }
         Filtered by: #{params[:status]&.humanize}
         %i.float-end.mt-1.fa.fa-chevron-down#workflow-runs-dropdown-trigger
-      .card-body.collapse#filters
+      .collapse#filters
         = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter, finder: @workflow_runs_finder)
   .col-md-8.col-lg-9.px-0.px-md-3#workflow-run-list
     .card
@@ -22,7 +22,7 @@
             %span.ms-3= page_entries_info(@workflow_runs)
           .pt-3#workflow-runs
             - @workflow_runs.each do |workflow_run|
-              .card-header{ id: "workflow-run-heading#{workflow_run.id}" }
+              .border-bottom.py-2{ id: "workflow-run-heading#{workflow_run.id}" }
                 .mb-0
                   .row
                     = render(WorkflowRunRowComponent.new(workflow_run: workflow_run))
