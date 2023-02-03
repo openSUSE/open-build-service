@@ -1898,6 +1898,9 @@ sub readcontainermetafiles {
     my $provenance = readstr("$prefix.slsa_provenance.json", 1);
     $containerinfo->{'slsa_provenance'} = $provenance if $provenance;
   }
+  if (-e "$prefix.sbom.json") {
+    $containerinfo->{'sbom_file'} = linkintoblobdir("$prefix.sbom.json", $blobdirref);
+  }
   $prefix =~ s/\.docker$// unless -e "$prefix.packages";
   if (-e "$prefix.packages") {
     $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);

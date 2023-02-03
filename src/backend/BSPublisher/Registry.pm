@@ -446,13 +446,10 @@ sub update_sigs {
 }
 
 sub create_cosign_manifest {
-  my ($repodir, $oci, $config, $payload_layer, $payload, $knownmanifests, $knownblobs) = @_;
+  my ($repodir, $oci, $knownmanifests, $knownblobs, $config, @payload_layers) = @_;
 
   my $config_blobid = push_blob_content($repodir, $config);
   $knownblobs->{$config_blobid} = 1;
-  my $payload_blobid = push_blob_content($repodir, $payload);
-  $knownblobs->{$payload_blobid} = 1;
-  die unless $payload_blobid eq $payload_layer->{'digest'};
   my $config_data = {
     'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
     'size' => length($config),
@@ -463,8 +460,15 @@ sub create_cosign_manifest {
     'schemaVersion' => 2,
     'mediaType' => $mediaType,
     'config' => $config_data,
-    'layers' => [ $payload_layer ],
+    'layers' => [],
   }; 
+  while (@payload_layers >= 2) {
+    my ($payload_layer, $payload) = splice(@payload_layers, 0, 2);
+    my $payload_blobid = push_blob_content($repodir, $payload);
+    $knownblobs->{$payload_blobid} = 1;
+    die unless $payload_blobid eq $payload_layer->{'digest'};
+    push @{$mani->{'layers'}}, $payload_layer;
+  }
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $mani_id = push_manifest($repodir, $mani_json);
   $knownmanifests->{$mani_id} = 1;
@@ -472,12 +476,13 @@ sub create_cosign_manifest {
 }
 
 sub reuse_cosign_manifest {
-  my ($repodir, $oci, $mani_id, $knownmanifests, $knownblobs) = @_;
+  my ($repodir, $oci, $mani_id, $knownmanifests, $knownblobs, $numlayers) = @_;
   my $manifest_json = readstr("$repodir/:manifests/$mani_id", 1);
   return 0 unless $manifest_json;
   my $manifest = eval { JSON::XS::decode_json($manifest_json) };
   return 0 unless $manifest;
   return 0 unless $manifest->{'mediaType'} eq ($oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest);
+  return 0 unless @{$manifest->{'layers'} || []} == $numlayers;
   $knownblobs->{$manifest->{'config'}->{'digest'}} = 1 if $manifest->{'config'};
   $knownblobs->{$_->{'digest'}} = 1 for @{$manifest->{'layers'} || []};
   $knownmanifests->{$mani_id} = 1;
@@ -508,13 +513,13 @@ sub update_cosign {
   for my $digest (sort keys %$digests_to_cosign) {
     my $oci = 1;	# always use oci mime types
     my $old = ($oldsigs->{'digests'} || {})->{$digest};
-    if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs)) {
+    if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs, 1)) {
       $sigs->{'digests'}->{$digest} = $old;
       next;
     }
     print "creating cosign signature for $gun $digest\n";
     my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $config, $payload_layer, $payload, $knownmanifests, $knownblobs);
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $config, $payload_layer, $payload);
     $sigs->{'digests'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
@@ -528,26 +533,30 @@ sub update_cosign {
   for my $digest (sort keys %$digests_to_cosign) {
     my $oci = 1;	# always use oci mime types
     my $containerinfo = $digests_to_cosign->{$digest}->[1];
-    if (!$containerinfo->{'slsa_provenance'}) {
+    my $numlayers = ($containerinfo->{'slsa_provenance'} ? 1 : 0) + ($containerinfo->{'sbom_file'} ? 1 : 0);
+    if (!$numlayers) {
       delete $sigs->{'attestations'}->{$digest};
       next;
     }
     my $old = ($oldsigs->{'attestations'} || {})->{$digest};
-    if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs)) {
+    if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs, $numlayers)) {
       $sigs->{'attestations'}->{$digest} = $old;
       next;
     }
-    print "creating cosign attestation for $gun $digest\n";
-    my $attestation = $containerinfo->{'slsa_provenance'};
-    $attestation = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $gun);
-    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign_attestation($digest, $attestation);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $config, $payload_layer, $payload, $knownmanifests, $knownblobs);
+    print "creating cosign attestations for $gun $digest\n";
+    my @attestations;
+    push @attestations, BSConSign::fixup_intoto_attestation($containerinfo->{'slsa_provenance'}, $signfunc, $digest, $gun) if $containerinfo->{'slsa_provenance'};
+    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'sbom_file'}), $signfunc, $digest, $gun) if $containerinfo->{'sbom_file'};
+    my ($config, @attestation_layers) = BSConSign::createcosign_attestation($digest, \@attestations);
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $config, @attestation_layers);
     $sigs->{'attestations'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign attestation to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
+      for my $attestation (@attestations) {
+        BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
+      }
     }
   }
 
