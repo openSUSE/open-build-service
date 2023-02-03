@@ -77,25 +77,29 @@ sub sig2openshift {
   return $data;
 }
 
-sub createcosign_payload {
-  my ($payloadtype, $payload, $sig, $annotations) = @_;
-  my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
+sub createcosign_config {
+  my (@payload_layers) = @_;
   my $config = {
     'architecture' => '',
     'config' => {},
     'created' => '0001-01-01T00:00:00Z',
     'history' => [ { 'created' => '0001-01-01T00:00:00Z' } ],
     'os' => '',
-    'rootfs' => { 'type' => 'layers', 'diff_ids' => [ $payload_digest ] },
+    'rootfs' => { 'type' => 'layers', 'diff_ids' => [ map {$_->{'digest'}} @payload_layers ] },
   };
-  my $config_json = canonical_json($config);
+  return canonical_json($config);
+}
+
+sub createcosign_payload {
+  my ($payloadtype, $payload, $sig, $annotations) = @_;
+  my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
   my $payload_layer = {
     'annotations' => { 'dev.cosignproject.cosign/signature' => MIME::Base64::encode_base64($sig, ''), %{$annotations || {}} },
     'digest' => $payload_digest,
     'mediaType' => $payloadtype,
     'size' => length($payload),
   };
-  return ($config_json, $payload_layer, $payload, $sig);
+  return (createcosign_config($payload_layer), $payload_layer, $payload, $sig);
 }
 
 sub createcosign {
@@ -107,8 +111,10 @@ sub createcosign {
 }
 
 sub createcosign_attestation {
-  my ($digest, $attestation, $annotations) = @_;
-  return createcosign_payload($mt_dsse, $attestation, '', $annotations);
+  my ($digest, $attestations, $annotations) = @_;
+  $attestations = [ $attestations ] if ref($attestations) ne 'ARRAY';
+  my @r = map { [ createcosign_payload($mt_dsse, $_, '', $annotations) ] } @$attestations;
+  return createcosign_config(map {$_->[1]} @r), map { ($_->[1], $_->[2]) } @r;
 }
 
 sub dsse_pae {
@@ -140,6 +146,10 @@ sub fixup_intoto_attestation {
     die("bad attestation\n") unless $attestation->{'payloadType'};
     die("no an in-toto attestation\n") unless $attestation->{'payloadType'} eq $mt_intoto;
     $attestation = JSON::XS::decode_json(MIME::Base64::decode_base64($attestation->{'payload'}));
+  }
+  if ($attestation && ref($attestation) eq 'HASH' && !$attestation->{'_type'} && $attestation->{'spdxVersion'}) {
+    # wrap raw spdx statement into an in-toto attestation
+    $attestation = { '_type' => 'https://in-toto.io/Statement/v0.1', 'predicateType' => 'https://spdx.dev/Document', 'predicate' => $attestation };
   }
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH' && $attestation->{'_type'};
   die("not a in-toto v0.1 attestation\n") unless $attestation->{'_type'} eq 'https://in-toto.io/Statement/v0.1';

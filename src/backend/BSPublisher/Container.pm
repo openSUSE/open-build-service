@@ -505,7 +505,7 @@ sub compare_to_repostate {
     for my $containerinfo (@$containerinfos) {
       $info = create_container_dist_info($containerinfo, $oci, \%platforms);
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-      if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
+      if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'sbom_file'})) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
 	$expected{$atttag} = $cosign_expect;
@@ -523,7 +523,7 @@ sub compare_to_repostate {
     my $containerinfo = $containerinfos->[0];
     $info = create_container_dist_info($containerinfo, $oci);
     $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-    if ($cosigncookie && $cosign_attestation && $containerinfo->{'slsa_provenance'}) {
+    if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'sbom_file'})) {
       my $atttag = $info->{'digest'};
       $atttag =~ s/:(.*)/-$1.att/;
       $expected{$atttag} = $cosign_expect;
@@ -601,16 +601,17 @@ sub upload_to_registry {
   my @uploadfiles;
   my $blobdir;
   my $do_slsaprovenance;
+  my $do_sbom;
   for my $containerinfo (@$containerinfos) {
     my $file = $containerinfo->{'publishfile'};
-    my $provenance;
+    my $wrote_containerinfo;
     if (!defined($file)) {
       # tar file needs to be constructed from blobs
       $blobdir = $containerinfo->{'blobdir'};
       die("need a blobdir for containerinfo uploads\n") unless $blobdir;
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
-      $provenance = $containerinfo->{'slsa_provenance'};
+      $wrote_containerinfo = 1;
     } elsif ($file =~ /(.*)\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
       my $helminfofile = "$1.helminfo";
       $blobdir = $containerinfo->{'blobdir'};
@@ -618,7 +619,7 @@ sub upload_to_registry {
       die("bad publishfile\n") unless $helminfofile =~ /^\Q$blobdir\E\//;	# just in case
       push @uploadfiles, $helminfofile;
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
-      $provenance = $containerinfo->{'slsa_provenance'};
+      $wrote_containerinfo = 1;
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
@@ -627,11 +628,17 @@ sub upload_to_registry {
       push @tempfiles, $tmpfile;
     }
     # copy provenance file into blobdir
-    if ($provenance && $cosign_attestation) {
+    if ($wrote_containerinfo && $containerinfo->{'slsa_provenance'} && $cosign_attestation) {
       my $provenancefile = $uploadfiles[-1];
       die unless $provenancefile =~ s/\.[^\.]+$/.slsa_provenance.json/;
-      writestr($provenancefile, undef, $provenance);
+      writestr($provenancefile, undef, $containerinfo->{'slsa_provenance'});
       $do_slsaprovenance = 1;
+    }
+    if ($wrote_containerinfo && $containerinfo->{'sbom_file'} && $cosign_attestation) {
+      my $sbomfile = $uploadfiles[-1];
+      die unless $sbomfile =~ s/\.[^\.]+$/.sbom.json/;
+      BSUtil::cp($containerinfo->{'sbom_file'}, $sbomfile) if $containerinfo->{'sbom_file'} ne $sbomfile;
+      $do_sbom = 1;
     }
   }
 
@@ -664,6 +671,7 @@ sub upload_to_registry {
     push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs;
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
     push @opts, '--slsaprovenance' if $do_slsaprovenance;
+    push @opts, '--sbom' if $do_sbom;
   }
   push @opts, '-F', $containerdigestfile;
   push @opts, '--write-info', $uploadinfofile if $uploadinfofile;

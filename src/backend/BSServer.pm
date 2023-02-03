@@ -82,6 +82,7 @@ sub deamonize {
 my $ai_addrconfig = eval { Socket::AI_ADDRCONFIG() } || 0;
 
 sub serveropen {
+  my ($port, $user, $group, $family, $bindaddr) = @_;
   # creates master socket
   # 512 connections in the queue maximum
   # $port:
@@ -90,7 +91,6 @@ sub serveropen {
   #     other string           - tcp socket on $port (assumes it is a number)
   # $user, $group:
   #     if defined, try to set appropriate UID, EUID, GID, EGID ( $<, $>, $(, $) )
-  my ($port, $user, $group, $family) = @_;
   # check if $user and $group exist on this system
   my $tcpproto = getprotobyname('tcp');
   my @ports;
@@ -100,35 +100,38 @@ sub serveropen {
     @ports = split(',', $port, 2);
   }
 
+  if (!defined($family) && $bindaddr) {
+    $family = AF_INET6 if $bindaddr =~ /:/;
+    $family = AF_INET if $bindaddr =~ /^\d+\.\d+\.\d+\.\d+$/;
+  }
+
   # check if we should do ipv6
   if (!defined($family) && $ai_addrconfig && grep {ref($_) || !/^&/} @ports) {
     my ($err, @ai) = Socket::getaddrinfo("", 0, { 'socktype' => SOCK_STREAM, 'flags' => $ai_addrconfig });
     $family = AF_INET6 if grep {$_->{'family'} == AF_INET6} @ai;
   }
-
+  my $sa;
+  if ($bindaddr) {
+    $sa = Socket::inet_pton($family, $bindaddr);
+    die("bad bind address '$bindaddr'\n") unless $sa;
+  }
   my @sock;
   for $port (@ports) {
     my $s;
     if (!ref($port) && $port =~ /^&/) {
       open($s, "<$port") || die("socket open: $!\n");
     } elsif ($family && $family == AF_INET6) {
+      $sa ||= Socket::IN6ADDR_ANY();
       socket($s , PF_INET6, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
       setsockopt($s, SOL_SOCKET, SO_REUSEADDR, pack("l",1));
-      if (ref($port)) {
-        bind($s, sockaddr_in6(0, Socket::IN6ADDR_ANY())) || die "bind: $!\n";
-        ($$port) = sockaddr_in6(getsockname($s));
-      } else {
-        bind($s, sockaddr_in6($port, Socket::IN6ADDR_ANY())) || die "bind: $!\n";
-      }
+      bind($s, sockaddr_in6(ref($port) ? 0 : $port, $sa)) || die "bind: $!\n";
+      ($$port) = sockaddr_in6(getsockname($s)) if ref($port);
     } else {
+      $sa ||= Socket::INADDR_ANY();
       socket($s , PF_INET, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
       setsockopt($s, SOL_SOCKET, SO_REUSEADDR, pack("l",1));
-      if (ref($port)) {
-        bind($s, sockaddr_in(0, INADDR_ANY)) || die "bind: $!\n";
-        ($$port) = sockaddr_in(getsockname($s));
-      } else {
-        bind($s, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
-      }
+      bind($s, sockaddr_in(ref($port) ? 0 : $port, $sa)) || die "bind: $!\n";
+      ($$port) = sockaddr_in(getsockname($s)) if ref($port);
     }
     listen($s , 512) || die "listen: $!\n";
     push @sock, $s;
