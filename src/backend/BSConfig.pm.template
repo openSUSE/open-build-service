@@ -135,6 +135,14 @@ our $packtrack = [];
 our $source_db_sqlite = 1;
 our $published_db_sqlite = 1;
 
+# Generating SLSA provenance data can get enabled by listing the projects.
+# WARNING: the SLSA spec is still at level 0.2 Alpha and will change in
+#          future. Our implementation will follow without backward compatibility
+# WARNING: All used binaries for any build will be kept, this will increase
+#          the disk space requirements a lot
+# our $slsaprovenance = [ "openSUSE:Leap:.*:Update", "AnotherProject" ];
+
+
 # optional: limit visibility of projects for some architectures
 #our $limit_projects = {
 # "ppc" => [ "openSUSE:Factory", "FATE" ],
