@@ -126,5 +126,50 @@ namespace :dev do
       puts '  - Create the interconnect with openSUSE.org'
       puts "  - Create a couple of repositories in project #{iggy_home_project.name}"
     end
+
+    desc 'Creates a request with maintenance incident actions'
+    task request_with_maintenance_incident_actions: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
+      User.session = iggy
+      admin = User.get_default_admin
+      home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+
+      request = build(
+        :bs_request_with_maintenance_incident_action,
+        creator: iggy
+      )
+
+      maintenance_project = Project.find_by(kind: 'maintenance')
+      release_project = Project.find_by(kind: 'maintenance_release')
+
+      # This is the first maintenance incident action, we reuse the action created by the factory
+      home_iggy_project = RakeSupport.find_or_create_project(iggy.home_project_name, iggy)
+      maintenance_package = create(:package, name: "maintenance_package_#{Faker::Lorem.word}", project: home_iggy_project)
+      request.bs_request_actions.first.tap do |action|
+        action.source_project = home_iggy_project
+        action.source_package = maintenance_package
+        action.target_project = maintenance_project
+        action.target_releaseproject = release_project
+        action.save!
+      end
+
+      # This is the second maintenance incident action
+      another_maintenance_package = create(:package, name: "another_maintenance_package_#{Faker::Lorem.word}", project: home_iggy_project)
+      request.bs_request_actions << create(:bs_request_action,
+                                           type: :maintenance_incident,
+                                           source_project: home_iggy_project,
+                                           source_package: another_maintenance_package,
+                                           target_project: maintenance_project,
+                                           target_releaseproject: release_project)
+
+      create(:bs_request_action_delete,
+             target_project: home_admin_project,
+             bs_request: request)
+
+      puts "* Request with maintenance incident actions #{request.number} has been created."
+    end
   end
 end
