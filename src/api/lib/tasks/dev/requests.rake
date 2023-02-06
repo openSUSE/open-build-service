@@ -124,7 +124,7 @@ namespace :dev do
       puts "  See http://localhost:3000/request/show/#{bs_request.number}."
       puts '  To start the builds confirm or perfom the following steps:'
       puts '  - Create the interconnect with openSUSE.org'
-      puts "  - Create a couple of repositories in project #{source_project.name}"
+      puts "  - Create a couple of repositories in project #{iggy_home_project.name}"
     end
   end
 end
