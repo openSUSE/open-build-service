@@ -57,6 +57,7 @@ docker-files/home/.bash_history
 docker-files/home/.irb_history
 docker-files/home/.pry_history
 contrib/rabbitmqadmin
+src/api/database_consistency_????_??_??_??_??_??
 
 # All the other crap that fits nowhere specifically
 *~
