@@ -29,6 +29,7 @@ post:
           - 0
       description: Set to `1` to expand any link before diffing.
       example: 1
+    - $ref: '../components/parameters/diff_file_deprecated.yaml'
     - $ref: '../components/parameters/diff_file.yaml'
     - $ref: '../components/parameters/diff_filelimit.yaml'
     - $ref: '../components/parameters/diff_linkrev.yaml'

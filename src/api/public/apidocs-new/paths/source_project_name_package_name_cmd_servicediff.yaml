@@ -9,6 +9,7 @@
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/diff_file_deprecated.yaml'
     - $ref: '../components/parameters/diff_file.yaml'
     - $ref: '../components/parameters/diff_filelimit.yaml'
     - $ref: '../components/parameters/diff_onlyissues.yaml'
