@@ -256,6 +256,8 @@ class XpathEngine
       # if the input contains a [ in random place, rexml will throw
       #  undefined method `[]' for nil:NilClass
       raise IllegalXpathError, 'failed to parse xpath expression'
+    rescue REXML::ParseException => e
+      raise IllegalXpathError, e.message
     end
     # logger.debug "starting stack: #{@stack.inspect}"
 
