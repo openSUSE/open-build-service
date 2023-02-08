@@ -1,0 +1,14 @@
+.card
+  .card-header.d-flex.justify-content-between
+    %div
+      = header
+    - if delete_button?
+      %div
+        = delete_button
+  .card-body
+    = content
+    - if actions?
+      %ul.nav.justify-content-end
+        - actions.each do |action|
+          %li.nav-item
+            = action
