@@ -28,12 +28,14 @@ use BSASN1;
 my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
 
-my $keyalgo = 'rsa@2048';
-my $keyexpiry = 800;
+my $default_keyalgo = 'rsa@4096';
+my $default_keyexpiry = 800;
 
 sub createkey {
-  my ($projid) = @_;
+  my ($projid, $keyalgo, $keyexpiry) = @_;
   die("don't know how to create a key\n") unless $BSConfig::sign;
+  $keyalgo ||= $default_keyalgo;
+  $keyexpiry ||= $default_keyexpiry;
   mkdir_p($uploaddir);
   unlink("$uploaddir/signkey.$$");
   my @keyargs = ($keyalgo, $keyexpiry);
@@ -42,11 +44,9 @@ sub createkey {
   push @signargs, '-P', "$uploaddir/signkey.$$";
   #push @signargs, '-h', 'sha256';
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  my $pubkey = '';
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-g', @keyargs, "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $pubkey, 4096, length($pubkey));
-  close(F) || die("$BSConfig::sign: $?\n");
+  my $name = "$projid OBS Project";
+  my $email = "$projid\@$obsname";
+  my $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-g', @keyargs, $name, $email);
   my $signkey = readstr("$uploaddir/signkey.$$", 1);
   unlink("$uploaddir/signkey.$$");
   die("sign did not create signkey\n") unless $signkey;
@@ -55,19 +55,16 @@ sub createkey {
 }
 
 sub extendkey {
-  my ($projid, $pubkeyfile, $signkeyfile) = @_;
+  my ($projid, $pubkeyfile, $signkeyfile, $keyexpiry) = @_;
   die("don't know how to extend a key\n") unless $BSConfig::sign;
   die("project does not have a key\n") unless -s $pubkeyfile;
   die("project does not have a signkey\n") unless -s $signkeyfile;
+  $keyexpiry ||= $default_keyexpiry;
   my @keyargs = ($keyexpiry);
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '-P', $signkeyfile;
-  my $pubkey = '';
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-x', @keyargs, $pubkeyfile) || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $pubkey, 4096, length($pubkey));
-  close(F) || die("$BSConfig::sign: $?\n");
+  my $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-x', @keyargs, $pubkeyfile);
   die("sign did not return pubkey\n") unless $pubkey;
   return $pubkey;
 }
@@ -81,10 +78,8 @@ sub pubkey2sslcert {
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
   push @signargs, '-P', $signkeyfile;
-  my $cert = '';
-  eval {
-    $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C', $pubkeyfile);
-  };
+  my $cert;
+  eval { $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C', $pubkeyfile) };
   if ($@) {
     die("Need an RSA key for openssl signing, please create a new key for $projid\n") if $@ =~ /not an? RSA (?:private key|pubkey)/i;
     die($@);
@@ -95,14 +90,10 @@ sub pubkey2sslcert {
 sub getdefaultcert {
   my ($projid, $signtype) = @_;
   return undef unless $BSConfig::sign;
-  my $cert = '';
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-C') || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $cert, 4096, length($cert));
-  close(F) || die("$BSConfig::sign: $?\n");
+  my $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C');
   return $cert;
 }
 
@@ -112,12 +103,8 @@ sub getdefaultpubkey {
   return undef unless $BSConfig::sign;
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
-  local *S;
-  open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");
-  my $pk = '';
-  1 while sysread(S, $pk, 4096, length($pk));
-  close(S) || die("$BSConfig::sign: $?\n");
-  return $pk;
+  my $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
+  return $pubkey;
 }
 
 sub pubkeyinfo {
