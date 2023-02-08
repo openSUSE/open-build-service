@@ -148,6 +148,8 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
+    database_consistency (1.7.4)
+      activerecord (>= 3.2)
     date (3.3.3)
     deep_cloneable (3.2.0)
       activerecord (>= 3.1.0, < 8)
@@ -538,6 +540,7 @@ DEPENDENCIES
   dalli
   data_migrate
   database_cleaner-active_record
+  database_consistency
   deep_cloneable
   delayed_job_active_record
   down
