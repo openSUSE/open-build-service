@@ -25,7 +25,6 @@ RSpec.describe Webui::Users::TokensController do
   let(:other_user) { create(:confirmed_user, login: 'bar') }
 
   before do
-    Flipper[:trigger_workflow].enable
     login user
   end
 

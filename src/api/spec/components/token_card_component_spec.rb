@@ -4,7 +4,6 @@ RSpec.describe TokenCardComponent, type: :component do
   let(:user) { build_stubbed(:confirmed_user) }
 
   before do
-    Flipper.enable(:trigger_workflow)
     User.session = user
     render_inline(described_class.new(token: token))
   end

@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe TriggerWorkflowController, beta: true do
+RSpec.describe TriggerWorkflowController do
   render_views
 
   describe 'POST :create' do
     context 'workflows.yml do not exist' do
       let(:octokit_client) { instance_double(Octokit::Client) }
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { create(:workflow_token, executor: create(:confirmed_user, :in_beta)) }
+      let(:token) { create(:workflow_token, executor: create(:confirmed_user)) }
       let(:github_payload) do
         {
           action: 'opened',
@@ -51,7 +51,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'token different type' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { create(:service_token, executor: create(:confirmed_user, :in_beta)) }
+      let(:token) { create(:service_token, executor: create(:confirmed_user)) }
 
       let(:github_payload) do
         {
@@ -98,7 +98,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'scm event is invalid' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
 
       before do
         allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
@@ -114,7 +114,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
     context 'scm action is invalid' do
       let(:octokit_client) { instance_double(Octokit::Client) }
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
       let(:github_payload) do
         {
           action: 'assigned',
@@ -150,7 +150,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'scm payload is invalid' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { create(:workflow_token, executor: create(:confirmed_user, :in_beta)) }
+      let(:token) { create(:workflow_token, executor: create(:confirmed_user)) }
 
       before do
         allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
@@ -179,7 +179,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'validation errors happening when triggering the token' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
       let(:github_payload) do
         {
           action: 'opened',
@@ -223,7 +223,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'no validation errors' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
       let(:github_payload) do
         {
           action: 'opened',
@@ -264,7 +264,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
 
     context 'the SCM is unsupported' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
-      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user, :in_beta)) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
       let(:scm_payload) do
         { super: 'duper' }
       end
