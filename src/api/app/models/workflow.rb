@@ -130,7 +130,9 @@ class Workflow
     token_user_login = token.executor.login
 
     # Do not process steps for which there's nothing to do
-    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) }
+    processable_steps = steps.reject do |step|
+      step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) || step.instance_of?(::Workflow::Step::SetFlags)
+    end
     target_project_names = processable_steps.map(&:target_project_name).uniq.compact
     target_project_names.each do |target_project_name|
       Project.restore(target_project_name, user: token_user_login)
