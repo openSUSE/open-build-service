@@ -1,7 +1,6 @@
 class Token::WorkflowPolicy < TokenPolicy
-  # TODO: remove the second half of the condition when `trigger_workflow` feature is rolled out
   def trigger?
-    user.is_active? && Flipper.enabled?(:trigger_workflow, user)
+    user.is_active?
   end
 
   def rebuild?
@@ -14,9 +13,6 @@ class Token::WorkflowPolicy < TokenPolicy
   end
 
   def create?
-    # TODO: when trigger_workflow is rolled out, remove the Flipper check
-    return false unless Flipper.enabled?(:trigger_workflow, user)
-
     record.owned_by?(user)
   end
 

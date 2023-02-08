@@ -18,9 +18,7 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def new?
-    # TODO: when trigger_workflow is rolled out, uncomment the next line and remove the Flipper check
-    # true
-    Flipper.enabled?(:trigger_workflow, user)
+    true
   end
 
   def edit?
@@ -28,14 +26,10 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def update?
-    record.executor == user && Flipper.enabled?(:trigger_workflow, user)
+    create?
   end
 
   def create?
-    # TODO: when trigger_workflow is rolled out, remove the Flipper check
-    return false unless Flipper.enabled?(:trigger_workflow, user)
-    return false unless record.type != 'Token::Rss'
-
     record.executor == user
   end
 
