@@ -14,8 +14,8 @@ class WorkflowRunsFinder
   end
 
   def group_by_generic_event_type
-    @relation.all.each_with_object(Hash.new(0)) do |workflow_run, grouped_workflows|
-      grouped_workflows[workflow_run.generic_event_type] += 1
+    EVENT_TYPE_MAPPING.to_h do |key, _value|
+      [key, with_generic_event_type(key).count]
     end
   end
 
