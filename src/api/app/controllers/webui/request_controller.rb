@@ -28,8 +28,9 @@ class Webui::RequestController < Webui::WebuiController
                                           diffs: true, action_id: action_id.to_i, cacheonly: 1).first
       @active_action = @bs_request.bs_request_actions.find(action_id)
 
-      @request_reviews = @bs_request.reviews.for_non_staging_projects
-      @staging_status = staging_status(@bs_request)
+      target_project = Project.find_by_name(@bs_request.target_project_name)
+      @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
+      @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
       @refresh = @action[:diff_not_cached]
 
       # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
@@ -42,7 +43,7 @@ class Webui::RequestController < Webui::WebuiController
       @project_maintainers = if Project.deleted?(@bs_request.target_project_name)
                                []
                              else
-                               Project.find_by_name(@bs_request.target_project_name).maintainers
+                               target_project.maintainers
                              end
 
       # search for a project, where the user is not a package maintainer but a project maintainer and show
@@ -473,8 +474,7 @@ class Webui::RequestController < Webui::WebuiController
     }
   end
 
-  def staging_status(request)
-    target_project = Project.find_by(name: request.target_project_name)
+  def staging_status(request, target_project)
     return nil unless (staging_review = request.reviews.staging(target_project).last)
 
     if staging_review.for_project?
