@@ -24,4 +24,8 @@ module Token::Errors
   class WorkflowsYamlNotParsable < APIError
     setup 400
   end
+
+  class WorkflowsYamlFormatError < APIError
+    setup 400
+  end
 end

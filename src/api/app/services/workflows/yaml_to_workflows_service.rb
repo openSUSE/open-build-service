@@ -21,7 +21,7 @@ module Workflows
     def create_workflows
       begin
         parsed_workflows_yaml = YAML.safe_load(parse_workflows_file(@yaml_file))
-      rescue Psych::SyntaxError => e
+      rescue Psych::SyntaxError, Token::Errors::WorkflowsYamlFormatError => e
         raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
       end
 
@@ -47,7 +47,11 @@ module Workflows
 
       # Mapping the placeholder variables to their values from the webhook event payload
       placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha]).to_h
-      format(workflows_file_content, placeholder_variables)
+      begin
+        format(workflows_file_content, placeholder_variables)
+      rescue ArgumentError => e
+        raise Token::Errors::WorkflowsYamlFormatError, e.message
+      end
     end
   end
 end

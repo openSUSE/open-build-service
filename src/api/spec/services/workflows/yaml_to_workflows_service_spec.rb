@@ -83,5 +83,14 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
         expect { subject }.to raise_error(Token::Errors::WorkflowsYamlNotParsable)
       end
     end
+
+    context 'with invalid placeholder variables' do
+      let(:workflows_yml_file) { Rails.root.join('spec/support/files/unparsable_workflows_placeholders.yml').expand_path }
+      let(:payload) { github_extractor_payload }
+
+      it 'raises a user-friendly error' do
+        expect { subject }.to raise_error(Token::Errors::WorkflowsYamlNotParsable, 'Unable to parse .obs/workflows.yml: malformed format string - %S')
+      end
+    end
   end
 end
