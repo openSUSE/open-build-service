@@ -107,10 +107,6 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
   system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
 end
 
-def logger
-  Rails.logger
-end
-
 module Minitest
   def self.__run(reporter, options)
     # there is no way to avoid the randomization of used suites, so we overload this method.
