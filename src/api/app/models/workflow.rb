@@ -11,6 +11,8 @@ class Workflow
   }.freeze
 
   SUPPORTED_FILTERS = [:branches, :event].freeze
+  STEPS_WITH_NO_TARGET_PROJECT_TO_RESTORE_OR_DESTROY = [Workflow::Step::ConfigureRepositories, Workflow::Step::RebuildPackage,
+                                                        Workflow::Step::SetFlags].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
 
@@ -114,9 +116,7 @@ class Workflow
   # TODO: Extract this into a service
   def destroy_target_projects
     # Do not process steps for which there's nothing to do
-    processable_steps = steps.reject do |step|
-      step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) || step.instance_of?(::Workflow::Step::SetFlags)
-    end
+    processable_steps = steps.reject { |step| step.class.in?(STEPS_WITH_NO_TARGET_PROJECT_TO_RESTORE_OR_DESTROY) }
     target_packages = processable_steps.map(&:target_package).uniq.compact
     EventSubscription.where(channel: 'scm', token: token, package: target_packages).delete_all
 
@@ -130,7 +130,7 @@ class Workflow
     token_user_login = token.executor.login
 
     # Do not process steps for which there's nothing to do
-    processable_steps = steps.reject { |step| step.instance_of?(::Workflow::Step::ConfigureRepositories) || step.instance_of?(::Workflow::Step::RebuildPackage) }
+    processable_steps = steps.reject { |step| step.class.in?(STEPS_WITH_NO_TARGET_PROJECT_TO_RESTORE_OR_DESTROY) }
     target_project_names = processable_steps.map(&:target_project_name).uniq.compact
     target_project_names.each do |target_project_name|
       Project.restore(target_project_name, user: token_user_login)
