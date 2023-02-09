@@ -15,6 +15,20 @@ module Event
       h['X-OBS-Package'] = "#{payload['project']}/#{payload['package']}"
       h
     end
+
+    def metric_measurement
+      'service'
+    end
+
+    def metric_tags
+      {
+        status: 'success'
+      }
+    end
+
+    def metric_fields
+      { value: 1 }
+    end
   end
 end
 
