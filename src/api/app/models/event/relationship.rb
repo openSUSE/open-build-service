@@ -24,6 +24,8 @@ module Event
       return Project.get_by_name(payload['project']).id if Project.exists_by_name(payload['project'])
 
       nil
+    rescue Project::Errors::UnknownObjectError # This happens for access-protected projects
+      nil
     end
 
     def originator
