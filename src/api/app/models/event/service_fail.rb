@@ -28,7 +28,7 @@ module Event
 
     def metric_tags
       error = case payload['error']
-              when start_with?('bad link:')
+              when /^bad link:/
                 'bad_link'
               when /^ 400 remote error:.*.service  No such file or directory/
                 'service_missing'
