@@ -1,16 +1,54 @@
-.col-12.col-md-6.col-lg-4
-  .card.mb-3.repository-card
-    .card-header
+.col-11.col-md-5.col-lg-3.flex-fill.repository-card
+  = render(CardComponent.new) do |component|
+    - if repository.is_dod_repository?
+      = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository,
+                  available_architectures: available_architectures }
+      - component.with_delete_button do
+        - if user_can_modify
+          = link_to('#', title: 'Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-repository',
+            action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
+            %i.fas.fa-times-circle.text-danger
+        - elsif User.session
+          .col
+            = link_to('#', title: 'Request Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#request-delete-repository',
+              action: project_remove_target_request_path(project: project, target: repository), repository: repository.name }) do
+              %i.fas.fa-user-times.text-danger
+      - if user_can_modify
+        - component.with_action do
+          = link_to('#', title: 'Add Download on Demand Source', class: 'nav-link p-1', data: { 'bs-toggle': 'modal',
+                                                                        'bs-target': "#add-dod-source-modal-#{repository.id}" }) do
+            %i.fas.fa-plus-circle.text-primary
+    - else
+      = render partial: 'repository_card_content', locals: { project: project, repository: repository,
+                  download_url: download_url, user_can_modify: user_can_modify,
+                  available_architectures: available_architectures }
+      - component.with_delete_button do
+        - if user_can_modify
+          = link_to('#', title: 'Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-repository',
+            action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
+            %i.fas.fa-times-circle.text-danger
+        - elsif User.session
+          = link_to('#', title: 'Request Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#request-delete-repository',
+            action: project_remove_target_request_path(project: project, repository: repository.name), repository: repository.name }) do
+            %i.fas.fa-user-times.text-danger
+      - if user_can_modify
+        - component.with_action do
+          = link_to('#', title: 'Edit Repository', class: 'nav-link p-1',
+                        data: { 'bs-toggle': 'modal', 'bs-target': "#edit-repository-#{repository.id}" }) do
+            %i.fas.fa-edit.text-secondary
+        - component.with_action do
+          = link_to('#', title: 'Add Repository Path', class: 'nav-link p-1',
+                        data: { 'bs-toggle': 'modal', 'bs-target': "#add-repository-path-#{repository.id}" }) do
+            %i.fas.fa-plus-circle.text-primary
+      - component.with_action do
+        - url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
+        = link_to(url, title: 'Download Repository', class: 'nav-link p-1') do
+          %i.fas.fa-download.text-secondary
+
+    - component.with_header do
       = link_to(repository, project_repository_state_path(project: project, repository: repository.name), class: 'fw-bold')
       - if repository.architectures.empty?
         %i No architecture selected
       - else
         - repository.architectures.pluck(:name).each do |architecture|
           %span.badge.bg-primary= architecture
-    - if repository.is_dod_repository?
-      = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository,
-                 available_architectures: available_architectures }
-    - else
-      = render partial: 'repository_card_content', locals: { project: project, repository: repository,
-                 download_url: download_url, user_can_modify: user_can_modify,
-                 available_architectures: available_architectures }
