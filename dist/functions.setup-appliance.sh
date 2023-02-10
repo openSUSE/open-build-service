@@ -356,7 +356,7 @@ function check_server_key {
   if [ ! -e $backenddir/certs/server.key ]; then
       logline "Creating $backenddir/certs/server.key"
       install -d -m 0700 $backenddir/certs
-      openssl genrsa -out $backenddir/certs/server.key 2048 2>/dev/null
+      openssl genrsa -out $backenddir/certs/server.key 4096 2>/dev/null
   else
       logline "Found $backenddir/certs/server.key"
   fi
@@ -559,9 +559,9 @@ function prepare_obssigner {
       cat >/tmp/obs-gpg.$$ <<EOF
            %echo Generating a default OBS instance key
            Key-Type: RSA
-           Key-Length: 2048
+           Key-Length: 4096
            Subkey-Type: ELG-E
-           Subkey-Length: 2048
+           Subkey-Length: 4096
            Name-Real: private OBS
            Name-Comment: key without passphrase
            Name-Email: defaultkey@localobs
@@ -572,6 +572,7 @@ function prepare_obssigner {
 EOF
       gpg2 --homedir $backenddir/gnupg --batch --gen-key /tmp/obs-gpg.$$
       gpg2 --homedir $backenddir/gnupg --export -a > "$backenddir"/obs-default-gpg.asc
+      rm /tmp/obs-gpg.$$
       # empty file just for accepting the key
       touch "$backenddir/gnupg/phrases/defaultkey@localobs"
     fi
@@ -585,7 +586,6 @@ EOF
       echo "allow: 127.0.0.1"            >> /etc/sign.conf
       echo "phrases: $backenddir/gnupg/phrases" >> /etc/sign.conf
       echo done
-      rm /tmp/obs-gpg.$$
       sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       # ensure that $OBS_SIGND gets restarted if already started
       systemctl is-active $OBS_SIGND 2>&1 > /dev/null
