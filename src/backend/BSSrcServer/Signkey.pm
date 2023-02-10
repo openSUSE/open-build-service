@@ -46,7 +46,9 @@ sub createkey {
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $name = "$projid OBS Project";
   my $email = "$projid\@$obsname";
-  my $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-g', @keyargs, $name, $email);
+  my $pubkey;
+  eval { $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-g', @keyargs, $name, $email) };
+  die("sign: $@") if $@;
   my $signkey = readstr("$uploaddir/signkey.$$", 1);
   unlink("$uploaddir/signkey.$$");
   die("sign did not create signkey\n") unless $signkey;
@@ -64,7 +66,9 @@ sub extendkey {
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '-P', $signkeyfile;
-  my $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-x', @keyargs, $pubkeyfile);
+  my $pubkey;
+  eval { $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-x', @keyargs, $pubkeyfile) };
+  die("sign: $@") if $@;
   die("sign did not return pubkey\n") unless $pubkey;
   return $pubkey;
 }
@@ -93,7 +97,9 @@ sub getdefaultcert {
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
-  my $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C');
+  my $cert;
+  eval { $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C') };
+  die("sign: $@") if $@;
   return $cert;
 }
 
@@ -103,7 +109,9 @@ sub getdefaultpubkey {
   return undef unless $BSConfig::sign;
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
-  my $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
+  my $pubkey;
+  eval { $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p') };
+  die("sign: $@") if $@;
   return $pubkey;
 }
 
