@@ -110,12 +110,12 @@ class WorkflowRun < ApplicationRecord
   # together all the behaviour regarding GitHub and all the behaviour regarding
   # GitLab.
   def scm_vendor
-    if parsed_request_headers['HTTP_X_GITHUB_EVENT']
+    if parsed_request_headers['HTTP_X_GITEA_EVENT']
+      :gitea
+    elsif parsed_request_headers['HTTP_X_GITHUB_EVENT']
       :github
     elsif parsed_request_headers['HTTP_X_GITLAB_EVENT']
       :gitlab
-    elsif parsed_request_headers['HTTP_X_GITEA_EVENT']
-      :gitea
     else
       :unknown
     end
