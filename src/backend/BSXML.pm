@@ -348,6 +348,7 @@ our $projpack = [
 		'srcmd5',	# commit id
 		'versrel',
 		'verifymd5',	# tree id
+		'scmsync',
 		'originproject',
 		'revtime',
 		'constraintsmd5',	# md5sum of constraints file in srcmd5
@@ -556,6 +557,7 @@ our $buildinfo = [
 	'srcmd5',
 	'verifymd5',
 	'rev',
+	'vcs',
 	'disturl',
 	'reason',       # just for the explain string of a build reason
 	'needed',       # number of blocked

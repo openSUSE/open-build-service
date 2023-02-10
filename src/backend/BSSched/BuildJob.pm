@@ -884,6 +884,7 @@ sub create_jobdata {
   $binfo->{'module'} = $bconf->{'modules'} if $bconf->{'modules'};
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$pdata->{'srcmd5'}-$packid" if defined($obsname) && defined($packid);
+  $binfo->{'vcs'} = $pdata->{'scmsync'} if $pdata->{'scmsync'};
 
   # no release/debuginfo for patchinfo and deltarpm builds
   return $binfo if $buildtype eq 'patchinfo' || $buildtype eq 'deltarpm';

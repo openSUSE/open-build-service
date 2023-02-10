@@ -1416,7 +1416,7 @@ sub getprojpack {
 	$pinfo->{'error'} = 'package does not exist';
 	next;
       }
-      for (qw{build publish debuginfo useforbuild bcntsynctag sourceaccess privacy access lock releasename}) {
+      for (qw{build publish debuginfo useforbuild bcntsynctag scmsync sourceaccess privacy access lock releasename}) {
 	$pinfo->{$_} = $pack->{$_} if $pack->{$_};
       }
       if (!$pinfo->{'build'}) {
