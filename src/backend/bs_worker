@@ -3774,6 +3774,7 @@ sub dobuild {
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if ($kiwimode || '') eq 'product' && -e "$statedir/build/signdummy";
+  push @args, '--vcs', $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needobspackage;
