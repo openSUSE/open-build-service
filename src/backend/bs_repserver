@@ -2661,6 +2661,18 @@ sub uploadbuild {
     close F;
     die("upload failed\n");
   }
+  unlink("$dir/.bininfo");	# contains inode numbers, better regenerate
+  # verify blob checksums
+  for my $up (grep {$_->{'name'} =~ /^_blob\./} @$uploaded) {
+    my $name = $up->{'name'};
+    die("$name: unsupported blob checksum\n") unless $name =~ /^_blob\.sha256:/;
+    my $fd;
+    open($fd, '<', "$dir/$name") || die("$dir/$name: $!\n");
+    my $ctx = Digest::SHA->new(256);
+    $ctx->addfile($fd);
+    close($fd);
+    die("$name: blob checksum error\n") unless $name eq '_blob.sha256:'.$ctx->hexdigest();
+  }
   my $info = {
     'project' => $projid,
     'repository' => $repoid,
