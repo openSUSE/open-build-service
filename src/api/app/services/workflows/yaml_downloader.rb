@@ -49,7 +49,7 @@ module Workflows
       if @scm_payload[:tag_name].present?
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/tag/#{@scm_payload[:tag_name]}/#{@token.workflow_configuration_path}"
       else
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
+        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/commit/#{@scm_payload[:commit_sha]}/#{@token.workflow_configuration_path}"
       end
     end
   end
