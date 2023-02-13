@@ -33,8 +33,8 @@ module Workflows
         # :ref can be the name of the commit, branch or tag. We use the commit sha, which outlast the branch most of the time.
         client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:commit_sha])[:download_url]
       when 'gitlab'
-        # This GitLab URL admits both a branch name and a commit sha.
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
+        # This GitLab URL admits both a branch name and a commit sha. We use the commit sha, which outlast the branch most of the time.
+        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:commit_sha]}/#{@token.workflow_configuration_path}"
       when 'gitea'
         gitea_download_url
       end
