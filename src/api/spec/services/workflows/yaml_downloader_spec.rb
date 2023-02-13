@@ -33,7 +33,7 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
           }
         end
         let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:url) { "https://raw.githubusercontent.com/#{payload[:target_repository_full_name]}/#{payload[:target_branch]}/.obs/workflows.yml" }
+        let(:url) { "https://raw.githubusercontent.com/#{payload[:target_repository_full_name]}/#{payload[:commit_sha]}/.obs/workflows.yml" }
 
         it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
       end

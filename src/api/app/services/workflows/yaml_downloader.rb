@@ -19,8 +19,7 @@ module Workflows
     rescue Down::Error => e
       raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
 
-      # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
-      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}." \
+      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM commit #{@scm_payload[:commit_sha]}." \
                                                      "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}"
     end
 
@@ -31,8 +30,8 @@ module Workflows
       case @scm_payload[:scm]
       when 'github'
         client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])
-        # :ref can be the name of the commit, branch or tag.
-        client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:download_url]
+        # :ref can be the name of the commit, branch or tag. We use the commit sha, which outlast the branch most of the time.
+        client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:commit_sha])[:download_url]
       when 'gitlab'
         # This GitLab URL admits both a branch name and a commit sha.
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
@@ -42,9 +41,8 @@ module Workflows
     rescue Octokit::InvalidRepository => e
       raise Token::Errors::NonExistentRepository, e.message
     rescue Octokit::NotFound => e
-      # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
       raise Token::Errors::NonExistentWorkflowsFile,
-            "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}: #{e.message}"
+            "#{@token.workflow_configuration_path} could not be downloaded from the SCM commit #{@scm_payload[:commit_sha]}: #{e.message}"
     end
 
     def gitea_download_url

@@ -13,6 +13,7 @@ RSpec.describe TriggerWorkflowController, beta: true do
           action: 'opened',
           pull_request: {
             head: {
+              sha: '5d175d7f4c58d06907bba188fe9a4c8b6bd723da',
               repo: { full_name: 'username/test_repo' }
             },
             base: {
@@ -40,7 +41,8 @@ RSpec.describe TriggerWorkflowController, beta: true do
       it { expect(response).to have_http_status(:not_found) }
 
       it "displays a user-friendly error message in the response's body" do
-        expect(response.body).to include(".obs/workflows.yml could not be downloaded from the SCM branch/commit main.\nIs the configuration file in the expected place? " \
+        expect(response.body).to include(".obs/workflows.yml could not be downloaded from the SCM commit #{github_payload.dig(:pull_request, :head, :sha)}.\n" \
+                                         'Is the configuration file in the expected place? ' \
                                          "Check #{Workflows::YAMLDownloader::DOCUMENTATION_LINK}\nBeep Boop, something is wrong")
       end
 
