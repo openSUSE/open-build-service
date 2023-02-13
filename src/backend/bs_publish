@@ -2042,6 +2042,11 @@ sub publish {
     my %archs = map {$_ => 1} @archs;
     # last one wins in code below
     @archs = ((grep {!$archorder{$_}} @archs), (grep {$archs{$_}} reverse(@$archorder)));
+  } else {
+    # just sort reverse lexicographically. This makes noarch come from x86_64, which
+    # is also what the product builder does. If you really want the order of the
+    # repos in the project then you can use a dummy archorder.
+    @archs = sort {$b cmp $a} @archs;
   }
 
   # drop entire repo it source :repo's have disappeared altogether. We need to find a way
