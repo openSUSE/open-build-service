@@ -1,5 +1,5 @@
 xml.status('code' => @errorcode) do
-  xml.summary @summary
+  xml.summary @summary.gsub("\u0000", '\u0000')
   if @exception
     xml.exception do
       xml.type(@exception.class.name)

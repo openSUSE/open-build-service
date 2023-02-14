@@ -114,5 +114,15 @@ RSpec.describe SearchController, vcr: true do
         expect(Nokogiri::XML(response.body).xpath('//status/summary').inner_text).to match(/Error found searching elements 'request' with xpath predicate: '\)\]'./)
       end
     end
+
+    describe 'invalid predicate with null byte' do
+      it 'shows an error', :aggregate_failures do
+        get :bs_request, params: { match: "/e\u0000" }, format: :xml
+
+        expect(response).to have_http_status(:bad_request)
+        expect(Nokogiri::XML(response.body).xpath('//status').attribute('code').value).to eq('illegal_xpath_error')
+        expect(Nokogiri::XML(response.body).xpath('//status/summary').inner_text).to match(%r{Error found searching elements 'request' with xpath predicate: '/e\\u0000'.})
+      end
+    end
   end
 end
