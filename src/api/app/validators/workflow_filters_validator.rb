@@ -27,6 +27,8 @@ class WorkflowFiltersValidator < ActiveModel::Validator
                            "#{unsupported_filters.keys.to_sentence} are unsupported")
     end
 
+    @workflow.errors.add(:filters, 'for branches are not supported for the tag push event') if unsupported_filters_for_event?
+
     return if unsupported_filter_values.blank?
 
     @workflow.errors.add(:filters, "#{unsupported_filter_values.to_sentence} have unsupported values, " \
@@ -55,5 +57,10 @@ class WorkflowFiltersValidator < ActiveModel::Validator
       end
       unsupported_filter_values
     end
+  end
+
+  def unsupported_filters_for_event?
+    # Tags do not have a reference to a branch, they are referring to a commit
+    @workflow_instructions[:filters][:branches].present? && @workflow.scm_webhook.tag_push_event?
   end
 end
