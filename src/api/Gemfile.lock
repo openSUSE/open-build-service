@@ -121,7 +121,7 @@ GEM
       capybara (>= 2)
       minitest (>= 4)
     childprocess (4.1.0)
-    clockwork (3.0.1)
+    clockwork (3.0.2)
       activesupport
       tzinfo
     cocoon (1.2.15)
