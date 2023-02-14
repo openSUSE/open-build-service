@@ -3,7 +3,7 @@ class GitlabPayload::Push < GitlabPayload
   def payload
     default_payload.merge(event: 'Push Hook',
                           commit_sha: webhook_payload[:after],
-                          # We need this for Workflows::YAMLDownloader#download_url
+                          # We need this to match the branch filter and for Workflow::Step::TriggerServices#push_details
                           target_branch: webhook_payload[:ref].sub('refs/heads/', ''),
                           # We need this for Workflows::YAMLDownloader#download_url
                           path_with_namespace: webhook_payload.dig(:project, :path_with_namespace),

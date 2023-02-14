@@ -11,7 +11,7 @@ class GithubPayload::Push < GithubPayload
       ref: payload_ref,
       # We need this for Workflow::Step#branch_request_content_{github,gitlab}
       commit_sha: webhook_payload[:after],
-      # We need this for Workflows::YAMLDownloader#download_url
+      # We need this to match the branch filter and for Workflow::Step::TriggerServices#push_details
       # when the push event is for commits, we get the branch name from ref.
       target_branch: payload_ref.sub('refs/heads/', '')
     )
