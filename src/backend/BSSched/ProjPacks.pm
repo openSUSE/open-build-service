@@ -668,7 +668,7 @@ sub postprocess_needed_check {
     return 1;
   }
   my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
-  my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep prereq file name error build publish useforbuild};
+  my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep prereq file name error build publish useforbuild scmsync};
   my $oldpackdata = $oldprojdata->{'package'};
   for my $packid (keys %$oldpackdata) {
     if (!BSUtil::identical($oldpackdata->{$packid}, $packs->{$packid}, \%except)) {
