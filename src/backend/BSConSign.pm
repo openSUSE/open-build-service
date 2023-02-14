@@ -147,9 +147,13 @@ sub fixup_intoto_attestation {
     die("no an in-toto attestation\n") unless $attestation->{'payloadType'} eq $mt_intoto;
     $attestation = JSON::XS::decode_json(MIME::Base64::decode_base64($attestation->{'payload'}));
   }
-  if ($attestation && ref($attestation) eq 'HASH' && !$attestation->{'_type'} && $attestation->{'spdxVersion'}) {
-    # wrap raw spdx statement into an in-toto attestation
-    $attestation = { '_type' => 'https://in-toto.io/Statement/v0.1', 'predicateType' => 'https://spdx.dev/Document', 'predicate' => $attestation };
+  if ($attestation && ref($attestation) eq 'HASH' && !$attestation->{'_type'}) {
+    my $predicate_type;
+    # autodetect bom type
+    $predicate_type = 'https://spdx.dev/Document' if $attestation->{'spdxVersion'};
+    $predicate_type = 'https://cyclonedx.org/bom' if ($attestation->{'bomFormat'} || '') eq 'CycloneDX';
+    # wrap into an in-toto attestation
+    $attestation = { '_type' => 'https://in-toto.io/Statement/v0.1', 'predicateType' => $predicate_type, 'predicate' => $attestation } if $predicate_type;
   }
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH' && $attestation->{'_type'};
   die("not a in-toto v0.1 attestation\n") unless $attestation->{'_type'} eq 'https://in-toto.io/Statement/v0.1';
