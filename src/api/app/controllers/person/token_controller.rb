@@ -12,10 +12,6 @@ module Person
 
     # POST /person/<login>/token
     def create
-      # TODO: remove when `trigger_workflow` feature is rolled out
-      raise(NoPermission, 'You are not allowed to create a workflow token. You need to join the Beta program for that.') if params[:operation] == 'workflow' &&
-                                                                                                                            !Flipper.enabled?(:trigger_workflow, @user)
-
       authorize @user, :update?
 
       pkg = (Package.get_by_project_and_name(params[:project], params[:package]) if params[:project] || params[:package])

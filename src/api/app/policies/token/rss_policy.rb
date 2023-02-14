@@ -1,6 +1,1 @@
-class Token::RssPolicy < TokenPolicy
-  # TODO: when trigger_workflow is rolled out, remove the create? method
-  def create?
-    user == record.executor
-  end
-end
+class Token::RssPolicy < TokenPolicy; end

@@ -71,7 +71,6 @@ RSpec.describe Person::TokenController, vcr: false do
       let!(:package) { create(:package, project: user.home_project) }
 
       before do
-        Flipper[:trigger_workflow].enable
         login user
       end
 

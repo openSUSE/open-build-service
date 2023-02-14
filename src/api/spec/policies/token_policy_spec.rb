@@ -20,13 +20,25 @@ RSpec.describe TokenPolicy, type: :policy do
     it { is_expected.to permit(token_user, user_token) }
   end
 
-  permissions :show? do
+  permissions :show?, :create?, :update? do
     it { is_expected.to permit(token_user, workflow_token) }
   end
 
   permissions :webui_trigger? do
     it { is_expected.not_to permit(token_user, workflow_token) }
     it { is_expected.not_to permit(unconfirmed_user, token_of_unconfirmed_user) }
+  end
+
+  # New action is permitted on any kind of token and user
+  permissions :new? do
+    it { is_expected.to permit(token_user, Token.new) }
+    it { is_expected.to permit(unconfirmed_user, Token.new) }
+  end
+
+  # Create and update are permitted when the user and the executor are the same
+  permissions :create?, :update? do
+    it { is_expected.to permit(token_user, rss_token) }
+    it { is_expected.not_to permit(other_user, rss_token) }
   end
 
   describe TokenPolicy::Scope do
