@@ -1,0 +1,301 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '483'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjMwIiB2cmV2PSIzMCIgc3JjbWQ1PSJmNDBlZjJhZDZmNWVhMDRkYTI1ODIwM2FlOGIxNWJiNSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InN1Y2NlZWRlZCIgeHNyY21kNT0iYmRhOTNhYWIxMjhmM2VkZWU5OTEyMDY5ZDEwMWVkMjgiLz4KICA8ZW50cnkgbmFtZT0iX3NlcnZpY2UiIG1kNT0iZGUzNDM5MGE2OTcyMDBhMDkxNmMxZjhhNzk1OTEzNDYiIHNpemU9IjE2NjUiIG10aW1lPSIxNjc0ODI5Njc4Ii8+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJiYWFiNmMxNmQ5MTQzNTIzYjc4NjVkNDY4OTZlNDU5NiIgc2l6ZT0iMTIiIG10aW1lPSIxNjc0ODI5MTU4Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
+    body:
+      encoding: UTF-8
+      string: |+
+        ubuntu12.04 root登录
+        1先设定一个root的密码，sudo passwd root
+
+        2 root 登陆，su root
+
+        3 备份一下lightgdm
+        cp -p /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.bak
+
+        4 vi /etc/lightdm/lightdm.conf
+
+        5 增加：greeter-show-manual-login=true
+          修改后为：
+          [SeatDefaults]
+          greeter-session=unity-greeter
+          user-session=ubuntu
+          greeter-show-manual-login=true
+
+          重启登陆即可。已经可以输入root了
+
+
+        root登陆后还没声音，又查了查，如下方法:
+        Ubuntu root登录没有声音这个问题的根本原因是使用root登录后pulseaudio没有启动。
+        将root加到pulse-access组：
+        sudo usermod -a -G pulse-access root
+        然后修改配置文件/etc/default/pulseaudio，将PULSEAUDIO_SYSTEM_START设为1，
+
+        =======================================================================
+        安装linux版本的beyond compare
+        beyond compare的注册码：
+        HmB5oANygQOhaStTHNa+zOKgOeWHOkeAp6d1+QwIebz6z9kwYCm9-O0jF9F79zvzed9v5UVC4VrDkDMmTM8nB+
+
+
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="31" vrev="31">
+          <srcmd5>9bffb8ce9befba1cdb7e1e39ee67f86a</srcmd5>
+          <version>unknown</version>
+          <time>1676292485</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '438'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjMxIiB2cmV2PSIzMSIgc3JjbWQ1PSI5YmZmYjhjZTliZWZiYTFjZGI3ZTFlMzllZTY3Zjg2YSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciLz4KICA8ZW50cnkgbmFtZT0iX3NlcnZpY2UiIG1kNT0iZGUzNDM5MGE2OTcyMDBhMDkxNmMxZjhhNzk1OTEzNDYiIHNpemU9IjE2NjUiIG10aW1lPSIxNjc0ODI5Njc4Ii8+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJiYWFiNmMxNmQ5MTQzNTIzYjc4NjVkNDY4OTZlNDU5NiIgc2l6ZT0iMTIiIG10aW1lPSIxNjc0ODI5MTU4Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="31" vrev="31" srcmd5="9bffb8ce9befba1cdb7e1e39ee67f86a">
+          <error>service in progress</error>
+        </sourceinfo>
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '438'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjMxIiB2cmV2PSIzMSIgc3JjbWQ1PSI5YmZmYjhjZTliZWZiYTFjZGI3ZTFlMzllZTY3Zjg2YSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciLz4KICA8ZW50cnkgbmFtZT0iX3NlcnZpY2UiIG1kNT0iZGUzNDM5MGE2OTcyMDBhMDkxNmMxZjhhNzk1OTEzNDYiIHNpemU9IjE2NjUiIG10aW1lPSIxNjc0ODI5Njc4Ii8+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJiYWFiNmMxNmQ5MTQzNTIzYjc4NjVkNDY4OTZlNDU5NiIgc2l6ZT0iMTIiIG10aW1lPSIxNjc0ODI5MTU4Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTY3NDgyOTE1NyIvPgo8L2RpcmVjdG9yeT4K
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="99fd4c1fb285d6b4e1dc74642e05a636">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="my_package" rev="31" srcmd5="9bffb8ce9befba1cdb7e1e39ee67f86a"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '977'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOeahOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxzdSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGlnaHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5iYWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDvvJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7kuLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hvdy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILlt7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOayoeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzljp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQr+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8gdXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnphY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNFQVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFyZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hhU3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '977'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOeahOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxzdSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGlnaHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5iYWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDvvJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7kuLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hvdy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILlt7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOayoeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzljp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQr+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8gdXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnphY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNFQVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFyZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hhU3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
+  recorded_at: Mon, 13 Feb 2023 12:48:05 GMT
+recorded_with: VCR 6.1.0
