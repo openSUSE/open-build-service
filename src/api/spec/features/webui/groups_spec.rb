@@ -58,13 +58,7 @@ RSpec.describe 'Groups', js: true do
     visit group_path(group_1)
 
     within(find('div.group-user', text: admin.login)) do
-      # HACK: Click on a button that has zero size. The delete button is a
-      # float one, and has no size. The capybara driver is not able to click
-      # on it unless using the trick below.
-      # see: https://stackoverflow.com/questions/68217056/how-to-click-element-with-zero-height-with-capybara
-      link = find_link('Remove member from group').native
-      actionbuilder = page.driver.browser.action
-      actionbuilder.click(link).perform
+      click_link('Remove member from group')
     end
 
     expect { click_button('Remove') }.to change { group_1.users.count }.by(-1)

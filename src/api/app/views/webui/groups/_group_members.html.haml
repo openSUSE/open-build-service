@@ -35,8 +35,7 @@
                                   'bs-target': '#delete-group-members-modal',
                                   confirmation_text: "Please confirm deletion of '#{user}' from this group",
                                   action: group_user_path(group_title: group.title, user_login: user.login) }) do
-                  .float-end
-                    %i.fas.fa-sm.fa-times-circle.text-danger
+                  %i.fas.fa-sm.fa-times-circle.text-danger
 
 - if write_access || display_group_email
   .pt-4
