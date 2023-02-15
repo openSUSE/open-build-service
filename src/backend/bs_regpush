@@ -706,7 +706,8 @@ for my $tarfile (@tarfiles) {
   my %tar = map {$_->{'name'} => $_} @$tar;
 
   my $provenance;
-  my $sbom_json;
+  my $spdx_json;
+  my $cyclonedx_json;
   if ($slsaprovenance) {
     my $provenancefile = $tarfile;
     if ($provenancefile =~ s/\.[^\.]*$/.slsa_provenance.json/) {
@@ -714,9 +715,13 @@ for my $tarfile (@tarfiles) {
     }
   }
   if ($sbom) {
-    my $sbom_file = $tarfile;
-    if ($sbom_file =~ s/\.[^\.]*$/.sbom.json/) {
-      $sbom_json = readstr($sbom_file) if -s $sbom_file;
+    my $spdx_file = $tarfile;
+    if ($spdx_file =~ s/\.[^\.]*$/.spdx.json/) {
+      $spdx_json = readstr($spdx_file) if -s $spdx_file;
+    }
+    my $cyclonedx_file = $tarfile;
+    if ($cyclonedx_file =~ s/\.[^\.]*$/.cyclonedx.json/) {
+      $cyclonedx_json = readstr($cyclonedx_file) if -s $cyclonedx_file;
     }
   }
 
@@ -813,7 +818,7 @@ for my $tarfile (@tarfiles) {
   };
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
-  $digests_to_sign{$mani_id} = [ $provenance, $sbom_json ];
+  $digests_to_sign{$mani_id} = [ $provenance, $spdx_json, $cyclonedx_json ];
 
   if ($multiarch) {
     manifest_upload_tags($mani_json, undef, $mediaType);	# upload anonymous image
@@ -900,12 +905,13 @@ if ($cosign && %digests_to_sign) {
   # upload attestations
   for my $digest (sort keys %digests_to_sign) {
     my $provenance = $digests_to_sign{$digest}->[0];
-    my $sbom_json = $digests_to_sign{$digest}->[1];
-    next unless $provenance || $sbom_json;
+    my $spdx_json = $digests_to_sign{$digest}->[1];
+    my $cyclonedx_json = $digests_to_sign{$digest}->[2];
+    next unless $provenance || $spdx_json || $cyclonedx_json;
     my $att_tag = "$digest.att";
     $att_tag =~ s/:/-/;
     my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
-    my $numlayers = ($provenance ? 1 : 0) + ($sbom_json ? 1 : 0);
+    my $numlayers = ($provenance ? 1 : 0) + ($spdx_json ? 1 : 0) + ($cyclonedx_json ? 1 : 0);
     if ($att_mani && $att_mani->{'mediaType'} && $att_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$att_mani->{'layers'} || []} == $numlayers && $BSConSign::mt_dsse) {
       next unless grep {$_->{'mediaType'} eq $BSConSign::mt_dsse && (($_->{'annotations'} || {})->{$cosign_cookie_name} || '') eq $cosigncookie} @{$att_mani->{'layers'}};
     }
@@ -914,7 +920,8 @@ if ($cosign && %digests_to_sign) {
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my @attestations;
     push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun) if $provenance;
-    push @attestations, BSConSign::fixup_intoto_attestation($sbom_json, $signfunc, $digest, $gun) if $sbom_json;
+    push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun) if $spdx_json;
+    push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun) if $cyclonedx_json;
     my ($config, @attestation_layers) = BSConSign::createcosign_attestation($digest, \@attestations, $annotations);
     cosign_upload($att_tag, $config, @attestation_layers);
     if ($rekorserver) {

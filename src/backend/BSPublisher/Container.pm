@@ -505,7 +505,7 @@ sub compare_to_repostate {
     for my $containerinfo (@$containerinfos) {
       $info = create_container_dist_info($containerinfo, $oci, \%platforms);
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-      if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'sbom_file'})) {
+      if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'spdx_file'} ||  $containerinfo->{'cyclonedx_file'} )) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
 	$expected{$atttag} = $cosign_expect;
@@ -523,7 +523,7 @@ sub compare_to_repostate {
     my $containerinfo = $containerinfos->[0];
     $info = create_container_dist_info($containerinfo, $oci);
     $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-    if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'sbom_file'})) {
+    if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'spdx_file'} || $containerinfo->{'cyclonedx_file'})) {
       my $atttag = $info->{'digest'};
       $atttag =~ s/:(.*)/-$1.att/;
       $expected{$atttag} = $cosign_expect;
@@ -634,10 +634,16 @@ sub upload_to_registry {
       writestr($provenancefile, undef, $containerinfo->{'slsa_provenance'});
       $do_slsaprovenance = 1;
     }
-    if ($wrote_containerinfo && $containerinfo->{'sbom_file'} && $cosign_attestation) {
-      my $sbomfile = $uploadfiles[-1];
-      die unless $sbomfile =~ s/\.[^\.]+$/.sbom.json/;
-      BSUtil::cp($containerinfo->{'sbom_file'}, $sbomfile) if $containerinfo->{'sbom_file'} ne $sbomfile;
+    if ($wrote_containerinfo && $containerinfo->{'spdx_file'} && $cosign_attestation) {
+      my $spdx_file = $uploadfiles[-1];
+      die unless $spdx_file =~ s/\.[^\.]+$/.spdx.json/;
+      BSUtil::cp($containerinfo->{'spdx_file'}, $spdx_file) if $containerinfo->{'spdx_file'} ne $spdx_file;
+      $do_sbom = 1;
+    }
+    if ($wrote_containerinfo && $containerinfo->{'cyclonedx_file'} && $cosign_attestation) {
+      my $cyclonedx_file = $uploadfiles[-1];
+      die unless $cyclonedx_file =~ s/\.[^\.]+$/.cyclonedx.json/;
+      BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
       $do_sbom = 1;
     }
   }
