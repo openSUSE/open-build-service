@@ -6,33 +6,36 @@
     This group does not have members.
 - else
   #group-users
-    .d-flex.flex-wrap
+    .d-flex.flex-wrap.gap-4
       - group.users.each do |user|
-        .card.m-1.p-2.group-user
-          - if policy(GroupsUser.new(group: group, user: user)).destroy?
-            = link_to('#',
-                      title: 'Remove member from group',
-                      data: { 'bs-toggle': 'modal',
-                              'bs-target': '#delete-group-members-modal',
-                              confirmation_text: "Please confirm deletion of '#{user}' from this group",
-                              action: group_user_path(group_title: group.title, user_login: user.login) }) do
-              .float-end
-                %i.fas.fa-sm.fa-times-circle.text-danger
-          .row.g-0
-            .col-md-3
-              = image_tag_for(user, size: 80, custom_class: 'align-self-center')
-            .col-md-9
-              .card-body.py-1
-                = link_to(user_path(user)) do
-                  = display_name(user)
+        .group-user
+          = render(CardComponent.new) do |component|
+            .row.g-0
+              .col-md-3
+                = image_tag_for(user, size: 80, custom_class: 'align-self-center')
+              .col-md-9
+                .card-body.py-1
+                  .form-check.mt-2
+                    = check_box_tag("maintainer_#{user.login}", true, group.maintainer?(user), class: 'form-check-input group-maintainership',
+                      name: :maintainer, disabled: !write_access, data: { method: :patch,
+                      url: group_user_path(group_title: group.title, user_login: user.login), remote: true })
+                    %label.form-check-label{ for: "maintainer_#{user.login}" }
+                      Maintainer
+                    %i.fas.fa-spinner.fa-spin.d-none
 
-                .form-check.mt-2
-                  = check_box_tag("maintainer_#{user.login}", true, group.maintainer?(user), class: 'form-check-input group-maintainership',
-                    name: :maintainer, disabled: !write_access, data: { method: :patch,
-                    url: group_user_path(group_title: group.title, user_login: user.login), remote: true })
-                  %label.form-check-label{ for: "maintainer_#{user.login}" }
-                    Maintainer
-                  %i.fas.fa-spinner.fa-spin.d-none
+            - component.with_header do
+              = link_to(user_path(user)) do
+                = display_name(user)
+
+            - component.with_delete_button do
+              - if policy(GroupsUser.new(group: group, user: user)).destroy?
+                = link_to('#',
+                          title: 'Remove member from group',
+                          data: { 'bs-toggle': 'modal',
+                                  'bs-target': '#delete-group-members-modal',
+                                  confirmation_text: "Please confirm deletion of '#{user}' from this group",
+                                  action: group_user_path(group_title: group.title, user_login: user.login) }) do
+                  %i.fas.fa-sm.fa-times-circle.text-danger
 
 - if write_access || display_group_email
   .pt-4
