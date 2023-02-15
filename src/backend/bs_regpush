@@ -720,7 +720,7 @@ for my $tarfile (@tarfiles) {
       $spdx_json = readstr($spdx_file) if -s $spdx_file;
     }
     my $cyclonedx_file = $tarfile;
-    if ($cyclonedx_file =~ s/\.[^\.]*$/.cyclonedx.json/) {
+    if ($cyclonedx_file =~ s/\.[^\.]*$/.cdx.json/) {
       $cyclonedx_json = readstr($cyclonedx_file) if -s $cyclonedx_file;
     }
   }
