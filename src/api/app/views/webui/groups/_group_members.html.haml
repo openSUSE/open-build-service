@@ -6,7 +6,7 @@
     This group does not have members.
 - else
   #group-users
-    .d-flex.flex-wrap.gap-2
+    .d-flex.flex-wrap.gap-4
       - group.users.each do |user|
         .group-user
           = render(CardComponent.new) do |component|
