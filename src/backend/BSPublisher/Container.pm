@@ -642,7 +642,7 @@ sub upload_to_registry {
     }
     if ($wrote_containerinfo && $containerinfo->{'cyclonedx_file'} && $cosign_attestation) {
       my $cyclonedx_file = $uploadfiles[-1];
-      die unless $cyclonedx_file =~ s/\.[^\.]+$/.cyclonedx.json/;
+      die unless $cyclonedx_file =~ s/\.[^\.]+$/.cdx.json/;
       BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
       $do_sbom = 1;
     }
