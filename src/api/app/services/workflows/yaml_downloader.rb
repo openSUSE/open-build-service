@@ -32,7 +32,7 @@ module Workflows
       when 'github'
         client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])
         # :ref can be the name of the commit, branch or tag.
-        client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:download_url]
+        client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:workflow_configuration_ref])[:download_url]
       when 'gitlab'
         # This GitLab URL admits both a branch name and a commit sha.
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
@@ -51,7 +51,7 @@ module Workflows
       if @scm_payload[:tag_name].present?
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/tag/#{@scm_payload[:tag_name]}/#{@token.workflow_configuration_path}"
       else
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
+        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/commit/#{@scm_payload[:workflow_configuration_ref]}/#{@token.workflow_configuration_path}"
       end
     end
   end

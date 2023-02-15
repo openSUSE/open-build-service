@@ -74,10 +74,11 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
               scm: 'gitea',
               target_branch: 'main',
               target_repository_full_name: 'iggy/target_repo',
-              api_endpoint: 'https://gitea.opensuse.org'
+              api_endpoint: 'https://gitea.opensuse.org',
+              workflow_configuration_ref: '4d175d7f4c58d06907bba188fe9a4c8b6bd723d0'
             }
           end
-          let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/branch/#{payload[:target_branch]}/.obs/workflows.yml" }
+          let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/commit/#{payload[:workflow_configuration_ref]}/.obs/workflows.yml" }
 
           it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
         end

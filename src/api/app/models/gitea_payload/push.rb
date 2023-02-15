@@ -4,7 +4,8 @@ class GiteaPayload::Push < GithubPayload::Push
   def payload
     super.merge(scm: 'gitea',
                 http_url: http_url,
-                api_endpoint: api_endpoint)
+                api_endpoint: api_endpoint,
+                workflow_configuration_ref: webhook_payload[:after])
   end
 
   private

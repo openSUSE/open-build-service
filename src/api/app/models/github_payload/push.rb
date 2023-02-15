@@ -2,6 +2,10 @@
 class GithubPayload::Push < GithubPayload
   def payload
     payload_ref = webhook_payload.fetch(:ref, '')
+
+    # GitHub only: If ref is deleted we use the "before" commit sha. The "after" commit sha is 0* in this case.
+    workflow_configuration_ref = webhook_payload[:deleted] ? webhook_payload[:before] : webhook_payload[:after]
+
     payload = default_payload.merge(
       event: 'push',
       # We need this for Workflow::Step#branch_request_content_github
@@ -13,7 +17,8 @@ class GithubPayload::Push < GithubPayload
       commit_sha: webhook_payload[:after],
       # We need this for Workflows::YAMLDownloader#download_url
       # when the push event is for commits, we get the branch name from ref.
-      target_branch: payload_ref.sub('refs/heads/', '')
+      target_branch: payload_ref.sub('refs/heads/', ''),
+      workflow_configuration_ref: workflow_configuration_ref
     )
 
     return payload unless payload_ref.start_with?('refs/tags/')
