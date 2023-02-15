@@ -29,11 +29,12 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
             source_repository_full_name: 'rubhanazeem/hello_world',
             target_repository_full_name: 'rubhanazeem/hello_world',
             event: 'pull_request',
-            api_endpoint: 'https://api.github.com'
+            api_endpoint: 'https://api.github.com',
+            workflow_configuration_ref: '4d175d7f4c58d06907bba188fe9a4c8b6bd723d0'
           }
         end
         let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:url) { "https://raw.githubusercontent.com/#{payload[:target_repository_full_name]}/#{payload[:target_branch]}/.obs/workflows.yml" }
+        let(:url) { "https://raw.githubusercontent.com/#{payload[:target_repository_full_name]}/#{payload[:workflow_configuration_ref]}/.obs/workflows.yml" }
 
         it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
       end

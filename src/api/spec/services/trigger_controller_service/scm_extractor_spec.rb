@@ -34,7 +34,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
                 repo: {
                   full_name: 'iggy/target_repo'
                 },
-                ref: 'main'
+                ref: 'main',
+                sha: '6c4b60ad74edc4aa01253c0948e66fcfcddef8b7'
               }
             },
             project: {
@@ -59,7 +60,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             source_repository_full_name: 'iggy/source_repo',
             target_repository_full_name: 'iggy/target_repo',
             event: 'pull_request',
-            api_endpoint: 'https://api.github.com'
+            api_endpoint: 'https://api.github.com',
+            workflow_configuration_ref: '6c4b60ad74edc4aa01253c0948e66fcfcddef8b7'
           }
         end
 
@@ -74,6 +76,7 @@ RSpec.describe TriggerControllerService::SCMExtractor do
         let(:payload) do
           {
             ref: 'refs/heads/main/fix-bug',
+            before: '5c4b60ad74edc4aa01253c0948e66fcfcddef8b6',
             after: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
             repository: {
               full_name: 'iggy/repo123'
@@ -81,7 +84,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             sender: {
               url: 'https://api.github.com'
             },
-            base_ref: nil
+            base_ref: nil,
+            deleted: false
           }
         end
         let(:expected_hash) do
@@ -93,7 +97,47 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             target_branch: 'main/fix-bug',
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
-            ref: 'refs/heads/main/fix-bug'
+            ref: 'refs/heads/main/fix-bug',
+            workflow_configuration_ref: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
+          }
+        end
+
+        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
+          expect(scm_webhook.payload).to eq(expected_hash)
+        end
+      end
+
+      context 'with a push event for a commit on a deleted branch' do
+        let(:event) { 'push' }
+        let(:payload) do
+          {
+            ref: 'refs/heads/main/fix-bug',
+            before: '125534ee789da8bc431c5eaec7a58a1a9b8c410f',
+            after: '0000000000000000000000000000000000000000',
+            repository: {
+              full_name: 'iggy/repo123'
+            },
+            sender: {
+              url: 'https://api.github.com'
+            },
+            base_ref: nil,
+            deleted: true,
+            commits: [],
+            head_commit: nil
+          }
+        end
+        let(:expected_hash) do
+          {
+            scm: 'github',
+            event: 'push',
+            api_endpoint: 'https://api.github.com',
+            commit_sha: '0000000000000000000000000000000000000000',
+            target_branch: 'main/fix-bug',
+            source_repository_full_name: 'iggy/repo123',
+            target_repository_full_name: 'iggy/repo123',
+            ref: 'refs/heads/main/fix-bug',
+            workflow_configuration_ref: '125534ee789da8bc431c5eaec7a58a1a9b8c410f'
           }
         end
 
@@ -131,7 +175,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/tags/release_abc',
-            tag_name: 'release_abc'
+            tag_name: 'release_abc',
+            workflow_configuration_ref: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
           }
         end
 
@@ -313,7 +358,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
                 repo: {
                   full_name: 'iggy/target_repo'
                 },
-                ref: 'main'
+                ref: 'main',
+                sha: '6c4b60ad74edc4aa01253c0948e66fcfcddef8b7'
               }
             },
             repository: {
@@ -334,7 +380,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             target_repository_full_name: 'iggy/target_repo',
             event: 'pull_request',
             api_endpoint: 'https://gitea.opensuse.org',
-            http_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git',
+            workflow_configuration_ref: '6c4b60ad74edc4aa01253c0948e66fcfcddef8b7'
           }
         end
 
@@ -349,6 +396,7 @@ RSpec.describe TriggerControllerService::SCMExtractor do
         let(:payload) do
           {
             ref: 'refs/heads/main/fix-bug',
+            before: '5c4b60ad74edc4aa01253c0948e66fcfcddef8b6',
             after: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65',
             repository: {
               full_name: 'iggy/repo123',
@@ -367,11 +415,47 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/heads/main/fix-bug',
-            http_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git',
+            workflow_configuration_ref: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
           }
         end
 
-        it 'returns an instance of SCMWebhook with the extracted data from the GitHub payload' do
+        it 'returns an instance of SCMWebhook with the extracted data from the Gitea payload' do
+          expect(scm_webhook).to be_instance_of(SCMWebhook)
+          expect(scm_webhook.payload).to eq(expected_hash)
+        end
+      end
+
+      context 'with a push event for a commit on a deleted branch' do
+        let(:event) { 'push' }
+        let(:payload) do
+          {
+            ref: 'refs/heads/main/fix-bug',
+            before: '125534ee789da8bc431c5eaec7a58a1a9b8c410f',
+            after: '91719a4c046d3345f2c755bec96112df14929695',
+            repository: {
+              full_name: 'iggy/repo123',
+              clone_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            },
+            base_ref: nil
+          }
+        end
+        let(:expected_hash) do
+          {
+            scm: 'gitea',
+            event: 'push',
+            api_endpoint: 'https://gitea.opensuse.org',
+            commit_sha: '91719a4c046d3345f2c755bec96112df14929695',
+            target_branch: 'main/fix-bug',
+            source_repository_full_name: 'iggy/repo123',
+            target_repository_full_name: 'iggy/repo123',
+            ref: 'refs/heads/main/fix-bug',
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git',
+            workflow_configuration_ref: '91719a4c046d3345f2c755bec96112df14929695'
+          }
+        end
+
+        it 'returns an instance of SCMWebhook with the extracted data from the Gitea payload' do
           expect(scm_webhook).to be_instance_of(SCMWebhook)
           expect(scm_webhook.payload).to eq(expected_hash)
         end
@@ -404,7 +488,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/tags/release_abc',
             tag_name: 'release_abc',
-            http_url: 'https://gitea.opensuse.org/krauselukas/test.git'
+            http_url: 'https://gitea.opensuse.org/krauselukas/test.git',
+            workflow_configuration_ref: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
           }
         end
 
