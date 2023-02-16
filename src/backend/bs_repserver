@@ -2281,7 +2281,14 @@ sub putjob {
       # now do the rewrite
       BSRepServer::Containertar::normalize_container($tmpdir, $container, 1, 1, $arch);
     };
-    warn($@) if $@;
+    if ($@) {
+      # fail job if we could not normalize the container
+      BSUtil::appendstr("$tmpdir/logfile", "\ncontainer normailzation failed: $@");
+      $cgi->{'code'} = 'failed';
+      for my $filename (sort(ls($tmpdir))) {
+	unlink("$tmpdir/$filename") unless $filename eq 'meta' || $filename eq 'logfile';
+      }
+    }
   }
 
   # now get the lock again
