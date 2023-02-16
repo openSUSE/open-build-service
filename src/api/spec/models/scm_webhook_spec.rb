@@ -436,4 +436,20 @@ RSpec.describe SCMWebhook do
       it { is_expected.to be true }
     end
   end
+
+  describe '#ignored_push_event?' do
+    subject { described_class.new(payload: payload).ignored_push_event? }
+
+    context 'with a push event from GitHub for a deleted commit reference' do
+      let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/branch_123', deleted: true } }
+
+      it { is_expected.to be true }
+    end
+
+    context 'with a push event from GitHub without a deleted commit reference' do
+      let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/branch_123', deleted: false } }
+
+      it { is_expected.to be false }
+    end
+  end
 end
