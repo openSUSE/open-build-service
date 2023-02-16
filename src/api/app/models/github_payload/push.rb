@@ -13,7 +13,8 @@ class GithubPayload::Push < GithubPayload
       commit_sha: webhook_payload[:after],
       # We need this for Workflows::YAMLDownloader#download_url
       # when the push event is for commits, we get the branch name from ref.
-      target_branch: payload_ref.sub('refs/heads/', '')
+      target_branch: payload_ref.sub('refs/heads/', ''),
+      deleted: webhook_payload[:deleted]
     )
 
     return payload unless payload_ref.start_with?('refs/tags/')

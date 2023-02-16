@@ -81,8 +81,8 @@ class TriggerWorkflowController < TriggerController
   def extract_scm_webhook
     @scm_webhook = TriggerControllerService::SCMExtractor.new(scm, event, payload).call
 
-    # There are plenty of different pull/merge request action which we don't support.
+    # There are plenty of different pull/merge request and push events which we don't support.
     # Those should not cause an error, we simply ignore them.
-    render_ok if @scm_webhook && @scm_webhook.ignored_pull_request_action?
+    render_ok if @scm_webhook && (@scm_webhook.ignored_pull_request_action? || @scm_webhook.ignored_push_event?)
   end
 end
