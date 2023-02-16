@@ -49,7 +49,7 @@ sub normalize_container {
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
   # overwrite manifest tags with tags from containerinfo
-  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'});
+  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'}, $uploaddir);
   my ($md5, $sha256, $size) = BSContar::checksum_tar($tar);
  
   # split in blobs/manifest, write blob files
