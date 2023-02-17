@@ -63,7 +63,7 @@ class SCMWebhook
   end
 
   def ignored_push_event?
-    ignored_github_push_event?
+    ignored_github_push_event? || ignored_gitlab_push_event?
   end
 
   private
@@ -126,5 +126,10 @@ class SCMWebhook
 
   def ignored_github_push_event?
     github_push_event? && @payload[:deleted]
+  end
+
+  def ignored_gitlab_push_event?
+    # In Push Hook events to delete a branch, the after field is '0000000000000000000000000000000000000000'
+    gitlab_push_event? && @payload[:commit_sha].match?(/\A0+\z/)
   end
 end
