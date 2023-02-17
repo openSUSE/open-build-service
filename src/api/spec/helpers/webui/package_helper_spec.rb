@@ -260,4 +260,34 @@ RSpec.describe Webui::PackageHelper do
     it { expect(viewable_file?('some_file.rb')).to be(true) }
     it { expect(viewable_file?('some_file.bin')).to be(false) }
   end
+
+  describe '#binary_file?' do
+    it { expect(binary_file?('anNhbG.exe')).to be(true) }
+    it { expect(binary_file?('ZramE7b2.bin')).to be(true) }
+    it { expect(binary_file?('g3cWhqem.tar')).to be(true) }
+    it { expect(binary_file?('x3ZXVqaDg.tar.bz')).to be(true) }
+    it { expect(binary_file?('zNDd1NDU5O.tar.bz2')).to be(true) }
+    it { expect(binary_file?('Dd5MnE0Ly.tar.zst')).to be(true) }
+    it { expect(binary_file?('4vLi8uNTMvN.gem')).to be(true) }
+    it { expect(binary_file?('S40LjUzOV.gif')).to be(true) }
+    it { expect(binary_file?('BISTs7U.jpg')).to be(true) }
+    it { expect(binary_file?('RGVUpF.jpeg')).to be(true) }
+    it { expect(binary_file?('U0hLSl.ttf')).to be(true) }
+    it { expect(binary_file?('ERgo.zip')).to be(true) }
+    it { expect(binary_file?('NDg3Mj/UyMDg3U.tar.gz')).to be(true) }
+    it { expect(binary_file?('kZJVUhWSk.png')).to be(true) }
+    it { expect(binary_file?('tIRkdJREta.gem')).to be(true) }
+    it { expect(binary_file?('WFk5V1dXV.cert')).to be(true) }
+    it { expect(binary_file?('MzQ1OHI3OGZ5ZW.svgz')).to be(true) }
+    it { expect(binary_file?('hzeml5OTc2e.taz')).to be(true) }
+    it { expect(binary_file?('WZ6OTdneXJqa.tlz')).to be(true) }
+    it { expect(binary_file?('3c0ZWdha.diff')).to be(false) }
+    it { expect(binary_file?('GpyNWpoc.txt')).to be(false) }
+    it { expect(binary_file?('0ZLREpoCg.csv')).to be(false) }
+    it { expect(binary_file?('YWprd2Fqb.pm')).to be(false) }
+    it { expect(binary_file?('GtqbWttLG.c')).to be(false) }
+    it { expect(binary_file?('ZuYW5tIGJ0.rb')).to be(false) }
+    it { expect(binary_file?('NGkzNzV5.h')).to be(false) }
+    it { expect(binary_file?('Jmc2hiCg.spec')).to be(false) }
+  end
 end

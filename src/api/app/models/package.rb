@@ -1186,12 +1186,6 @@ class Package < ApplicationRecord
     store if update_needed
   end
 
-  def self.is_binary_file?(filename)
-    return false unless (mime = Marcel::Magic.by_path(filename))
-
-    !mime.text?
-  end
-
   def serviceinfo
     begin
       dir = Directory.hashed(project: project.name, package: name)

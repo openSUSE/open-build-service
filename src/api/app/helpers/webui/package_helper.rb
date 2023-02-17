@@ -76,7 +76,13 @@ module Webui::PackageHelper
   end
 
   def viewable_file?(filename)
-    !Package.is_binary_file?(filename) && filename.exclude?('/')
+    !binary_file?(filename) && filename.exclude?('/')
+  end
+
+  def binary_file?(filename)
+    return false unless (mime = Marcel::Magic.by_path(filename))
+
+    !mime.text?
   end
 
   def calculate_revision_on_state(revision, state)

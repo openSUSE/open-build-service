@@ -385,7 +385,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def view_file
     @filename = params[:filename] || params[:file] || ''
-    if Package.is_binary_file?(@filename) # We don't want to display binary files
+    if binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
       redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
@@ -695,7 +695,7 @@ class Webui::PackageController < Webui::WebuiController
     files = []
     dir.elements('entry') do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map! { |x| [x, entry.value(x.to_s)] }.flatten]
-      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
+      file[:viewable] = !binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
       file[:srcmd5] = dir.value('srcmd5')
       files << file
