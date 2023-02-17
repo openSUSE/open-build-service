@@ -23,7 +23,7 @@
             .col-sm
               .mb-3.ui-front
                 = f.label(:description, 'Description:')
-                = f.text_field(:description, class: 'form-control', placeholder: 'Eg: Rebuild vim package')
+                = f.text_field(:description, class: 'form-control', placeholder: 'Eg: Rebuild vim package', maxlength: 64)
                 .form-text.text-muted
                   Optional: provide a description to your token.
 
