@@ -81,7 +81,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             sender: {
               url: 'https://api.github.com'
             },
-            base_ref: nil
+            base_ref: nil,
+            deleted: false
           }
         end
         let(:expected_hash) do
@@ -93,7 +94,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             target_branch: 'main/fix-bug',
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
-            ref: 'refs/heads/main/fix-bug'
+            ref: 'refs/heads/main/fix-bug',
+            deleted: false
           }
         end
 
@@ -118,7 +120,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             base_ref: 'refs/heads/main',
             head_commit: {
               id: '8823eec73e46f29082cd343077ee3e97d8da0ec3'
-            }
+            },
+            deleted: false
           }
         end
         let(:expected_hash) do
@@ -131,7 +134,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             source_repository_full_name: 'iggy/repo123',
             target_repository_full_name: 'iggy/repo123',
             ref: 'refs/tags/release_abc',
-            tag_name: 'release_abc'
+            tag_name: 'release_abc',
+            deleted: false
           }
         end
 
