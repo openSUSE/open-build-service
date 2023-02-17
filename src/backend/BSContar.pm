@@ -66,7 +66,7 @@ sub comp2decompressor {
 }
 
 sub compress_entry {
-  my ($ent, $oldcomp) = @_;
+  my ($ent, $oldcomp, $outfile) = @_;
 
   my @compressor = ('zlib');
   @compressor = ('/usr/bin/obs-gzip-go') if -x '/usr/bin/obs-gzip-go';
@@ -79,7 +79,11 @@ sub compress_entry {
   }
 
   my $tmp;
-  open($tmp, '+>', undef) || die;
+  if (!defined($outfile)) {
+    open($tmp, '+>', undef) || die("tmp file open: $!\n");
+  } else {
+    open($tmp, '+>', $outfile) || die("$outfile: $!\n");
+  }
 
   # setup compressor
   local *F;
@@ -215,7 +219,7 @@ sub checksum_tar {
 }
 
 sub normalize_container {
-  my ($tarfd, $recompress, $repotags) = @_;
+  my ($tarfd, $recompress, $repotags, $tmpdir) = @_;
   my @tarstat = stat($tarfd);
   die("stat: $!\n") unless @tarstat;
   my $mtime = $tarstat[9];
@@ -230,6 +234,7 @@ sub normalize_container {
   my @newlayers;
   my $newconfig = blobid_entry($config_ent);
   $newblobs{$newconfig} ||= $config_ent;
+  my $cnt = 0;
   for my $layer_file (@{$manifest->{'Layers'} || []}) {
     my $layer_ent = $tar{$layer_file};
     die("File $layer_file not included in tar\n") unless $layer_ent;
@@ -241,7 +246,15 @@ sub normalize_container {
       } else {
         print "compressing $layer_ent->{'name'}... ";
       }
-      $layer_ent = compress_entry($layer_ent, $comp);
+      if ($tmpdir) {
+	my $outfile = "$tmpdir/.compress_entry_${cnt}.$$";
+	unlink($outfile);
+	$layer_ent = compress_entry($layer_ent, $comp, $outfile);
+	unlink($outfile);
+	$cnt++;
+      } else {
+	$layer_ent = compress_entry($layer_ent, $comp);
+      }
       print "done.\n";
     }   
     my $blobid = blobid_entry($layer_ent);
