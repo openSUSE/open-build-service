@@ -62,6 +62,10 @@ class SCMWebhook
     github_ping? || gitea_ping?
   end
 
+  def ignored_push_event?
+    ignored_github_push_event?
+  end
+
   private
 
   def github_push_event?
@@ -118,5 +122,9 @@ class SCMWebhook
 
   def ignored_gitea_pull_request_action?
     gitea_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(@payload[:action])
+  end
+
+  def ignored_github_push_event?
+    github_push_event? && @payload[:deleted]
   end
 end
