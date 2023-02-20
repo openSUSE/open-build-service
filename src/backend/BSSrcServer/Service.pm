@@ -84,11 +84,21 @@ sub genservicemark {
   return undef if $files->{'/SERVICE'};	# already marked
 
   # check if we really need to run the service
-  if (!$files->{'_service'} && !$force) {
-    # XXX: getprojectservices may die!
-    my $projectservices = getprojectservices($projid, $packid, undef, $files);
-    return undef unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
+  my $projectservices = getprojectservices($projid, $packid, undef, $files);
+
+  # Validate that at least one service is active server side
+  my $active_service_found;
+  for my $se (@{$projectservices->{'service'}||[]}) {
+    $active_service_found = 1 if !defined($se->{'mode'}) || ($se->{'mode'} ne 'localonly' && $se->{'mode'} ne 'disabled' && $se->{'mode'} ne 'manual' && $se->{'mode'} ne 'buildtime');
   }
+  if (!$active_service_found && $files->{'_service'}) {
+    my $packagerev = {'project' => $projid, 'package' => $packid};
+    my $services = BSRevision::revreadxml($packagerev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
+    for my $se (@{$services->{'service'}||[]}) {
+      $active_service_found = 1 if !defined($se->{'mode'}) || ($se->{'mode'} ne 'localonly' && $se->{'mode'} ne 'disabled' && $se->{'mode'} ne 'manual' && $se->{'mode'} ne 'buildtime');
+    }
+  }
+  return undef unless defined($active_service_found);
 
   # argh, somewhat racy. luckily we just need something unique...
   # (files is not unique enough because we want a different id
