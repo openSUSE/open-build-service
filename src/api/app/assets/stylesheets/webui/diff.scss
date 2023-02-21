@@ -41,7 +41,7 @@
           font-family: monospace;
           width: calc(var(--line-index-digits) + 2rem + #{$card-border-width});
           text-align: right;
-          padding: 0 1rem;
+          padding: 0 1rem 0 0;
           border-right: $card-border-width solid $card-border-color;
           user-select: none;
           background-color: $card-bg;
