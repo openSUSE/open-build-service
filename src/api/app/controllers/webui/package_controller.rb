@@ -100,6 +100,8 @@ class Webui::PackageController < Webui::WebuiController
 
     @services = @files.any? { |file| file[:name] == '_service' }
 
+    @package.cache_revisions(@revision)
+
     respond_to do |format|
       format.html
       format.js

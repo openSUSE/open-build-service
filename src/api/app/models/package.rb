@@ -1207,10 +1207,9 @@ class Package < ApplicationRecord
     {}
   end
 
-  def parse_all_history
-    answer = source_file('_history')
-
-    doc = Xmlhash.parse(answer)
+  def cache_revisions(revision = nil)
+    opts = revision ? { rev: revision } : {}
+    doc = Xmlhash.parse(Backend::Api::Sources::Package.revisions(project.name, name, opts))
     doc.elements('revision') do |s|
       Rails.cache.write(['history', self, s['rev']], s)
       Rails.cache.write(['history_md5', self, s.get('srcmd5')], s)
@@ -1231,7 +1230,7 @@ class Package < ApplicationRecord
     commit = fetch_rev_from_history_cache(rev)
     return commit if commit
 
-    parse_all_history
+    cache_revisions
     # now it has to be in cache
     fetch_rev_from_history_cache(rev)
   end

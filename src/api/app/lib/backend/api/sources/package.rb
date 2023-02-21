@@ -33,8 +33,10 @@ module Backend
 
         # Returns the revisions (mrev) list for a package
         # @return [String]
-        def self.revisions(project_name, package_name)
-          http_get(['/source/:project/:package/_history', project_name, package_name], params: { meta: 1, deleted: 1 })
+        def self.revisions(project_name, package_name, options = {})
+          http_get(['/source/:project/:package/_history', project_name, package_name], params: options,
+                                                                                       accepted: [:meta, :rev, :deleted, :limit],
+                                                                                       defaults: { meta: 1, deleted: 1 })
         end
 
         # Returns the meta file from a package
