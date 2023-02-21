@@ -217,13 +217,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom/service/_service', params: '<services/>' # empty list
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
-    assert_response :success
+    assert_response 404
+    assert_match(/no source service defined/, @response.body)
     post '/source/home:tom/service?cmd=waitservice'
     assert_response :success
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
-    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
+    assert_no_xml_tag tag: 'serviceinfo' # it would still exist when using old_style_service in BSConfig.pm
     get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response 404
 
@@ -378,6 +378,10 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:Iggy/service?cmd=waitservice'
     assert_response :success
+    get '/source/home:Iggy/service'
+    assert_response :success
+    # no server side active services, so we must not have a serviceinfo
+    assert_no_xml_tag tag: 'serviceinfo'
     run_scheduler('i586')
     get '/build/home:Iggy/_result'
     assert_response :success
