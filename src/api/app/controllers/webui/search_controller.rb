@@ -2,6 +2,7 @@ class Webui::SearchController < Webui::WebuiController
   before_action :set_attribute_list
   before_action :set_tracker_list
   before_action :set_parameters, except: :issue
+  before_action :set_page, only: [:index, :issue]
 
   def index
     search
@@ -32,11 +33,10 @@ class Webui::SearchController < Webui::WebuiController
     end
 
     @per_page = 20
-    search = FullTextSearch.new(classes: @search_what,
-                                issue_name: @search_issue,
-                                issue_tracker_name: @search_tracker)
-    @results = search.search(page: params[:page], per_page: @per_page)
-    flash[:notice] = 'Your search did not return any results.' if @results.empty?
+    full_text_search = FullTextSearch.new(classes: @search_what,
+                                          issue_name: @search_issue,
+                                          issue_tracker_name: @search_tracker)
+    @results = perform_search(full_text_search: full_text_search)
   end
 
   private
@@ -153,17 +153,37 @@ class Webui::SearchController < Webui::WebuiController
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
 
     @per_page = 20
-    search = FullTextSearch.new(text: @search_text,
-                                classes: @search_what,
-                                attrib_type_id: @search_attrib_type_id,
-                                fields: @search_where,
-                                issue_name: @search_issue,
-                                issue_tracker_name: @search_tracker)
-    @results = search.search(page: params[:page], per_page: @per_page)
-    flash[:notice] = 'Your search did not return any results.' if @results.empty?
-  rescue ThinkingSphinx::SphinxError => e
-    flash[:error] = "There has been an error performing the search. We're working to fix it. Please, try again later."
-    Airbrake.notify(e)
-    @results = []
+    full_text_search = FullTextSearch.new(text: @search_text,
+                                          classes: @search_what,
+                                          attrib_type_id: @search_attrib_type_id,
+                                          fields: @search_where,
+                                          issue_name: @search_issue,
+                                          issue_tracker_name: @search_tracker)
+    @results = perform_search(full_text_search: full_text_search)
+  end
+
+  def perform_search(full_text_search:)
+    results = full_text_search.search(page: @page, per_page: @per_page)
+    begin
+      # ThinkingSphinx exceptions are triggered  when `results` is accessed.
+      flash.now[:notice] = 'Your search did not return any results.' if results.empty?
+    rescue ThinkingSphinx::OutOfBoundsError
+      # Repeat the query with @page set to 1.
+      @page = 1
+      results = perform_search(full_text_search: full_text_search)
+    rescue ThinkingSphinx::SphinxError => e
+      flash.now[:error] = "There has been an error performing the search. We're working to fix it. Please, try again later."
+      Airbrake.notify(e)
+      results = []
+    end
+    results
+  end
+
+  def set_page
+    @page = if params[:page].present? && params[:page] =~ /\A\d+\z/
+              params[:page]
+            else
+              1
+            end
   end
 end
