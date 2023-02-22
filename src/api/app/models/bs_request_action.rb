@@ -16,7 +16,8 @@ class BsRequestAction < ApplicationRecord
   belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id', optional: true
   belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id', optional: true
 
-  has_and_belongs_to_many :seen_by_users, class_name: 'User', join_table: :bs_request_actions_seen_by_users
+  has_many :bs_request_actions_seen_by_users, dependent: :nullify
+  has_many :seen_by_users, through: :bs_request_actions_seen_by_users, source: :user
 
   scope :bs_request_ids_of_involved_projects, ->(project_ids) { where(target_project_id: project_ids).select(:bs_request_id) }
   scope :bs_request_ids_of_involved_packages, ->(package_ids) { where(target_package_id: package_ids).select(:bs_request_id) }
