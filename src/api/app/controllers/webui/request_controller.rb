@@ -26,7 +26,15 @@ class Webui::RequestController < Webui::WebuiController
       action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
       @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
                                           diffs: true, action_id: action_id.to_i, cacheonly: 1).first
-      @active_action = @bs_request.bs_request_actions.find(action_id)
+      actions = @bs_request.bs_request_actions
+      @active_action = actions.find(action_id)
+      # Change supported_actions below into actions here when all actions are supported
+      supported_actions = actions.where(type: [:add_role, :submit])
+      active_action_index = supported_actions.index(@active_action)
+      if active_action_index
+        @prev_action = supported_actions[active_action_index - 1] unless active_action_index.zero?
+        @next_action = supported_actions[active_action_index + 1] if active_action_index + 1 < supported_actions.length
+      end
 
       target_project = Project.find_by_name(@bs_request.target_project_name)
       @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
