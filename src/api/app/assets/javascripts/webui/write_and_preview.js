@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  $('.write-and-preview').on('click', '.preview-message-tab:not(.active)', function (e) {
+  $('.write-and-preview').on('show.bs.tab', '.preview-message-tab:not(.active)', function (e) {
       var messageContainer = $(e.target).closest('.write-and-preview');
       var messageText = messageContainer.find('.message-field').val();
       var messagePreview = messageContainer.find('.message-preview');
