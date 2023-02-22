@@ -8,8 +8,26 @@
         position: relative;
         left: $timeline-offset; // The avatars of users involved in timeline items will be displayed on the timeline border
 
+        .d-inline-flex i:first-child {
+            padding-top: $avatars-counter-size / 2;
+            height: $avatars-counter-size;
+            @extend .bg-white;
+
+            // Align specific icons with the timeline border, this differs depending on the icon shape
+            &.fa-code-commit {
+                padding-left: $timeline-border-width / 2;
+            }
+            &.fa-check, &.fa-comment {
+                padding-left: $timeline-border-width;
+            }
+            &.fa-circle, &.fa-times {
+                padding-left: $timeline-border-width * 2;
+            }
+        }
+
         $timeline-item-avatar-margin: 0.5rem;
         img.avatars-counter {
+            margin-left: $timeline-item-avatar-margin;
             margin-right: $timeline-item-avatar-margin;
         }
 

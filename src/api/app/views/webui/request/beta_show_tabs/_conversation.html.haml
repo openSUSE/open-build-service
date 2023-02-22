@@ -21,10 +21,10 @@
     .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
       .timeline-item
         .d-inline-flex
+          %i.fas.fa-lg.fa-code-commit.text-dark
           - creator = User.find_by_login(bs_request.creator) || User.nobody
           = image_tag_for(creator, size: 35, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
           %p
-            %i.fas.fa-code-commit.text-dark
             = link_to(realname_with_login(creator), user_path(creator))
             created this request
             = link_to('#request-creation', title: I18n.l(bs_request.created_at.utc), name: 'request-creation') do
