@@ -83,4 +83,8 @@ class MeasurementsJob < ApplicationJob
       RabbitmqBus.send_to_bus('metrics', "beta_feature_count,feature=#{feature_name},status=disabled value=#{DisabledBetaFeature.where(name: feature_name).count}")
     end
   end
+
+  def request_actions_measurements
+    RabbitmqBus.send_to_bus('metrics', "bs_request_action_count value=#{BsRequestAction.count}")
+  end
 end
