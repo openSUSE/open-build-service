@@ -1,7 +1,7 @@
 .d-inline-flex
+  = icon
   = helpers.image_tag_for(element.user, size: 36, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
   %p
-    = icon
     = link_to(helpers.realname_with_login(element.user), user_path(element.user))
     - if element.instance_of?(HistoryElement::RequestSuperseded)
       superseded this request with
