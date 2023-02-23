@@ -22,7 +22,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
       it 'fails with an error message' do
         do_request(project_name: source_project, package_name: source_package)
         expect(response).to expected_failure_response
-        expect(flash[:error]).to eq("Error while creating '' file: No file or URI given.")
+        expect(flash[:error]).to eq('Error while creating  files: No file or URI given.')
       end
     end
 
@@ -30,7 +30,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
       it 'fails with a backend error message' do
         do_request(project_name: source_project, package_name: source_package, filename: '.test')
         expect(response).to expected_failure_response
-        expect(flash[:error]).to eq("Error while creating '.test' file: '.test' is not a valid filename.")
+        expect(flash[:error]).to eq("Error while creating .test files: '.test' is not a valid filename.")
       end
     end
 
@@ -38,29 +38,27 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
       before do
         do_request(project_name: source_project,
                    package_name: source_package,
-                   filename: 'newly_created_file',
-                   file_type: 'local',
-                   file: 'some_content')
+                   files: [fixture_file_upload('newly_created_file')])
       end
 
       it { expect(response).to have_http_status(expected_success_status) }
-      it { expect(flash[:success]).to eq("The file 'newly_created_file' has been successfully saved.") }
-      it { expect(source_package.source_file('newly_created_file')).to eq('some_content') }
+      it { expect(flash[:success]).to eq('newly_created_file have been successfully saved.') }
+      it { expect(source_package.source_file('newly_created_file')).to eq("some_content\n") }
     end
 
     context 'uploading a utf-8 file' do
-      let(:file_to_upload) { File.read(Rails.root.join('spec/support/files/chinese.txt').expand_path) }
+      let(:file_to_upload) { fixture_file_upload('学习总结') }
 
       before do
-        do_request(project_name: source_project, package_name: source_package, filename: '学习总结', file: file_to_upload)
+        do_request(project_name: source_project, package_name: source_package, files: [file_to_upload])
       end
 
       it { expect(response).to have_http_status(expected_success_status) }
-      it { expect(flash[:success]).to eq("The file '学习总结' has been successfully saved.") }
+      it { expect(flash[:success]).to eq('学习总结 have been successfully saved.') }
 
       it 'creates the file' do
         expect { source_package.source_file('学习总结') }.not_to raise_error
-        expect(CGI.escape(source_package.source_file('学习总结'))).to eq(CGI.escape(file_to_upload))
+        expect(CGI.escape(source_package.source_file('学习总结'))).to eq(CGI.escape(file_to_upload.tempfile.read))
       end
     end
 
@@ -89,7 +87,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
       end
 
       it { expect(response).to have_http_status(expected_success_status) }
-      it { expect(flash[:success]).to eq("The file 'remote_file' has been successfully saved.") }
+      it { expect(flash[:success]).to eq('remote_file have been successfully saved.') }
 
       # Uploading a remote file creates a service instead of downloading it directly!
       it 'creates a valid service file' do
@@ -109,13 +107,13 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
 
     context 'as ajax request' do
       def do_request(params)
-        post :update, xhr: true, params: params
+        put :update, xhr: true, params: params
       end
 
       let(:existing_file) do
-        post :create, xhr: true, project_name: source_project,
-                      package_name: source_package,
-                      files: [fixture_file_upload('newly_created_file')]
+        post :create, params: { project_name: source_project,
+                                package_name: source_package,
+                                files: [fixture_file_upload('newly_created_file')] }
       end
 
       context 'modifies an existing file' do
@@ -133,13 +131,13 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
 
     context 'as non-ajax request' do
       def do_request(params)
-        post :update, params: params
+        put :update, params: params
       end
 
       let(:existing_file) do
-        post :create, xhr: true, project_name: source_project,
-                      package_name: source_package,
-                      files: [fixture_file_upload('newly_created_file')]
+        post :create, params: { project_name: source_project,
+                                package_name: source_package,
+                                files: [fixture_file_upload('newly_created_file')] }
       end
 
       context 'modifies an existing file' do
