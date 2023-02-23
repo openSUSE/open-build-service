@@ -6,10 +6,10 @@
         = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
                                               can_add_reviews: can_add_reviews,
                                               my_open_reviews: my_open_reviews)
+      = render AddReviewCollapsibleComponent.new
       .mb-2
         %h6
           Reviewers
-      = render AddReviewCollapsibleComponent.new
       .mb-4
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
   = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { can_add_reviews: can_add_reviews }
