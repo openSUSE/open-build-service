@@ -13,13 +13,6 @@ class Package < ApplicationRecord
   include PackageSphinx
   include MultibuildPackage
 
-  BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',
-                       '.chk', '.der', '.dll', '.exe', '.fw', '.gem', '.gif', '.gz',
-                       '.jar', '.jpeg', '.jpg', '.lzma', '.ogg', '.otf', '.oxt',
-                       '.pdf', '.pk3', '.png', '.ps', '.rpm', '.sig', '.svgz', '.tar',
-                       '.taz', '.tb2', '.tbz', '.tbz2', '.tgz', '.tlz', '.txz', '.ucode',
-                       '.xpm', '.xz', '.z', '.zip', '.ttf'].freeze
-
   has_many :relationships, dependent: :destroy, inverse_of: :package
   belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package, optional: true
   accepts_nested_attributes_for :kiwi_image
@@ -1192,10 +1185,6 @@ class Package < ApplicationRecord
       update_needed = true
     end
     store if update_needed
-  end
-
-  def self.is_binary_file?(filename)
-    BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
   end
 
   def serviceinfo
