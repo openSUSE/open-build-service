@@ -36,6 +36,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   describe 'GET #show' do
     context 'as nobody' do
       before do
+        login receiver
         get :show, params: { number: bs_request.number }
       end
 
@@ -310,8 +311,8 @@ RSpec.describe Webui::RequestController, vcr: true do
     context 'when forwarding the request fails' do
       before do
         allow(BsRequestActionSubmit).to receive(:new).and_raise(APIError, 'some error')
-        bs_request
         login(receiver)
+        bs_request
       end
 
       it 'accepts the parent request and reports an error for the forwarded request' do

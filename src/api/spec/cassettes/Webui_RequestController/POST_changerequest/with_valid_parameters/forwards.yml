@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -80,7 +79,6 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -119,7 +117,6 @@ http_interactions:
           <title>Brandy of the Damned</title>
           <description>Corporis voluptatem cum perferendis.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -158,7 +155,6 @@ http_interactions:
           <title>Brandy of the Damned</title>
           <description>Corporis voluptatem cum perferendis.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -198,7 +194,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -239,7 +234,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -278,7 +272,6 @@ http_interactions:
           <title>The Yellow Meads of Asphodel</title>
           <description>Qui fugit eum eum.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -317,7 +310,6 @@ http_interactions:
           <title>The Yellow Meads of Asphodel</title>
           <description>Qui fugit eum eum.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -356,7 +348,6 @@ http_interactions:
           <title>Lilies of the Field</title>
           <description></description>
         </project>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -390,7 +381,6 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:56 GMT
 - request:
     method: put
@@ -429,7 +419,6 @@ http_interactions:
           <title>The Millstone</title>
           <description>Fugiat tempora commodi unde porro dolor dicta soluta ut.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: put
@@ -468,7 +457,6 @@ http_interactions:
           <title>The Millstone</title>
           <description>Fugiat tempora commodi unde porro dolor dicta soluta ut.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: put
@@ -508,7 +496,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: put
@@ -549,7 +536,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -582,7 +568,6 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -615,7 +600,6 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: post
@@ -657,7 +641,6 @@ http_interactions:
           <requestid>1</requestid>
           <acceptinfo rev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="6e2e5e0edf271c6ebc2ba445551bab00" />
         </revision>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: put
@@ -696,7 +679,6 @@ http_interactions:
           <title>Brandy of the Damned</title>
           <description>Corporis voluptatem cum perferendis.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -729,7 +711,6 @@ http_interactions:
       string: |
         <directory name="goal" rev="87" vrev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -763,7 +744,6 @@ http_interactions:
         <sourceinfo package="goal" rev="87" vrev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -796,7 +776,6 @@ http_interactions:
       string: |
         <directory name="goal" rev="87" vrev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: post
@@ -834,7 +813,6 @@ http_interactions:
           <new project="home:titan" package="goal" rev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <files />
         </sourcediff>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -867,7 +845,6 @@ http_interactions:
       string: |
         <directory name="goal" rev="87" vrev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -900,7 +877,6 @@ http_interactions:
       string: |
         <directory name="goal" rev="87" vrev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: post
@@ -945,7 +921,6 @@ http_interactions:
         ++++++ deleted files:
         --- _config
         --- somefile.txt
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: get
@@ -978,6 +953,315 @@ http_interactions:
       string: |
         <directory name="goal" rev="87" vrev="87" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Fear and Trembling</title>
+          <description>Ea eaque impedit totam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Fear and Trembling</title>
+          <description>Ea eaque impedit totam.</description>
+        </package>
+  recorded_at: Fri, 24 Feb 2023 16:20:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="85">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1677255631</time>
+          <user>titan</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '79'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 24 Feb 2023 16:20:31 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '831'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="ececa0ca68b7db0b15a539287e4a37b5">
+          <old project="home:titan" package="goal" rev="74" srcmd5="625bf53368b5c50dd857ec6442af5b26"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="ec9a1d5fad5a369fed8f82d8b61b1457" size="67"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Fugit aut sequi. Dolore aliquid tempore. Repellendus facilis animi.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="bc68021d324103be857b33d42184daff" size="69"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Molestiae quia consequuntur. In quisquam ipsam. Consequuntur sed est.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 24 Feb 2023 16:20:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:project/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:project">
+          <title>Infinite Jest</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:project">
+          <title>Infinite Jest</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 24 Feb 2023 16:20:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Skull Beneath the Skin</title>
+          <description>Neque rerum odit et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Skull Beneath the Skin</title>
+          <description>Neque rerum odit et.</description>
+        </package>
+  recorded_at: Fri, 24 Feb 2023 16:20:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="74" vrev="74" srcmd5="625bf53368b5c50dd857ec6442af5b26">
+          <entry name="_config" md5="ec9a1d5fad5a369fed8f82d8b61b1457" size="67" mtime="1677255629"/>
+          <entry name="somefile.txt" md5="bc68021d324103be857b33d42184daff" size="69" mtime="1677255630"/>
+        </directory>
+  recorded_at: Fri, 24 Feb 2023 16:20:32 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=devel:project&rev=87&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: no such revision
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>no such revision</summary>
+          <details>404 no such revision</details>
+        </status>
+  recorded_at: Fri, 24 Feb 2023 16:20:32 GMT
+recorded_with: VCR 6.1.0

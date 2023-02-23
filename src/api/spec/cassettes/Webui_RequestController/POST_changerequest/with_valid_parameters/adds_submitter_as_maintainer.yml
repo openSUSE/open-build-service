@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -80,7 +79,6 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -119,7 +117,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Officia assumenda ullam sit possimus quaerat amet.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -158,7 +155,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Officia assumenda ullam sit possimus quaerat amet.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -197,7 +193,6 @@ http_interactions:
           <title>His Dark Materials</title>
           <description>Atque deleniti debitis aut et et.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -236,7 +231,6 @@ http_interactions:
           <title>His Dark Materials</title>
           <description>Atque deleniti debitis aut et et.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: get
@@ -271,7 +265,6 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: get
@@ -304,7 +297,6 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: post
@@ -346,7 +338,6 @@ http_interactions:
           <requestid>1</requestid>
           <acceptinfo rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e" />
         </revision>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -385,7 +376,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Officia assumenda ullam sit possimus quaerat amet.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: get
@@ -418,7 +408,6 @@ http_interactions:
       string: |
         <directory name="goal" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: get
@@ -452,7 +441,6 @@ http_interactions:
         <sourceinfo package="goal" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <revtime/>
         </sourceinfo>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: get
@@ -485,7 +473,6 @@ http_interactions:
       string: |
         <directory name="goal" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: post
@@ -523,7 +510,6 @@ http_interactions:
           <new project="home:titan" package="goal" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
           <files />
         </sourcediff>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: put
@@ -564,7 +550,6 @@ http_interactions:
           <description>Officia assumenda ullam sit possimus quaerat amet.</description>
           <person userid="kugelblitz" role="maintainer" />
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: get
@@ -599,6 +584,285 @@ http_interactions:
           <summary>project 'home:titan' does not exist</summary>
           <details>404 project 'home:titan' does not exist</details>
         </status>
-    http_version: 
   recorded_at: Tue, 16 Jan 2018 14:44:14 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_config
+    body:
+      encoding: UTF-8
+      string: Velit quo vel. Qui perferendis omnis. Dolore aliquid dolores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="71" vrev="71">
+          <srcmd5>d27faf7a531c07dc3e959bb7b1bb557b</srcmd5>
+          <version>unknown</version>
+          <time>1677255628</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Quibusdam est aspernatur. Quam sed in. Animi perspiciatis ullam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="72" vrev="72">
+          <srcmd5>9e5d6fb5f249233bb23a50026258b677</srcmd5>
+          <version>unknown</version>
+          <time>1677255628</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>A Time to Kill</title>
+          <description>Illo et harum consectetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>A Time to Kill</title>
+          <description>Illo et harum consectetur.</description>
+        </package>
+  recorded_at: Fri, 24 Feb 2023 16:20:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="83">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1677255628</time>
+          <user>titan</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '79'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 24 Feb 2023 16:20:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '820'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="654abd97caadd565906191cbbf728b19">
+          <old project="home:titan" package="goal" rev="72" srcmd5="9e5d6fb5f249233bb23a50026258b677"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="69de83431ba1447955f3870fd0fba2b4" size="61"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Velit quo vel. Qui perferendis omnis. Dolore aliquid dolores.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="8f3435ed6ae46071ef10d7f2447de5a7" size="64"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Quibusdam est aspernatur. Quam sed in. Animi perspiciatis ullam.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 24 Feb 2023 16:20:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Stars' Tennis Balls</title>
+          <description>Laboriosam voluptatem unde rerum.</description>
+          <person userid="kugelblitz" role="maintainer"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Stars' Tennis Balls</title>
+          <description>Laboriosam voluptatem unde rerum.</description>
+          <person userid="kugelblitz" role="maintainer"/>
+        </package>
+  recorded_at: Fri, 24 Feb 2023 16:20:29 GMT
+recorded_with: VCR 6.1.0

@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:04 GMT
 - request:
     method: put
@@ -80,7 +79,6 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -119,7 +117,6 @@ http_interactions:
           <title>To a God Unknown</title>
           <description>Ducimus nulla minima praesentium provident velit ab eum.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -158,7 +155,6 @@ http_interactions:
           <title>To a God Unknown</title>
           <description>Ducimus nulla minima praesentium provident velit ab eum.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -197,7 +193,6 @@ http_interactions:
           <title>A Confederacy of Dunces</title>
           <description>Magnam omnis officia nobis.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
 - request:
     method: put
@@ -236,6 +231,283 @@ http_interactions:
           <title>A Confederacy of Dunces</title>
           <description>Magnam omnis officia nobis.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Painted Veil</title>
+          <description>Qui aut aut et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Painted Veil</title>
+          <description>Qui aut aut et.</description>
+        </package>
+  recorded_at: Fri, 24 Feb 2023 16:20:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_config
+    body:
+      encoding: UTF-8
+      string: Deserunt at qui. Minus quia placeat. Nesciunt ut architecto.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="75" vrev="75">
+          <srcmd5>c2c74e162d826f65e4d3c8c0913a8d36</srcmd5>
+          <version>unknown</version>
+          <time>1677255632</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Placeat eos doloribus. Alias minus et. Quia et doloremque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="76" vrev="76">
+          <srcmd5>ea15fc5faf7beac39c46b6295e42aafe</srcmd5>
+          <version>unknown</version>
+          <time>1677255633</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Dying of the Light</title>
+          <description>Voluptatibus voluptatem enim voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Dying of the Light</title>
+          <description>Voluptatibus voluptatem enim voluptatem.</description>
+        </package>
+  recorded_at: Fri, 24 Feb 2023 16:20:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="86">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1677255633</time>
+          <user>kugelblitz</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 24 Feb 2023 16:20:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '79'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 24 Feb 2023 16:20:33 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '813'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="275cc5ee5f5e8b0a16fe473ea3fb5daa">
+          <old project="home:titan" package="goal" rev="76" srcmd5="ea15fc5faf7beac39c46b6295e42aafe"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="69efba029bdce5d27dd048ca527d66a6" size="60"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Deserunt at qui. Minus quia placeat. Nesciunt ut architecto.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="b94871b8c9835ac63154b2316e9ac941" size="58"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Placeat eos doloribus. Alias minus et. Quia et doloremque.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 24 Feb 2023 16:20:33 GMT
+recorded_with: VCR 6.1.0
