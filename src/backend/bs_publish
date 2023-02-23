@@ -617,7 +617,7 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--content', 'debug' if $data->{'dbgsplit'};
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_incident';
   push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_release';
-  push @createrepoargs, '--filelists_ext' if $options{'filelists_ext'};
+  push @createrepoargs, '--filelists-ext' if ($options{'filelists-ext'} || $options{'filelists_ext'});
   my @legacyargs;
   if ($options{'sha512'}) {
     push @legacyargs, '--unique-md-filenames', '--checksum=sha512';
