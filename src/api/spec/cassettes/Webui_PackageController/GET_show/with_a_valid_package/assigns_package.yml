@@ -39,17 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:17 GMT
+  recorded_at: Wed, 22 Feb 2023 17:58:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_46
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_12
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Swiftly Tilting Planet</title>
-          <description>Corrupti quam amet iure.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Quae eaque repellendus facere.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Swiftly Tilting Planet</title>
-          <description>Corrupti quam amet iure.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Quae eaque repellendus facere.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:17 GMT
+  recorded_at: Wed, 22 Feb 2023 17:58:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -105,17 +103,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '308'
     body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:17 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEyIiB2cmV2PSIxMiIgc3JjbWQ1PSIyNTA2ZGJhY2EyMGNkOWZlYzgwZDMwZDdhMGM1MDlhYyI+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZSIgc2l6ZT0iMCIgbXRpbWU9IjE2NzQ4MjY2MzIiLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNjc0ODI5MTU3Ii8+CjwvZGlyZWN0b3J5Pgo=
+  recorded_at: Wed, 22 Feb 2023 17:58:20 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/my_package?expand=1
+    uri: http://backend:5352/source/home:tom/my_package?expand=1&rev=12
     body:
       encoding: US-ASCII
       string: ''
@@ -138,12 +134,48 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '308'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEyIiB2cmV2PSIxMiIgc3JjbWQ1PSIyNTA2ZGJhY2EyMGNkOWZlYzgwZDMwZDdhMGM1MDlhYyI+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZSIgc2l6ZT0iMCIgbXRpbWU9IjE2NzQ4MjY2MzIiLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNjc0ODI5MTU3Ii8+CjwvZGlyZWN0b3J5Pgo=
+  recorded_at: Wed, 22 Feb 2023 17:58:20 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package/_history?deleted=1&meta=1&rev=12
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:17 GMT
-recorded_with: VCR 5.1.0
+        <revisionlist>
+          <revision rev="12" vrev="">
+            <srcmd5>80e0775da94377ec751b04b75935160f</srcmd5>
+            <version></version>
+            <time>1676383607</time>
+            <user>tom</user>
+          </revision>
+        </revisionlist>
+  recorded_at: Wed, 22 Feb 2023 17:58:20 GMT
+recorded_with: VCR 6.1.0

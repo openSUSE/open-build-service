@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="kody" role="maintainer"/>
         </project>
-  recorded_at: Sat, 26 Nov 2022 00:25:43 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/watchlist_test_project_a/_meta?user=kody
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="watchlist_test_project_a">
-          <title>Precious Bane</title>
+          <title>An Instant In The Wind</title>
           <description/>
         </project>
     headers:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '123'
     body:
       encoding: UTF-8
       string: |
         <project name="watchlist_test_project_a">
-          <title>Precious Bane</title>
+          <title>An Instant In The Wind</title>
           <description></description>
         </project>
-  recorded_at: Sat, 26 Nov 2022 00:25:48 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:21 GMT
 - request:
     method: get
     uri: http://backend:5352/build/watchlist_test_project_a/_result?code=unresolvable&view=status
@@ -86,7 +86,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 8712463a-990e-4075-8003-d91c98c7b7a6
+      - 3a46f28b-6f20-42b0-a0b4-198486d1019a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -111,7 +111,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Sat, 26 Nov 2022 00:25:48 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:21 GMT
 - request:
     method: get
     uri: http://backend:5352/build/watchlist_test_project_a/_result?view=summary
@@ -120,7 +120,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6ee2c8a8-5827-4463-9558-a59736b9eb9f
+      - 8340be00-22fa-447c-9bad-7cb88c20622a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -145,7 +145,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/watchlist_test_project_b/_meta?user=kody
@@ -153,7 +153,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="watchlist_test_project_b">
-          <title>If Not Now, When?</title>
+          <title>The Moving Finger</title>
           <description/>
         </project>
     headers:
@@ -180,10 +180,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="watchlist_test_project_b">
-          <title>If Not Now, When?</title>
+          <title>The Moving Finger</title>
           <description></description>
         </project>
-  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:22 GMT
 - request:
     method: get
     uri: http://backend:5352/build/watchlist_test_project_b/_result?code=unresolvable&view=status
@@ -192,7 +192,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 55f998a3-832d-4be7-bddb-ef6b585bf941
+      - 07f748c9-b1d6-49a7-8f3a-4cc4c19bc534
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -217,7 +217,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:22 GMT
 - request:
     method: get
     uri: http://backend:5352/build/watchlist_test_project_b/_result?view=summary
@@ -226,7 +226,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - a109d30e-5862-4c5a-a4cf-fe371f66dd78
+      - 295eabea-eca3-4fae-ba6a-5bf7be411756
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -251,7 +251,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Sat, 26 Nov 2022 00:25:49 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package/_meta?user=kody
@@ -259,8 +259,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="watchlist_test_package" project="watchlist_test_project_a">
-          <title>Postern of Fate</title>
-          <description>At eos illum recusandae.</description>
+          <title>No Country for Old Men</title>
+          <description>Doloribus maxime explicabo labore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -281,15 +281,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <package name="watchlist_test_package" project="watchlist_test_project_a">
-          <title>Postern of Fate</title>
-          <description>At eos illum recusandae.</description>
+          <title>No Country for Old Men</title>
+          <description>Doloribus maxime explicabo labore.</description>
         </package>
-  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
@@ -298,7 +298,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f5621bd8-a46d-49d3-b098-d66dec08d22a
+      - 52ace113-062b-4af2-8348-e7be403d7c17
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -323,7 +323,7 @@ http_interactions:
       string: |
         <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package?expand=1
@@ -355,16 +355,84 @@ http_interactions:
       string: |
         <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/watchlist_test_project_a/_result?package=watchlist_test_package&view=status
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package/_history?deleted=1&meta=1
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - ce55c9dd-3a8c-406b-9d08-444f5fbdd3ab
+      - 52ace113-062b-4af2-8348-e7be403d7c17
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2269ee52-89ca-4b17-b504-6adc70be9404
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?lastbuild=1&locallink=1&multibuild=1&package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2269ee52-89ca-4b17-b504-6adc70be9404
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -389,5 +457,107 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Sat, 26 Nov 2022 00:25:50 GMT
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f038950e-b898-4f48-a74c-f8ade4347e39
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?lastbuild=1&locallink=1&multibuild=1&package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f038950e-b898-4f48-a74c-f8ade4347e39
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c7cc673d-61a2-4d91-8b02-c6113f2269a2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 22 Feb 2023 18:11:23 GMT
 recorded_with: VCR 6.1.0

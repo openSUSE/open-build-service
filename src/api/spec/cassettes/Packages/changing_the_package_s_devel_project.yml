@@ -1,14 +1,17 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/develpackage
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
     headers:
-      X-Request-Id:
-      - 47ba5b8c-01b0-4bfb-9e49-cd7a3edeb239
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -17,8 +20,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -27,15 +30,359 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '156'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Waste Land</title>
+          <description>Consequatur iste deserunt ratione.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Waste Land</title>
+          <description>Consequatur iste deserunt ratione.</description>
+        </package>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_config
+    body:
+      encoding: UTF-8
+      string: Error quisquam et. Id voluptatibus beatae. Quia qui nam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="68" vrev="68">
+          <srcmd5>8211299191a40f82b6b61ccf3a532b63</srcmd5>
+          <version>unknown</version>
+          <time>1677089069</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Et blanditiis voluptatibus. Accusamus voluptas dolores. Commodi aut
+        quia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="69" vrev="69">
+          <srcmd5>4c8401ecbe8f097246b7ce766d6cdf2d</srcmd5>
+          <version>unknown</version>
+          <time>1677089069</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title/>
+          <description/>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>Tiger! Tiger!</title>
+          <description>Accusamus qui debitis rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>Tiger! Tiger!</title>
+          <description>Accusamus qui debitis rerum.</description>
+        </package>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Ad autem occaecati. Voluptatem nemo magni. Et impedit consequatur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="61" vrev="61">
+          <srcmd5>98521bfec3c1df2cae8fcae3f793a4e0</srcmd5>
+          <version>unknown</version>
+          <time>1677089069</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Molestias aliquam odit. Hic aperiam inventore. Sed occaecati distinctio.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="62" vrev="62">
+          <srcmd5>821f9b1ea0a8b6a40ce7cb93d430f7c5</srcmd5>
+          <version>unknown</version>
+          <time>1677089069</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 22 Feb 2023 18:04:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/develpackage/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="home:package_test_user">
+          <title>The Far-Distant Oxus</title>
+          <description>Ut eius doloremque laborum.</description>
+          <devel project="home:other_package_test_user" package="branch_test_package"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '249'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="home:package_test_user">
+          <title>The Far-Distant Oxus</title>
+          <description>Ut eius doloremque laborum.</description>
+          <devel project="home:other_package_test_user" package="branch_test_package"/>
+        </package>
+  recorded_at: Wed, 22 Feb 2023 18:04:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/develpackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 4b9c3290-a2e1-4cdd-9312-8accef27d001
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/develpackage?expand=1
@@ -51,8 +398,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -61,15 +408,47 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '87'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/develpackage/_history?deleted=1&meta=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 4b9c3290-a2e1-4cdd-9312-8accef27d001
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Wed, 22 Feb 2023 18:04:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/develpackage
@@ -78,7 +457,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 47ba5b8c-01b0-4bfb-9e49-cd7a3edeb239
+      - 4b9c3290-a2e1-4cdd-9312-8accef27d001
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -87,8 +466,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -97,49 +476,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '87'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/develpackage?expand=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/develpackage
@@ -148,7 +491,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 47ba5b8c-01b0-4bfb-9e49-cd7a3edeb239
+      - 4b9c3290-a2e1-4cdd-9312-8accef27d001
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -157,8 +500,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -167,15 +510,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '87'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:30 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/develpackage
@@ -184,7 +525,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 47ba5b8c-01b0-4bfb-9e49-cd7a3edeb239
+      - f89ff338-4fbf-4761-b8cd-0ff46c4270ad
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -193,8 +534,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -203,15 +544,115 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '87'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=develpackage&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f89ff338-4fbf-4761-b8cd-0ff46c4270ad
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/develpackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 40f5562d-ff1c-432e-88b7-310a886b7d61
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=develpackage&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 40f5562d-ff1c-432e-88b7-310a886b7d61
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=develpackage&view=status
@@ -220,7 +661,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - e387bc96-f7eb-4dec-94f6-f0596492424c
+      - b2087019-f0b3-4106-8e80-f63b411aa5e0
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -229,8 +670,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -239,24 +680,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:55 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/project_1/develpackage
-    body:
-      encoding: US-ASCII
-      string: ''
+        <project name="project_1">
+          <title>Precious Bane</title>
+          <description/>
+        </project>
     headers:
-      X-Request-Id:
-      - 15746023-7354-4228-8eeb-50188bdc37cc
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -265,8 +706,46 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'project_1' does not exist
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Precious Bane</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/develpackage/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="project_1">
+          <title>All Passion Spent</title>
+          <description>Facere modi iste ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -279,11 +758,83 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'project_1' does not exist</summary>
-          <details>404 project 'project_1' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:56 GMT
+        <package name="develpackage" project="project_1">
+          <title>All Passion Spent</title>
+          <description>Facere modi iste ut.</description>
+        </package>
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/develpackage/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="project_1">
+          <title>All Passion Spent</title>
+          <description>Facere modi iste ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="project_1">
+          <title>All Passion Spent</title>
+          <description>Facere modi iste ut.</description>
+        </package>
+  recorded_at: Wed, 22 Feb 2023 18:04:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_1/develpackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ed350828-b086-4650-9aa4-d0335696caf4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="develpackage" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 22 Feb 2023 18:04:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_1/develpackage?cmd=diff&expand=1&filelimit=10000&opackage=develpackage&oproject=home:package_test_user&tarlimit=10000&view=xml&withissues=1
@@ -294,7 +845,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 15746023-7354-4228-8eeb-50188bdc37cc
+      - ed350828-b086-4650-9aa4-d0335696caf4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -303,8 +854,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'project_1' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -313,13 +864,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '294'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'project_1' does not exist</summary>
-          <details>404 project 'project_1' does not exist</details>
-        </status>
-  recorded_at: Thu, 14 Oct 2021 09:19:56 GMT
-recorded_with: VCR 6.0.0
+        <sourcediff key="6d2cdcce5fb3ea2f733599c942bbb707">
+          <old project="home:package_test_user" package="develpackage" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_1" package="develpackage" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Wed, 22 Feb 2023 18:04:32 GMT
+recorded_with: VCR 6.1.0
