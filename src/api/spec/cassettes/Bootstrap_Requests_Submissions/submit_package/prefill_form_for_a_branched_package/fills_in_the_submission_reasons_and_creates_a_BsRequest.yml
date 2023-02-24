@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="madam_submitter" role="maintainer"/>
         </project>
-  recorded_at: Wed, 22 Feb 2023 18:11:34 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec/_meta?user=madam_submitter
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="Quebec" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '179'
     body:
       encoding: UTF-8
       string: |
         <package name="Quebec" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec/_config
     body:
       encoding: UTF-8
-      string: Autem libero eos. Perferendis praesentium aspernatur. Ipsa modi inventore.
+      string: Et quaerat qui. Placeat ipsam libero. Eligendi est sequi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -107,21 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>5ea83fad2c141a99219a0a897d194f70</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>6058ccf30c6b2393907e83942173e965</srcmd5>
           <version>unknown</version>
-          <time>1677089504</time>
+          <time>1677245925</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec/somefile.txt
     body:
       encoding: UTF-8
-      string: Quis quos sit. Eos non temporibus. Enim beatae blanditiis.
+      string: Quae provident ex. Eligendi ex laborum. Iusto sint tempora.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,15 +145,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>e414927bf2743c5efbaf4b31fdf525d2</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>9886a71adfc5b46865ddc6000c8d1c92</srcmd5>
           <version>unknown</version>
-          <time>1677089504</time>
+          <time>1677245925</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/_meta?user=mr_receiver
@@ -193,7 +193,7 @@ http_interactions:
           <description></description>
           <person userid="mr_receiver" role="maintainer"/>
         </project>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=madam_submitter
@@ -201,8 +201,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="Quebec" project="home:mr_receiver">
-          <title>The Other Side of Silence</title>
-          <description>A neque velit voluptatem.</description>
+          <title>Mr Standfast</title>
+          <description>Nam et dignissimos eius.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -223,21 +223,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="Quebec" project="home:mr_receiver">
-          <title>The Other Side of Silence</title>
-          <description>A neque velit voluptatem.</description>
+          <title>Mr Standfast</title>
+          <description>Nam et dignissimos eius.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/Quebec/_config
     body:
       encoding: UTF-8
-      string: Est perferendis delectus. Ullam iste repudiandae. Debitis illo ut.
+      string: Explicabo distinctio fuga. Sed laboriosam ea. Qui dolorem maiores.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -261,21 +261,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>d277d309a099e4ab3c4156b3b182791f</srcmd5>
+        <revision rev="13" vrev="13">
+          <srcmd5>d8a1724609a6800ab13049bf3ac2d7eb</srcmd5>
           <version>unknown</version>
-          <time>1677089504</time>
+          <time>1677245925</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/Quebec/somefile.txt
     body:
       encoding: UTF-8
-      string: Quo autem voluptas. Libero animi in. Ratione qui et.
+      string: Tenetur rerum est. Ab pariatur quisquam. Sit earum consectetur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -299,15 +299,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="12" vrev="12">
-          <srcmd5>08207ccec2a39f1777a5dca1f3b863b9</srcmd5>
+        <revision rev="14" vrev="14">
+          <srcmd5>ff2f06d9507fc70eea51dba0fad7777d</srcmd5>
           <version>unknown</version>
-          <time>1677089504</time>
+          <time>1677245925</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22Quebec%22%20and%20linkinfo/@project=%22home:madam_submitter%22%20and%20@project=%22home:madam_submitter%22)
@@ -342,7 +342,7 @@ http_interactions:
         <collection>
           <package name="Quebec_branch" project="home:madam_submitter"/>
         </collection>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/_meta?user=madam_submitter
@@ -350,8 +350,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="Quebec_branch" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -372,15 +372,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="Quebec_branch" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=branch&noservice=1&opackage=Quebec&oproject=home:madam_submitter&user=madam_submitter
@@ -412,15 +412,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>5cab870af101e7a08107d1f2abb76e94</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>aa0fdfbd02251cbbea1f17a31fb5351e</srcmd5>
           <version>unknown</version>
-          <time>1677089504</time>
+          <time>1677245928</time>
           <user>madam_submitter</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/_meta?user=madam_submitter
@@ -428,8 +428,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="Quebec_branch" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -450,15 +450,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="Quebec_branch" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -488,13 +488,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="7" vrev="7" srcmd5="5cab870af101e7a08107d1f2abb76e94">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="3b81a13df4e54ecc1fe05c3a8ff21345" lsrcmd5="5cab870af101e7a08107d1f2abb76e94"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="9" vrev="9" srcmd5="aa0fdfbd02251cbbea1f17a31fb5351e">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="4f19b9ddb1037df143a41e960f17ea92" lsrcmd5="aa0fdfbd02251cbbea1f17a31fb5351e"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?view=info
@@ -524,11 +524,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="Quebec_branch" rev="7" vrev="27" srcmd5="3b81a13df4e54ecc1fe05c3a8ff21345" lsrcmd5="5cab870af101e7a08107d1f2abb76e94" verifymd5="e414927bf2743c5efbaf4b31fdf525d2">
+        <sourceinfo package="Quebec_branch" rev="9" vrev="31" srcmd5="4f19b9ddb1037df143a41e960f17ea92" lsrcmd5="aa0fdfbd02251cbbea1f17a31fb5351e" verifymd5="9886a71adfc5b46865ddc6000c8d1c92">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:madam_submitter" package="Quebec"/>
         </sourceinfo>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -558,13 +558,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="7" vrev="7" srcmd5="5cab870af101e7a08107d1f2abb76e94">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="3b81a13df4e54ecc1fe05c3a8ff21345" lsrcmd5="5cab870af101e7a08107d1f2abb76e94"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="9" vrev="9" srcmd5="aa0fdfbd02251cbbea1f17a31fb5351e">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="4f19b9ddb1037df143a41e960f17ea92" lsrcmd5="aa0fdfbd02251cbbea1f17a31fb5351e"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -596,14 +596,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c1244000a95428f1b885116cee323b9f">
+        <sourcediff key="f43b8bf7d5008c52f77f116ae19bc059">
           <old project="home:madam_submitter" package="Quebec_branch" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="Quebec_branch" rev="7" srcmd5="5cab870af101e7a08107d1f2abb76e94"/>
+          <new project="home:madam_submitter" package="Quebec_branch" rev="9" srcmd5="aa0fdfbd02251cbbea1f17a31fb5351e"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -635,14 +635,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e6b64d75fc552d5840e68262fbf5e3ca">
-          <old project="home:madam_submitter" package="Quebec" rev="e414927bf2743c5efbaf4b31fdf525d2" srcmd5="e414927bf2743c5efbaf4b31fdf525d2"/>
-          <new project="home:madam_submitter" package="Quebec_branch" rev="3b81a13df4e54ecc1fe05c3a8ff21345" srcmd5="3b81a13df4e54ecc1fe05c3a8ff21345"/>
+        <sourcediff key="eb50a88dd8c178e7e2581e149e6b54be">
+          <old project="home:madam_submitter" package="Quebec" rev="9886a71adfc5b46865ddc6000c8d1c92" srcmd5="9886a71adfc5b46865ddc6000c8d1c92"/>
+          <new project="home:madam_submitter" package="Quebec_branch" rev="4f19b9ddb1037df143a41e960f17ea92" srcmd5="4f19b9ddb1037df143a41e960f17ea92"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/_meta?user=madam_submitter
@@ -682,7 +682,7 @@ http_interactions:
           <description></description>
           <person userid="madam_submitter" role="maintainer"/>
         </project>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/new_file?user=madam_submitter
@@ -708,19 +708,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '215'
+      - '217'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>4b4b8e8ae3ed82710a39ff383c2e1f6c</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>ac26cf208934ad8bdb50e375f43868f8</srcmd5>
           <version>unknown</version>
-          <time>1677089504</time>
+          <time>1677245929</time>
           <user>madam_submitter</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/_meta?user=madam_submitter
@@ -728,8 +728,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="Quebec_branch" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -750,15 +750,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="Quebec_branch" project="home:madam_submitter">
-          <title>Death Be Not Proud</title>
-          <description>Necessitatibus mollitia voluptas dolor.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Debitis ut dolores veritatis.</description>
         </package>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -784,18 +784,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?view=info
@@ -821,15 +821,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '335'
+      - '336'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="Quebec_branch" rev="8" vrev="28" srcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c" verifymd5="54d03615e235190bed325c762f9067c7">
+        <sourceinfo package="Quebec_branch" rev="10" vrev="32" srcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8" verifymd5="8d0f98acc8e09844dd84124529279a92">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:madam_submitter" package="Quebec"/>
         </sourceinfo>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -855,18 +855,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -894,18 +894,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '328'
+      - '329'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="410b15841c0552ec205f26376025a632">
+        <sourcediff key="2ff6681949ebc8cbbe98600faa3a0557">
           <old project="home:madam_submitter" package="Quebec_branch" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="Quebec_branch" rev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
+          <new project="home:madam_submitter" package="Quebec_branch" rev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -937,14 +937,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="74b55ec960d32808681e9d165b65d8f1">
-          <old project="home:madam_submitter" package="Quebec" rev="e414927bf2743c5efbaf4b31fdf525d2" srcmd5="e414927bf2743c5efbaf4b31fdf525d2"/>
-          <new project="home:madam_submitter" package="Quebec_branch" rev="79420fcb8aa08dd3716c7c55f92cb1ed" srcmd5="79420fcb8aa08dd3716c7c55f92cb1ed"/>
+        <sourcediff key="75edf48c705557ce5569b263cf1416e0">
+          <old project="home:madam_submitter" package="Quebec" rev="9886a71adfc5b46865ddc6000c8d1c92" srcmd5="9886a71adfc5b46865ddc6000c8d1c92"/>
+          <new project="home:madam_submitter" package="Quebec_branch" rev="b09087a3c815f2eab93af0118760b742" srcmd5="b09087a3c815f2eab93af0118760b742"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec?view=info
@@ -953,7 +953,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
+      - cd65e2df-ff96-4e41-9a2d-fc2c1a0aa344
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -976,10 +976,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="Quebec" rev="20" vrev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" verifymd5="e414927bf2743c5efbaf4b31fdf525d2">
+        <sourceinfo package="Quebec" rev="22" vrev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" verifymd5="9886a71adfc5b46865ddc6000c8d1c92">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec
@@ -988,7 +988,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
+      - cd65e2df-ff96-4e41-9a2d-fc2c1a0aa344
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1011,11 +1011,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec" rev="20" vrev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2">
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+        <directory name="Quebec" rev="22" vrev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92">
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/Quebec?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1047,14 +1047,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="70b3a013b52203e13ea696119636edfd">
+        <sourcediff key="5f0e0b62e9ff2d076e20b138ffabb7db">
           <old project="home:madam_submitter" package="Quebec" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="Quebec" rev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2"/>
+          <new project="home:madam_submitter" package="Quebec" rev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1063,7 +1063,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
+      - cd65e2df-ff96-4e41-9a2d-fc2c1a0aa344
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1082,21 +1082,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?expand=1&rev=8
+    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?expand=1&rev=10
     body:
       encoding: US-ASCII
       string: ''
@@ -1123,22 +1123,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="79420fcb8aa08dd3716c7c55f92cb1ed" vrev="28" srcmd5="79420fcb8aa08dd3716c7c55f92cb1ed">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="b09087a3c815f2eab93af0118760b742" vrev="32" srcmd5="b09087a3c815f2eab93af0118760b742">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/_history?deleted=1&meta=1&rev=8
+    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/_history?deleted=0&meta=0&rev=10
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
+      - cd65e2df-ff96-4e41-9a2d-fc2c1a0aa344
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1157,13 +1157,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '31'
+      - '223'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
+          <revision rev="10" vrev="10">
+            <srcmd5>ac26cf208934ad8bdb50e375f43868f8</srcmd5>
+            <version>unknown</version>
+            <time>1677245929</time>
+            <user>madam_submitter</user>
+          </revision>
         </revisionlist>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1172,7 +1178,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
+      - cd65e2df-ff96-4e41-9a2d-fc2c1a0aa344
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1191,18 +1197,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1211,7 +1217,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
+      - cd65e2df-ff96-4e41-9a2d-fc2c1a0aa344
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1230,52 +1236,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:44 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch/_history?deleted=1&meta=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 7d72ab24-1e82-4505-a991-c5eecf1ab635
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '31'
-    body:
-      encoding: UTF-8
-      string: |
-        <revisionlist>
-        </revisionlist>
-  recorded_at: Wed, 22 Feb 2023 18:11:45 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=1&locallink=1&multibuild=1&package=Quebec_branch&view=status
@@ -1284,7 +1256,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3a6fc559-4139-4944-86cf-e83eccd4d030
+      - 4e0a93f9-0b1e-4043-817d-43628de52960
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1309,7 +1281,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:11:45 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=1&locallink=1&multibuild=1&package=Quebec_branch&view=status
@@ -1318,7 +1290,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 22d2075b-2d44-416c-b686-4e69f4eb512c
+      - 3f391822-f64c-4b36-ae30-60026021e025
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1343,7 +1315,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:11:45 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?package=Quebec_branch&view=status
@@ -1352,7 +1324,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - e4115492-c6b2-4ffd-98c5-1fa6e47bd874
+      - 39e82fa5-f2b5-4f73-9450-00f702e27858
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1377,7 +1349,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:11:45 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1386,7 +1358,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fc93b32b-27a1-4f7a-965d-65128d8edacb
+      - 45bd60f6-647c-4442-ae5e-e88728a29f6e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1405,18 +1377,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:45 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1425,7 +1397,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 71448ba2-2ec9-408b-aa4c-eeccea4493be
+      - d5008b4d-8815-4c6e-aecb-bc3953ce1948
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1444,21 +1416,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=diff&expand=1&nodiff=1&opackage=Quebec&oproject=home:madam_submitter&rev=8
+    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=diff&expand=1&nodiff=1&opackage=Quebec&oproject=home:madam_submitter&rev=10
     body:
       encoding: UTF-8
       string: ''
@@ -1466,7 +1438,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 71448ba2-2ec9-408b-aa4c-eeccea4493be
+      - d5008b4d-8815-4c6e-aecb-bc3953ce1948
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1500,16 +1472,16 @@ http_interactions:
         ++++++ new_file (new)
         --- new_file
         +++ new_file
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?expand=1&rev=8
+    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?expand=1&rev=10
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 71448ba2-2ec9-408b-aa4c-eeccea4493be
+      - d5008b4d-8815-4c6e-aecb-bc3953ce1948
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1532,13 +1504,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="79420fcb8aa08dd3716c7c55f92cb1ed" vrev="28" srcmd5="79420fcb8aa08dd3716c7c55f92cb1ed">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="b09087a3c815f2eab93af0118760b742" vrev="32" srcmd5="b09087a3c815f2eab93af0118760b742">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1547,7 +1519,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 71448ba2-2ec9-408b-aa4c-eeccea4493be
+      - d5008b4d-8815-4c6e-aecb-bc3953ce1948
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1566,21 +1538,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:madam_submitter&rev=8&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:madam_submitter&rev=10&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1588,7 +1560,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 71448ba2-2ec9-408b-aa4c-eeccea4493be
+      - d5008b4d-8815-4c6e-aecb-bc3953ce1948
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1607,13 +1579,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '538'
+      - '539'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0c8acfb49e55d5a2901c597ac0d3d4db">
-          <old project="home:madam_submitter" package="Quebec" rev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2"/>
-          <new project="home:madam_submitter" package="Quebec_branch" rev="8" srcmd5="79420fcb8aa08dd3716c7c55f92cb1ed"/>
+        <sourcediff key="5bb168aa1d7da5531ba4cd644a5a9d33">
+          <old project="home:madam_submitter" package="Quebec" rev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92"/>
+          <new project="home:madam_submitter" package="Quebec_branch" rev="10" srcmd5="b09087a3c815f2eab93af0118760b742"/>
           <files>
             <file state="added">
               <new name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15"/>
@@ -1626,7 +1598,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec
@@ -1635,7 +1607,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fc75ee8f-4db3-40ab-a5e6-aebac430f7b1
+      - 6c90f514-653a-4a69-a565-8be600f8f3ff
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1658,11 +1630,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec" rev="20" vrev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2">
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+        <directory name="Quebec" rev="22" vrev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92">
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec_branch
@@ -1671,7 +1643,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fda2bc08-393c-49e7-8a44-e8897557e6f8
+      - a261e7b0-d86f-4940-b0b3-7a70cb8a5f26
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1690,21 +1662,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '719'
+      - '721'
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec_branch" rev="8" vrev="8" srcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c">
-          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="e414927bf2743c5efbaf4b31fdf525d2" baserev="e414927bf2743c5efbaf4b31fdf525d2" xsrcmd5="79420fcb8aa08dd3716c7c55f92cb1ed" lsrcmd5="4b4b8e8ae3ed82710a39ff383c2e1f6c"/>
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="_link" md5="189f2fe0ee1712f096a1c7043468a712" size="114" mtime="1677089504"/>
+        <directory name="Quebec_branch" rev="10" vrev="10" srcmd5="ac26cf208934ad8bdb50e375f43868f8">
+          <linkinfo project="home:madam_submitter" package="Quebec" srcmd5="9886a71adfc5b46865ddc6000c8d1c92" baserev="9886a71adfc5b46865ddc6000c8d1c92" xsrcmd5="b09087a3c815f2eab93af0118760b742" lsrcmd5="ac26cf208934ad8bdb50e375f43868f8"/>
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="_link" md5="bcb58adf25db3d2dc917d6955e0c73f9" size="114" mtime="1677245925"/>
           <entry name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15" mtime="1677067300"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:madam_submitter&rev=8&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:madam_submitter/Quebec_branch?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:madam_submitter&rev=10&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1712,7 +1684,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - fda2bc08-393c-49e7-8a44-e8897557e6f8
+      - a261e7b0-d86f-4940-b0b3-7a70cb8a5f26
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1727,7 +1699,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '538'
+      - '539'
       Cache-Control:
       - no-cache
       Connection:
@@ -1735,9 +1707,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0c8acfb49e55d5a2901c597ac0d3d4db">
-          <old project="home:madam_submitter" package="Quebec" rev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2"/>
-          <new project="home:madam_submitter" package="Quebec_branch" rev="8" srcmd5="79420fcb8aa08dd3716c7c55f92cb1ed"/>
+        <sourcediff key="5bb168aa1d7da5531ba4cd644a5a9d33">
+          <old project="home:madam_submitter" package="Quebec" rev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92"/>
+          <new project="home:madam_submitter" package="Quebec_branch" rev="10" srcmd5="b09087a3c815f2eab93af0118760b742"/>
           <files>
             <file state="added">
               <new name="new_file" md5="a451b9bbe42ff6529f209b4d184236fe" size="15"/>
@@ -1750,7 +1722,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/Quebec
@@ -1759,7 +1731,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fda2bc08-393c-49e7-8a44-e8897557e6f8
+      - a261e7b0-d86f-4940-b0b3-7a70cb8a5f26
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1782,11 +1754,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="Quebec" rev="20" vrev="20" srcmd5="e414927bf2743c5efbaf4b31fdf525d2">
-          <entry name="_config" md5="d9a6910d72687fa4f2487f7e6f865524" size="74" mtime="1677089504"/>
-          <entry name="somefile.txt" md5="17d687b5a63b461c2e1e61817934d5c7" size="58" mtime="1677089504"/>
+        <directory name="Quebec" rev="22" vrev="22" srcmd5="9886a71adfc5b46865ddc6000c8d1c92">
+          <entry name="_config" md5="a1b679f4413a674d02b6c33b9593e84b" size="57" mtime="1677245925"/>
+          <entry name="somefile.txt" md5="6c9fe67ce6ee48ba03f25254f9ade4b7" size="59" mtime="1677245925"/>
         </directory>
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:50 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?package=Quebec_branch&view=status
@@ -1795,7 +1767,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - a19b520a-e2bc-431b-bcbb-10c9b341b7a0
+      - 570cb871-b8e3-4386-8fe4-31e1b5852944
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1820,5 +1792,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Wed, 22 Feb 2023 18:11:46 GMT
+  recorded_at: Fri, 24 Feb 2023 13:38:51 GMT
 recorded_with: VCR 6.1.0

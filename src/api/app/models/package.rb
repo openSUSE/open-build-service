@@ -1197,7 +1197,8 @@ class Package < ApplicationRecord
   end
 
   def cache_revisions(revision = nil)
-    opts = revision ? { rev: revision } : {}
+    opts = { deleted: 0, meta: 0 }
+    opts[:rev] = revision if revision
     doc = Xmlhash.parse(Backend::Api::Sources::Package.revisions(project.name, name, opts))
     doc.elements('revision') do |s|
       Rails.cache.write(['history', self, s['rev']], s)
