@@ -490,8 +490,14 @@ sub build {
 	    # copy extra data like .packages or .basepackages
 	    my $extraprefix = $containerinfofile;
 	    $extraprefix =~ s/\.containerinfo//;
+	    for my $extra ('.spdx.json', '.cdx.json') {
+	      if (-e "$dir/$prefix$extraprefix$extra") {
+		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
+		$jobbins{"$extraprefix$extra"} = 1;
+	      }
+	    }
 	    $extraprefix =~ s/\.docker// unless -e "$dir/$prefix$extraprefix.packages";
-	    for my $extra ('.basepackages', '.packages', '.report', '.verified', '.spdx.json', '.cdx.json') {
+	    for my $extra ('.basepackages', '.packages', '.report', '.verified') {
 	      if (-e "$dir/$prefix$extraprefix$extra") {
 		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
 		$jobbins{"$extraprefix$extra"} = 1;
