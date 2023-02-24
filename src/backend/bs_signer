@@ -64,6 +64,7 @@ $maxchild = $BSConfig::signer_maxchild if defined $BSConfig::signer_maxchild;
 $maxchild_flavor = $BSConfig::signer_maxchild_flavor if defined $BSConfig::signer_maxchild_flavor;
 
 my $sign_supports_S;
+my $sign_supports_bulk_cpio;
 
 sub check_sign_S {
   my $pid = BSUtil::xfork();
@@ -77,6 +78,20 @@ sub check_sign_S {
     die("$BSConfig::sign: $!\n");
   }
   $sign_supports_S = 1 if waitpid($pid, 0) == $pid && !$?;
+}
+
+sub check_sign_bulk_cpio {
+  my $pid = BSUtil::xfork();
+  return unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, ">/dev/null");
+    open(STDERR, ">&STDOUT");
+    my @signargs;
+    push @signargs, '--project', 'dummy' if $BSConfig::sign_project;
+    exec($BSConfig::sign, @signargs, '--bulk-cpio', '--hashfile', '/dev/null');
+    die("$BSConfig::sign: $!\n");
+  }
+  $sign_supports_bulk_cpio = 1 if waitpid($pid, 0) == $pid && !$?;
 }
 
 sub readblk {
@@ -376,6 +391,10 @@ sub rsasign {
   my @opensslsignargs = ('-h', 'sha256');
   if ($signfile !~ /\.cpio\.rsasign$/) {
     BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile);
+    return;
+  }
+  if ($sign_supports_bulk_cpio) {
+    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, '--bulk-cpio', $signfile);
     return;
   }
   # cpio case, sign every plain file in the archive
@@ -801,7 +820,7 @@ sub signjob {
       }
     }
 
-    push @signargs, '-S', "$jobdir/.checksums" if !$followupfile && $sign_supports_S;
+    push @signargs, '-S', "$jobdir/.checksums" if !$followupfile && $sign_supports_S && grep {/\.d?rpm$/} @signfiles;
 
     if (grep {$_ eq '_slsa_provenance.json'} @signfiles) {
       # do this last as we need to update the digests in the subject list
@@ -1084,6 +1103,8 @@ $conf->{'getflavor'} = $BSConfig::signer_getflavor if $BSConfig::signer_getflavo
 die("sign program is not configured!\n") unless $BSConfig::sign;
 check_sign_S();
 print "warning: sign does not seem to support checksum files, please update\n" unless $sign_supports_S;
+check_sign_bulk_cpio();
+print "warning: sign does not seem to support bulk-cpio mode, please update\n" unless $sign_supports_bulk_cpio;
 
 BSStdRunner::run('signer', \@ARGV, $conf);
 
