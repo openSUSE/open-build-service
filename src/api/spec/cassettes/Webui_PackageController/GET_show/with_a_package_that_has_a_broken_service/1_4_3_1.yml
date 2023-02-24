@@ -328,7 +328,7 @@ http_interactions:
   recorded_at: Fri, 05 Jun 2020 11:30:00 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service/_history?deleted=1&meta=1&rev=2
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_history?deleted=0&meta=0&rev=2
     body:
       encoding: US-ASCII
       string: ''
