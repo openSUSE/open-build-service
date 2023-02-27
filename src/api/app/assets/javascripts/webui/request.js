@@ -196,3 +196,17 @@ function loadChanges() { // jshint ignore:line
     }
   });
 }
+
+$(function ($) {
+  $('body').on('click', '.expand-diffs', function () {
+    var forObject = $(this).data('object');
+    var details = $('.collapse[data-object="' + forObject + '"]');
+    details.addClass('show');
+  });
+
+  $('body').on('click', '.collapse-diffs', function () {
+    var forObject = $(this).data('object');
+    var details = $('.collapse[data-object="' + forObject + '"]');
+    details.removeClass('show');
+  });
+});

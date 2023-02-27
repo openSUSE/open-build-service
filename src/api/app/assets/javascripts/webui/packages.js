@@ -1,3 +1,4 @@
+// Remove this after PackageController#rdiff moves to DiffListComponent
 $(function ($) {
   $('body').on('click', '.expand-diffs', function () {
     var forPackage = $(this).data('package');

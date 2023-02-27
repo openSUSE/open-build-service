@@ -1,0 +1,21 @@
+.pre.scroll
+  .diff{ class: "digits-#{diff.max_digits}" }>
+    - diff.lines&.each do |line|
+      - id = "diff_#{file_index}_n#{line.index}"
+      %div{ class: "line #{line.state}", id: }>
+        - case line.state
+        - when 'comment', 'range'
+          .offset
+            .text-muted.text
+              = line.content
+        - else
+          = link_to("##{id}", class: 'd-flex') do
+            .number<
+              = line.original_index
+            .number<
+              = line.changed_index
+          .value<
+            %span.character><
+              = line.content[0]
+            %span.content><
+              = line.content[1..]
