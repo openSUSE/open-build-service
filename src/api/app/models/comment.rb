@@ -1,7 +1,7 @@
 require 'set'
 
 class Comment < ApplicationRecord
-  belongs_to :commentable, polymorphic: true # belongs to a Project, Package or BsRequest
+  belongs_to :commentable, polymorphic: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
   belongs_to :user, inverse_of: :comments
 
   validates :body, presence: true
@@ -9,6 +9,7 @@ class Comment < ApplicationRecord
   validates :body, length: { maximum: 65_535 }
   validates :body, format: { with: /\A[^\u0000]*\Z/,
                              message: 'must not contain null characters' }
+  validates :diff_ref, length: { maximum: 255 }
 
   validate :validate_parent_id
 
@@ -59,6 +60,8 @@ class Comment < ApplicationRecord
       Event::CommentForProject.create(event_parameters)
     when 'BsRequest'
       Event::CommentForRequest.create(event_parameters)
+    when 'BsRequestActionSubmit'
+      Event::CommentForRequest.create(event_parameters.merge({ id: commentable.bs_request.id }))
     end
   end
 
@@ -97,6 +100,7 @@ end
 #  id               :integer          not null, primary key
 #  body             :text(65535)
 #  commentable_type :string(255)      indexed => [commentable_id]
+#  diff_ref         :string(255)
 #  created_at       :datetime
 #  updated_at       :datetime
 #  commentable_id   :integer          indexed => [commentable_type]

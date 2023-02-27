@@ -12,6 +12,7 @@ class BsRequestAction < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :bs_request, touch: true, optional: true
   has_one :bs_request_action_accept_info, dependent: :delete
+  has_many :comments, as: :commentable, dependent: :destroy
 
   belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id', optional: true
   belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id', optional: true
@@ -846,6 +847,23 @@ class BsRequestAction < ApplicationRecord
     else
       seen_by_users << user
     end
+  end
+
+  def event_parameters
+    params = { id: bs_request.id,
+               number: bs_request.number,
+               description: bs_request.description,
+               state: bs_request.state,
+               when: bs_request.updated_when.strftime('%Y-%m-%dT%H:%M:%S'),
+               comment: bs_request.comment,
+               author: bs_request.creator,
+               namespace: bs_request.namespace }
+
+    params[:oldstate] = bs_request.state_was if bs_request.state_changed?
+    params[:who] = bs_request.commenter if bs_request.commenter.present?
+
+    params[:actions] = [notify_params]
+    params
   end
 
   private
