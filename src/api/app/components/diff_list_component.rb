@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class DiffListComponent < ApplicationComponent
-  attr_reader :diff_list, :view_id
+  attr_reader :diff_list, :view_id, :commentable
 
-  def initialize(diff_list:, view_id: nil)
+  def initialize(diff_list:, view_id: nil, commentable: nil)
     super
     @diff_list = diff_list
     @view_id = view_id
+    @commentable = commentable
   end
 
   def badge_for_state(state)

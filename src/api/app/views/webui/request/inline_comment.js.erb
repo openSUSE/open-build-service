@@ -1,0 +1,3 @@
+$('#flash').empty();
+$('#comment<%= @line %> .comments-list').html("<%= escape_javascript(render(partial: 'webui/request/inline_comment', locals: { comment: @comment, commentable: @active_action, diff_ref: @line })) %>");
+$("#comment<%= @line %> .comments-list textarea").focus();

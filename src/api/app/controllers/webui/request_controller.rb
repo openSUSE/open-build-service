@@ -1,10 +1,10 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment]
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
@@ -327,6 +327,17 @@ class Webui::RequestController < Webui::WebuiController
   # used by mixins
   def main_object
     BsRequest.find_by_number(params[:number])
+  end
+
+  def inline_comment
+    # Handling request actions
+    action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
+    @active_action = @bs_request.bs_request_actions.find(action_id)
+
+    @line = params[:line]
+    respond_to do |format|
+      format.js
+    end
   end
 
   private
