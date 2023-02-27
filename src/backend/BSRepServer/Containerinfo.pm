@@ -68,6 +68,8 @@ sub containerinfo2obsbinlnk {
   my ($dir, $containerinfo, $packid) = @_;
   my $d = readcontainerinfo($dir, $containerinfo);
   return unless $d;
+  # currently no other OS containers. Alternative would be to rename them to avoid conflicts.
+  return if $d->{'goos'} ne 'linux';
   my $lnk = containerinfo2nevra($d);
   # need to have a source so that it goes into the :full tree
   $lnk->{'source'} = $lnk->{'name'};

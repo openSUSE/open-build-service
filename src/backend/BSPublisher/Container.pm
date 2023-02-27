@@ -200,6 +200,7 @@ sub upload_all_containers {
       my $arch = $containerinfo->{'arch'};
       my $goarch = $containerinfo->{'goarch'};
       $goarch .= ":$containerinfo->{'govariant'}" if $containerinfo->{'govariant'};
+      $goarch .= "_$containerinfo->{'goos'}" if $containerinfo->{'goos'} && $containerinfo->{'goos'} ne 'linux';
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
       for my $tag (@tags) {
 	my ($reponame, $repotag) = ($tag, 'latest');
