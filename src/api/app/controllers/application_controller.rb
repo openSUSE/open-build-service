@@ -123,7 +123,7 @@ class ApplicationController < ActionController::Base
 
   def gather_exception_defaults(opt)
     if opt[:message]
-      @summary = opt[:message]
+      @summary = opt[:message].to_s
     elsif @exception
       @summary = @exception.message
     end
