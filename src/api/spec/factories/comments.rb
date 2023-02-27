@@ -2,6 +2,7 @@ FactoryBot.define do
   factory :comment do
     body { Faker::Lorem.paragraph }
     user
+    parent { nil }
 
     factory :comment_package do
       commentable { create(:package) }
