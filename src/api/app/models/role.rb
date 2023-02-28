@@ -26,8 +26,8 @@ class Role < ApplicationRecord
                                   message: 'is the name of an already existing role' }
 
   belongs_to :groups_roles, optional: true
-  belongs_to :attrib_type_modifiable_bies, optional: true
-  belongs_to :relationships, optional: true
+  belongs_to :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', optional: true
+  belongs_to :relationships, class_name: 'Relationship', optional: true
   belongs_to :roles_static_permissions, optional: true
   belongs_to :roles_users, optional: true
 
