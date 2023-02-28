@@ -13,14 +13,18 @@ Project:
   name: project
   schema:
     type: string
-  description: Limit the results of requests and open review requests to the specified target project.
+  description: |
+    Limit the results to requests with this project as source or target,
+    or requests which were assigned to be reviewed by the maintainers of this project.
   example: home:hans
 Package:
   in: query
   name: package
   schema:
     type: string
-  description: Limit the results of requests and open review requests to the specified target package.
+  description: |
+    Limit the results to requests with this package as source or target,
+    or requests which were assigned to be reviewed by the maintainers of this package.
   example: ruby
 States:
   in: query
