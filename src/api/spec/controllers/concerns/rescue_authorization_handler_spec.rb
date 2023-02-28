@@ -38,7 +38,7 @@ RSpec.describe ApplicationController do
 
       describe 'returns json' do
         it { expect(response).to have_http_status(:forbidden) }
-        it { expect(JSON.parse(response.body)['errorcode']).to eq('list_fake_object_not_authorized') }
+        it { expect(response.parsed_body['errorcode']).to eq('list_fake_object_not_authorized') }
       end
     end
 

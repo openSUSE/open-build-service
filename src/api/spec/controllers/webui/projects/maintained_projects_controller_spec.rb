@@ -26,7 +26,7 @@ RSpec.describe Webui::Projects::MaintainedProjectsController, vcr: true do
           order: { '0' => { 'column' => '0', 'dir' => 'asc' } }, start: '0' }
       end
 
-      let(:json_response) { JSON.parse(response.body) }
+      let(:json_response) { response.parsed_body }
 
       before do
         login user
