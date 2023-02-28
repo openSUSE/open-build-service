@@ -28,9 +28,9 @@ RSpec.describe ConsistencyCheckJob, vcr: true do
     let!(:project) { create(:project, name: 'super_project') }
     let(:consistency_checkjob) { described_class.new }
     let(:error_message) { "Project meta is different in backend for super_project\n{:foo=>\"bar\"}" }
-    let!(:admin_user) { create(:admin_user, login: 'Admin') }
 
     before do
+      create(:admin_user, login: 'Admin')
       # rubocop:disable RSpec/AnyInstance
       allow_any_instance_of(ConsistencyCheckJobService::ProjectMetaChecker).to receive(:diff).and_return({ foo: 'bar' })
       # rubocop:enable RSpec/AnyInstance
