@@ -53,7 +53,7 @@ RSpec.describe Webui::MonitorController do
     before do
       stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: xml_response)
       get :update_building, xhr: true
-      @json_response = JSON.parse(response.body)
+      @json_response = response.parsed_body
     end
 
     it { expect(@json_response).to have_key('simulated') }
@@ -70,7 +70,7 @@ RSpec.describe Webui::MonitorController do
       create_list(:status_history, 5, source: 'squeue_high', architecture: 'i586')
       # the factory creates the events 0..8000 hours ago
       get :events, params: { arch: 'x86_64', range: 8100 }, xhr: true
-      @json_response = JSON.parse(response.body)
+      @json_response = response.parsed_body
     end
 
     it { expect(@json_response['events_max']).to be <= 800 }

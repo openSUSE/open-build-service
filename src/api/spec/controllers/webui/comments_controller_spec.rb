@@ -291,7 +291,7 @@ RSpec.describe Webui::CommentsController do
     end
 
     it 'renders comment with Markdown properly' do
-      json = JSON.parse(response.body)
+      json = response.parsed_body
       expect(json['markdown']).to eq("<h1>test comment header</h1>\n")
     end
   end

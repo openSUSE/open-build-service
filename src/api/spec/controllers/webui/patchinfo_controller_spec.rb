@@ -279,8 +279,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         let(:my_issues) { ['bgo#132412'] }
 
         it do
-          expect(JSON.parse(response.body)).to eq('error' => '',
-                                                  'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
+          expect(response.parsed_body).to eq('error' => '',
+                                             'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -290,8 +290,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         let(:my_issues) { ['CVE-2010-31337'] }
 
         it do
-          expect(JSON.parse(response.body)).to eq('error' => '',
-                                                  'issues' => [['cve', 'CVE-2010-31337', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
+          expect(response.parsed_body).to eq('error' => '',
+                                             'issues' => [['cve', 'CVE-2010-31337', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -301,7 +301,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'if issues are wrongly formatted' do
       let(:my_issues) { ['hell#666'] }
 
-      it { expect(JSON.parse(response.body)).to eq('error' => "hell is not a valid tracker.\n", 'issues' => []) }
+      it { expect(response.parsed_body).to eq('error' => "hell is not a valid tracker.\n", 'issues' => []) }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -310,9 +310,9 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
       it {
         error_message = 'cve has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
-        expect(JSON.parse(response.body)).to eq('error' =>
+        expect(response.parsed_body).to eq('error' =>
                                                 error_message,
-                                                'issues' => [])
+                                           'issues' => [])
       }
 
       it { expect(response).to have_http_status(:success) }
