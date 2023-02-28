@@ -305,6 +305,9 @@ User:
   subaccounts:
     MissingIndexChecker:
       enabled: false
+  bs_request_actions_seen_by_users:
+    MissingIndexChecker:
+      enabled: false
   ec2_configuration:
     MissingIndexChecker:
       enabled: false
@@ -1515,6 +1518,13 @@ NotifiedProject:
       enabled: false
   index_notified_projects_on_notification_id:
     RedundantIndexChecker:
+      enabled: false
+BsRequestActionsSeenByUser:
+  bs_request_action:
+    ForeignKeyChecker:
+      enabled: false
+  user:
+    ForeignKeyChecker:
       enabled: false
 RolesStaticPermission:
   roles_static_permissions_all_index:

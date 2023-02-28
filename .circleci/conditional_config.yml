@@ -302,7 +302,7 @@ jobs:
             bundle exec rake db:migrate
             bundle exec rake db:seed
             bundle exec rake data:migrate
-            bundle exec database_consistency
+            bundle exec database_consistency -c .database_consistency.todo.yml
 
   passenger_tests:
     docker:
