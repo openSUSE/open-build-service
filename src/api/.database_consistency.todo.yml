@@ -406,6 +406,16 @@ Role:
   title:
     MissingUniqueIndexChecker:
       enabled: false
+  attrib_type_modifiable_bies:
+    ForeignKeyChecker:
+      enabled: false
+    ForeignKeyTypeChecker:
+      enabled: false
+  relationships:
+    ForeignKeyChecker:
+      enabled: false
+    ForeignKeyTypeChecker:
+      enabled: false
 Review:
   id:
     PrimaryKeyTypeChecker:
