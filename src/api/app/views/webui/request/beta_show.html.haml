@@ -25,25 +25,25 @@
 
 .card
   .card-body.p-0
-    .card-title.p-4.mb-0
-      %h3<>
-        Request #{@bs_request.number}
-        %span.badge.ms-2{ class: "bg-#{request_badge_color(@bs_request.state)}" }>
-          = @bs_request.state
-          - if @bs_request.superseded_by.present?
-            by
-            = link_to(@bs_request.superseded_by, { number: @bs_request.superseded_by }, class: 'link-light')
-        - if @staging_status
-          - staging_title = @staging_status[:title]
-          - staging_title[0].capitalize
-          = link_to @staging_status[:name], @staging_status[:url], title: staging_title, class: 'badge badge-staging ms-2'
-        - if @bs_request.accept_at.present?
-          %span.badge.alert.alert-warning.border-0.ms-2.mb-0.p-2 auto-accept
-        - if User.session
-          .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
-            = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
+    %h3.card-title.pt-4.px-4
+      Request #{@bs_request.number}
+      %span.badge.ms-2{ class: "bg-#{request_badge_color(@bs_request.state)}" }>
+        = @bs_request.state
+        - if @bs_request.superseded_by.present?
+          by
+          = link_to(@bs_request.superseded_by, { number: @bs_request.superseded_by }, class: 'link-light')
+      - if @staging_status
+        - staging_title = @staging_status[:title]
+        - staging_title[0].capitalize
+        = link_to @staging_status[:name], @staging_status[:url], title: staging_title, class: 'badge badge-staging ms-2'
+      - if @bs_request.accept_at.present?
+        %span.badge.alert.alert-warning.border-0.ms-2.mb-0.p-2 auto-accept
+      - if User.session
+        .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
+          = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
 
-      %p.font-italic
+    .card-text.px-4.pb-4
+      %p.fst-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
         = render FuzzyTimeComponent.new(time: @bs_request.created_at)
@@ -52,10 +52,11 @@
           - @bs_request.superseding.each do |supersed|
             = link_to "##{supersed['number']}", number: supersed['number']
 
-        = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
-                                                       prev_action: @prev_action, next_action: @next_action,
-                                                       diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
-        - if @staging_status
+      = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
+                                                     prev_action: @prev_action, next_action: @next_action,
+                                                     diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+      - if @staging_status
+        %p
           This request is currently
           = link_to @staging_status[:title], @staging_status[:url]
 
