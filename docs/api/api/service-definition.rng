@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://www.example.com/annotation">
+
+  <start>
+    <ref name="service-def-element"/>
+  </start>
+
+  <define ns="" name="service-def-element">
+    <element name="service">
+      <attribute name="name">
+        <data type="string"/>
+      </attribute>
+      <element name="summary">
+       <a:documentation>
+        Summary of service purpose.
+       </a:documentation>
+        <text/>
+      </element>
+      <element name="description">
+       <a:documentation>
+        Longer description of service purpose.
+       </a:documentation>
+        <text/>
+      </element>
+      <zeroOrMore>
+        <ref name="parameter-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="parameter-element">
+    <element name="parameter">
+      <attribute name="name">
+       <a:documentation>
+        Parameter name for the service executable. Can be any, except "outdir" which
+        exists always implicit.
+       </a:documentation>
+        <data type="string"/>
+      </attribute>
+      <element name="description">
+       <a:documentation>
+        Description for the (not anymore existing) webui service editor.
+       </a:documentation>
+        <text/>
+      </element>
+      <interleave>
+        <optional>
+          <element name="required">
+            <a:documentation>
+              Parameters are optional by default, this is a marker to make it required.
+              A hint for the UI.
+            </a:documentation>
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="allowmultiple">
+            <a:documentation>
+              This parameter can be used multiple times.
+              A hint for the UI.
+            </a:documentation>
+            <empty/>
+          </element>
+        </optional>
+        <zeroOrMore>
+          <element name="allowedvalue">
+            <a:documentation>
+              Allowed values for the parameter.
+              A hint for the UI to offer a selector.
+            </a:documentation>
+            <text/>
+          </element>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+</grammar>
