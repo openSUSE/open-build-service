@@ -1,0 +1,201 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6bd9dec4-d784-497b-a9cf-cc0ef29ae606
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '404'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="3" vrev="3" srcmd5="01dfd385eb6f75ea017e69bd3e5a965f">
+          <entry name="README.txt" md5="20a18412e38905538f0872327d5efd17" size="55" mtime="1677769909"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1677769910"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1677082556"/>
+        </directory>
+  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6bd9dec4-d784-497b-a9cf-cc0ef29ae606
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '404'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="3" vrev="3" srcmd5="01dfd385eb6f75ea017e69bd3e5a965f">
+          <entry name="README.txt" md5="20a18412e38905538f0872327d5efd17" size="55" mtime="1677769909"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1677769910"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1677082556"/>
+        </directory>
+  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=3&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 6bd9dec4-d784-497b-a9cf-cc0ef29ae606
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1765'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="fd1afd86624097e53be31fc97fc9c239">
+          <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:madam_submitter" package="package_a" rev="3" srcmd5="01dfd385eb6f75ea017e69bd3e5a965f"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="20a18412e38905538f0872327d5efd17" size="55"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Repudiandae pariatur harum. Est et sunt. Nisi odio non.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes boo#1111101 CVE-2011-1101
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+          </files>
+          <issues>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?package=package_a&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 5d80d14b-4f5f-41c1-b8de-d0e78cc03d99
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+recorded_with: VCR 6.1.0
