@@ -1,13 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe BsRequestActivityTimelineComponent, type: :component do
-  context 'when we provide a bs_request' do
-    it 'shows an element telling who created the request and when'
-    it 'shows the comments threads'
-    it 'shows the history elements'
+  let(:bs_request) { create(:bs_request_with_submit_action) }
+  let!(:history_element) { create(:history_element_request_accepted, op_object_id: bs_request.id) }
+  let!(:comment) { create(:comment_request, commentable: bs_request, created_at: Time.zone.yesterday) }
+
+  it 'shows the comment first, as it is an older timeline item' do
+    expect(render_inline(described_class.new(bs_request: bs_request))).to have_selector('.timeline-item:first-child', text: 'wrote')
+    expect(render_inline(described_class.new(bs_request: bs_request))).to have_selector('.timeline-item:first-child', text: '1 day ago')
   end
 
-  context 'when we do not provide a bs_request' do
-    it 'raises an error warning the user to provide a request'
+  it 'shows the history element in the second position, as it is more recent' do
+    expect(render_inline(described_class.new(bs_request: bs_request))).to have_selector('.timeline-item:last-child', text: 'accepted request')
   end
 end
