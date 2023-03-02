@@ -329,6 +329,13 @@ our $local_registry_signatures_extension = 1;
 
 # special options to use for starting containers in run-service-containerized
 # our $docker_custom_opt = [];
+#
+
+### Service wapper configuration
+# our $service_wrapper = { 
+#   '*' => '/usr/lib/obs/server/call-service-in-container', # '*' declares the default
+#   # '<service_name>' => '/path/to/my/service_wrapper'
+# };
 
 ### Options used by call-service-in-container
 #
