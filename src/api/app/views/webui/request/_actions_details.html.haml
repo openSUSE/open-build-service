@@ -3,8 +3,8 @@
   submit_actions_count = submit_actions.count
 
 - if submit_actions_count > 1
-  .d-flex.align-items-center
-    %p.mb-0 This request contains #{submit_actions_count} actions
+  .d-flex.flex-wrap.mb-3.align-items-center
+    This request contains #{submit_actions_count} actions
     .input-group.ms-2.w-auto
       = link_to('Previous', request_show_path(number: bs_request.number, request_action_id: prev_action&.id,
                                               full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
@@ -32,18 +32,18 @@
       = link_to('Next', request_show_path(number: bs_request.number, request_action_id: next_action&.id,
                                           full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
                 class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}")
-%p
+.d-flex.flex-wrap.mb-3.align-items-center
   - if submit_actions_count > 1
     - if User.session
-      .d-inline#action-seen-by-user-wrapper
+      #action-seen-by-user-wrapper
         = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
 
     - active_action_index = submit_actions.find_index(active_action) + 1
-    %span.ms-2.align-middle
+    .ms-2
       Showing
       %em action ##{active_action_index}
       \-
-  %span.font-italic.align-middle= request_action_header(action, bs_request.creator)
+  .fst-italic= request_action_header(action, bs_request.creator)
 
 - content_for :ready_function do
   :plain
