@@ -1,5 +1,5 @@
 - if object_to_be_watched_in_watchlist?
-  = link_to('#', class: 'btn btn-outline-secondary',
+  = link_to('#', class: 'btn btn-outline-secondary text-nowrap',
             title: "Remove #{watchable_type_text} from watchlist",
             data: { 'bs-toggle': 'modal',
                     'bs-target': '#delete-item-from-watchlist-modal',
@@ -10,7 +10,7 @@
     Unwatch
 - else
   = link_to(toggle_watchable_path, method: :put, remote: true,
-            class: 'btn btn-outline-secondary',
+            class: 'btn btn-outline-secondary text-nowrap',
             title: "Add #{watchable_type_text} to watchlist") do
     %i.far.fa-eye
     Watch
