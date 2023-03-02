@@ -53,6 +53,7 @@
             = link_to "##{supersed['number']}", number: supersed['number']
 
         = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
+                                                       prev_action: @prev_action, next_action: @next_action,
                                                        diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
         - if @staging_status
           This request is currently
