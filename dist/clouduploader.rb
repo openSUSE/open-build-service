@@ -10,7 +10,7 @@ require 'base64'
 module CloudUploader
   # Module method for uploading the image depending on the platform
   def self.upload(_user, platform, backend_image_file, job_data_file, image_filename, result_path)
-    start = Time.zone.now
+    start = Time.now
 
     STDOUT.sync = true
     STDOUT.write("Start uploading image #{image_filename}.\n")
@@ -26,7 +26,7 @@ module CloudUploader
       abort('No valid platform. Valid platforms are "ec2" and "azure".')
     end
 
-    diff = Time.zone.now - start
+    diff = Time.now - start
     STDOUT.write("Upload took: #{Time.at(diff).utc.strftime('%H:%M:%S')}\n")
   end
 

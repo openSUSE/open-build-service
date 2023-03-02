@@ -2,7 +2,7 @@ inherit_from: .rubocop_todo.yml
 
 require:
   - rubocop-performance
-  - rubocop-rails
+  - rubocop-rspec
 
 AllCops:
   NewCops: enable
@@ -19,6 +19,8 @@ AllCops:
   SuggestExtensions:
     # We don't want extra cops for minitest since we want to migrate those tests to RSpec
     rubocop-minitest: false
+    # We lint our rails code with the setup in src/api/.rubocop.yml
+    rubocop-rails: false
 
 #################### Layout ###########################
 
@@ -84,13 +86,3 @@ Layout/LineLength:
 Metrics/ModuleLength:
   Severity: refactor
 
-##################### Rails ####################################
-
-Rails/RakeEnvironment:
-  Exclude:
-    # All tasks are executing scripts and those don't need application code nor the environment
-    - 'Rakefile'
-
-# This requires texts be moved to the locale files in the config/locales directory
-Rails/I18nLocaleTexts:
-  Enabled: false
