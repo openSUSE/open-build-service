@@ -32,7 +32,8 @@
     span.d-block { line-height: 1rem; }
 
     &.active {
-      background-color: darken($dark, 10%);
+      background-color: $gray-900;
+
       @extend .rounded;
     }
   }
