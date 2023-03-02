@@ -22,15 +22,14 @@
       %p.mt-0.mb-0.fw-normal
         %span.me-2 ##{action_index + 1}
         - if action.type == 'add_role'
-          #{action.type.titleize} for
-          = project_or_package_text(action.target_project, action.target_package)
+          #{action.type.titleize}
         - else
           = action.name
     -# add_role, delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
     - unless %w[delete set_bugowner].include?(action.type)
       %p.mb-0.mt-0.small
         - if action.type == 'add_role'
-          #{action.person_name} as #{action.role} for
+          Add #{action.person_name} as #{action.role} of
           = project_or_package_text(action.target_project, action.target_package)
         - else
           from
