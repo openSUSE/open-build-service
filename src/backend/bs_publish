@@ -1774,6 +1774,7 @@ sub mapsleimage {
     $rbin =~ s/\.sha256$//;
     $rbin =~ s/\.sha256.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
+    $rbin =~ s/\.(spdx|cdx)\.json$//;
     $rbin =~ s/\.(install\.iso|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
     $rbin =~ s/^ChangeLog\.//;
     $rbin =~ s/\.txt$//;
@@ -2197,6 +2198,9 @@ sub publish {
 	if ($bin =~ /\.iso(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
+	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
+        } elsif ($bin =~ /(.*)\.(spdx|cdx)\.json$/ && -e "$r/$1.iso") {
+	  $p = "iso/$bin";
     	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "onie/$bin";
