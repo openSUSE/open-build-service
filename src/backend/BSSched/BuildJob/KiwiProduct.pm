@@ -147,6 +147,7 @@ sub check {
   my %rpms_meta;
   my %rpms_hdrmd5;
   my $neverblock = $ctx->{'isreposerver'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
 
 #print "prps: @aprps\n";
 #print "archs: @archs\n";
@@ -207,9 +208,11 @@ sub check {
 	push @{$used{$aprp}}, $pname;
       }
       for my $aprp (@aprps) {
+	my ($aprojid, $arepoid) = split('/', $aprp, 2);
+	next if $remoteprojs->{$aprojid};	# FIXME: should do something here
 	my %pnames = map {$_ => 1} @{$used{$aprp}};
 	next unless %pnames;
-	# FIXME: does not work for remote repos
+	next unless -e "$reporoot/$aprp/$localbuildarch/:packstatus";
 	my $ps = BSUtil::retrieve("$reporoot/$aprp/$localbuildarch/:packstatus", 1);
 	if (!$ps) {
 	  $ps = (readxml("$reporoot/$aprp/$localbuildarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
@@ -264,7 +267,6 @@ sub check {
   my %blockedarch;
   my $delayed_errors = '';
   my $projpacks = $gctx->{'projpacks'};
-  my $remoteprojs = $gctx->{'remoteprojs'};
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -279,10 +281,13 @@ sub check {
     }
     for my $arch (@archs) {
       next if $myarch ne $buildarch && $myarch ne $arch;
-      my $ps = BSUtil::retrieve("$reporoot/$aprp/$arch/:packstatus", 1);
-      if (!$ps) {
-	$ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
+      my $ps;
+      if (!$remoteprojs->{$aprojid} && -e "$reporoot/$aprp/$arch/:packstatus") {
+	$ps = BSUtil::retrieve("$reporoot/$aprp/$arch/:packstatus", 1);
+	if (!$ps) {
+	  $ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	  $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
+	}
       }
       $ps = ($ps || {})->{'packstatus'} || {};
 
