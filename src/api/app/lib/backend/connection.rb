@@ -28,6 +28,10 @@ module Backend
       unless @@ssl_options
         ## TODO: check if this really works. we should cache this in a class variable
         ##       so we do not have to do this over and over
+        ##       if we do caching here we also need to clarify
+        ##       how we handle certificate rotation
+        ##       e.g. signal handler to avoid having to restart the whole rails app
+        ##       but still reload the certs
 
         # the old default value for ssl_options
         @@ssl_options ||= { use_ssl: use_ssl, verify_mode: verify_mode }
