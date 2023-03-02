@@ -1,3 +1,5 @@
+require 'openssl'
+
 module Backend
   # Class that holds basic HTTP methods for connecting to the backend
   class Connection
@@ -22,13 +24,46 @@ module Backend
       end
     end
 
+    def self.ssl_options()
+      unless @@ssl_options
+        ## TODO: check if this really works. we should cache this in a class variable
+        ##       so we do not have to do this over and over
+
+        # the old default value for ssl_options
+        @@ssl_options ||= { use_ssl: use_ssl, verify_mode: verify_mode }
+
+        # Handle client certificates
+        if CONFIG['source_host_client_certificate']
+
+          cert_data = File.read(CONFIG['source_host_client_certificate'])
+          ssl_options[:cert] = OpenSSL::X509::Certificate.new(cert_data)
+
+          # if you concatenate key and cert into one file you do not need to pass in source_client_key
+          # and we can reuse the cert_data here.
+          if File.read(CONFIG['source_host_client_certificate_key']
+            key_data = File.read(CONFIG['source_host_client_certificate_key'])
+          else
+            key_data = cert_data
+          end
+
+          if CONFIG['source_host_client_certificate_password']
+            ssl_options[:key] = OpenSSL::PKey.read(key_data, CONFIG['source_host_client_certificate_password'])
+          else
+            ssl_options[:key] = OpenSSL::PKey.read(key_data)
+          end
+        end
+
+      end
+      return @@ssl_options
+    end
+
     def self.get(path, in_headers = {})
       start_time = Time.now
       Rails.logger.debug { "[backend] GET: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
-      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
+      response = Net::HTTP.start(host, port, Backend::Connection.ssl_options) do |http|
         http.read_timeout = timeout
         if block_given?
           http.request(backend_request) do |backend_response|
@@ -59,7 +94,7 @@ module Backend
       Rails.logger.debug { "[backend] DELETE: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Delete.new(path, in_headers)
-      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
+      response = Net::HTTP.start(host, port, Backend::Connection.ssl_options) do |http|
         http.read_timeout = timeout
         http.request(backend_request)
       end
@@ -106,7 +141,7 @@ module Backend
         backend_request.body = data
       end
 
-      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
+      response = Net::HTTP.start(host, port, Backend::Connection.ssl_options) do |http|
         http.read_timeout = if method == 'POST'
                               # POST requests can be quite complicate and take some time ..
                               timeout || 100_000

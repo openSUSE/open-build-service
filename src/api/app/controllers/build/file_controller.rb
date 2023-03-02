@@ -113,7 +113,7 @@ module Build
 
       render status: :ok, text: proc { |_, output|
         backend_request = Net::HTTP::Get.new(path)
-        Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) do |http|
+        Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port'], Backend::Connection.ssl_options) do |http|
           http.request(backend_request) do |response|
             response.read_body do |chunk|
               output.write(chunk)
