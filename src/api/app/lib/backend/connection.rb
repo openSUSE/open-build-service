@@ -32,6 +32,8 @@ module Backend
         ##       how we handle certificate rotation
         ##       e.g. signal handler to avoid having to restart the whole rails app
         ##       but still reload the certs
+        ##       of course we could cache the mtime of the files and only the work
+        ##       if the file changed.
 
         # the old default value for ssl_options
         @@ssl_options ||= { use_ssl: use_ssl, verify_mode: verify_mode }
