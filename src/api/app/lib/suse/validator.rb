@@ -98,18 +98,22 @@ module Suse
           logger.debug "no content, skipping validation for #{schema_file}"
           raise ValidationError, "Document is empty, not allowed for #{schema_file}"
         end
+
         begin
           doc = Nokogiri::XML(content, &:strict)
-          schema.validate(doc).each do |error|
-            logger.error "validation error: #{error}"
-            logger.debug "Schema #{schema_file} for: #{content}"
-            # Only raise an exception for user-input validation!
-            raise ValidationError, "#{schema_file} validation error: #{error}"
-          end
         rescue Nokogiri::XML::SyntaxError => e
           raise ValidationError, "#{schema_file} validation error: #{e}"
         end
-        true
+
+        nokogiri_xml_syntaxerrors = schema.validate(doc)
+
+        return true if nokogiri_xml_syntaxerrors.empty?
+
+        error_string = nokogiri_xml_syntaxerrors.join("\n")
+
+        logger.debug "validation error: #{error_string}"
+        logger.debug "Schema #{schema_file} for: #{content}"
+        raise ValidationError, "#{schema_file} validation error: #{error_string}"
       end
     end
   end
