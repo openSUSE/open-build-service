@@ -42,7 +42,7 @@
     #grid
       #top-navigation-area
         = render partial: 'layouts/webui/top_navigation'
-      .bg-dark#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
+      .navbar-dark.bg-gray-800#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
         = render partial: 'layouts/webui/left_navigation', locals: { spider_bot: @spider_bot }
         = render partial: 'layouts/webui/left_navigation_collapse_button'
       .d-flex.flex-column#content-area
@@ -76,7 +76,7 @@
 
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
-        .navbar-collapse.watchlist-collapse.navbar-dark
+        .navbar-dark.bg-gray-800.navbar-collapse.watchlist-collapse
           = render WatchlistComponent.new(user: User.session!,
                                           bs_request: @bs_request,
                                           package: @package,
