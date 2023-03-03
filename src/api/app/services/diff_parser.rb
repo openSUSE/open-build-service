@@ -1,4 +1,6 @@
 class DiffParser
+  attr_reader :lines
+
   def initialize(content:)
     @content = content || ''
     @original_index = 0
@@ -18,7 +20,11 @@ class DiffParser
       @last_changed_index = @changed_index
     end
 
-    @lines
+    self
+  end
+
+  def max_digits
+    [@last_original_index, @last_changed_index].max.digits.length
   end
 
   private
