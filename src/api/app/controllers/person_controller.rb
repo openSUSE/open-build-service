@@ -214,7 +214,7 @@ class PersonController < ApplicationController
         email, password: password, note: note, status: status)
 
     render_ok
-  rescue Exception => e
+  rescue StandardError => e
     # Strip passwords from request environment and re-raise exception
     request.env['RAW_POST_DATA'] = request.env['RAW_POST_DATA'].sub(%r{<password>(.*)</password>}, '<password>STRIPPED<password>')
     raise e

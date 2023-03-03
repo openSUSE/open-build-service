@@ -210,7 +210,7 @@ class PublicController < ApplicationController
     allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
       Package.get_by_project_and_name(project_name, package_name, use_source: false)
       true
-    rescue Exception
+    rescue StandardError
       false
     end
     raise Package::UnknownObjectError, "#{project_name} / #{package_name} " unless allowed
