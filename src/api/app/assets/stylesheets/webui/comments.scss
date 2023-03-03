@@ -21,13 +21,15 @@
 }
 
 .comment-bubble {
-  $comment-bubble-outline: $gray-400;
+  $comment-bubble-outline: $gray-300;
+  $comment-bubble-background: $gray-100;
   @extend .rounded;
   @extend .p-3;
   @extend .mb-2;
   border: 1px solid $comment-bubble-outline;
   position: relative;
   min-width: 20%;
+  background-color: $comment-bubble-background;
 
   // Arrow on the top left of the comment bubble
   $comment-bubble-arrow-top-position: 0;
@@ -48,7 +50,7 @@
     width: 0;
     height: 0;
     border: $comment-bubble-arrow-size solid transparent;
-    border-bottom-color: $gray-400;
+    border-bottom-color: $comment-bubble-outline;
     border-top: 0;
     border-left: 0;
     margin-left: -($comment-bubble-arrow-size / 2);
@@ -58,7 +60,7 @@
     top: $comment-bubble-arrow-top-position + 2px;
     left: $comment-bubble-arrow-left-position + 1px;
     z-index: 1;
-    border-bottom-color: $card-bg;
+    border-bottom-color: $comment-bubble-background;
   }
 
   .dropdown {

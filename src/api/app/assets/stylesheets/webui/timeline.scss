@@ -4,7 +4,7 @@
     $timeline-item-avatar-width: 1.5rem;
     $timeline-item-avatar-height: 1.5rem;
     $timeline-offset: -(($timeline-item-avatar-width / 2) + ($timeline-border-width / 2));
-    border-left: $timeline-border-width solid $gray-400;
+    border-left: $timeline-border-width solid $gray-200;
 
     .timeline-item {
         position: relative;
