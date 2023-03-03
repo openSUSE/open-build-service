@@ -13,11 +13,10 @@
   background-color: $cyan;
 }
 
-.badge-staging {
-  color: $white;
-  background-color: $pink;
-  &:hover {
-    color: $gray-100;
+.bg-staging {
+  background-color: $pink-300;
+  > a {
+    color: $white;
   }
 }
 
