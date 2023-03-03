@@ -45,6 +45,23 @@
       \-
   .fst-italic= request_action_header(action, bs_request.creator)
 
+- if active_action.type == 'add_role'
+  :ruby
+    parameters = { project: active_action.target_project, request_action_id: active_action.id, notification_id: @current_notification }
+    roles_link = if active_action.target_package
+                   package_users_path(parameters.merge!(package: active_action.target_package))
+                 else
+                   project_users_path(parameters)
+                 end
+  %p
+    You might want to
+    = link_to(roles_link) do
+      check the current roles
+    of
+    %span<
+      = project_or_package_text(active_action.target_project, active_action.target_package)
+      \.
+
 - content_for :ready_function do
   :plain
     var hashRegexp = new RegExp(`\#${HASH_PREFIX}.+`);
