@@ -19,6 +19,12 @@
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
+    .d-flex.justify-content-between.mb-2
+      %h3#package-title
+        = @package.title.presence || @package.name
+      - if User.session
+        .d-inline.ms-1#watchlist-icon-wrapper
+          = render WatchlistIconComponent.new(user: User.session!, package: @package, project: @project, current_object: @package)
     .row
       .col-md-8
         .in-place-editing

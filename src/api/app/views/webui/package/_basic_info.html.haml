@@ -2,14 +2,6 @@
   = render partial: 'edit', locals: { package: package, project: package.project }
 
 .basic-info
-  %h3#package-title
-    = package.title.presence || package.name
-    - if User.session
-      .d-inline.ms-1#watchlist-icon-wrapper
-        = render WatchlistIconComponent.new(user: User.session!,
-                                            package: package,
-                                            project: project,
-                                            current_object: package)
   - if package.url.present?
     = link_to(package.url, package.url, class: 'mb-3 d-block')
   #description-text
