@@ -3,9 +3,8 @@
   submit_actions_count = submit_actions.count
 
 - if submit_actions_count > 1
-  .d-flex.flex-wrap.mb-3.align-items-center
-    This request contains #{submit_actions_count} actions
-    .input-group.ms-2.w-auto
+  .d-flex.flex-wrap.align-items-center
+    .input-group.w-auto
       = link_to('Previous', request_show_path(number: bs_request.number, request_action_id: prev_action&.id,
                                               full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
                 class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}")
@@ -32,18 +31,17 @@
       = link_to('Next', request_show_path(number: bs_request.number, request_action_id: next_action&.id,
                                           full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
                 class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}")
-.d-flex.flex-wrap.mb-3.align-items-center
-  - if submit_actions_count > 1
-    - if User.session
-      #action-seen-by-user-wrapper
-        = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
 
     - active_action_index = submit_actions.find_index(active_action) + 1
-    .ms-2
-      Showing
-      %em action ##{active_action_index}
-      \-
-  .fst-italic= request_action_header(action, bs_request.creator)
+    %span.ms-2 Showing ##{active_action_index} (of #{submit_actions_count})
+
+%h5.mt-4
+  Action details
+  - if submit_actions_count > 1 && User.session
+    %span#action-seen-by-user-wrapper
+      = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
+
+.fst-italic= request_action_header(action, bs_request.creator)
 
 - if active_action.type == 'add_role'
   :ruby
