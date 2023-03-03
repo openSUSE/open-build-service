@@ -1,7 +1,9 @@
 // This stylesheet defines styles for use in the comments and request history merged timeline
 .timeline {
     $timeline-border-width: 0.125rem;
-    $timeline-offset: -(($avatars-counter-size / 2) + $timeline-border-width);
+    $timeline-item-avatar-width: 1.5rem;
+    $timeline-item-avatar-height: 1.5rem;
+    $timeline-offset: -(($timeline-item-avatar-width / 2) + ($timeline-border-width / 2));
     border-left: $timeline-border-width solid $gray-400;
 
     .timeline-item {
@@ -9,20 +11,11 @@
         left: $timeline-offset; // The avatars of users involved in timeline items will be displayed on the timeline border
 
         .d-inline-flex i:first-child {
-            padding-top: $avatars-counter-size / 2;
-            height: $avatars-counter-size;
+            padding-top: $timeline-item-avatar-height / 2;
+            height: $timeline-item-avatar-height;
+            width: $timeline-item-avatar-width;
+            text-align: center;
             @extend .bg-white;
-
-            // Align specific icons with the timeline border, this differs depending on the icon shape
-            &.fa-code-commit {
-                padding-left: $timeline-border-width / 2;
-            }
-            &.fa-check, &.fa-comment {
-                padding-left: $timeline-border-width;
-            }
-            &.fa-circle, &.fa-times {
-                padding-left: $timeline-border-width * 2;
-            }
         }
 
         $timeline-item-avatar-margin: 0.5rem;
@@ -32,7 +25,7 @@
         }
 
         .timeline-item-comment {
-            margin-left: $avatars-counter-size + $timeline-border-width + $timeline-item-avatar-margin;
+            margin-left: $timeline-item-avatar-width + ($avatars-counter-size / 2);
         }
 
         i.timeline-break, i.timeline-offset {
