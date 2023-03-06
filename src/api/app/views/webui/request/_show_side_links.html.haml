@@ -34,7 +34,8 @@
       - elsif bs_request.accept_at.past?
         This request will be automatically accepted when it enters the 'new' state.
       - else
-        This request will be automatically accepted in #{time_ago_in_words(bs_request.accept_at)}.
+        This request will be automatically accepted in
+        = render FuzzyTimeComponent.new(time: bs_request.accept_at)
   - bs_request.reviews.where(state: 'new').each do |review|
     %li
       %i.fas.fa-info-circle.text-info

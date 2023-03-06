@@ -13,4 +13,4 @@
             = user_with_realname_and_icon(req.creator, short: true)
             = surround '(', ')' do
               %u{ title: I18n.l(req.created_at.utc) }
-                #{time_ago_in_words(req.created_at)} ago
+                = render FuzzyTimeComponent.new(time: req.created_at)

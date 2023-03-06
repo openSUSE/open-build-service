@@ -38,4 +38,4 @@
       %p.mb-0.mt-0.small
         by
         = details['user']
-        #{ApplicationController.helpers.time_ago_in_words(details['time'].to_i)} ago
+        = render FuzzyTimeComponent.new(time: details['time'].to_i)
