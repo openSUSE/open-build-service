@@ -25,41 +25,57 @@
 
 .card
   .card-body.p-0
-    .d-flex.justify-content-between.mb-2.pt-4.px-4
-      %h3.card-title
+    .card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
+      %h3
         Request #{@bs_request.number}
-        %span.badge.ms-2{ class: "bg-#{request_badge_color(@bs_request.state)}" }>
-          = @bs_request.state
-          - if @bs_request.superseded_by.present?
-            by
-            = link_to(@bs_request.superseded_by, { number: @bs_request.superseded_by }, class: 'link-light')
-        - if @staging_status
-          - staging_title = @staging_status[:title]
-          - staging_title[0].capitalize
-          = link_to @staging_status[:name], @staging_status[:url], title: staging_title, class: 'badge badge-staging ms-2'
-        - if @bs_request.accept_at.present?
-          %span.badge.alert.alert-warning.border-0.ms-2.mb-0.p-2 auto-accept
+        -# state badge
+        %small
+          .badge.ms-2{ class: "bg-#{request_badge_color(@bs_request.state)}" }
+            = @bs_request.state
+      -# watch button
       - if User.session
         .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
           = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
 
+    -# author + datetime + (if superseding -> "Superseds something")
     .card-text.px-4.pb-4
       %p.fst-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
         = render FuzzyTimeComponent.new(time: @bs_request.created_at)
-        - if @bs_request.superseding.present?
-          = '. Supersedes'
-          - @bs_request.superseding.each do |supersed|
-            = link_to "##{supersed['number']}", number: supersed['number']
 
-      = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
+      %ul
+        -# superseded
+        - if @bs_request.superseded_by.present?
+          %li
+            %mark.text-nowrap.text-light{ class: "bg-#{request_badge_color(@bs_request.state)}" } Superseded
+            by
+            = link_to "##{@bs_request.superseded_by}", number: @bs_request.superseded_by
+        -# superseding statement
+        - if @bs_request.superseding.present?
+          %li
+            %strong Supersedes
+            - @bs_request.superseding.each do |supersed|
+              = link_to "##{supersed['number']}", number: supersed['number']
+        -# staging statement
+        - if @staging_status
+          %li
+            %strong Staged
+            in
+            %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
+              = link_to @staging_status[:title], @staging_status[:url]
+        -# auto-accept statement
+        - if @bs_request.accept_at.present?
+          %li
+            This request will be
+            %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: @bs_request.accept_at }
+              auto accepted
+              = render FuzzyTimeComponent.new(time: @bs_request.accept_at)
+      .mt-4
+        -# action description, prev + dropdown select + next
+        = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
                                                      prev_action: @prev_action, next_action: @next_action,
                                                      diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
-      - if @staging_status
-        %p
-          This request is currently
-          = link_to @staging_status[:title], @staging_status[:url]
 
     .border-bottom
       %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }

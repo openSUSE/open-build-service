@@ -412,7 +412,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
       Flipper.enable(:request_show_redesign)
     end
 
-    it 'sets badge for submit request' do
+    it 'shows staging request information' do
       login staging_user
       visit request_show_path(staging_request)
       click_on('Add Reviewer')
@@ -421,7 +421,8 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         fill_in 'Project', with: staging_project.name
         click_button('Accept')
       end
-      expect(page).to have_css('.badge-staging')
+      expect(page).to have_text('Staged in')
+      expect(page).to have_css('.bg-staging')
     end
   end
 end

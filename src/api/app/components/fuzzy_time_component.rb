@@ -9,8 +9,13 @@ class FuzzyTimeComponent < ApplicationComponent
   end
 
   def human_time_ago
-    return 'now' if (Time.now.utc - time) < 60
+    now = Time.now.utc
+    diff = now - time
 
-    "#{time_ago_in_words(time)} ago"
+    if diff.positive?
+      "#{distance_of_time_in_words(now, time)} ago"
+    else
+      "in #{distance_of_time_in_words(now, time)}"
+    end
   end
 end
