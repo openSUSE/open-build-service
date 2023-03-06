@@ -175,6 +175,10 @@ sub xrpc_dowakeup {
   my $wakeup = delete $handle->{'_wakeup'};
   delete $handle->{'_wakeup_have'};
   my %did;
+  # do not trigger a wakeup if some other resources are still in progress
+  for my $rh (values(%{$rctx->{'iswaiting'}})) {
+    $did{$_} = 1 for keys %{$rh->{'_wakeup_have'} || {}};
+  }
   for my $whandle (BSUtil::unify(@{$wakeup || []})) {
     my $ctx = $whandle->{'_ctx'};
     my $changeprp = $whandle->{'_changeprp'} || $ctx->{'changeprp'};
@@ -220,6 +224,19 @@ sub xrpc_printstats {
   my ($rctx) = @_;
   my $iswaiting = $rctx->{'iswaiting'};
   return unless %$iswaiting;
+  my $showrunning;
+  if ($showrunning) {
+    print "async RPC requests:\n";
+    for my $resource (sort keys %$iswaiting) {
+      my $handle = $iswaiting->{$resource};
+      my $running = $handle->{'_xrpc_data'} ? '' : ' (running)';
+      my $nw = scalar(@{$handle->{'_wakeup'} || []});
+      $nw = $nw ? " wakeup:$nw" : '';
+      my $nq = scalar(@{$handle->{'_nextxrpc'} || []});
+      $nq = $nq ? " queued:$nq" : '';
+      print "  - $resource$nq$nw$running\n";
+    }
+  }
   my $iswaiting_server = $rctx->{'iswaiting_server'};
   my $iswaiting_serverload = $rctx->{'iswaiting_serverload'};
   my $iswaiting_serverload_low = $rctx->{'iswaiting_serverload_low'};
