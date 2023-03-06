@@ -13,8 +13,8 @@ class Comment < ApplicationRecord
 
   validate :validate_parent_id
 
-  after_create :create_event
-  after_destroy :delete_parent_if_unused
+  after_create :create_event, :instrument_diff_comments_on_create
+  after_destroy :delete_parent_if_unused, :instrument_diff_comments_on_destroy
 
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
   has_many :notifications, as: :notifiable, dependent: :delete_all
@@ -90,6 +90,18 @@ class Comment < ApplicationRecord
     return if commentable.comments.where(id: parent_id).present?
 
     errors.add(:parent, 'belongs to different object')
+  end
+
+  def instrument_diff_comments_on_create
+    return if diff_ref.blank?
+
+    RabbitmqBus.send_to_bus('metrics', 'bs_request_action,diff_comment=add count=1')
+  end
+
+  def instrument_diff_comments_on_destroy
+    return if diff_ref.blank?
+
+    RabbitmqBus.send_to_bus('metrics', 'bs_request_action,diff_comment=remove count=1')
   end
 end
 
