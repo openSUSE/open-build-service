@@ -474,7 +474,7 @@ sub wipeobsolete {
 	$reason = 'excluded' if $info && ($info->{'error'} || '') eq 'excluded';
 	my $releasename = $pdata->{'releasename'} || $packid;
 	if ($ctx->{'excludebuild'}) {
-	    $reason = 'excluded' if $ctx->{'excludebuild'}->{$packid} || $ctx->{'excludebuild'}->{$releasename};
+	  $reason = 'excluded' if $ctx->{'excludebuild'}->{$packid} || $ctx->{'excludebuild'}->{$releasename};
         }
 	if ($ctx->{'onlybuild'}) {
 	  $reason = 'excluded' unless $ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename};
@@ -1515,17 +1515,26 @@ sub read_gbininfo {
   $arch ||= $gctx->{'arch'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   my ($projid, $repoid) = split('/', $prp, 2);
-  if ($remoteprojs->{$projid}) {
-    return BSSched::Remote::read_gbininfo_remote($ctx, "$prp/$arch", $remoteprojs->{$projid}, $ps);
-  }
+
   # a per ctx cache
   my $gbininfo_cache = $ctx->{'gbininfo_cache'};
   $gbininfo_cache = $ctx->{'gbininfo_cache'} = {} unless $gbininfo_cache;
-  my $gbininfo = $gbininfo_cache->{"$prp/$arch"};
+  my ($gbininfo, $ps2) = @{$gbininfo_cache->{"$prp/$arch"} || []};
+  if ($remoteprojs->{$projid}) {
+    if (!$gbininfo || !$ps2) {
+      $ps2 = $ps ? {} : undef;
+      $gbininfo = BSSched::Remote::read_gbininfo_remote($ctx, "$prp/$arch", $remoteprojs->{$projid}, $ps2);
+      $gbininfo_cache->{"$prp/$arch"} = [ $gbininfo, $ps2 ] if $gbininfo && $ps2;
+    }
+    if ($gbininfo && $ps) {
+      $ps->{$_} = $ps2->{$_} for keys %{$ps2 || {}};
+    }
+    return $gbininfo;
+  }
   if (!$gbininfo) {
     my $reporoot = $gctx->{'reporoot'};
     $gbininfo = BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$arch", $arch eq $gctx->{'arch'} ? 0 : 1);
-    $gbininfo_cache->{"$prp/$arch"} = $gbininfo if $gbininfo;
+    $gbininfo_cache->{"$prp/$arch"} = [ $gbininfo ] if $gbininfo;
   }
   return $gbininfo;
 }
