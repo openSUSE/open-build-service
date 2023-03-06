@@ -6,7 +6,7 @@
     wrote
     = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
       #{time_ago_in_words(comment.created_at)} ago
-.timeline-item-comment
+.timeline-item-comment.mb-4
   .comment-bubble
     - if policy(comment).update? || policy(comment).destroy?
       .dropdown.dropleft.float-end

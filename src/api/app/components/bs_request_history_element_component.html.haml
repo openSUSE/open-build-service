@@ -16,5 +16,5 @@
     = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
       #{time_ago_in_words(element.created_at)} ago
 
-.timeline-item-comment
+.timeline-item-comment.mb-4
   = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment, extra_css_classes: css_for_comment }
