@@ -112,7 +112,7 @@ $(document).ready(function(){
 
   // This is used to preview comments from the beta request show view: inside timeline thread (.timeline) and outside timeline (body)
   // and also from the legacy request view (.comments-list): inside and outside the thread.
-  $('.comments-list, .timeline, body').on('click', '.preview-comment-tab:not(.active)', function (e) {
+  $('.comments-list, .timeline, body').on('show.bs.tab', '.preview-comment-tab:not(.active)', function (e) {
       var commentContainer = $(e.target).closest('[class*="-comment-form"]');
       var commentBody = commentContainer.find('.comment-field').val();
       var commentPreview = commentContainer.find('.comment-preview');
