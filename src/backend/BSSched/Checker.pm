@@ -1522,8 +1522,10 @@ sub read_gbininfo {
   my ($gbininfo, $ps2) = @{$gbininfo_cache->{"$prp/$arch"} || []};
   if ($remoteprojs->{$projid}) {
     if (!$gbininfo || !$ps2) {
+      return $gbininfo if defined($gbininfo) && !$gbininfo;	# in progress
       $ps2 = $ps ? {} : undef;
       $gbininfo = BSSched::Remote::read_gbininfo_remote($ctx, "$prp/$arch", $remoteprojs->{$projid}, $ps2);
+      $gbininfo_cache->{"$prp/$arch"} = [ $gbininfo ] if defined($gbininfo) && !$gbininfo;	# cache "in progress"
       $gbininfo_cache->{"$prp/$arch"} = [ $gbininfo, $ps2 ] if $gbininfo && $ps2;
     }
     if ($gbininfo && $ps) {
