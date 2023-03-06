@@ -1,5 +1,5 @@
 - if User.session
-  - opts = defined?(diff_ref) ? { line: diff_ref, element_suffix: "new_comment_#{diff_ref}" } : {}
+  - opts = defined?(diff_ref) ? { line: diff_ref, element_suffix: "new_comment_#{diff_ref}", has_cancel: true } : {}
   = render(partial: 'webui/comment/comment_field',
     locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false }.merge(opts))
 - else
