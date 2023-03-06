@@ -103,5 +103,47 @@ RSpec.describe 'Bootstrap_Requests_Submissions', js: true, vcr: true do
         expect(page).to have_text('In state new')
       end
     end
+
+    describe 'when under the beta program', beta: true do
+      describe 'submit several packages at once against a factory staging project' do
+        let!(:factory) { create(:project, name: 'openSUSE:Factory') }
+        let!(:staging_workflow) { create(:staging_workflow, project: factory) }
+        # Create another action to submit new files from different packages to package_b
+        let!(:another_bs_request_action) do
+          create(:bs_request_action_submit,
+                 bs_request: bs_request,
+                 source_project: source_project,
+                 source_package: source_package,
+                 target_project: factory,
+                 target_package: target_package_b)
+        end
+        let(:bs_request) do
+          create(:bs_request_with_submit_action,
+                 creator: receiver,
+                 target_project: factory,
+                 target_package: target_package,
+                 source_project: source_project,
+                 source_package: source_package)
+            .tap do |bs_request|
+            bs_request.staging_project = staging_workflow.staging_projects.first
+          end
+        end
+        let(:source_package) do
+          create(:package_with_files,
+                 name: 'package_a',
+                 project: source_project,
+                 changes_file_content: '- Fixes boo#1111101 CVE-2011-1101')
+        end
+        let(:target_package_b) { create(:package, name: 'package_b', project: factory) }
+
+        it 'shows the beta version of the requests page' do
+          login receiver
+          visit request_show_path(bs_request.number)
+
+          expect(page).to have_text("This request contains #{bs_request.bs_request_actions.count} actions")
+          expect(page).to have_text('This request is currently submitted against a staging project')
+        end
+      end
+    end
   end
 end
