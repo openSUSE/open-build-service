@@ -109,28 +109,4 @@ $(document).ready(function(){
   $('body').on('click', '.cancel-comment', function (e) {
     $(e.target).closest('.collapse').collapse('hide');
   });
-
-  // This is used to preview comments from the beta request show view: inside timeline thread (.timeline) and outside timeline (body)
-  // and also from the legacy request view (.comments-list): inside and outside the thread.
-  $('.comments-list, .timeline, body').on('show.bs.tab', '.preview-comment-tab:not(.active)', function (e) {
-      var commentContainer = $(e.target).closest('[class*="-comment-form"]');
-      var commentBody = commentContainer.find('.comment-field').val();
-      var commentPreview = commentContainer.find('.comment-preview');
-      if (commentBody) {
-        $.ajax({
-          method: 'POST',
-          url: commentContainer.data('previewCommentUrl'),
-          dataType: 'json',
-          data: { 'comment[body]': commentBody },
-          success: function(data) {
-            commentPreview.html(data.markdown);
-          },
-          error: function() {
-            commentPreview.html('Error loading markdown preview');
-          }
-        });
-      } else {
-        commentPreview.html('Nothing to preview');
-      }
-  });
 });
