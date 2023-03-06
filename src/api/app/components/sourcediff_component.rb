@@ -13,6 +13,10 @@ class SourcediffComponent < ApplicationComponent
     @refresh = refresh
   end
 
+  def commentable
+    BsRequestAction.find(@action[:id])
+  end
+
   def file_view_path(filename, sourcediff)
     return if sourcediff['files'][filename]['state'] == 'deleted'
 

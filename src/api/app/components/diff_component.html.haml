@@ -2,20 +2,35 @@
   .diff{ class: "digits-#{diff.max_digits}" }>
     - diff.lines&.each do |line|
       - id = "diff_#{file_index}_n#{line.index}"
-      %div{ class: "line #{line.state}", id: }>
-        - case line.state
-        - when 'comment', 'range'
-          .offset
-            .text-muted.text
-              = line.content
-        - else
-          = link_to("##{id}", class: 'd-flex') do
-            .number<
-              = line.original_index
-            .number<
-              = line.changed_index
-          .value<
-            %span.character><
-              = line.content[0]
-            %span.content><
-              = line.content[1..]
+      .line-container{ id: }
+        %div{ class: "line #{line.state}" }>
+          - case line.state
+          - when 'comment', 'range'
+            .offset
+              .text-muted.text
+                = line.content
+          - else
+            = link_to("##{id}", class: 'd-flex') do
+              .number<
+                = line.original_index
+              .number<
+                = line.changed_index
+            .value<
+              %span.character><
+                = line.content[0]
+              %span.content><
+                = line.content[1..]
+        - if commentable
+          .line-comment{ id: "comment#{id}" }
+            - if commentable.comments.where(diff_ref: id).present?
+              .p-3.border-top.border-bottom
+                .comments-list
+                  = render(partial: 'webui/comment/comment_list',
+                           locals: { comment: Comment.new, commentable: commentable, diff_ref: id })
+            - else
+              .comments-list
+                = link_to(request_inline_comment_path(commentable.bs_request, commentable, id),
+                          class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
+                  %i.fas.fa-comment-medical
+                  .visually-hidden
+                    Add comment

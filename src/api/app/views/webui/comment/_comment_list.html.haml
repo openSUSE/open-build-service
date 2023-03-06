@@ -1,8 +1,9 @@
-- commentable.comments.without_parent.includes(:user).each do |comment|
+- opts = defined?(diff_ref) ? { diff_ref: } : {}
+- commentable.comments.where(opts).without_parent.includes(:user).each do |comment|
   = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 
 .comment_new.mt-3
-  = render partial: 'webui/comment/new', locals: { commentable: commentable }
+  = render partial: 'webui/comment/new', locals: opts.merge({ commentable: commentable })
 
 :javascript
   $(document).ready(function() {

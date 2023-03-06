@@ -26,7 +26,7 @@ class Webui::CommentsController < Webui::WebuiController
              status: status)
     else
       render(partial: 'webui/comment/comment_list',
-             locals: { commentable: @commentable },
+             locals: { commentable: @commentable, diff_ref: comment.root.diff_ref },
              status: status,
              root_comment: comment.root)
     end
@@ -53,7 +53,7 @@ class Webui::CommentsController < Webui::WebuiController
                  status: status)
         else
           render(partial: 'webui/comment/comment_list',
-                 locals: { commentable: comment.commentable },
+                 locals: { commentable: comment.commentable, diff_ref: comment.root.diff_ref },
                  status: status)
         end
       end
@@ -92,7 +92,7 @@ class Webui::CommentsController < Webui::WebuiController
              locals: { comment: comment.root, commentable: @commentable, level: 1 },
              status: status)
     else
-      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: comment.root.diff_ref }, status: status)
     end
   end
   # rubocop:enable Metrics/PerceivedComplexity
@@ -108,11 +108,11 @@ class Webui::CommentsController < Webui::WebuiController
   private
 
   def permitted_params
-    params.require(:comment).permit(:body, :parent_id)
+    params.require(:comment).permit(:body, :parent_id, :diff_ref)
   end
 
   def set_commented
-    @commentable_type = [Project, Package, BsRequest].find { |klass| klass.name == params[:commentable_type] }
+    @commentable_type = [Project, Package, BsRequest, BsRequestActionSubmit].find { |klass| klass.name == params[:commentable_type] }
     @commented = @commentable_type&.find_by(id: params[:commentable_id])
     return if @commentable_type.present?
 

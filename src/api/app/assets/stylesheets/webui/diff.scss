@@ -24,8 +24,23 @@
   .diff {
     min-width: 100%;
     width: max-content;
-    font-family: $font-family-monospace;
+    .line-container {
+      .line-new-comment {
+        display: none;
+      }
+      &:hover .line-new-comment {
+        display: block;
+        position: absolute;
+        z-index: 1000;
+        margin-left: calc(2 * (var(--line-index-digits) + 2rem + #{$card-border-width}) + 0.5rem + #{$card-border-width});
+        margin-top: -1.75rem;
+      }
+      .line-comment hr:first-of-type {
+        display: none;
+      }
+    }
     .line {
+      font-family: $font-family-monospace;
       display: flex;
       .character {
         width: 1ch;

@@ -1,0 +1,4 @@
+.p-3.border-top.border-bottom
+  .comments-list
+    = render(partial: 'webui/comment/comment_list',
+      locals: { comment: Comment.new, commentable:, diff_ref: })
