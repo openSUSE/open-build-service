@@ -8,7 +8,7 @@ class FuzzyTimeComponent < ApplicationComponent
     @time = time.utc
   end
 
-  def human_time_ago
+  def human_time
     now = Time.now.utc
     diff = now - time
 

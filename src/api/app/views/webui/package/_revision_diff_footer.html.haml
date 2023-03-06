@@ -2,7 +2,7 @@
   %p
     The previous request
     = link_to(request['id'], request_show_path(project, package, request['id']))
-    was declined #{FuzzyTimeComponent.new(time: request['when']).human_time_ago} by
+    was declined #{FuzzyTimeComponent.new(time: request['when']).human_time} by
     = user_with_realname_and_icon(request['decliner'], short: true)
     with the following message:
     %pre= request['comment']
