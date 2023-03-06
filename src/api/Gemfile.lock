@@ -411,7 +411,7 @@ GEM
       rubocop (~> 1.33)
       rubocop-capybara (~> 2.17)
     ruby-ldap (0.9.20)
-    ruby-progressbar (1.12.0)
+    ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
     sanitize (6.0.1)
