@@ -66,7 +66,7 @@
             was
             %strong auto-accepted
             at
-            %span.fuzzy-time{ title: "#{I18n.l bs_request.accept_at}" }
+            %span{ title: "#{I18n.l bs_request.accept_at}" }
             = succeed '.' do
               = I18n.l bs_request.accept_at, format: :only_date
         - elsif bs_request.accept_at.past?
