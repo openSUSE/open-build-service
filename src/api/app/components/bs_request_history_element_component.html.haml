@@ -14,7 +14,7 @@
     - else
       = element.user_action
     = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
-      = render FuzzyTimeComponent.new(time: element.created_at)
+      = render TimeComponent.new(time: element.created_at)
 
 .timeline-item-comment.mb-4
   = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment, extra_css_classes: css_for_comment }

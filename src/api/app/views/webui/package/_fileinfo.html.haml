@@ -29,7 +29,7 @@
     - btime = Time.zone.at(fileinfo.value('mtime').to_i)
 
     #{btime}
-    = render FuzzyTimeComponent.new(time: btime)
+    = render TimeComponent.new(time: btime)
 
 = render partial: 'deps', locals: { fileinfo: fileinfo,
                                 filename: filename,

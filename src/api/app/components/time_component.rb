@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FuzzyTimeComponent < ApplicationComponent
+class TimeComponent < ApplicationComponent
   attr_reader :time
 
   def initialize(time:)

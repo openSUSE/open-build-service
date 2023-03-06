@@ -47,7 +47,7 @@
                 = status_report.pretty_request_parameters
               %small.text-nowrap{ title: l(status_report.created_at.utc) }
                 Sent
-                = render FuzzyTimeComponent.new(time: status_report.created_at)
+                = render TimeComponent.new(time: status_report.created_at)
 
     - else
       No status reports

@@ -7,7 +7,7 @@
       = link_to(user, user_path(user))
       created request
       = link_to('#request-creation', title: I18n.l(bs_request.created_at.utc), name: 'request-creation') do
-        = render FuzzyTimeComponent.new(time: bs_request.created_at)
+        = render TimeComponent.new(time: bs_request.created_at)
 
 
     = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }

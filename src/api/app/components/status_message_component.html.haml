@@ -6,7 +6,7 @@
       = helpers.user_with_realname_and_icon(@status_message.user, short: true)
       wrote
       %u
-        = render FuzzyTimeComponent.new(time: @status_message.created_at)
+        = render TimeComponent.new(time: @status_message.created_at)
       - if policy(@status_message).update? && policy(@status_message).destroy?
         .float-end<
           = link_to(edit_news_item_path(@status_message), title: 'Edit news item', class: 'me-2') do

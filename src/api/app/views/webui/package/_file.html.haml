@@ -9,7 +9,7 @@
     %span.d-none= file[:size].rjust(10, '0')
     = human_readable_fsize(file[:size])
   %td.text-nowrap{ data: { order: "-#{file[:mtime]}" } }
-    = render FuzzyTimeComponent.new(time: Time.zone.at(file[:mtime].to_i))
+    = render TimeComponent.new(time: Time.zone.at(file[:mtime].to_i))
   / limit download for anonymous user to avoid getting killed by crawlers
   - unless nobody
     %td.text-center<

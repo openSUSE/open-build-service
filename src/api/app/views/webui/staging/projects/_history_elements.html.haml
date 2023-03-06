@@ -11,6 +11,6 @@
         %b= element.user_name
       - when 'staging_project_created'
         %b
-          = render FuzzyTimeComponent.new(time: Time.zone.at(element.datetime.to_i))
+          = render TimeComponent.new(time: Time.zone.at(element.datetime.to_i))
         by
         %b= element.user_name

@@ -42,7 +42,7 @@
       %p.fst-italic
         Created by
         = user_with_realname_and_icon(@bs_request.creator)
-        = render FuzzyTimeComponent.new(time: @bs_request.created_at)
+        = render TimeComponent.new(time: @bs_request.created_at)
 
       %ul
         -# superseded
@@ -70,7 +70,7 @@
             This request will be
             %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: @bs_request.accept_at }
               auto accepted
-              = render FuzzyTimeComponent.new(time: @bs_request.accept_at)
+              = render TimeComponent.new(time: @bs_request.accept_at)
       .mt-4
         -# action description, prev + dropdown select + next
         = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,

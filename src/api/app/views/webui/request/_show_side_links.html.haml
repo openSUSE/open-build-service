@@ -3,7 +3,7 @@
     %i.fas.fa-user.text-success
     Created by
     = user_with_realname_and_icon(bs_request.creator, no_icon: true, short: true)
-    = render FuzzyTimeComponent.new(time: bs_request.created_at)
+    = render TimeComponent.new(time: bs_request.created_at)
   %li
     %i.fas.fa-info-circle.text-info
     In state
@@ -35,7 +35,7 @@
         This request will be automatically accepted when it enters the 'new' state.
       - else
         This request will be automatically accepted in
-        = render FuzzyTimeComponent.new(time: bs_request.accept_at)
+        = render TimeComponent.new(time: bs_request.accept_at)
   - bs_request.reviews.where(state: 'new').each do |review|
     %li
       %i.fas.fa-info-circle.text-info
