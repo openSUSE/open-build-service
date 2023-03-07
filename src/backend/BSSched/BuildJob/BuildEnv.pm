@@ -114,7 +114,7 @@ sub build {
     # nope, need to search package data as well
     for my $aprp (@{$ctx->{'prpsearchpath'}}) {
       my ($aprojid, $arepoid) = split('/', $aprp, 2);
-      my $gbininfo = $ctx->read_gbininfo($aprp, $arch, 1) || {};
+      my $gbininfo = $ctx->read_gbininfo($aprp, $arch) || {};
       for my $packid (sort keys %$gbininfo) {
 	for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
 	  next unless $_->{'name'} && $_->{'hdrmd5'};
