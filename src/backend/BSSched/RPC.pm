@@ -118,6 +118,7 @@ sub xrpc {
     } else {
       push @{$rctx->{'iswaiting_serverload_low'}->{$server}}, $handle;
     }
+    $handle->{'_ctx'} = $ctx;
     $handle->{'_iswaiting'} = $resource;
     $handle->{'_server'} = $server;
     $iswaiting->{$resource} = $handle;
@@ -177,6 +178,14 @@ sub xrpc_dowakeup {
   my %did;
   # do not trigger a wakeup if some other resources are still in progress
   for my $rh (values(%{$rctx->{'iswaiting'}})) {
+    next if $rh == $handle;
+    if ($rh->{'_ctx'}) {
+      my $rctx = $rh->{'_ctx'};
+      my $rchangeprp = $rh->{'_changeprp'} || $rctx->{'changeprp'};
+      my $rchangetype = $rh->{'_changetype'} || $rctx->{'changetype'} || 'high';
+      my $rchangelevel = $rh->{'_changelevel'} || $rctx->{'changelevel'} || 1;
+      $did{"$rchangeprp/$rchangetype/$rchangelevel"} = 1 if $rchangeprp;
+    }
     $did{$_} = 1 for keys %{$rh->{'_wakeup_have'} || {}};
   }
   for my $whandle (BSUtil::unify(@{$wakeup || []})) {
@@ -188,6 +197,33 @@ sub xrpc_dowakeup {
     $did{"$changeprp/$changetype/$changelevel"} = 1;
     $rctx->{'wakeupfunction'}->($ctx, $whandle);
   }
+}
+
+=head2 xrpc_othersinprogress - return true if this ctx needs to wait for other resources
+
+ TODO: add description
+
+=cut
+
+sub xrpc_othersinprogress {
+  my ($rctx, $handle) = @_;
+  my $ctx = $handle->{'_ctx'};
+  return 0 unless $ctx;
+  my $changeprp = $handle->{'_changeprp'} || $ctx->{'changeprp'};
+  my $changetype = $handle->{'_changetype'} || $ctx->{'changetype'} || 'high';
+  my $changelevel = $handle->{'_changelevel'} || $ctx->{'changelevel'} || 1;
+  my $did = "$changeprp/$changetype/$changelevel";
+  for my $rh (values(%{$rctx->{'iswaiting'}})) {
+    if ($rh->{'_ctx'}) {
+      my $rctx = $rh->{'_ctx'};
+      my $rchangeprp = $rh->{'_changeprp'} || $rctx->{'changeprp'};
+      my $rchangetype = $rh->{'_changetype'} || $rctx->{'changetype'} || 'high';
+      my $rchangelevel = $rh->{'_changelevel'} || $rctx->{'changelevel'} || 1;
+      return 1 if $rchangeprp && $did eq "$rchangeprp/$rchangetype/$rchangelevel";
+    }
+    return 1 if ($rh->{'_wakeup_have'} || {})->{$did};
+  }
+  return 0;
 }
 
 =head2 xrpc_handles - return all active handles

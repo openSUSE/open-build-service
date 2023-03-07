@@ -1444,6 +1444,13 @@ sub setchanged {
   BSSched::Lookat::setchanged($gctx,  $changeprp, $changetype, $changelevel);
 }
 
+sub setchanged_unless_othersinprogress {
+  my ($ctx, $handle) = @_;
+  my $gctx = $ctx->{'gctx'};
+  die("no gctx in ctx\n") unless $gctx;
+  $ctx->setchanged($handle) unless $gctx->{'rctx'}->xrpc_othersinprogress($handle);
+}
+
 sub checkprojectaccess {
   my ($ctx, $projid) = @_;
   return BSSched::Access::checkprpaccess($ctx->{'gctx'}, $projid, $ctx->{'project'});
