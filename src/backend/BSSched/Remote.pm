@@ -414,7 +414,7 @@ sub addrepo_remote_resume {
   my $gctx = $ctx->{'gctx'};
   my $pool = BSSolv::pool->new();
   my $r = addrepo_remote_unpackcpio($gctx, $pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $handle->{'_modules'}, $error);
-  $ctx->setchanged($handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
+  $ctx->setchanged_unless_othersinprogress($handle);
 }
 
 sub import_annotation {
@@ -628,7 +628,7 @@ sub read_gbininfo_remote_resume {
   my ($ctx, $handle, $error, $packagebinarylist) = @_;
   my $gctx = $ctx->{'gctx'};
   convertpackagebinarylist($gctx, $handle->{'_prpa'}, $packagebinarylist, $error, $ctx->{'prp'}, $handle->{'_isgbininfo'});
-  $ctx->setchanged($handle);
+  $ctx->setchanged_unless_othersinprogress($handle);
 }
 
 sub convertpackagebinarylist {
