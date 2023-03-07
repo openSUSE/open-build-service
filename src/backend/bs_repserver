@@ -289,6 +289,7 @@ sub getpackagebinaryversionlist {
       my $r = { 'name' => $bin->{'filename'} };
       $r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
       $r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
+      $r->{'md5sum'} = $bin->{'md5sum'} if $bin->{'md5sum'} && !$cgi->{'view'};	# compat: added only for worker requests
       my $size = (split('/', $bin->{'id'}))[1];
       $r->{'sizek'} = ($size + 512) >> 10;
       push @pres, $r;

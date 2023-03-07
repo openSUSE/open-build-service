@@ -1729,10 +1729,51 @@ sub getbinaries_kiwiproduct {
 
     # try the cache first
     if ($bvl) {
+      my $needprovenance;
+      for my $bv (@{$bvl->{'binary'} || []}) {
+	next unless $bv->{'name'} =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
+	next unless $binfilter{"$packid/$1.$2"};
+	next if $nosrcpkgs && ($2 eq 'src' || $2 eq 'nosrc');
+	next if $nodbgpkgs && $bv->{'name'} =~ /-(?:debuginfo|debugsource)-/;
+	$needprovenance = 1;
+	last;
+      }
       for my $bv (@{$bvl->{'binary'} || []}) {
 	my $bin = $bv->{'name'};
 	if ($bin =~ /appdata\.xml$/ || $bin eq '_modulemd.yaml' || $bin =~ /slsa_provenance.json$/) {
-	  push @todo, $bv;	# currently not in cache
+	  my $rarch;
+	  if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.slsa_provenance\.json$/) {
+	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
+	    next if $nosrcpkgs && ($2 eq 'src' || $2 eq 'nosrc');
+	    next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
+	  } elsif ($bin =~ /appdata\.xml$/) {
+	    $rarch = 'appdata'; 
+	  } elsif ($bin eq '_modulemd.yaml') {
+	    $rarch = 'modulemd'; 
+	  } elsif ($bin eq '_slsa_provenance.json') {
+	    $rarch = '_slsa_provenance' if $needprovenance;
+	  }
+	  next unless $rarch;		# unwanted
+	  if ($bv->{'md5sum'}) {
+	    my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", "$bv->{'md5sum'}.extra");
+	    mkdir_p("$ddir/$rarch");
+	    if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
+	      my @s = stat("$ddir/$rarch/$bin.new.rpm");
+	      die unless @s;
+	      if (checkmd5("$ddir/$rarch/$bin.new.rpm", $bv->{'md5sum'})) {
+		push @cacheold, [$cacheid, $s[7]];
+		if ($bin eq '_modulemd.yaml') {
+		  rename("$ddir/$rarch/$bin.new.rpm", "$ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm") || die("rename $ddir/$rarch/$bin.new.rpm $ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm: $!\n");
+		  $bin = "$packid.$arch.modulemd.yaml";
+		}
+		$provenance{"$rarch/$bin"} = 1 if $bin eq '_slsa_provenance.json' || $bin =~ /\.slsa_provenance\.json$/;
+		push @done, "$rarch/$bin";
+		next;
+	      }
+	      unlink("$dir/$rarch/$bin.new.rpm");
+	    }
+	  }
+	  push @todo, $bv;
 	  $downloadsizek += $bv->{'sizek'};
 	  next;
 	}
@@ -1743,6 +1784,7 @@ sub getbinaries_kiwiproduct {
 	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", "$bv->{'hdrmd5'}$rpmhdrs_only");
 	mkdir_p("$ddir/$rarch");
+	delete $cachenew{"$ddir/$rarch/$bin"};
 	if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
 	  my @s = stat("$ddir/$rarch/$bin.new.rpm");
 	  die unless @s;
@@ -1852,6 +1894,12 @@ sub getbinaries_kiwiproduct {
 	  }
 	  $provenance{"$rarch/$bin"} = 1 if $bin eq '_slsa_provenance.json' || $bin =~ /\.slsa_provenance\.json$/;
 	  push @done, "$rarch/$bin";
+	  if ($bv->{'md5sum'} && checkmd5("$ddir/$rarch/$bin.new.rpm", $bv->{'md5sum'})) {
+	    my ($cacheid) = get_cachefile("$projid/$repoid/$arch", "$bv->{'md5sum'}.extra");
+	    $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	  } else {
+	    delete $cachenew{"$ddir/$rarch/$bin"};	# hmm?
+	  }
 	  next;
 	}
 	my $leadsigmd5 = '';
@@ -1863,6 +1911,7 @@ sub getbinaries_kiwiproduct {
 	  $knownmd5{"$rarch/$bin"} = $id;
 	  $provenance{"$rarch/$bin"} = 1;
 	} else {
+	  delete $cachenew{"$ddir/$rarch/$bin"};
 	  unlink "$ddir/$rarch/$bin.new.rpm";
 	  push @todo, $bv;
 	}
@@ -1949,7 +1998,13 @@ sub getbinaries_kiwiproduct {
 	unlink("$ddir/$1.slsa_provenance.json");
 	link("$ddir/_slsa_provenance/_slsa_provenance.json", "$ddir/$1.slsa_provenance.json") || die("link $ddir/_slsa_provenance/_slsa_provenance.json $ddir/$1.slsa_provenance.json: $!\n");
 	$kiwiorigins->{"obs://$prp/$1.slsa_provenance.json"} = $prpap;
+	if ($cachenew{"$ddir/_slsa_provenance/_slsa_provenance.json"}) {
+	  my $cn = delete $cachenew{"$ddir/_slsa_provenance/_slsa_provenance.json"};
+	  $cn->[2] = "$ddir/$1.slsa_provenance.json";
+	  $cachenew{"$ddir/$1.slsa_provenance.json"} = $cn;
+	}
       }
+      delete $cachenew{"$ddir/_slsa_provenance/_slsa_provenance.json"};
       unlink("$ddir/_slsa_provenance/_slsa_provenance.json");
       rmdir("$ddir/_slsa_provenance");
       delete $kiwiorigins->{"obs://$prp/_slsa_provenance/_slsa_provenance.json"};
