@@ -143,7 +143,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', js: true, vcr: true do
           expect(page).to have_text('Select Action')
           expect(page).to have_text('Next')
           expect(page).to have_text("(of #{bs_request.bs_request_actions.count})")
-          expect(page).to have_text('Staged in')
+          expect(page).to have_text('has a Staging Workflow')
         end
       end
     end
