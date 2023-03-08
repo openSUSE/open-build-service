@@ -821,6 +821,7 @@ our $binaryversionlist = [
 	    'hdrmd5',
 	    'metamd5',
 	    'leadsigmd5',
+	    'md5sum',	# worker call only
      ]],
 ];
 
@@ -836,6 +837,7 @@ our $packagebinaryversionlist = [
 		'hdrmd5',
 		'metamd5',
 		'leadsigmd5',
+		'md5sum',	# worker call only
 	 ]],
      ]],
 ];
