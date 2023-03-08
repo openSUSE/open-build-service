@@ -125,4 +125,43 @@ RSpec.describe SearchController, vcr: true do
       end
     end
   end
+
+  describe 'search limited to 2 results', vcr: false do
+    render_views false
+
+    before do
+      stub_const('CONFIG', CONFIG.merge('limit_for_search_results' => 2))
+    end
+
+    let!(:package1) { create(:package, name: 'package_1') }
+    let!(:package2) { create(:package, name: 'package_2') }
+
+    describe 'same number of results than the limit' do
+      it 'returns results' do
+        get :package, params: { match: "starts_with(@name,'package_')" }, format: :xml
+
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    describe 'more number of results than the limit' do
+      let!(:package3) { create(:package, name: 'package_3') }
+
+      describe 'search without ids' do
+        it 'fails' do
+          get :package, params: { match: "starts_with(@name,'package_')" }, format: :xml
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      describe 'search with ids' do
+        it 'returns results' do
+          get :package_id, params: { match: "starts_with(@name,'package_')" }, format: :xml
+
+          expect(response).to have_http_status(:success)
+        end
+      end
+    end
+  end
 end
