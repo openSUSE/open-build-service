@@ -15,6 +15,14 @@ RSpec.describe Comment do
       comment_package.body = '😁'
       expect { comment_package.save! }.not_to raise_error
     end
+
+    context 'for a comment on a bs_request_action' do
+      let(:comment) { create(:comment, :bs_request_action) }
+
+      it 'creates the corresponding event' do
+        expect { comment.save! }.to change(Event::CommentForRequest, :count).by(1)
+      end
+    end
   end
 
   describe 'associations' do
