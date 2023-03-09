@@ -317,13 +317,14 @@ sub event_scanprjbinaries {
     my $prp = "$projid/$repoid";
     my $arch = $ev->{'arch'} || $myarch;
     delete $gctx->{'remotegbininfos'}->{"$prp/$arch"};
-    if ($ev->{'arch'}) {
-      # remote gbininfo retry event
-      my $changed_med = $gctx->{'changed_med'};
-      $changed_med->{$prp} = 2;
+    if ($remoteprojs->{$projid}) {
+      if ($ev->{'arch'}) {
+        # remote gbininfo retry event
+        my $changed_med = $gctx->{'changed_med'};
+        $changed_med->{$prp} = 2;
+      }
       return;
     }
-    return if $remoteprojs->{$projid};
     if (defined($packid)) {
       unlink("$prp/$myarch/$packid/.bininfo");
     } else {
