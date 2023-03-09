@@ -307,7 +307,7 @@ sub getgbininfo {
   my $prp = "$projid/$repoid";
 
   die("getgbininfo: package filtering is not supported\n") if $cgi->{'package'};
-  my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$prp/$arch", 1);
+  my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$prp/$arch", 1, 1);
   if ($cgi->{'withcode'}) {
     my $ps = readpackstatus("$projid/$repoid/$arch");
     my $code = ($ps || {})->{'packstatus'} || {};

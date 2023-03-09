@@ -5,6 +5,7 @@ use strict;
 use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
+use BSVerify;
 use Build;
 
 my $reporoot = "$BSConfig::bsdir/build";
@@ -59,7 +60,7 @@ sub addrepo_scan {
 }
 
 sub read_gbininfo {
-  my ($dir, $collect) = @_;
+  my ($dir, $collect, $withquery) = @_;
   my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
   if ($gbininfo) {
     my $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
@@ -79,14 +80,14 @@ sub read_gbininfo {
     $gbininfo = {};
     for my $packid (grep {!/^[:\.]/} sort(ls($dir))) {
       next if $packid eq '_deltas' || $packid eq '_volatile' || ! -d "$dir/$packid";
-      $gbininfo->{$packid} = read_bininfo("$dir/$packid");
+      $gbininfo->{$packid} = read_bininfo("$dir/$packid", $withquery);
     }
   }
   return $gbininfo;
 }
 
 sub read_bininfo {
-  my ($dir) = @_;
+  my ($dir, $withquery) = @_;
   my $bininfo = BSUtil::retrieve("$dir/.bininfo", 1);
   return $bininfo if $bininfo;
   # .bininfo not present or old style, generate it
@@ -94,12 +95,20 @@ sub read_bininfo {
   for my $file (ls($dir)) {
     if ($file =~ /\.(?:$binsufsre)$/) {
       my @s = stat("$dir/$file");
-      my ($hdrmd5, $leadsigmd5);
-      $hdrmd5 = Build::queryhdrmd5("$dir/$file", \$leadsigmd5);
-      next unless $hdrmd5;
-      my $r = {'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
-      $r->{'hdrmd5'} = $hdrmd5;
-      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+      my $r = {};
+      eval {
+	my $leadsigmd5;
+	$r->{'hdrmd5'} = Build::queryhdrmd5("$dir/$file", \$leadsigmd5);
+	if ($withquery) {
+	  $r = Build::query("$dir/$file", 'evra' => 1);
+	  BSVerify::verify_nevraquery($r) if $r;
+	}
+	die("missing hdrmd5\n") unless $r && $r->{'hdrmd5'};
+	$r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+      };
+      next if $@;
+      $r->{'filename'} = $file;
+      $r->{'id'} = "$s[9]/$s[7]/$s[1]";
       $bininfo->{$file} = $r;
     } elsif ($file =~ /\.obsbinlnk$/) {
       my @s = stat("$dir/$file");
@@ -108,7 +117,7 @@ sub read_bininfo {
       my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
       delete $r->{'path'};
       $bininfo->{$file} = $r;
-    } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml') {
+    } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/) {
       local *F;
       open(F, '<', "$dir/$file") || next;
       my @s = stat(F);
