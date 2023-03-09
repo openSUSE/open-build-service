@@ -279,7 +279,7 @@ sub xrpc_printstats {
   print "running async RPC requests:\n";
   for my $server (sort keys %$iswaiting_server) {
     next unless %{$iswaiting_server->{$server} || {}};
-    print "  - $server: ".scalar(keys %{$iswaiting_server->{$server}})." running, ".@{$iswaiting_serverload->{$server} || []}."/".@{$iswaiting_serverload_low->{$server} || []}." waiting\n";
+    print "  - $server: ".scalar(keys %{$iswaiting_server->{$server}})." running, ".@{$iswaiting_serverload->{$server} || []}."+".@{$iswaiting_serverload_low->{$server} || []}." waiting\n";
   }
 }
 
