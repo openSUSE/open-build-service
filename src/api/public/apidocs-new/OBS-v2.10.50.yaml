@@ -309,6 +309,8 @@ paths:
 
   # Sources - Packages
 
+  /source/{project_name}/{package_name}:
+    $ref: 'paths/source_project_name_package_name.yaml'
   /source/{project_name}/{package_name}?cmd=commit:
     $ref: 'paths/source_project_name_package_name_cmd_commit.yaml'
   /source/{project_name}/{package_name}?cmd=copy:

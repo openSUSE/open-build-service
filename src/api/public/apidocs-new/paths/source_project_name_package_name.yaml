@@ -1,0 +1,47 @@
+get:
+  summary: List source files of a packages of a project.
+  description: Get a list of source files belonging to a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            name: package_1
+            rev: 4
+            vrev: 4
+            srcmd5: 2e276a9a18eb1f4e6d1187d456c9335d
+            entry:
+              - name: _config
+                md5: 38a56fe6747ddc35214cb2ace161496f
+                size: 59
+                mtime: 1677507657
+              - name: somefile.txt
+                md5: 8680db994e398a1542c6fd05ee7f9fef
+                size: 55
+                mtime: 1677507647
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+  tags:
+    - Sources - Packages
