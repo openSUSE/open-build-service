@@ -17,6 +17,7 @@ class SourceAttributeController < SourceController
   # GET
   # /source/:project/_attribute
   # /source/:project/_attribute/:attribute
+  # /source/:project/:package/_attribute
   # /source/:project/:package/_attribute/:attribute
   # /source/:project/:package/:binary/_attribute/:attribute
   #--------------------------------------------------------
