@@ -758,7 +758,8 @@ class Package < ApplicationRecord
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
 
-      h = { user: commit_user.login, comment: commit_opts[:comment] }
+      h = { user: commit_user.login }
+      h[:comment] = commit_opts[:comment] if commit_opts[:comment]
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
       path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
