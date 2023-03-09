@@ -98,7 +98,7 @@ class SourceController < ApplicationController
     raise DeletePackageNoPermission, "no permission to delete package #{@target_package_name} in project #{@target_project_name}" unless User.session!.can_modify?(tpkg)
 
     # deny deleting if other packages use this as develpackage
-    tpkg.check_weak_dependencies! unless params[:force]
+    tpkg.check_weak_dependencies! unless params[:force] == '1'
 
     logger.info "destroying package object #{tpkg.name}"
     tpkg.commit_opts = { comment: params[:comment] }
