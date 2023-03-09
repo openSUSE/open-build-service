@@ -45,3 +45,61 @@ get:
                 summary: "Package not found: home:some_project/some_package"
   tags:
     - Sources - Packages
+
+delete:
+  summary: Deletes a specified package including all its source files.
+  description: Deletes a specified package including all its source files, if no other packages use this package as devel package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment to be included in the revision history of the package.
+      example: This package was no longer needed.
+    - in: query
+      name: force
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to delete this package, even if other packages use this one as devel package.
+      example: 1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Delete Error:
+              value:
+                code: delete_error
+                summary: "Package is used by following packages as devel package: project_devel/ctris"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+  tags:
+    - Sources - Packages
