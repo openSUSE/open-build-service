@@ -26,8 +26,7 @@ get:
           schema:
             $ref: '../components/schemas/source/attributes.yaml'
           example:
-            attribute:
-              name: MaintenanceProject
+            - name: MaintenanceProject
               namespace: OBS
     '400':
       description: Wrong value for deleted parameter.
@@ -65,8 +64,7 @@ post:
         schema:
           $ref: '../components/schemas/source/attributes.yaml'
         example:
-          attribute:
-            name: MaintenanceProject
+          - name: MaintenanceProject
             namespace: OBS
   responses:
     '200':
