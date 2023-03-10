@@ -45,6 +45,7 @@ tags:
   - name: Sources
   - name: Sources - Projects
   - name: Sources - Packages
+  - name: Sources - Files
   - name: Trigger
   - name: Workers
 
@@ -363,6 +364,10 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
   /source/{project_name}/{package_name}?cmd=wipe:
     $ref: 'paths/source_project_name_package_name_cmd_wipe.yaml'
+
+  # Sources - Files
+  /source/{project_name}/{package_name}/{file_name}:
+    $ref: 'paths/source_project_name_package_name_file_name.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

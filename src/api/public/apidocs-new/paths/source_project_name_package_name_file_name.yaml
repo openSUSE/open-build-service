@@ -1,0 +1,70 @@
+get:
+  summary: Read a specified source file
+  description: Read a specified source file and return the content
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - in: query
+      name: rev
+      schema:
+        type: integer
+      description: Retrieve the file at a specific package revision.
+      example: 3
+    - in: query
+      name: meta
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to show meta data instead of sources.
+      example: 1
+    - in: query
+      name: deleted
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to 1 to retrieve a file from a deleted project or package.
+      example: 0
+    - in: query
+      name: expand
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to include files from linked packages.
+      example: 1
+    - name: view
+      in: query
+      schema:
+        type: string
+        enum:
+          - blame
+      description: With `view=blame`, information about who changed the file.
+      example: blame
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Unknown parameter
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown parameter:
+              value:
+                code: unknown_parameter
+                summary: "unknown parameter 'limit'"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_file.yaml'
+  tags:
+    - Sources - Files
