@@ -34,5 +34,5 @@ end
 
 def index_to_build?
   filename = "config/#{Rails.env}.sphinx.conf"
-  !File.file?(filename) || File.zero?(filename)
+  !File.file?(filename) || File.empty?(filename)
 end
