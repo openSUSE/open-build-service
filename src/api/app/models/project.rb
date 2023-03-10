@@ -1158,6 +1158,8 @@ class Project < ApplicationRecord
 
         pkg.project.repositories.each do |repo|
           repo.release_targets.each do |releasetarget|
+            next if params[:target_project].present? && params[:target_project] != releasetarget.target_repository.project.name
+            next if params[:target_repository].present? && params[:target_repository] != releasetarget.target_repository.name
             # release source and binaries
             # permission checking happens inside this function
             release_package(pkg,

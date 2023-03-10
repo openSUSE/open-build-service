@@ -483,6 +483,8 @@ Additional Parameters:
   resign: resign all binaries with new target project key
   setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
               the release string. Note: this modifies only the filename.
+  target_repository: allows filtering based on given target repository name
+  target_project: allows filtering based on given target project name
   withbinaries: copies also binaries on copy command
   withhistory: copies sources with history on copy command
 

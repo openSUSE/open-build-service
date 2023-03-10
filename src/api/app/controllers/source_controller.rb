@@ -597,6 +597,9 @@ class SourceController < ApplicationController
           repo_bad_type = true
           next
         end
+        next if params[:target_project].present? && params[:target_project] != releasetarget.target_repository.project.name
+        next if params[:target_repository].present? && params[:target_repository] != releasetarget.target_repository.name
+
         unless User.session!.can_modify?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
