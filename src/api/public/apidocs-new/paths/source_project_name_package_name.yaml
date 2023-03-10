@@ -1,3 +1,352 @@
+get:
+  summary: List source files of a package.
+  description: Get a list of source files belonging to a package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: deleted
+      schema:
+        type: string
+      description: |
+        Set to `1` to list source files of deleted packages.
+
+        Return a "Bad Request" error (400) if it is set to `1` and the package exists.
+      example: 1
+    # TODO
+    # - in: query
+    #   name: emptylink
+    #   schema:
+    #     type: string
+    #     enum:
+    #       - 1
+    #       - 0
+    #   default: 0
+    #   description:
+    #   example: 1
+    - in: query
+      name: expand
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Expand links.
+      example: 1
+    - in: query
+      name: extension
+      schema:
+        type: string
+      description: List source files with the given extension.
+      example: txt
+    - in: query
+      name: lastworking
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Show sources of the last mergeable sources in case of conflicting changes.
+      example: 1
+    - in: query
+      name: linkrev
+      schema:
+        type: string
+      description: Show sources of the specified linked revision in the base package.
+    - in: query
+      name: meta
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to show only the metadata file (`_meta`) in the list of files.
+      example: 1
+    - in: query
+      name: product
+      schema:
+        type: string
+      description: Use with `view=products`. Limit the product view to a given product.
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: Show sources of the specified revision.
+      example: 42
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - cpio
+          - getmultibuild
+          - info
+          - issues
+          - products
+          - productrepositories
+      description: |
+        Specify which information about a package should be returned.
+
+        * `cpio`: Stream all package files as cpio.
+        * `getmultibuild`: List multibuild packages.
+        * `info`: Show source version, md5sums and build description files, among other information.
+           See this [other endpoint](#/TODO) for details.
+        * `issues`: Show all tracked issues for this package.
+        * `products`: Show all products of a package (works only on `_product` or `000product` packages).
+        * `productrepositories`: Show all repositories used in product definitions (or a given product).
+      example: issues
+    - in: query
+      name: withlinked
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to show all used packages (in case of multiple link indirections) in linkinfo information.
+      example: 1
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd). This schema is not used in the following cases:
+        * view=cpio
+        * view=issues
+        * view=products
+        * view=productrepositories
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          examples:
+            Without Any Parameters:
+              value:
+                name: package_1
+                rev: 4
+                vrev: 4
+                srcmd5: 2e276a9a18eb1f4e6d1187d456c9335d
+                entry:
+                  - name: _config
+                    md5: 38a56fe6747ddc35214cb2ace161496f
+                    size: 59
+                    mtime: 1677507657
+                  - name: somefile.txt
+                    md5: 8680db994e398a1542c6fd05ee7f9fef
+                    size: 55
+                    mtime: 1677507647
+            With Parameter meta=1:
+              value:
+                name: package_1
+                rev: 4
+                vrev: 4
+                srcmd5: 2e276a9a18eb1f4e6d1187d456c9335d
+                entry:
+                  - name: _meta
+                    md5: 6742b7fc375300ce04e56819a1a52f64
+                    size: 181
+                    mtime: 1678724165
+            With Parameter view=getmultibuild:
+              value:
+                entry:
+                  - name: obs-bundled-gems
+                  - name: obs-api-testsuite-rspec
+            With Parameter view=issues:
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <package project="project_1" name="package_1">
+                  <issue change="kept">
+                    <created_at>2008-11-18 16:47:00 UTC</created_at>
+                    <updated_at>2020-02-24 13:01:11 UTC</updated_at>
+                    <name>446164</name>
+                    <tracker>bnc</tracker>
+                    <label>boo#246064</label>
+                    <url>https://bugzilla.test.com/show_bug.cgi?id=246064</url>
+                    <state>CLOSED</state>
+                    <summary>AUDIT-0: obs-server: /usr/bin/sign</summary>
+                    <owner>
+                      <login>user_1</login>
+                      <email>user_1@test.com</email>
+                      <realname>John Doe</realname>
+                    </owner>
+                  </issue>
+                </package>
+            With Parameter view=products:
+              value: |
+                <productlist>
+                  <productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
+                    <products>
+                      <product>
+                        <vendor>openSUSE</vendor>
+                        <name>openSUSE</name>
+                        <version>20230315</version>
+                        <release>0</release>
+                        <productline>openSUSE</productline>
+                        <register>
+                          <updates>
+                            <distrotarget arch="x86_64">openSUSE-Tumbleweed-x86_64</distrotarget>
+                            <distrotarget arch="s390x">openSUSE-Tumbleweed-s390x</distrotarget>
+                            <distrotarget arch="ppc64le">openSUSE-Tumbleweed-ppc64le</distrotarget>
+                            <distrotarget arch="aarch64">openSUSE-Tumbleweed-aarch64</distrotarget>
+                          </updates>
+                        </register>
+                        <updaterepokey>000000000</updaterepokey>
+                        <summary>openSUSE Tumbleweed</summary>
+                        <shortsummary>openSUSE</shortsummary>
+                        <description>openSUSE Tumbleweed is the rolling distribution by the openSUSE.org project.</description>
+                        <linguas>
+                          <language>cs</language>
+                          <language>da</language>
+                        </linguas>
+                        <urls>
+                          <url name="releasenotes">http://doc.opensuse.org/release-notes/x86_64/openSUSE/Tumbleweed/release-notes-openSUSE.rpm</url>
+                          <url name="repository">http://download.opensuse.org/tumbleweed/repo/oss/</url>
+                        </urls>
+                        <buildconfig>
+                          <producttheme>openSUSE</producttheme>
+                          <create_flavors>true</create_flavors>
+                        </buildconfig>
+                        <installconfig>
+                          <defaultlang>en_US</defaultlang>
+                          <default_obs_repository_name>openSUSE_Tumbleweed</default_obs_repository_name>
+                          <releasepackage name="openSUSE-release" flag="EQ" version="%{version}"/>
+                          <distribution>openSUSE</distribution>
+                        </installconfig>
+                        <runtimeconfig/>
+                      </product>
+                    </products>
+                    <conditionals>
+                      <conditional name="baselibs_only_x86_64">
+                        <platform onlyarch="x86_64"/>
+                      </conditional>
+                      <conditional name="baselibs_hammer_from_i686">
+                        <platform arch="x86_64" baselibs_arch="i686"/>
+                      </conditional>
+                    </conditionals>
+                    <repositories>
+                      <repository path="obsrepositories:/"/>
+                    </repositories>
+                    <archsets>
+                      <archset name="i586" productarch="i586">
+                        <arch>i586</arch>
+                        <arch>i686</arch>
+                        <arch>noarch</arch>
+                      </archset>
+                      <archset name="i686" productarch="i686">
+                        <arch>i686</arch>
+                        <arch>i586</arch>
+                        <arch>i486</arch>
+                        <arch>i386</arch>
+                        <arch>noarch</arch>
+                      </archset>
+                    </archsets>
+                  </productdefinition>
+                </productlist>
+            With Parameter view=productrepositories:
+              value: |
+                <productrepositories>
+                  <product name="MicroOS">
+                  </product>
+                  <product name="openSUSE-Addon-NonOss">
+                  </product>
+                  <product name="openSUSE">
+                    <distrotarget arch="x86_64">openSUSE-Tumbleweed-x86_64</distrotarget>
+                    <distrotarget arch="s390x">openSUSE-Tumbleweed-s390x</distrotarget>
+                    <distrotarget arch="ppc64le">openSUSE-Tumbleweed-ppc64le</distrotarget>
+                    <distrotarget arch="aarch64">openSUSE-Tumbleweed-aarch64</distrotarget>
+                  </product>
+                </productrepositories>
+        application/x-cpio:
+          schema:
+            type: string
+          examples:
+            With Parameter view=cpio:
+              value: |
+                07070100000000000081a40000000000000000000000015331456900000135000000000000000000000000000000000000000d00000000_constraints<constraints>
+                  <overwrite>
+                    <conditions>
+                      <package>obs-server</package>
+                    </conditions>
+
+                    <hardware>
+                      <memory>
+                        <size unit="M">2000</size>
+                      </memory>
+                      <physicalmemory>
+                        <size unit="M">1500</size>
+                      </physicalmemory>
+                    </hardware>
+                  </overwrite>
+                </constraints>
+                07070100000000000081a40000000000000000000000015b595e440000006a000000000000000000000000000000000000000c00000000_multibuild<multibuild>
+                  <flavor>obs-bundled-gems</flavor>
+                  <flavor>obs-api-testsuite-rspec</flavor>
+                </multibuild>
+                07070100000000000081a40000000000000000000000016229cffc000002ec000000000000000000000000000000000000000900000000_service<?xml version="1.0"?>
+                <services>
+                  <service name="obs_scm">
+                    <param name="versionformat">2.11~alpha.%ci.%h</param>
+                    <param name="url">https://github.com/openSUSE/open-build-service.git</param>
+                    <param name="scm">git</param>
+                    <param name="revision">master</param>
+                    <param name="extract">dist/obs-api-testsuite-rspec.spec</param>
+                    <param name="extract">dist/obs-bundled-gems.spec</param>
+                    <param name="extract">dist/obs-server.spec</param>
+                    <param name="extract">dist/obs-rpmlintrc</param>
+                  </service>
+                  <service name="set_version"/>
+                  <service name="tar" mode="buildtime"/>
+                  <service name="recompress" mode="buildtime">
+                    <param name="compression">xz</param>
+                    <param name="file">*.tar</param>
+                  </service>
+                </services>
+                07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `meta`, for example.
+              value:
+                code: 400
+                summary: not boolean
+            With deleted=1 and Package exists:
+              description: Passing a value of `1` to `deleted`, and the package exists.
+              value:
+                code: package_exists
+                summary: the package is not deleted
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+  tags:
+    - Sources - Files
+
 delete:
   summary: Deletes a specified package including all its source files.
   description: Deletes a specified package including all its source files. By default only if no other packages use this package as a devel package.
@@ -39,19 +388,6 @@ delete:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
-      description: Not Found.
-      content:
-        application/xml; charset=utf-8:
-          schema:
-            $ref: '../components/schemas/api_response.yaml'
-          examples:
-            Unknown Project:
-              value:
-                code: unknown_project
-                summary: "Project not found: home:some_project"
-            Unknown Package:
-              value:
-                code: unknown_package
-                summary: "Package not found: home:some_project/some_package"
+      $ref: '../components/responses/unknown_project_or_package.yaml'
   tags:
     - Sources - Packages

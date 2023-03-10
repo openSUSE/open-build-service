@@ -45,6 +45,7 @@ tags:
   - name: Sources
   - name: Sources - Projects
   - name: Sources - Packages
+  - name: Sources - Files
   - name: Trigger
   - name: Workers
 
