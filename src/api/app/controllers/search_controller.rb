@@ -13,12 +13,26 @@ class SearchController < ApplicationController
     search(:project, false)
   end
 
+  # DEPRECATED: '/search/project_id' is deprecated in favour of '/search/project/id'
+  # Lets use a different controller method for this route in order to track usage
+  # through influxdb-rails and to keep them separate for later removal
+  def project_id_deprecated
+    project_id
+  end
+
   def package
     search(:package, true)
   end
 
   def package_id
     search(:package, false)
+  end
+
+  # DEPRECATED: '/search/package_id' is deprecated in favour of '/search/package/id'
+  # Lets use a different controller method for this route in order to track usage
+  # through influxdb-rails and to keep them separate for later removal
+  def package_id_deprecated
+    package_id
   end
 
   def repository_id
