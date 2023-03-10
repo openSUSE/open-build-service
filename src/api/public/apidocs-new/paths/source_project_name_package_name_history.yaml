@@ -1,0 +1,86 @@
+get:
+  summary: Get package commit history.
+  description: Get package commit history.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: deleted
+      schema:
+        type: string
+      description: Set to `1` to allow to retrieve the revision history of a deleted package.
+      example: 1
+    - in: query
+      name: limit
+      schema:
+        type: integer
+      description: Limit the number of retrieved revision history elements to the specified number.
+      example: 20
+    - in: query
+      name: meta
+      schema:
+        type: string
+      description: Set to `1` to retrieve the revision history of the meta file (`_meta`) of the package.
+      example: 1
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: Return the revision entry for a specific revision number.
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [revisionlist.rng](../schema/revisionlist.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/revision_list.yaml'
+          examples:
+            Two Revisions:
+              value:
+                - rev: 1
+                  vrev: ''
+                  srcmd5: d41d8cd98f00b204e9800998ecf8427e
+                  version: ''
+                  time: 1678364228
+                  user: Admin
+                  comment: package was deleted
+                - rev: 2
+                  vrev: ''
+                  srcmd5: d41d8cd98f00b204e9800998ecf8427e
+                  version: ''
+                  time: 1678364246
+                  user: Admin
+                  comment: package was undeleted
+            rev Parameter Specified (rev = 1):
+              value:
+                - rev: 1
+                  vrev: ''
+                  srcmd5: d41d8cd98f00b204e9800998ecf8427e
+                  version: ''
+                  time: 1678364228
+                  user: Admin
+                  comment: package was deleted
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+  tags:
+    - Sources - Packages
