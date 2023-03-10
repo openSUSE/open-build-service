@@ -7,6 +7,12 @@ post:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
     - in: query
+      name: comment
+      schema:
+        type: string
+      description: Provide a comment to the revision in history.
+      example: This was changed to improve foobar.
+    - in: query
       name: linkrev
       schema:
         type: string
