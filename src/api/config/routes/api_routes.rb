@@ -128,8 +128,8 @@ OBSApi::Application.routes.draw do
       match 'search/released/binary' => :released_binary, via: [:get, :post]
       match 'search/project/id' => :project_id, via: [:get, :post]
       match 'search/package/id' => :package_id, via: [:get, :post]
-      match 'search/project_id' => :project_id, via: [:get, :post] # FIXME3.0: to be removed
-      match 'search/package_id' => :package_id, via: [:get, :post] # FIXME3.0: to be removed
+      match 'search/project_id' => :project_id_deprecated, via: [:get, :post] # FIXME3.0: to be removed
+      match 'search/package_id' => :package_id_deprecated, via: [:get, :post] # FIXME3.0: to be removed
       match 'search/project' => :project, via: [:get, :post]
       match 'search/package' => :package, via: [:get, :post]
       match 'search/person' => :person, via: [:get, :post]
