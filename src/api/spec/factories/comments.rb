@@ -15,5 +15,9 @@ FactoryBot.define do
     factory :comment_request do
       commentable { create(:set_bugowner_request) }
     end
+
+    trait :bs_request_action do
+      association :commentable, factory: :bs_request_with_submit_action
+    end
   end
 end
