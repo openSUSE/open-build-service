@@ -499,8 +499,8 @@ XmlResult: package directory.xsd
 
 Parameters:
 
-  deleted: show deleted package instead of existing
-  expand: include also packages from linked projects
+  deleted: bool, show deleted package instead of existing, optional
+  expand: bool, include also packages from linked projects, optional
   view: issues, can be used to show all tracked issues for all packages in project
         productlist, shows all containing products, unifies result when used with expand
         verboseproductlist, same as productlist, but with detailed information about the product
