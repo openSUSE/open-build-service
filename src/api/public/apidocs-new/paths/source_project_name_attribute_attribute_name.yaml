@@ -5,19 +5,26 @@ get:
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/attribute_name.yaml'
-    - name: meta
-      in: query
-      schema:
-        type: string
-    - name: rev
-      in: query
-      schema:
-        type: string
+    # Query Strings:
+    # `rev`: doesn't make sense in project level and makes the endpoint crash.
+    # `meta`: either you pass `meta` or not, it's always replaced by meta: 1.
+    # `with_project`: does not make sense in project level and makes the endpoint crash.
     - name: view
       in: query
       schema:
         type: string
-      description: The value of this parameter should only be `blame`
+        enum:
+          - blame
+      description: With view=blame, information about who changed each XML tag and when is displayed.
+      example: blame
+    - name: with_default
+      in: query
+      schema:
+        type: string
+      description: |
+        If the attribute doesn't contain any value and `with_default` is present,
+        the default values will be displayed, if any.
+      example: 1
   responses:
     '200':
       description: OK. The request has succeeded.
