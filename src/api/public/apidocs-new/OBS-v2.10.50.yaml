@@ -315,6 +315,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_commit.yaml'
   /source/{project_name}/{package_name}?cmd=copy:
     $ref: 'paths/source_project_name_package_name_cmd_copy.yaml'
+  /source/{project_name}/{package_name}?cmd=createSpecFileTemplate:
+    $ref: 'paths/source_project_name_package_name_cmd_createSpecFileTemplate.yaml'
   /source/{project_name}/{package_name}?cmd=diff:
     $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
   /source/{project_name}/{package_name}?cmd=linkdiff:
