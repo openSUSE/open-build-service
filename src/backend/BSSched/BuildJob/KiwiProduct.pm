@@ -104,6 +104,15 @@ sub check {
   return ('excluded', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
 
+  # sort archs like in bs_worker
+  @archs = sort(@archs);
+  if ($packid =~ /-([^-]+)$/) {
+    if (grep {$_ eq $1} @archs) {
+      @archs = grep {$_ ne $1} @archs;
+      push @archs, $1;
+    }
+  }
+
   if ($myarch ne $buildarch && $myarch ne $localbuildarch) {
     if (!grep {$_ eq $myarch} @archs) {
       if ($ctx->{'verbose'}) {
@@ -267,7 +276,10 @@ sub check {
   my %blockedarch;
   my $delayed_errors = '';
   my $projpacks = $gctx->{'projpacks'};
+  my %unneeded_na;
+  my %archs = map {$_ => 1} @archs;
   for my $aprp (@aprps) {
+    my %seen_fn;	# resolve file conflicts in this prp
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
     my $aproj = $projpacks->{$aprojid} || {};
@@ -279,7 +291,9 @@ sub check {
       my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
       $known{$apackid} = $info->{'name'} if $info && $info->{'name'};
     }
-    for my $arch (@archs) {
+    my $is_maintenance_release = ($aproj->{'kind'} || '') eq 'maintenance_release' ? 1 : 0;
+    my @next_unneeded_na;
+    for my $arch (reverse @archs) {
       next if $myarch ne $buildarch && $myarch ne $arch;
       my $ps;
       if (!$remoteprojs->{$aprojid} && -e "$reporoot/$aprp/$arch/:packstatus") {
@@ -316,18 +330,19 @@ sub check {
       # just for maintenance_release project handling, in that case we
       # use the binary from the container with the highest number if
       # some containers contain the same binary.
-      my $seen_binary;
-      $seen_binary = {} if ($aproj->{'kind'} || '') eq 'maintenance_release';
+      my $seen_binary = $is_maintenance_release ? {} : undef;
 
       for my $apackid (BSSched::ProjPacks::orderpackids($aproj, @apackids)) {
 	next if $apackid eq '_volatile';
 	next if ($pdatas->{$apackid} || {})->{'patchinfo'};
+	my $code = $ps->{$apackid} || 'unknown';
 
-	my $apackid2 = $known{$apackid} || $apackid;
-	if (($allpacks && !$deps{"-$apackid"} && !$deps{"-$apackid2"}) || $deps{$apackid} || $deps{$apackid2}) {
-	  # hey, we probably need this package! wait till it's finished
-	  my $code = $ps->{$apackid} || 'unknown';
-	  if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
+	# fast blocked check
+	if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
+	  my $apackid2 = $known{$apackid} || $apackid;
+	  # crude check if the "main" binary is needed
+	  if (($allpacks && !$deps{"-$apackid"} && !$deps{"-$apackid2"}) || $deps{$apackid} || $deps{$apackid2}) {
+	    # hey, we probably need this package! wait till it's finished
 	    push @blocked, "$aprp/$arch/$apackid";
 	    $blockedarch{$arch} = 1;
 	    last if @blocked > $maxblocked;
@@ -335,77 +350,86 @@ sub check {
 	  }
 	}
 
-	# hmm, we don't know if we really need it. check bininfo.
-	my $bininfo;
-	if ($gbininfo) {
-	  $bininfo = $gbininfo->{$apackid} || {};
-	} else {
-	  $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
+	# go through all the rpms in this package
+	my $bininfo = $gbininfo ? $gbininfo->{$apackid} : read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
+	next if !$bininfo || $bininfo->{'.nouseforbuild'};	# skip channels/patchinfos
+
+	my @bi = sort(keys %$bininfo);
+
+	# first find out if we need any rpm from this package
+	my $needit;
+	for my $fn (@bi) {
+	  next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  my ($bn, $ba) = ($1, $2);
+	  next if $ba eq 'src' || $ba eq 'nosrc';	# always unneeded
+	  my $na = "$bn.$ba";
+	  next if $unneeded_na{$na};
+	  if ($fn =~ /-(?:debuginfo|debugsource)-/) {
+	    if ($nodbgpkgs || !$deps{$bn}) {
+	      $unneeded_na{$na} = 1;
+	      next;
+	    }
+          }
+	  next if $seen_binary && $seen_binary->{$na};
+	  next if $seen_fn{$fn};
+	  if ($fn =~ /^::import::(.*?)::(.*)$/) {
+	    next if $archs{$1};		# we pick it up from the real arch
+	    next if $seen_fn{$2};
+	  }
+	  if (!($deps{$bn} || ($allpacks && !$deps{"-$bn"}))) {
+	    $unneeded_na{$na} = 1;	# cache unneeded
+	    next;
+	  }
+	  $needit = 1;
+	  last;
 	}
 
-	# skip channels/patchinfos
-	next if $bininfo->{'.nouseforbuild'};
+	next unless $needit;
 
-	my @got;
-	my $needit;
-	my @bi = sort(keys %$bininfo);
 	# put imports last
 	my @ibi = grep {/^::import::/} @bi;
 	if (@ibi) {
 	  @bi = grep {!/^::import::/} @bi;
 	  push @bi, @ibi;
 	}
+
+	# we need the package, add all rpms
 	for my $fn (@bi) {
-	  next unless $fn =~ /\.rpm$/;
+	  next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  my ($bn, $ba) = ($1, $2);
+	  next if $nosrcpkgs && ($ba eq 'src' || $ba eq 'nosrc');
 	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
-	  next if $fn =~ /\.(?:nosrc|src)\.rpm$/;
-	  if ($fn =~ /^::import::.*?::(.*)$/) {
-	    # ignore import if we already got the package (can happen with aggregates)
-	    next if $rpms_meta{"$aprp/$arch/$apackid/$1"};
+	  next if $seen_fn{$fn};
+	  my $na = "$bn.$ba";
+	  next if $seen_binary && $seen_binary->{$na}++;
+	  if ($fn =~ /^::import::(.*?)::(.*)$/) {
+	    next if $archs{$1};		# we pick it up from the real arch
+	    next if $seen_fn{$2};
 	  }
 	  my $b = $bininfo->{$fn};
-	  if ($seen_binary) {
-	    next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
-	    $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
-	  }
-	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
-	  push @got, "$aprp/$arch/$apackid/$fn";
-	  $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
-	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
+	  my $rpm = "$aprp/$arch/$apackid/$fn";
+	  push @rpms, $rpm;
+	  $rpms_hdrmd5{$rpm} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
+	  $rpms_meta{$rpm} = "$aprp/$arch/$apackid/$na";
+	  $seen_fn{$fn} = 1;
+	  push @next_unneeded_na, $na unless $ba eq 'src' || $ba eq 'nosrc';
 	}
-	next unless $needit;
-	# collect all source packages if we needed one binary package
-	if (!$nosrcpkgs) {
-	  for my $fn (@bi) {
-	    next unless $fn =~ /\.(?:nosrc|src)\.rpm$/;
-	    if ($fn =~ /^::import::.*?::(.*)$/) {
-	      # ignore import if we already got the package (can happen with aggregates)
-	      next if $rpms_meta{"$aprp/$arch/$apackid/$1"};
-	    }
-	    my $b = $bininfo->{$fn};
-	    if ($seen_binary) {
-	      next if $seen_binary->{"$b->{'name'}-$b->{'version'}-$b->{'release'}.$b->{'arch'}"};
-	      $seen_binary->{"$b->{'name'}-$b->{'version'}-$b->{'release'}.$b->{'arch'}"} = 1;
-	    }
-	    push @got, "$aprp/$arch/$apackid/$fn";
-	    $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
-	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
-	  }
-        }
-	# ok we need it. check if the package is built.
-	my $code = $ps->{$apackid} || 'unknown';
+
+	# check if we are blocked
 	if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
 	  push @blocked, "$aprp/$arch/$apackid";
 	  $blockedarch{$arch} = 1;
 	  last if @blocked > $maxblocked;
-	  next;
 	}
-	push @rpms, @got;
       }
       last if @blocked > $maxblocked;
     }
+    @next_unneeded_na = () if $deps{'--use-newest-package'};
+    # now commit all name.arch entries to the unneeded_na hash
+    $unneeded_na{$_} = 1 for @next_unneeded_na;
     last if @blocked > $maxblocked;
   }
+
   return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
   if ($markerdir && $myarch eq $buildarch) {
     # update waiting_for markers

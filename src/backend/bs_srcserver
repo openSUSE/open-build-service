@@ -6930,13 +6930,39 @@ sub external_notification_redis {
   return $BSStdServer::return_ok;
 }
 
+# FIXME improve error handling
 sub verify_sourcepublish_event {
-  my ($project, $package, $md5) = @_;
-  BSVerify::verify_projid($project);
-  BSVerify::verify_packid($package);
-  BSVerify::verify_md5($md5);
-  # FIXME improve caching and error handling
-  BSSrcServer::Access::checksourceaccess($project, $package);
+  my ($projid, $packid) = @_;
+  BSVerify::verify_projid($projid);
+  BSVerify::verify_packid($packid);
+  BSSrcServer::Access::checksourceaccess($projid, $packid);
+}
+
+sub sourcepublish_isblocked {
+  my ($projid, $packid, $projcache, $musthave) = @_;
+
+  # check for exact match
+  if (grep {$packid eq $_} @$BSConfig::sourcepublish_blocklist) {
+    BSUtil::printlog("block list hit for $packid");
+    return 1;
+  }
+
+  # extra check for maintenance projects
+  my $proj = $projcache->{$projid};
+  if (!$proj && !exists($projcache->{$projid})) {
+    $proj = $projcache->{$projid} = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+    if (!$proj) {
+      die("400 Unable to parse $projid.xml\n") if $musthave;
+      return undef;	# take it...
+    }
+  }
+  return 0 unless ($proj->{'kind'} || '') eq 'maintenance_release';
+
+  if (grep {$packid =~ /^\Q$_\E\./} @$BSConfig::sourcepublish_blocklist) {
+    BSUtil::printlog("block list hit for $packid in maintenance release project $projid");
+    return 1;
+  }
+  return 0;
 }
 
 sub external_notification_sourcepublish {
@@ -6947,42 +6973,46 @@ sub external_notification_sourcepublish {
   my $sourcepublishdir = "$eventdir/sourcepublish";
   mkdir_p($sourcepublishdir) unless -d $sourcepublishdir;
 
-  for (keys %$payload) {
-    my ($project, $package, $md5) = split('/', $_);
-    verify_sourcepublish_event($project, $package, $md5);
+  my %projcache;
+  my %blockedcache;
+  my %verifycache;
+
+  for (sort keys %$payload) {
+    my ($projid, $packid, $md5) = split('/', $_);
+    if (!exists($verifycache{"$projid/$packid"})) {
+      verify_sourcepublish_event($projid, $packid, $md5);
+      $verifycache{"$projid/$packid"} = 1;
+    }
+    BSVerify::verify_md5($md5);
+
+    if ($BSConfig::sourcepublish_blocklist) {
+      my $isblocked = $blockedcache{"$projid/$packid"};
+      $isblocked = $blockedcache{"$projid/$packid"} = sourcepublish_isblocked($projid, $packid, \%projcache, 1) unless defined $isblocked;
+      next if $isblocked;
+    }
 
     my @included;
     for my $source (@{$payload->{$_} || []}) {
-      my ($iproject, $ipackage, $imd5) = split("/", $source);
-      verify_sourcepublish_event($iproject, $ipackage, $imd5);
-      push @included, { 'project' => $iproject, 'package' => $ipackage, 'srcmd5' => $imd5 };
-    }
-
-    if ($BSConfig::sourcepublish_blocklist) {
-      my $proj = readxml("$projectsdir/$project.xml", $BSXML::proj, 1);
-      die("400 Unable to parse $project.xml\n") unless $proj;
-      if ( ($proj->{'kind'} || '') eq 'maintenance_release' ) {
-        if (grep {$package eq $_ || $package =~ /^\Q$_\E\./} @$BSConfig::sourcepublish_blocklist) {
-          BSUtil::printlog("block list hit for $package in maintenance release project");
-          next;
-        }
-      } elsif (grep {$package eq $_} @$BSConfig::sourcepublish_blocklist) {
-        BSUtil::printlog("block list hit for $package");
-        next;
+      my ($iprojid, $ipackid, $imd5) = split('/', $source);
+      if (!exists($verifycache{"$iprojid/$ipackid"})) {
+        verify_sourcepublish_event($iprojid, $ipackid);
+        $verifycache{"$iprojid/$ipackid"} = 1;
       }
+      BSVerify::verify_md5($imd5);
+      if ($BSConfig::sourcepublish_blocklist) {
+        my $isblocked = $blockedcache{"$projid/$packid"};
+        $isblocked = $blockedcache{"$projid/$packid"} = sourcepublish_isblocked($projid, $packid, \%projcache) unless defined $isblocked;
+        next if $isblocked;
+      }
+      push @included, { 'project' => $iprojid, 'package' => $ipackid, 'srcmd5' => $imd5 };
     }
 
-    my $evname = "${project}::${package}::${md5}";
-    my $ev = { 'type' => "sourcepublish" };
-    $ev->{'project'} = $project;
-    $ev->{'package'} = $package;
-    $ev->{'srcmd5'} = $md5;
+    my $evname = "${projid}::${packid}::${md5}";
+    my $ev = { 'type' => "sourcepublish", 'project' => $projid, 'package' => $packid, 'srcmd5' => $md5 };
     $ev->{'included'} = \@included if @included;
     writexml("$sourcepublishdir/.$evname$$", "$sourcepublishdir/$evname", $ev, $BSXML::event);
   }
-
   BSUtil::ping("$sourcepublishdir/.ping");
-
   return $BSStdServer::return_ok;
 }
 
