@@ -1,0 +1,9 @@
+post:
+  deprecated: true
+  summary: Create a RPM Spec File Template for a specified package.
+  description: |
+    Create a RPM Spec File Template for a specified package. This endpoint
+    is broken and will be removed.
+    See [https://github.com/openSUSE/open-build-service/issues/9707](https://github.com/openSUSE/open-build-service/issues/9707)
+  tags:
+    - Sources - Packages
