@@ -158,8 +158,7 @@ sub check {
   my @channelbins;
   for my $arepoid (sort keys %arepos) {
     my $aprp = "$projid/$arepoid";
-    my $ps = BSUtil::retrieve("$reporoot/$aprp/$myarch/:packstatus", 1);
-    $ps = ($ps || {})->{'packstatus'} || {};
+    my $ps = $ctx->read_packstatus($aprp, $myarch);
     # find which projects go into this repo
     my %aprojids;
     for my $aprojid (keys %proj2repo) {

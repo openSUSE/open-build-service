@@ -194,12 +194,7 @@ sub check {
       }
       next if !$remoteprojs->{$aprojid} && $prpfinished->{$aprp} && $aggregate->{'package'};    # no need to check blocked state
       # notready/prpnotready is indexed with source binary names, so we cannot use it here...
-      my $ps = BSUtil::retrieve("$reporoot/$aprp/$myarch/:packstatus", 1);
-      if (!$ps) {
-	$ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
-      }
-      $ps = ($ps || {})->{'packstatus'} || {};
+      my $ps = {};
 
       # for remote projects we always need the gbininfo
       if ($remoteprojs->{$aprojid}) {
@@ -210,6 +205,8 @@ sub check {
 	  push @broken, $aprp;
 	  next;
 	}
+      } else {
+        $ps = $ctx->read_packstatus($aprp, $myarch);
       }
 
       if (!$aggregate->{'package'}) {

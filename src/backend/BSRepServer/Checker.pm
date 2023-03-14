@@ -280,6 +280,11 @@ sub read_gbininfo {
   return BSRepServer::read_gbininfo("$reporoot/$prp/$arch");
 }
 
+sub read_packstatus {
+  my ($ctx, $prp, $arch) = @_;
+  return {};
+}
+
 sub writejob {
   my ($ctx, $job, $binfo, $reason) = @_;
   $ctx = $ctx->{'realctx'} if $ctx->{'realctx'};
