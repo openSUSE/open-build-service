@@ -68,3 +68,55 @@ get:
       $ref: '../components/responses/unknown_project_or_package_or_file.yaml'
   tags:
     - Sources - Files
+
+delete:
+  summary: Deletes a specified source file of a package.
+  description: Deletes a specified source file of a package of a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: |
+        If set to 'upload', multiple files can be deleted in just one commit.
+        Delete first the files with `rev=upload`, then close the single commit by another request call with `cmd=commit`
+      example: upload
+    - in: query
+      name: meta
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to delete meta data instead of sources.
+      example: 1
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: A comment that will appear in the package's comment section explaining the reason behind the deletion of the file.
+      example: File deleted because it is useless.
+    - in: query
+      name: keeplink
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to preserve the link (`_link` file) on the source.
+      example: 1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_file.yaml'
+  tags:
+    - Sources - Files
