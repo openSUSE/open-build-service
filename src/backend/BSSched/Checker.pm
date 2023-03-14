@@ -1499,7 +1499,9 @@ sub addrepo {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $remoteprojs = $gctx->{'remoteprojs'};
   if ($remoteprojs->{$projid}) {
+    return 0 if ($ctx->{'addrepo_remote_inprogress'} || {})->{"$prp/$arch"};	
     $r = BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
+    $ctx->{'addrepo_remote_inprogress'}->{"$prp/$arch"} = 1 if !$r && defined($r);
   } elsif ($arch ne $gctx->{'arch'}) {
     my $alien_cache = $ctx->{'alien_repo_cache'};
     $alien_cache = $ctx->{'alien_repo_cache'} = {} unless $alien_cache;
@@ -1559,6 +1561,19 @@ sub rebuild_gbininfo {
   my $gbininfo_cache = $ctx->{'gbininfo_cache'};
   delete $gbininfo_cache->{"$prp/$myarch"} if $gbininfo_cache;
   BSSched::BuildResult::rebuild_gbininfo($dir);
+}
+
+sub read_packstatus {
+  my ($ctx, $prp, $arch) = @_;
+  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
+  return {} unless -e "$reporoot/$prp/$arch/:packstatus";
+  my $ps = BSUtil::retrieve("$reporoot/$prp/$arch/:packstatus", 1);
+  if (!$ps) {
+    # compat with very old obs versions
+    $ps = (readxml("$reporoot/$prp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+    return { map {$_->{'name'} => $_->{'status'}} @$ps };
+  }
+  return ($ps || {})->{'packstatus'} || {};
 }
 
 sub writejob {
