@@ -73,7 +73,7 @@ use Data::Dumper;
 use Time::HiRes;
 
 use BSUtil;
-use BSSolv;	# for depsort
+use BSSolv;	# for depsort and orderpackids
 use BSConfiguration;
 use BSSched::Remote;
 use BSSched::DoD;	# for update_doddata
@@ -1690,47 +1690,38 @@ sub neededdodresources {
 
 sub orderpackids {
   my ($proj, @packids) = @_;
-  $proj ||= {};
+  my $kind = ($proj || {})->{'kind'} || '';
   my @s;
   my @back;
-  my $kind = $proj->{'kind'} || '';
   for (@packids) {
-    my $mbflavor = '';
     if ($_ eq '_volatile') {
       push @back, $_;
       next;
     }
+    my $mbflavor = '';
     if (/(?<!^_product)(?<!^_patchinfo):./) {
       /^(.*):(.*?)$/;	# split into base name and flavor
       $_ = $1;
       $mbflavor = ":$2";
     }
-    if (/^(.*)\.(\d+)$/) {
-      # we ignore the name for maintenance release projects and sort only
-      # by the incident number
-      if ($kind eq 'maintenance_release') {
-        push @s, [ "$_$mbflavor", '', $2];
-      } else {
-        push @s, [ "$_$mbflavor", "$1$mbflavor", $2];
-      }
+    if (!/\d$/) {
+      push @s, [ "$_$mbflavor", "$_\0$mbflavor", 99999999999999 ];
+    } elsif (/^(.*)\.(\d+)$/) {
+      push @s, [ "$_$mbflavor", "$1\0$mbflavor", $2];
     } elsif (/^(.*)\.imported_.*?(\d+)$/) {
       # code11 import hack...
-      if ($kind eq 'maintenance_release') {
-        push @s, [ "$_$mbflavor", '', $2 - 1000000];
-      } else {
-        push @s, [ "$_$mbflavor", "$1$mbflavor", $2 - 1000000];
-      }
+      push @s, [ "$_$mbflavor", "$1\0$mbflavor", $2 - 1000000];
     } else {
-      if ($kind eq 'maintenance_release') {
-        push @s, [ "$_$mbflavor", '', 99999999999999 ];
-      } else {
-        push @s, [ "$_$mbflavor", "$_$mbflavor", 99999999999999 ];
-      }
+      push @s, [ "$_$mbflavor", "$_\0$mbflavor", 99999999999999 ];
     }
   }
-  @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
-  push @packids, @back;
-  return @packids;
+  if ($kind eq 'maintenance_release') {
+    # in maintenance release projects the incident number comes first
+    @packids = map {$_->[0]} sort { $b->[2] <=> $a->[2] || $a->[1] cmp $b->[1] || $a->[0] cmp $b->[0] } @s;
+  } else {
+    @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
+  }
+  return @packids, @back;
 }
 
 =head2 update_prpcheckuseforbuild - update the prpcheckuseforbuild hash if a project is changed
