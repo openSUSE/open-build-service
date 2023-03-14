@@ -271,7 +271,7 @@ paths:
   /source/{project_name}/_pubkey:
     $ref: 'paths/source_project_name_pubkey.yaml'
   /source/{project_name}/_attribute/{attribute_name}:
-    $ref: 'paths/source_project_name_attribute_name.yaml'
+    $ref: 'paths/source_project_name_attribute_attribute_name.yaml'
   /source/{project_name}/_project/{file_name}:
     $ref: 'paths/source_project_name_project_file.yaml'
   /source/{project_name}?cmd=addchannels:

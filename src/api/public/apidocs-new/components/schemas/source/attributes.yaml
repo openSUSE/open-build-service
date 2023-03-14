@@ -2,16 +2,16 @@ type: array
 items:
   type: object
   properties:
-    attribute:
-      type: object
-      properties:
-        name:
-          type: string
-          xml:
-            attribute: true
-        namespace:
-          type: string
-          xml:
-            attribute: true
+    name:
+      type: string
+      xml:
+        attribute: true
+    namespace:
+      type: string
+      xml:
+        attribute: true
+  xml:
+    name: attribute
 xml:
   name: attributes
+  wrapped: true
