@@ -315,6 +315,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_history.yaml'
   /source/{project_name}/{package_name}?cmd=commit:
     $ref: 'paths/source_project_name_package_name_cmd_commit.yaml'
+  /source/{project_name}/{package_name}?cmd=commitfilelist:
+    $ref: 'paths/source_project_name_package_name_cmd_commitfilelist.yaml'
   /source/{project_name}/{package_name}?cmd=copy:
     $ref: 'paths/source_project_name_package_name_cmd_copy.yaml'
   /source/{project_name}/{package_name}?cmd=createSpecFileTemplate:

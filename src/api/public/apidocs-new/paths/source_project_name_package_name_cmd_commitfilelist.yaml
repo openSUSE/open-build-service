@@ -1,6 +1,11 @@
 post:
-  summary: Commit package changes.
-  description: Create a new revision of the package, committing package changes.
+  summary: Commit package changes from a filelist.
+  description: |
+    Create a new commit using defined files already uploaded to the repository.
+    
+    This requires a directory xml providing file name and md5 as body.
+    It is recommended to use the `withvalidate` parameter and add the
+    sha256 sum including "sha256:" prefix in "hash" attribute for security reasons.
   security:
     - basic_authentication: []
   parameters:
@@ -10,7 +15,7 @@ post:
       name: comment
       schema:
         type: string
-      description: Provide a comment to the revision in history.
+      description: Provide a comment to the revision
       example: This was changed to improve foobar.
     - in: query
       name: linkrev
@@ -48,6 +53,16 @@ post:
         Set to `1` to solve conflicts.
 
         Used together with `keeplink` parameter.
+      example: 1
+    - in: query
+      name: withvalidate
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to activate sha validation code (optional, but recommended)
       example: 1
   responses:
     '200':
