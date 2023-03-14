@@ -217,6 +217,25 @@ get:
             summary: unable to evaluate 'foo' for 'requests'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: search_results_exceed_configured_limit
+            summary: |
+              The number of results returned by the performed search exceeds the configured limit.
+
+              You can:
+              - retrieve only the ids by using an '/search/.../id' API endpoint, or
+              - reduce the number of matches of your search:
+                - paginating your results, through the 'limit' and 'offset' parameters, or
+                - adjusting your `match` expression.
   tags:
     - Search
 
