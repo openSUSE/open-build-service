@@ -343,6 +343,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_undelete.yaml'
   /source/{project_name}/{package_name}?cmd=waitservice:
     $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
+  /source/{project_name}/{package_name}/_attribute:
+    $ref: 'paths/source_project_name_package_name_attribute.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
