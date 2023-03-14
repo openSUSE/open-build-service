@@ -1691,6 +1691,10 @@ sub neededdodresources {
 sub orderpackids {
   my ($proj, @packids) = @_;
   my $kind = ($proj || {})->{'kind'} || '';
+  if (defined &BSSolv::orderpackids) {
+    # use fast C implementation if available
+    return BSSolv::orderpackids($kind eq 'maintenance_release' ? 1 : 0, @packids);
+  }
   my @s;
   my @back;
   for (@packids) {
