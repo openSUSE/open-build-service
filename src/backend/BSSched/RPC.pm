@@ -124,8 +124,8 @@ sub xrpc {
     $iswaiting->{$resource} = $handle;
     return $handle;
   }
-  print "new RPC $resource ($param->{'uri'})\n";
   my $handle = BSRPC::rpc($param, @args);
+  print "new RPC $resource ($handle->{'uri'})\n";
   $handle->{'_ctx'} = $ctx;
   $handle->{'_iswaiting'} = $resource;
   $handle->{'_server'} = $server;
