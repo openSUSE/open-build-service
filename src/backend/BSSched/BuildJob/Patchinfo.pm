@@ -238,12 +238,7 @@ sub check {
     if ($arch eq $myarch) {
       $apackstatus = $ctx->{'packstatus'};
     } else {
-      my $ps = BSUtil::retrieve("$agdst/:packstatus", 1);
-      if (!$ps) {
-        $ps = (readxml("$agdst/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-        $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
-      }
-      $apackstatus = ($ps || {})->{'packstatus'} || {};
+      $apackstatus = $ctx->read_packstatus($prp, $arch);
     }
     my $blockedarch;
     for my $apackid (@packages) {
