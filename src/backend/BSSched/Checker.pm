@@ -1566,14 +1566,21 @@ sub rebuild_gbininfo {
 sub read_packstatus {
   my ($ctx, $prp, $arch) = @_;
   my $reporoot = $ctx->{'gctx'}->{'reporoot'};
-  return {} unless -e "$reporoot/$prp/$arch/:packstatus";
-  my $ps = BSUtil::retrieve("$reporoot/$prp/$arch/:packstatus", 1);
-  if (!$ps) {
-    # compat with very old obs versions
-    $ps = (readxml("$reporoot/$prp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-    return { map {$_->{'name'} => $_->{'status'}} @$ps };
+  my $ps = $ctx->{'packstatus_cache'}->{"$prp/$arch"};
+  return $ps if $ps;
+  if (-e "$reporoot/$prp/$arch/:packstatus") {
+    $ps = BSUtil::retrieve("$reporoot/$prp/$arch/:packstatus", 1);
+    if (!$ps) {
+      # compat with very old obs versions
+      $ps = (readxml("$reporoot/$prp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+      $ps = { map {$_->{'name'} => $_->{'status'}} @$ps };
+    } else {
+      $ps = $ps->{'packstatus'};
+    }
   }
-  return ($ps || {})->{'packstatus'} || {};
+  $ps ||= {};
+  $ctx->{'packstatus_cache'}->{"$prp/$arch"} = $ps;
+  return $ps;
 }
 
 sub writejob {
