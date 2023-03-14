@@ -1,0 +1,6 @@
+type: array
+items:
+  $ref: 'revision.yaml'
+xml:
+  name: revisionlist
+  wrapped: true
