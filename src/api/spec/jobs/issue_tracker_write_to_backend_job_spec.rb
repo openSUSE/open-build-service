@@ -9,7 +9,7 @@ RSpec.describe IssueTrackerWriteToBackendJob, vcr: true do
 
   describe '#perform' do
     let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true, url: 'https://github.com/opensuse/issues') }
-    let!(:issue) { create(:issue, name: '123', issue_tracker_id: issue_tracker.id, created_at: 4.days.ago) }
+    let!(:issue) { travel_to(4.days.ago) { create(:issue, name: '123', issue_tracker_id: issue_tracker.id) } }
     let(:backend_response) { '<status code="ok" />' }
 
     before do

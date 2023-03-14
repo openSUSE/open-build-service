@@ -69,7 +69,7 @@ RSpec.describe StatusMessage do
       end
 
       context 'when there is more than one announcement in her scope' do
-        let!(:first_status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users, created_at: 1.day.ago) }
+        let!(:first_status_message) { travel_to(1.day.ago) { create(:status_message, severity: 'announcement', communication_scope: :all_users) } }
         let!(:second_status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users) }
 
         it 'returns the newest one' do
@@ -88,7 +88,7 @@ RSpec.describe StatusMessage do
       end
 
       context 'when there is more than one announcement in her scope' do
-        let!(:status_message_for_in_beta) { create(:status_message, severity: 'announcement', communication_scope: :in_beta_users, created_at: 1.day.ago) }
+        let!(:status_message_for_in_beta) { travel_to(1.day.ago) { create(:status_message, severity: 'announcement', communication_scope: :in_beta_users) } }
         let!(:status_message_for_all) { create(:status_message, severity: 'announcement', communication_scope: :all_users) } # now
 
         before do
@@ -113,7 +113,7 @@ RSpec.describe StatusMessage do
       end
 
       context 'when the newest announcement is not in her scope' do
-        let!(:status_message_for_in_beta) { create(:status_message, severity: 'announcement', communication_scope: :in_beta_users, created_at: 1.day.ago) }
+        let!(:status_message_for_in_beta) { travel_to(1.day.ago) { create(:status_message, severity: 'announcement', communication_scope: :in_beta_users) } }
         let!(:status_message_for_rollout) { create(:status_message, severity: 'announcement', communication_scope: :in_rollout_users) } # now
 
         before do
