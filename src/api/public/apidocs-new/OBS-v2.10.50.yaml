@@ -329,6 +329,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_linkdiff.yaml'
   /source/{project_name}/{package_name}?cmd=mergeservice:
     $ref: 'paths/source_project_name_package_name_cmd_mergeservice.yaml'
+  /source/{project_name}/{package_name}?cmd=rebuild:
+    $ref: 'paths/source_project_name_package_name_cmd_rebuild.yaml'
   /source/{project_name}/{package_name}?cmd=remove_flag:
     $ref: 'paths/source_project_name_package_name_cmd_remove_flag.yaml'
   /source/{project_name}/{package_name}?cmd=runservice:
@@ -343,6 +345,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_undelete.yaml'
   /source/{project_name}/{package_name}?cmd=waitservice:
     $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
+  /source/{project_name}/{package_name}?cmd=wipe:
+    $ref: 'paths/source_project_name_package_name_cmd_wipe.yaml'
   /source/{project_name}/{package_name}/_attribute:
     $ref: 'paths/source_project_name_package_name_attribute.yaml'
 
