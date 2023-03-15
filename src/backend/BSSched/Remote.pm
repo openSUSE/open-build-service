@@ -535,11 +535,81 @@ sub addrepo_remote_unpackcpio {
   return $r;
 }
 
+###########################################################################
+###
+### packstatus cache handling
+###
+
+sub update_remotepackstatus_cache {
+  my ($gctx, $prpa, $rpackstatus, $packstatususer) = @_;
+  return unless $packstatususer && $gctx->{'asyncmode'};
+  my $remotepackstatus = $gctx->{'remotepackstatus'};
+  my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
+  $rpackstatus->{'/users'} = [];
+  $rpackstatus->{'/users'} = [ @{$remotepackstatus->{$prpa}->{'/users'} || []} ] if $remotepackstatus->{$prpa};
+  push @{$rpackstatus->{'/users'}}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
+  push @{$remotepackstatus_cleanup->{$packstatususer}}, $prpa;
+  $remotepackstatus->{$prpa} = $rpackstatus;
+}
+
+sub read_remotepackstatus_cache {
+  my ($gctx, $prpa, $packstatususer) = @_;
+  return undef unless $packstatususer && $gctx->{'asyncmode'};
+  my $remotepackstatus = $gctx->{'remotepackstatus'};
+  my $ps = $remotepackstatus->{$prpa};
+  return undef unless $ps;
+  return undef unless grep {$_ eq $packstatususer} @{$ps->{'/users'} || []};
+  return $ps;
+}
+
+sub cleanup_remotepackstatus {
+  my ($gctx, $packstatususer) = @_;
+
+  my $remotepackstatus = $gctx->{'remotepackstatus'};
+  my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
+  return unless $remotepackstatus_cleanup->{$packstatususer};
+  print "    cleaning up remote packstatus\n";
+  for my $prpa (@{$remotepackstatus_cleanup->{$packstatususer}}) {
+    my $rpackstatus = $remotepackstatus->{$prpa};
+    my @users = grep {$_ ne $packstatususer} @{$rpackstatus->{'/users'} || []};
+    $rpackstatus->{'/users'} = \@users;
+    print "      - $prpa: ".@users." users\n";
+    delete $remotepackstatus->{$prpa} unless @users;
+  }
+  delete $remotepackstatus_cleanup->{$packstatususer};
+}
 
 ###########################################################################
 ###
 ### remote BuildResult (aka gbininfo) support
 ###
+
+sub read_gbininfo_remote_cache {
+  my ($gctx, $prpa, $packstatus, $rpackstatus) = @_;
+  my $remotecache = $gctx->{'remotecache'};
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
+  substr($cachemd5, 2, 0, '/');
+  return undef unless -s "$remotecache/$cachemd5.bininfo";
+  my $gbininfo = BSUtil::retrieve("$remotecache/$cachemd5.bininfo", 1);
+  return undef unless $gbininfo;
+  if ($packstatus && $rpackstatus) {
+    $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
+    delete $packstatus->{'/users'};
+  }
+  return $gbininfo;
+}
+
+sub update_gbininfo_remote_cache {
+  my ($gctx, $prpa, $gbininfo, $cookie) = @_;
+  my $remotecache = $gctx->{'remotecache'};
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
+  substr($cachemd5, 2, 0, '/');
+  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+  BSUtil::store("$remotecache/$cachemd5.bininfo.new$$", "$remotecache/$cachemd5.bininfo", $gbininfo);
+  my $remotegbininfos = $gctx->{'remotegbininfos'};
+  $remotegbininfos->{$prpa} = { 'lastfetch' => time() };
+  $remotegbininfos->{$prpa}->{'cookie'} = $cookie if defined $cookie;
+}
 
 sub read_gbininfo_remote {
   my ($ctx, $prpa, $remoteproj, $packstatus) = @_;
@@ -552,9 +622,6 @@ sub read_gbininfo_remote {
 
   my $gctx = $ctx->{'gctx'};
   my $remotegbininfos = $gctx->{'remotegbininfos'};
-  my $cachemd5 = Digest::MD5::md5_hex($prpa);
-  substr($cachemd5, 2, 0, '/');
-
   my $now = time();
 
   # first check error case
@@ -563,32 +630,44 @@ sub read_gbininfo_remote {
     return undef;
   }
 
-  # check if we can use the cache
+  # check if we can use our packstatus cache
   my $rpackstatus;
-  if ($packstatus) {
-    my $remotepackstatus = $gctx->{'remotepackstatus'};
-    if ($remotepackstatus->{$prpa} && $gctx->{'asyncmode'}) {
-      my $prp = $ctx->{'prp'};
-      $rpackstatus = $remotepackstatus->{$prpa} if grep {$_ eq $prp} @{$remotepackstatus->{$prpa}->{'/users'} || []};
-    }
-  }
+  $rpackstatus = read_remotepackstatus_cache($gctx, $prpa, $ctx->{'prp'}) if $packstatus;
+
   if ((!$packstatus || $rpackstatus) && $remotegbininfos->{$prpa} && ($remotegbininfos->{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
-    my $remotecache = $gctx->{'remotecache'};
-    if (-s "$remotecache/$cachemd5.bininfo") {
-      my $gbininfo = BSUtil::retrieve("$remotecache/$cachemd5.bininfo", 1);
-      if ($gbininfo) {
-        if ($packstatus) {
-          for my $pkg (keys %$gbininfo) {
-            $packstatus->{$pkg} = $rpackstatus->{$pkg} if $rpackstatus->{$pkg};
-          }
-        }
-        return $gbininfo;
-      }
+    my $gbininfo = read_gbininfo_remote_cache($gctx, $prpa, $packstatus, $rpackstatus);
+    return $gbininfo if $gbininfo;
+  }
+
+  # need to fetch new data, first try the packstatus if we have a bininfo cookie
+  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+  if ($remoteproj->{'partition'} && $remotegbininfos->{$prpa} && $remotegbininfos->{$prpa}->{'cookie'}) {
+    print "    fetching remote packstatus for $prpa\n";
+    my $param = {
+      'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
+      'timeout' => 200,
+      'proxy' => $gctx->{'remoteproxy'},
+    };
+    if ($gctx->{'asyncmode'}) {
+      $param->{'async'} = { '_resume' => \&read_packstatus_remote_resume, '_prpa' => $prpa };
     }
+    my $rpackstatus;
+    eval {
+      $rpackstatus = $ctx->xrpc("bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=packstatus", "withbininfocookie=1");
+    };
+    return 0 if !$@ && $rpackstatus && $param->{'async'};
+    if ($@) {
+      warn($@);
+    } elsif ($rpackstatus->{'.bininfocookie'} && $rpackstatus->{'.bininfocookie'} eq ($remotegbininfos->{$prpa}->{'cookie'} || '')) {
+      delete $rpackstatus->{'.bininfocookie'};
+      update_remotepackstatus_cache($gctx, $prpa, $rpackstatus, $ctx->{'prp'});
+      my $gbininfo = read_gbininfo_remote_cache($gctx, $prpa, $packstatus, $rpackstatus);
+      return $gbininfo if $gbininfo;
+    }
+    delete $remotegbininfos->{$prpa}->{'cookie'};
   }
 
   print "    fetching remote project binary state for $prpa\n";
-  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
     'timeout' => 200,
@@ -601,7 +680,7 @@ sub read_gbininfo_remote {
   eval {
     if ($remoteproj->{'partition'}) {
       $param->{'async'}->{'_isgbininfo'} = 1 if $param->{'async'};
-      $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
+      $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode", "withbininfocookie=1");
     } else {
       $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
     }
@@ -620,21 +699,43 @@ sub read_gbininfo_remote {
   if ($packstatus && $rpackstatus) {
     $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
     delete $packstatus->{'/users'};
+    delete $packstatus->{'/bininfocookie'};
   }
   return $gbininfo;
 }
 
+sub read_packstatus_remote_resume {
+  my ($ctx, $handle, $error, $rpackstatus) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my $prpa = $handle->{'_prpa'};
+  my $remotegbininfos = $gctx->{'remotegbininfos'};
+  if ($error) {
+    # on error just delete the cookie and retry
+    chomp $error;
+    warn("$error\n");
+    delete $remotegbininfos->{$prpa}->{'cookie'} if $remotegbininfos->{$prpa};
+    $ctx->setchanged_unless_othersinprogress($handle);
+    return;
+  }
+  if ($rpackstatus->{'.bininfocookie'} && $rpackstatus->{'.bininfocookie'} eq ($remotegbininfos->{$prpa}->{'cookie'} || '') && $ctx->{'prp'}) {
+    # gbininfo matches! update cache
+    update_remotepackstatus_cache($gctx, $prpa, $rpackstatus, $ctx->{'prp'});
+  } else {
+    # sorry, need to do fetch the complete gbininfo. delete the cookie and retry
+    delete $remotegbininfos->{$prpa}->{'cookie'} if $remotegbininfos->{$prpa};
+  }
+  $ctx->setchanged_unless_othersinprogress($handle);
+}
+
 sub read_gbininfo_remote_resume {
   my ($ctx, $handle, $error, $packagebinarylist) = @_;
-  my $gctx = $ctx->{'gctx'};
-  convertpackagebinarylist($gctx, $handle->{'_prpa'}, $packagebinarylist, $error, $ctx->{'prp'}, $handle->{'_isgbininfo'});
+  convertpackagebinarylist($ctx->{'gctx'}, $handle->{'_prpa'}, $packagebinarylist, $error, $ctx->{'prp'}, $handle->{'_isgbininfo'});
   $ctx->setchanged_unless_othersinprogress($handle);
 }
 
 sub convertpackagebinarylist {
   my ($gctx, $prpa, $packagebinarylist, $error, $packstatususer, $isgbininfo) = @_;
 
-  my $remotegbininfos = $gctx->{'remotegbininfos'};
   if ($error) {
     chomp $error;
     warn("$error\n");
@@ -643,13 +744,15 @@ sub convertpackagebinarylist {
       my ($projid, $repoid, $arch) = split('/', $prpa, 3);
       $gctx->{'retryevents'}->addretryevent({'type' => 'scanprjbinaries', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
     }
-    $remotegbininfos->{$prpa} = { 'lastfetch' => time(), 'error' => $error };
+    $gctx->{'remotegbininfos'}->{$prpa} = { 'lastfetch' => time(), 'error' => $error };
     return (undef, undef);
   }
   my $gbininfo = {};
   my $rpackstatus = {};
+  my $bininfocookie;
   if ($isgbininfo) {
     $gbininfo = $packagebinarylist || {};
+    $bininfocookie = delete $gbininfo->{'.bininfocookie'};
     for my $pkg (keys %$gbininfo) {
       my $bi = $gbininfo->{$pkg};
       $rpackstatus->{$pkg} = delete($bi->{'.code'}) if exists $bi->{'.code'};
@@ -669,52 +772,20 @@ sub convertpackagebinarylist {
         } elsif ($filename eq '.nouseforbuild') {
           $bins{$filename} = {};
         } else {
-          $bins{$filename} = {'filename' => $filename}; # XXX: what about the md5sum for appdata/modulemd?
+          $bins{$filename} = {'filename' => $filename};
         }
         $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
         $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
+        $bins{$filename}->{'md5sum'} = $binary->{'md5sum'} if $binary->{'md5sum'};
       }
       my $pkg = $binaryversionlist->{'package'};
       $gbininfo->{$pkg} = \%bins;
       $rpackstatus->{$pkg} = $binaryversionlist->{'code'} if $binaryversionlist->{'code'};
     }
   }
-  my $remotecache = $gctx->{'remotecache'};
-  my $cachemd5 = Digest::MD5::md5_hex($prpa);
-  substr($cachemd5, 2, 0, '/');
-  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-  BSUtil::store("$remotecache/$cachemd5.bininfo.new$$", "$remotecache/$cachemd5.bininfo", $gbininfo);
-
-  $remotegbininfos->{$prpa} = { 'lastfetch' => time() };
-
-  if ($packstatususer) {
-    my $remotepackstatus = $gctx->{'remotepackstatus'};
-    my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
-    $rpackstatus->{'/users'} = [];
-    $rpackstatus->{'/users'} = [ @{$remotepackstatus->{$prpa}->{'/users'} || []} ] if $remotepackstatus->{$prpa};
-    push @{$rpackstatus->{'/users'}}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
-    push @{$remotepackstatus_cleanup->{$packstatususer}}, $prpa;
-    $remotepackstatus->{$prpa} = $rpackstatus;
-  }
-
+  update_gbininfo_remote_cache($gctx, $prpa, $gbininfo, $bininfocookie);
+  update_remotepackstatus_cache($gctx, $prpa, $rpackstatus, $packstatususer);
   return ($gbininfo, $rpackstatus);
-}
-
-sub cleanup_remotepackstatus {
-  my ($gctx, $prp) = @_;
-
-  my $remotepackstatus = $gctx->{'remotepackstatus'};
-  my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
-  return unless $remotepackstatus_cleanup->{$prp};
-  print "    cleaning up remote packstatus\n";
-  for my $prpa (@{$remotepackstatus_cleanup->{$prp}}) {
-    my $rpackstatus = $remotepackstatus->{$prpa};
-    my @users = grep {$_ ne $prp} @{$rpackstatus->{'/users'} || []};
-    $rpackstatus->{'/users'} = \@users;
-    print "      - $prpa: ".@users." users\n";
-    delete $remotepackstatus->{$prpa} unless @users;
-  }
-  delete $remotepackstatus_cleanup->{$prp};
 }
 
 1;
