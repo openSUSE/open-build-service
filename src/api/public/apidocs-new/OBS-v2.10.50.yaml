@@ -315,6 +315,8 @@ paths:
     $ref: 'paths/source_project_name_package_name.yaml'
   /source/{project_name}/{package_name}/_attribute:
     $ref: 'paths/source_project_name_package_name_attribute.yaml'
+  /source/{project_name}/{package_name}/_attribute/{attribute_name}:
+    $ref: 'paths/source_project_name_package_name_attribute_attribute_name.yaml'
   /source/{project_name}/{package_name}/_history:
     $ref: 'paths/source_project_name_package_name_history.yaml'
   /source/{project_name}/{package_name}?cmd=commit:
