@@ -1,0 +1,35 @@
+post:
+  summary: Add docker container packages and repositories
+  description: Add docker container packages and repositories using the maintained version of this package
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: cmd
+      required: true
+      schema:
+        type: string
+        enum:
+          - addcontainers
+    - in: query
+      name: extend_package_names
+      schema:
+        type: string
+        enum:
+          - 1
+        example: 1
+      description: |
+        Set to consider the container name as a parsed combination of container project and container name.
+        With format `[container name].[container project name]` where `:` was replaced by `_`,
+        i.e. "kiwi-templates-Minimal.SUSE_Templates_Images_SLE-15-SP4".
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

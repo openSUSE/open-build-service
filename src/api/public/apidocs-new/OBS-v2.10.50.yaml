@@ -322,6 +322,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_history.yaml'
   /source/{project_name}/{package_name}/_meta:
     $ref: 'paths/source_project_name_package_name_meta.yaml'
+  /source/{project_name}/{package_name}?cmd=addcontainers:
+    $ref: 'paths/source_project_name_package_name_cmd_addcontainers.yaml'
   /source/{project_name}/{package_name}?cmd=branch:
     $ref: 'paths/source_project_name_package_name_cmd_branch.yaml'
   /source/{project_name}/{package_name}?cmd=collectbuildenv:
