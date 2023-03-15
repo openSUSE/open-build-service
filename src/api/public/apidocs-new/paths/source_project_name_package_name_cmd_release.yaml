@@ -1,0 +1,82 @@
+post:
+  summary: Release sources and binaries of a specified package.
+  description: |
+    Release sources and binaries of the specified package. If no release target is specified through
+    the optional parameters, it will trigger the release for all manual release targets
+    set on the specified project repository definitions for the specified package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: target_project
+      schema:
+        type: string
+      description: |
+        The name of the release target project. Specify in which project the sources and
+        binaries are going to be released. You need to provide the `target_repository`
+        parameter as well.
+      example: OBS:Server:2.10
+    - in: query
+      name: target_repository
+      schema:
+        type: string
+      description: |
+        The name of the release target repository. Specify in which repository the sources and
+        binaries are going to be released. You need to provide the `target_project`
+        parameter as well.
+      example: openSUSE_Tumbleweed
+    - in: query
+      name: repository
+      schema:
+        type: string
+      description: |
+        Limit the release to a certain repository, set on the project repository definitions.
+      example: 'openSUSE_Tumbleweed'
+    - in: query
+      name: setrelease
+      schema:
+        type: string
+      description: |
+        If this parameter is present, the release will be tagged with this parameter's value.
+      example: Build8.18
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Missing Parameter:
+              value:
+                code: missing_parameter
+                summary: release action with specified target project needs also "repository" and "target_repository" parameter
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: "no permission to execute command 'release' for package hello_world in project home:foo"
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+  tags:
+    - Sources - Packages
