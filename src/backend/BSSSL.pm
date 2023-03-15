@@ -92,7 +92,7 @@ sub TIEHANDLE {
     Net::SSLeay::use_PrivateKey_file($ssl, $opts{'keyfile'}, &Net::SSLeay::FILETYPE_PEM) || die("PrivateKey $opts{'keyfile'} failed to load\n");
   }
   if ($opts{'certfile'}) {
-    Net::SSLeay::use_certificate_file($ssl, $opts{'certfile'}, &Net::SSLeay::FILETYPE_PEM) || die("certificate $opts{'certfile'} failed\n");
+    Net::SSLeay::use_certificate_chain_file($ssl, $opts{'certfile'}) || die("certificate $opts{'certfile'} failed to load\n");
   }
   my $cert_ok;
   if ($opts{'verify'}) {
