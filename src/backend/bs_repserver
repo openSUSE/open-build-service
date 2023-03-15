@@ -302,18 +302,41 @@ sub getpackagebinaryversionlist {
   return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
 }
 
+sub calc_bininfocookie {
+  my ($prpa) = @_;
+  my @s2 = stat("$reporoot/$prpa/:bininfo.merge");
+  my @s1 = stat("$reporoot/$prpa/:bininfo");
+  my $cookie = @s1 ? "$s1[9]/$s1[7]/$s1[1]" : '0/0/0';
+  $cookie .= "+$s2[9]/$s2[7]/$s2[1]" if @s2;
+  return $cookie;
+}
+
+sub getpackstatus {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $prp = "$projid/$repoid";
+
+  die("getpackstatus: package filtering is not supported\n") if $cgi->{'package'};
+  my $cookie = $cgi->{'withbininfocookie'} ? calc_bininfocookie("$prp/$arch") : undef;
+  my $ps = readpackstatus("$prp/$arch");
+  $ps = ($ps || {})->{'packstatus'} || {};
+  $ps->{'.bininfocookie'} = $cookie if defined $cookie;
+  return (BSUtil::tostorable($ps), 'Content-Type: application/octet-stream');
+}
+
 sub getgbininfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
 
   die("getgbininfo: package filtering is not supported\n") if $cgi->{'package'};
+  my $cookie = $cgi->{'withbininfocookie'} ? calc_bininfocookie("$prp/$arch") : undef;
   my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$prp/$arch", 1, 1);
   if ($cgi->{'withcode'}) {
-    my $ps = readpackstatus("$projid/$repoid/$arch");
+    my $ps = readpackstatus("$prp/$arch");
     my $code = ($ps || {})->{'packstatus'} || {};
     $gbininfo->{$_}->{'.code'} = $code->{$_} for keys %$code;
   }
   delete $_->{'.bininfo'} for values %$gbininfo;
+  $gbininfo->{'.bininfocookie'} = $cookie if defined $cookie;
   return (BSUtil::tostorable($gbininfo), 'Content-Type: application/octet-stream');
 }
 
@@ -363,6 +386,7 @@ sub getpackagelist_build {
   return getbinarychecksums($cgi, $projid, $repoid, $arch) if $view eq 'binarychecksums' || $view eq 'rawbinarychecksums';
   $cgi->{'withcode'} = 1 if $view  eq 'binaryversionscode' || $view  eq 'gbininfocode';
   return getgbininfo($cgi, $projid, $repoid, $arch) if $view eq 'gbininfo' || $view eq 'gbininfocode';
+  return getpackstatus($cgi, $projid, $repoid, $arch) if $view eq 'packstatus';
   return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'}) if $view eq 'binaryversions' || $view eq 'binaryversionscode';
   die("unknown view '$view'\n");
 }
@@ -4413,7 +4437,7 @@ my $dispatches = [
   'POST:/build/$project cmd=move oproject:project' => \&moveproject,
   'POST:/build/$project/$repository/$arch/_repository cmd=missingdodresources resource:* partition:?' => \&missingdodresources,
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
-  '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
+  '/build/$project/$repository/$arch package* view:? withbininfocookie:bool?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
