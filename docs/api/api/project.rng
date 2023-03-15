@@ -48,9 +48,7 @@
   </define>
 
   <define name="project-element">
-    <element>
-      <name ns="">project</name>
-
+    <element ns="" name="project">
       <optional>
         <attribute name="name" />
       </optional>

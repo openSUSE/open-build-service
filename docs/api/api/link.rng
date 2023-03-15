@@ -31,8 +31,7 @@
   </define>
 
   <define name="patches-element">
-    <element>
-      <name ns="">patches</name>
+    <element ns="" name="patches">
       <interleave>
         <zeroOrMore>
           <element ns="" name="add">
@@ -82,8 +81,7 @@
         </zeroOrMore>
 
         <optional>
-          <element>
-            <name ns="">branch</name>
+          <element ns="" name="branch">
             <a:documentation>
               If present, then perform a full copy of all sources from the link
               source into the current package.
@@ -93,8 +91,7 @@
         </optional>
 
         <zeroOrMore>
-          <element>
-            <name ns="">topadd</name>
+          <element ns="" name="topadd">
             <a:documentation>
               Add the given string to the top of the spec file in the package sources.
             </a:documentation>
@@ -107,8 +104,7 @@
   </define>
 
   <define name="link-element">
-    <element>
-      <name ns="">link</name>
+    <element ns="" name="link">
       <a:documentation>
         A source link element instructs OBS to link a certain package into a
         different project and optionally to apply modifications, like patches,
