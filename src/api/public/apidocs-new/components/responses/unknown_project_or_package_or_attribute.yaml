@@ -1,0 +1,21 @@
+description: |
+  Not Found.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      Unknown Project:
+        value:
+          code: unknown_project
+          summary: "Project not found: home:some_project"
+      Unknown Package:
+        value:
+          code: unknown_package
+          summary: "Package not found: home:some_project/some_package"
+      Unknown Attribute:
+        value:
+          code: unknown_attribute
+          summary: "Attribute some_attribute does not exist"

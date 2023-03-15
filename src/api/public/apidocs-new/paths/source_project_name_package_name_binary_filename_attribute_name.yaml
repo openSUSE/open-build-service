@@ -1,0 +1,70 @@
+get:
+  summary: Get values of an attribute
+  description: |
+    Get attribute and attribute values of a given attribute and binary
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/binary_filename.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/attributes.yaml'
+          example:
+            name: AllowSubmitToMaintenanceRelease
+            namespace: OBS
+            binary: Ceph
+    '400':
+      description: Bad request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              value:
+                code: invalid_attribute
+                summary: "Attribute '{attribute_name}' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_attribute.yaml'
+  tags:
+    - Sources - Files
+
+delete:
+  summary: Removes a specified attribute
+  description: Removes a specified attribute from a package
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/binary_filename.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Wrong value for deleted parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              value:
+                code: invalid_attribute
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_attribute.yaml'
+  tags:
+    - Sources - Files
