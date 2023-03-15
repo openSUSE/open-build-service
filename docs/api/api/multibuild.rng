@@ -6,19 +6,15 @@
   </start>
 
   <define name="multibuild-element">
-    <element>
-      <name ns="">multibuild</name>
-
+    <element ns="" name="multibuild">
       <choice>
         <oneOrMore>
-          <element>
-            <name ns="">flavor</name>
+          <element ns="" name="flavor">
             <text/>
           </element>
         </oneOrMore>
         <oneOrMore> <!-- obsolete, but needs to stay for compability -->
-          <element>
-            <name ns="">package</name>
+          <element ns="" name="package">
             <text/>
           </element>
         </oneOrMore>
