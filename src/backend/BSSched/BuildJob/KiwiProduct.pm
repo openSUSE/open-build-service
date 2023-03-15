@@ -562,7 +562,6 @@ sub build {
   my @bdeps;
   for my $rpm (BSUtil::unify(@{$rpms || []})) {
     my @b = split('/', $rpm);
-    next if @b == 1;
     next unless @b == 5;
     my $b;
     if ($b[4] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
@@ -575,6 +574,7 @@ sub build {
         'repository' => $b[1],
         'repoarch' => $b[2],
         'package' => $b[3],
+        'binary' => $b[4],
       };
     } elsif ($dobuildinfo && (($b[4] =~  /^(.*)[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml')) {
       $b = {
@@ -582,6 +582,7 @@ sub build {
         'repository' => $b[1],
         'repoarch' => $b[2],
         'package' => $b[3],
+        'binary' => $b[4],
       };
     } else {
       next;
@@ -589,7 +590,6 @@ sub build {
     if ($dobuildinfo) {
       $b->{'hdrmd5'} = $rpms_hdrmd5->{$rpm} if $rpms_hdrmd5->{$rpm};
       $b->{'noinstall'} = 1;
-      $b->{'binary'} = $b[4];
       delete $b->{'repoarch'} if $b->{'repoarch'} eq $myarch;
     }
     push @bdeps, $b;
