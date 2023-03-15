@@ -4,4 +4,4 @@ schema:
   type: string
 required: true
 description: The name of the attribute
-example: OwnerRootProjectTest
+example: OBS:OwnerRootProjectTest
