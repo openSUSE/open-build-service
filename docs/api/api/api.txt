@@ -770,7 +770,7 @@ Parameters:
 XmlResult: status
 
 
-POST /source/<project>/<package>?deleteuploadrev
+POST /source/<project>/<package>?cmd=deleteuploadrev
 
   Removes all changes made to the upload revision and reverts to last revision
 
@@ -863,7 +863,6 @@ POST /source/<project>/<package>
   remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
   set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
   showlinked: show all source packages linking to this one
-  deleteuploadrev: delete all uploaded, but not yet commited files.
   rebuild: rebuild all builds
   getprojectservices: list all service defined in project spaces defined for this package.
   runservice: trigger run of defined services in _service file
