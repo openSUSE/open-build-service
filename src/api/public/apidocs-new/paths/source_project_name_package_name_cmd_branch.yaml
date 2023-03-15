@@ -1,0 +1,178 @@
+post:
+  summary: Branch a package.
+  description: |
+    Create a source link from a package of an existing project to a
+    new subproject of the requester's home project.
+    The default target is `home:<user>:branches:<project>/<package>`.
+    A possible defined devel project in the package meta data gets ignored.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: target_project
+      schema:
+        type: string
+      description: Target project name.
+      example: home:Admin:subproject
+    - in: query
+      name: target_package
+      schema:
+        type: string
+      description: Target package name.
+      example: test
+    - in: query
+      name: add_repositories
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to add repositories based on source project (default for new projects).
+    - in: query
+      name: add_repositories_rebuild
+      schema:
+        type: string
+        enum:
+          - transitive
+          - direct
+          - local
+          - copy
+      description: Set one of the defined rebuild policies for new repositories (`transitive`, `direct` or `local`) or copy it from the source project (`copy`)
+    - in: query
+      name: add_repositories_block
+      schema:
+        type: string
+        enum:
+          - all
+          - local
+          - never
+      description: Set to use defined block policy for new repositories.
+    - in: query
+      name: autocleanup
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to enable autocleanup on the branched project.
+    - in: query
+      name: dryrun
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to run without making action, just report results.
+    - in: query
+      name: extend_package_names
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to extend package and repository names to allow multiple instances of the same package.
+    - in: query
+      name: ignoredevel
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to ignore validation and resolving of devel package or devel project definition.
+    - in: query
+      name: maintenance
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to explicitly ask for a maintenance branch.
+    - in: query
+      name: missingok
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to create the target package if it does not exist.
+    - in: query
+      name: newinstance
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to have the target package exist only via project links, but the link should point to the given project.
+    - in: query
+      name: noaccess
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to make the newly created project be read protected. This won't work if the project already exists.
+    - in: query
+      name: noservice
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to not run source services on branching.
+    - in: query
+      name: request
+      schema:
+        type: string
+      description: Creates a branch project based on the provided request number.
+    - in: query
+      name: update_path_elements
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Set to update all the path elements if needed (used repositories depend on each other).
+    - in: query
+      name: update_project_attribute
+      schema:
+        type: string
+      default: OBS:UpdateProject
+      description: Set a different Update Project attribute.
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example: |
+            <status code="ok">
+              <summary>Ok</summary>
+              <data name="targetproject">home:Admin:subproject</data>
+              <data name="targetpackage">test</data>
+              <data name="sourceproject">home:Admin</data>
+              <data name="sourcepackage">ctris</data>
+            </status>
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Double Branch:
+              value:
+                code: double_branch_package
+                summary: "branch target package already exists: home:Admin:subproject/test"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to modify package test in project home:Admin
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

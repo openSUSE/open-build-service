@@ -1,0 +1,63 @@
+post:
+  summary: Turn link into a branch.
+  description: Convert a plain source link into a full branch.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: linkrev
+      schema:
+        type: string
+      description: |
+        Link revision in base package. Set to `base` to use the commit revision.
+      example: base
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: Revision of the package.
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not A Link:
+              value:
+                code: 400
+                origin: backend
+                summary: package is not a link
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to modify package test in project home:Admin
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages
