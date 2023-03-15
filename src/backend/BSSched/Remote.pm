@@ -581,7 +581,7 @@ sub cleanup_remotepackstatus {
 
 ###########################################################################
 ###
-### remote BuildResult (aka gbininfo) support
+### gbininfo cache handling
 ###
 
 sub read_gbininfo_remote_cache {
@@ -610,6 +610,11 @@ sub update_gbininfo_remote_cache {
   $remotegbininfos->{$prpa} = { 'lastfetch' => time() };
   $remotegbininfos->{$prpa}->{'cookie'} = $cookie if defined $cookie;
 }
+
+###########################################################################
+###
+### remote BuildResult (aka gbininfo) support
+###
 
 sub read_gbininfo_remote {
   my ($ctx, $prpa, $remoteproj, $packstatus) = @_;
@@ -641,7 +646,7 @@ sub read_gbininfo_remote {
 
   # need to fetch new data, first try the packstatus if we have a bininfo cookie
   my ($projid, $repoid, $arch) = split('/', $prpa, 3);
-  if ($remoteproj->{'partition'} && $remotegbininfos->{$prpa} && $remotegbininfos->{$prpa}->{'cookie'}) {
+  if ($remoteproj->{'partition'} && $remotegbininfos->{$prpa} && $remotegbininfos->{$prpa}->{'cookie'} && ($packstatus && !$rpackstatus)) {
     print "    fetching remote packstatus for $prpa\n";
     my $param = {
       'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
