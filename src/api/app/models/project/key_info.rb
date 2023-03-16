@@ -15,6 +15,7 @@ class Project
 
     def self.find_by_project(project)
       response = key_info_for_project(project)
+      return if response.blank?
 
       parsed_response = Xmlhash.parse(response)
 
@@ -40,6 +41,8 @@ class Project
     def self.key_info_for_project(project)
       Rails.cache.fetch("key_info_project_#{project.cache_key_with_version}", expires_in: CACHE_EXPIRY_TIME) do
         Backend::Api::Sources::Project.key_info(project.name)
+      rescue Backend::Error
+        {}
       end
     end
   end
