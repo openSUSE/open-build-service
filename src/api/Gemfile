@@ -52,7 +52,7 @@ gem 'flot-rails'
 # XML Serialization got moved here
 gem 'activemodel-serializers-xml'
 # Spider Identification
-gem 'voight_kampff'
+gem 'voight_kampff', require: 'voight_kampff/rails'
 # for issue tracker communication
 gem 'xmlrpc'
 # Multiple feature switch
