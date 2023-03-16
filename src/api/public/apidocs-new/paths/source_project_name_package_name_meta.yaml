@@ -1,0 +1,181 @@
+get:
+  summary: Get package meta file.
+  description: Get package meta file.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: meta
+      schema:
+        type: string
+      description: Set to `1` to force to retrieve the package metadata from the backend.
+      example: 1
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: Return the package metadata for a specific revision number.
+      example: 42
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - blame
+      description: With `view=blame` show information about who and when each line of the package metadata was changed.
+      example: blame
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/package_meta.yaml'
+          examples:
+            Simple Request:
+              value:
+                name: package_1
+                title: ''
+                description: Test package
+                devel:
+                  project: home:Admin
+                  package: package_2
+            Request with view=blame:
+              value: |
+                  11 (Admin        2023-03-09 12:14:58     1) <package name="package_1" project="home:Admin">
+                  12 (Admin        2023-03-09 12:23:11     2)   <title></title>
+                  63 (Admin        2023-03-13 16:16:05     3)   <description>Description 2 added...</description>
+                  44 (Admin        2023-03-09 17:39:39     4)   <devel project="home:Admin" package="package_2"/>
+                  11 (Admin        2023-03-09 12:14:58     5) </package>
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Bad Revision:
+              description: Passing `rev=invalid_revision`.
+              value:
+                code: 400
+                summary: bad revision 'invalid_revision'
+            Not Boolean:
+              description: Passing `meta=not_boolean`.
+              value:
+                code: 400
+                summary: not boolean
+            Unknown View:
+              description: Passing `view=invalid_view`.
+              value:
+                code: 400
+                summary: unknown view 'invalid_view'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+            Unknown Revision:
+              value:
+                code: 404
+                summary: revision '66' does not exist
+                details: 404 revision '66' does not exist
+  tags:
+    - Sources - Packages
+
+put:
+  summary: Write package meta file.
+  description: Write package's meta file. Create the package if it doesn't exist.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment that explains the changes you made in the meta file.
+      example: Fix the title of the package.
+  requestBody:
+    description: Package meta definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/package_meta.yaml'
+        example:
+          name: package_1
+          title: ''
+          description: Test package
+          devel:
+            project: home:Admin
+            package: package_2
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            XML Not Valid:
+              value:
+                code: validation_failed
+                summary: 'package validation error: 1:11: FATAL: Extra content at the end of the document'
+            Project Name Mismatch:
+              value:
+                code: project_name_mismatch
+                summary: project name in xml data does not match resource path component
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Authorized to Update the Project:
+              value:
+                code: update_project_not_authorized
+                summary: You are not authorized to update this project
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+  tags:
+    - Sources - Packages
