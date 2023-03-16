@@ -22,7 +22,7 @@
                 = line.content[1..]
         - if commentable
           .line-comment{ id: "comment#{id}" }
-            - if commentable.comments.where(diff_ref: id).present?
+            - if commented_lines.include?(id)
               .p-3.border-top.border-bottom
                 .comments-list
                   = render(partial: 'webui/comment/comment_list',

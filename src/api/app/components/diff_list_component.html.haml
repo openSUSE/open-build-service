@@ -14,4 +14,4 @@
             = name
           %span.badge.ms-1{ class: badge_for_state(state) }= state.capitalize
       .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
-        = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:))
+        = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:, commented_lines:))
