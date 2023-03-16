@@ -236,7 +236,7 @@ class User < ApplicationRecord
     current || nobody
   end
 
-  # Currently logged in user. Will thrown an exception if no user is logged in.
+  # Currently logged in user. Will throw an exception if no user is logged in.
   # So the controller needs to require login if using this (or models using it)
   def self.session!
     raise ArgumentError, 'Requiring user, but found nobody' unless session
