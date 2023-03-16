@@ -1,0 +1,83 @@
+post:
+  summary: Collect build environment information.
+  description: |
+    Creates _buildenv files based on origin package builds. This can be used
+    to re-use exact older build enviroment even when further new binary packages
+    got added. For example to re-build an old maintenance update in the same way.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: oproject
+      required: true
+      schema:
+        type: string
+      description: Origin project. The project that the Origin Package will have the build information copied from.
+    - in: query
+      name: opackage
+      schema:
+        type: string
+      description: Origin package. Build environment information of the package that will be copied.
+    - in: query
+      name: orev
+      schema:
+        type: string
+      description: Origin package revision. Revision of the Origin Package on which to base the build environment collection.
+    - in: query
+      name: comment
+      description: Comment for the new revision.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/revision.yaml'
+          examples:
+            Copy:
+              value:
+                rev: 3
+                vrev: 3
+                srcmd5: d41d8cd98f00b204e9800998ecf8427e
+                version: 20220902.37b45c2
+                time: 1678785078
+                user: Admin
+                comment: Copying the build environment from origin
+                requestid:
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Missing Parameter:
+              value:
+                code: missing_parameter
+                summary: Required Parameter opackage missing
+            Bad Revision:
+              value:
+                code: 400
+                origin: backend
+                summary: "bad revision '-3'"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to modify package test in project home:Admin
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages
+

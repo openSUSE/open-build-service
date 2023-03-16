@@ -319,6 +319,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_attribute_attribute_name.yaml'
   /source/{project_name}/{package_name}/_history:
     $ref: 'paths/source_project_name_package_name_history.yaml'
+  /source/{project_name}/{package_name}?cmd=collectbuildenv:
+    $ref: 'paths/source_project_name_package_name_cmd_collectbuildenv.yaml'
   /source/{project_name}/{package_name}?cmd=commit:
     $ref: 'paths/source_project_name_package_name_cmd_commit.yaml'
   /source/{project_name}/{package_name}?cmd=commitfilelist:
