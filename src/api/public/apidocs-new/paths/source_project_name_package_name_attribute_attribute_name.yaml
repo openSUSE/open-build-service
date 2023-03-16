@@ -80,3 +80,105 @@ get:
       $ref: '../components/responses/unknown_project.yaml'
   tags:
     - Sources - Packages
+
+post:
+  summary: Create or update an attribute of a package
+  description: |
+    Create or update the specified attribute of the package
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  requestBody:
+    description: Attribute you want to create or update
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/attributes.yaml'
+        example:
+          - name: MaintenanceProject
+            namespace: OBS
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              description: Wrong attribute name.
+              value:
+                code: invalid_attribute
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+            invalid_xml:
+              description: When not passing an XML body to the requset.
+              value:
+                code: invalid_xml
+                summary: Invalid XML
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages
+
+delete:
+  summary: Delete the specified attribute of a package
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              description: Wrong attribute name.
+              value:
+                code: invalid_attribute
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: The user don't have permission to delete the specified attribute
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            change_attribute_no_permission:
+              value:
+                code: change_attribute_no_permission
+                summary: User Iggy has no permission to change attribute
+    '404':
+      description: Unknown attribute
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            unknown_attribute_type:
+              value:
+                code: unknown_attribute_type
+                summary: Attribute Type OBS:Fake does not exist
+  tags:
+    - Sources - Packages
