@@ -1,0 +1,60 @@
+get:
+  summary: Get list of attributes and attribute values with binary parameter
+  description: |
+    Get a list of all attributes and their values for a given binary
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/binary_filename.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/attributes.yaml'
+          example:
+            - name: AllowSubmitToMaintenanceRelease
+              namespace: OBS
+              binary: SLES-cd-DVD-x86_64
+            - name: OwnerRootProjectTest
+              namespace: OBS
+              binary: Ceph
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Files
+
+post:
+  summary: Add an attribute
+  description: |
+    Add an attribute with binary to a package
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/binary_filename.yaml'
+  requestBody:
+    description: Attributes you want to update
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/attributes.yaml'
+        example:
+          name: MaintenanceProject
+          namespace: OBS
+          binary: Ceph
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Files
