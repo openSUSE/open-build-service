@@ -1,5 +1,7 @@
 get:
   summary: Get all the project's attributes
+  security:
+  - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     # Query Strings:

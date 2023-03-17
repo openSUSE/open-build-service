@@ -2,6 +2,8 @@ get:
   summary: Get package's attribute
   description: |
     Get the specified attribute of the package
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
