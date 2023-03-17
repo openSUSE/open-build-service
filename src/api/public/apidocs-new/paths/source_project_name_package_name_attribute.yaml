@@ -75,3 +75,49 @@ get:
       $ref: '../components/responses/unknown_project_or_package.yaml'
   tags:
     - Sources - Packages
+
+post:
+  summary: Create or update the package's attribute given in the request body
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Attribute you want to create or update
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/attributes.yaml'
+        example:
+          - name: MaintenanceProject
+            namespace: OBS
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              description: Wrong attribute name.
+              value:
+                code: invalid_attribute
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+            invalid_xml:
+              description: When not passing an XML body to the requset.
+              value:
+                code: invalid_xml
+                summary: Invalid XML
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages
