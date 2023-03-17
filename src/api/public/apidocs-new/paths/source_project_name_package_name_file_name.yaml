@@ -1,0 +1,197 @@
+get:
+  summary: Read a specified source file
+  description: Read a specified source file and return the content
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - in: query
+      name: rev
+      schema:
+        type: integer
+      description: Retrieve the file at a specific package revision.
+      example: 3
+    - in: query
+      name: meta
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to show meta data instead of sources.
+      example: 1
+    - in: query
+      name: deleted
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to 1 to retrieve a file from a deleted project or package.
+      example: 0
+    - in: query
+      name: expand
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to include files from linked packages.
+      example: 1
+    - name: view
+      in: query
+      schema:
+        type: string
+        enum:
+          - blame
+      description: With `view=blame`, information about who changed the file.
+      example: blame
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Unknown parameter
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown parameter:
+              value:
+                code: unknown_parameter
+                summary: "unknown parameter 'limit'"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_file.yaml'
+  tags:
+    - Sources - Files
+
+delete:
+  summary: Deletes a specified source file of a package.
+  description: Deletes a specified source file of a package of a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: |
+        If set to 'upload', multiple files can be deleted in just one commit.
+        Delete first the files with `rev=upload`, then close the single commit by another request call with `cmd=commit`
+      example: upload
+    - in: query
+      name: meta
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to delete meta data instead of sources.
+      example: 1
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: A comment that will appear in the package's comment section explaining the reason behind the deletion of the file.
+      example: File deleted because it is useless.
+    - in: query
+      name: keeplink
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to preserve the link (`_link` file) on the source.
+      example: 1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_file.yaml'
+  tags:
+    - Sources - Files
+
+put:
+  summary: Write a specified source file into a package.
+  description: Write a specified source file of a package of a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: |
+        If set to 'upload', multiple files can be uploaded in just one commit.
+        Upload first the files with `rev=upload`, then close the single commit by another request call with `cmd=commit`
+      example: upload
+    - in: query
+      name: meta
+      schema:
+        type: integer
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to write meta data instead of sources.
+      example: 1
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: A comment that will appear in the package's comment section explaining the reason behind the creation of the new file.
+      example: Added new configuration file.
+    - in: query
+      name: keeplink
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to preserve the link (`_link` file) on the source.
+      example: 1
+  requestBody:
+    content:
+      plain/text:
+        schema:
+          type: string
+          properties:
+            file:
+              type: string
+              format: binary
+  responses:
+    '200':
+      description:
+        Updates the artifact's file contents
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/revision.yaml'
+          example:
+            rev: 28
+            vrev: 28
+            srcmd5: 2e0bd85c089953743bd30eeacf70989b
+            version: 1
+            time: 1678787266
+            user: Admin
+            comment:
+            requestid:
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package_or_file.yaml'
+  tags:
+    - Sources - Files
