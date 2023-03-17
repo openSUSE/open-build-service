@@ -1719,39 +1719,40 @@ sub getbinaries_kiwiproduct {
       $binfilterprpa = "$projid/$repoid/$arch";
     }
     my $prp = "$projid/$repoid";
+    my $prpa = "$prp/$arch";
     my $ddir = "$srcdir/repos/$prp";
     mkdir_p($ddir);
-    my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
+    my $server =  $prp2server{$prp} || $buildinfo->{'reposerver'};
 
     # get the bininfo of the package if we need it
     my $bvl;
     if ($cachedir || $getbinariesproxy_kiwiproduct) {
-      my $pbvl = $packagebinaryversionlist{"$projid/$repoid/$arch"};
+      my $pbvl = $packagebinaryversionlist{$prpa};
       if (!$pbvl) {
 	eval {
 	  if ($server ne $buildinfo->{'srcserver'}) {
 	    $pbvl = BSRPC::rpc({
 	      'uri' => "$server/getpackagebinaryversionlist",
 	      'timeout' => $gettimeout,
-	    }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
+	    }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{$prpa}});
 	  } else {
 	    $pbvl = BSRPC::rpc({
-	      'uri' => "$server/build/$projid/$repoid/$arch",
+	      'uri' => "$server/build/$prpa",
 	      'timeout' => $gettimeout,
-	    }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
+	    }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @{$prpapackages{$prpa}});
 	  }
 	};
 	undef $pbvl if $@;
 	warn($@) if $@;
 	$pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} } if $pbvl;
 	$pbvl ||= {};
-	$packagebinaryversionlist{"$projid/$repoid/$arch"} = $pbvl;
+	$packagebinaryversionlist{$prpa} = $pbvl;
       }
       $bvl = $pbvl->{$packid};
       if (!defined($bvl)) {
 	eval {
 	  $bvl = BSRPC::rpc({
-	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	    'uri' => "$server/build/$prpa/$packid",
 	    'timeout' => $gettimeout,
 	  }, $BSXML::binaryversionlist, 'view=binaryversions');
 	};
@@ -1760,11 +1761,9 @@ sub getbinaries_kiwiproduct {
       }
     }
 
-    my @done;
     my @todo;
+    my @done;
     my %knownmd5;
-
-    # try the cache first
     if ($bvl) {
       for my $bv (@{$bvl->{'binary'} || []}) {
 	my $bin = $bv->{'name'};
@@ -1772,38 +1771,48 @@ sub getbinaries_kiwiproduct {
 	next unless $rarch;
 	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
+	$bv->{'rarch'} = $rarch;
+	push @todo, $bv;
+      }
+    }
+
+    # try the cache first
+    if (@todo && $cachedir) {
+      for my $bv (splice @todo) {
 	my $cachekey;
 	if ($bv->{'hdrmd5'}) {
 	  $cachekey = "$bv->{'hdrmd5'}$rpmhdrs_only";
 	} elsif ($bv->{'md5sum'}) {
 	  $cachekey = "$bv->{'md5sum'}.extra";
 	}
-	if ($cachekey && $cachedir) {
-	  my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", $cachekey);
-	  delete $cachenew{"$ddir/$rarch/$bin"};
+	if ($cachekey) {
+	  my ($cacheid, $cachefile) = get_cachefile($prpa, $cachekey);
+	  my $rarch = $bv->{'rarch'};
+	  my $filename = "$rarch/$bv->{'name'}";
+	  delete $cachenew{"$ddir/$filename"};
 	  mkdir_p("$ddir/$rarch");
-	  if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
-	    my @s = stat("$ddir/$rarch/$bin.new.rpm");
-	    die unless @s;
-	    if (checkbv("$ddir/$rarch/$bin.new.rpm", $bv)) {
+	  if (link_or_copy($cachefile, "$ddir/$filename.new.rpm")) {
+	    my @s = stat("$ddir/$filename.new.rpm");
+	    if (@s && checkbv("$ddir/$filename.new.rpm", $bv)) {
 	      push @cacheold, [$cacheid, $s[7]];
-	      $knownmd5{"$rarch/$bin"} = $bv->{'hdrmd5'} if $bv->{'hdrmd5'};
-	      push @done, "$rarch/$bin";
+	      $knownmd5{$filename} = $bv->{'hdrmd5'} if $bv->{'hdrmd5'};
+	      push @done, $filename;
 	      next;
 	    }
-	    unlink("$ddir/$rarch/$bin.new.rpm");
+	    unlink("$ddir/$filename.new.rpm");
 	  }
 	}
 	push @todo, $bv;
-	$downloadsizek += $bv->{'sizek'};
       }
     }
 
     #print "(cache: ".@done." hits, ".@todo." misses)";
     $binariesdownload += @todo;
     $binariescachehits += @done;
-    if ($bvl && @todo && $cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
-      # reserve space
+
+    # reserve space
+    $downloadsizek += $_->{'sizek'} || 0 for @todo;
+    if (@todo && $cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
       manage_cache($cachesize - $downloadsizek * 1024, \@cacheold, [ values %cachenew ]);
       @cacheold = ();
       %cachenew = ();
@@ -1812,7 +1821,7 @@ sub getbinaries_kiwiproduct {
     }
 
     # download individual missing binaries from the getbinariesproxy
-    if ($bvl && @todo && $getbinariesproxy_kiwiproduct && !$rpmhdrs_only) {
+    if (@todo && $getbinariesproxy_kiwiproduct && !$rpmhdrs_only) {
       my @args;
       push @args, "workerid=$workerid" if defined $workerid;
       push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
@@ -1835,8 +1844,8 @@ sub getbinaries_kiwiproduct {
 	  'timeout' => $gettimeout,
 	  'map' => sub {
 	    my ($param, $name) = @_;
-	    my $rarch = calc_rarch($name, \%binfilter, $packid);
-	    return undef unless $rarch && $tofetch{$name};
+	    return undef unless $tofetch{$name};
+	    my $rarch = $tofetch{$name}->[0]->{'rarch'};
 	    $tofetch{$name}->[1] = "$rarch/$name";
 	    mkdir_p("$param->{'directory'}/$rarch");
 	    return "$rarch/$name.new.rpm";
@@ -1863,7 +1872,7 @@ sub getbinaries_kiwiproduct {
 	  my @s = stat("$ddir/$filename.new.rpm");
 	  if (@s && checkbv("$ddir/$filename.new.rpm", $bv)) {
 	    my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : $bv->{'md5sum'};
-	    my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $cachekey);
+	    my ($cacheid) = get_cachefile($prpa, $cachekey);
 	    $cachenew{"$ddir/$filename"} = [$cacheid, $s[7], "$ddir/$filename"];
 	    push @done, $filename;
 	    $knownmd5{$filename} = $bv->{'hdrmd5'} if $bv->{'hdrmd5'};
@@ -1877,19 +1886,20 @@ sub getbinaries_kiwiproduct {
     }
 
     # download individual missing binaries from the server
-    if ($bvl && @todo) {
+    if (@todo) {
+      my %tofetch = map {$_->{'name'} => $_} @todo;
       eval {
 	my @args;
 	push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
 	push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
 	push @args, map {"binary=$_->{'name'}"} @todo;
 	my $param = {
-	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	  'uri' => "$server/build/$prpa/$packid",
 	  'directory' => $ddir,
 	  'timeout' => $gettimeout,
 	  'map' => sub {
 	    my ($param, $name) = @_;
-	    my $rarch = calc_rarch($name, \%binfilter, $packid);
+	    my $rarch = ($tofetch{$name} || {})->{'rarch'};
 	    return undef unless $rarch;
 	    mkdir_p("$param->{'directory'}/$rarch");
 	    return "$rarch/$name.new.rpm";
@@ -1900,18 +1910,12 @@ sub getbinaries_kiwiproduct {
       };
       if ($@) {
 	# delete everything as a file might be truncated
-	for my $bv (@todo) {
-	  my $bin = $bv->{'name'};
-	  my $rarch = calc_rarch($bin, \%binfilter, $packid);
-	  unlink("$ddir/$rarch/$bin.new.rpm") if $rarch;
-	}
+	unlink("$ddir/$_->{'rarch'}/$_->{'name'}.new.rpm") for @todo;
       }
       # verify the downloaded files
       for my $bv (splice @todo) {
-	my $bin = $bv->{'name'};
-	my $rarch = calc_rarch($bin, \%binfilter, $packid);
-	next unless $rarch;
-	my $filename = "$rarch/$bin";
+	my $filename = "$bv->{'rarch'}/$bv->{'name'}";
+	delete $cachenew{"$ddir/$filename"};
 	my @s = stat("$ddir/$filename.new.rpm");
 	if (!@s) {
 	  push @todo, $bv;
@@ -1919,18 +1923,16 @@ sub getbinaries_kiwiproduct {
 	}
 	if (!$bv->{'hdrmd5'} && !$bv->{'md5sum'}) {
 	  # we cannot verify the file. we could put it in the cache,
-	  # but it is likely that we will also not get a # cachekey
+	  # but it is likely that we will also not get a cachekey
           # in the future.
-	  delete $cachenew{"$ddir/$filename"};
 	} elsif (checkbv("$ddir/$filename.new.rpm", $bv)) {
 	  # we got the right file, put it in the cache
 	  my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : $bv->{'md5sum'};
-	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $cachekey);
+	  my ($cacheid) = get_cachefile($prpa, $cachekey);
 	  $cachenew{"$ddir/$filename"} = [$cacheid, $s[7], "$ddir/$filename"];
 	} else {
 	  # we got a different file. too dangerous to take it, so fetch the complete package
 	  unlink("$ddir/$filename.new.rpm");
-	  delete $cachenew{"$ddir/$filename"};
 	  push @todo, $bv;
 	  next;
 	}
@@ -1960,7 +1962,7 @@ sub getbinaries_kiwiproduct {
       push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
       push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
       my $res = BSRPC::rpc({
-	'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	'uri' => "$server/build/$prpa/$packid",
 	'directory' => $ddir,
 	'timeout' => $gettimeout,
 	'map' => sub {
@@ -1978,20 +1980,20 @@ sub getbinaries_kiwiproduct {
 
       # put into our cache
       if ($cachedir) {
-	for my $f (@done) {
-	  my @s = stat("$ddir/$f");
+	for my $filename (@done) {
+	  my @s = stat("$ddir/$filename");
 	  next unless @s;
-	  if ($f !~ /\.rpm$/) {
+	  if ($filename !~ /\.rpm$/) {
 	    # we could add the file to the cache, but it is not
 	    # clear if we ever get a md5sum for it in the bv.
 	    # so just ignore
 	    next;
 	  }
-	  my $id = Build::queryhdrmd5("$ddir/$f");
+	  my $id = Build::queryhdrmd5("$ddir/$filename");
 	  next unless $id;
-	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", "$id$rpmhdrs_only");
-	  $cachenew{"$ddir/$f"} = [$cacheid, $s[7], "$ddir/$f"];
-	  $knownmd5{$f} = $id;
+	  my ($cacheid) = get_cachefile($prpa, "$id$rpmhdrs_only");
+	  $cachenew{"$ddir/$filename"} = [$cacheid, $s[7], "$ddir/$filename"];
+	  $knownmd5{$filename} = $id;
 	}
 	#print "(put ".@cachenew." entries)";
       }
@@ -2054,14 +2056,14 @@ sub getbinaries_kiwiproduct {
       eval {
 	if ($server eq $buildinfo->{'srcserver'}) {
 	  my $chk = BSRPC::rpc({
-	    'uri' => "$server/build/$projid/$repoid/$arch",
+	    'uri' => "$server/build/$prpa",
 	    'timeout' => $gettimeout,
 	  }, $BSXML::packagebinarychecksums, 'view=binarychecksums');
 	  $chk = { map { $_->{'package'} => $_->{'_content'} } @{$chk->{'binarychecksums'} || []} };
 	  BSUtil::store("$ddir/.checksums.$arch", undef, $chk);
 	} else {
 	  BSRPC::rpc({
-	    'uri' => "$server/build/$projid/$repoid/$arch",
+	    'uri' => "$server/build/$prpa",
 	    'timeout' => $gettimeout,
 	    'receiver' => \&BSHTTP::file_receiver,
 	    'filename' => "$ddir/.checksums.$arch",
