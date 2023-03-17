@@ -1,0 +1,59 @@
+post:
+  summary: Unlock a locked package.
+  description: |
+    Unlock a locked package (`<lock><enable/></lock>` flag present in the package `_meta` file).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      required: true
+      schema:
+        type: string
+      description: Comment to be included in the revision history of the `_meta` file
+      example: Locking the package is no longer needed
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Missing Parameter:
+              value:
+                code: missing_parameter
+                summary: Required Parameter comment missing
+            Not locked:
+              value:
+                code: not_locked
+                summary: package 'home:Foo/hello_world' is not locked
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to modify package ruby in project home:Foo
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: unknown_package
+                summary: 'Package not found: openSUSE:Leap:15.0:Update/foo'
+  tags:
+    - Sources - Packages
