@@ -1838,43 +1838,40 @@ sub getbinaries_kiwiproduct {
 	  unlink("$ddir/$rarch/$bin.new.rpm") if $rarch;
 	}
       }
-
       # verify the downloaded files
       for my $bv (splice @todo) {
 	my $bin = $bv->{'name'};
 	my $rarch = calc_rarch($bin, \%binfilter, $packid);
 	next unless $rarch;
-	my @s = stat("$ddir/$rarch/$bin.new.rpm");
+	my $filename = "$rarch/$bin";
+	my @s = stat("$ddir/$filename.new.rpm");
 	if (!@s) {
 	  push @todo, $bv;
 	  next;
-	}
-	if ($bin eq '_modulemd.yaml') {
-	  rename("$ddir/$rarch/$bin.new.rpm", "$ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm") || die("rename $ddir/$rarch/$bin.new.rpm $ddir/$rarch/$packid.$arch.modulemd.yaml.new.rpm: $!\n");
-	  $bin = "$packid.$arch.modulemd.yaml";
 	}
 	if (!$bv->{'hdrmd5'} && !$bv->{'md5sum'}) {
 	  # we cannot verify the file. we could put it in the cache,
 	  # but it is likely that we will also not get a # cachekey
           # in the future.
-	  delete $cachenew{"$ddir/$rarch/$bin"};
-	} elsif (checkbv("$ddir/$rarch/$bin.new.rpm", $bv)) {
+	  delete $cachenew{"$ddir/$filename"};
+	} elsif (checkbv("$ddir/$filename.new.rpm", $bv)) {
 	  # we got the right file, put it in the cache
 	  my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : $bv->{'md5sum'};
 	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $cachekey);
-	  $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
+	  $cachenew{"$ddir/$filename"} = [$cacheid, $s[7], "$ddir/$filename"];
 	} else {
 	  # we got a different file. too dangerous to take it, so fetch the complete package
-	  unlink("$ddir/$rarch/$bin.new.rpm");
-	  delete $cachenew{"$ddir/$rarch/$bin"};
+	  unlink("$ddir/$filename.new.rpm");
+	  delete $cachenew{"$ddir/$filename"};
 	  push @todo, $bv;
 	  next;
 	}
-	push @done, "$rarch/$bin";
-	$knownmd5{"$rarch/$bin"} = $bv->{'hdrmd5'} if $bv->{'hdrmd5'};
+	push @done, $filename;
+	$knownmd5{$filename} = $bv->{'hdrmd5'} if $bv->{'hdrmd5'};
       }
       #print "(still ".@todo." misses)";
     }
+
     if ($bvl && !@todo) {
       # got all entries, commit
       for (@done) {
@@ -1883,7 +1880,7 @@ sub getbinaries_kiwiproduct {
       }
     }
 
-    # 3nd try: download the complete package
+    # if the above failed download the complete package
     if (!$bvl || @todo) {
       for (@done) {
 	unlink("$ddir/$_.new.rpm");
@@ -1904,8 +1901,6 @@ sub getbinaries_kiwiproduct {
 	  return undef unless $rarch;
 	  return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
 	  return undef if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
-	  $name = "$packid.$arch.modulemd.yaml" if $name eq '_modulemd.yaml';
-	  $kiwiorigins->{"obs://$prp/$rarch/$name"} = $prpap;
 	  mkdir_p("$param->{'directory'}/$rarch");
 	  return "$rarch/$name";
 	},
@@ -1936,18 +1931,35 @@ sub getbinaries_kiwiproduct {
       sendbadpackagebinaryversionlist($server, $projid, $repoid, $arch, $packid) if $bvl && $server ne $buildinfo->{'srcserver'};
     }
 
-    # spread provenance to rpms
-    if (grep {$_ eq '_slsa_provenance/_slsa_provenance.json'} @done) {
-      my %provenance = map {$_ => 1} @done;
-      for my $rpm (sort keys %provenance) {
+    # postprocess
+    my %done = map {$_ => 1} @done;
+    for (@done) {
+      $kiwiorigins->{"obs://$prp/$_"} = $prpap;
+    }
+
+    # rename modulemd.yaml file
+    if ($done{'modulemd/_modulemd.yaml'}) {
+      rename("$ddir/modulemd/_modulemd.yaml", "$ddir/modulemd/$packid.$arch.modulemd.yaml") || die("rename $ddir/modulemd/_modulemd.yaml $ddir/modulemd/$packid.$arch.modulemd.yaml: $!\n");
+      $kiwiorigins->{"obs://$prp/modulemd/$packid.$arch.modulemd.yaml"} = $prpap;
+      delete $kiwiorigins->{"obs://$prp/modulemd/_modulemd.yaml"};
+      my $cn = delete $cachenew{"$ddir/modulemd/_modulemd.yaml"};
+      if ($cn) {
+        $cn->[2] = "$ddir/modulemd/$packid.$arch.modulemd.yaml";
+        $cachenew{"$ddir/modulemd/$packid.$arch.modulemd.yaml"} = $cn;
+      }
+    }
+
+    # spread _slsa_provenance.json to individual rpms
+    if ($done{'_slsa_provenance/_slsa_provenance.json'}) {
+      for my $rpm (sort keys %done) {
 	next unless $rpm =~ /(.*)\.rpm$/;
 	next if $rpm =~ /\/::import::/;
-	next if $provenance{"$1.slsa_provenance.json"};
+	next if $done{"$1.slsa_provenance.json"};
 	unlink("$ddir/$1.slsa_provenance.json");
 	link("$ddir/_slsa_provenance/_slsa_provenance.json", "$ddir/$1.slsa_provenance.json") || die("link $ddir/_slsa_provenance/_slsa_provenance.json $ddir/$1.slsa_provenance.json: $!\n");
 	$kiwiorigins->{"obs://$prp/$1.slsa_provenance.json"} = $prpap;
-	if ($cachenew{"$ddir/_slsa_provenance/_slsa_provenance.json"}) {
-	  my $cn = delete $cachenew{"$ddir/_slsa_provenance/_slsa_provenance.json"};
+	my $cn = delete $cachenew{"$ddir/_slsa_provenance/_slsa_provenance.json"};
+	if ($cn) {
 	  $cn->[2] = "$ddir/$1.slsa_provenance.json";
 	  $cachenew{"$ddir/$1.slsa_provenance.json"} = $cn;
 	}
@@ -1958,7 +1970,7 @@ sub getbinaries_kiwiproduct {
       delete $kiwiorigins->{"obs://$prp/_slsa_provenance/_slsa_provenance.json"};
     }
 
-    # add all entries to meta hash
+    # add all rpm entries to meta hash
     for my $f (@done) {
       my (undef, $name) = split('/', $f, 2);
       next unless defined($name) && $name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
