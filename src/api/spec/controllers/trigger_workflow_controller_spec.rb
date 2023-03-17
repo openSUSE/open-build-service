@@ -148,6 +148,31 @@ RSpec.describe TriggerWorkflowController do
       it { expect(WorkflowRun.count).to eq(0) }
     end
 
+    context 'the action unsupported' do
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { create(:workflow_token, executor: create(:confirmed_user)) }
+      let(:github_payload) do
+        {}
+      end
+
+      before do
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'create'
+        post :create, body: github_payload.to_json
+      end
+
+      it { expect(response).to have_http_status(:bad_request) }
+      it { expect(WorkflowRun.count).to eq(1) }
+
+      it 'returns an error message in the response body' do
+        expect(response.body).to eql("<status code=\"bad_request\">\n  <summary>This SCM event is not supported</summary>\n</status>\n")
+      end
+    end
+
     context 'scm payload is invalid' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { create(:workflow_token, executor: create(:confirmed_user)) }

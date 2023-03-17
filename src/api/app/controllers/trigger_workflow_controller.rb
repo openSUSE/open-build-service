@@ -3,6 +3,7 @@ class TriggerWorkflowController < TriggerController
   skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
 
   before_action :set_scm_event
+  before_action :set_scm_extractor
   before_action :extract_scm_webhook
   before_action :create_workflow_run
   before_action :validate_scm_event
@@ -34,30 +35,29 @@ class TriggerWorkflowController < TriggerController
     @gitea_event = request.env['HTTP_X_GITEA_EVENT']
   end
 
+  def set_scm_extractor
+    scm = if @gitlab_event
+            'gitlab'
+          elsif @github_event
+            'github'
+          elsif @gitea_event
+            'gitea'
+          end
+    event = @github_event || @gitlab_event || @gitea_event
+
+    @scm_extractor = TriggerControllerService::SCMExtractor.new(scm, event, payload)
+  end
+
   def validate_scm_event
-    return if @gitlab_event.present? || @github_event.present? || @gitea_event.present?
+    return if @scm_extractor.valid?
 
     @workflow_run.update_as_failed(
       render_error(
         status: 400,
         errorcode: 'bad_request',
-        message: 'Only GitHub, GitLab and Gitea are supported. Could not find the required HTTP request headers X-GitHub-Event, X-Gitlab-Event or X-Gitea-Event.'
+        message: @scm_extractor.error_message
       )
     )
-  end
-
-  def scm
-    if @gitlab_event
-      'gitlab'
-    elsif @github_event
-      'github'
-    elsif @gitea_event
-      'gitea'
-    end
-  end
-
-  def event
-    @github_event || @gitlab_event || @gitea_event
   end
 
   def payload
@@ -79,7 +79,7 @@ class TriggerWorkflowController < TriggerController
   end
 
   def extract_scm_webhook
-    @scm_webhook = TriggerControllerService::SCMExtractor.new(scm, event, payload).call
+    @scm_webhook = @scm_extractor.call
 
     # There are plenty of different pull/merge request and push events which we don't support.
     # Those should not cause an error, we simply ignore them.
