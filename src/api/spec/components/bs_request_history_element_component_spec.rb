@@ -8,7 +8,7 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
   end
 
   context 'for any kind of history elements' do
-    let(:element) { create(:history_element_request_accepted, user: user, created_at: Time.zone.yesterday) }
+    let(:element) { create(:history_element_request_accepted, user: user, created_at: Time.now.utc - 1.day) }
 
     it 'displays an avatar' do
       expect(rendered_content).to have_selector("img[title='#{user.realname}']", count: 1)
