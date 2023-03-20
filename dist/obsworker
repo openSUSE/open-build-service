@@ -123,6 +123,10 @@ if [ -n "$OBS_WORKER_BINARIES_PROXY" ]; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --getbinariesproxy $OBS_WORKER_BINARIES_PROXY"
 fi
 
+if [ -n "$OBS_WORKER_BINARIES_PROXY_KIWIPRODUCT" ]; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --getbinariesproxy-kiwiproduct $OBS_WORKER_BINARIES_PROXY_KIWIPRODUCT"
+fi
+
 if [ -n "$OBS_VM_ENABLE_CONSOLE" ]; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-enable-console"
 fi

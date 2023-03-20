@@ -160,6 +160,25 @@ sub manage_cache {
   close F;
 }
 
+sub calcmd5 {
+  my ($file) = @_;
+  local *F;
+  open(F, '<', $file) || return undef;
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile(*F);
+  close F;
+  return $ctx->hexdigest();
+}
+
+sub checkmd5 {
+  my ($file, $md5) = @_;
+  local *F;
+  open(F, '<', $file) || return undef;
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile(*F);
+  close F;
+  return $ctx->hexdigest() eq $md5 ? 1 : undef;
+}
 
 sub printstats {
   my ($nhit, $khit, $nmiss, $kmiss, $type, $prpa) = @_;
@@ -440,6 +459,140 @@ sub getpreinstallimage {
   return undef;
 }
 
+sub getbinaries_kiwiproduct {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  my $server = $cgi->{'server'};
+
+  my $prpa = "$projid/$repoid/$arch";
+  if ($cgi->{'now'}) {
+    my $waited = time() - $cgi->{'now'};
+    print "waited $waited seconds to accept call\n" if $waited > 60;
+  }
+  mkdir_p($cachedir);
+  mkdir_p($cachetmpdir);
+  my $tmpprefix = $$.'_';
+  set_maxopen() unless defined $maxopen;
+
+  my @binaries;
+  for my $bin (@{$cgi->{'binary'}}) {
+    die("bad binary specification\n") unless $bin =~ /^([0-9a-f]{32}):(\d*):(\S+)\@(.+)$/s;
+    if ($3 eq 'extra') {
+      push @binaries, {'name' => $4, 'md5sum' => $1, 'sizek' => $2, 'cachekey' => "$1.extra"};
+    } elsif ($3 eq 'rpm') {
+      push @binaries, {'name' => $4, 'hdrmd5' => $1, 'sizek' => $2, 'cachekey' => $1};
+    } else {
+      die("bad binary specification\n");
+    }
+  }
+
+  my @cpio;
+
+  # check the cache
+  my $downloadsizek = 0;
+  my @cacheold;
+  my @cachenew;
+  my @downloadbins;
+  my $openfds = 0;
+  my ($nhit, $khit, $nmiss, $kmiss) = (0, 0, 0, 0);
+
+  for my $bv (@binaries) {
+    my ($cacheid, $cachefile) = get_cachefile($prpa, $bv->{'cachekey'});
+    my $fd = gensym;
+    my $binfd;
+    my $tmpname = "$cachetmpdir/$tmpprefix$bv->{'name'}";
+    my @s;
+    if (link($cachefile, $tmpname)) {
+      @s = stat($tmpname);
+      # verify
+      if ($bv->{'md5sum'}) {
+	$binfd = $fd if @s && checkmd5($tmpname, $bv->{'md5sum'}) && open($fd, '<', $tmpname);
+      } else {
+	my $id = eval { Build::queryhdrmd5($tmpname) };
+	$binfd = $fd if @s && $id && $id eq $bv->{'hdrmd5'} && open($fd, '<', $tmpname);
+      }
+      unlink($tmpname);
+    }
+    if (!$binfd) {
+      push @downloadbins, $bv;
+      $downloadsizek += $bv->{'sizek'};
+      next;
+    }
+    push @cacheold, [$cacheid, $s[7]];
+    $nhit++;
+    $khit += int($s[7] / 1024);
+    push @cpio, {'name' => $bv->{'name'}, 'filename' => $binfd};
+    $openfds++;
+    die("too many files to send\n") if $openfds + 16 > $maxopen;	# sorry
+  }
+
+  # get files not in cache
+  if (@downloadbins) {
+    print "downloading: @downloadbins\n";
+    my $toomany;
+    if ($downloadsizek * 1024 * 100 > $cachesize) {
+      manage_cache($cachesize - $downloadsizek * 1024);
+    }
+    my %downloadbins = map {$_->{'name'} => $_} @downloadbins;
+    my @args;
+    push @args, "noajax=1" if $cgi->{'noajax'};
+    push @args, "binary=$_->{'name'}" for @downloadbins;
+    my $res;
+    eval {
+      $res = BSRPC::rpc({
+	'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	'directory' => $cachetmpdir,
+	'map' => $tmpprefix,
+	'timeout' => $gettimeout,
+	'receiver' => \&BSHTTP::cpio_receiver,
+      }, undef, @args);
+      for my $r (@$res) {
+	die unless $r->{'name'} =~ /^\Q$tmpprefix\E(.*)$/;
+	my $bv = $downloadbins{$1};
+        next unless $bv;
+	my $tmpname = "$cachetmpdir/$r->{'name'}";
+	my @s = stat($tmpname);
+	die unless @s;
+
+	if (!$toomany) {
+	  my $fd = gensym;
+	  open($fd, '<', $tmpname) || die;
+	  push @cpio, {'name' => $bv->{'name'}, 'filename' => $fd};
+	  $openfds++;
+	  $toomany = 1 if $openfds + 16 > $maxopen;		# sorry
+	}
+
+	my $cachekey;
+	if ($bv->{'md5sum'}) {
+	  $cachekey = calcmd5($tmpname).'.extra';
+	} else {
+	  $cachekey = Build::queryhdrmd5($tmpname);
+	}
+	if ($cachekey) {
+	  my ($cacheid) = get_cachefile($prpa, $cachekey);
+	  push @cachenew, [$cacheid, $s[7], $tmpname];
+        }
+	$nmiss++;
+	$kmiss += int($s[7] / 1024);
+      }
+      manage_cache($cachesize, \@cacheold, \@cachenew);
+    };
+    if ($@) {
+      # clean up downloaded files
+      my $err = $@;
+      unlink("$cachetmpdir/$_") for grep {/^\Q$tmpprefix\E/} ls($cachetmpdir);
+      die($err);
+    }
+    # clean up
+    for my $r (@$res) {
+      unlink("$cachetmpdir/$r->{'name'}");
+    }
+    die("too many files to send\n") if $toomany;
+  }
+  printstats($nhit, $khit, $nmiss, $kmiss, 'kiwiproduct', $prpa);
+  BSServer::reply_cpio(\@cpio);
+  return undef;
+}
+
 sub hello {
   my ($cgi) = @_;
   return "<hello name=\"Getbinaries Proxy Server\" />\n";
@@ -454,6 +607,7 @@ sub run {
 my $dispatches = [
   '/' => \&hello,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module* workerid? now:num? server:' => \&getbinaries,
+  '/getbinaries_kiwiproduct $project $repository $arch $package binary:filename+ noajax:bool? workerid? now:num? server:' => \&getbinaries_kiwiproduct,
   '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? workerid? now:num? server:' => \&getpreinstallimage,
 ];
 
