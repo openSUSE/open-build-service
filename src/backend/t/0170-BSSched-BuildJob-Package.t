@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 114;			# last test to print
+use Test::More tests => 9;			# last test to print
 use Data::Dumper;
 use FindBin;
 use BSUtil;

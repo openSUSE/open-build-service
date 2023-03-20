@@ -19,7 +19,6 @@ package Test::OBS;
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 use Exporter;
 @Test::OBS::ISA       = ("Exporter");
@@ -30,30 +29,18 @@ use Test::More;
 
 sub bdepkey {
   my ($x) = @_;
-  return ($x->{'name'}||'')."\0".join("\0", map {"$_:$x->{$_}"} sort keys %$x);
+  return 'name='.($x->{'name'}||'').' '.join(' ', map {"$_=$x->{$_}"} grep {$_ ne 'name'} sort keys %$x);
 }
 
 sub cmp_buildinfo {
   my ($got, $expected, $comment) = @_;
-  #print Dumper($got->{bdep});
 
   delete $_->{'hdrmd5'} for @{$got->{'bdep'} || []};
-  $got->{'bdep'}       = [ sort {bdepkey($a) cmp bdepkey($b)} @{$got->{'bdep'} || []} ];
-  $expected->{'bdep'}  = [ sort {bdepkey($a) cmp bdepkey($b)} @{$expected->{'bdep'} || []} ];
+  $got->{'bdep'}       = [ sort(map {bdepkey($_)} @{$got->{'bdep'} || []}) ];
+  $expected->{'bdep'}  = [ sort(map {bdepkey($_)} @{$expected->{'bdep'} || []}) ];
   $got->{subpack}      = [ sort { $a cmp $b }  @{ $got->{subpack}  || []} ];
   $expected->{subpack} = [ sort { $a cmp $b } @{ $expected->{subpack}  || []} ];
-  my $got_bdeps = scalar @{$got->{bdep}};
-  my $exp_bdeps = scalar @{$expected->{bdep}};
-  ok($got_bdeps == $exp_bdeps, 'equal number of bdeps');
-  my $c1=0;
-  while ($c1<$got_bdeps) {
-    is_deeply($got->{bdep}->[$c1], $expected->{bdep}->[$c1], "$comment bdep $c1") || print Dumper($got->{bdep}->[$c1], $expected->{bdep}->[$c1]);
-    $c1++;
-  }
-  delete $got->{bdep};
-  delete $expected->{bdep};
-
-  is_deeply($got, $expected, "$comment");
+  is_deeply($got, $expected, $comment);
 }
 
 1;
