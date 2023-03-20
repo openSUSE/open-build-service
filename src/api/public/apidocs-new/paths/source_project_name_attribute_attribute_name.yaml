@@ -2,6 +2,8 @@ get:
   summary: Get project's attribute
   description: |
     Get a specified attribute of the project
+  security:
+  - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/attribute_name.yaml'
@@ -68,6 +70,8 @@ post:
   summary: Modifies the specified attribute
   description: |
     Modifies the specified attribute
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/attribute_name.yaml'
@@ -109,6 +113,8 @@ delete:
   summary: Removes a specified attribute
   description: |
     Removes a specified attribute
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/attribute_name.yaml'

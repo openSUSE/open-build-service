@@ -1,5 +1,7 @@
 get:
   summary: List the attibutes of a package
+  security:
+  - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
