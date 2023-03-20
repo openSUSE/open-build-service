@@ -264,6 +264,27 @@ sub check {
     }
   }
 
+  # check right away if some gbininfo fetch is in progress
+  my $delayed_errors = '';
+  if (!$ctx->{'isreposerver'}) {
+    for my $aprp (@aprps) {
+      my ($aprojid, $arepoid) = split('/', $aprp, 2);
+      next unless $remoteprojs->{$aprojid};
+      for my $arch (reverse @archs) {
+        next if $myarch ne $buildarch && $myarch ne $arch;
+	$delayed_errors .= ", project binary state of $aprp/$arch is unavailable" if $ctx->gbininfo_is_delayed($aprp, $arch);
+      }
+    }
+    if ($delayed_errors) {
+      substr($delayed_errors, 0, 2, '');
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        print "        $delayed_errors (delayed)\n";
+      }
+      return ('delayed', $delayed_errors);
+    }
+  }
+
   my $allpacks = $deps{'*'} ? 1 : 0;
   my $nodbgpkgs = $info->{'nodbgpkgs'};
   my $nosrcpkgs = $info->{'nosrcpkgs'};
@@ -277,7 +298,6 @@ sub check {
 
   my $maxblocked = 20;
   my %blockedarch;
-  my $delayed_errors = '';
   my $projpacks = $gctx->{'projpacks'};
   my %unneeded_na;
   my %archs = map {$_ => 1} @archs;
@@ -298,14 +318,13 @@ sub check {
       my $gbininfo = $ctx->read_gbininfo($aprp, $arch, $ps);
       if (!$gbininfo && $remoteprojs->{$aprojid}) {
 	my $error = "project binary state of $aprp/$arch is unavailable";
-	$error .= " (delayed)" if defined $gbininfo;
-	if ($ctx->{'verbose'}) {
-	  print "      - $packid (kiwi-product)\n";
-	  print "        $error\n";
-	}
 	if (defined $gbininfo) {
 	  $delayed_errors .= ", $error";
 	  next;
+	}
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        $error\n";
 	}
 	return ('broken', $error);
       }
@@ -479,7 +498,15 @@ sub check {
     last if @blocked > $maxblocked;
   }
 
-  return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
+  if ($delayed_errors) {
+    substr($delayed_errors, 0, 2, '');
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (kiwi-product)\n";
+      print "        $delayed_errors (delayed)\n";
+    }
+    return ('delayed', $delayed_errors);
+  }
+
   if ($markerdir && $myarch eq $buildarch) {
     # update waiting_for markers
     for my $arch (grep {$_ ne $buildarch} @archs) {
