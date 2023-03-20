@@ -11,7 +11,7 @@ use Test::OBS::Utils;
 use Test::OBS;
 use Test::Mock::BSRepServer::Checker;
 
-use Test::More tests => 3;                      # last test to print
+use Test::More tests => 208;                      # last test to print
 
 use BSUtil;
 use BSXML;
