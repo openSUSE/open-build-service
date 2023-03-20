@@ -1550,6 +1550,12 @@ sub read_gbininfo {
   return $gbininfo;
 }
 
+sub gbininfo_is_delayed {
+  my ($ctx, $prp, $arch) = @_;
+  my $gc = ($ctx->{'gbininfo_cache'} || {})->{"$prp/$arch"};
+  return $gc && defined($gc->[0]) && !$gc->[0] ? 1 : 0;
+}
+
 sub rebuild_gbininfo {
   my ($ctx, $prp) = @_;
   my $gctx = $ctx->{'gctx'};
