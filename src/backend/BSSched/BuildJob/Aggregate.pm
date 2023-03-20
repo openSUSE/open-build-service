@@ -159,16 +159,7 @@ sub check {
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs->{$aprojid} || $projpacks->{$aprojid};
-    if (!$proj) {
-      push @broken, $aprojid;
-      next;
-    }
-    if ($proj->{'error'}) {
-      if (BSSched::RPC::is_transient_error($proj->{'error'})) {
-	# XXX: hmm, there's already a project retryevent on $aprojid
-	$gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
-	$delayed = 1;
-      }
+    if (!$proj || $proj->{'error'}) {
       push @broken, $aprojid;
       next;
     }
@@ -252,9 +243,11 @@ sub check {
   if (@broken) {
     my $error = 'missing repositories: '.join(', ', @broken);
     print "      - $packid (aggregate)\n";
+    if ($delayed) {
+      print "        delayed ($error)\n";
+      return ('delayed', $error);
+    }
     print "        broken ($error)\n";
-    print "        (delayed)\n" if $delayed;
-    return ('delayed', $error) if $delayed;
     return ('broken', $error);
   }
   if (@blocked) {
