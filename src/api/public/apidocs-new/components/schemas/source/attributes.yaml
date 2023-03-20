@@ -10,6 +10,10 @@ items:
       type: string
       xml:
         attribute: true
+    binary:
+      type: string
+      xml:
+        attribute: true
   xml:
     name: attribute
 xml:

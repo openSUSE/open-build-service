@@ -378,6 +378,8 @@ paths:
   # Sources - Files
   /source/{project_name}/{package_name}/{file_name}:
     $ref: 'paths/source_project_name_package_name_file_name.yaml'
+  /source/{project_name}/{package_name}/{binary_filename}/_attribute/{attribute_name}:
+    $ref: 'paths/source_project_name_package_name_binary_filename_attribute_name.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
