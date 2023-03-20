@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 class DiffListComponent < ApplicationComponent
-  attr_reader :diff_list, :view_id, :commentable
+  attr_reader :diff_list, :view_id, :commentable, :commented_lines
 
   def initialize(diff_list:, view_id: nil, commentable: nil)
     super
     @diff_list = diff_list
     @view_id = view_id
     @commentable = commentable
+    @commented_lines = commentable ? commentable.comments.map(&:diff_ref).uniq.compact : []
   end
 
   def badge_for_state(state)
