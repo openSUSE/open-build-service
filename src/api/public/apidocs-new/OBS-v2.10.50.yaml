@@ -340,6 +340,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_deleteuploadrev.yaml'
   /source/{project_name}/{package_name}?cmd=diff:
     $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
+  /source/{project_name}/{package_name}?cmd=getprojectservices:
+    $ref: 'paths/source_project_name_package_name_cmd_getprojectservices.yaml'
   /source/{project_name}/{package_name}?cmd=instantiate:
     $ref: 'paths/source_project_name_package_name_cmd_instantiate.yaml'
   /source/{project_name}/{package_name}?cmd=linkdiff:
