@@ -5,18 +5,8 @@ class Project
     end
 
     def call
-      embargo_date(embargo_date_attribute)
-    end
-
-    private
-
-    def embargo_date_attrib_type
-      @embargo_date_attrib_type ||= AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
-    end
-
-    def embargo_date_attribute
-      attribs = @project.attribs.find_by(attrib_type: embargo_date_attrib_type)
-      attribs.values.first if attribs.present?
+      embargo = embargo_date(embargo_date_attribute)
+      raise BsRequest::Errors::UnderEmbargo, "The project #{@project.name} is under embargo until #{embargo}" if embargo.present? && embargo > Time.now.utc
     end
 
     def embargo_date(attrib_value)
@@ -33,7 +23,18 @@ class Project
       # no time specified, allow it next day
       embargo = embargo.tomorrow if /^\d{4}-\d\d?-\d\d?$/.match?(value)
 
-      raise BsRequest::Errors::UnderEmbargo, "The project #{@project.name} is under embargo until #{attrib_value.value}" if embargo > Time.now.utc
+      embargo
+    end
+
+    private
+
+    def embargo_date_attrib_type
+      @embargo_date_attrib_type ||= AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
+    end
+
+    def embargo_date_attribute
+      attribs = @project.attribs.find_by(attrib_type: embargo_date_attrib_type)
+      attribs.values.first if attribs.present?
     end
   end
 end
