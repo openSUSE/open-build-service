@@ -527,13 +527,14 @@ sub getbinaries_kiwiproduct {
 
   # get files not in cache
   if (@downloadbins) {
-    print "downloading: @downloadbins\n";
+    print "downloading: ".join(' ', map {$_->{'name'}} @downloadbins)."\n";
     my $toomany;
     if ($downloadsizek * 1024 * 100 > $cachesize) {
       manage_cache($cachesize - $downloadsizek * 1024);
     }
     my %downloadbins = map {$_->{'name'} => $_} @downloadbins;
     my @args;
+    push @args, 'view=cpio';
     push @args, "noajax=1" if $cgi->{'noajax'};
     push @args, "binary=$_->{'name'}" for @downloadbins;
     my $res;
