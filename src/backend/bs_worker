@@ -1863,7 +1863,7 @@ sub getbinaries_kiwiproduct {
 	    }
 	    my @s = stat("$ddir/$filename.new.rpm");
 	    if (@s && checkbv("$ddir/$filename.new.rpm", $bv)) {
-	      my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : $bv->{'md5sum'};
+	      my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : "$bv->{'md5sum'}.extra";
 	      my ($cacheid) = get_cachefile($prpa, $cachekey);
 	      $cachenew{"$ddir/$filename"} = [$cacheid, $s[7], "$ddir/$filename"];
 	      push @done, $filename;
@@ -1919,7 +1919,7 @@ sub getbinaries_kiwiproduct {
 	    # in the future.
 	  } elsif (checkbv("$ddir/$filename.new.rpm", $bv)) {
 	    # we got the right file, put it in the cache
-	    my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : $bv->{'md5sum'};
+	    my $cachekey = $bv->{'hdrmd5'} ? "$bv->{'hdrmd5'}$rpmhdrs_only" : "$bv->{'md5sum'}.extra";
 	    my ($cacheid) = get_cachefile($prpa, $cachekey);
 	    $cachenew{"$ddir/$filename"} = [$cacheid, $s[7], "$ddir/$filename"];
 	  } else {
