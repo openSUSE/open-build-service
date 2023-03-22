@@ -8,7 +8,7 @@ class DiffListComponent < ApplicationComponent
     @diff_list = diff_list
     @view_id = view_id
     @commentable = commentable
-    @commented_lines = commentable ? commentable.comments.map(&:diff_ref).uniq.compact : []
+    @commented_lines = commentable ? commentable.comments.where.not(diff_ref: nil).select(:diff_ref).distinct.pluck(:diff_ref) : []
   end
 
   def badge_for_state(state)
