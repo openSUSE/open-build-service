@@ -98,7 +98,7 @@ class BsRequestTest < ActiveSupport::TestCase
     XML
     req = BsRequest.new_from_xml(xml)
     new_time = Time.zone.local(2012, 11, 7, 0, 0, 0)
-    Timecop.freeze(new_time) do
+    travel_to(new_time) do
       req.save!
     end
     # number got increased by one
@@ -209,7 +209,7 @@ class BsRequestTest < ActiveSupport::TestCase
     XML
     req = BsRequest.new_from_xml(xml)
     new_time = Time.zone.local(2012, 11, 7, 0, 0, 0)
-    Timecop.freeze(new_time) do
+    travel_to(new_time) do
       req.save!
     end
 

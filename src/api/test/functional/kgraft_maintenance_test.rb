@@ -231,7 +231,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    tag: 'path', attributes: { project: 'BaseDistro2Channel', repository: 'channel_repo' }
 
     # Create patchinfo informations
-    Timecop.freeze(1)
+    travel(1.second)
     post "/source/#{incident_project}?cmd=createpatchinfo&force=1"
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'patchinfo')
@@ -244,7 +244,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.at_css('summary').content = 'live patch'
     pi.at_css('description').content = 'live patch is always critical'
     pi.at_css('rating').content = 'critical'
-    Timecop.freeze(1)
+    travel(1.second)
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
     assert_response :success
 

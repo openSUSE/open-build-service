@@ -3651,7 +3651,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'value', parent: { tag: 'attribute', attributes: { name: 'AutoCleanup', namespace: 'OBS' } }
 
     # in future
-    Timecop.freeze(10.days) do
+    travel(10.days) do
       User.session = User.find_by_login('fredlibs')
       ProjectCreateAutoCleanupRequestsJob.perform_now
       User.session = nil
@@ -3664,7 +3664,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil br.accept_at
     # second run shall not open another request
     # in future
-    Timecop.freeze(12.days) do
+    travel(12.days) do
       ProjectCreateAutoCleanupRequestsJob.perform_now
     end
     assert_equal br, BsRequest.all.last

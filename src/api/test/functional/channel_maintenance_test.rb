@@ -12,10 +12,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').to_timeout
   end
 
-  teardown do
-    Timecop.return
-  end
-
   #
   # This is one large test, which is running a full maintenance update
   # This includes product channels
@@ -540,7 +536,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     old_release_date = node['update']['issued']['date']
-    assert_equal old_release_date, old_release_date.to_i.to_s # this is the backend time, not handled by Timecop
+    assert_equal old_release_date, old_release_date.to_i.to_s
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
 
     # check published search db

@@ -14,10 +14,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     ActiveJob::Base.queue_adapter = :inline
   end
 
-  teardown do
-    Timecop.return
-  end
-
   def test_set_and_get_1
     login_king
 
@@ -255,7 +251,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # the birthday of J.K.
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
     # submit request
     post '/request?cmd=create', params: '<request>
                                    <priority>critical</priority>
@@ -272,7 +268,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal '2010-07-12T00:00:00', create_time
 
     # aka sleep 1
-    Timecop.freeze(1)
+    travel(1.second)
 
     # create more history entries prio change, decline, reopen and finally accept it
     post "/request/#{id}?cmd=setpriority&priority=ILLEGAL&comment=dontcare"
@@ -281,13 +277,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'summary', content: "Illegal priority 'ILLEGAL'")
     post "/request/#{id}?cmd=setpriority&priority=low&comment=dontcare"
     assert_response :success
-    Timecop.freeze(1)
+    travel(1.second)
     post "/request/#{id}?cmd=changestate&newstate=declined&comment=notgood"
     assert_response :success
-    Timecop.freeze(1)
+    travel(1.second)
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oops"
     assert_response :success
-    Timecop.freeze(1)
+    travel(1.second)
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
     assert_equal :accepted, BsRequest.find_by_number(id).state
@@ -355,8 +351,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/home:Iggy/NEW_PACKAGE'
     assert_response :success
-
-    Timecop.return
   end
 
   def test_request_autodecline_on_removal
@@ -764,7 +758,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_request_review_and_supersede
     login_Iggy
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
     req = load_backend_file('request/works')
     post '/request?cmd=create', params: req
     assert_response :success
@@ -806,7 +800,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'request_not_modifiable' })
 
     # superseded review
-    Timecop.freeze(2010, 7, 13)
+    travel_to(Date.new(2010, 7, 13))
     post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
     assert_response :success
     get "/request/#{id}"
@@ -1011,7 +1005,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   # MeeGo BOSS: is using multiple reviews by same user for each step
   def test_create_request_and_multiple_reviews
     # the birthday of J.K.
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
 
     login_Iggy
     post('/request?cmd=create', params: "<request>
@@ -1031,7 +1025,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # add reviewer
     login_Iggy
-    Timecop.freeze(1) # 0:0:1 review added
+    travel(1.second) # 0:0:1 review added
     post "/request/#{id}?cmd=addreview&by_user=tom&comment=couldyou"
     assert_response :success
     get "/request/#{id}"
@@ -1040,7 +1034,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # accept review
     login_tom
-    Timecop.freeze(1) # 0:0:2 tom accepts review
+    travel(1.second) # 0:0:2 tom accepts review
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review1"
     assert_response :success
     get "/request/#{id}"
@@ -1049,7 +1043,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # readd reviewer
     login_Iggy
-    Timecop.freeze(1) # 0:0:3 yet another review for tom
+    travel(1.second) # 0:0:3 yet another review for tom
     post "/request/#{id}?cmd=addreview&by_user=tom&comment=overlooked"
     assert_response :success
     get "/request/#{id}"
@@ -1058,7 +1052,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # accept review
     login_tom
-    Timecop.freeze(1) # 0:0:4 yet another review accept by tom
+    travel(1.second) # 0:0:4 yet another review accept by tom
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review2"
     assert_response :success
 
@@ -1070,7 +1064,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # reopen a review
     login_tom
-    Timecop.freeze(1) # 0:0:5 reopened from tom
+    travel(1.second) # 0:0:5 reopened from tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=reopen2"
     assert_response :success
     get "/request/#{id}?withhistory=1"
@@ -2843,7 +2837,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_auto_accept_request
     login_tom
 
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
 
     # create request with auto accept tomorrow
     req = "<request>
@@ -2895,7 +2889,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'summary', content: 'Auto accept time is in the past')
 
     # now time travel and accept
-    Timecop.freeze(2.days)
+    travel(2.days)
     # the backend has to be up before we can accept
     Backend::Test.start
     BsRequest.delayed_auto_accept
@@ -2925,7 +2919,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_set_auto_accept
     login_tom
 
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
 
     req = "<request>
             <action type='delete'>
@@ -3504,7 +3498,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_revoke_autodeclined_submit_requests
     login_Iggy
 
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
     put '/source/home:Iggy:fordecline/_meta', params: "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
     assert_response :success
 
@@ -3512,7 +3506,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    Timecop.freeze(1)
+    travel(1.second)
     delete '/source/home:Iggy:fordecline'
     assert_response :success
 
@@ -3537,7 +3531,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                    'description' => 'Request got declined',
                                    'comment' => "The target project 'home:Iggy:fordecline' has been removed" }] }, node)
 
-    Timecop.freeze(1)
+    travel(1.second)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
@@ -3691,7 +3685,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_ordering_of_requests
     prepare_request_with_user('Iggy', 'buildservice')
 
-    Timecop.freeze(2010, 7, 12)
+    travel_to(Date.new(2010, 7, 12))
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro:Update" package="pack2"/>
@@ -3703,7 +3697,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     default = node['id']
     assert default.present?
-    Timecop.freeze(1)
+    travel(1.second)
     # a second default
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
@@ -3717,7 +3711,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     moderate = node['id']
     assert moderate.present?
-    Timecop.freeze(1)
+    travel(1.second)
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro" package="pack2"/>
@@ -3730,7 +3724,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     low = node['id']
     assert low.present?
-    Timecop.freeze(1)
+    travel(1.second)
     post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro:Update" package="pack2"/>
@@ -3755,7 +3749,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     important = node['id']
     assert important.present?
-    Timecop.freeze(1)
+    travel(1.second)
 
     get '/search/request', params: { match: "target/@project = 'home:Iggy'" }
     assert_response :success
