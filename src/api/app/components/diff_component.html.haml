@@ -31,7 +31,7 @@
               .comments-list
                 -# rubocop:disable ViewComponent/AvoidGlobalState
                 - if User.session
-                  = link_to(request_inline_comment_path(commentable.bs_request, commentable, id),
+                  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id),
                             class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
                     %i.fas.fa-comment-medical
                     .visually-hidden
