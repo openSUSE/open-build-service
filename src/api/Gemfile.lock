@@ -476,7 +476,6 @@ GEM
       riddle (~> 2.3)
     thor (1.2.1)
     tilt (2.1.0)
-    timecop (0.9.6)
     timeout (0.3.2)
     tins (1.32.1)
       sync
@@ -607,7 +606,6 @@ DEPENDENCIES
   terser
   test-unit
   thinking-sphinx
-  timecop
   vcr
   view_component
   voight_kampff
