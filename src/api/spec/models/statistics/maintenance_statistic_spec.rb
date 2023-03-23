@@ -43,43 +43,48 @@ RSpec.describe Statistics::MaintenanceStatistic do
     context 'with a revoked bs_request' do
       let(:user) { create(:confirmed_user) }
       let!(:project) do
-        create(
-          :project_with_repository,
-          name: 'ProjectWithRepo',
-          created_at: 10.days.ago
-        )
+        travel_to(10.days.ago) do
+          create(
+            :project_with_repository,
+            name: 'ProjectWithRepo'
+          )
+        end
       end
       let!(:revoked_bs_request) do
-        create(
-          :bs_request,
-          source_project: project,
-          type: 'maintenance_release',
-          created_at: 9.days.ago
-        )
+        travel_to(9.days.ago) do
+          create(
+            :bs_request,
+            source_project: project,
+            type: 'maintenance_release'
+          )
+        end
       end
       let!(:revoked_history_element) do
-        create(
-          :history_element_request_revoked,
-          request: revoked_bs_request,
-          user: user,
-          created_at: 8.days.ago
-        )
+        travel_to(8.days.ago) do
+          create(
+            :history_element_request_revoked,
+            request: revoked_bs_request,
+            user: user
+          )
+        end
       end
       let!(:accepted_bs_request) do
-        create(
-          :bs_request,
-          source_project: project,
-          type: 'maintenance_release',
-          created_at: 7.days.ago
-        )
+        travel_to(7.days.ago) do
+          create(
+            :bs_request,
+            source_project: project,
+            type: 'maintenance_release'
+          )
+        end
       end
       let!(:accepted_history_element) do
-        create(
-          :history_element_request_accepted,
-          request: accepted_bs_request,
-          user: user,
-          created_at: 6.days.ago
-        )
+        travel_to(6.days.ago) do
+          create(
+            :history_element_request_accepted,
+            request: accepted_bs_request,
+            user: user
+          )
+        end
       end
 
       subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
@@ -114,32 +119,35 @@ RSpec.describe Statistics::MaintenanceStatistic do
       let!(:group) { create(:group) }
 
       let!(:project) do
-        create(
-          :project_with_repository,
-          name: 'ProjectWithRepo',
-          created_at: 10.days.ago
-        )
+        travel_to(10.days.ago) do
+          create(
+            :project_with_repository,
+            name: 'ProjectWithRepo'
+          )
+        end
       end
       let(:package) { create(:package, :as_submission_source, project: project) }
       let(:target_project) { create(:project) }
       let!(:bs_request) do
-        create(
-          :bs_request,
-          source_package: package,
-          target_project: target_project,
-          type: 'maintenance_release',
-          creator: user,
-          created_at: 9.days.ago
-        )
+        travel_to(9.days.ago) do
+          create(
+            :bs_request,
+            source_package: package,
+            target_project: target_project,
+            type: 'maintenance_release',
+            creator: user
+          )
+        end
       end
       let!(:review) do
-        create(
-          :review,
-          bs_request: bs_request,
-          by_group: group.title,
-          created_at: 6.days.ago,
-          state: :accepted
-        )
+        travel_to(6.days.ago) do
+          create(
+            :review,
+            bs_request: bs_request,
+            by_group: group.title,
+            state: :accepted
+          )
+        end
       end
 
       before do

@@ -15,19 +15,21 @@ RSpec.shared_context 'a set of bs requests' do
            target_package: target_package)
   end
   let!(:request2) do
-    create(:bs_request_with_submit_action,
-           created_at: 2.days.ago,
-           creator: user,
-           source_package: source_package,
-           target_package: target_package)
+    travel_to(2.days.ago) do
+      create(:bs_request_with_submit_action,
+             creator: user,
+             source_package: source_package,
+             target_package: target_package)
+    end
   end
   let!(:bs_requests) do
-    create_list(:bs_request_with_submit_action,
-                8,
-                created_at: 1.day.ago,
-                creator: user,
-                source_package: source_package,
-                target_package: target_package)
+    travel_to(1.day.ago) do
+      create_list(:bs_request_with_submit_action,
+                  8,
+                  creator: user,
+                  source_package: source_package,
+                  target_package: target_package)
+    end
   end
 
   # Set 2
@@ -48,10 +50,11 @@ RSpec.shared_context 'a set of bs requests' do
 
   # for testing ordering by composite column target_project, target_package
   let!(:request4) do
-    create(:bs_request_with_submit_action,
-           created_at: 1.day.ago,
-           creator: user,
-           source_package: source_package,
-           target_package: target_package2)
+    travel_to(1.day.ago) do
+      create(:bs_request_with_submit_action,
+             creator: user,
+             source_package: source_package,
+             target_package: target_package2)
+    end
   end
 end

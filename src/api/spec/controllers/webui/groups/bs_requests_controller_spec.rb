@@ -24,7 +24,7 @@ RSpec.describe Webui::Groups::BsRequestsController do
     end
 
     # for the reviews and all requests table
-    let(:bs_request) { create(:set_bugowner_request, created_at: 1.day.ago) }
+    let(:bs_request) { travel_to(1.day.ago) { create(:set_bugowner_request) } }
     let!(:review) { create(:review, by_group: group.title, bs_request: bs_request) }
     let(:another_group) { create(:group) }
     let(:another_bs_request) { create(:set_bugowner_request) }
