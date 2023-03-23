@@ -1,6 +1,6 @@
 - diff_list.each_with_index do |(name, file_info), file_index|
   - state = file_info['state']
-  - expanded = expand?(name, state)
+  - expanded = expand?(name, state, file_index)
   .accordion.mb-2{ id: "diff-list-#{name.parameterize}" }
     .accordion-item
       %h2.accordion-header
