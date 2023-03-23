@@ -21,15 +21,18 @@
 }
 
 .comment-bubble {
-  $comment-bubble-outline: $gray-300;
+  $comment-bubble-outline: rgba($gray-400, 0.5);
   $comment-bubble-background: $gray-100;
   @extend .rounded;
-  @extend .p-3;
   @extend .mb-2;
   border: 1px solid $comment-bubble-outline;
   position: relative;
   min-width: 20%;
   background-color: $comment-bubble-background;
+
+  &.comment-bubble-content, .comment-bubble-content {
+    @extend .p-3;
+  }
 
   // Arrow on the top left of the comment bubble
   $comment-bubble-arrow-top-position: 0;
