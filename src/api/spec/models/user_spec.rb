@@ -10,11 +10,11 @@ RSpec.describe User do
   let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
   before do
-    Timecop.freeze(Time.zone.today)
+    freeze_time
   end
 
   after do
-    Timecop.return
+    unfreeze_time
   end
 
   describe 'validations' do

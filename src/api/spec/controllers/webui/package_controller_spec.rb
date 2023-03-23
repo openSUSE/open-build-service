@@ -774,13 +774,11 @@ RSpec.describe Webui::PackageController, vcr: true do
                 </package>
               </builddepinfo>))
 
-          Timecop.freeze(Time.now) do
-            path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/#{source_package}:multibuild-package/_jobstatus"
-            body = "<jobstatus workerid='42' starttime='#{starttime}'/>"
-            stub_request(:get, path).and_return(body: body)
+          path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/#{source_package}:multibuild-package/_jobstatus"
+          body = "<jobstatus workerid='42' starttime='#{starttime}'/>"
+          stub_request(:get, path).and_return(body: body)
 
-            do_request params
-          end
+          do_request params
         end
 
         it { expect(assigns(:what_depends_on)).to eq(['apache2']) }

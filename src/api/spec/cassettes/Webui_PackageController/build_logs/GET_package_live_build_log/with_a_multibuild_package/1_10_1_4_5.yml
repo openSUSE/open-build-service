@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Mar 2023 17:28:50 GMT
+  recorded_at: Thu, 23 Mar 2023 17:28:51 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_2
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Moving Toyshop</title>
-          <description>Sit modi ex consequatur.</description>
+          <title>As I Lay Dying</title>
+          <description>Sit accusamus ducimus accusantium.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Moving Toyshop</title>
-          <description>Sit modi ex consequatur.</description>
+          <title>As I Lay Dying</title>
+          <description>Sit accusamus ducimus accusantium.</description>
         </package>
-  recorded_at: Thu, 23 Mar 2023 17:28:50 GMT
+  recorded_at: Thu, 23 Mar 2023 17:28:51 GMT
 recorded_with: VCR 6.1.0

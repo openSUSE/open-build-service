@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 05 Jun 2020 11:21:44 GMT
+  recorded_at: Thu, 23 Mar 2023 17:28:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_14
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>If Not Now, When?</title>
-          <description>Nostrum qui reprehenderit eveniet.</description>
+          <title>The Needle's Eye</title>
+          <description>Sunt sapiente inventore veniam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>If Not Now, When?</title>
-          <description>Nostrum qui reprehenderit eveniet.</description>
+          <title>The Needle's Eye</title>
+          <description>Sunt sapiente inventore veniam.</description>
         </package>
-  recorded_at: Fri, 05 Jun 2020 11:21:44 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Thu, 23 Mar 2023 17:28:50 GMT
+recorded_with: VCR 6.1.0

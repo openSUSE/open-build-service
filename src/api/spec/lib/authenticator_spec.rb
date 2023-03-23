@@ -8,11 +8,11 @@ RSpec.describe Authenticator do
 
     before do
       allow(session_mock).to receive(:[]).with(:login)
-      Timecop.freeze(Time.zone.today)
+      freeze_time
     end
 
     after do
-      Timecop.return
+      unfreeze_time
     end
 
     context 'in proxy mode' do

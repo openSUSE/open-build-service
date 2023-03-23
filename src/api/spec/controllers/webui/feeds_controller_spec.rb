@@ -39,9 +39,8 @@ RSpec.describe Webui::FeedsController do
       context 'and the user checking the messages is the admin' do
         before do
           (1..5).each do |n|
-            create(:status_message, message: "message #{n}", user: admin_user)
             # Make sure created_at timestamps differ
-            Timecop.travel(1.second)
+            travel_to(n.seconds.ago) { create(:status_message, message: "message #{n}", user: admin_user) }
           end
 
           get :news, params: { project: project, format: 'rss' }
