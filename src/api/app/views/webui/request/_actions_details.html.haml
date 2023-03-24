@@ -7,7 +7,8 @@
     .input-group.w-auto
       = link_to('Previous', request_show_path(number: bs_request.number, request_action_id: prev_action&.id,
                                               full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
-                class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}")
+                class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}",
+                id: 'previous-action-button')
       .dropdown#request-actions
         %button.btn.btn-outline-primary.btn-sm.dropdown-toggle.rounded-0{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                                           :type => 'button', 'data-boundary' => 'viewport' }
@@ -30,7 +31,8 @@
                                                         'aria-current': 'true')
       = link_to('Next', request_show_path(number: bs_request.number, request_action_id: next_action&.id,
                                           full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
-                class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}")
+                class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}",
+                id: 'next-action-button')
 
     - active_action_index = submit_actions.find_index(active_action) + 1
     %span.ms-2 Showing ##{active_action_index} (of #{submit_actions_count})
@@ -62,13 +64,18 @@
 
 - content_for :ready_function do
   :plain
+    // Append anchor to the href of the Previous and Next buttons when the page is loaded or when the tab is changed.
+    setAnchorToPreviousAndNextButtons();
+    $('#request-tabs').find('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(){
+      setAnchorToPreviousAndNextButtons();
+    });
 
     $('#request-actions').on('shown.bs.dropdown', function () {
       // Scrolls towards the current request action
       var currentAction = $('a.dropdown-item.active');
       currentAction[0].scrollIntoView({behavior: "smooth", block: "center"});
 
-      // Adapts Href according to seleted tab
+      // Append anchor to the href of the actions in the dropdown
       $.each($('#request-actions .dropdown-item'), function () {
         var href = $(this).attr('href');
         $(this).attr('href', appendAnchorToHref(href));

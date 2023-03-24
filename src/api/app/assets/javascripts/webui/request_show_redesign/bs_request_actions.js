@@ -16,3 +16,15 @@ function appendAnchorToHref(href) {
   return href;
 }
 
+function setAnchorToPreviousAndNextButtons() { // jshint ignore:line
+  var previousButton = $('#previous-action-button');
+  var nextButton = $('#next-action-button');
+
+  if (previousButton.length) {
+    previousButton.attr('href', appendAnchorToHref(previousButton.attr('href')));
+  }
+
+  if (nextButton.length) {
+    nextButton.attr('href', appendAnchorToHref(nextButton.attr('href')));
+  }
+}
