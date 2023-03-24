@@ -62,7 +62,6 @@
 
 - content_for :ready_function do
   :plain
-    var hashRegexp = new RegExp(`\#${HASH_PREFIX}.+`);
 
     $('#request-actions').on('shown.bs.dropdown', function () {
       // Scrolls towards the current request action
@@ -72,15 +71,6 @@
       // Adapts Href according to seleted tab
       $.each($('#request-actions .dropdown-item'), function () {
         var href = $(this).attr('href');
-        if (document.location.hash.search('#diff_') != -1 && href.search('#') == -1) {
-          href = href + '#' + HASH_PREFIX + 'changes';
-        }
-        else if (href.search('#') == -1) {
-          href = href + document.location.hash;
-        }
-        else if (document.location.hash.search('#diff_') == -1) {
-          href = href.replace(hashRegexp, document.location.hash);
-        }
-        $(this).attr('href', href);
+        $(this).attr('href', appendAnchorToHref(href));
       });
     });
