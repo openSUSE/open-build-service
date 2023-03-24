@@ -8,7 +8,7 @@ module Webui::MarkdownHelper
                                            autolink: true,
                                            no_intra_emphasis: true,
                                            fenced_code_blocks: true, disable_indented_code_blocks: true)
-    ActionController::Base.helpers.sanitize(@md_parser.render(content.dup.to_s))
+    ActionController::Base.helpers.sanitize(@md_parser.render(content.dup.to_s), scrubber: Loofah::Scrubbers::NoFollow.new)
   end
 
   def render_without_markdown(content)
