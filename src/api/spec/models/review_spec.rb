@@ -345,7 +345,6 @@ RSpec.describe Review do
   describe '#update_caches' do
     RSpec.shared_examples "the subject's cache is reset when it's review changes" do
       before do
-        Timecop.travel(1.minute)
         @cache_key = subject.cache_key_with_version
         review.state = :accepted
         review.save

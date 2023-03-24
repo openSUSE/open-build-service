@@ -11,11 +11,6 @@ class PackageTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
   end
 
-  def teardown
-    Timecop.return
-    super
-  end
-
   def test_flags_to_axml
     # check precondition
     assert_equal 2, @package.flags.of_type('build').size
@@ -245,7 +240,7 @@ class PackageTest < ActiveSupport::TestCase
 
   def test_activity
     Backend::Test.without_global_write_through do
-      Timecop.freeze(2010, 1, 1)
+      travel_to(Date.new(2010, 1, 1))
       project = projects(:home_Iggy)
       newyear = project.packages.create!(name: 'newyear')
       # freshly created it should have 20
@@ -253,21 +248,21 @@ class PackageTest < ActiveSupport::TestCase
       assert_in_delta(20.0, newyear.activity, 0.2)
 
       # a month later now
-      Timecop.freeze(2010, 2, 1)
+      travel_to(Date.new(2010, 2, 1))
       assert_in_delta(15.9, newyear.activity, 0.2)
 
       # a month later now
-      Timecop.freeze(2010, 3, 1)
+      travel_to(Date.new(2010, 3, 1))
       assert_in_delta(12.9, newyear.activity, 0.2)
 
       newyear.title = 'Just a silly update'
       newyear.save
       assert_in_delta(22.9, newyear.activity, 0.2)
 
-      Timecop.freeze(2010, 4, 1)
+      travel_to(Date.new(2010, 4, 1))
       assert_in_delta(18.3, newyear.activity, 0.2)
 
-      Timecop.freeze(2010, 5, 1)
+      travel_to(Date.new(2010, 5, 1))
       assert_in_delta(14.7, newyear.activity, 0.2)
 
       newyear.title = 'Just a silly update 2'
@@ -279,33 +274,33 @@ class PackageTest < ActiveSupport::TestCase
       assert_in_delta(24.7, newyear.activity, 0.2)
 
       # an hour later perhaps?
-      Timecop.freeze(3600)
+      travel(1.hour)
       newyear.title = 'Just a silly update 4'
       newyear.save
       assert_in_delta(25.1, newyear.activity, 0.2)
 
       # and commit every day?
-      Timecop.freeze(90_000)
+      travel(90_000.seconds)
       newyear.title = 'Just a silly update 5'
       newyear.save
       assert_in_delta(34.9, newyear.activity, 0.2)
 
-      Timecop.freeze(90_000)
+      travel(90_000.seconds)
       newyear.title = 'Just a silly update 6'
       newyear.save
       assert_in_delta(44.6, newyear.activity, 0.2)
 
-      Timecop.freeze(90_000)
+      travel(90_000.seconds)
       newyear.title = 'Just a silly update 7'
       newyear.save
       assert_in_delta(54.2, newyear.activity, 0.2)
 
-      Timecop.freeze(90_000)
+      travel(90_000.seconds)
       newyear.title = 'Just a silly update 8'
       newyear.save
       assert_in_delta(63.8, newyear.activity, 0.2)
 
-      Timecop.freeze(90_000)
+      travel(90_000.seconds)
       newyear.title = 'Just a silly update 8'
       newyear.save
       assert_in_delta(72.7, newyear.activity, 0.2)

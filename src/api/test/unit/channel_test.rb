@@ -10,11 +10,6 @@ class ChannelTest < ActiveSupport::TestCase
     User.session = nil
   end
 
-  def teardown
-    Timecop.return
-    super
-  end
-
   def test_parse_xml
     # pre condition check
     assert_equal 0, @channel.channel_binary_lists.size

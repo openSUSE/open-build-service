@@ -3,10 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 class StatusControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
-  teardown do
-    Timecop.return
-  end
-
   def setup
     prepare_request_valid_user
   end

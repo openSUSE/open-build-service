@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 05 Jun 2020 11:21:43 GMT
+  recorded_at: Thu, 23 Mar 2023 17:28:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_12
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Tenetur voluptatibus et corporis.</description>
+          <title>The Little Foxes</title>
+          <description>Culpa est odio vero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Tenetur voluptatibus et corporis.</description>
+          <title>The Little Foxes</title>
+          <description>Culpa est odio vero.</description>
         </package>
-  recorded_at: Fri, 05 Jun 2020 11:21:43 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Thu, 23 Mar 2023 17:28:49 GMT
+recorded_with: VCR 6.1.0

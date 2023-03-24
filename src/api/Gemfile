@@ -153,8 +153,6 @@ group :test do
   gem 'capybara'
   # for rspec like matchers
   gem 'capybara_minitest_spec'
-  # to freeze time
-  gem 'timecop'
   # to fake backend replies
   gem 'webmock'
   # for mocking and stubbing

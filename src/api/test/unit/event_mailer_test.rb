@@ -3,10 +3,6 @@ require_relative '../test_helper'
 class EventMailerTest < ActionMailer::TestCase
   fixtures :all
 
-  teardown do
-    Timecop.return
-  end
-
   test 'commit event' do
     mail = EventMailer.with(subscribers: [users(:adrian)], event: events(:pack1_commit)).notification_email
     assert_equal 'BaseDistro/pack1 r1 commited', mail.subject
@@ -55,7 +51,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     # the default is reviewer groups get email, so check that adrian gets an email
     req = bs_requests(:submit_from_home_project)
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
+    travel_to(DateTime.new(2013, 8, 20, 12, 0, 0))
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do

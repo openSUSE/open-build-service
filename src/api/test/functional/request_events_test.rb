@@ -3,10 +3,6 @@ require_relative '../test_helper'
 class RequestEventsTest < ActionDispatch::IntegrationTest
   fixtures :all
 
-  teardown do
-    Timecop.return
-  end
-
   setup do
     ActionMailer::Base.deliveries.clear
     reset_auth
@@ -20,7 +16,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
   def test_request_event
     login_Iggy
 
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
@@ -41,7 +36,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
   def test_very_large_request_event
     login_Iggy
 
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +2) do
@@ -68,7 +62,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
   def test_set_bugowner_event
     login_Iggy
 
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
@@ -110,7 +103,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     packages(:kde4_kdelibs).relationships.where(role: Role.hashed['reviewer']).delete_all
     projects(:kde4).relationships.where(role: Role.hashed['reviewer']).delete_all
 
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
@@ -130,7 +122,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
   def test_repository_delete_request
     login_Iggy
 
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do

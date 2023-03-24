@@ -5,19 +5,14 @@ require 'statistics_calculations'
 RSpec.describe StatisticsCalculations do
   describe 'get_latest_updated' do
     let(:user) { create(:confirmed_user) }
-    let(:package_1) { create(:package) }
-    let(:package_2) { create(:package, name: 'my_package') }
-    let(:package_3) { create(:package) }
-    let(:project_without_package) { create(:project) }
+    let!(:package_1) { travel_to(30.seconds.ago) { create(:package) } }
+    let!(:package_2) { travel_to(1.minute.ago) { create(:package, name: 'my_package') } }
+    let!(:package_3) { travel_to(2.minutes.ago) { create(:package) } }
+    let!(:project_without_package) { travel_to(59.seconds.ago) { create(:project) } }
 
     before do
       Configuration.update(allow_user_to_create_home_project: false)
       User.session = user
-      # Create all objects and their relations with the correct timestamps
-      Timecop.freeze(30.seconds.ago) { package_1 }
-      Timecop.freeze(1.minute.ago)  { package_2 }
-      Timecop.freeze(2.minutes.ago) { package_3 }
-      Timecop.freeze(1.minute.ago)  { project_without_package }
     end
 
     def project_result_for(project)

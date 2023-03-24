@@ -387,7 +387,6 @@ RSpec.describe BsRequest, vcr: true do
   describe '#update_cache' do
     RSpec.shared_examples "the subject's cache is reset when it's request changes" do
       before do
-        Timecop.travel(1.minute)
         @cache_key = user.cache_key_with_version
         request.state = :review
         request.save

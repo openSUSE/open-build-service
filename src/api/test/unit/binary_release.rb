@@ -8,10 +8,6 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     User.session = nil
   end
 
-  def teardown
-    Timecop.return
-  end
-
   def test_render_fixture
     r = Repository.find_by_project_and_name('BaseDistro3',
                                             'BaseDistro3_repo')
@@ -31,7 +27,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
   def test_create_and_find_entries
     project = Project.find_by_name('BaseDistro')
     repository = project.repositories.build(name: 'Dummy')
-    Timecop.freeze(2010, 7, 12)
+    freeze_time
     binary_release = BinaryRelease.create(repository: repository,
                                           binary_name: 'package',
                                           binary_version: '1',

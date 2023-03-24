@@ -18,11 +18,11 @@ RSpec.describe 'rollout' do
   let(:all_in_rollout_users) { User.where(in_rollout: true) }
 
   before do
-    Timecop.freeze(Time.zone.today)
+    freeze_time
   end
 
   after do
-    Timecop.return
+    unfreeze_time
   end
 
   describe 'all_on' do
