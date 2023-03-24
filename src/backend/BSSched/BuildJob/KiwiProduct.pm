@@ -457,12 +457,9 @@ sub check {
 	  my ($bn, $ba) = ($1, $2);
 	  next if $nosrcpkgs && ($ba eq 'src' || $ba eq 'nosrc');
 	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
-	  next if $seen_fn{$fn};
+	  next if $fn =~ /^::import::(.*?):/ && $archs{$1};	# we pick it up from the real arch
 	  my $na = "$bn.$ba";
-	  if ($fn =~ /^::import::(.*?)::(.*)$/) {
-	    next if $archs{$1};		# we pick it up from the real arch
-	    next if $seen_fn{$2};
-	  }
+
 	  if ($seen_binary && ($ba ne 'src' && $ba ne 'nosrc')) {
 	    next if $seen_binary->{$na}++;
 	    # we also add the na to the unneeded_na hash so that we do
@@ -471,6 +468,12 @@ sub check {
 	    # this when we are done with the architecture
 	    push @unneeded_na_revert, $na unless $unneeded_na{$na}++;
 	  }
+
+	  # ignore if we already have this file (maybe from a different scheduler arch)
+	  # we need to do this after the seen_binary test above
+	  next if $seen_fn{$fn};
+	  next if $fn =~ /^::import::(.*?)::(.*)$/ && $seen_fn{$2};
+
 	  my $b = $bininfo->{$fn};
 	  my $rpm = "$aprp/$arch/$apackid/$fn";
 	  push @rpms, $rpm;
