@@ -137,12 +137,14 @@ sub periodic {
   my ($conf) = @_;
   my $rundir = $conf->{'rundir'};
   if (-e "$rundir/$conf->{'name'}.exit") {
+    BSServer::dump_child_pids();
     BSServer::msg("$conf->{'name'} exiting...");
     unlink("$conf->{'ajaxsocketpath'}.lock") if $conf->{'ajaxsocketpath'};
     unlink("$rundir/$conf->{'name'}.exit");
     exit(0);
   }
   if (-e "$rundir/$conf->{'name'}.restart") {
+    BSServer::dump_child_pids();
     BSServer::msg("$conf->{'name'} restarting...");
     if (system($0, "--test")) {
       BSServer::msg("$0 failed, aborting restart");

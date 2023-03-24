@@ -284,6 +284,17 @@ sub maxchildreached {
   }
 }
 
+sub dump_child_pids {
+  return unless $server;
+  return unless %{$server->{'chld'} || {}} || %{$server->{'chld2'} || {}};
+  print "Running processes:\n";
+  for my $n ('chld', 'chld2') {
+    my $out = '';
+    $out .= " $_:$server->{$n}->{$_}" for sort {$a <=> $b} keys %{$server->{$n} || {}};
+    print "  $n:$out\n";
+  }
+}
+
 sub server {
   my ($conf) = @_;
 
@@ -323,6 +334,10 @@ sub server {
   my $clnt;
   my $sock = $server->{'socket'};
   my $sock2 = $server->{'socket2'};
+  $server->{'conf'} = $conf;
+  $server->{'chld'} = \%chld;
+  $server->{'chld2'} = \%chld2 if $sock2;
+
   while (1) {
     my $tout = $timeout || 5;	# reap every 5 seconds
     if ($conf->{'periodic'}) {
