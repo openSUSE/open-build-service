@@ -577,8 +577,8 @@ sub event_resumeproject {
   if (@$suspend > 1) {
     print "not yet resuming project $projid: @$suspend - $evjob\n";
     my $first = 0;
-    # remove matching element; if not found pop last element
-    @$suspend = ( grep {$_ eq $evjob && !$first++} @$suspend );
+    # remove first matching element; if not found pop last element
+    @$suspend = grep {$_ ne $evjob || $first++} @$suspend;
     pop @$suspend unless $first;
     return;
   }
