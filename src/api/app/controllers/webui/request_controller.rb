@@ -23,17 +23,17 @@ class Webui::RequestController < Webui::WebuiController
       @diff_to_superseded_id = params[:diff_to_superseded]
 
       # Handling request actions
-      action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
-      @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
-                                          diffs: true, action_id: action_id.to_i, cacheonly: 1).first
-      actions = @bs_request.bs_request_actions
-      @active_action = actions.find(action_id)
+      @actions = @bs_request.bs_request_actions
       # Change supported_actions below into actions here when all actions are supported
-      supported_actions = actions.where(type: [:add_role, :submit])
-      active_action_index = supported_actions.index(@active_action)
+      @supported_actions = @actions.where(type: [:add_role, :submit])
+      @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
+      @active_action = @actions.find(@action_id)
+      @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
+                                          diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
+      active_action_index = @supported_actions.index(@active_action)
       if active_action_index
-        @prev_action = supported_actions[active_action_index - 1] unless active_action_index.zero?
-        @next_action = supported_actions[active_action_index + 1] if active_action_index + 1 < supported_actions.length
+        @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
+        @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
       end
 
       target_project = Project.find_by_name(@bs_request.target_project_name)
