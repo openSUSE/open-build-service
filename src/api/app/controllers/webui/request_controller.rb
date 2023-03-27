@@ -5,10 +5,10 @@ class Webui::RequestController < Webui::WebuiController
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment]
-  before_action :set_actions, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_actions, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_supported_actions, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action_id, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_active_action, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
@@ -329,10 +329,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def inline_comment
-    # Handling request actions
-    action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
-    @active_action = @bs_request.bs_request_actions.find(action_id)
-
     @line = params[:line]
     respond_to do |format|
       format.js
