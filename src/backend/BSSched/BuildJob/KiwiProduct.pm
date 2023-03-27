@@ -387,7 +387,7 @@ sub check {
 	# fast blocked check
 	if ($blocked_cache->{$apackid}) {
 	  if (!exists($known{$apackid})) {
-	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
+	    my $info = (grep {$_->{'repository'} eq $arepoid} @{($pdatas->{$apackid} || {})->{'info'} || []})[0];
 	    $known{$apackid} = ($info || {})->{'name'} || $apackid;
 	  }
 	  my $apackid2 = $known{$apackid} || $apackid;
