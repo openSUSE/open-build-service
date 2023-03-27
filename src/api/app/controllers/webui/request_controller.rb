@@ -63,7 +63,7 @@ class Webui::RequestController < Webui::WebuiController
 
       if @refresh
         bs_request_action = BsRequestAction.find(@action[:id])
-        job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+        job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
         BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
       end
 
@@ -210,7 +210,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if @refresh
       bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
       BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
     end
 
@@ -234,7 +234,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if @refresh
       bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where("handler LIKE '%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%'").count
+      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
       BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
     end
 
