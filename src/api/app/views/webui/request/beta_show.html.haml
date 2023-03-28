@@ -74,8 +74,8 @@
       .mt-4
         -# action description, prev + dropdown select + next
         = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
-                                                     prev_action: @prev_action, next_action: @next_action,
-                                                     diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+                                                       prev_action: @prev_action, next_action: @next_action,
+                                                       diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
 
     .border-bottom
       %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }

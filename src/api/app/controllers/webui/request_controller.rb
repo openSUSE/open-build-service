@@ -5,6 +5,10 @@ class Webui::RequestController < Webui::WebuiController
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment]
+  before_action :set_actions, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_supported_actions, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action_id, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_active_action, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
 
@@ -23,17 +27,12 @@ class Webui::RequestController < Webui::WebuiController
       @diff_to_superseded_id = params[:diff_to_superseded]
 
       # Handling request actions
-      action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
       @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
-                                          diffs: true, action_id: action_id.to_i, cacheonly: 1).first
-      actions = @bs_request.bs_request_actions
-      @active_action = actions.find(action_id)
-      # Change supported_actions below into actions here when all actions are supported
-      supported_actions = actions.where(type: [:add_role, :submit])
-      active_action_index = supported_actions.index(@active_action)
+                                          diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
+      active_action_index = @supported_actions.index(@active_action)
       if active_action_index
-        @prev_action = supported_actions[active_action_index - 1] unless active_action_index.zero?
-        @next_action = supported_actions[active_action_index + 1] if active_action_index + 1 < supported_actions.length
+        @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
+        @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
       end
 
       target_project = Project.find_by_name(@bs_request.target_project_name)
@@ -330,10 +329,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def inline_comment
-    # Handling request actions
-    action_id = params[:request_action_id] || @bs_request.bs_request_actions.first.id
-    @active_action = @bs_request.bs_request_actions.find(action_id)
-
     @line = params[:line]
     respond_to do |format|
       format.js
@@ -491,6 +486,23 @@ class Webui::RequestController < Webui::WebuiController
       show_project_maintainer_hint: @show_project_maintainer_hint,
       actions: @actions
     }
+  end
+
+  def set_actions
+    @actions = @bs_request.bs_request_actions
+  end
+
+  def set_supported_actions
+    # Change supported_actions below into actions here when all actions are supported
+    @supported_actions = @actions.where(type: [:add_role, :submit])
+  end
+
+  def set_action_id
+    @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
+  end
+
+  def set_active_action
+    @active_action = @actions.find(@action_id)
   end
 
   def staging_status(request, target_project)
