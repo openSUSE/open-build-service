@@ -486,6 +486,10 @@ case "$1" in
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 "$OBS_CLEANUP_CHROOT $OBS_WIPE_AFTER_BUILD $OBS_WORKER_USE_MKFS_COPYIN $ARCH $EMULATOR" \
                 >> $screenrc
+	    if [ -n "$OBS_CONTAINER_MODE" ];then
+              echo "screen -t bash_$WORKERID sh" \
+              >> $screenrc
+	    fi
             mkdir -p $workerdir/$I
         done
         detachflag=
