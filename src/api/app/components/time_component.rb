@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FuzzyTimeComponent < ApplicationComponent
+class TimeComponent < ApplicationComponent
   attr_reader :time
 
   def initialize(time:)
@@ -8,7 +8,7 @@ class FuzzyTimeComponent < ApplicationComponent
     @time = time.utc
   end
 
-  def human_time_ago
+  def human_time
     now = Time.now.utc
     diff = now - time
 

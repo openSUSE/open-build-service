@@ -7,7 +7,7 @@
       = link_to(comment.user, user_path(comment.user))
       wrote
       = link_to("#comment-#{comment.id}", title: I18n.l(comment.created_at.utc), name: "comment-#{comment.id}") do
-        #{time_ago_in_words(comment.created_at)} ago
+        = render TimeComponent.new(time: comment.created_at)
     = render_as_markdown(comment)
     = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
     - if level <= 3

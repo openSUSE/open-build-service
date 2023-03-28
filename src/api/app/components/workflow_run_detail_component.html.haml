@@ -46,7 +46,9 @@
               %pre.border.p-2#status-report-request-parameters
                 = status_report.pretty_request_parameters
               %small.text-nowrap{ title: l(status_report.created_at.utc) }
-                Sent #{time_ago_in_words(status_report.created_at)} ago
+                Sent
+                = render TimeComponent.new(time: status_report.created_at)
+
     - else
       No status reports
   .tab-pane.fade{ id: "artifacts-tab-content#{id}", role: 'tabpanel',

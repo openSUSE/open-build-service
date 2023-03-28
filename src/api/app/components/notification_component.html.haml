@@ -10,7 +10,8 @@
         .col
           = notification_icon
           = render NotificationNotifiableLinkComponent.new(@notification)
-          %small.text-nowrap #{time_ago_in_words(@notification.created_at)} ago
+          %small.text-nowrap
+            = render TimeComponent.new(time: @notification.created_at)
           - if @notification.notifiable_type == 'BsRequest'
             = render BsRequestStateBadgeComponent.new(bs_request: @notification.notifiable, css_class: 'ms-1')
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start

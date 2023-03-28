@@ -3,7 +3,7 @@
     %i.fas.fa-user.text-success
     Created by
     = user_with_realname_and_icon(bs_request.creator, no_icon: true, short: true)
-    = render FuzzyTimeComponent.new(time: bs_request.created_at)
+    = render TimeComponent.new(time: bs_request.created_at)
   %li
     %i.fas.fa-info-circle.text-info
     In state
@@ -28,13 +28,14 @@
       %i.fas.fa-exclamation-circle.text-danger
       - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
         Auto-accept was set to
-        %span.fuzzy-time{ title: "#{I18n.l bs_request.accept_at}" }
+        %span{ title: "#{I18n.l bs_request.accept_at}" }
         = succeed '.' do
           = I18n.l bs_request.accept_at, format: :only_date
       - elsif bs_request.accept_at.past?
         This request will be automatically accepted when it enters the 'new' state.
       - else
-        This request will be automatically accepted in #{time_ago_in_words(bs_request.accept_at)}.
+        This request will be automatically accepted
+        = render TimeComponent.new(time: bs_request.accept_at)
   - bs_request.reviews.where(state: 'new').each do |review|
     %li
       %i.fas.fa-info-circle.text-info

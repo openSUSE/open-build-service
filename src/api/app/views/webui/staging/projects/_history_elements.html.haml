@@ -10,6 +10,7 @@
         by
         %b= element.user_name
       - when 'staging_project_created'
-        %b #{time_ago_in_words(Time.zone.at(element.datetime.to_i))} ago
+        %b
+          = render TimeComponent.new(time: Time.zone.at(element.datetime.to_i))
         by
         %b= element.user_name

@@ -14,4 +14,4 @@
         %li
           = link_to(check.url, class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})") do
             %i.fas{ class: icon_for_check(check) }
-            #{check.name} (#{check.state} - #{time_ago_in_words(check.updated_at)} ago)
+            #{check.name} (#{check.state} - #{TimeComponent.new(time: check.updated_at).human_time})

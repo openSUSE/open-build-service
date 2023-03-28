@@ -28,7 +28,7 @@
             = link_to(realname_with_login(creator), user_path(creator))
             created this request
             = link_to('#request-creation', title: I18n.l(bs_request.created_at.utc), name: 'request-creation') do
-              #{time_ago_in_words(bs_request.created_at)} ago
+              = render TimeComponent.new(time: bs_request.created_at)
             - if bs_request.superseding.any?
               superseding
               - bs_request.superseding.each do |superseded_request|
@@ -66,7 +66,7 @@
             was
             %strong auto-accepted
             at
-            %span.fuzzy-time{ title: "#{I18n.l bs_request.accept_at}" }
+            %span{ title: "#{I18n.l bs_request.accept_at}" }
             = succeed '.' do
               = I18n.l bs_request.accept_at, format: :only_date
         - elsif bs_request.accept_at.past?
@@ -77,7 +77,7 @@
         - else
           will be
           %strong auto-accepted
-          in #{time_ago_in_words(bs_request.accept_at)}.
+          = render TimeComponent.new(time: bs_request.accept_at)
 
     = render AccordionReviewsComponent.new(request_reviews, bs_request.state, can_handle_request: policy(bs_request).handle_request?)
 

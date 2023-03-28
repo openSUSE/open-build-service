@@ -339,7 +339,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
       bs_request.update(accept_at: Time.now + 1.day)
       visit request_show_path(bs_request)
       expect(page)
-        .to have_text("This request will be automatically accepted in #{ApplicationController.helpers.time_ago_in_words(bs_request.accept_at)}.")
+        .to have_text("This request will be automatically accepted #{TimeComponent.new(time: bs_request.accept_at).human_time}")
     end
   end
 

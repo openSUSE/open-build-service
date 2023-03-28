@@ -17,4 +17,4 @@
         by
         = link_to(user_path(request.creator)) do
           = request.creator
-      = render FuzzyTimeComponent.new(time: request.updated_at)
+      = render TimeComponent.new(time: request.updated_at)
