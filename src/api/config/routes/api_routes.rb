@@ -372,7 +372,7 @@ OBSApi::Application.routes.draw do
   put 'build/:project/:repository/:arch/:package/:filename' => 'build/file#update', constraints: cons
   delete 'build/:project/:repository/:arch/:package/:filename' => 'build/file#destroy', constraints: cons
   match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', via: [:get, :post], constraints: cons
-  match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons
   match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/_result' => 'build#scmresult', constraints: cons
   get 'build/:project/_result' => 'build#result', constraints: cons
