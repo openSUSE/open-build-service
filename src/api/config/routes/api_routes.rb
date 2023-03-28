@@ -376,7 +376,7 @@ OBSApi::Application.routes.draw do
   match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/_result' => 'build#scmresult', constraints: cons
   get 'build/:project/_result' => 'build#result', constraints: cons
-  match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/:project/:repository' => 'build#index', constraints: cons
   match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
   get 'build' => 'source#index'
 
