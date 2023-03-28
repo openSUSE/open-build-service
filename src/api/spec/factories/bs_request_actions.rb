@@ -66,5 +66,36 @@ FactoryBot.define do
       type { :set_bugowner }
       person_name { create(:user).login }
     end
+
+    factory :bs_request_action_change_devel, class: 'BsRequestActionChangeDevel' do
+      type { :change_devel }
+
+      transient do
+        source_project_name { 'source_project' }
+        target_project_name { 'target_project' }
+        target_package_name { 'target_package' }
+      end
+
+      source_project do |evaluator|
+        Project.find_by_name(evaluator.source_project_name) ||
+          create(:project, name: evaluator.source_project_name)
+      end
+      source_package do |evaluator|
+        Package.find_by_project_and_name(source_project.name, evaluator.target_package_name) ||
+          create(:package_with_file,
+                 project: source_project,
+                 name: evaluator.target_package_name)
+      end
+      target_project do |evaluator|
+        Project.find_by_name(evaluator.target_project_name) ||
+          create(:project, name: target_project_name)
+      end
+      target_package do |evaluator|
+        package = Package.find_by_project_and_name(target_project.name, evaluator.target_package_name) ||
+                  create(:package_with_file, project: target_project, name: target_package_name)
+        package.update(develpackage: Package.first) unless package.develpackage
+        package
+      end
+    end
   end
 end
