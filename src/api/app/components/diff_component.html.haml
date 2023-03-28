@@ -29,4 +29,11 @@
                            locals: { comment: Comment.new, commentable: commentable, diff_ref: id })
             - else
               .comments-list
-                = render(partial: 'webui/request/add_inline_comment', locals: { commentable: commentable, diff_ref: id })
+                -# rubocop:disable ViewComponent/AvoidGlobalState
+                - if User.session
+                  = link_to(request_inline_comment_path(commentable.bs_request, commentable, id),
+                            class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
+                    %i.fas.fa-comment-medical
+                    .visually-hidden
+                      Add comment
+                -# rubocop:enable ViewComponent/AvoidGlobalState
