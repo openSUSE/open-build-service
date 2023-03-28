@@ -160,6 +160,11 @@ class Review < ApplicationRecord
     rescue TypeError
       # no valid time -> ignore
     end
+    begin
+      r.created_at = Time.zone.parse(hash.delete('created'))
+    rescue TypeError
+      # no valid time -> ignore
+    end
 
     raise ArgumentError, "too much information #{hash.inspect}" if hash.present?
 
@@ -168,6 +173,7 @@ class Review < ApplicationRecord
 
   def _get_attributes
     attributes = { state: state.to_s }
+    attributes[:created] = created_at.strftime('%Y-%m-%dT%H:%M:%S')
     # old requests didn't have who and when
     attributes[:when] = changed_state_at&.strftime('%Y-%m-%dT%H:%M:%S')
     attributes[:who] = reviewer if reviewer
@@ -262,6 +268,7 @@ class Review < ApplicationRecord
     params[:comment] = reason
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
     params[:when] = changed_state_at&.strftime('%Y-%m-%dT%H:%M:%S')
+    params[:created] = created_at.strftime('%Y-%m-%dT%H:%M:%S')
     params
   end
 
