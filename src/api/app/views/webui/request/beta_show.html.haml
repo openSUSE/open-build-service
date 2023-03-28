@@ -60,21 +60,16 @@
         -# staging statement
         - if @staging_status
           - staging_project = @staging_status[:staging_project]
-          - target_project = @staging_status[:target_project]
           %li
-            = link_to target_project[:name], target_project[:url]
-            has a
-            %mark.text-light.bg-staging.text-nowrap.text-decoration-underline= link_to 'Staging Workflow', target_project[:staging_url]
-            \: this request is
             - if staging_project
-              %strong staged
+              %mark.text-light.bg-staging.text-nowrap.text Staged
               in
-              = link_to staging_project[:name], staging_project[:staging_url]
-            - elsif @staging_status[:status]
-              %strong staged
-              but not assigned to any staging project yet
+              = link_to staging_project[:name], staging_project[:url]
             - else
-              %strong not yet staged
+              %strong Waiting
+              for a
+              %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
+                = link_to 'staging project', @staging_status[:target_project_staging_url]
         -# auto-accept statement
         - if @bs_request.accept_at.present?
           %li

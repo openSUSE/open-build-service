@@ -395,7 +395,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         fill_in 'Project', with: staging_project.name
         click_button('Accept')
       end
-      expect(page).not_to have_text('has a Staging Workflow')
+      expect(page).not_to have_text('Staged in')
       expect(page).not_to have_css('.bg-staging')
     end
   end
@@ -422,7 +422,7 @@ RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
         fill_in 'Project', with: staging_project.name
         click_button('Accept')
       end
-      expect(page).to have_text('has a Staging Workflow')
+      expect(page).to have_text('Staged in')
       expect(page).to have_css('.bg-staging')
     end
   end

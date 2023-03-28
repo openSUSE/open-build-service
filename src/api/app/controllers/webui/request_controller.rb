@@ -511,19 +511,13 @@ class Webui::RequestController < Webui::WebuiController
     if staging_review.for_project?
       staging_project = {
         name: staging_review.project.name[target_project.name.length + 1..],
-        staging_url: staging_workflow_staging_project_path(target_project.name, staging_review.project.name)
+        url: staging_workflow_staging_project_path(target_project.name, staging_review.project.name)
       }
     end
 
     {
       staging_project: staging_project,
-      target_project:
-      {
-        name: request.target_project_name,
-        url: project_show_path(target_project),
-        staging_url: staging_workflow_path(request.target_project_name)
-      },
-      status: staging_review.accepted?
+      target_project_staging_url: staging_workflow_path(request.target_project_name)
     }
   end
 end
