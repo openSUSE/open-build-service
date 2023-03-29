@@ -498,6 +498,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_action_id
+    # In case the request doesn't have supported actions, we display the first unsupported action.
     @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
   end
 
