@@ -35,6 +35,12 @@ class NotificationActionDescriptionComponent < ApplicationComponent
   private
 
   def bs_request
-    @bs_request ||= @notification.notifiable_type == 'BsRequest' ? @notification.notifiable : @notification.notifiable.commentable
+    @bs_request ||= if @notification.notifiable_type == 'BsRequest'
+                      @notification.notifiable
+                    elsif @notification.notifiable.commentable.is_a?(BsRequestAction)
+                      @notification.notifiable.commentable.bs_request
+                    else
+                      @notification.notifiable.commentable
+                    end
   end
 end
