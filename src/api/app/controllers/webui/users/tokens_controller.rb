@@ -102,10 +102,12 @@ class Webui::Users::TokensController < Webui::WebuiController
     # Prevent setting a package for a workflow token
     return if @params[:type] == 'workflow'
 
+    @token = Token.token_type(@params[:type]).new(description: @params[:description])
+
     # Check if only project_name or only package_name are present
     if @extra_params[:project_name].present? ^ @extra_params[:package_name].present?
       flash[:error] = 'When providing an optional package, both Project name and Package name must be provided.'
-      redirect_to new_token_path and return
+      render :new and return
     end
 
     # If both project_name and package_name are present, check if this is an existing package
@@ -113,11 +115,11 @@ class Webui::Users::TokensController < Webui::WebuiController
       @package = Package.get_by_project_and_name(@extra_params[:project_name], @extra_params[:package_name])
     rescue Project::UnknownObjectError
       flash[:error] = "When providing an optional package, the package must exist. Project '#{elide(@extra_params[:project_name])}' does not exist."
-      redirect_to new_token_path
+      render :new
     rescue Package::UnknownObjectError
       flash[:error] = 'When providing an optional package, the package must exist. ' \
                       "Package '#{elide(@extra_params[:project_name])}/#{elide(@extra_params[:package_name])}' does not exist."
-      redirect_to new_token_path
+      render :new
     end
   end
 end
