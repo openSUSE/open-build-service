@@ -59,11 +59,17 @@
               = link_to "##{supersed['number']}", number: supersed['number']
         -# staging statement
         - if @staging_status
+          - staging_project = @staging_status[:staging_project]
           %li
-            %strong Staged
-            in
-            %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
-              = link_to @staging_status[:title], @staging_status[:url]
+            - if staging_project
+              %mark.text-light.bg-staging.text-nowrap.text Staged
+              in
+              = link_to staging_project[:name], staging_project[:url]
+            - else
+              %strong Waiting
+              for a
+              %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
+                = link_to 'staging project', @staging_status[:target_project_staging_url]
         -# auto-accept statement
         - if @bs_request.accept_at.present?
           %li
