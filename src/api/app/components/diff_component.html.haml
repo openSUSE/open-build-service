@@ -23,10 +23,10 @@
         - if commentable
           .line-comment{ id: "comment#{id}" }
             - if commented_lines.include?(id)
-              .p-3.border-top.border-bottom
-                .comments-list
-                  = render(partial: 'webui/comment/comment_list',
-                           locals: { comment: Comment.new, commentable: commentable, diff_ref: id })
+              .comments-list
+                - commentable.comments.where(diff_ref: id).each do |comment|
+                  .comments-thread.p-3
+                    = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
             - else
               .comments-list
                 -# rubocop:disable ViewComponent/AvoidGlobalState

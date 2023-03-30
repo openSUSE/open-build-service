@@ -35,8 +35,11 @@
         margin-left: calc(2 * (var(--line-index-digits) + 2rem + #{$card-border-width}) + 0.5rem + #{$card-border-width});
         margin-top: -1.75rem;
       }
-      .line-comment hr:first-of-type {
+      .line-comment .fa-comment {
         display: none;
+      }
+      .line-comment .timeline-item-comment {
+        @extend .ms-4;
       }
     }
     .line {
