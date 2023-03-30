@@ -1279,7 +1279,7 @@ sub link_or_copy {
       warn("syswrite $to: $!\n");
       unlink($to);
       close F;
-      return undef;
+      die("FATAL: unable to write file: $to");
     }
   }
   close(F);
