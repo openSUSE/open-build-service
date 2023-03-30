@@ -65,6 +65,15 @@ namespace :dev do
       bs_req_action = build(:bs_request_action, action_attributes)
       bs_req_action.save! if bs_req_action.valid?
 
+      create(:bs_request_action_delete,
+             target_project: target_project,
+             bs_request: request)
+
+      create(:bs_request_action_delete,
+             target_project: target_project,
+             target_package: target_package_a,
+             bs_request: request)
+
       puts "* Request #{request.number} contains multiple actions and mentioned issues."
       puts 'To start the builds confirm or perfom the following steps:'
       puts '- Create the interconnect with openSUSE.org'
