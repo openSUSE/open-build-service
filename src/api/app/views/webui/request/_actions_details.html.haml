@@ -1,8 +1,5 @@
-:ruby
-  submit_actions = bs_request.bs_request_actions.where(type: [:add_role, :submit])
-  submit_actions_count = submit_actions.count
 
-- if submit_actions_count > 1
+- if actions_count > 1
   .d-flex.flex-wrap.align-items-center
     .input-group.w-auto
       = link_to('Previous', request_show_path(number: bs_request.number, request_action_id: prev_action&.id,
@@ -20,7 +17,7 @@
                 %span Seen
               %span Action
               %span.float-end Revision
-          - submit_actions.each_with_index do |action_item, action_index|
+          - actions.each_with_index do |action_item, action_index|
             %li.border-top
               = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index }),
                                                         request_show_path(number: bs_request.number,
@@ -34,12 +31,11 @@
                 class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}",
                 id: 'next-action-button')
 
-    - active_action_index = submit_actions.find_index(active_action) + 1
-    %span.ms-2 Showing ##{active_action_index} (of #{submit_actions_count})
-
+    - active_action_index = actions.find_index(active_action) + 1
+    %span.ms-2 Showing ##{active_action_index} (of #{actions_count})
 %h5.mt-4
   Action details
-  - if submit_actions_count > 1 && User.session
+  - if actions_count > 1 && User.session
     %span#action-seen-by-user-wrapper
       = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
 
