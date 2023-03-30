@@ -31,7 +31,10 @@
   top: $top-navigation-height;
 }
 
-.rpm-lint-content .sticky-top { top: $top-navigation-height; }
+.rpm-lint-content .sticky-top {
+  top: $top-navigation-height;
+  z-index: 900;
+}
 
 .toggle-build-info { cursor: pointer; }
 .toggle-build-info-parent { z-index: 2; }
