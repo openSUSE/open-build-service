@@ -189,7 +189,7 @@ GEM
       sanitize (< 7)
     flot-rails (0.0.7)
       jquery-rails
-    font-awesome-sass (6.3.0)
+    font-awesome-sass (6.4.0)
       sassc (~> 2.0)
     gitlab (4.19.0)
       httparty (~> 0.20)
