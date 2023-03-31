@@ -18,8 +18,11 @@
                       class: 'dropdown-item collapsed') do
               Edit
           - if policy(comment).destroy?
-            = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': "#delete-comment-modal-#{comment.id}" },
-                      class: 'dropdown-item delete_link', title: 'Delete comment') do
+            = link_to('#', data: { 'bs-toggle': 'modal',
+                                   'bs-target': '#delete-comment-modal',
+                                   confirmation_text: 'Please confirm deletion of comment',
+                                   action: comment_path(comment) },
+                           class: 'dropdown-item delete_link', title: 'Delete comment') do
               Delete
 
     = helpers.render_as_markdown(comment)
@@ -28,9 +31,6 @@
       .collapse{ id: "edit_form_of_#{comment.id}" }
         = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
          comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
-
-    - if policy(comment).destroy?
-      = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
 
   -# This should be refactored to avoid relying on global state
   - if User.session # rubocop:disable ViewComponent/AvoidGlobalState

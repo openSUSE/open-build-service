@@ -123,6 +123,10 @@
         .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/mentioned_issues', locals: { issues: @issues }
 
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Delete comment?', remote: true })
+
 - content_for :ready_function do
   :plain
     var anchor = document.location.hash;

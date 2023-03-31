@@ -23,12 +23,11 @@
         - if commentable
           .line-comment{ id: "comment#{id}" }
             - if commented_lines.include?(id)
-              .comments-list
-                - commentable.comments.where(diff_ref: id).each do |comment|
-                  .comments-thread.p-3
-                    = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
+              - commentable.comments.where(diff_ref: id).each do |comment|
+                .comments-thread.p-3
+                  = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
             - else
-              .comments-list
+              .diff-comments
                 -# rubocop:disable ViewComponent/AvoidGlobalState
                 - if User.session
                   = link_to(request_inline_comment_path(commentable.bs_request, commentable, id),

@@ -41,6 +41,17 @@
       .line-comment .timeline-item-comment {
         @extend .ms-4;
       }
+      .line-comment .comments-thread {
+        &:first-child {
+          @extend .border-top;
+          > :first-child { @extend .mt-3; }
+        }
+        &:last-child {
+          @extend .border-bottom;
+          > :last-child { @extend .mb-3; }
+        }
+        @extend .px-3;
+      }
     }
     .line {
       font-family: $font-family-monospace;
