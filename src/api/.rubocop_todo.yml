@@ -168,7 +168,6 @@ Metrics/ClassLength:
     - 'app/controllers/webui/search_controller.rb'
     - 'app/controllers/webui/staging/workflows_controller.rb'
     - 'app/controllers/webui/users_controller.rb'
-    - 'app/controllers/webui/users/tokens_controller.rb'
     - 'app/controllers/webui/webui_controller.rb'
     - 'app/lib/authenticator.rb'
     - 'app/lib/backend/connection.rb'
