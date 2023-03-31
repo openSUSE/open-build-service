@@ -67,9 +67,9 @@
               = link_to staging_project[:name], staging_project[:url]
             - else
               %strong Waiting
-              for a
+              to be
               %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
-                = link_to 'staging project', @staging_status[:target_project_staging_url]
+                = link_to 'staged', @staging_status[:target_project_staging_url]
         -# auto-accept statement
         - if @bs_request.accept_at.present?
           %li
