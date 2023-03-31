@@ -143,10 +143,9 @@ Otherwise the cassette will not match and VCR tries record a new cassette each t
   let(:apache_project) { create(:project, name: 'Apache') }
 ```
 
-#### Enable VCR for Model and Controller Specs
+#### Enable VCR
 
-To make loading tests faster, we only include VCR in feature tests by default.
-However, sometimes you also get and want to verify a backend response in a model or controller test.
+You may want to store a backend response in a spec test.
 Make sure you enable VCR in the test metadata like this:
 
 ```
