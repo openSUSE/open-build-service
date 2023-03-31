@@ -20,7 +20,18 @@ RSpec.describe Comment do
       let(:comment) { create(:comment, :bs_request_action) }
 
       it 'creates the corresponding event' do
-        expect { comment.save! }.to change(Event::CommentForRequest, :count).by(1)
+        expect { comment }.to change(Event::CommentForRequest, :count).by(1)
+      end
+    end
+
+    context 'valid event data' do
+      let!(:comment) { create(:comment, :bs_request_action) }
+
+      it 'adds correct parameters_for_notification' do
+        event = Event::CommentForRequest.last
+        expect(event.parameters_for_notification[:event_payload]['id']).to eq(comment.id)
+        expect(event.parameters_for_notification[:notifiable_id]).to eq(comment.id)
+        expect(event.parameters_for_notification[:notifiable_type]).to eq('Comment')
       end
     end
   end

@@ -17,7 +17,6 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
     when 'Event::CommentForRequest'
-      bs_request = @notification.notifiable.commentable
       "Comment on #{helpers.request_type_of_action(bs_request)} Request ##{bs_request.number}"
     when 'Event::CommentForProject'
       'Comment on Project'
@@ -55,8 +54,12 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::CommentForRequest'
       # TODO: It would be better to eager load the commentable association with `includes(...)`,
       #      but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
-      bs_request = @notification.notifiable.commentable
-      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id, anchor: 'comments-list')
+      anchor = if @notification.notifiable.commentable.is_a?(BsRequestAction)
+                 'tab-pane-changes'
+               else
+                 'comments-list'
+               end
+      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id, anchor: anchor)
     when 'Event::CommentForProject'
       Rails.application.routes.url_helpers.project_show_path(@notification.notifiable.commentable, notification_id: @notification.id, anchor: 'comments-list')
     when 'Event::CommentForPackage'
@@ -80,4 +83,14 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
+
+  def bs_request
+    return unless @notification.event_type == 'Event::CommentForRequest'
+
+    if @notification.notifiable.commentable.is_a?(BsRequestAction)
+      @notification.notifiable.commentable.bs_request
+    else
+      @notification.notifiable.commentable
+    end
+  end
 end
