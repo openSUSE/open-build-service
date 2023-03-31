@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Projects', js: true do
+RSpec.describe 'Projects', js: true, vcr: true do
   let!(:admin_user) { create(:admin_user, :with_home) }
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
@@ -110,7 +110,7 @@ RSpec.describe 'Projects', js: true do
     end
   end
 
-  describe 'branching', vcr: true do
+  describe 'branching' do
     let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
@@ -175,7 +175,7 @@ RSpec.describe 'Projects', js: true do
     end
   end
 
-  describe 'maintenance incidents', vcr: true do
+  describe 'maintenance incidents' do
     let(:maintenance_project) { create(:maintenance_project, name: "#{project.name}:maintenance_project") }
     let(:target_repository) { create(:repository, name: 'theone') }
 

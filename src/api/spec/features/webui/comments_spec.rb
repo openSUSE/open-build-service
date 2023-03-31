@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Comments', js: true do
+RSpec.describe 'Comments', js: true, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'burdenski') }
   let!(:comment) { create(:comment_project, commentable: user.home_project, user: user) }
   let!(:old_comment_text) { comment.body }

@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Bootstrap_Requests', js: true, vcr: true do
+RSpec.describe 'Requests', js: true, vcr: true do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }
