@@ -248,24 +248,31 @@ function prepare_database_setup {
   RAILS_ENV=production bin/rails db:migrate:status > /dev/null 2>&1
 
   if [[ $? > 0 ]];then
-    if ! [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]];then
-      echo "Initialize MySQL databases (first time only)"
-      DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
-      echo " - reconfiguring datadir in $DATADIR_FILE"
-      sed -i -E '0,/(#\s*)?datadir/ s!#\s*datadir\s*=\s*/var/lib/mysql$!datadir = /srv/obs/MySQL!' $DATADIR_FILE
-      echo " - installing to new datadir"
-      mysql_install_db
-      echo " - changing ownership for new datadir"
-      chown mysql:mysql -R /srv/obs/MySQL
-      MYSQL_LOG=$(grep log-error /etc/my.cnf.d/*.cnf|perl -p -e 's/.*:log-error=(.*)/$1/')
-      if [ -n "$MYSQL_LOG" ];then
-        echo " - prepare log file $MYSQL_LOG"
-        LOG_DIR=`dirname $MYSQL_LOG`
-        if [ ! -d $LOG_DIR ];then
-          mkdir -p $LOG_DIR
-          chown mysql:mysql $LOG_DIR
-      fi
-    fi
+    . /etc/os-release
+    for d in $ID_LIKE $ID;do
+      case $d in
+        ubuntu|debian) ;;
+        *)
+          echo "Initialize MySQL databases (first time only)"
+          DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
+          echo " - reconfiguring datadir in $DATADIR_FILE"
+          sed -i -E '0,/(#\s*)?datadir/ s!#\s*datadir\s*=\s*/var/lib/mysql$!datadir = /srv/obs/MySQL!' $DATADIR_FILE
+          echo " - installing to new datadir"
+          mysql_install_db
+          echo " - changing ownership for new datadir"
+          chown mysql:mysql -R /srv/obs/MySQL
+          MYSQL_LOG=$(grep log-error /etc/my.cnf.d/*.cnf|perl -p -e 's/.*:log-error=(.*)/$1/')
+          if [ -n "$MYSQL_LOG" ];then
+            echo " - prepare log file $MYSQL_LOG"
+            LOG_DIR=`dirname $MYSQL_LOG`
+            if [ ! -d $LOG_DIR ];then
+              mkdir -p $LOG_DIR
+              chown mysql:mysql $LOG_DIR
+            fi
+          fi
+         ;;
+      esac
+    done
     RUN_INITIAL_SETUP="true"
   fi
 
@@ -366,7 +373,7 @@ function import_ca_cert {
   # apache has to trust the api ssl certificate
   if [ ! -e /etc/ssl/certs/server.${FQHOSTNAME}.crt ]; then
     cp $backenddir/certs/server.${FQHOSTNAME}.crt \
-      ${TRUST_ANCHORS_DIR}/server.${FQHOSTNAME}.pem
+      ${TRUST_ANCHORS_DIR}/server.${FQHOSTNAME}.${SSL_CERT_SUFFIX}
     $UPDATE_SSL_TRUST_BIN
   fi
 }
@@ -509,11 +516,13 @@ function prepare_apache2 {
 
   PKG2INST=""
   for pkg in $APACHE_ADDITIONAL_PACKAGES;do
-    if [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]]; then
-      dpkg -l $pkg >/dev/null 2>&1 || PKG2INST="$PKG2INST $pkg"
-    else
-      rpm -q $pkg >/dev/null || PKG2INST="$PKG2INST $pkg"
-    fi
+    . /etc/os-release
+    for d in $ID_LIKE $ID;do
+      case $d in
+        ubuntu|debian) dpkg -l $pkg >/dev/null 2>&1 || PKG2INST="$PKG2INST $pkg" ;;
+        *) rpm -q $pkg >/dev/null || PKG2INST="$PKG2INST $pkg" ;;
+      esac
+    done
   done
 
   if [[ -n $PKG2INST ]];then
@@ -523,7 +532,12 @@ function prepare_apache2 {
   if [ "$CONFIGURE_APACHE" == 1 ];then
     MODULES="passenger rewrite proxy proxy_http headers socache_shmcb xforward"
     FLAGS=""
-    [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]] && MODULES="$MODULES ssl" || FLAGS=SSL
+    for d in $ID_LIKE $ID;do
+      case $d in
+        ubuntu|debian) MODULES="$MODULES ssl" ;;
+        *) FLAGS=SSL ;;
+      esac
+    done
 
     for mod in $MODULES;do
       a2enmod -q $mod || a2enmod $mod
@@ -629,6 +643,7 @@ function prepare_os_settings {
         HTTPD_GROUP=www
         PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/mod_passenger.conf
         TRUST_ANCHORS_DIR=/usr/share/pki/trust/anchors
+	SSL_CERT_SUFFIX=pem
         UPDATE_SSL_TRUST_BIN=update-ca-certificates
         MOD_PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/mod_passenger.conf
         INST_PACKAGES_CMD="zypper --non-interactive install"
@@ -644,6 +659,7 @@ function prepare_os_settings {
         HTTPD_GROUP=apache
         PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/passenger.conf
         TRUST_ANCHORS_DIR=/etc/pki/ca-trust/source/anchors
+	SSL_CERT_SUFFIX=pem
         UPDATE_SSL_TRUST_BIN=update-ca-trust
         MOD_PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/passenger.conf
         INST_PACKAGES_CMD="dnf -y install"
@@ -659,6 +675,7 @@ function prepare_os_settings {
         HTTPD_GROUP=www-data
         PASSENGER_CONF=/etc/$HTTPD_SERVICE/mods-available/passenger.conf
         TRUST_ANCHORS_DIR=/usr/local/share/ca-certificates
+	SSL_CERT_SUFFIX=crt
         UPDATE_SSL_TRUST_BIN=update-ca-certificates
         MOD_PASSENGER_CONF=/etc/$HTTPD_SERVICE/mods-available/passenger.conf
         INST_PACKAGES_CMD="apt-get install -qq -y"
