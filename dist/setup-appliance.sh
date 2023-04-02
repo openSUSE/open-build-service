@@ -20,11 +20,24 @@ MYSQL_PASS=opensuse
 PID_FILE=/run/setup-appliance.pid
 
 # package or appliance defaults
-if [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]]; then
-  defaultsfile="/etc/default/obs-server"
+if [ -e /etc/os-release ];then
+  # execute in subshell to preserve the values of the variables
+  # $NAME and $VERSION as these are very generic
+  OS_NAME=`. /etc/os-release;echo $NAME`
+  OS_VERSION=`. /etc/os-release;echo $VERSION`
+  OS_ID_LIKE=`. /etc/os-release;echo $ID_LIKE`
+  OS_ID=`. /etc/os-release;echo $ID`
+  OS="$OS_NAME $OS_VERSION"
 else
-  defaultsfile="/etc/sysconfig/obs-server"
+  OS="UNKNOWN"
 fi
+
+for d in $OS_ID_LIKE $OS_ID;do
+  case $d in
+    ubuntu|debian) defaultsfile="/etc/default/obs-server" ;;
+    *) defaultsfile="/etc/sysconfig/obs-server" ;;
+  esac
+done
 if [ -e "$defaultsfile" ]; then
   source "$defaultsfile"
 fi
@@ -117,20 +130,12 @@ fi
 
 echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
-if [ -e /etc/os-release ];then
-  # execute in subshell to preserve the values of the variables
-  # $NAME and $VERSION as these are very generic
-  OS_NAME=`. /etc/os-release;echo $NAME`
-  OS_VERSION=`. /etc/os-release;echo $VERSION`
-  OS="$OS_NAME $OS_VERSION"
-else
-  OS="UNKNOWN"
-fi
-if [[ "$OS_NAME" =~ ^(Debian|Ubuntu)$ ]]; then
-  OBSVERSION=`dpkg-query --showformat='${Version}' --show obs-server`
-else
-  OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
-fi
+for d in $OS_ID_LIKE $OS_ID;do
+  case $d in
+    ubuntu|debian) OBSVERSION=`dpkg-query --showformat='${Version}' --show obs-server` ;;
+    *) OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server` ;;
+  esac
+done
 
 RUN_INITIAL_SETUP=""
 
