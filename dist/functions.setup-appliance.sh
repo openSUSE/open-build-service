@@ -269,6 +269,17 @@ function prepare_database_setup {
               mkdir -p $LOG_DIR
               chown mysql:mysql $LOG_DIR
             fi
+	    touch $MYSQL_LOG
+            chown mysql:mysql $MYSQL_LOG
+          fi
+          echo " - restarting mysql"
+          systemctl restart $MYSQL_SERVICE
+          echo " - setting new password for user root in mysql"
+          mysqladmin -u $MYSQL_USER password $MYSQL_PASS
+          if [[ $? > 0 ]];then
+            echo "ERROR: Your mysql setup doesn't fit your rails setup"
+            echo "Please check your database settings for mysql and rails"
+            exit 1
           fi
          ;;
       esac
