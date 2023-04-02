@@ -31,10 +31,13 @@ if [ -e /etc/os-release ];then
 else
   OS="UNKNOWN"
 fi
-
+DEBIAN_FAMILY="no"
 for d in $OS_ID_LIKE $OS_ID;do
   case $d in
-    ubuntu|debian) defaultsfile="/etc/default/obs-server" ;;
+    ubuntu|debian)
+      defaultsfile="/etc/default/obs-server"
+      DEBIAN_FAMILY="yes"
+      ;;
     *) defaultsfile="/etc/sysconfig/obs-server" ;;
   esac
 done
@@ -172,7 +175,7 @@ if [[ $DETECTED_CERT_CHANGE && ! $SETUP_ONLY ]];then
     systemctl reload $HTTPD_SERVICE.service
 fi
 
-if [[ "$OS_NAME" =~ ^(Debian|Ubuntu)$ ]]; then
+if [[ "$DEBIAN_FAMILY" == "yes" ]]; then
   check_unit obs-api.target
 else
   check_unit obs-api-support.target
