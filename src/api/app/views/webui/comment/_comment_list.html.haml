@@ -1,18 +1,8 @@
-- opts = defined?(diff_ref) ? { diff_ref: } : {}
-- comments = commentable.comments.where(opts).without_parent.includes(:user)
-- comments.each do |comment|
+- commentable.comments.without_parent.includes(:user).each do |comment|
   = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 
 .comment_new.mt-3
-  - if opts[:diff_ref] && comments.present?
-    %a{ href: "#new_comment_expander_#{diff_ref}",
-        data: { 'bs-toggle': 'collapse', 'bs-target': "#new_comment_expander_#{diff_ref}" },
-        role: 'button', aria: { expanded: 'false' } }
-      %input.expander.form-control{ placeholder: 'Write new comment...', type: 'text' }
-    .collapse{ id: "new_comment_expander_#{diff_ref}" }
-      = render partial: 'webui/comment/new', locals: opts.merge({ commentable: commentable })
-  - else
-    = render partial: 'webui/comment/new', locals: opts.merge({ commentable: commentable })
+  = render partial: 'webui/comment/new', locals: { commentable: commentable }
 
 :javascript
   $(document).ready(function() {

@@ -20,7 +20,7 @@ class Webui::CommentsController < Webui::WebuiController
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
              locals: { comment: comment.root, commentable: @commentable, level: 1 },
              status: status)
@@ -47,7 +47,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     respond_to do |format|
       format.html do
-        if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+        if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
           render(partial: 'webui/comment/beta/comments_thread',
                  locals: { comment: comment.root, commentable: comment.commentable, level: 1 },
                  status: status)
@@ -77,7 +77,7 @@ class Webui::CommentsController < Webui::WebuiController
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && comment.commentable_type == 'BsRequest'
+    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
       # if we're a root comment with no replies there is no need to re-render anything
       return head(:ok) if comment.root? && comment.leaf?
 

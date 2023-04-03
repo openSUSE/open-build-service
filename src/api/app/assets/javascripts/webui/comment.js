@@ -21,11 +21,11 @@ function validateForm(e) {
 
 $(document).ready(function(){
   // Disable submit button if textarea is empty and enable otherwise
-  $('.comments-list,.comment_new,.timeline').on('keyup', '.comment-field', function(e) {
+  $('.comments-list,.comment_new,.timeline,.diff').on('keyup', '.comment-field', function(e) {
     validateForm(e);
   });
 
-  $('.comments-list,.comment_new,.timeline').on('keyup click', '.comment-field', function() {
+  $('.comments-list,.comment_new,.timeline,.diff').on('keyup click', '.comment-field', function() {
     resizeTextarea(this);
   });
 
@@ -39,7 +39,7 @@ $(document).ready(function(){
   });
 
   // This is being used to render only the comment thread for a reply by the beta request show view
-  $('.timeline').on('ajax:complete', '.post-comment-form', function(_, data) {
+  $('.timeline,.diff').on('ajax:complete', '.post-comment-form', function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
@@ -63,7 +63,7 @@ $(document).ready(function(){
   });
 
   // This is being used to update the comment with the updated content after an edit from the beta request show view
-  $('.timeline').on('ajax:complete', '.put-comment-form', function(_, data) {
+  $('.timeline,.diff').on('ajax:complete', '.put-comment-form', function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
@@ -82,10 +82,10 @@ $(document).ready(function(){
   });
 
   // This is used to delete comments from the beta request show view, we are not gonna get an updated comment thread like
-  $('.timeline').on('ajax:complete', '.delete-comment-form', function(_, data) {
-    var $this = $(this),
-        $commentsList = $this.closest('.comments-thread'),
-        $form = $('#delete-comment-modal-' + $this.data('commentId'));
+  $('body').on('ajax:complete', '#delete-comment-modal form', function(_, data) {
+    var $commentId = $(this).attr('action').split('/').slice(-1),
+        $commentsList = $('[name=comment-' + $commentId + ']').closest('.comments-thread'),
+        $form = $('#delete-comment-modal');
 
     $form.modal('hide');
     // We have to wait until the modal is hidden to properly remove the dialog UI
