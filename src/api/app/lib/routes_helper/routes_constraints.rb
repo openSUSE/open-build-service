@@ -20,7 +20,9 @@ module RoutesHelper
       repository_publish_build_id: %r{[^/]*},
       workflow_project: %r{[^/]*},
       staging_project_name: %r{[^/]*},
-      staging_project_copy_name: %r{[^/]*}
+      staging_project_copy_name: %r{[^/]*},
+      request_action_id: /\d*/,
+      line: /diff_\d*_n\d*/
     }.freeze
   end
 end
