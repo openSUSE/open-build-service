@@ -196,6 +196,19 @@ class SearchController < ApplicationController
     items = find_items(what, predicate)
 
     matches = items.size
+    if render_all && search_results_exceed_configured_limit?(matches)
+      render_error status: 403, errorcode: 'search_results_exceed_configured_limit', message: <<~MESSAGE.chomp
+        The number of results returned by the performed search exceeds the configured limit.
+
+        You can:
+        - retrieve only the ids by using an '/search/.../id' API endpoint, or
+        - reduce the number of matches of your search:
+          - paginating your results, through the 'limit' and 'offset' parameters, or
+          - adjusting your `match` expression.
+      MESSAGE
+
+      return
+    end
 
     if params[:offset] || params[:limit]
       # Add some pagination. Limiting the ids we have
@@ -274,5 +287,17 @@ class SearchController < ApplicationController
   rescue XpathEngine::IllegalXpathError => e
     raise IllegalXpathError, "Error found searching elements '#{what}' with xpath predicate: '#{predicate}'.\n\n" \
                              "Detailed error message from parser: #{e.message}"
+  end
+
+  def search_results_exceed_configured_limit?(matches)
+    config_limit = CONFIG['limit_for_search_results']
+    return false if config_limit.blank?
+
+    params_limit = params[:limit].present? && params[:limit] =~ /\A\d+\z/ ? params[:limit].to_i : nil
+
+    returned_results = params_limit.present? && params_limit < matches ? params_limit : matches
+    return false if returned_results <= config_limit
+
+    true
   end
 end

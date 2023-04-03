@@ -209,6 +209,13 @@ default: &default
   # Former and default value is `false`: the user is added as a maintainer.
   prevent_adding_maintainer_in_project_creation_with_api: false
 
+  # Limit results returned by this API endpoint:
+  # GET /search/...
+  # Return a 403 error if both:
+  # - number of matched results surpass the limit
+  # - the endpoint doesn't end in .../id
+  # limit_for_search_results: 10000
+
 production:
   <<: *default
 
