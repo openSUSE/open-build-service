@@ -23,6 +23,8 @@
         %span.me-2 ##{action_index + 1}
         - if action.type == 'add_role'
           #{action.type.titleize}
+        - elsif action.type == 'delete'
+          Delete #{project_or_package_text(action.target_project, action.target_package)}
         - else
           = action.name
     -# add_role, delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
