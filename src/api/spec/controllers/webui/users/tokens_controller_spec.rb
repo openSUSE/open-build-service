@@ -77,6 +77,15 @@ RSpec.describe Webui::Users::TokensController do
       it { is_expected.to redirect_to(token_path(Token.last)) }
     end
 
+    context 'type is rebuild but project does not exist' do
+      let(:form_parameters) { { token: { type: 'rebuild' }, description: 'token description', project_name: 'non-existing project' } }
+
+      include_examples 'check for flashing an error'
+
+      it { expect { subject }.not_to change(Token, :count) }
+      it { is_expected.to render_template(:new) }
+    end
+
     context 'type is workflow' do
       context 'with SCM' do
         let(:form_parameters) { { token: { type: 'workflow', scm_token: 'test_SCM_token_string' } } }
