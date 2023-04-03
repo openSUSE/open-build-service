@@ -74,6 +74,32 @@ namespace :dev do
              target_package: target_package_a,
              bs_request: request)
 
+      # Create an action to change devel
+
+      # Package to be developed in another place (target)
+      # target_project -> openSUSE:Factory
+      apache2_factory = Package.find_by_project_and_name('openSUSE:Factory', 'apache2')
+
+      # Current devel package
+      servers_project = Project.find_by(name: 'servers') || create(:project, name: 'servers')
+      apache2_servers = Package.find_by_project_and_name(servers_project.name, 'apache2') || create(:package, project: servers_project, name: 'apache2')
+
+      # Future devel package (source)
+      # source_project -> home:Admin:branches:openSUSE:Factory
+      Package.find_by_project_and_name(source_project.name, 'apache2') || create(:package, project: source_project, name: 'apache2')
+
+      # Set development package
+      apache2_factory.update(develpackage: apache2_servers)
+
+      action_attributes = {
+        source_project_name: source_project.name,
+        target_project_name: target_project.name,
+        target_package_name: apache2_factory.name,
+        bs_request: request
+      }
+      bs_req_action = build(:bs_request_action_change_devel, action_attributes)
+      bs_req_action.save! if bs_req_action.valid?
+
       puts "* Request #{request.number} contains multiple actions and mentioned issues."
       puts 'To start the builds confirm or perfom the following steps:'
       puts '- Create the interconnect with openSUSE.org'

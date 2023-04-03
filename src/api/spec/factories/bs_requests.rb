@@ -178,5 +178,9 @@ FactoryBot.define do
         request.update(state: :superseded, superseded_by: evaluator.superseded_by_request.number)
       end
     end
+
+    factory :bs_request_with_change_devel_action do
+      type { :change_devel }
+    end
   end
 end

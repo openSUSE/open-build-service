@@ -138,10 +138,18 @@ module Webui::RequestHelper
         target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
       }
     when :change_devel
-      'Set the devel project to %{source_container} for %{target_container}' % {
-        source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
+      # TODO: leave only the content of the if part when request_show_redesign is rolled out.
+      if Flipper.enabled?(:request_show_redesign, User.session)
+        'Set %{source_container} to be devel project/package of %{target_container}' % {
+          source_container: project_or_package_link(source_project_hash),
+          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        }
+      else
+        'Set the devel project to %{source_container} for %{target_container}' % {
+          source_container: project_or_package_link(source_project_hash),
+          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        }
+      end
     when :maintenance_incident
       source_project_hash.update(homeproject: creator)
       'Submit update from %{source_container} to %{target_container}' % {

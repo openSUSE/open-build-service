@@ -1,3 +1,4 @@
+-# TODO: refactor this code once we support all the action types.
 .d-flex.align-items-center
   - if (user = User.session)
     .ms-1.me-3{ id: "action-seen-by-user-wrapper-in-select-#{action.id}" }
@@ -21,21 +22,25 @@
     - else
       %p.mt-0.mb-0.fw-normal
         %span.me-2 ##{action_index + 1}
-        - if action.type == 'add_role'
+        - case action.type
+        - when 'add_role'
           #{action.type.titleize}
-        - elsif action.type == 'delete'
+        - when 'delete'
           Delete #{project_or_package_text(action.target_project, action.target_package)}
+        - when 'change_devel'
+          Set #{project_or_package_text(action.source_project, action.source_package)}
         - else
           = action.name
-    -# add_role, delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
+
+    -# delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
     - unless %w[delete set_bugowner].include?(action.type)
       %p.mb-0.mt-0.small
         - if action.type == 'add_role'
-          Add #{action.person_name} as #{action.role} of
-          = project_or_package_text(action.target_project, action.target_package)
+          Add #{action.person_name} as #{action.role} of #{project_or_package_text(action.target_project, action.target_package)}
+        - elsif action.type == 'change_devel'
+          as development package of #{action.target_project}/#{action.target_package}
         - else
-          from
-          = project_or_package_text(action.source_project, action.source_package)
+          from #{project_or_package_text(action.source_project, action.source_package)}
     - if details
       %p.mb-0.mt-0.small
         by

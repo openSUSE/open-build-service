@@ -58,6 +58,11 @@
       = project_or_package_text(active_action.target_project, active_action.target_package)
       \.
 
+- if active_action.type == 'change_devel'
+  - current_devel_package = Package.find_by_project_and_name(active_action.target_project, active_action.target_package).develpackage
+  -  if current_devel_package
+    Development is currently happening on #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}
+
 - content_for :ready_function do
   :plain
     // Append anchor to the href of the Previous and Next buttons when the page is loaded or when the tab is changed.
