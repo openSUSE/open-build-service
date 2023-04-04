@@ -45,4 +45,4 @@
       %p.mb-0.mt-0.small
         by
         = details['user']
-        = render TimeComponent.new(time: details['time'].to_i)
+        = render TimeComponent.new(time: Time.zone.at(details['time'].to_i))
