@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Bootstrap_Requests_Submissions', js: true, vcr: true do
+RSpec.describe 'Requests_Submissions', js: true, vcr: true do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'madam_submitter') }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package_with_file, name: 'Quebec', project: source_project) }
