@@ -23,9 +23,9 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
   end
 
   def diff_for_ref(comment)
-    return unless comment.diff_ref
+    return unless (ref = comment.diff_ref&.match(/diff_([0-9]+)/))
 
-    file_index = comment.diff_ref.match(/diff_([0-9]*)/).captures.first
+    file_index = ref.captures.first
     sourcediff = @diffs.find { |d| d[:id] == comment.commentable.id }[:sourcediff].first
     filename = sourcediff.dig('filenames', file_index.to_i)
     sourcediff.dig('files', filename)
