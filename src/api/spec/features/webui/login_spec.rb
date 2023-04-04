@@ -29,7 +29,7 @@ RSpec.describe 'Login', js: true do
     expect(page).to have_link('Profile', visible: :all)
   end
 
-  it 'login via widget' do
+  it 'login via widget', vcr: true do
     visit root_path
     within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')
@@ -44,7 +44,7 @@ RSpec.describe 'Login', js: true do
     expect(page).to have_link('Your Home Project', visible: :all)
   end
 
-  it 'login with wrong data' do
+  it 'login with wrong data', vcr: true do
     visit root_path
     within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')

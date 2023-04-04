@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Repositories', js: true, vcr: true do
+RSpec.describe 'Repositories', js: true do
   let(:admin_user) { create(:admin_user) }
   let!(:repository) { create(:repository) }
 

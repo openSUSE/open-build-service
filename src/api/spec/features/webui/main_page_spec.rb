@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'OBS main page', js: true do
+RSpec.describe 'OBS main page', js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user) }
 
