@@ -32,6 +32,6 @@ class BsRequestHistoryElementComponent < ApplicationComponent
   end
 
   def css_for_comment
-    element_with_comment_from_human? ? 'comment-bubble' : ''
+    element_with_comment_from_human? ? 'comment-bubble comment-bubble-content' : ''
   end
 end

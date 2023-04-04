@@ -1,7 +1,7 @@
 .pre.scroll
   .diff{ class: "digits-#{diff.max_digits}" }>
-    - diff.lines&.each do |line|
-      - id = "diff_#{file_index}_n#{line.index}"
+    - lines.each do |line|
+      - id = file_index ? "diff_#{file_index}_n#{line.index}" : nil
       .line-container{ id: }
         %div{ class: "line #{line.state}" }>
           - case line.state

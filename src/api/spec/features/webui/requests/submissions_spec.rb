@@ -146,6 +146,24 @@ RSpec.describe 'Bootstrap_Requests_Submissions', js: true, vcr: true do
           expect(page).to have_css('.bg-staging')
         end
       end
+
+      describe 'a request that has a diff comment' do
+        let(:bs_request) do
+          create(:bs_request_with_submit_action,
+                 creator: receiver,
+                 target_project: target_project,
+                 target_package: target_package,
+                 source_project: source_project,
+                 source_package: source_package)
+        end
+        let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_ref: 'diff_0_n1') }
+
+        it 'displays the comment in the timeline' do
+          login submitter
+          visit request_show_path(bs_request)
+          expect(page).to have_text(comment.body)
+        end
+      end
     end
   end
 end
