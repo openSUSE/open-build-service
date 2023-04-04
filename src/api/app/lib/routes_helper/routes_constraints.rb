@@ -22,7 +22,7 @@ module RoutesHelper
       staging_project_name: %r{[^/]*},
       staging_project_copy_name: %r{[^/]*},
       request_action_id: /\d*/,
-      line: /diff_\d*_n\d*/
+      line: /diff_\d+_n\d+/
     }.freeze
   end
 end
