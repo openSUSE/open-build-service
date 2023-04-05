@@ -1,0 +1,4 @@
+= render partial: 'webui/package/breadcrumb_items'
+- if controller_name == 'binaries' && action_name == 'show'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Binary

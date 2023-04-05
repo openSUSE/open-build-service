@@ -71,7 +71,6 @@ OBSApi::Application.routes.draw do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/branch_diff_info/:project/:package' => :branch_diff_info, as: 'package_branch_diff_info', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons, as: 'package_dependency'
-        get 'package/binary/:project/:package/:repository/:arch/:filename' => :binary, constraints: cons, as: 'package_binary'
         get 'package/binaries/:project/:package/:repository' => :binaries, constraints: cons, as: 'package_binaries'
         get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
         get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
@@ -279,6 +278,7 @@ OBSApi::Application.routes.draw do
         resource :files, controller: 'webui/packages/files', only: [:new, :create, :update], constraints: cons
         put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
         resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
+        resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons

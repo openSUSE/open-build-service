@@ -12,20 +12,19 @@ class Webui::PackageController < Webui::WebuiController
                              Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
                              Regexp.new('\.arch$')].freeze
 
-  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binaries, :requests, :statistics, :revisions,
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
 
-  before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+  before_action :require_package, only: [:edit, :update, :show, :dependency, :binaries, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
 
   before_action :validate_xml, only: [:save_meta]
 
-  before_action :require_repository, only: [:binary, :binaries]
-  before_action :require_architecture, only: [:binary]
+  before_action :require_repository, only: [:binaries]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :index, :branch_diff_info, :binaries,
@@ -39,7 +38,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
-  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
+  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binaries, :requests]
 
   after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
@@ -195,8 +194,8 @@ class Webui::PackageController < Webui::WebuiController
                                                                   @arch, params[:dependant_name])
     return if @fileinfo # avoid displaying an error for non-existing packages
 
-    redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
-                                       repository: @repository, arch: @arch, filename: @filename })
+    redirect_back(fallback_location: project_package_binary_path(project_name: params[:project], package_name: params[:package],
+                                                                 repository: @repository, arch: @arch, filename: @filename))
   end
   # rubocop:enable Lint/NonLocalExitFromIterator
 
@@ -208,17 +207,6 @@ class Webui::PackageController < Webui::WebuiController
                                                       project: @project.name,
                                                       repository: @repository,
                                                       architecture: params[:arch]).results
-  end
-
-  # FIXME: This is Webui::Packages::BinariesController#show
-  def binary
-    # Ensure it really is just a file name, no '/..', etc.
-    @filename = File.basename(params[:filename])
-
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, params[:package], @repository.name, @architecture.name, @filename)
-    raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
-
-    @download_url = download_url_for_binary(architecture_name: @architecture.name, file_name: @filename)
   end
 
   # FIXME: This is Webui::Packages::BinariesController#index
@@ -237,7 +225,7 @@ class Webui::PackageController < Webui::WebuiController
           build_results_set[:binaries] << { filename: binary['filename'],
                                             size: binary['size'],
                                             links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                     download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']),
+                                                     download_url: download_url_for_binary(@project, @repository, @package, result['arch'], binary['filename']),
                                                      cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
         end
       end
@@ -636,31 +624,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   private
-
-  # Get an URL to a binary produced by the build.
-  # In the published repo for everyone, in the backend directly only for logged in users.
-  def download_url_for_binary(architecture_name:, file_name:)
-    if publishing_enabled(architecture_name: architecture_name)
-      published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, params[:package], architecture_name, file_name)
-      return published_url if published_url
-    end
-
-    "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{params[:package]}/#{file_name}" if User.session
-  end
-
-  def publishing_enabled(architecture_name:)
-    if @project == @package.project
-      @package.enabled_for?('publish', @repository.name, architecture_name)
-    else
-      # We are looking at a package coming through a project link
-      # Let's see if we rebuild linked packages.
-      # NOTE: linkedbuild=localdep||alldirect would be too much hassle to figure out...
-      return false if @repository.linkedbuild != 'all'
-
-      # If we are rebuilding packages, let's ask @project if it publishes.
-      @project.enabled_for?('publish', @repository.name, architecture_name)
-    end
-  end
 
   def package_params
     params.require(:package).permit(:name, :title, :description)
