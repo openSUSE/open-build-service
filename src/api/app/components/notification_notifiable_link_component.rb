@@ -55,7 +55,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       # TODO: It would be better to eager load the commentable association with `includes(...)`,
       #      but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
       anchor = if @notification.notifiable.commentable.is_a?(BsRequestAction)
-                 'tab-pane-changes'
+                 "comment-#{@notification.notifiable.id}"
                else
                  'comments-list'
                end
