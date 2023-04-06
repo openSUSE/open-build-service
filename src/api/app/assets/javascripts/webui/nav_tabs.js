@@ -15,5 +15,11 @@ $(document).ready(function () {
     else {
       document.location.hash = event.target.hash.replace('#', '#' + HASH_PREFIX);
     }
+
+    /*
+     * jshint false positive fires an error saying the `setCollapsible` function is not defined
+     * actually it is, just in another file (`collapsible_text.js`)
+     */
+    setCollapsible(); // jshint ignore:line
   });
 });
