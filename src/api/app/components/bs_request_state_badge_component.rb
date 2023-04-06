@@ -7,7 +7,10 @@ class BsRequestStateBadgeComponent < ApplicationComponent
   end
 
   def call
-    tag.span(@bs_request.state,
-             class: ['badge', "bg-#{helpers.request_badge_color(@bs_request.state)}", @css_class])
+    content_tag(
+      :span,
+      tag.i(class: 'fas fa-code-pull-request me-1').concat(@bs_request.state),
+      class: ['badge', "bg-#{helpers.request_badge_color(@bs_request.state)}", @css_class]
+    )
   end
 end
