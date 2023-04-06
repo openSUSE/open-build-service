@@ -6,21 +6,6 @@ module Webui::NotificationHelper
     link_to("Show #{less_or_more}", my_notifications_path(parameters))
   end
 
-  def request_badge_color(state)
-    case state
-    when :review, :new
-      'secondary'
-    when :declined, :revoke
-      'danger'
-    when :superseded
-      'warning'
-    when :accepted
-      'success'
-    else
-      'dark'
-    end
-  end
-
   private
 
   def mark_as_read_or_unread_button(notification)
