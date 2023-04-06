@@ -1,5 +1,8 @@
 -# NOTE: look into app/assets/stylesheets/webui/collapsible-text.scss
 - if text.present?
-  .obs-collapsible-textbox{ class: "#{extra_css_classes if defined?(extra_css_classes)}" }
+  .obs-collapsible-textbox.vanilla-textbox-to-collapse{ class: "#{extra_css_classes if defined?(extra_css_classes)}" }
     .obs-collapsible-text
       = sanitize(simple_format(text), tags: %w[br p])
+
+:javascript
+  setCollapsible();
