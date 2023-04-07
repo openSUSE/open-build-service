@@ -44,7 +44,7 @@
 //= require webui/staging_workflow.js
 //= require webui/project.js
 //= require webui/project_monitor.js
-//= require webui/collapsible_text
+//= require webui/collapsible_text.js
 //= require webui/patchinfo.js
 //= require webui/image_templates.js
 //= require webui/kiwi_editor.js
