@@ -19,6 +19,8 @@ class NotifiedProjects
         @notifiable.commentable.project
       when 'BsRequest'
         @notifiable.commentable.target_project_objects.distinct
+      when 'BsRequestAction'
+        @notifiable.commentable.bs_request.target_project_objects.distinct
       end
     when 'Package'
       @notifiable.project
