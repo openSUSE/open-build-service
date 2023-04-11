@@ -1,20 +1,25 @@
-$(document).ready(function() {
-  setCollapsible();
-});
+function setCollapsible() { // jshint ignore:line
+  $('.obs-collapsible-textbox').each(function() {
+    var container = $(this);
+    var textBox = container.find('.obs-collapsible-text');
+    var showButton = container.find('.show-content');
 
-function setCollapsible() {
-  $('.obs-collapsible-textbox').on('click', function() {
-    var selectedText = document.getSelection().toString();
-    if(!selectedText) {
-      $(this).find('.obs-collapsible-text').toggleClass('expanded');
-      $(this).find('.show-content').toggleClass('more less');
+    // Add the event if it wasn't already added
+    if (container.hasClass('vanilla-textbox-to-collapse')) {
+      container.on('click', function() {
+        if(!document.getSelection().toString()) {
+          textBox.toggleClass('expanded');
+          showButton.toggleClass('more less');
+        }
+      });
+      // Make sure to not add the event twice by removing the target class
+      container.removeClass('vanilla-textbox-to-collapse');
     }
-  });
 
-  $('.obs-collapsible-text').each(function(_index, element){
-    if (element.scrollHeight > element.offsetHeight) {
-      var $link = $('<a href="javascript:void(0)" class="show-content more"><i class="fa"></i></a>');
-      $(element).after($link);
+    // Make sure to not add the button twice and only if it makes sense to
+    if (showButton.length === 0 && textBox.prop('scrollHeight') > textBox.prop('offsetHeight')) {
+      showButton = $('<a href="javascript:void(0)" class="show-content more"><i class="fa"></i></a>');
+      textBox.after(showButton);
     }
   });
 }

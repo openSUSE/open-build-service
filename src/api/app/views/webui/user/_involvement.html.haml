@@ -66,7 +66,7 @@
         - involved_items.each do |involved_item|
           .list-group-item
             .row
-              .col.obs-collapsible-textbox
+              .col.obs-collapsible-textbox.vanilla-textbox-to-collapse
                 .obs-collapsible-text
                   - if involved_item.is_a?(Package)
                     = link_to(involved_item.project, project_show_path(involved_item.project))
