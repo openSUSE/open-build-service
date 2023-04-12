@@ -45,10 +45,9 @@ end
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  application_id  :text(65535)
-#  user_id         :integer          indexed, indexed
+#  user_id         :integer          indexed
 #
 # Indexes
 #
-#  index_cloud_azure_configurations_on_user_id  (user_id)
-#  index_cloud_azure_configurations_user_id     (user_id) UNIQUE
+#  index_cloud_azure_configurations_user_id  (user_id) UNIQUE
 #

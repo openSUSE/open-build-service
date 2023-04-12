@@ -1434,15 +1434,14 @@ end
 #  created_at      :datetime
 #  updated_at      :datetime
 #  develpackage_id :integer          indexed
-#  kiwi_image_id   :integer          indexed, indexed
+#  kiwi_image_id   :integer          indexed
 #  project_id      :integer          not null, indexed => [name]
 #
 # Indexes
 #
-#  devel_package_id_index           (develpackage_id)
-#  index_packages_kiwi_image_id     (kiwi_image_id) UNIQUE
-#  index_packages_on_kiwi_image_id  (kiwi_image_id)
-#  packages_all_index               (project_id,name) UNIQUE
+#  devel_package_id_index        (develpackage_id)
+#  index_packages_kiwi_image_id  (kiwi_image_id) UNIQUE
+#  packages_all_index            (project_id,name) UNIQUE
 #
 # Foreign Keys
 #

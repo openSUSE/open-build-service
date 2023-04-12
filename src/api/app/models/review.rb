@@ -372,7 +372,7 @@ end
 #  group_id         :integer          indexed
 #  package_id       :integer          indexed
 #  project_id       :integer          indexed
-#  review_id        :integer          indexed, indexed
+#  review_id        :integer          indexed
 #  user_id          :integer          indexed
 #
 # Indexes
@@ -386,7 +386,6 @@ end
 #  index_reviews_on_group_id                   (group_id)
 #  index_reviews_on_package_id                 (package_id)
 #  index_reviews_on_project_id                 (project_id)
-#  index_reviews_on_review_id                  (review_id)
 #  index_reviews_on_reviewer                   (reviewer)
 #  index_reviews_on_state_and_by_group         (state,by_group)
 #  index_reviews_on_state_and_by_project       (state,by_project)

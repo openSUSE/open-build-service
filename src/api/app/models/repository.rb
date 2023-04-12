@@ -47,7 +47,7 @@ class Repository < ApplicationRecord
     end
   end
 
-  validates :hostsystem_id, uniqueness: { case_sensitive: true }, allow_nil: true
+  validates :hostsystem, uniqueness: { case_sensitive: true }, allow_nil: true
 
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
   def self.find_by_project_and_name(project, repo)
@@ -318,7 +318,6 @@ end
 #
 # Indexes
 #
-#  hostsystem_id                     (hostsystem_id)
 #  index_repositories_hostsystem_id  (hostsystem_id) UNIQUE
 #  projects_name_index               (db_project_id,name,remote_project_name) UNIQUE
 #  remote_project_name_index         (remote_project_name)

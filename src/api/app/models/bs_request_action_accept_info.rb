@@ -43,11 +43,10 @@ end
 #  srcmd5               :string(255)
 #  xsrcmd5              :string(255)
 #  created_at           :datetime
-#  bs_request_action_id :integer          indexed, indexed
+#  bs_request_action_id :integer          indexed
 #
 # Indexes
 #
-#  bs_request_action_id                                       (bs_request_action_id)
 #  index_bs_request_action_accept_infos_bs_request_action_id  (bs_request_action_id) UNIQUE
 #
 # Foreign Keys

@@ -48,11 +48,10 @@ end
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  external_id :string(255)      indexed => [arn]
-#  user_id     :integer          indexed, indexed
+#  user_id     :integer          indexed
 #
 # Indexes
 #
 #  index_cloud_ec2_configurations_on_external_id_and_arn  (external_id,arn) UNIQUE
-#  index_cloud_ec2_configurations_on_user_id              (user_id)
 #  index_cloud_ec2_configurations_user_id                 (user_id) UNIQUE
 #

@@ -158,7 +158,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.datetime "created_at", precision: nil
     t.string "oproject", collation: "utf8mb3_unicode_ci"
     t.string "opackage", collation: "utf8mb3_unicode_ci"
-    t.index ["bs_request_action_id"], name: "bs_request_action_id"
     t.index ["bs_request_action_id"], name: "index_bs_request_action_accept_infos_bs_request_action_id", unique: true
   end
 
@@ -275,7 +274,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.text "application_key", collation: "utf8mb3_general_ci"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.index ["user_id"], name: "index_cloud_azure_configurations_on_user_id"
     t.index ["user_id"], name: "index_cloud_azure_configurations_user_id", unique: true
   end
 
@@ -286,7 +284,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["external_id", "arn"], name: "index_cloud_ec2_configurations_on_external_id_and_arn", unique: true
-    t.index ["user_id"], name: "index_cloud_ec2_configurations_on_user_id"
     t.index ["user_id"], name: "index_cloud_ec2_configurations_user_id", unique: true
   end
 
@@ -583,7 +580,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["image_id"], name: "index_kiwi_descriptions_image_id", unique: true
-    t.index ["image_id"], name: "index_kiwi_descriptions_on_image_id"
   end
 
   create_table "kiwi_images", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -679,7 +675,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.integer "incident_id"
     t.datetime "released_at", precision: nil
     t.index ["db_project_id"], name: "index_maintenance_incidents_db_project_id", unique: true
-    t.index ["db_project_id"], name: "index_maintenance_incidents_on_db_project_id"
     t.index ["maintenance_db_project_id"], name: "index_maintenance_incidents_on_maintenance_db_project_id"
   end
 
@@ -744,7 +739,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.string "scmsync"
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_kiwi_image_id", unique: true
-    t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
   end
 
@@ -868,7 +862,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.integer "hostsystem_id"
     t.string "required_checks"
     t.index ["db_project_id", "name", "remote_project_name"], name: "projects_name_index", unique: true
-    t.index ["hostsystem_id"], name: "hostsystem_id"
     t.index ["hostsystem_id"], name: "index_repositories_hostsystem_id", unique: true
     t.index ["remote_project_name"], name: "remote_project_name_index"
   end
@@ -909,7 +902,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.index ["group_id"], name: "index_reviews_on_group_id"
     t.index ["package_id"], name: "index_reviews_on_package_id"
     t.index ["project_id"], name: "index_reviews_on_project_id"
-    t.index ["review_id"], name: "index_reviews_on_review_id"
     t.index ["review_id"], name: "index_reviews_review_id", unique: true
     t.index ["reviewer"], name: "index_reviews_on_reviewer"
     t.index ["state", "by_group"], name: "index_reviews_on_state_and_by_group"
@@ -969,7 +961,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "number"
     t.index ["bs_request_id"], name: "index_staging_request_exclusions_bs_request_id", unique: true
-    t.index ["bs_request_id"], name: "index_staging_request_exclusions_on_bs_request_id"
     t.index ["staging_workflow_id"], name: "index_staging_request_exclusions_on_staging_workflow_id"
   end
 
@@ -979,7 +970,6 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "managers_group_id"
     t.index ["managers_group_id"], name: "index_staging_workflows_managers_group_id", unique: true
-    t.index ["managers_group_id"], name: "index_staging_workflows_on_managers_group_id"
     t.index ["project_id"], name: "index_staging_workflows_on_project_id", unique: true
   end
 
@@ -1046,9 +1036,7 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.string "workflow_configuration_path", default: ".obs/workflows.yml"
     t.string "workflow_configuration_url"
     t.index ["executor_id"], name: "index_tokens_executor_id", unique: true
-    t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "index_tokens_package_id", unique: true
-    t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
     t.index ["string"], name: "index_tokens_on_string", unique: true
   end

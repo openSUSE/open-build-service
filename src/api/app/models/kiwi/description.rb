@@ -30,10 +30,9 @@ end
 #  specification    :string(255)
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
-#  image_id         :integer          indexed, indexed
+#  image_id         :integer          indexed
 #
 # Indexes
 #
-#  index_kiwi_descriptions_image_id     (image_id) UNIQUE
-#  index_kiwi_descriptions_on_image_id  (image_id)
+#  index_kiwi_descriptions_image_id  (image_id) UNIQUE
 #

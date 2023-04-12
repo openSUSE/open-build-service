@@ -102,7 +102,7 @@ end
 #
 #  id                        :integer          not null, primary key
 #  released_at               :datetime
-#  db_project_id             :integer          indexed, indexed
+#  db_project_id             :integer          indexed
 #  incident_id               :integer
 #  maintenance_db_project_id :integer          indexed
 #  updateinfo_id             :string(255)
@@ -110,6 +110,5 @@ end
 # Indexes
 #
 #  index_maintenance_incidents_db_project_id                 (db_project_id) UNIQUE
-#  index_maintenance_incidents_on_db_project_id              (db_project_id)
 #  index_maintenance_incidents_on_maintenance_db_project_id  (maintenance_db_project_id)
 #
