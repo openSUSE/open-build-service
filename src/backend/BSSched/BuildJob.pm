@@ -371,8 +371,15 @@ sub update_buildavg {
 
 sub set_genbuildreqs {
   my ($gctx, $prp, $packid, $file, $verifymd5) = @_;
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$reporoot/$prp/$myarch";
   my $filecontent = $file ? readstr($file, 1) : undef;
   my $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp};
+  if (!$genbuildreqs && -e "$gdst/:genbuildreqs") {
+    $genbuildreqs = BSUtil::retrieve("$gdst/:genbuildreqs", 1) || {};
+    $gctx->{'genbuildreqs'}->{$prp} = $genbuildreqs if %$genbuildreqs;
+  }
   if (defined $filecontent) {
     my $md5 = Digest::MD5::md5_hex($filecontent);
     return if $genbuildreqs && ($genbuildreqs->{$packid} || [''])->[0] eq $md5 && (($genbuildreqs->{$packid} || [])->[2] || '') eq ($verifymd5 || '');
@@ -382,9 +389,6 @@ sub set_genbuildreqs {
     return if !$genbuildreqs || !delete($genbuildreqs->{$packid});
     delete($gctx->{'genbuildreqs'}->{$prp}) if !%$genbuildreqs;
   }
-  my $myarch = $gctx->{'arch'};
-  my $reporoot = $gctx->{'reporoot'};
-  my $gdst = "$reporoot/$prp/$myarch";
   if (%{$genbuildreqs || {}}) {
     mkdir_p($gdst);
     BSUtil::store("$gdst/.:genbuildreqs", "$gdst/:genbuildreqs", $genbuildreqs);
