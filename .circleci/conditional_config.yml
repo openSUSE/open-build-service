@@ -159,6 +159,7 @@ jobs:
           root: .
           paths:
             - .
+
   linters:
     docker:
       - <<: *frontend_base
@@ -368,16 +369,21 @@ jobs:
       - attach_workspace:
          at: .
       - run:
-          name: Merge and check coverage
+          name: Merge coverage
+          working_directory: src/api
+          command: bundle exec rake ci:simplecov_ci_merge
+      - run:
+          name: Upload coverage to codecov
           working_directory: src/api
           command: |
-            export COVERALLS_REPO_TOKEN=HWLJwfiFsKPGEOzfgllO3pP3rqV540Qt3
-            bundle exec rake ci:simplecov_ci_merge
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            codecov -v -f coverage/coverage.xml
       - run:
           name: Compress coverage results
           working_directory: src/api
           command: |
-            tar cvJf coverage_results.tar.xz coverage/codecov-result.json coverage_results/*
+            tar cvJf coverage_results.tar.xz coverage_results/*
       - store_artifacts:
           path: src/api/coverage_results.tar.xz
 

@@ -9,23 +9,6 @@ require 'minitest/reporters'
 
 Minitest::Reporters.use!(Minitest::Reporters::SpecReporter.new)
 
-if ENV['DO_COVERAGE']
-  ENV['CODECOV_FLAG'] = ENV.fetch('CIRCLE_STAGE', nil)
-  SimpleCov.start 'rails' do
-    # NOTE: Keep filters in sync with spec/support/coverage.rb
-    add_filter '/app/indices/'
-    add_filter '/lib/templates/'
-    add_filter '/lib/memory_debugger.rb'
-    add_filter '/lib/memory_dumper.rb'
-    merge_timeout 3600
-  end
-
-  SimpleCov.at_exit do
-    puts 'Coverage done'
-    SimpleCov.result.format!
-  end
-end
-
 require File.expand_path('../config/environment', __dir__)
 require_relative 'test_consistency_helper'
 
