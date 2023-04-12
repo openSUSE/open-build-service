@@ -639,7 +639,7 @@ sub getremotebinarylist {
 }
 
 sub getremotebinaryversions {
-  my ($proj, $projid, $repoid, $arch, $binaries, $modules) = @_;
+  my ($proj, $projid, $repoid, $arch, $binaries, $modules, $withevr) = @_;
 
   my $jev = $BSServerEvents::gev;
   my $binaryversions;
@@ -664,7 +664,17 @@ sub getremotebinaryversions {
     my @args = ('view=binaryversions', 'nometa=1');
     push @args, map {"module=$_"} @{$modules || []};
     push @args, map {"binary=$_"} @missing;
-    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
+    push @args, 'withevr=1' if $withevr && !$jev->{'binaryversions_withevr_unsupported'};
+    my $bvl;
+    eval { $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args) };
+    if ($@) {
+      if ($@ =~ /unknown parameter.*withevr/ && !$jev->{'binaryversions_withevr_unsupported'}) {
+	$jev->{'binaryversions_withevr_unsupported'} = 1;
+	@missing = grep {!exists $binaryversions->{$_}} @$binaries;
+	next;
+      }
+      die($@);
+    }
     return undef if $BSStdServer::isajax && !$bvl;
     for (@{$bvl->{'binary'} || []}) {
       my $bin = $_->{'name'};

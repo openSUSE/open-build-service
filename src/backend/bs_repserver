@@ -200,9 +200,9 @@ sub getbinaryversions {
     if ($dodurl && $hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
       my @handoff;
       if (defined $cgi->{'binaries'}) {
-	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'binaries', 'module'));
+	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'binaries', 'module', 'withevr'));
       } else {
-	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', BSRPC::args($cgi, 'binary', 'module'));
+	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', BSRPC::args($cgi, 'binary', 'module', 'withevr'));
       }
       $path = BSRepServer::DoD::fetchdodbinary("$reporoot/$prp/$arch", $pool, $repo, $p, \@handoff);
       return unless defined $path;
@@ -230,6 +230,10 @@ sub getbinaryversions {
     }
     my $r = {'name' => "$bin.$1", 'hdrmd5' => $hdrmd5, 'sizek' => $sizek};
     push @res, $r;
+    if ($cgi->{'withevr'}) {
+      $r->{'evr'} = $pool->pkg2evr($p);
+      $r->{'arch'} = $pool->pkg2arch($p);
+    }
     next if $cgi->{'nometa'};
     next unless $path =~ s/\.(?:$binsufsre)$//;
     if (!$metacache) {
@@ -4444,7 +4448,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withevr:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
@@ -4473,7 +4477,7 @@ my $dispatches = [
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
   '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port proto:? workerid?' => \&workerdispatched,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module*' => \&getbinaries,
-  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&getbinaryversions,
+  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module* withevr:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
   '!worker /badpackagebinaryversionlist $project $repository $arch $package* workerid?' => \&badpackagebinaryversionlist,
@@ -4538,7 +4542,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module*' => \&getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module*' => \&getbinaryversions,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&getbinaryversions,
 ];
 
 my $conf = {
