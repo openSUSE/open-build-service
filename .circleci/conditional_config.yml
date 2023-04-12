@@ -265,7 +265,6 @@ jobs:
       - run:
           name: Run minitest
           environment:
-            DO_COVERAGE: 1
             TESTOPTS: "--ci-dir=/home/frontend/minitest"
           working_directory: src/api
           command: |
@@ -376,9 +375,19 @@ jobs:
           name: Upload coverage to codecov
           working_directory: src/api
           command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            curl -LOs https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
-            codecov -v -f coverage/coverage.xml
+            ./codecov -v -f coverage/coverage.xml
+      - run:
+          name: Upload coverage to codeclimate
+          working_directory: src/api
+          environment:
+            CC_TEST_REPORTER_ID: 4969e47d48f3745fa39d4d9d717e5da88bc3e42376d665c54ba313ae3ce3189c
+          command: |
+            curl -LOs https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+            chmod +x test-reporter-latest-linux-amd64
+            ./test-reporter-latest-linux-amd64 format-coverage coverage/coverage.xml -t cobertura
+            ./test-reporter-latest-linux-amd64 upload-coverage
       - run:
           name: Compress coverage results
           working_directory: src/api
