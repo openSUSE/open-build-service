@@ -30,8 +30,7 @@
         Request #{@bs_request.number}
         -# state badge
         %small
-          .badge.ms-2{ class: "bg-#{request_badge_color(@bs_request.state)}" }
-            = @bs_request.state
+          = render BsRequestStateBadgeComponent.new(bs_request: @bs_request, css_class: 'ms-2')
       -# watch button
       - if User.session
         .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
@@ -48,7 +47,7 @@
         -# superseded
         - if @bs_request.superseded_by.present?
           %li
-            %mark.text-nowrap.text-light{ class: "bg-#{request_badge_color(@bs_request.state)}" } Superseded
+            %mark.text-nowrap.text-light{ class: "bg-#{BsRequestStateBadgeComponent.decode_state_color(@bs_request.state)}" } Superseded
             by
             = link_to "##{@bs_request.superseded_by}", number: @bs_request.superseded_by
         -# superseding statement
