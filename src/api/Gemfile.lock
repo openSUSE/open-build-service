@@ -248,6 +248,7 @@ GEM
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
       addressable (~> 2.8)
+    liquid (5.5.0)
     lograge (0.14.0)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -585,6 +586,7 @@ DEPENDENCIES
   jquery-ui-rails (~> 4.2.1)
   kaminari
   launchy
+  liquid
   lograge
   matrix (~> 0.4)
   minitest

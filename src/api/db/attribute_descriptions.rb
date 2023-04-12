@@ -31,7 +31,8 @@ def update_all_attrib_type_descriptions
     'AllowSubmitToMaintenanceRelease' => 'Allow submit requests to maintenance release projects',
     'EnforceRevisionsInRequests' => 'Enforce revisions in request actions',
     'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person',
-    'SkipChannelBranch' => 'Opt-Out creating channels in maintenance incidents'
+    'SkipChannelBranch' => 'Opt-Out creating channels in maintenance incidents',
+    'PackageTemplates' => 'Mark this project as a source for package templates.'
   }
   d.keys.each do |k|
     at = ans.attrib_types.where(name: k).first
