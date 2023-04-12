@@ -4,6 +4,8 @@ class MaintenanceIncident < ApplicationRecord
   belongs_to :project, class_name: 'Project', foreign_key: :db_project_id, optional: true
   belongs_to :maintenance_db_project, class_name: 'Project', optional: true
 
+  validates :db_project_id, uniqueness: { case_sensitive: true }, allow_nil: true
+
   # <project> - The maintenance project
   # target_project - The maintenance incident project
   #
@@ -100,13 +102,14 @@ end
 #
 #  id                        :integer          not null, primary key
 #  released_at               :datetime
-#  db_project_id             :integer          indexed
+#  db_project_id             :integer          indexed, indexed
 #  incident_id               :integer
 #  maintenance_db_project_id :integer          indexed
 #  updateinfo_id             :string(255)
 #
 # Indexes
 #
+#  index_maintenance_incidents_db_project_id                 (db_project_id) UNIQUE
 #  index_maintenance_incidents_on_db_project_id              (db_project_id)
 #  index_maintenance_incidents_on_maintenance_db_project_id  (maintenance_db_project_id)
 #

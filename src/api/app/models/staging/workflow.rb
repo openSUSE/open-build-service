@@ -30,6 +30,8 @@ class Staging::Workflow < ApplicationRecord
   has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id', dependent: :destroy
   has_many :excluded_requests, through: :request_exclusions, source: :bs_request
 
+  validates :managers_group, uniqueness: { case_sensitive: true }, allow_nil: true
+
   after_create :create_staging_projects
   after_create :add_reviewer_group
   before_update :update_managers_group
@@ -148,11 +150,12 @@ end
 #  id                :integer          not null, primary key
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  managers_group_id :integer          indexed
+#  managers_group_id :integer          indexed, indexed
 #  project_id        :integer          indexed
 #
 # Indexes
 #
+#  index_staging_workflows_managers_group_id     (managers_group_id) UNIQUE
 #  index_staging_workflows_on_managers_group_id  (managers_group_id)
 #  index_staging_workflows_on_project_id         (project_id) UNIQUE
 #

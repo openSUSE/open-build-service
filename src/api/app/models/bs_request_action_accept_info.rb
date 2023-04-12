@@ -10,6 +10,8 @@ class BsRequestActionAcceptInfo < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :bs_request_action, uniqueness: { case_sensitive: true }, allow_nil: true
+
   #### Class methods using self. (public and then private)
   #### To define class methods as private use private_class_method
   #### private
@@ -41,11 +43,12 @@ end
 #  srcmd5               :string(255)
 #  xsrcmd5              :string(255)
 #  created_at           :datetime
-#  bs_request_action_id :integer          indexed
+#  bs_request_action_id :integer          indexed, indexed
 #
 # Indexes
 #
-#  bs_request_action_id  (bs_request_action_id)
+#  bs_request_action_id                                       (bs_request_action_id)
+#  index_bs_request_action_accept_infos_bs_request_action_id  (bs_request_action_id) UNIQUE
 #
 # Foreign Keys
 #

@@ -14,6 +14,8 @@ class Token < ApplicationRecord
   validates :description, length: { maximum: 64 }
   validates :string, uniqueness: { case_sensitive: false }
   validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
+  validates :executor, uniqueness: { case_sensitive: true }
+  validates :package, uniqueness: { case_sensitive: true }, allow_nil: true
 
   include Token::Errors
 
@@ -79,13 +81,15 @@ end
 #  type                        :string(255)
 #  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
 #  workflow_configuration_url  :string(255)
-#  executor_id                 :integer          not null, indexed
-#  package_id                  :integer          indexed
+#  executor_id                 :integer          not null, indexed, indexed
+#  package_id                  :integer          indexed, indexed
 #
 # Indexes
 #
+#  index_tokens_executor_id   (executor_id) UNIQUE
 #  index_tokens_on_scm_token  (scm_token)
 #  index_tokens_on_string     (string) UNIQUE
+#  index_tokens_package_id    (package_id) UNIQUE
 #  package_id                 (package_id)
 #  user_id                    (executor_id)
 #

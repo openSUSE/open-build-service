@@ -179,12 +179,7 @@ Kiwi::Image:
     LengthConstraintChecker:
       enabled: false
   package:
-    MissingIndexChecker:
-      enabled: false
     ForeignKeyCascadeChecker:
-      enabled: false
-  description:
-    MissingIndexChecker:
       enabled: false
 Kiwi::Description:
   id:
@@ -367,9 +362,6 @@ WorkflowRun:
   token:
     ForeignKeyChecker:
       enabled: false
-  scm_status_reports:
-    MissingIndexChecker:
-      enabled: false
 WorkflowArtifactsPerStep:
   id:
     PrimaryKeyTypeChecker:
@@ -431,23 +423,8 @@ User:
   adminnote:
     LengthConstraintChecker:
       enabled: false
-  rss_token:
-    MissingIndexChecker:
-      enabled: false
   owner:
     ForeignKeyChecker:
-      enabled: false
-  subaccounts:
-    MissingIndexChecker:
-      enabled: false
-  bs_request_actions_seen_by_users:
-    MissingIndexChecker:
-      enabled: false
-  ec2_configuration:
-    MissingIndexChecker:
-      enabled: false
-  azure_configuration:
-    MissingIndexChecker:
       enabled: false
   login:
     ColumnPresenceChecker:
@@ -573,9 +550,6 @@ Review:
   package:
     ForeignKeyChecker:
       enabled: false
-  review_assigned_to:
-    MissingIndexChecker:
-      enabled: false
 RepositoryArchitecture:
   id:
     PrimaryKeyTypeChecker:
@@ -607,9 +581,6 @@ Repository:
       enabled: false
   download_repositories:
     ForeignKeyCascadeChecker:
-      enabled: false
-  hostsystem:
-    MissingIndexChecker:
       enabled: false
   product_update_repositories:
     ForeignKeyCascadeChecker:
@@ -896,9 +867,6 @@ Group:
   title:
     MissingUniqueIndexChecker:
       enabled: false
-  staging_workflow:
-    MissingIndexChecker:
-      enabled: false
 EventSubscription:
   id:
     PrimaryKeyTypeChecker:
@@ -1155,8 +1123,6 @@ BsRequestAction:
     LengthConstraintChecker:
       enabled: false
   bs_request_action_accept_info:
-    MissingIndexChecker:
-      enabled: false
     ForeignKeyCascadeChecker:
       enabled: false
   target_package_object:
@@ -1413,9 +1379,6 @@ BsRequest:
   staging_project:
     ForeignKeyChecker:
       enabled: false
-  request_exclusion:
-    MissingIndexChecker:
-      enabled: false
 Configuration:
   id:
     PrimaryKeyTypeChecker:
@@ -1499,12 +1462,6 @@ Package:
   binary_releases:
     ForeignKeyCascadeChecker:
       enabled: false
-  backend_package:
-    MissingIndexChecker:
-      enabled: false
-  token:
-    MissingIndexChecker:
-      enabled: false
 Flag:
   id:
     PrimaryKeyTypeChecker:
@@ -1543,12 +1500,6 @@ Project:
   staging_workflow:
     ForeignKeyChecker:
       enabled: false
-  linked_by:
-    MissingIndexChecker:
-      enabled: false
-  maintenance_incident:
-    MissingIndexChecker:
-      enabled: false
   maintained_projects:
     ForeignKeyCascadeChecker:
       enabled: false
@@ -1566,9 +1517,6 @@ Project:
       enabled: false
   project_log_entries:
     ForeignKeyCascadeChecker:
-      enabled: false
-  notified_projects:
-    MissingIndexChecker:
       enabled: false
 Token:
   id:

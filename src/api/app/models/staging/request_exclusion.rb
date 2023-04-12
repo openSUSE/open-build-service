@@ -9,6 +9,7 @@ class Staging::RequestExclusion < ApplicationRecord
   validates :number, :description, presence: true
   validates :bs_request_id, numericality: true, uniqueness: { scope: :staging_workflow_id, message: 'is already excluded' }
   validates :description, length: { maximum: 255 }
+  validates :bs_request, uniqueness: { case_sensitive: true }
 
   delegate :number, to: :bs_request, allow_nil: true
 end
@@ -22,11 +23,12 @@ end
 #  number              :integer
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
-#  bs_request_id       :integer          not null, indexed
+#  bs_request_id       :integer          not null, indexed, indexed
 #  staging_workflow_id :integer          not null, indexed
 #
 # Indexes
 #
+#  index_staging_request_exclusions_bs_request_id           (bs_request_id) UNIQUE
 #  index_staging_request_exclusions_on_bs_request_id        (bs_request_id)
 #  index_staging_request_exclusions_on_staging_workflow_id  (staging_workflow_id)
 #

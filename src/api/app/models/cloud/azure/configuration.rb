@@ -5,6 +5,7 @@ module Cloud
       validates :application_id, presence: { message: 'ID can\'t be blank' },
                                  length: { maximum: 245, too_long: 'ID is too long (maximum is 245 characters)' }, on: :update
       validates :application_key, presence: true, length: { maximum: 245 }, on: :update
+      validates :user_id, uniqueness: { case_sensitive: true }, allow_nil: true
 
       before_save :encrypt_credentials
 
@@ -44,9 +45,10 @@ end
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  application_id  :text(65535)
-#  user_id         :integer          indexed
+#  user_id         :integer          indexed, indexed
 #
 # Indexes
 #
 #  index_cloud_azure_configurations_on_user_id  (user_id)
+#  index_cloud_azure_configurations_user_id     (user_id) UNIQUE
 #

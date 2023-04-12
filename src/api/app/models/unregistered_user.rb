@@ -87,12 +87,13 @@ end
 #  state                         :string           default("unconfirmed")
 #  created_at                    :datetime
 #  updated_at                    :datetime
-#  owner_id                      :integer
+#  owner_id                      :integer          indexed
 #
 # Indexes
 #
 #  index_users_on_in_beta     (in_beta)
 #  index_users_on_in_rollout  (in_rollout)
+#  index_users_owner_id       (owner_id)
 #  users_login_index          (login) UNIQUE
 #  users_password_index       (deprecated_password)
 #

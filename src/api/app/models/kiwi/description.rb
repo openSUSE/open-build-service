@@ -6,6 +6,7 @@ class Kiwi::Description < ApplicationRecord
   }
 
   validates :description_type, inclusion: { in: description_types.keys }
+  validates :image, uniqueness: { case_sensitive: true }, allow_nil: true
 
   def to_xml
     builder = Nokogiri::XML::Builder.new
@@ -29,9 +30,10 @@ end
 #  specification    :string(255)
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
-#  image_id         :integer          indexed
+#  image_id         :integer          indexed, indexed
 #
 # Indexes
 #
+#  index_kiwi_descriptions_image_id     (image_id) UNIQUE
 #  index_kiwi_descriptions_on_image_id  (image_id)
 #

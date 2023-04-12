@@ -16,9 +16,10 @@ end
 # Table name: bs_request_actions_seen_by_users
 #
 #  bs_request_action_id :bigint           not null, indexed => [user_id]
-#  user_id              :bigint           not null, indexed => [bs_request_action_id]
+#  user_id              :bigint           not null, indexed => [bs_request_action_id], indexed
 #
 # Indexes
 #
-#  bs_request_actions_seen_by_users_index  (bs_request_action_id,user_id)
+#  bs_request_actions_seen_by_users_index          (bs_request_action_id,user_id)
+#  index_bs_request_actions_seen_by_users_user_id  (user_id)
 #

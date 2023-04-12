@@ -39,5 +39,9 @@ end
 #  status             :integer          default("success"), not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
-#  workflow_run_id    :integer
+#  workflow_run_id    :integer          indexed
+#
+# Indexes
+#
+#  index_scm_status_reports_workflow_run_id  (workflow_run_id)
 #

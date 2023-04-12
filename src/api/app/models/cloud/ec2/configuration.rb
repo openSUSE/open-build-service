@@ -23,6 +23,7 @@ module Cloud
       belongs_to :user, optional: true, class_name: '::User'
 
       validates :external_id, uniqueness: { case_sensitive: true }
+      validates :user_id, uniqueness: { case_sensitive: true }, allow_nil: true
       validates :arn, uniqueness: { case_sensitive: true }, allow_nil: true
       # http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
       validates :arn, format: { with: %r{\Aarn:([\w/:* +=,.@\-_])+\z}, message: 'not a valid format', allow_blank: true }
@@ -47,10 +48,11 @@ end
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  external_id :string(255)      indexed => [arn]
-#  user_id     :integer          indexed
+#  user_id     :integer          indexed, indexed
 #
 # Indexes
 #
 #  index_cloud_ec2_configurations_on_external_id_and_arn  (external_id,arn) UNIQUE
 #  index_cloud_ec2_configurations_on_user_id              (user_id)
+#  index_cloud_ec2_configurations_user_id                 (user_id) UNIQUE
 #

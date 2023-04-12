@@ -28,9 +28,10 @@ end
 #  position                   :integer
 #  vrevmode                   :string           default("standard")
 #  db_project_id              :integer          not null, indexed => [linked_db_project_id]
-#  linked_db_project_id       :integer          indexed => [db_project_id]
+#  linked_db_project_id       :integer          indexed, indexed => [db_project_id]
 #
 # Indexes
 #
-#  linked_projects_index  (db_project_id,linked_db_project_id) UNIQUE
+#  index_linked_projects_linked_db_project_id  (linked_db_project_id)
+#  linked_projects_index                       (db_project_id,linked_db_project_id) UNIQUE
 #

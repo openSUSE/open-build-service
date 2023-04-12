@@ -15,6 +15,8 @@ class BackendPackage < ApplicationRecord
   scope :not_links, -> { where(links_to_id: nil) }
 
   #### Validations macros
+  validates :package, uniqueness: { case_sensitive: true }
+
   #### Class methods using self. (public and then private)
 
   # this is called from the UpdatePackageMetaJob and clockwork
@@ -42,11 +44,12 @@ end
 #  verifymd5   :string(255)
 #  updated_at  :datetime
 #  links_to_id :integer          indexed
-#  package_id  :integer          not null, primary key
+#  package_id  :integer          not null, primary key, indexed
 #
 # Indexes
 #
 #  index_backend_packages_on_links_to_id  (links_to_id)
+#  index_backend_packages_package_id      (package_id) UNIQUE
 #
 # Foreign Keys
 #

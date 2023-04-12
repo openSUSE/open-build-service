@@ -22,6 +22,7 @@ class Review < ApplicationRecord
   validates :by_package, length: { maximum: 250 }
   validates :reviewer, length: { maximum: 250 }
   validates :reason, length: { maximum: 65_534 }
+  validates :review_id, uniqueness: { case_sensitive: true }, allow_nil: true
 
   validates :user, presence: true, if: :by_user?
   validates :group, presence: true, if: :by_group?
@@ -371,7 +372,7 @@ end
 #  group_id         :integer          indexed
 #  package_id       :integer          indexed
 #  project_id       :integer          indexed
-#  review_id        :integer          indexed
+#  review_id        :integer          indexed, indexed
 #  user_id          :integer          indexed
 #
 # Indexes
@@ -391,6 +392,7 @@ end
 #  index_reviews_on_state_and_by_project       (state,by_project)
 #  index_reviews_on_state_and_by_user          (state,by_user)
 #  index_reviews_on_user_id                    (user_id)
+#  index_reviews_review_id                     (review_id) UNIQUE
 #
 # Foreign Keys
 #
