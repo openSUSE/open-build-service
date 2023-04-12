@@ -1,0 +1,11 @@
+.card
+  .card-body.p-0
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
+                  prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+    = render partial: 'request_tabs',
+        locals: { actions_for_diff: @actions_for_diff, bs_request: @bs_request, action: @action, issues: @issues }
+    .container.p-4
+      .tab-content.sourcediff
+        = render SourcediffComponent.new(bs_request: @bs_request, action: @action, index: 0, refresh: @refresh)
