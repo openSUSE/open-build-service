@@ -25,6 +25,10 @@
                                                       text_area_attributes: { rows: 10,
                                                       placeholder: 'Write your description here... (Markdown markup is supported)',
                                                       required: false, object_name: :description})
+              - if (templates = PackageService::Templater.templates).values.flatten.present?
+                .mb-3
+                  = f.label(:template)
+                  = f.select(:template, templates, { include_blank: 'None' }, class: 'form-select', name: 'template')
               - unless @configuration['hide_private_options']
                 .mb-3.form-check
                   = check_box_tag :source_protection, 1, false, class: 'form-check-input', type: 'checkbox'

@@ -106,6 +106,8 @@ gem 'ansible'
 gem 'dimapa'
 # Network Kanji Filter, for Kanji conversions (former kconv)
 gem 'nkf'
+# Templating engine used for package templates
+gem 'liquid'
 
 # For Hotwire javascript libraries
 gem 'importmap-rails'

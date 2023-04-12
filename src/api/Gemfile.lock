@@ -273,6 +273,9 @@ GEM
       childprocess (~> 5.0)
       logger (~> 1.6)
     lint_roller (1.1.0)
+    liquid (5.11.0)
+      bigdecimal
+      strscan (>= 3.1.1)
     logger (1.7.0)
     lograge (0.14.0)
       actionpack (>= 4)
@@ -538,6 +541,7 @@ GEM
     stringio (3.1.2)
     strong_migrations (2.5.1)
       activerecord (>= 7.1)
+    strscan (3.1.2)
     sysexits (1.2.0)
     temple (0.10.4)
     terminal-table (4.0.0)
@@ -653,6 +657,7 @@ DEPENDENCIES
   jquery-ui-rails
   kaminari
   launchy
+  liquid
   lograge
   minitest
   minitest-ci

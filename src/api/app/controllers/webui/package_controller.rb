@@ -27,6 +27,8 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
+  before_action :set_template, only: :create
+
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
   after_action :verify_authorized, only: %i[new create remove]
@@ -110,6 +112,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
 
     if @package.save
+      PackageService::Templater.new(package: @package, template: @template, user: User.session!).call if @template.present?
       flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
@@ -512,5 +515,12 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
+  end
+
+  def set_template
+    return unless params['template'] && params['template'].include?('/')
+
+    template_project, template_package = params['template'].split('/')
+    @template = Package.find_by_project_and_name(template_project, template_package)
   end
 end
