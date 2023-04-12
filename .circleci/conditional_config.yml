@@ -162,6 +162,7 @@ jobs:
   linters:
     docker:
       - <<: *frontend_base
+      - <<: *mariadb
     steps:
       - attach_workspace:
          at: .
@@ -203,6 +204,12 @@ jobs:
                 command: |
                   cd src/api
                   bundle exec rake dev:lint:apidocs
+      - run:
+          name: Run database consistency linter
+          working_directory: src/api
+          command: |
+            bundle exec rake db:setup
+            bundle exec database_consistency -c .database_consistency.todo.yml
 
   rspec:
     parallelism: 3
@@ -302,7 +309,6 @@ jobs:
             bundle exec rake db:migrate
             bundle exec rake db:seed
             bundle exec rake data:migrate
-            bundle exec database_consistency -c .database_consistency.todo.yml
 
   passenger_tests:
     docker:
