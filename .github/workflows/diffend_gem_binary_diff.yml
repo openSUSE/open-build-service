@@ -6,6 +6,10 @@ on:
 jobs:
   create_comment_with_diffend_io_links:
     runs-on: ubuntu-latest
+    permissions:
+      # In order to allow the creation of the comment on the pull request
+      pull-requests: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
