@@ -121,15 +121,18 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def create
-    @package = @project.packages.build(package_params)
+    package_opts = package_params
+    template, subtemplate = package_opts.extract!('template')['template'].split('#')
+    @package = @project.packages.build(package_opts)
     authorize @package, :create?
 
     @package.flags.build(flag: :sourceaccess, status: :disable) if params[:source_protection]
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
 
     if @package.save
+      PackageService::Templater.new(package: @package, template:, subtemplate:).call if template.present? && subtemplate.present?
       flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
-      redirect_to action: :show, project: params[:project], package: @package.name
+      redirect_to action: :show, project: @package.project, package: @package.name
     else
       flash[:error] = "Failed to create package: #{@package.errors.full_messages.join(', ')}"
       redirect_to controller: :project, action: :show, project: params[:project]
@@ -663,7 +666,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def package_params
-    params.require(:package).permit(:name, :title, :description)
+    params.require(:package).permit(:name, :title, :description, :template)
   end
 
   def package_details_params
