@@ -965,10 +965,14 @@ eval {
       }
       BSUtil::printlog("waiting for an event...");
       exit 0 if $testprojid;
-      my $sleepstart = time();
+      my $now = time();
+      if ($now - $lastschedinfo > 60) {
+        writeschedulerinfo($gctx);	# update scheduler stats
+        $lastschedinfo = $now;
+      }
       my @watchers = (values(%remotewatchers), $gctx->{'retryevents'}->events(), $gctx->{'rctx'}->xrpc_handles());
       select_read(3600, $pingwatcher, @watchers);
-      $gctx->{'slept'} += time() - $sleepstart;
+      $gctx->{'slept'} += time() - $now;
       next;
     }
 
