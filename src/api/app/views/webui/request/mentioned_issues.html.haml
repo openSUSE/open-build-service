@@ -1,0 +1,22 @@
+.card
+  .card-body.p-0
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
+                  prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+    = render partial: 'request_tabs',
+        locals: { actions_for_diff: @actions_for_diff, bs_request: @bs_request, action: @action, issues: @issues }
+    .container.p-4
+      - if @issues.empty?
+        %p No issues are mentioned for this request action.
+      - else
+        %ul.list-group.list-group-flush
+          - @issues.each do |issue_name, issue_details|
+            %li.list-group-item
+              = link_to(issue_name, issue_details[:url], target: '_blank', rel: 'noopener')
+              - if issue_details[:owner] && issue_details[:state]
+                %span.ms-3= issue_details[:state]&.capitalize
+                %span.ms-3= user_with_realname_and_icon issue_details[:owner], short: true
+
+              - if issue_details[:summary]
+                = render partial: 'webui/shared/collapsible_text', locals: { text: issue_details[:summary], extra_css_classes: 'mt-2' }

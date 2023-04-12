@@ -15,6 +15,6 @@
                   -# 'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
     - if action[:type].in?(actions_for_diff)
       %li.nav-item.scrollable-tab-link
-        = link_to('#mentioned-issues', class: 'nav-link text-nowrap') do
+        = link_to(request_mentioned_issues_path(bs_request.number), class: 'nav-link text-nowrap') do
           Mentioned Issues
           %span.badge.bg-primary.align-text-top= issues.size

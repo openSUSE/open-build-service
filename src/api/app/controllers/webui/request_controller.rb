@@ -4,14 +4,14 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results, :rpm_lint, :changes]
-  before_action :set_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :set_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action_id, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_active_action, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_data, only: [:show, :conversation, :build_results, :rpm_lint, :changes], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :prepare_data, only: [:show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
 
   after_action :verify_authorized, only: [:create]
 
@@ -292,6 +292,9 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
+  end
+
+  def mentioned_issues
   end
 
   private
