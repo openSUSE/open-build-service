@@ -841,6 +841,11 @@ sub wipe {
       unlink("$gdst/$packid/$f");
     }
   }
+
+  # drop genbuildreqs
+  my $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp};
+  delete($genbuildreqs->{$packid}) if $genbuildreqs && $genbuildreqs->{$packid};
+
   rmdir("$gdst/$packid");       # in case there is no history
 }
 
