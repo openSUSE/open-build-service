@@ -29,10 +29,15 @@
     overflow-x: hidden;
   }
   & a {
-    color: $gray-300;
+    color: $gray-100;
     width: $left-navigation-width;
     white-space: normal !important;
-    &:hover { color: white; }
+    border-left: 5px solid transparent;
+    &:hover {
+      border-left-color: $menu-hover-color;
+      i { filter: none; }
+    }
+    transition: none;
   }
   &.collapsed a { width: $left-navigation-collapsed-width; }
 
