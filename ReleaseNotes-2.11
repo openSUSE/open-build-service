@@ -31,6 +31,8 @@ Generic:
    of once every hour. As configuration files for Thinking Sphinx were changed, running
    a 'ts:rt:rebuild' task is needed after deployment, as user wwwrun:
    'chroot --userspec=wwwrun:www / /bin/bash -c "cd /srv/www/obs/api/ && /usr/bin/bundle.ruby2.5 exec rails ts:rt:rebuild RAILS_ENV=production"'
+ * Add the 'limit_for_search_results' configuration variable, to allow limiting the results
+   returned by calls to API endpoints starting by '/search/...' and not ending in '.../id'.
 
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability
