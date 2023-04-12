@@ -6,7 +6,7 @@
       %li.nav-item.scrollable-tab-link
         = link_to('Build Results', request_build_results_path(bs_request.number), class: 'nav-link text-nowrap')
       %li.nav-item.scrollable-tab-link
-        = link_to('RPM Lint', '#rpm-lint', class: 'nav-link text-nowrap')
+        = link_to('RPM Lint', request_rpm_lint_path(bs_request.number), class: 'nav-link text-nowrap')
     - if action[:type].in?(actions_for_diff)
       %li.nav-item.scrollable-tab-link
         = link_to('Changes', '#changes', class: 'nav-link text-nowrap')

@@ -292,6 +292,7 @@ OBSApi::Application.routes.draw do
       get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
       get 'request/show/:number/(request_action/:request_action_id)/conversation' => :conversation, as: 'request_conversation', constraints: cons
       get 'request/show/:number/(request_action/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
+      get 'request/show/:number/(request_action/:request_action_id)/rpm_lint' => :rpm_lint, as: 'request_rpm_lint', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
