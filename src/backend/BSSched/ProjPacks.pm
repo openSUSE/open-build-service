@@ -290,13 +290,13 @@ sub get_projpacks_resume {
     get_projpacks($gctx, $async, $projid);
   }
 
-  if (!$packids) {
-    my $oldproj = $projpacks->{$projid} || $remoteprojs->{$projid} || {};
-    my $newproj = $projpacksin->{'project'}->[0];
-    $newproj = undef if $newproj && $newproj->{'name'} ne $projid;
-    $newproj ||= (grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []})[0] || {};
-    trigger_auto_deep_checks($gctx, $projid, $oldproj, $newproj) if $oldproj && $newproj;
-  }
+  my $oldproj = $projpacks->{$projid} || $remoteprojs->{$projid} || {};
+  my $newproj = $projpacksin->{'project'}->[0];
+  $newproj = undef if $newproj && $newproj->{'name'} ne $projid;
+  $newproj ||= (grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []})[0] || {};
+  my $oldconfig = $oldproj->{'config'} || '';
+  my $newconfig = $newproj->{'config'} || '';
+  trigger_auto_deep_checks($gctx, $projid, $oldproj, $newproj) if !$packids || $oldconfig ne $newconfig;
 
   # commit the update
   update_projpacks($gctx, $projpacksin, $projid, $packids);
