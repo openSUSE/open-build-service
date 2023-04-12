@@ -1,3 +1,5 @@
+= render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
+
 .card
   .card-body.p-0
     = render partial: 'request_header',
@@ -9,3 +11,6 @@
     .container.p-4
       .tab-content.sourcediff
         = render SourcediffComponent.new(bs_request: @bs_request, action: @action, index: 0, refresh: @refresh)
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Delete comment?', remote: true })

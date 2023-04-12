@@ -1,3 +1,5 @@
+= render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
+
 .card
   .card-body.p-0
     = render partial: 'request_header',
@@ -93,3 +95,6 @@
           = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,
                                                 is_target_maintainer: @is_target_maintainer,
                                                 is_author: @is_author)
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Delete comment?', remote: true })
