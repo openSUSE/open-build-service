@@ -106,6 +106,8 @@ gem 'paper_trail'
 gem 'ansible'
 # Generating inline diff highlights
 gem 'dimapa'
+# Templating engine used for package templates
+gem 'liquid'
 
 gem 'logger'
 
