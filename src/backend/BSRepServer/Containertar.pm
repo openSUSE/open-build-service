@@ -157,7 +157,7 @@ sub open_container {
   return undef unless $containerinfo;
   my $dir = $container;
   $dir =~ s/[^\/]*$/./;
-  my ($tar) = construct_container_tar($dir, $containerinfo, 1);
+  my ($tar, undef, $mtime) = construct_container_tar($dir, $containerinfo, 1);
   my $tmpfilename = "$uploaddir/open_container.$$";
   unlink($tmpfilename);
   my $fd;
@@ -165,6 +165,7 @@ sub open_container {
   unlink($tmpfilename);
   BSTar::writetar($fd, $tar);
   seek($fd, 0, 0);
+  utime($mtime, $mtime, $fd) if defined $mtime;
   return $fd;
 }
 

@@ -4559,15 +4559,15 @@ sub getbinarylist {
   }
   if ($view && $view eq 'binaryversions') {
     push @args, 'nometa=1' if $cgi->{'nometa'};
+    push @args, 'withevr=1' if $cgi->{'withevr'};
     if (!$BSStdServer::isajax && $packid eq '_repository' && $proj->{'remoteurl'} && !$proj->{'partition'}) {
       # hand over to getbinaryversions for chunking
       @args = ();
       push @args, "project=$projid";
       push @args, "repository=$repoid";
       push @args, "arch=$arch";
-      push @args, 'nometa=1' if $cgi->{'nometa'};
+      push @args, BSRPC::args($cgi, 'nometa', 'module', 'withevr');
       push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
-      push @args, map {"module=$_"} @{$cgi->{'module'} || []};
       BSHandoff::handoff('/getbinaryversions', undef, @args);
     }
     if (!$BSStdServer::isajax && $packid eq '_repository') {
@@ -6127,14 +6127,12 @@ sub worker_getbinaryversions {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
-    push @args, "nometa=1" if $cgi->{'nometa'};
-    push @args, map {"module=$_"} @{$cgi->{'module'} || []};
-    push @args, "now=$cgi->{'now'}" if $cgi->{'now'};
+    push @args, BSRPC::args($cgi, 'nometa', 'module', 'now', 'withevr');
     BSHandoff::handoff('/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my $proj = findremote($projid);
-  my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries, $cgi->{'module'});
+  my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries, $cgi->{'module'}, $cgi->{'withevr'});
   return undef unless $binaryversions;
   my $bvl = {};
   $bvl->{'binary'} = [ map {$binaryversions->{$_}} @binaries];
@@ -7669,7 +7667,7 @@ my $dispatches = [
   '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig,
   '/getsslcert $project autoextend:bool? workerid? signtype:?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaryversions,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module* withevr:bool?' => \&worker_getbinaryversions,
   '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
   '/getmodulemd $project $package $srcmd5:md5 module* modularityplatform: modularitylabel: arch? view:?' => \&getmodulemd,
 
@@ -7731,7 +7729,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? multibuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool?' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool? withevr:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* debug:bool? striphdrmd5:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? striphdrmd5:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
@@ -7798,7 +7796,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? now:num? module*' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module*' => \&worker_getbinaryversions,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
@@ -7828,9 +7826,7 @@ my $aconf = {
   'dispatches' => $dispatches_ajax,
 };
 
-if ($BSConfig::srcserver_maxchild) {
-  $conf->{'maxchild'} = $BSConfig::srcserver_maxchild;
-}
+$conf->{'maxchild'} = $BSConfig::srcserver_maxchild if $BSConfig::srcserver_maxchild;
 
 if ($BSConfig::workersrcserver) {
   my $wport = $port;
