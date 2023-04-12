@@ -8,7 +8,7 @@
                   diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
     = render partial: 'request_tabs',
         locals: { actions_for_diff: @actions_for_diff, bs_request: @bs_request, action: @action, issues: @issues,
-                  active_action: @active_action, actions_count: @supported_actions.count }
+                  active_action: @active_action, actions_count: @supported_actions.count, active: @active }
     .container.p-4
       :ruby
         project = @staging_project || @action[:sprj]

@@ -19,6 +19,7 @@ class Webui::RequestController < Webui::WebuiController
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
       # TODO: Remove this `render` line once request_show_redesign is rolled out
+      @active = 'conversation'
       render :conversation
     else
       @diff_limit = params[:full_diff] ? 0 : nil
@@ -283,18 +284,23 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def conversation
+    @active = 'conversation'
   end
 
   def build_results
+    @active = 'build_results'
   end
 
   def rpm_lint
+    @active = 'rpm_lint'
   end
 
   def changes
+    @active = 'changes'
   end
 
   def mentioned_issues
+    @active = 'mentioned_issues'
   end
 
   private

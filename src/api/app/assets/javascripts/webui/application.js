@@ -60,7 +60,6 @@
 //= require webui/request_show_redesign/bs_request_actions.js
 //= require webui/request_show_redesign/rpm_lint_results.js
 //= require webui/delete_confirmation_dialog.js
-//= require webui/nav_tabs.js
 //= require webui/write_and_preview.js
 //= require webui/badge.js
 //= require webui/add_file.js
