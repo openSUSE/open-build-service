@@ -304,6 +304,7 @@ sub setup {
     return ('broken', "no config ($lastprojid)");
   }
   $ctx->{'conf'} = $bconf;
+  return ('broken', "project config: $bconf->{'parse_error'}") if $bconf->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
   if ($bconf->{'hostarch'} && !$BSCando::knownarch{$bconf->{'hostarch'}}) {
     return ('broken', "bad hostarch ($bconf->{'hostarch'})");
   }
@@ -400,6 +401,7 @@ sub setup {
       my $lastprojid = (split('/', $prpsearchpath_host->[-1]))[0];
       return ('broken', "no config ($lastprojid)");
     }
+    return ('broken', "cross project config: $bconf_host->{'parse_error'}") if $bconf_host->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
     if ($bconf_host->{'hostarch'} && $bconf_host->{'hostarch'} ne $bconf->{'hostarch'}) {
       return ('broken', "$bconf->{'hostarch'} is not native");
     }
