@@ -16,7 +16,8 @@ class Webui::RequestController < Webui::WebuiController
                                            :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_data, only: [:show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :prepare_request_data, only: [:show, :conversation, :build_results, :rpm_lint,
+                                              :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
 
   after_action :verify_authorized, only: [:create]
 
@@ -495,7 +496,7 @@ class Webui::RequestController < Webui::WebuiController
     }
   end
 
-  def prepare_data
+  def prepare_request_data
     @is_author = @bs_request.creator == User.possibly_nobody.login
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     reviews = @bs_request.reviews.where(state: 'new')
