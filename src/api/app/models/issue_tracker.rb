@@ -17,7 +17,7 @@ class IssueTracker < ApplicationRecord
   after_save :update_package_meta
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
-  DEFAULT_RENDER_PARAMS = { except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true }.freeze
+  DEFAULT_RENDER_PARAMS = { except: [:id, :password, :user, :issues_updated, :api_key], dasherize: true, skip_types: true, skip_instruct: true }.freeze
 
   before_validation(on: :create) do
     self.issues_updated ||= Time.now
@@ -258,7 +258,8 @@ class IssueTracker < ApplicationRecord
     server.timeout = 300 # 5 minutes timeout
     server.user = user if user
     server.password = password if password
-    server.proxy('Bug')
+    args = api_key ? { 'Bugzilla_login' => user, 'Bugzilla_api_key' => api_key } : {}
+    server.proxy('Bug', args)
   end
 
   # helper method that does a GET request to given <url> and follows
