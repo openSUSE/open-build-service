@@ -65,7 +65,7 @@ aliases:
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api
+      cd src/api
       # TODO: Keep build options in sync with obs-bundled-gems.spec
       bundle config build.ffi --enable-system-libffi
       bundle config build.nokogiri --use-system-libraries
@@ -87,17 +87,18 @@ aliases:
 
   - &create_test_db
     name: Create database
-    command: cd src/api; bundle exec rake db:setup RAILS_ENV=test
+    working_directory: src/api
+    command: bundle exec rake db:setup RAILS_ENV=test
 
   - &bootstrap_old_test_suite
     name: Setup application
-    command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+    working_directory: src/api
+    command: bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
 
   - &compress_log_artifacts
     name: Compress Log Artifacts
-    command: |
-      cd src/api/log
-      for i in *.log; do xz -T 0 -v $i; done
+    working_directory: src/api/log
+    command: for i in *.log; do xz -T 0 -v $i; done
 
   - &compress_capybara_artifacts
     name: Compress Capybara Artifacts
@@ -152,9 +153,8 @@ jobs:
       - run: *install_circle_cli
       - run:
           name: Setup application
-          command: |
-            cd src/api
-            bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+          working_directory: src/api
+          command: bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
       - persist_to_workspace:
           root: .
           paths:
@@ -168,9 +168,8 @@ jobs:
          at: .
       - run:
           name: Run rubocop
-          command: |
-            cd src/api;
-            bundle exec rake dev:lint:rubocop:all
+          working_directory: src/api
+          command: bundle exec rake dev:lint:rubocop:all
       - *save_rubocop_cache
       - when:
           condition: << pipeline.parameters.run-javascripts-linter >>
@@ -180,30 +179,28 @@ jobs:
                 command: sudo npm install -g jshint
             - run:
                 name: Run jshint
-                command: cd src/api && jshint app/assets/javascripts
+                working_directory: src/api
+                command: jshint app/assets/javascripts
       - when:
           condition: << pipeline.parameters.run-dist-linter >>
           steps:
             - run:
                 name: Run dist linters
-                command: |
-                  make -C dist scripts_linters
+                command: make -C dist scripts_linters
       - when:
           condition: << pipeline.parameters.run-haml-linter >>
           steps:
             - run:
                 name: Run HAML linter
-                command: |
-                  cd src/api
-                  bundle exec rake dev:lint:haml
+                working_directory: src/api
+                command: bundle exec rake dev:lint:haml
       - when:
           condition: << pipeline.parameters.run-apidocs-linter >>
           steps:
             - run:
                 name: Run Documentation linter
-                command: |
-                  cd src/api
-                  bundle exec rake dev:lint:apidocs
+                working_directory: src/api
+                command: bundle exec rake dev:lint:apidocs
       - run:
           name: Run database consistency linter
           working_directory: src/api
@@ -223,8 +220,8 @@ jobs:
       - run: mkdir /home/frontend/rspec
       - run:
           name: Run rspec
+          working_directory: src/api
           command: |
-            cd src/api
             pickfile=log/pick.$CIRCLE_NODE_INDEX.list
             # single out beta and db specs
             circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/\(features\|db\)' > spec.list
@@ -269,8 +266,8 @@ jobs:
           environment:
             DO_COVERAGE: 1
             TESTOPTS: "--ci-dir=/home/frontend/minitest"
+          working_directory: src/api
           command: |
-            cd src/api
             case $CIRCLE_NODE_INDEX in
               0)
                 bundle exec rake test:api:group1
@@ -302,8 +299,8 @@ jobs:
       - run: *init_git_submodule
       - run:
           name: Run migrations
+          working_directory: src/api
           command: |
-            cd src/api
             bundle exec rake db:drop
             bundle exec rake db:create
             bundle exec rake db:migrate
@@ -334,8 +331,8 @@ jobs:
       - run: *bootstrap_old_test_suite
       - run:
           name: Run spider
+          working_directory: src/api
           command: |
-            cd src/api
             case $CIRCLE_NODE_INDEX in
               0)
                 bundle exec rails test test/functional/webui/spider_test.rb -n test_spider_anonymously
@@ -372,14 +369,14 @@ jobs:
          at: .
       - run:
           name: Merge and check coverage
+          working_directory: src/api
           command: |
-            cd src/api
             export COVERALLS_REPO_TOKEN=HWLJwfiFsKPGEOzfgllO3pP3rqV540Qt3
             bundle exec rake ci:simplecov_ci_merge
       - run:
           name: Compress coverage results
+          working_directory: src/api
           command: |
-            cd src/api
             tar cvJf coverage_results.tar.xz coverage/codecov-result.json coverage_results/*
       - store_artifacts:
           path: src/api/coverage_results.tar.xz
@@ -396,8 +393,8 @@ jobs:
       - run: mkdir /home/frontend/feature
       - run:
           name: Run rspec feature tests
+          working_directory: src/api
           command: |
-            cd src/api
             if test "$CIRCLE_NODE_INDEX" = 0; then
               message="Running feature tests for desktop"
             else
@@ -438,7 +435,8 @@ jobs:
       - run: *create_test_db
       - run:
           name: Run specs
-          command: cd src/api && bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
+          working_directory: src/api
+          command: bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
       - store_test_results:
           path: /home/frontend/rspec
       - run: *compress_log_artifacts
@@ -467,7 +465,8 @@ jobs:
           name: Run minitest test suite
           environment:
             TESTOPTS: "--ci-dir=/home/frontend/minitest"
-          command: cd src/api && bundle exec rake test:api:group1 test:api:group2
+          working_directory: src/api
+          command: bundle exec rake test:api:group1 test:api:group2
       - store_test_results:
           path: /home/frontend/minitest
       - run: *compress_log_artifacts
