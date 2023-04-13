@@ -108,6 +108,7 @@ sub setup {
   die("no repo $repoid in project $projid?\n") unless $repo;
   $ctx->{'repo'} = $repo;
   my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'prpsearchpath'});
+  die("project config: $bconf->{'parse_error'}\n") if $bconf->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
   $ctx->{'conf'} = $bconf;
   my $crosshostarch;
   if ($repo->{'hostsystem'}) {
@@ -116,6 +117,7 @@ sub setup {
   die("crosshostarch mismatch\n") if ($repo->{'crosshostarch'} || '') ne ($crosshostarch || '');
   if ($crosshostarch && $crosshostarch ne $myarch) {
     my $bconf_host = $ctx->getconfig($projid, $repoid, $crosshostarch, $ctx->{'prpsearchpath_host'});
+    die("cross project config: $bconf_host->{'parse_error'}\n") if $bconf_host->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
     $ctx->{'conf_host'} = $bconf_host;
   }
   my $pdatas = $projpacks->{$projid}->{'package'};

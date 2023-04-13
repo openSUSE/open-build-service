@@ -1746,6 +1746,10 @@ sub getprojpack {
 	      $rinfo->{'error'} = $conf->{'error'};
 	      next;
 	    }
+	    if ($conf->{'parse_error'} && !$BSConfig::ignore_project_config_errors && $cgi->{'buildinfo'}) {
+	      $rinfo->{'error'} = $conf->{'parse_error'};
+	      next;
+	    }
 	    if ($repo->{'hostsystem'}) {
 	      $repo->{'crosshostarch'} = $conf->{'hostarch'} || $arch;
 	      my $path = $expandedrepos{"$projid/$repoid/hostsystem"};
@@ -1780,6 +1784,10 @@ sub getprojpack {
 		$conf = $bconfs{"$repoid/$arch"};
 		if ($conf->{'error'}) {
 		  $rinfo->{'error'} = $conf->{'error'};
+		  next;
+		}
+		if ($conf->{'parse_error'} && !$BSConfig::ignore_project_config_errors && $cgi->{'buildinfo'}) {
+		  $rinfo->{'error'} = $conf->{'parse_error'};
 		  next;
 		}
 		if ($conf->{'hostarch'} && $conf->{'hostarch'} ne $arch) {
