@@ -1,4 +1,4 @@
-name: Diffend.io gem binary diff links
+name: Create Diffend.io Links and Comment Text
 on:
   pull_request:
     paths:
@@ -7,19 +7,14 @@ permissions:
   contents: read
 
 jobs:
-  create_comment_with_diffend_io_links:
+  create_diffend_io_links_and_comment_text:
     runs-on: ubuntu-latest
-    permissions:
-      # In order to allow the creation of the comment on the pull request
-      pull-requests: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Create Diffend.io Links and Comment
-        id: create_diffend_io_links_and_comment
+      - name: Create Diffend.io Links and Comment Text
         run: |
           # Receive added and removed file names from the git diff, filter out everything besides the gem files and receive
           # the basename without the gem file extension
@@ -41,11 +36,10 @@ jobs:
             COMMENT_TEXT+="- [${GEM_NAME} ${REMOVED_GEM_VERSION} -> ${ADDED_GEM_VERSION}](${DIFFEND_LINK})"$'\n'
           done
 
-          echo "comment_text<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMENT_TEXT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      - name: Add Comment to PR
-        uses: thollander/actions-comment-pull-request@v2
+          mkdir ./artifacts
+          echo "$COMMENT_TEXT" > ./artifacts/comment_text.txt
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
         with:
-          message: |
-            ${{steps.create_diffend_io_links_and_comment.outputs.comment_text}}
+          name: comment_text
+          path: artifacts/comment_text.txt
