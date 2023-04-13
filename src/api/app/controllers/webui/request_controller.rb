@@ -4,11 +4,16 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
-  before_action :set_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :require_request,
+                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :set_actions, only: [:inline_comment, :show, :conversation,
+                                     :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation,
+                                               :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action_id, only: [:inline_comment, :show, :conversation, :build_results,
+                                       :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_active_action, only: [:inline_comment, :show, :conversation, :build_results,
+                                           :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_data, only: [:show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -522,10 +527,10 @@ class Webui::RequestController < Webui::WebuiController
 
     # retrieve a list of all project maintainers
     @project_maintainers = if Project.deleted?(@bs_request.target_project_name)
-                              []
-                            else
-                              target_project.maintainers
-                            end
+                             []
+                           else
+                             target_project.maintainers
+                           end
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
@@ -541,9 +546,9 @@ class Webui::RequestController < Webui::WebuiController
       BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
     end
 
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
   end
 end
