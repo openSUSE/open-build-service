@@ -23,6 +23,8 @@
   \-
   %i The OBS team
 
+- badge_state = BsRequestStateBadgeComponent.new(bs_request: @bs_request, css_class: 'ms-2')
+
 .card
   .card-body.p-0
     .card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
@@ -30,7 +32,7 @@
         Request #{@bs_request.number}
         -# state badge
         %small
-          = render BsRequestStateBadgeComponent.new(bs_request: @bs_request, css_class: 'ms-2')
+          = render badge_state
       -# watch button
       - if User.session
         .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
@@ -47,7 +49,7 @@
         -# superseded
         - if @bs_request.superseded_by.present?
           %li
-            %mark.text-nowrap.text-light{ class: "bg-#{BsRequestStateBadgeComponent.decode_state_color(@bs_request.state)}" } Superseded
+            %mark.text-nowrap.text-light{ class: "bg-#{badge_state.decode_state_color(@bs_request.state)}" } Superseded
             by
             = link_to "##{@bs_request.superseded_by}", number: @bs_request.superseded_by
         -# superseding statement
