@@ -10,3 +10,21 @@ details[open].repository-path {
   .less{ display: inline; }
   .more{ display: none; }
 }
+
+#repositories {
+  .card {
+    width: 100%;
+
+    .card-title {
+      @extend .text-break;
+    }
+
+    @include media-breakpoint-up(lg) {
+      width: 48%;
+    }
+
+    @include media-breakpoint-up(xxl) {
+      width: 32%;
+    }
+  }
+}
