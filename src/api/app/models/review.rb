@@ -302,6 +302,11 @@ class Review < ApplicationRecord
     for_project? && !project&.staging_workflow_id.nil?
   end
 
+  def check_reviewer!
+    selected_errors = errors.select { |error| error.attribute.in?([:user, :group, :project, :package]) }
+    raise ::NotFoundError, selected_errors.map { |error| "#{error.attribute.capitalize} not found" }.to_sentence if selected_errors.any?
+  end
+
   private
 
   def matches_maintainers?(user)
