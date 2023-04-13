@@ -179,8 +179,6 @@ Kiwi::Image:
     LengthConstraintChecker:
       enabled: false
   package:
-    MissingIndexChecker:
-      enabled: false
     ForeignKeyCascadeChecker:
       enabled: false
   description:

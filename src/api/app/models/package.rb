@@ -99,6 +99,7 @@ class Package < ApplicationRecord
     end
   }
   validate :valid_name
+  validates :kiwi_image, uniqueness: { case_sensitive: true }, allow_nil: true
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package # rubocop:disable Rails/RedundantForeignKey
   has_one :token, class_name: 'Token::Service', dependent: :destroy
@@ -1438,9 +1439,9 @@ end
 #
 # Indexes
 #
-#  devel_package_id_index           (develpackage_id)
-#  index_packages_on_kiwi_image_id  (kiwi_image_id)
-#  packages_all_index               (project_id,name) UNIQUE
+#  devel_package_id_index        (develpackage_id)
+#  index_packages_kiwi_image_id  (kiwi_image_id) UNIQUE
+#  packages_all_index            (project_id,name) UNIQUE
 #
 # Foreign Keys
 #

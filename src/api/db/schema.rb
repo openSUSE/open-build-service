@@ -734,7 +734,7 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.integer "kiwi_image_id"
     t.string "scmsync"
     t.index ["develpackage_id"], name: "devel_package_id_index"
-    t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
+    t.index ["kiwi_image_id"], name: "index_packages_kiwi_image_id", unique: true
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
   end
 
