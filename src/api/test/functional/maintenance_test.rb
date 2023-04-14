@@ -2410,7 +2410,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { package: 'pack2', code: 'succeeded' }
 
-    travel(1.second)
+    sleep(1) # to ensure that the timestamp becomes newer
     post '/source/CopyOfBaseDistro3?cmd=copy&oproject=BaseDistro3&withhistory=1&withbinaries=1&nodelay=1'
     assert_response :success
     get '/source/CopyOfBaseDistro3/_meta'
