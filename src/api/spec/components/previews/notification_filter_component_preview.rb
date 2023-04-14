@@ -1,7 +1,7 @@
 class NotificationFilterComponentPreview < ViewComponent::Preview
   # Preview at http://HOST:PORT/rails/view_components/notification_filter_component/preview
   def preview
-    User.admins.first.run_as do
+    User.new.run_as do
       view_component = NotificationFilterComponent.new(selected_filter: { type: 'comments' },
                                                        projects_for_filter: { OBS: 1 },
                                                        groups_for_filter: { heroes: 1 })
