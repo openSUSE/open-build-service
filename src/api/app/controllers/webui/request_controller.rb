@@ -1,78 +1,30 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment, :conversation]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment]
-  before_action :set_actions, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:inline_comment, :show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation]
+  before_action :set_actions, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action_id, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_active_action, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :conversation]
   before_action :check_ajax, only: :sourcediff
+  before_action :prepare_request_data, only: [:show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
 
   after_action :verify_authorized, only: [:create]
 
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
-      @is_author = @bs_request.creator == User.possibly_nobody.login
-      @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-      reviews = @bs_request.reviews.where(state: 'new')
-      @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
-      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
-      @diff_limit = params[:full_diff] ? 0 : nil
-      @diff_to_superseded_id = params[:diff_to_superseded]
-
-      # Handling request actions
-      @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
-                                          diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
-      active_action_index = @supported_actions.index(@active_action)
-      if active_action_index
-        @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
-        @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
+      # Note: This condition should be removed once all the tabs are converted to separate pages
+      if params['anchor-tag']
+        render :beta_show
+      else
+        @active = 'conversation'
+        render :conversation
       end
-
-      target_project = Project.find_by_name(@bs_request.target_project_name)
-      @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
-      @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
-      @refresh = @action[:diff_not_cached]
-
-      # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-      @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
-
-      # retrieve a list of all package maintainers that are assigned to at least one target package
-      @package_maintainers = target_package_maintainers
-
-      # retrieve a list of all project maintainers
-      @project_maintainers = if Project.deleted?(@bs_request.target_project_name)
-                               []
-                             else
-                               target_project.maintainers
-                             end
-
-      # search for a project, where the user is not a package maintainer but a project maintainer and show
-      # a hint if that package has some package maintainers (issue#1970)
-      @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
-
-      # Handling build results
-      @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
-
-      if @refresh
-        bs_request_action = BsRequestAction.find(@action[:id])
-        job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-        BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
-      end
-
-      if User.session && params[:notification_id]
-        @current_notification = Notification.find(params[:notification_id])
-        authorize @current_notification, :update?, policy_class: NotificationPolicy
-      end
-
-      # TODO: Remove this `render` line once request_show_redesign is rolled out
-      render :beta_show
     else
       @diff_limit = params[:full_diff] ? 0 : nil
       @diff_to_superseded_id = params[:diff_to_superseded]
@@ -335,6 +287,10 @@ class Webui::RequestController < Webui::WebuiController
     end
   end
 
+  def conversation
+    @active = 'conversation'
+  end
+
   private
 
   def addreview_opts
@@ -520,5 +476,62 @@ class Webui::RequestController < Webui::WebuiController
       staging_project: staging_project,
       target_project_staging_url: staging_workflow_path(request.target_project_name)
     }
+  end
+
+  def prepare_request_data
+    @is_author = @bs_request.creator == User.possibly_nobody.login
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+    reviews = @bs_request.reviews.where(state: 'new')
+    @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
+    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
+    @diff_limit = params[:full_diff] ? 0 : nil
+    @diff_to_superseded_id = params[:diff_to_superseded]
+
+    # Handling request actions
+    @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
+                                        diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
+    active_action_index = @supported_actions.index(@active_action)
+    if active_action_index
+      @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
+      @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
+    end
+
+    target_project = Project.find_by_name(@bs_request.target_project_name)
+    @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
+    @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
+    @refresh = @action[:diff_not_cached]
+
+    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
+    @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+
+    # retrieve a list of all package maintainers that are assigned to at least one target package
+    @package_maintainers = target_package_maintainers
+
+    # retrieve a list of all project maintainers
+    @project_maintainers = if Project.deleted?(@bs_request.target_project_name)
+                             []
+                           else
+                             target_project.maintainers
+                           end
+
+    # search for a project, where the user is not a package maintainer but a project maintainer and show
+    # a hint if that package has some package maintainers (issue#1970)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+
+    # Handling build results
+    @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
+    @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
+
+    if @refresh
+      bs_request_action = BsRequestAction.find(@action[:id])
+      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
+      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    end
+
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
   end
 end

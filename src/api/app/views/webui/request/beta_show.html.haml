@@ -89,8 +89,7 @@
     .border-bottom
       %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }
         %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('Conversation', '#conversation', id: 'conversation-tab', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
-                    'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+          = link_to('Conversation', request_conversation_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
         - if @action[:sprj] || @action[:spkg]
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Build Results', '#build-results', id: 'build-results-tab', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
