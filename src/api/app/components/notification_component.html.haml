@@ -23,4 +23,4 @@
           = render NotificationActionDescriptionComponent.new(@notification)
       .row.d-none.d-md-block.ps-4
         .col
-          = render NotificationExcerptComponent.new(@notification)
+          = render NotificationExcerptComponent.new(@notification.notifiable)
