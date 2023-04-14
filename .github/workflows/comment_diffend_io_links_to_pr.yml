@@ -17,8 +17,11 @@ jobs:
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           workflow_conclusion: success
+      - name: Fetch PR number from artifacts
+        run: |
+          echo "pr_number=$(cat comment_text_and_pr_number/pr_number.txt)" >> $GITHUB_ENV
       - name: Add Comment to PR
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: comment_text/comment_text.txt
-          pr_number: ${{ github.event.workflow_run.pull_requests[0].number }}
+          filePath: comment_text_and_pr_number/comment_text.txt
+          pr_number: ${{ env.pr_number }}
