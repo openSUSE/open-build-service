@@ -1,10 +1,5 @@
 # for generating test coverage
 require 'simplecov'
-# Avoid codecov failures outside of CI
-if ENV['CIRCLECI']
-  # support test coverage
-  require 'support/coverage'
-end
 # to clean old unused cassettes
 require 'cassette_rewinder' if ENV['CLEAN_UNUSED_CASSETTES']
 
