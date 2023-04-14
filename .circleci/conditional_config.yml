@@ -167,11 +167,6 @@ jobs:
     steps:
       - attach_workspace:
          at: .
-      - run:
-          name: Run rubocop
-          working_directory: src/api
-          command: bundle exec rake dev:lint:rubocop:all
-      - *save_rubocop_cache
       - when:
           condition: << pipeline.parameters.run-javascripts-linter >>
           steps:
@@ -208,6 +203,11 @@ jobs:
           command: |
             bundle exec rake db:setup
             bundle exec database_consistency -c .database_consistency.todo.yml
+      - run:
+          name: Run rubocop
+          working_directory: src/api
+          command: bundle exec rake dev:lint:rubocop:all
+      - *save_rubocop_cache
 
   rspec:
     parallelism: 3
