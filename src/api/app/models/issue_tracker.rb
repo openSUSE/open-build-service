@@ -130,11 +130,11 @@ class IssueTracker < ApplicationRecord
   end
 
   def fetch_bugzilla_issues(ids)
-    # limit to 256 ids to avoid too much load and timeouts on bugzilla side
-    limit_per_slice = 256
+    # limit to 64 ids to avoid too much load and timeouts on bugzilla side
+    limit_per_slice = 64
     while ids.present?
       begin
-        result = bugzilla_server.get(ids: ids[0..limit_per_slice], permissive: 1)
+        result = bugzilla_server.get(bugzilla_args.merge(ids: ids[0..limit_per_slice], permissive: 1))
       rescue XMLRPC::FaultException => e
         logger.error "Error: #{e.faultCode} #{e.faultString}"
         return false
@@ -253,13 +253,18 @@ class IssueTracker < ApplicationRecord
     end
   end
 
+  def bugzilla_args
+    return {} if api_key.blank?
+
+    { 'Bugzilla_login' => user, 'Bugzilla_api_key' => api_key }
+  end
+
   def bugzilla_server
     server = XMLRPC::Client.new2("#{url}/xmlrpc.cgi")
     server.timeout = 300 # 5 minutes timeout
     server.user = user if user
     server.password = password if password
-    args = api_key ? { 'Bugzilla_login' => user, 'Bugzilla_api_key' => api_key } : {}
-    server.proxy('Bug', args)
+    server.proxy('Bug')
   end
 
   # helper method that does a GET request to given <url> and follows
@@ -286,7 +291,7 @@ class IssueTracker < ApplicationRecord
     return unless enable_fetch
 
     begin
-      result = bugzilla_server.search(last_change_time: self.issues_updated)
+      result = bugzilla_server.search(bugzilla_args.merge(last_change_time: self.issues_updated))
     rescue Net::ReadTimeout, Errno::ECONNRESET
       if (self.issues_updated + 2.days).past?
         # failures since two days?
