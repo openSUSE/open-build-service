@@ -342,7 +342,6 @@ Style/StringConcatenation:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/integration/last_events_test.rb'
     - 'test/test_consistency_helper.rb'
-    - 'test/test_helper.rb'
     - 'test/unit/attrib_test.rb'
     - 'test/unit/attribute_test.rb'
     - 'test/unit/binary_release.rb'
