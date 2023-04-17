@@ -181,14 +181,14 @@ class ApplicationController < ActionController::Base
     @errorcode = 'ok'
     @summary = 'Ok'
     @data = opt[:data] if opt[:data]
-    render template: 'status', status: 200
+    render template: 'status', status: :ok
   end
 
   def render_invoked(opt = {})
     @errorcode = 'invoked'
     @summary = 'Job invoked'
     @data = opt[:data] if opt[:data]
-    render template: 'status', status: 200
+    render template: 'status', status: :ok
   end
 
   # Passes control to subroutines determined by action and a request parameter. By

@@ -274,7 +274,7 @@ class PersonController < ApplicationController
       logger.debug 'No user logged in, permission to changing password denied'
       @errorcode = 401
       @summary = 'No user logged in, permission to changing password denied'
-      render template: 'error', status: 401
+      render template: 'error', status: :unauthorized
       return
     end
 

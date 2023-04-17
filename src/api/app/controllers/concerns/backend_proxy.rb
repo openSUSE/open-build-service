@@ -81,7 +81,7 @@ module BackendProxy
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "#{CONFIG['source_protocol'] || 'http'}://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
+      head(:ok)
       @skip_validation = true
       return true
     end
@@ -92,7 +92,7 @@ module BackendProxy
       headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
       headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
+      head(:ok)
       @skip_validation = true
       return true
     end
@@ -102,7 +102,7 @@ module BackendProxy
       logger.debug "[backend] VOLLEY(nginx): #{path}"
       headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
+      head(:ok)
       @skip_validation = true
       return true
     end
