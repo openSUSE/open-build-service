@@ -1,5 +1,5 @@
 # Testing the things that should and shouldn't happen when you remove a Package
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require_relative '../test_helper'
 
 class PackageRemoveTest < ActiveSupport::TestCase
   fixtures :all
