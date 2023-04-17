@@ -1,5 +1,5 @@
 # Testing the things that should and shouldn't happen when you remove a Project
-require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require_relative '../test_helper'
 require 'securerandom'
 
 class ProjectRemoveTest < ActiveSupport::TestCase
