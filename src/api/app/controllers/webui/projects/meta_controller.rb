@@ -30,7 +30,7 @@ module Webui
         meta_validator.call
         if meta_validator.errors?
           flash.now[:error] = meta_validator.errors
-          render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+          render layout: false, status: :bad_request, partial: 'layouts/webui/flash', object: flash
         else
           @request_data = meta_validator.request_data
         end

@@ -684,7 +684,7 @@ class Webui::PackageController < Webui::WebuiController
     @meta_xml = Xmlhash.parse(params[:meta])
   rescue Suse::ValidationError => e
     flash.now[:error] = "Error while saving the Meta file: #{e}."
-    render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+    render layout: false, status: :bad_request, partial: 'layouts/webui/flash', object: flash
   end
 
   def package_files(rev = nil, expand = nil)
