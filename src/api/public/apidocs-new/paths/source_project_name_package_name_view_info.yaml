@@ -1,0 +1,153 @@
+get:
+  summary: Show source version, md5sums and build description files of a package.
+  description:  Show source version, md5sums and build description files of a package, among other information.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - cpio
+          - getmultibuild
+          - info
+          - issues
+          - products
+          - productrepositories
+      description: |
+        Specify which information about a package should be returned.
+
+        * `info`: Show source version, md5sums and build description files, among other information.
+        * `cpio`, `getmultibuild`, `issues`, `products`, `productrepositories`:
+          See this [other endpoint](<#/Sources - Files/get_source__project_name___package_name_>) for details.
+      example: info
+    - in: query
+      name: arch
+      schema:
+        type: string
+      description: Filter by architecture name.
+      example: x86_64
+    - in: query
+      name: nofilename
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to prevent from showing filename elements. Shows only the `sourceinfo` root element.
+      example: 1
+    - in: query
+      name: repository
+      schema:
+        type: string
+      description: Filter by repository name.
+      example: openSUSE_Tumbleweed
+    - in: query
+      name: parse
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to show more details, like `originproject`, `linked package`, `name`, `version`, `release`, `subpacks`, `deps`, and `prereqs` elements.
+      example: 1
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/sourceinfo.yaml'
+          examples:
+            Without Any Other Parameters:
+              value:
+                package: texlive-specs-w
+                rev: 9f5336fcf6e4521b6a9587b02087eef9
+                vrev: 55
+                srcmd5: 9f5336fcf6e4521b6a9587b02087eef9
+                verifymd5: 9b49b7314f5d0dfd8002cd329e048f73
+                filename: texlive-specs-w.spec
+                originproject: openSUSE:Factory:Rings:1-MinimalX
+                linked:
+                  - project: openSUSE:Factory:Rings:0-Bootstrap
+                    package: textlive-specs-w
+                  - project: openSUSE:Factory:Rings:1-MinimalX
+                    package: textlive-specs-w
+            With Parameter nofilename=1:
+              value:
+                package: texlive-specs-w
+                rev: 9f5336fcf6e4521b6a9587b02087eef9
+                vrev: 55
+                srcmd5: 9f5336fcf6e4521b6a9587b02087eef9
+                verifymd5: 9b49b7314f5d0dfd8002cd329e048f73
+                originproject: openSUSE:Factory:Rings:1-MinimalX
+                linked:
+                  - project: openSUSE:Factory:Rings:0-Bootstrap
+                    package: textlive-specs-w
+                  - project: openSUSE:Factory:Rings:1-MinimalX
+                    package: textlive-specs-w
+            With Parameter parse=1:
+              value:
+                package: texlive-specs-w
+                rev: 9f5336fcf6e4521b6a9587b02087eef9
+                vrev: 55
+                srcmd5: 9f5336fcf6e4521b6a9587b02087eef9
+                verifymd5: 9b49b7314f5d0dfd8002cd329e048f73
+                filename: texlive-specs-w.spec
+                originproject: openSUSE:Factory:Rings:1-MinimalX
+                linked:
+                  - project: openSUSE:Factory:Rings:0-Bootstrap
+                    package: textlive-specs-w
+                  - project: openSUSE:Factory:Rings:1-MinimalX
+                    package: textlive-specs-w
+                name: textlive-specs-w
+                version: 2023
+                release: 0
+                subpacks:
+                  - texlive-specs-w
+                  - texlive-tablists
+                deps:
+                  - texlive-kpathsea
+                  - texlive-tie-bin
+                prereqs:
+                  - texlive-filesystem
+                  - coreutils
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `parse`, for example.
+              value:
+                code: 400
+                summary: not boolean
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: home:some_project"
+            Unknown Package:
+              value:
+                code: unknown_package
+                summary: "Package not found: home:some_project/some_package"
+  tags:
+    - Sources - Packages

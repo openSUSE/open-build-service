@@ -95,7 +95,7 @@ get:
         * `cpio`: Stream all package files as cpio.
         * `getmultibuild`: List multibuild packages.
         * `info`: Show source version, md5sums and build description files, among other information.
-           See this [other endpoint](#/TODO) for details.
+           See this [other endpoint](<#/Sources - Packages/get_source__project_name___package_name__view_info>) for details.
         * `issues`: Show all tracked issues for this package.
         * `products`: Show all products of a package (works only on `_product` or `000product` packages).
         * `productrepositories`: Show all repositories used in product definitions (or a given product).
