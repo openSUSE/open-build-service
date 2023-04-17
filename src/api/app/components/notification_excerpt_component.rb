@@ -2,18 +2,18 @@ class NotificationExcerptComponent < ApplicationComponent
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
 
-  def initialize(notification)
+  def initialize(notifiable)
     super
 
-    @notification = notification
+    @notifiable = notifiable
   end
 
   def call
-    text = case @notification.notifiable_type
+    text = case @notifiable.class.name
            when 'BsRequest'
-             @notification.notifiable.description.to_s # description can be nil
+             @notifiable.description.to_s # description can be nil
            when 'Comment'
-             helpers.render_without_markdown(@notification.notifiable.body)
+             helpers.render_without_markdown(@notifiable.body)
            else
              ''
            end
