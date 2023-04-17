@@ -5,7 +5,7 @@
     %h3= @pagetitle
     .text-center.mb-2= page_entries_info(@tokens)
     - if @tokens.count.positive?
-      .d-flex.flex-wrap.gap-4#tokens
+      .d-flex.flex-wrap.gap-4.align-self-stretch#tokens
         = render TokenCardComponent.with_collection(@tokens)
     .pt-4
       = link_to new_token_path do

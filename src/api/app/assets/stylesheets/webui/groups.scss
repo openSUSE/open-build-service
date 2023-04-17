@@ -1,14 +1,21 @@
 #group-users {
-  .group-user {
-    width: 19.7rem;
+  .card {
+    width: 100%;
+
+    .card-title {
+      @extend .text-break;
+    }
+
+    @include media-breakpoint-up(lg) {
+      width: 48%;
+    }
 
     @include media-breakpoint-up(xl) {
-      width: 21.7rem;
+      width: 32%;
     }
 
     @include media-breakpoint-up(xxl) {
-      width: 22.4rem;
+      width: 23%;
     }
   }
 }
-

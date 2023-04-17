@@ -5,10 +5,12 @@
     - if delete_button?
       .ms-4
         = delete_button
-  .card-body{ class: @extra_classes_for_body }
+  .card-body
     = content
+
+  .card-footer.bg-transparent.border-0
     - if actions?
-      %ul.nav.justify-content-end.mt-auto
+      .nav.justify-content-end
         - actions.each do |action|
-          %li.nav-item
+          .nav-item
             = action

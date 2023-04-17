@@ -3,7 +3,7 @@
   .card-body
     %h3.pb-2= pagetitle
 
-    .d-flex.flex-wrap.gap-4
+    .d-flex.flex-wrap.gap-4.align-self-stretch#repositories
       - repositories.each do |repository|
         = render partial: 'repository_entry', locals: { repository: repository, project: project, download_url: configuration['download_url'],
                     user_can_modify: user_can_modify, available_architectures: available_architectures }

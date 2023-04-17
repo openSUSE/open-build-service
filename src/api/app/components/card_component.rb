@@ -5,10 +5,4 @@ class CardComponent < ApplicationComponent
   renders_one :header
   renders_one :delete_button
   renders_many :actions
-
-  def initialize(extra_classes_for_body: [])
-    super
-
-    @extra_classes_for_body = extra_classes_for_body
-  end
 end

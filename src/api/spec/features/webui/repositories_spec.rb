@@ -29,9 +29,9 @@ RSpec.describe 'Repositories', js: true do
       fill_in('Public Key', with: 'JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF')
       click_button('Accept')
 
-      expect(page).to have_css('.repository-card')
+      expect(page).to have_css('#repositories > .card')
 
-      within '.repository-card' do
+      within '#repositories > .card' do
         expect(page).to have_link('My DoD repository')
         expect(page).to have_link('Add Download on Demand Source')
         expect(page).to have_link('Delete Repository')
@@ -47,7 +47,7 @@ RSpec.describe 'Repositories', js: true do
 
     it 'delete DoD repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
-      within '.repository-card' do
+      within '#repositories > .card' do
         click_link(title: 'Delete Repository')
       end
 
@@ -64,7 +64,7 @@ RSpec.describe 'Repositories', js: true do
 
     it 'edit download repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
-      within '.repository-card' do
+      within '#repositories > .card' do
         find("[data-bs-target='#edit-dod-source-modal-#{download_repository_source}']").click
       end
 
@@ -92,7 +92,7 @@ RSpec.describe 'Repositories', js: true do
 
     it 'delete download repository sources' do
       visit(project_repositories_path(project: project_with_dod_repo))
-      within '.repository-card' do
+      within '#repositories > .card' do
         find("[data-bs-target='#delete-dod-source-modal-#{download_repository_source}']").click
       end
 
@@ -105,7 +105,7 @@ RSpec.describe 'Repositories', js: true do
       expect(page).to have_text 'Successfully removed Download on Demand'
       expect(repository.download_repositories.count).to eq(1)
 
-      within '.repository-card' do
+      within '#repositories > .card' do
         find("[data-bs-target='#delete-dod-source-modal-#{download_repository_source_2}']").click
       end
 
@@ -130,7 +130,7 @@ RSpec.describe 'Repositories', js: true do
       expect(page).to have_css('#flash', text: 'Config successfully saved!')
 
       visit(project_repositories_path(project: admin_user.home_project_name))
-      within '.repository-card' do
+      within '#repositories > .card' do
         expect(page).to have_link('standard')
         expect(page).to have_link('Add Download on Demand Source')
         expect(page).to have_link('Delete Repository')
@@ -173,9 +173,9 @@ RSpec.describe 'Repositories', js: true do
 
       visit(project_repositories_path(project: admin_user.home_project))
 
-      expect(page).to have_css('.repository-card')
+      expect(page).to have_css('#repositories > .card')
 
-      within '.repository-card' do
+      within '#repositories > .card' do
         expect(page).to have_link('openSUSE_Tumbleweed')
       end
 
@@ -184,7 +184,7 @@ RSpec.describe 'Repositories', js: true do
 
       visit(project_repositories_path(project: admin_user.home_project))
 
-      expect(page).not_to have_css('.repository-card')
+      expect(page).not_to have_css('#repositories > .card')
     end
 
     it 'add repository from project' do
@@ -199,9 +199,9 @@ RSpec.describe 'Repositories', js: true do
 
       click_button('Accept')
 
-      expect(page).to have_css('.repository-card')
+      expect(page).to have_css('#repositories > .card')
 
-      within '.repository-card' do
+      within '#repositories > .card' do
         expect(page).to have_link("#{repository.project}_#{repository}")
         expect(page).to have_link('Edit Repository')
         expect(page).to have_link('Add Repository Path')
