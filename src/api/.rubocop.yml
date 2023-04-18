@@ -325,7 +325,6 @@ Style/StringConcatenation:
     - 'test/functional/issue_controller_test.rb'
     - 'test/functional/issue_trackers_controller_test.rb'
     - 'test/functional/kgraft_maintenance_test.rb'
-    - 'test/functional/maintenance_test.rb'
     - 'test/functional/person_controller_test.rb'
     - 'test/functional/product_test.rb'
     - 'test/functional/public_controller_test.rb'
@@ -341,7 +340,6 @@ Style/StringConcatenation:
     - 'test/functional/trigger_controller_test.rb'
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/integration/last_events_test.rb'
-    - 'test/test_consistency_helper.rb'
 
 ##################### Metrics ##################################
 
