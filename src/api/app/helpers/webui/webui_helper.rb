@@ -233,6 +233,7 @@ module Webui::WebuiHelper
     link_to(label, paths.first, class: html_class)
   end
 
+  # TODO: remove once all the calls to image_tag_for are replaced by AvatarComponent
   def image_tag_for(object, size: 500, custom_class: 'img-fluid')
     return unless object
 
@@ -240,6 +241,7 @@ module Webui::WebuiHelper
     image_tag(gravatar_icon(object.email, size), alt: alt, size: size, title: object.name, class: custom_class)
   end
 
+  # TODO: remove once all the calls to image_tag_for are replaced by AvatarComponent
   def gravatar_icon(email, size)
     if ::Configuration.gravatar && email
       "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?s=#{size}&d=robohash"
