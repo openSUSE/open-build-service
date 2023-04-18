@@ -1,4 +1,5 @@
-$(document).ready(function(){
+function attachPreviewMessageOnCommentBoxes() {
+  $('.write-and-preview').off('show.bs.tab', '.preview-message-tab:not(.active)');
   $('.write-and-preview').on('show.bs.tab', '.preview-message-tab:not(.active)', function (e) {
       var messageContainer = $(e.target).closest('.write-and-preview');
       var messageText = messageContainer.find('.message-field').val();
@@ -24,4 +25,8 @@ $(document).ready(function(){
         messagePreview.html('Nothing to preview');
       }
   });
+}
+
+$(document).ready(function(){
+  attachPreviewMessageOnCommentBoxes();
 });
