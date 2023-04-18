@@ -87,8 +87,17 @@ Kiwi::Repository:
   alias:
     LengthConstraintChecker:
       enabled: false
+  imageinclude:
+    ThreeStateBooleanChecker:
+      enabled: false
   password:
     LengthConstraintChecker:
+      enabled: false
+  prefer_license:
+    ThreeStateBooleanChecker:
+      enabled: false
+  replaceable:
+    ThreeStateBooleanChecker:
       enabled: false
   username:
     LengthConstraintChecker:
@@ -166,6 +175,12 @@ Kiwi::Package:
   replaces:
     LengthConstraintChecker:
       enabled: false
+  bootinclude:
+    ThreeStateBooleanChecker:
+      enabled: false
+  bootdelete:
+    ThreeStateBooleanChecker:
+      enabled: false
 Kiwi::Image:
   id:
     PrimaryKeyTypeChecker:
@@ -177,6 +192,9 @@ Kiwi::Image:
       enabled: false
   md5_last_revision:
     LengthConstraintChecker:
+      enabled: false
+  use_project_repositories:
+    ThreeStateBooleanChecker:
       enabled: false
   package:
     MissingIndexChecker:
@@ -211,6 +229,9 @@ Event::Base:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::StatusCheckForRequest:
   eventtype:
     NullConstraintChecker:
@@ -219,6 +240,9 @@ Event::StatusCheckForRequest:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::StatusCheckForPublished:
   eventtype:
@@ -229,6 +253,9 @@ Event::StatusCheckForPublished:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::StatusCheckForBuild:
   eventtype:
     NullConstraintChecker:
@@ -237,6 +264,9 @@ Event::StatusCheckForBuild:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::RelationshipDelete:
   eventtype:
@@ -247,6 +277,9 @@ Event::RelationshipDelete:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::RelationshipCreate:
   eventtype:
     NullConstraintChecker:
@@ -255,6 +288,9 @@ Event::RelationshipCreate:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::ReviewWanted:
   eventtype:
@@ -265,6 +301,9 @@ Event::ReviewWanted:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::ReviewChanged:
   eventtype:
     NullConstraintChecker:
@@ -273,6 +312,9 @@ Event::ReviewChanged:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::RequestStatechange:
   eventtype:
@@ -283,6 +325,9 @@ Event::RequestStatechange:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::RequestDelete:
   eventtype:
     NullConstraintChecker:
@@ -291,6 +336,9 @@ Event::RequestDelete:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::RequestCreate:
   eventtype:
@@ -301,6 +349,9 @@ Event::RequestCreate:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::RequestChange:
   eventtype:
     NullConstraintChecker:
@@ -309,6 +360,9 @@ Event::RequestChange:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::CommentForRequest:
   eventtype:
@@ -319,6 +373,9 @@ Event::CommentForRequest:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::BuildUnchanged:
   eventtype:
     NullConstraintChecker:
@@ -327,6 +384,9 @@ Event::BuildUnchanged:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 Event::BuildSuccess:
   eventtype:
@@ -337,6 +397,9 @@ Event::BuildSuccess:
   payload:
     LengthConstraintChecker:
       enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
 Event::BuildFail:
   eventtype:
     NullConstraintChecker:
@@ -345,6 +408,9 @@ Event::BuildFail:
       enabled: false
   payload:
     LengthConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
       enabled: false
 WorkflowRun:
   id:
@@ -430,6 +496,15 @@ User:
       enabled: false
   adminnote:
     LengthConstraintChecker:
+      enabled: false
+  ignore_auth_services:
+    ThreeStateBooleanChecker:
+      enabled: false
+  in_beta:
+    ThreeStateBooleanChecker:
+      enabled: false
+  in_rollout:
+    ThreeStateBooleanChecker:
       enabled: false
   rss_token:
     MissingIndexChecker:
@@ -537,6 +612,9 @@ RolesUser:
 Role:
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  global:
+    ThreeStateBooleanChecker:
       enabled: false
   title:
     MissingUniqueIndexChecker:
@@ -752,6 +830,9 @@ Notification:
       enabled: false
     LengthConstraintChecker:
       enabled: false
+  delivered:
+    ThreeStateBooleanChecker:
+      enabled: false
   subscriber_type:
     LengthConstraintChecker:
       enabled: false
@@ -766,6 +847,12 @@ Notification:
       enabled: false
   title:
     LengthConstraintChecker:
+      enabled: false
+  rss:
+    ThreeStateBooleanChecker:
+      enabled: false
+  web:
+    ThreeStateBooleanChecker:
       enabled: false
 MaintenanceIncident:
   id:
@@ -841,6 +928,15 @@ IssueTracker:
   issues_updated:
     NullConstraintChecker:
       enabled: false
+  enable_fetch:
+    ThreeStateBooleanChecker:
+      enabled: false
+  publish_issues:
+    ThreeStateBooleanChecker:
+      enabled: false
+  api_key:
+    LengthConstraintChecker:
+      enabled: false
 Issue:
   id:
     PrimaryKeyTypeChecker:
@@ -872,6 +968,12 @@ IncidentUpdateinfoCounterValue:
 GroupsUser:
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  email:
+    ThreeStateBooleanChecker:
+      enabled: false
+  web:
+    ThreeStateBooleanChecker:
       enabled: false
   groups_users_all_index:
     UniqueIndexChecker:
@@ -910,6 +1012,9 @@ EventSubscription:
       enabled: false
   receiver_role:
     LengthConstraintChecker:
+      enabled: false
+  enabled:
+    ThreeStateBooleanChecker:
       enabled: false
   payload:
     LengthConstraintChecker:
@@ -991,6 +1096,9 @@ Distribution:
   link:
     LengthConstraintChecker:
       enabled: false
+  remote:
+    ThreeStateBooleanChecker:
+      enabled: false
 DisabledBetaFeature:
   id:
     PrimaryKeyTypeChecker:
@@ -1048,6 +1156,12 @@ ChannelTarget:
   id_template:
     LengthConstraintChecker:
       enabled: false
+  disabled:
+    ThreeStateBooleanChecker:
+      enabled: false
+  requires_issue:
+    ThreeStateBooleanChecker:
+      enabled: false
   index_channel_targets_on_channel_id_and_repository_id:
     UniqueIndexChecker:
       enabled: false
@@ -1079,6 +1193,9 @@ ChannelBinary:
 Channel:
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  disabled:
+    ThreeStateBooleanChecker:
       enabled: false
   index_unique:
     UniqueIndexChecker:
@@ -1142,6 +1259,9 @@ BsRequestAction:
   sourceupdate:
     LengthConstraintChecker:
       enabled: false
+  updatelink:
+    ThreeStateBooleanChecker:
+      enabled: false
   person_name:
     LengthConstraintChecker:
       enabled: false
@@ -1153,6 +1273,9 @@ BsRequestAction:
       enabled: false
   target_repository:
     LengthConstraintChecker:
+      enabled: false
+  makeoriginolder:
+    ThreeStateBooleanChecker:
       enabled: false
   bs_request_action_accept_info:
     MissingIndexChecker:
@@ -1299,6 +1422,9 @@ AttribType:
   type:
     LengthConstraintChecker:
       enabled: false
+  issue_list:
+    ThreeStateBooleanChecker:
+      enabled: false
   default_values:
     ForeignKeyCascadeChecker:
       enabled: false
@@ -1362,6 +1488,9 @@ Architecture:
       enabled: false
   name:
     LengthConstraintChecker:
+      enabled: false
+  available:
+    ThreeStateBooleanChecker:
       enabled: false
   lower(name):
     MissingUniqueIndexChecker:
@@ -1435,6 +1564,33 @@ Configuration:
       enabled: false
     ColumnPresenceChecker:
       enabled: false
+  anonymous:
+    ThreeStateBooleanChecker:
+      enabled: false
+  default_access_disabled:
+    ThreeStateBooleanChecker:
+      enabled: false
+  allow_user_to_create_home_project:
+    ThreeStateBooleanChecker:
+      enabled: false
+  disallow_group_creation:
+    ThreeStateBooleanChecker:
+      enabled: false
+  change_password:
+    ThreeStateBooleanChecker:
+      enabled: false
+  hide_private_options:
+    ThreeStateBooleanChecker:
+      enabled: false
+  gravatar:
+    ThreeStateBooleanChecker:
+      enabled: false
+  enforce_project_keys:
+    ThreeStateBooleanChecker:
+      enabled: false
+  download_on_demand:
+    ThreeStateBooleanChecker:
+      enabled: false
   download_url:
     LengthConstraintChecker:
       enabled: false
@@ -1458,6 +1614,12 @@ Configuration:
       enabled: false
   admin_email:
     LengthConstraintChecker:
+      enabled: false
+  cleanup_empty_projects:
+    ThreeStateBooleanChecker:
+      enabled: false
+  disable_publish_for_branches:
+    ThreeStateBooleanChecker:
       enabled: false
   default_tracker:
     LengthConstraintChecker:
