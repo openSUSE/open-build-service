@@ -183,6 +183,9 @@ GEM
       jquery-rails
     font-awesome-sass (6.4.0)
       sassc (~> 2.0)
+    fuubar (2.5.1)
+      rspec-core (~> 3.0)
+      ruby-progressbar (~> 1.4)
     gitlab (4.19.0)
       httparty (~> 0.20)
       terminal-table (>= 1.5.1)
@@ -540,6 +543,7 @@ DEPENDENCIES
   flipper-ui
   flot-rails
   font-awesome-sass
+  fuubar
   gitlab
   gssapi
   haml

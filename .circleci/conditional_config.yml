@@ -227,7 +227,7 @@ jobs:
             # single out beta and db specs
             circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/\(features\|db\)' > spec.list
             circleci tests split --total $CIRCLE_NODE_TOTAL --split-by=timings < spec.list > $pickfile
-            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
+            bundle exec rspec --format documentation --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
             # run DB tests at the end of node 0
             # see https://github.com/openSUSE/open-build-service/issues/4959
             if test "$CIRCLE_NODE_INDEX" = 0; then
@@ -235,7 +235,7 @@ jobs:
               # simulating parallel tests - otherwise one rspec call overwrites the previous
               export TEST_ENV_NUMBER=2
               export PARALLEL_TEST_GROUPS="RSpec"
-              bundle exec rspec --format progress --format RspecJunitFormatter \
+              bundle exec rspec --format documentation --format RspecJunitFormatter \
                 -o /home/frontend/rspec/rspec.db.xml $(circleci tests glob 'spec/db/**/*_spec.rb')
             fi
             mkdir coverage_results
@@ -417,7 +417,7 @@ jobs:
               export CAPYBARA_DRIVER='mobile'
             fi
             echo $message
-            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/
+            bundle exec rspec --format documentation --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/
             mkdir coverage_results
             cp -R coverage/.resultset.json coverage_results/resultset-feature-${CIRCLE_NODE_INDEX}.json
       - persist_to_workspace:
@@ -451,7 +451,7 @@ jobs:
       - run:
           name: Run specs
           working_directory: src/api
-          command: bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
+          command: bundle exec rspec --format documentation --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
       - store_test_results:
           path: /home/frontend/rspec
       - run: *compress_log_artifacts
