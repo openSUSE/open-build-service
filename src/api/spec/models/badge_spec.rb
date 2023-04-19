@@ -94,6 +94,7 @@ RSpec.describe Badge do
         end
       end
     end
+
     context 'without type specified' do
       let(:expected_success) { 'succeeded' }
       let(:expected_failure) { 'failed' }

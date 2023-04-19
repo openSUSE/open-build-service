@@ -61,7 +61,7 @@ RSpec.describe GroupController do
 
     shared_examples 'successful group deletion' do
       it 'responds with 200 OK' do
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
 
       it 'deletes the record' do

@@ -113,6 +113,7 @@ RSpec.describe Webui::PackageHelper do
         end
       end
     end
+
     context 'is xml' do
       it { expect(guess_code_class('_aggregate')).to eq('xml') }
       it { expect(guess_code_class('_link')).to eq('xml') }
