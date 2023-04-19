@@ -513,6 +513,28 @@ workflows:
     jobs:
       - backend_test
 
+  meow:
+    jobs:
+      - checkout_code
+      - run:
+          name: Upload coverage to codecov
+          command: |
+            curl -LOs https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -v -F "latest"
+      - run:
+          name: Upload coverage to codecov
+          command: |
+            curl -LOs https://uploader.codecov.io/v0.4.0/linux/codecov
+            chmod +x codecov
+            ./codecov -v -F "0.4.0"
+      - run:
+          name: Upload coverage to codecov
+          command: |
+            curl -LOs https://uploader.codecov.io/v0.3.5/linux/codecov
+            chmod +x codecov
+            ./codecov -v -F "0.3.5"
+
   next_rails:
     when:
       matches:
@@ -532,6 +554,9 @@ workflows:
     jobs:
       - pipeline_settings
       - checkout_code
+      - meow:
+          requires:
+            - checkout_code
       - linters:
           requires:
             - checkout_code
