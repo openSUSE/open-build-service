@@ -558,10 +558,10 @@ RSpec.describe User do
 
     describe '#autocomplete_login' do
       it { expect(User.autocomplete_login('foo')).to match_array(['foobar']) }
-      it { expect(User.autocomplete_login('bar')).to match_array([]) }
+      it { expect(User.autocomplete_login('bar')).to be_empty }
       it { expect(User.autocomplete_login(nil)).to match_array(['foobar', 'fobaz']) }
-      it { expect(User.autocomplete_login(deleted_user.login)).to match_array([]) }
-      it { expect(User.autocomplete_login(locked_user.login)).to match_array([]) }
+      it { expect(User.autocomplete_login(deleted_user.login)).to be_empty }
+      it { expect(User.autocomplete_login(locked_user.login)).to be_empty }
     end
 
     describe '#autocomplete_token' do

@@ -141,7 +141,7 @@ RSpec.describe FullTextSearch do
       context 'existent issue and non-existent text' do
         let(:search_params) { { issue_tracker_name: issue_tracker.name, issue_name: issue.name, text: 'Fake text' } }
 
-        it { expect(subject).to match_array([]) }
+        it { expect(subject).to be_empty }
       end
 
       context 'existent issue and existent text' do
