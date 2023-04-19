@@ -1,8 +1,5 @@
 require 'rails_helper'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the BsRequestAction methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
+
 RSpec.describe BsRequest, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
@@ -122,10 +119,10 @@ RSpec.describe BsRequest, vcr: true do
     it { expect(request.state).to eq(:review) }
     it { expect(request.commenter).to eq(reviewer.login) }
 
-    it 'fails with reasonable error' do
+    it 'fails with not found' do
       expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
-        expect(exception).to be_a(BsRequest::InvalidReview)
-        expect(exception.message.to_s).to eq("Review invalid: User can't be blank")
+        expect(exception).to be_a(NotFoundError)
+        expect(exception.message).to eq('User not found')
       end
     end
   end

@@ -736,6 +736,8 @@ class BsRequest < ApplicationRecord
     )
     return newreview if newreview.valid?
 
+    newreview.check_reviewer!
+
     raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
   end
 
