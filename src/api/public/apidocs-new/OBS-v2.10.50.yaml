@@ -393,6 +393,10 @@ paths:
   /worker?cmd=checkconstraints:
     $ref: 'paths/worker_cmd_checkconstraints.yaml'
 
+  # Status messages
+  /status/messages:
+    $ref: 'paths/status_messages.yaml'
+
 components:
   securitySchemes:
     basic_authentication:
