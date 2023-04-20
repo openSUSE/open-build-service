@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 202302224114624) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_13_080503) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -554,6 +554,7 @@ ActiveRecord::Schema[7.0].define(version: 202302224114624) do
     t.datetime "issues_updated", precision: nil, null: false
     t.boolean "enable_fetch", default: false
     t.boolean "publish_issues", default: true
+    t.string "api_key"
   end
 
   create_table "issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
