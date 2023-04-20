@@ -349,6 +349,7 @@ end
 # Table name: issue_trackers
 #
 #  id             :integer          not null, primary key
+#  api_key        :string(255)
 #  description    :string(255)
 #  enable_fetch   :boolean          default(FALSE)
 #  issues_updated :datetime         not null
