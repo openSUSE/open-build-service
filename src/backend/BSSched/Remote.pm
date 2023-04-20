@@ -63,6 +63,7 @@ use Digest::MD5 ();
 use BSUtil;
 use BSSolv;
 use BSRPC;
+use BSHTTP;
 use BSSched::RPC;
 use BSConfiguration;
 use BSXML;
@@ -313,6 +314,7 @@ sub remotemap2remoteprojs {
       $gctx->{'remoteprojs_changed'}->{$projid} = 1 if $oproj;
       next;
     }
+    BSSched::ProjPacks::trigger_auto_deep_checks($gctx, $projid, $oproj, $proj) if $oproj && defined($oproj->{'config'}) && defined($proj->{'config'}) && $oproj->{'config'} ne $proj->{'config'};
     undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
     my $c = $proj->{'config'};
     $c = $oproj->{'config'} if !defined($c) && $oproj;
