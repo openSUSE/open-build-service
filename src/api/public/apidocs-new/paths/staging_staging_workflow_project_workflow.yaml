@@ -1,3 +1,54 @@
+post:
+  summary: Create a staging workflow for the specified project
+  description: |
+    Create a staging workflow associated to the project and the manager group specified in the body of the request
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: "Title of the staging workflow's managers group"
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/managers_group.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Staging Workflow Exists:
+              description: The project is already associated to a staging workflow
+              value:
+                code: staging_workflow_exists
+                summary: "Project project_name already has an associated Staging Workflow with id: ID"
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+            Invalid Request:
+              value:
+                code: invalid_request
+                summary: "Staging for project_name couldn't be created:"
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Staging Workflow
+
 delete:
   summary: Delete the staging workflow of the specified project
   description: |
