@@ -138,6 +138,8 @@ paths:
     $ref: 'paths/comment_comment_id.yaml'
   /comments/request/{id}:
     $ref: 'paths/comments_request_id.yaml'
+  /comments/project/{project_name}:
+    $ref: 'paths/comments_project_project_name.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
