@@ -140,6 +140,8 @@ paths:
     $ref: 'paths/comments_request_id.yaml'
   /comments/project/{project_name}:
     $ref: 'paths/comments_project_project_name.yaml'
+  /comments/package/{project_name}/{package_name}:
+    $ref: 'paths/comments_package_project_name_package_name.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
