@@ -373,22 +373,16 @@ sub create_container_dist_info {
   };
   my @layer_data;
   die("container has no layers\n") unless @{$manifest->{'Layers'} || []};
+  my @layer_comp = @{$containerinfo->{'layer_compression'} || []};
   for my $layer_file (@{$manifest->{'Layers'}}) {
     my $layer_ent = $tar{$layer_file};
     die("file $layer_file not included in tar\n") unless $layer_ent;
-    # detect layer compression
-    my $comp = BSContar::detect_entry_compression($layer_ent);
-    die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
-    if (!$comp) {
-      print "compressing $layer_ent->{'name'}... ";
-      $layer_ent = BSContar::compress_entry($layer_ent);
-      print "done.\n";
-    }
-    my $layer_data = {
-      'mediaType' => $layer_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_layer_gzip : $BSContar::mt_docker_layer_gzip),
-      'size' => $layer_ent->{'size'},
-      'digest' => $layer_ent->{'blobid'} || BSContar::blobid_entry($layer_ent),
-    };
+    my $lcomp = shift @layer_comp;
+    my $comp;
+    $comp = 'gzip' if $lcomp && $lcomp eq 'gzip';
+    $comp = 'zstd' if $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:/);
+    my $layer_data;
+    ($layer_ent, $layer_data) = BSContar::create_layer_data($layer_ent, $oci, $comp, undef, $lcomp);
     push @layer_data, $layer_data;
   }
   my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
@@ -572,7 +566,10 @@ sub upload_to_registry {
   my $multiarch = @$containerinfos > 1 || $multicontainer ? 1 : 0;
   $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
   my $oci;
-  $oci = 1 if grep {($_->{'type'} || '') eq 'helm'} @$containerinfos;
+  for my $containerinfo (@$containerinfos) {
+    $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm';
+    $oci = 1 if grep {$_ && $_ ne 'gzip'} @{$containerinfo->{'layer_compression'} || []};
+  }
 
   my $cosign = $registry->{'cosign'};
   $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';

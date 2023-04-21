@@ -633,8 +633,11 @@ sub push_containers {
     my @multimanifests;
     my @imginfos;
     my $oci;
-    # use oci types if we have a helm chart
-    $oci = 1 if grep {($_->{'type'} || '') eq 'helm'} @$containerinfos;
+    # use oci types if we have a helm chart or we use a nonstandard compression
+    for my $containerinfo (@$containerinfos) {
+      $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm';
+      $oci = 1 if grep {$_ && $_ ne 'gzip'} @{$containerinfo->{'layer_compression'} || []};
+    }
     for my $containerinfo (@$containerinfos) {
       # check if we already processed this container with a different tag
       if ($done{$containerinfo}) {
@@ -701,7 +704,9 @@ sub push_containers {
       # put layer blobs into repo
       my %layer_datas;
       my @layer_data;
+      my @layer_comp = @{($containerinfo || {})->{'layer_compression'} || []};
       for my $layer_file (@layers) {
+	my $lcomp = shift @layer_comp;
 	if ($layer_datas{$layer_file}) {
 	  # already did that file, just reuse old layer data
 	  push @layer_data, $layer_datas{$layer_file};
@@ -709,15 +714,16 @@ sub push_containers {
 	}
 	my $layer_ent = $tar{$layer_file};
 	die("File $layer_file not included in tar\n") unless $layer_ent;
-	my $blobid = push_blob($repodir, $containerinfo, $layer_ent);
-        $knownblobs{$blobid} = 1;
-	my $layer_data = {
-	  'mediaType' => $layer_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_layer_gzip : $BSContar::mt_docker_layer_gzip),
-	  'size' => $layer_ent->{'size'},
-	  'digest' => $blobid,
-	};
+	my $comp = 'gzip';
+	$comp = 'zstd' if $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:/);
+	my $layer_data;
+	($layer_ent, $layer_data) = BSContar::create_layer_data($layer_ent, $oci, $comp, $comp, $lcomp);
 	push @layer_data, $layer_data;
 	$layer_datas{$layer_file} = $layer_data;
+
+        $layer_ent->{'blobid'} = $layer_data->{'digest'};
+        $knownblobs{$layer_ent->{'blobid'}} = 1;
+        push_blob($repodir, $containerinfo, $layer_ent);
       }
       close $tarfd if $tarfd;
 

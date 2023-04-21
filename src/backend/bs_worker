@@ -3363,7 +3363,11 @@ sub normalize_container {
   my ($container, $recompress, $tmpdir) = @_;
   local *TAR;
   open(TAR, '<', $container) || die("$container: $!\n");
-  my ($tar, $mtime) = BSContar::normalize_container(\*TAR, $recompress, undef, $tmpdir);
+  my ($tar, $mtime, undef, undef, $layercomp) = BSContar::normalize_container(\*TAR, $recompress, undef, $tmpdir);
+  if (grep {$_ && $_ ne 'gzip'} @{$layercomp || []}) {
+    close(TAR);
+    die("non-gzip layer compression, not normalizing container\n");
+  }
   BSTar::writetarfile("$container.new", undef, $tar, 'mtime' => $mtime);
   close(TAR);
   if (-f "$container.sha256") {
