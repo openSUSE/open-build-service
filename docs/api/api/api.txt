@@ -2,7 +2,7 @@
 
 Version: 2.9
 
-  The most recent API documentation is reachable at https://api.opensuse.org/apidocs-new/index.html
+  The most recent API documentation is reachable at [https://api.opensuse.org/apidocs-new/](https://api.opensuse.org/apidocs-new/index.html)
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header.

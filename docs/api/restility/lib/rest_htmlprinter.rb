@@ -83,7 +83,13 @@ class HtmlPrinter < Printer
   def print_text text
     @html.p do |p|
       text.text.each do |t|
-        p.span(t)
+        if %r{(.*)\[([^\[\]]+)\]\((https?:\/\/[^()]+)\)(.*)} =~ t
+          # line contains a link
+          p.span { |span| span.text!($1); span.a($2, href: $3); span.text!($4) }
+        else
+          p.span(t)
+        end
+
         p.br
       end
     end
