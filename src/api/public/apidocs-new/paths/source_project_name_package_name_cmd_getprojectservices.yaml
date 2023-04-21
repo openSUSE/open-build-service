@@ -1,7 +1,7 @@
 post:
   summary:  List all services related to a package.
   description: |
-    List all services defined in the project spaces for this package.
+    List all services defined in the project for this package.
 
     Despite using the method `POST`, this endpoint doesn't alter any data.
   security:
