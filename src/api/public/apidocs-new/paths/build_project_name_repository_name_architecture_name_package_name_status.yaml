@@ -33,3 +33,12 @@ get:
 
   tags:
     - Build
+
+post:
+  deprecated: true
+  summary: Return the building status for a specific artifact
+  description: |
+    This endpoint is exactly the same as
+    `GET /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status`, please use that one.
+  tags:
+    - Build
