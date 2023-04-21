@@ -1,0 +1,38 @@
+delete:
+  summary: Delete the staging workflow of the specified project
+  description: |
+    Delete the staging workflow associated to the given project (a.k.a staging workflow project).
+    The staging projects associated to that workflow are not removed unless the parameter `with_staging_projects` is given.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: with_staging_projects
+      in: query
+      schema:
+        type: integer
+      description: |
+        Set to `1` if you want to delete all the staging projects associated to the staging workflow when it is deleted.
+        Staging projects' names usually look like: project_name:Staging:A, project_name:Staging:B etc.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an asociated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow

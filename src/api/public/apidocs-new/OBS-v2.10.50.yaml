@@ -46,6 +46,7 @@ tags:
   - name: Sources - Projects
   - name: Sources - Packages
   - name: Sources - Files
+  - name: Staging Workflow
   - name: Trigger
   - name: Workers
 
@@ -384,6 +385,10 @@ paths:
     $ref: 'paths/source_project_name_package_name_binary_filename_attribute_name.yaml'
   /source/{project_name}/{package_name}/{binary_filename}/_attribute:
     $ref: 'paths/source_project_name_package_name_binary_filename_attribute.yaml'
+
+  # Staging Workflow
+  /staging/{staging_workflow_project}/workflow:
+    $ref: 'paths/staging_staging_workflow_project_workflow.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
