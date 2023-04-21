@@ -1,0 +1,96 @@
+get:
+  summary: List all the request's comments
+  description: List all the comments for the request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/comments.yaml'
+          example: |
+            <comments request="115">
+              <comment who="Iggy" when="2021-10-15 13:28:22 UTC" id="1">This is a pretty cool comment!</comment>
+            </comments>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+              value:
+                code: not_found
+                summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+  tags:
+    - Comments
+
+post:
+  summary: Create a request comment
+  description: Create a comment for the request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+    - in: query
+      name: parent_id
+      schema:
+        type: integer
+      description: Id of the comment to reply to
+      example: 10401
+  requestBody:
+    description: Content of the comment
+    required: true
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: This is a very valuable comment
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Invalid Comment.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_record:
+              summary: Parent belongs to different object
+              value:
+                code: invalid_record
+                summary: Parent belongs to different object
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+              value:
+                code: not_found
+                summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+  tags:
+    - Comments
