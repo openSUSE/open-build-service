@@ -63,6 +63,8 @@ info:
 
     For command-line users, we recommend using [osc](https://github.com/openSUSE/osc) with its _api_ command to interact with the API.
     It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
+
+    The legacy API documentation is reachable [here](https://api.opensuse.org/apidocs/index).
   version: '2.10.50'
   title: Open Build Service API
   contact:
