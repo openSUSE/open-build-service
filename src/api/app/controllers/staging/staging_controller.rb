@@ -19,7 +19,7 @@ module Staging
       render_error(
         status: 404,
         errorcode: 'not_found',
-        message: "Project #{@project} doesn't have an asociated Staging Workflow"
+        message: "Project #{@project} doesn't have an associated Staging Workflow"
       )
     end
 
