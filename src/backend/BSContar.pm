@@ -431,6 +431,7 @@ sub create_layer_data {
   my ($layer_ent, $oci, $comp, $newcomp, $lcomp) = @_;
   $comp ||= detect_entry_compression($layer_ent);
   $newcomp ||= $oci && $comp eq 'zstd' ? 'zstd' : 'gzip';
+  $newcomp = $comp if $layer_ent->{'mimetype'};		# do not change the compression if the mime type is already set
   if ($comp ne $newcomp) {
     if ($comp) {
       print "recompressing $layer_ent->{'name'}... ";
