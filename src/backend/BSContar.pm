@@ -409,10 +409,13 @@ sub container_from_helm {
   my $chartbasename = $chartfile;
   $chartbasename =~ s/^.*\///;
   my $chart_ent = { 'name' => $chartbasename, 'offset' => 0, 'size' => $s[7], 'mtime' => $mtime, 'file' => $fd };
+  my @layercomp;
   if ($chartbasename =~ /($?:\.tar\.gz|\.tgz)$/) {
     $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar+gzip';
+    push @layercomp, 'gzip';
   } else {
     $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar';
+    push @layercomp, '';
   }
   # create ent for the config
   my $config_ent = { 'name' => 'config.json', 'size' => length($config_json), 'data' => $config_json, 'mtime' => $mtime };
@@ -424,7 +427,8 @@ sub container_from_helm {
     'RepoTags' => $repotags || [],
   };
   my $manifest_ent = create_manifest_entry($manifest, $mtime);
-  return ([ $manifest_ent, $config_ent, $chart_ent ], $mtime);
+  my $tar = [ $manifest_ent, $config_ent, $chart_ent ];
+  return ($tar, $mtime, \@layercomp);
 }
 
 sub create_layer_data {
