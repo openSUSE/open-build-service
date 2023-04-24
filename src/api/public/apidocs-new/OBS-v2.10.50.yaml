@@ -392,6 +392,8 @@ paths:
   # Staging Workflow
   /staging/{project_name}/backlog:
     $ref: 'paths/staging_project_name_backlog.yaml'
+  /staging/{project_name}/excluded_requests:
+    $ref: 'paths/staging_project_name_excluded_requests.yaml'
   /staging/{project_name}/workflow:
     $ref: 'paths/staging_project_name_workflow.yaml'
 
