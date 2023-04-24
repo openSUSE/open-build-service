@@ -491,11 +491,10 @@ sub construct_container_tar {
 sub open_tarfile {
   my ($tarfile) = @_;
 
-  my ($tar, $tarfd, $govariant);
+  my ($tar, $tarfd, $containerinfo);
   if ($tarfile =~ /\.containerinfo$/) {
     my $containerinfo_json = readstr($tarfile);
-    my $containerinfo = JSON::XS::decode_json($containerinfo_json);
-    $govariant = $containerinfo->{'govariant'};
+    $containerinfo = JSON::XS::decode_json($containerinfo_json);
     $tar = construct_container_tar($containerinfo);
   } elsif ($tarfile =~ /\.helminfo$/) {
     my $chart = $tarfile;
@@ -509,7 +508,7 @@ sub open_tarfile {
     $tar = BSTar::list($tarfd);
     $_->{'file'} = $tarfd for @$tar;
   }
-  return ($tar, $tarfd, $govariant);
+  return ($tar, $tarfd, $containerinfo);
 }
 
 sub die_with_usage {
@@ -702,7 +701,7 @@ my @multimanifests;
 my %multiplatforms;
 my @imginfos;
 for my $tarfile (@tarfiles) {
-  my ($tar, $tarfd, $govariant) = open_tarfile($tarfile);
+  my ($tar, $tarfd, $containerinfo) = open_tarfile($tarfile);
   my %tar = map {$_->{'name'} => $_} @$tar;
 
   my $provenance;
@@ -747,6 +746,8 @@ for my $tarfile (@tarfiles) {
 
   my $goarch = $config->{'architecture'} || 'any';
   my $goos = $config->{'os'} || 'any';
+  my $govariant;
+  $govariant = $containerinfo->{'govariant'} if $containerinfo && $containerinfo->{'govariant'};
   $govariant = $config->{'variant'} if $config->{'variant'};
   if ($multiarch) {
     # see if a already have this arch/os combination
@@ -775,7 +776,9 @@ for my $tarfile (@tarfiles) {
   # process layers (compress if necessary)
   my %layer_datas;
   my @layer_data;
+  my @layer_comp = @{($containerinfo || {})->{'layer_compression'} || []};
   for my $layer_file (@layers) {
+    my $lcomp = shift @layer_comp;
     if ($layer_datas{$layer_file}) {
       # already did that file, just reuse old layer data
       push @layer_data, $layer_datas{$layer_file};
@@ -784,28 +787,14 @@ for my $tarfile (@tarfiles) {
     my $layer_ent = $tar{$layer_file};
     die("File $layer_file not included in tar\n") unless $layer_ent;
 
-    # detect layer compression
-    my $comp = BSContar::detect_entry_compression($layer_ent);
-    die("unsupported compression $comp\n") if $comp && $comp ne 'gzip';
-    if (!$comp) {
-      print "compressing $layer_ent->{'name'}... ";
-      $layer_ent = BSContar::compress_entry($layer_ent);
-      print "done.\n";
-    }
-    my $blobid = BSContar::blobid_entry($layer_ent);
-    #print "$layer_file -> $blobid\n";
-
     # create layer data
-    my $layer_data = {
-      'mediaType' => $layer_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_layer_gzip : $BSContar::mt_docker_layer_gzip),
-      'size' => $layer_ent->{'size'},
-      'digest' => $blobid,
-    };
+    my $layer_data;
+    ($layer_ent, $layer_data) = BSContar::create_layer_data($layer_ent, $oci, undef, undef, $lcomp);
     push @layer_data, $layer_data;
     $layer_datas{$layer_file} = $layer_data;
 
     # upload to server
-    blob_upload($blobid, $layer_ent);
+    blob_upload($layer_data->{'digest'}, $layer_ent);
   }
   close $tarfd if $tarfd;
 

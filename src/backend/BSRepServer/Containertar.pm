@@ -49,7 +49,7 @@ sub normalize_container {
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
   # overwrite manifest tags with tags from containerinfo
-  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'}, $uploaddir);
+  my ($tar, $mtime, $config, $config_id, $layercomp) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'}, $uploaddir);
   my ($md5, $sha256, $size) = BSContar::checksum_tar($tar);
  
   # split in blobs/manifest, write blob files
@@ -76,6 +76,8 @@ sub normalize_container {
     $config->{'variant'} = "v8" if $config->{'architecture'} eq 'arm64';
   }
   $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
+  delete $containerinfo->{'layer_compression'};
+  $containerinfo->{'layer_compression'} = $layercomp if $layercomp && @$layercomp;
   BSRepServer::Containerinfo::writecontainerinfo("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo);
 
   if ($deletetar) {

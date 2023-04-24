@@ -2514,13 +2514,13 @@ sub publish {
 	my $ctx = Digest->new("SHA-256");
         $ctx->addfile($fd);
 	my $sha256sum = $ctx->hexdigest();
+	close($fd);
 	if ($sha256sum eq $containerinfo->{'tar_sha256sum'}) {
 	  $bins{$p} = undef;
 	  $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
 	  $binaryorigins->{$p} = $containerinfo->{'_origin'};
 	  next;
 	}
-	close($fd);
         print "      ! $p\n";
       } else {
         print "      + $p\n";
