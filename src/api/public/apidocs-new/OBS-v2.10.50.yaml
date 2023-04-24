@@ -400,6 +400,8 @@ paths:
     $ref: 'paths/staging_project_name_staging_projects.yaml'
   /staging/{project_name}/workflow:
     $ref: 'paths/staging_project_name_workflow.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name.yaml'
 
   # Status messages
   /status/messages:
