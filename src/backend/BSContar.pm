@@ -318,21 +318,20 @@ sub normalize_container {
     }
     my $newcomp = 'gzip';
     if (!$comp || $comp ne $newcomp || $recompress) {
+      my $outfile;
+      if ($tmpdir) {
+	$outfile = "$tmpdir/.compress_entry_${cnt}.$$";
+	$cnt++;
+	unlink($outfile);
+      }
       if ($comp) {
         print "recompressing $layer_ent->{'name'}... ";
       } else {
         print "compressing $layer_ent->{'name'}... ";
       }
-      if ($tmpdir) {
-	my $outfile = "$tmpdir/.compress_entry_${cnt}.$$";
-	unlink($outfile);
-	$layer_ent = compress_entry($layer_ent, $comp, $newcomp, $outfile);
-	unlink($outfile);
-	$cnt++;
-      } else {
-	$layer_ent = compress_entry($layer_ent, $comp, $newcomp);
-      }
+      $layer_ent = compress_entry($layer_ent, $comp, $newcomp, $outfile);
       print "done.\n";
+      unlink($outfile) if $outfile;
     }
     my $blobid = blobid_entry($layer_ent);
     $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid };
@@ -433,8 +432,12 @@ sub create_layer_data {
   $comp ||= detect_entry_compression($layer_ent);
   $newcomp ||= $oci && $comp eq 'zstd' ? 'zstd' : 'gzip';
   if ($comp ne $newcomp) {
-    print "compressing $layer_ent->{'name'}... ";
-    $layer_ent = compress_layer_ent($layer_ent, $comp, $newcomp);
+    if ($comp) {
+      print "recompressing $layer_ent->{'name'}... ";
+    } else {
+      print "compressing $layer_ent->{'name'}... ";
+    }
+    $layer_ent = compress_entry($layer_ent, $comp, $newcomp);
     print "done.\n";
     undef $lcomp;
   }
