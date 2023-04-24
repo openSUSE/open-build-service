@@ -22,6 +22,29 @@
 
 package BSPublisher::Containerinfo;
 
+sub construct_container_tar {
+  my ($containerinfo, $doopen) = @_;
+  my $blobdir = $containerinfo->{'blobdir'};
+  die("need a blobdir to reconstruct containers\n") unless $blobdir;
+  my $manifest = $containerinfo->{'tar_manifest'};
+  my $mtime = $containerinfo->{'tar_mtime'};
+  my $blobids = $containerinfo->{'tar_blobids'};
+  die("containerinfo is incomplete\n") unless $mtime && $manifest && $blobids;
+  my @tar;
+  for my $blobid (@$blobids) {
+    my $file = "$blobdir/_blob.$blobid";
+    if ($doopen) {
+      my $fd;
+      open($fd, '<', $file) || die("$file: $!\n");
+      $file = $fd;
+    }
+    die("missing blobid $blobid\n") unless -e $file;
+    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $_), 'blobid' => $blobid};
+  }
+  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
+  return (\@tar, $mtime, $containerinfo->{'layer_compression'});
+}
+
 sub create_packagelist {
   my ($containerinfo) = @_;
   my @bins;

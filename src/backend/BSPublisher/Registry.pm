@@ -191,25 +191,6 @@ sub push_manifestinfo {
   writestr("$dir/.$mani_id.$$", "$dir/$mani_id", $info_json);
 }
 
-
-sub construct_container_tar {
-  my ($containerinfo) = @_;
-  my $blobdir = $containerinfo->{'blobdir'};
-  die("need a blobdir to reconstruct containers\n") unless $blobdir;
-  my $manifest = $containerinfo->{'tar_manifest'};
-  my $mtime = $containerinfo->{'tar_mtime'};
-  my $blobids = $containerinfo->{'tar_blobids'};
-  die("containerinfo is incomplete\n") unless $mtime && $manifest && $blobids;
-  my @tar;
-  for my $blobid (@$blobids) {
-    my $file;
-    open($file, '<', "$blobdir/_blob.$blobid") || die("$blobdir/_blob.$blobid: $!");
-    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $file), 'blobid' => $blobid};
-  }
-  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  return (\@tar, $mtime, $containerinfo->{'layer_compression'});
-}
-
 sub gen_timestampkey {
   print "local notary: generating timestamp keypair\n";
   my @keyargs = ('rsa@2048', '800');	# expire time does not matter...
@@ -664,7 +645,7 @@ sub push_containers {
 	  ($tar, $mtime, $layer_compression) = BSContar::normalize_container($tarfd, 1);
 	}
       } else {
-	($tar, $mtime, $layer_compression) = construct_container_tar($containerinfo);
+	($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
       }
       my %tar = map {$_->{'name'} => $_} @$tar;
 

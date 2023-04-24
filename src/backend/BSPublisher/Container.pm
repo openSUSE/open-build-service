@@ -300,43 +300,20 @@ sub upload_all_containers {
   return \%container_repositories;
 }
 
-sub construct_container_tar {
-  my ($containerinfo, $doopen) = @_;
-  my $manifest = $containerinfo->{'tar_manifest'};
-  my $mtime = $containerinfo->{'tar_mtime'};
-  my $blobids = $containerinfo->{'tar_blobids'};
-  my $blobdir = $containerinfo->{'blobdir'};
-  return (undef, undef) unless $mtime && $manifest && $blobids && $blobdir;
-  my @tar;
-  for my $blobid (@$blobids) {
-    my $file = "$blobdir/_blob.$blobid";
-    if ($doopen) {
-      my $fd;
-      open($fd, '<', $file) || die("$file: $!\n");
-      $file = $fd;
-    }
-    die("missing blobid $blobid\n") unless -e $file;
-    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s _), 'blobid' => $blobid};
-  }
-  push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  return (\@tar, $mtime);
-}
-
 sub reconstruct_container {
   my ($containerinfo, $dst, $dstfinal) = @_;
-  my ($tar, $mtime) = construct_container_tar($containerinfo);
+  my ($tar, $mtime) = BSPublisher::Containerinfo::construct_container_tar($containerinfo);
   BSTar::writetarfile($dst, $dstfinal, $tar, 'mtime' => $mtime) if $tar;
 }
 
 sub create_container_dist_info {
   my ($containerinfo, $oci, $platforms) = @_;
   my $file = $containerinfo->{'publishfile'};
-  my $tar;
+  my ($tar, $mtime, $layer_compression);
   if (!defined($file)) {
-    die("need a blobdir to reconstruct containers\n") unless $containerinfo->{'blobdir'};
-    ($tar) = construct_container_tar($containerinfo, 1);
+    ($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
-    ($tar) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+    ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
   } elsif ($file =~ /\.tar$/) {
     my $tarfd;
     open($tarfd, '<', $file) || die("$file: $!\n");
@@ -373,7 +350,7 @@ sub create_container_dist_info {
   };
   my @layer_data;
   die("container has no layers\n") unless @{$manifest->{'Layers'} || []};
-  my @layer_comp = @{$containerinfo->{'layer_compression'} || []};
+  my @layer_comp = @{$layer_compression || []};
   for my $layer_file (@{$manifest->{'Layers'}}) {
     my $layer_ent = $tar{$layer_file};
     die("file $layer_file not included in tar\n") unless $layer_ent;
