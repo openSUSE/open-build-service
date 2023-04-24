@@ -1,0 +1,9 @@
+type: object
+properties:
+  managers:
+    type: string
+    example: group-test
+    xml:
+      attribute: true
+xml:
+  name: workflow
