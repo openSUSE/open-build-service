@@ -390,6 +390,10 @@ paths:
   /staging/{staging_workflow_project}/workflow:
     $ref: 'paths/staging_staging_workflow_project_workflow.yaml'
 
+  # Status messages
+  /status/messages:
+    $ref: 'paths/status_messages.yaml'
+
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
 
@@ -399,10 +403,6 @@ paths:
     $ref: 'paths/worker_architecture_name_worker_id.yaml'
   /worker?cmd=checkconstraints:
     $ref: 'paths/worker_cmd_checkconstraints.yaml'
-
-  # Status messages
-  /status/messages:
-    $ref: 'paths/status_messages.yaml'
 
 components:
   securitySchemes:
