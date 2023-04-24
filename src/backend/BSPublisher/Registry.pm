@@ -207,7 +207,7 @@ sub construct_container_tar {
     push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $file), 'blobid' => $blobid};
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  return (\@tar, $mtime);
+  return (\@tar, $mtime, $containerinfo->{'layer_compression'});
 }
 
 sub gen_timestampkey {
@@ -654,17 +654,17 @@ sub push_containers {
 	next;
       }
 
-      my ($tar, $mtime);
+      my ($tar, $mtime, $layer_compression);
       my $tarfd;
       if ($containerinfo->{'uploadfile'}) {
 	open($tarfd, '<', $containerinfo->{'uploadfile'}) || die("$containerinfo->{'uploadfile'}: $!\n");
 	if (($containerinfo->{'type'} || '') eq 'helm') {
-	  ($tar, $mtime) = BSContar::container_from_helm($containerinfo->{'uploadfile'}, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+	  ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($containerinfo->{'uploadfile'}, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
 	} else {
-	  ($tar, $mtime) = BSContar::normalize_container($tarfd, 1);
+	  ($tar, $mtime, $layer_compression) = BSContar::normalize_container($tarfd, 1);
 	}
       } else {
-	($tar, $mtime) = construct_container_tar($containerinfo);
+	($tar, $mtime, $layer_compression) = construct_container_tar($containerinfo);
       }
       my %tar = map {$_->{'name'} => $_} @$tar;
 
@@ -704,7 +704,7 @@ sub push_containers {
       # put layer blobs into repo
       my %layer_datas;
       my @layer_data;
-      my @layer_comp = @{($containerinfo || {})->{'layer_compression'} || []};
+      my @layer_comp = @{$layer_compression || []};
       for my $layer_file (@layers) {
 	my $lcomp = shift @layer_comp;
 	if ($layer_datas{$layer_file}) {

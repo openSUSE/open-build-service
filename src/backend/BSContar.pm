@@ -318,21 +318,20 @@ sub normalize_container {
     }
     my $newcomp = 'gzip';
     if (!$comp || $comp ne $newcomp || $recompress) {
+      my $outfile;
+      if ($tmpdir) {
+	$outfile = "$tmpdir/.compress_entry_${cnt}.$$";
+	$cnt++;
+	unlink($outfile);
+      }
       if ($comp) {
         print "recompressing $layer_ent->{'name'}... ";
       } else {
         print "compressing $layer_ent->{'name'}... ";
       }
-      if ($tmpdir) {
-	my $outfile = "$tmpdir/.compress_entry_${cnt}.$$";
-	unlink($outfile);
-	$layer_ent = compress_entry($layer_ent, $comp, $newcomp, $outfile);
-	unlink($outfile);
-	$cnt++;
-      } else {
-	$layer_ent = compress_entry($layer_ent, $comp, $newcomp);
-      }
+      $layer_ent = compress_entry($layer_ent, $comp, $newcomp, $outfile);
       print "done.\n";
+      unlink($outfile) if $outfile;
     }
     my $blobid = blobid_entry($layer_ent);
     $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid };
@@ -410,10 +409,13 @@ sub container_from_helm {
   my $chartbasename = $chartfile;
   $chartbasename =~ s/^.*\///;
   my $chart_ent = { 'name' => $chartbasename, 'offset' => 0, 'size' => $s[7], 'mtime' => $mtime, 'file' => $fd };
+  my @layercomp;
   if ($chartbasename =~ /($?:\.tar\.gz|\.tgz)$/) {
     $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar+gzip';
+    push @layercomp, 'gzip';
   } else {
     $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar';
+    push @layercomp, '';
   }
   # create ent for the config
   my $config_ent = { 'name' => 'config.json', 'size' => length($config_json), 'data' => $config_json, 'mtime' => $mtime };
@@ -425,16 +427,22 @@ sub container_from_helm {
     'RepoTags' => $repotags || [],
   };
   my $manifest_ent = create_manifest_entry($manifest, $mtime);
-  return ([ $manifest_ent, $config_ent, $chart_ent ], $mtime);
+  my $tar = [ $manifest_ent, $config_ent, $chart_ent ];
+  return ($tar, $mtime, \@layercomp);
 }
 
 sub create_layer_data {
   my ($layer_ent, $oci, $comp, $newcomp, $lcomp) = @_;
   $comp ||= detect_entry_compression($layer_ent);
   $newcomp ||= $oci && $comp eq 'zstd' ? 'zstd' : 'gzip';
+  $newcomp = $comp if $layer_ent->{'mimetype'};		# do not change the compression if the mime type is already set
   if ($comp ne $newcomp) {
-    print "compressing $layer_ent->{'name'}... ";
-    $layer_ent = compress_layer_ent($layer_ent, $comp, $newcomp);
+    if ($comp) {
+      print "recompressing $layer_ent->{'name'}... ";
+    } else {
+      print "compressing $layer_ent->{'name'}... ";
+    }
+    $layer_ent = compress_entry($layer_ent, $comp, $newcomp);
     print "done.\n";
     undef $lcomp;
   }
