@@ -47,6 +47,7 @@ tags:
   - name: Sources - Packages
   - name: Sources - Files
   - name: Staging Workflow
+  - name: Status Messages
   - name: Trigger
   - name: Workers
 
