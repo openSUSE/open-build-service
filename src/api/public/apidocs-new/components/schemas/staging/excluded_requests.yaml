@@ -1,0 +1,19 @@
+type: object
+properties:
+  request:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+          xml:
+            attribute: true
+        description:
+          type: string
+          example: Missing dependencies
+          xml:
+            attribute: true
+xml:
+  name: excluded_requests
