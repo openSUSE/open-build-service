@@ -1,0 +1,34 @@
+get:
+  summary: List the requests in the staging backlog.
+  description: |
+    List the requests that can be assigned to the staging project (backlog).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: List of request in the staging backlog.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/staging/backlog.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow

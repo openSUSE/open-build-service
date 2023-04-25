@@ -388,6 +388,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_binary_filename_attribute.yaml'
 
   # Staging Workflow
+  /staging/{project_name}/backlog:
+    $ref: 'paths/staging_project_name_backlog.yaml'
   /staging/{staging_workflow_project}/workflow:
     $ref: 'paths/staging_staging_workflow_project_workflow.yaml'
 
