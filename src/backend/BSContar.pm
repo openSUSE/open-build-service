@@ -45,6 +45,10 @@ our $mt_oci_layer_gzip      = 'application/vnd.oci.image.layer.v1.tar+gzip';
 our $mt_oci_layer_zstd      = 'application/vnd.oci.image.layer.v1.tar+zstd';
 our $mt_helm_config         = 'application/vnd.cncf.helm.config.v1+json';
 
+sub blobid {
+  return 'sha256:'.Digest::SHA::sha256_hex($_[0]);
+}
+
 sub checksum_entry {
   my ($ent, $ctx) = @_;
   my $offset = 0;
@@ -259,6 +263,7 @@ sub get_config {
   die("File $config_file not included in tar\n") unless $config_ent;
   my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
   my $config = JSON::XS::decode_json($config_json);
+  $config_ent->{'blobid'} = blobid($config_json);		# convenience
   return ($config_ent, $config);
 }
 
@@ -353,7 +358,7 @@ sub normalize_container {
     my $ent = $newblobs{$blobid};
     push @newtar, {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid};
   }
-  $newmanifest_ent->{'blobid'} = BSContar::blobid_entry($newmanifest_ent);
+  $newmanifest_ent->{'blobid'} = blobid_entry($newmanifest_ent);
   push @newtar, $newmanifest_ent;
 
   return (\@newtar, $mtime, $config, $newconfig, \@newlayercomp);
@@ -431,6 +436,16 @@ sub container_from_helm {
   return ($tar, $mtime, \@layercomp);
 }
 
+sub create_config_data {
+  my ($config_ent, $oci) = @_;
+  my $config_data = {
+    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $mt_oci_config : $mt_docker_config),
+    'size' => $config_ent->{'size'},
+    'digest' => $config_ent->{'blobid'} || blobid_entry($config_ent),
+  };
+  return $config_data;
+}
+
 sub create_layer_data {
   my ($layer_ent, $oci, $comp, $newcomp, $lcomp) = @_;
   $comp ||= detect_entry_compression($layer_ent);
@@ -447,9 +462,9 @@ sub create_layer_data {
     undef $lcomp;
   }
   my $layer_data = {
-    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($newcomp eq 'zstd' ? $BSContar::mt_oci_layer_zstd : $BSContar::mt_oci_layer_gzip) : $BSContar::mt_docker_layer_gzip),
+    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($newcomp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip),
     'size' => $layer_ent->{'size'},
-    'digest' => $layer_ent->{'blobid'} || BSContar::blobid_entry($layer_ent),
+    'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
   if ($newcomp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
     my @c = split(',', $lcomp);
@@ -457,6 +472,29 @@ sub create_layer_data {
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
   }
   return ($layer_ent, $layer_data);
+}
+
+sub create_dist_manifest_data {
+  my ($config_data, $layer_data, $oci) = @_;
+  my $mediaType = $oci ? $mt_oci_manifest : $mt_docker_manifest;
+  my $mani = {
+    'schemaVersion' => 2,
+    'mediaType' => $mediaType,
+    'config' => $config_data,
+    'layers' => $layer_data,
+  };
+  return $mani;
+}
+
+sub create_dist_manifest_list_data {
+  my ($multimanifest_data, $oci) = @_;
+  my $mediaType = $oci ? $mt_oci_index : $mt_docker_manifestlist;
+  my $manilist = {
+    'schemaVersion' => 2,
+    'mediaType' => $mediaType,
+    'manifests' => $multimanifest_data,
+  };
+  return $manilist;
 }
 
 1;

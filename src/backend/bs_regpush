@@ -184,7 +184,7 @@ sub manifest_exists {
   my ($manifest, $tag, $content_type) = @_;
 
   $content_type ||= $BSContar::mt_docker_manifest;
-  my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
+  my $maniid = BSContar::blobid($manifest);
   $tag = $maniid unless defined $tag;
   my $replyheaders;
   my $param = {
@@ -199,7 +199,7 @@ sub manifest_exists {
   eval { $maniret = BSRPC::rpc($param) };
   if ($maniret) {
     my $maniretid = $replyheaders->{'docker-content-digest'};
-    $maniretid ||= 'sha256:'.Digest::SHA::sha256_hex($maniret);
+    $maniretid ||= BSContar::blobid($maniret);
     return 1 if $maniretid eq $maniid;
   }
   return 0;
@@ -208,7 +208,7 @@ sub manifest_exists {
 sub manifest_upload {
   my ($manifest, $tag, $content_type, $quiet) = @_;
 
-  my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
+  my $maniid = BSContar::blobid($manifest);
   return $maniid if manifest_exists($manifest, $tag, $content_type);
   $content_type ||= $BSContar::mt_docker_manifest;
   my $fat = '';
@@ -240,7 +240,7 @@ sub manifest_upload {
 
 sub manifest_append {
   my ($manifest, $tag) = @_;
-  my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
+  my $maniid = BSContar::blobid($manifest);
   my $str = "$maniid ".length($manifest).(defined($tag) ? " $tag" : '')."\n";
   if ($digestfile ne '-') {
     BSUtil::appendstr($digestfile, $str);
@@ -264,7 +264,7 @@ sub manifest_upload_tags {
 
 sub cosign_upload {
   my ($tag, $config, @layers) = @_;
-  my $config_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($config), $config);
+  my $config_blobid = blob_upload_content(BSContar::blobid($config), $config);
   my $config_data = {
     'mediaType' => $BSContar::mt_oci_config,
     'size' => length($config),
@@ -279,7 +279,7 @@ sub cosign_upload {
   };
   while (@layers >= 2) {
     my ($payload_layer, $payload) = splice(@layers, 0, 2);
-    my $payload_blobid = blob_upload_content('sha256:'.Digest::SHA::sha256_hex($payload), $payload);
+    my $payload_blobid = blob_upload_content(BSContar::blobid($payload), $payload);
     die unless $payload_blobid eq $payload_layer->{'digest'};
     push @{$mani->{'layers'}}, $payload_layer;
   }
@@ -763,13 +763,9 @@ for my $tarfile (@tarfiles) {
 
 
   # process config
-  my $config_blobid = BSContar::blobid_entry($config_ent);
-  # create layer data
-  my $config_data = {
-    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config),
-    'size' => $config_ent->{'size'},
-    'digest' => $config_blobid,
-  };
+  my $config_data = BSContar::create_config_data($config_ent, $oci);
+  my $config_blobid = $config_data->{'digest'};
+
   # upload to server
   blob_upload($config_blobid, $config_ent);
 
@@ -798,15 +794,10 @@ for my $tarfile (@tarfiles) {
   }
   close $tarfd if $tarfd;
 
-  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-  my $mani = {
-    'schemaVersion' => 2,
-    'mediaType' => $mediaType,
-    'config' => $config_data,
-    'layers' => \@layer_data,
-  };
+  my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
+  my $mediaType = $mani->{'mediaType'};
   my $mani_json = BSContar::create_dist_manifest($mani);
-  my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
+  my $mani_id = BSContar::blobid($mani_json);
   $digests_to_sign{$mani_id} = [ $provenance, $spdx_json, $cyclonedx_json ];
 
   if ($multiarch) {
@@ -847,14 +838,10 @@ my $info = {
 };
 
 if ($multiarch) {
-  my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
-  my $mani = {
-    'schemaVersion' => 2,
-    'mediaType' => $mediaType,
-    'manifests' => \@multimanifests,
-  };
+  my $mani = BSContar::create_dist_manifest_list_data(\@multimanifests, $oci);
+  my $mediaType = $mani->{'mediaType'};
   my $mani_json = BSContar::create_dist_manifest_list($mani);
-  my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
+  my $mani_id = BSContar::blobid($mani_json);
   $digests_to_sign{$mani_id} = [];
   manifest_upload_tags($mani_json, \@tags, $mediaType);
   $info->{'distmanifesttype'} = 'list';

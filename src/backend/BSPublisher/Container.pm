@@ -343,11 +343,7 @@ sub create_container_dist_info {
     $platforms->{$platformstr} = 1;
   }
 
-  my $config_data = {
-    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config),
-    'size' => $config_ent->{'size'},
-    'digest' => BSContar::blobid_entry($config_ent),
-  };
+  my $config_data = BSContar::create_config_data($config_ent, $oci);
   my @layer_data;
   die("container has no layers\n") unless @{$manifest->{'Layers'} || []};
   my @layer_comp = @{$layer_compression || []};
@@ -362,18 +358,12 @@ sub create_container_dist_info {
     ($layer_ent, $layer_data) = BSContar::create_layer_data($layer_ent, $oci, $comp, undef, $lcomp);
     push @layer_data, $layer_data;
   }
-  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-  my $mani = {
-    'schemaVersion' => 2,
-    'mediaType' => $mediaType,
-    'config' => $config_data,
-    'layers' => \@layer_data,
-  };
+  my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $info = {
-    'mediaType' => $mediaType,
+    'mediaType' => $mani->{'mediaType'},
     'size' => length($mani_json),
-    'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+    'digest' => BSContar::blobid($mani_json),
     'platform' => {'architecture' => $goarch, 'os' => $goos},
   };
   $info->{'platform'}->{'variant'} = $govariant if $govariant;
@@ -382,17 +372,12 @@ sub create_container_dist_info {
 
 sub create_container_index_info {
   my ($infos, $oci) = @_;
-  my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
-  my $mani = {
-    'schemaVersion' => 2,
-    'mediaType' => $mediaType,
-    'manifests' => $infos || [],
-  };
+  my $mani = BSContar::create_dist_manifest_list_data($infos || [], $oci);
   my $mani_json = BSContar::create_dist_manifest_list($mani);
   my $info = {
-    'mediaType' => $mediaType,
+    'mediaType' => $mani->{'mediaType'},
     'size' => length($mani_json),
-    'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
+    'digest' => BSContar::blobid($mani_json),
   };
   return $info;
 }
