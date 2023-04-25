@@ -262,8 +262,8 @@ sub get_config {
   my $config_ent = $tar->{$config_file};
   die("File $config_file not included in tar\n") unless $config_ent;
   my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
+  $config_ent->{'blobid'} ||= blobid($config_json);		# convenience
   my $config = JSON::XS::decode_json($config_json);
-  $config_ent->{'blobid'} = blobid($config_json);		# convenience
   return ($config_ent, $config);
 }
 
