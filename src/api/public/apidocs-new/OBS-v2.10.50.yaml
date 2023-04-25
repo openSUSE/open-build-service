@@ -390,8 +390,8 @@ paths:
   # Staging Workflow
   /staging/{project_name}/backlog:
     $ref: 'paths/staging_project_name_backlog.yaml'
-  /staging/{staging_workflow_project}/workflow:
-    $ref: 'paths/staging_staging_workflow_project_workflow.yaml'
+  /staging/{project_name}/workflow:
+    $ref: 'paths/staging_project_name_workflow.yaml'
 
   # Status messages
   /status/messages:
