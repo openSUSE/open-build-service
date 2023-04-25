@@ -1,0 +1,59 @@
+type: object
+properties:
+  package:
+    type: string
+    xml:
+      attribute: true
+  rev:
+    type: string
+    xml:
+      attribute: true
+  vrev:
+    type: string
+    xml:
+      attribute: true
+  srcmd5:
+    type: string
+    xml:
+      attribute: true
+  verifymd5:
+    type: string
+    xml:
+      attribute: true
+  filename:
+    type: string
+  originproject:
+    type: string
+  linked:
+    type: array
+    items:
+      type: object
+      properties:
+        project:
+          type: string
+          xml:
+            attribute: true
+        package:
+          type: string
+          xml:
+            attribute: true
+  name:
+    type: string
+  version:
+    type: string
+  release:
+    type: string
+  subpacks:
+    type: array
+    items:
+      type: string
+  deps:
+    type: array
+    items:
+      type: string
+  prereqs:
+    type: array
+    items:
+      type: string
+xml:
+  name: sourceinfo
