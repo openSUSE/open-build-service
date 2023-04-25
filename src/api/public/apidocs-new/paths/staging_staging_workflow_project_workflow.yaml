@@ -100,7 +100,7 @@ put:
             project_without_staging_workflow:
               value:
                 code: not_found
-                sumary: "Project project_name doesn't have an asociated Staging Workflow"
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
             Unknown Project:
               value:
                 code: unknown_project
@@ -139,7 +139,7 @@ delete:
             project_without_staging_workflow:
               value:
                 code: not_found
-                sumary: "Project project_name doesn't have an asociated Staging Workflow"
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
             Unknown Project:
               value:
                 code: unknown_project
