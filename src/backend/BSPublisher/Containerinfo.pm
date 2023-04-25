@@ -39,7 +39,7 @@ sub construct_container_tar {
       $file = $fd;
     }
     die("missing blobid $blobid\n") unless -e $file;
-    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $_), 'blobid' => $blobid};
+    push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s _), 'blobid' => $blobid};
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
   return (\@tar, $mtime, $containerinfo->{'layer_compression'});

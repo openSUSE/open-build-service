@@ -447,7 +447,7 @@ sub create_layer_data {
     undef $lcomp;
   }
   my $layer_data = {
-    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($newcomp eq 'zstd' ? $BSContar::mt_oci_zstd : $BSContar::mt_oci_gzip) : $BSContar::mt_docker_gzip),
+    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($newcomp eq 'zstd' ? $BSContar::mt_oci_layer_zstd : $BSContar::mt_oci_layer_gzip) : $BSContar::mt_docker_layer_gzip),
     'size' => $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || BSContar::blobid_entry($layer_ent),
   };
