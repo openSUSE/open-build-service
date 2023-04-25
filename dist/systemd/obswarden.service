@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS warden, monitors the workers
-After=network.target
+After=network-online.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server

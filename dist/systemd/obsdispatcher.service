@@ -1,7 +1,7 @@
 [Unit]
 Description=OBS job dispatcher daemon
 Requires=obsrepserver.service
-After=network.target obssrcserver.service obsscheduler.service obsrepserver.service
+After=network-online.target obssrcserver.service obsscheduler.service obsrepserver.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server

@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS worker
-After=network.target obsstoragesetup.service obssrcserver.service obsrepserver.service xendomains.service
+After=network-online.target obsstoragesetup.service obssrcserver.service obsrepserver.service xendomains.service
 
 [Service]
 Type=oneshot

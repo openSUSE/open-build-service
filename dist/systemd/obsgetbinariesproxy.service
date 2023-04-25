@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS binaries proxy cache
-After=network.target obsstoragesetup.service
+After=network.target obsstoragesetup.service obsstoragesetup.service
 
 [Service]
 LimitNOFILE=16384
