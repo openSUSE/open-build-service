@@ -1,0 +1,10 @@
+description: Bad request. Validation Error
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      Validation Failed:
+        value:
+          code: validation_failed
+          summary: "status_message validation error: 2:0: ERROR: Element '<some element>': No matching global declaration available for the validation root."
