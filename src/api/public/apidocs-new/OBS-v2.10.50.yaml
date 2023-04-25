@@ -425,6 +425,8 @@ paths:
   # Status messages
   /status/messages:
     $ref: 'paths/status_messages.yaml'
+  /status/messages/{id}:
+    $ref: 'paths/status_messages_id.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

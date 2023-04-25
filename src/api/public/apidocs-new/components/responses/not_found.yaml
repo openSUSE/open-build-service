@@ -1,0 +1,13 @@
+description: |
+  Not Found.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      Not Found:
+        value:
+          code: not_found
+          summary: Couldn't find StatusMessage with 'id'=300
