@@ -398,6 +398,8 @@ paths:
   # Status messages
   /status/messages:
     $ref: 'paths/status_messages.yaml'
+  /status_message:
+    $ref: 'paths/status_message.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
