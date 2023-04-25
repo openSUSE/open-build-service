@@ -30,3 +30,27 @@ get:
       $ref: '../components/responses/not_found.yaml'
   tags:
     - Status Messages
+
+delete:
+  summary: Delete a status message
+  description: |
+    Delete a status message with id
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/status_message_no_permission.yaml'
+    '404':
+      $ref: '../components/responses/not_found.yaml'
+  tags:
+    - Status Messages
