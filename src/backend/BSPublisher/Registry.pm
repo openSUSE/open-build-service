@@ -692,10 +692,8 @@ sub push_containers {
 	}
 	my $layer_ent = $tar{$layer_file};
 	die("File $layer_file not included in tar\n") unless $layer_ent;
-	my $comp = 'gzip';
-	$comp = 'zstd' if $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:/);
-	my $layer_data;
-	($layer_ent, $layer_data) = BSContar::create_layer_data($layer_ent, $oci, $comp, $comp, $lcomp);
+	$lcomp = 'gzip' unless $oci && $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:/);
+	my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
 	push @layer_data, $layer_data;
 	$layer_datas{$layer_file} = $layer_data;
 

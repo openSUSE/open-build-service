@@ -446,11 +446,14 @@ sub create_config_data {
   return $config_data;
 }
 
-sub create_layer_data {
+sub normalize_layer {
   my ($layer_ent, $oci, $comp, $newcomp, $lcomp) = @_;
-  $comp ||= detect_entry_compression($layer_ent);
+  $lcomp = $comp unless defined $lcomp;
+  $comp = 'zstd' if $comp && $comp =~ /^zstd:chunked/;
+  $comp = detect_entry_compression($layer_ent) unless defined $comp;
   $newcomp ||= $oci && $comp eq 'zstd' ? 'zstd' : 'gzip';
-  $newcomp = $comp if $layer_ent->{'mimetype'};		# do not change the compression if the mime type is already set
+  return ($layer_ent, $lcomp) if $newcomp eq 'zstd' && $comp eq $newcomp && $lcomp && $lcomp =~ /^zstd:chunked/;
+  return ($layer_ent, $comp) if $layer_ent->{'mimetype'};		# do not change the compression if the mime type is already set
   if ($comp ne $newcomp) {
     if ($comp) {
       print "recompressing $layer_ent->{'name'}... ";
@@ -459,14 +462,21 @@ sub create_layer_data {
     }
     $layer_ent = compress_entry($layer_ent, $comp, $newcomp);
     print "done.\n";
-    undef $lcomp;
   }
+  return ($layer_ent, $newcomp);
+}
+
+sub create_layer_data {
+  my ($layer_ent, $oci, $comp) = @_;
+  my $lcomp = $comp;
+  $comp = 'zstd' if $comp && $comp =~ /^zstd:chunked/;
+  $comp = detect_entry_compression($layer_ent) unless defined $comp;
   my $layer_data = {
-    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($newcomp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip),
+    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip),
     'size' => $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
-  if ($newcomp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
+  if ($comp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
     my @c = split(',', $lcomp);
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];

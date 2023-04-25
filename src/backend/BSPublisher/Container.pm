@@ -351,11 +351,8 @@ sub create_container_dist_info {
     my $layer_ent = $tar{$layer_file};
     die("file $layer_file not included in tar\n") unless $layer_ent;
     my $lcomp = shift @layer_comp;
-    my $comp;
-    $comp = 'gzip' if $lcomp && $lcomp eq 'gzip';
-    $comp = 'zstd' if $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:/);
-    my $layer_data;
-    ($layer_ent, $layer_data) = BSContar::create_layer_data($layer_ent, $oci, $comp, undef, $lcomp);
+    ($layer_ent, $lcomp) = BSContar::normalize_layer($layer_ent, $oci, $lcomp);
+    my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
     push @layer_data, $layer_data;
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
