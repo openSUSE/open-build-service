@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS storage setup
-After=network.target xendomains.service haveged.service
+After=network-online.target xendomains.service haveged.service
 Before=mysql.service sshd.service obsapisetup.service
 
 [Service]

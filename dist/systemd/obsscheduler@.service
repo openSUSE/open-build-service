@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS scheduler service for %I
-After=network.target obsstoragesetup.service
+After=network-online.target obsstoragesetup.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server

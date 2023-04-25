@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS redis forwarder
-After=network.target
+After=network-online.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
