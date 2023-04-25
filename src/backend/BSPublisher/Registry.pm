@@ -148,7 +148,7 @@ sub push_blob {
 
 sub push_blob_content {
   my ($repodir, $content) = @_;
-  my $blob_id = 'sha256:'.Digest::SHA::sha256_hex($content);
+  my $blob_id = BSContar::blobid($content);
   my $dir = "$repodir/:blobs";
   return $blob_id if -e "$dir/$blob_id";
   mkdir_p($dir) unless -d $dir;
@@ -159,7 +159,7 @@ sub push_blob_content {
 
 sub push_manifest {
   my ($repodir, $mani_json) = @_;
-  my $mani_id = 'sha256:'.Digest::SHA::sha256_hex($mani_json);
+  my $mani_id = BSContar::blobid($mani_json);
   my $dir = "$repodir/:manifests";
   return $mani_id if -e "$dir/$mani_id";
   mkdir_p($dir) unless -d $dir;
@@ -674,13 +674,10 @@ sub push_containers {
       $multiplatforms{$platformstr} = 1;
 
       # put config blob into repo
-      my $config_blobid = push_blob($repodir, $containerinfo, $config_ent);
+      my $config_data = BSContar::create_config_data($config_ent, $oci);
+      my $config_blobid = $config_ent->{'blobid'} = $config_data->{'digest'};
+      push_blob($repodir, $containerinfo, $config_ent);
       $knownblobs{$config_blobid} = 1;
-      my $config_data = {
-	'mediaType' => $config_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config),
-	'size' => $config_ent->{'size'},
-	'digest' => $config_blobid,
-      };
 
       # put layer blobs into repo
       my %layer_datas;
@@ -702,27 +699,21 @@ sub push_containers {
 	push @layer_data, $layer_data;
 	$layer_datas{$layer_file} = $layer_data;
 
-        $layer_ent->{'blobid'} = $layer_data->{'digest'};
-        $knownblobs{$layer_ent->{'blobid'}} = 1;
+        my $layer_blobid = $layer_ent->{'blobid'} = $layer_data->{'digest'};
         push_blob($repodir, $containerinfo, $layer_ent);
+        $knownblobs{$layer_blobid} = 1;
       }
       close $tarfd if $tarfd;
 
       # put manifest into repo
-      my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-      my $mani = {
-	'schemaVersion' => 2,
-	'mediaType' => $mediaType,
-	'config' => $config_data,
-	'layers' => \@layer_data,
-      };
+      my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
       my $mani_json = BSContar::create_dist_manifest($mani);
       my $mani_id = push_manifest($repodir, $mani_json);
       $knownmanifests{$mani_id} = 1;
       $digests_to_cosign{$mani_id} = [ $oci, $containerinfo ];
 
       my $multimani = {
-	'mediaType' => $mediaType,
+	'mediaType' => $mani->{'mediaType'},
 	'size' => length($mani_json),
 	'digest' => $mani_id,
 	'platform' => {'architecture' => $goarch, 'os' => $goos},
@@ -767,12 +758,7 @@ sub push_containers {
     my ($mani_id, $mani_size);
     if ($multiarchtag) {
       # create fat manifest
-      my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
-      my $mani = {
-        'schemaVersion' => 2,
-        'mediaType' => $mediaType,
-        'manifests' => \@multimanifests,
-      };
+      my $mani = BSContar::create_dist_manifest_list_data(\@multimanifests, $oci);
       my $mani_json = BSContar::create_dist_manifest_list($mani);
       $mani_id = push_manifest($repodir, $mani_json, \%knownmanifests);
       $mani_size = length($mani_json);
