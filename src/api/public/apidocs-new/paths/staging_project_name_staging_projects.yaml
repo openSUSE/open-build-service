@@ -86,3 +86,63 @@ get:
                 summary: "Project 'project_name' not found."
   tags:
     - Staging Workflow
+
+post:
+  summary: Create staging projects
+  description: Create staging projects on the staging workflow associated to the specified project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: List of the names of the staging projects you want to add to the staging workflow
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/workflow_staging_projects.yaml'
+        examples:
+          Multiple Staging Projects:
+            value:
+                staging_project:
+                  - openSUSE:Factory:Staging:C
+                  - openSUSE:Factory:Staging:D
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Invalid Project Name:
+              value:
+                code: invalid_request
+                summary: 'Staging Projects for package_name failed: Project "0": Name is illegal.'
+            Already Assigned:
+              value:
+                code: invalid_request
+                summary: 'Staging Projects for project_name failed: Project "project_name": is already assigned to a staging workflow.'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Project Without Staging Workflow:
+              value:
+                code: not_found
+                summary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: not_found
+                summary: "Project 'project_name' not found."
+  tags:
+    - Staging Workflow
