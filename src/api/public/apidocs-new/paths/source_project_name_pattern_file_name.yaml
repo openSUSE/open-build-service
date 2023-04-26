@@ -1,0 +1,90 @@
+get:
+  deprecated: true
+  summary: Read a specified pattern file
+  description: Read a specified pattern file and return the content
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_file.yaml'
+  tags:
+    - Sources - Projects
+
+delete:
+  deprecated: true
+  summary: Deletes a specified pattern file.
+  description: Deletes a specified pattern file of a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_file.yaml'
+  tags:
+    - Sources - Projects
+
+put:
+  deprecated: true
+  summary: Write a specified pattern file.
+  description: Write a specified pattern file of a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+  requestBody:
+    content:
+      plain/text:
+        schema:
+          type: string
+          properties:
+            file:
+              type: string
+              format: binary
+  responses:
+    '200':
+      description:
+        Updates the artifact's file contents
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/revision.yaml'
+          example:
+            rev: 28
+            srcmd5: 6c73fc9ef8d43369f0778564617b4a93
+            time: 1682497725
+            user: Admin
+            comment:
+            requestid:
+    '400':
+      description: |
+        Error: Bad request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Bad Request:
+              value:
+                code: validation_failed
+                summary: |
+                  pattern validation error: 1:1: FATAL: Start tag expected, < not found
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_file.yaml'
+  tags:
+    - Sources - Projects
