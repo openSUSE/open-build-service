@@ -260,18 +260,16 @@ sub manifest_upload_tags {
 sub cosign_upload {
   my ($tag, $config, @layers) = @_;
   my $oci = 1;
-  my $config_blobid = BSContar::blobid($config);
-  my $config_ent = { 'name' => 'config.json', 'size' => length($config), 'data' => $config, 'blobid' => $config_blobid };
+  my ($config_ent, $config_blobid) = BSContar::make_blob_entry('config.json', $config);
   blob_upload($config_blobid, $config_ent);
   my $config_data = BSContar::create_config_data($config_ent, $oci);
   my @layer_data;
   while (@layers >= 2) {
-    my ($payload_layer, $payload) = splice(@layers, 0, 2);
-    my $payload_blobid = BSContar::blobid($payload);
-    die unless $payload_blobid eq $payload_layer->{'digest'};
-    my $payload_ent = { 'name' => $payload_blobid, 'size' => length($payload), 'data' => $payload, 'blobid' => $payload_blobid };
+    my ($payload_layer_data, $payload) = splice(@layers, 0, 2);
+    my ($payload_ent, $payload_blobid) = BSContar::make_blob_entry($payload_layer_data->{'digest'}, $payload);
+    die unless $payload_blobid eq $payload_layer_data->{'digest'};
     blob_upload($payload_blobid, $payload_ent);
-    push @layer_data, $payload_layer;
+    push @layer_data, $payload_layer_data;
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mani_json = BSContar::create_dist_manifest_list($mani);

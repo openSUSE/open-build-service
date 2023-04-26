@@ -145,17 +145,6 @@ sub push_blob {
   return $blobid;
 }
 
-sub push_blob_content {
-  my ($repodir, $content) = @_;
-  my $blob_id = BSContar::blobid($content);
-  my $dir = "$repodir/:blobs";
-  return $blob_id if -e "$dir/$blob_id";
-  mkdir_p($dir) unless -d $dir;
-  unlink("$dir/.$blob_id.$$");
-  writestr("$dir/.$blob_id.$$", "$dir/$blob_id", $content);
-  return $blob_id;
-}
-
 sub push_manifest {
   my ($repodir, $mani_json) = @_;
   my $mani_id = BSContar::blobid($mani_json);
@@ -428,17 +417,18 @@ sub update_sigs {
 sub create_cosign_manifest {
   my ($repodir, $oci, $knownmanifests, $knownblobs, $config, @payload_layers) = @_;
 
-  my $config_blobid = push_blob_content($repodir, $config);
+  my ($config_ent, $config_blobid) = BSContar::make_blob_entry('config.json', $config);
+  push_blob($repodir, $config_ent);
   $knownblobs->{$config_blobid} = 1;
-  my $config_ent = { 'name' => 'config.json', 'size' => length($config), 'data' => $config, 'blobid' => $config_blobid };
   my $config_data = BSContar::create_config_data($config_ent, $oci);
   my @layer_data;
   while (@payload_layers >= 2) {
-    my ($payload_layer, $payload) = splice(@payload_layers, 0, 2);
-    my $payload_blobid = push_blob_content($repodir, $payload);
+    my ($payload_layer_data, $payload) = splice(@payload_layers, 0, 2);
+    my ($payload_ent, $payload_blobid) = BSContar::make_blob_entry($payload_layer_data->{'digest'}, $payload);
+    die unless $payload_blobid eq $payload_layer_data->{'digest'};
+    push_blob($repodir, $payload_ent);
     $knownblobs->{$payload_blobid} = 1;
-    die unless $payload_blobid eq $payload_layer->{'digest'};
-    push @layer_data, $payload_layer;
+    push @layer_data, $payload_layer_data;
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mani_json = BSContar::create_dist_manifest($mani);
