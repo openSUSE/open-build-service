@@ -1,18 +1,18 @@
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
-  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment, :conversation]
+  before_action :require_login, except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation]
-  before_action :set_actions, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:inline_comment, :show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :conversation]
+  before_action :require_request, only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results]
+  before_action :set_actions, only: [:inline_comment, :show, :conversation, :build_results], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation, :build_results], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action_id, only: [:inline_comment, :show, :conversation, :build_results], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_active_action, only: [:inline_comment, :show, :conversation, :build_results], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :conversation, :build_results]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: [:show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :check_beta_user_redirect, only: [:conversation]
+  before_action :prepare_request_data, only: [:show, :conversation, :build_results], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :check_beta_user_redirect, only: [:conversation, :build_results]
 
   after_action :verify_authorized, only: [:create]
 
@@ -290,6 +290,18 @@ class Webui::RequestController < Webui::WebuiController
 
   def conversation
     @active = 'conversation'
+  end
+
+  def build_results
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
+
+    @active = 'build_results'
+    @project = @staging_project || @action[:sprj]
+    @buildable = @action[:spkg] || @project
+
+    @ajax_data = {}
+    @ajax_data['project'] = @project if @project
+    @ajax_data['package'] = @action[:spkg] if @action[:spkg]
   end
 
   private
