@@ -49,6 +49,13 @@ sub blobid {
   return 'sha256:'.Digest::SHA::sha256_hex($_[0]);
 }
 
+sub make_blob_entry {
+  my ($name, $blob, %extra) = @_;
+  my $blobid = blobid($blob);
+  my $ent = { %extra, 'name' => $name, 'size' => length($blob), 'data' => $blob, 'blobid' => $blobid };
+  return ($ent, $blobid);
+}
+
 sub checksum_entry {
   my ($ent, $ctx) = @_;
   my $offset = 0;
@@ -262,8 +269,8 @@ sub get_config {
   my $config_ent = $tar->{$config_file};
   die("File $config_file not included in tar\n") unless $config_ent;
   my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
+  $config_ent->{'blobid'} ||= blobid($config_json);		# convenience
   my $config = JSON::XS::decode_json($config_json);
-  $config_ent->{'blobid'} = blobid($config_json);		# convenience
   return ($config_ent, $config);
 }
 
@@ -423,8 +430,7 @@ sub container_from_helm {
     push @layercomp, '';
   }
   # create ent for the config
-  my $config_ent = { 'name' => 'config.json', 'size' => length($config_json), 'data' => $config_json, 'mtime' => $mtime };
-  $config_ent->{'mimetype'} = $mt_helm_config;
+  my ($config_ent) = make_blob_entry('config.json', $config_json, 'mtime' => $mtime, 'mimetype' => $mt_helm_config);
   # create ent for the manifest
   my $manifest = {
     'Layers' => [ $chartbasename ],
