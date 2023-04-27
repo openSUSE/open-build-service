@@ -2090,6 +2090,9 @@ NotifiedProject:
   notification:
     ForeignKeyChecker:
       enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
   index_notified_projects_on_notification_id:
     RedundantIndexChecker:
       enabled: false

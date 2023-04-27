@@ -20,7 +20,3 @@ end
 #  index_notified_projects_on_notification_id_and_project_id  (notification_id,project_id) UNIQUE
 #  index_notified_projects_on_project_id                      (project_id)
 #
-# Foreign Keys
-#
-#  fk_rails_...  (project_id => projects.id)
-#
