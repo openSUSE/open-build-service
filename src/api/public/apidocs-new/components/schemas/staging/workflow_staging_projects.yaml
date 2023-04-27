@@ -1,0 +1,9 @@
+type: object
+properties:
+  staging_project:
+    type: array
+    items:
+      type: string
+      example: openSUSE:Factory:Staging:C
+xml:
+  name: workflow
