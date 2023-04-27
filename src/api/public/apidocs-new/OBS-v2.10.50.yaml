@@ -136,6 +136,8 @@ paths:
 
   /comment/{comment_id}:
     $ref: 'paths/comment_comment_id.yaml'
+  /comments/user:
+    $ref: 'paths/comments_user.yaml'
   /comments/request/{id}:
     $ref: 'paths/comments_request_id.yaml'
   /comments/project/{project_name}:

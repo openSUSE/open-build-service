@@ -16,5 +16,9 @@ properties:
     type: string
     xml:
       attribute: true
+  user:
+    type: string
+    xml:
+      attribute: true
 xml:
   name: comments
