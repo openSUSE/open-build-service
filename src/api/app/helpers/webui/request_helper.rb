@@ -197,6 +197,10 @@ module Webui::RequestHelper
       request_rpm_lint_path(
         number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
       )
+    when 'request_changes'
+      request_changes_path(
+        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
+      )
     else
       request_show_path(
         number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
