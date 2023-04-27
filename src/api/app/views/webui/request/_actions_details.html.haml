@@ -1,9 +1,12 @@
 
+:ruby
+  page_name ||= ''
+
 - if actions_count > 1
   .d-flex.flex-wrap.align-items-center
     .input-group.w-auto
-      = link_to('Previous', request_show_path(number: bs_request.number, request_action_id: prev_action&.id,
-                                              full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
+      = link_to('Previous', next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
+                                           full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                 class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}",
                 id: 'previous-action-button')
       .dropdown#request-actions
@@ -20,14 +23,14 @@
           - actions.each_with_index do |action_item, action_index|
             %li.border-top
               = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index }),
-                                                        request_show_path(number: bs_request.number,
-                                                                          request_action_id: action_item.id,
-                                                                          full_diff: diff_limit,
-                                                                          diff_to_superseded: diff_to_superseded_id),
+                                                        next_prev_path(number: bs_request.number,
+                                                                       request_action_id: action_item.id,
+                                                                       full_diff: diff_limit,
+                                                                       diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                                                         class: "dropdown-item #{action_item.id == active_action.id ? 'active' : ''}",
                                                         'aria-current': 'true')
-      = link_to('Next', request_show_path(number: bs_request.number, request_action_id: next_action&.id,
-                                          full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id),
+      = link_to('Next', next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
+                                       full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                 class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}",
                 id: 'next-action-button')
 
@@ -62,23 +65,3 @@
   - current_devel_package = Package.find_by_project_and_name(active_action.target_project, active_action.target_package).develpackage
   -  if current_devel_package
     Development is currently happening on #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}
-
-- content_for :ready_function do
-  :plain
-    // Append anchor to the href of the Previous and Next buttons when the page is loaded or when the tab is changed.
-    setAnchorToPreviousAndNextButtons();
-    $('#request-tabs').find('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(){
-      setAnchorToPreviousAndNextButtons();
-    });
-
-    $('#request-actions').on('shown.bs.dropdown', function () {
-      // Scrolls towards the current request action
-      var currentAction = $('a.dropdown-item.active');
-      currentAction[0].scrollIntoView({behavior: "smooth", block: "center"});
-
-      // Append anchor to the href of the actions in the dropdown
-      $.each($('#request-actions .dropdown-item'), function () {
-        var href = $(this).attr('href');
-        $(this).attr('href', appendAnchorToHref(href));
-      });
-    });
