@@ -8,6 +8,7 @@ tags:
   - name: Attribute Namespaces
   - name: Attributes
   - name: Build
+  - name: Comments
   - name: Configuration
   - name: Distributions
   - name: General Information
@@ -134,6 +135,15 @@ paths:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
+
+  /comment/{comment_id}:
+    $ref: 'paths/comment_comment_id.yaml'
+  /comments/request/{id}:
+    $ref: 'paths/comments_request_id.yaml'
+  /comments/project/{project_name}:
+    $ref: 'paths/comments_project_project_name.yaml'
+  /comments/package/{project_name}/{package_name}:
+    $ref: 'paths/comments_package_project_name_package_name.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
