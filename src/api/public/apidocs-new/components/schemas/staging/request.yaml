@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 42
+    xml:
+      attribute: true
+  creator:
+    type: string
+    example: foo-user
+    xml:
+      attribute: true
+  type:
+    type: string
+    example: submit
+    xml:
+      attribute: true
+  state:
+    type: string
+    example: review
+    xml:
+      attribute: true
+  package:
+    type: string
+    example: 'hello_world'
+    xml:
+      attribute: true
+  superseded_by:
+    type: integer
+    example: 43
+    xml:
+      attribute: true
+  updated:
+    type: string
+    example: '2023-04-24T08:34:39Z'
+    xml:
+      attribute: true
