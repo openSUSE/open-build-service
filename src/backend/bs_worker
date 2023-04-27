@@ -1943,6 +1943,7 @@ sub getbinaries_kiwiproduct {
 
       # if the above failed download the complete package
       if (!$bvl || @todo) {
+	$binariesdownload -= @done + @todo;
 	for (@done) {
 	  unlink("$ddir/$_.new.rpm");
 	  delete $cachenew{"$ddir/$_"};
@@ -1968,6 +1969,8 @@ sub getbinaries_kiwiproduct {
 	  'receiver' => \&BSHTTP::cpio_receiver,
 	}, undef, @args);
 	@done = map {$_->{'name'}} @$res;
+	$binariesdownload += @done;
+	$binariesdownloadsize += int($_->{'size'} / 1024) for @$res;
 
 	# put into our cache
 	if ($cachedir) {
