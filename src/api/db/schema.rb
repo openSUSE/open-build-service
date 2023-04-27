@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_13_080503) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_14_151119) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -703,6 +703,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_13_080503) do
     t.datetime "created_at", null: false
     t.index ["notification_id", "project_id"], name: "index_notified_projects_on_notification_id_and_project_id", unique: true
     t.index ["notification_id"], name: "index_notified_projects_on_notification_id"
+    t.index ["project_id"], name: "index_notified_projects_on_project_id"
   end
 
   create_table "package_issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1182,6 +1183,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_13_080503) do
   add_foreign_key "kiwi_packages", "kiwi_package_groups", column: "package_group_id"
   add_foreign_key "maintained_projects", "projects", column: "maintenance_project_id", name: "maintained_projects_ibfk_2"
   add_foreign_key "maintained_projects", "projects", name: "maintained_projects_ibfk_1"
+  add_foreign_key "notified_projects", "projects"
   add_foreign_key "package_issues", "issues", name: "package_issues_ibfk_2"
   add_foreign_key "package_issues", "packages", name: "package_issues_ibfk_1"
   add_foreign_key "package_kinds", "packages", name: "package_kinds_ibfk_1"
