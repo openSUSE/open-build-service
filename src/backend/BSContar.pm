@@ -473,7 +473,7 @@ sub normalize_layer {
 }
 
 sub create_layer_data {
-  my ($layer_ent, $oci, $comp) = @_;
+  my ($layer_ent, $oci, $comp, $annotations) = @_;
   my $lcomp = $comp;
   $comp = 'zstd' if $comp && $comp =~ /^zstd:chunked/;
   $comp = detect_entry_compression($layer_ent) unless defined $comp;
@@ -482,6 +482,7 @@ sub create_layer_data {
     'size' => $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
+  $layer_data->{'annotations'} = { %$annotations } if $annotations;
   if ($comp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
     my @c = split(',', $lcomp);
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
