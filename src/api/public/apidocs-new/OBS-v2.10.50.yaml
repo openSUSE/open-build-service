@@ -67,7 +67,7 @@ info:
     It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
 
     In order to make sure complex requests and responses are in the expected format, a validation check is executed on sending and receiving commands.
-    All validation formats in use are available in `.xsd` and `.rng` files listed [here](https://github.com/openSUSE/open-build-service/tree/master/docs/api/api).
+    All validations are made against either XML Schema Definition (`.xsd`) files or RELAX NG Schemas (`.rng`) files mentioned in the endpoint. If there is no Schema file mentioned, no validation is done.
     In case a defined format is not respected, a validation error is reported.
 
     The legacy API documentation is reachable [here](https://api.opensuse.org/apidocs/index).
