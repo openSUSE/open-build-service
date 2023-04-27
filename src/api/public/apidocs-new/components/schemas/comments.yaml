@@ -1,0 +1,20 @@
+type: object
+properties:
+  comment:
+    type: array
+    items:
+      $ref: 'comment.yaml'
+  request:
+    type: integer
+    xml:
+      attribute: true
+  package:
+    type: string
+    xml:
+      attribute: true
+  project:
+    type: string
+    xml:
+      attribute: true
+xml:
+  name: comments
