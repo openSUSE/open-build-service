@@ -206,5 +206,9 @@ RSpec.describe Webui::RequestHelper do
     context 'when user is on build results page' do
       it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_build_results')).to eq('/request/show/10/request_action/30/build_results') }
     end
+
+    context 'when user is on rpm lint page' do
+      it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_rpm_lint')).to eq('/request/show/10/request_action/30/rpm_lint') }
+    end
   end
 end

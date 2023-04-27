@@ -94,8 +94,7 @@
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Build Results', request_build_results_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('RPM Lint', '#rpm-lint', id: 'rpm-lint-tab', class: 'nav-link text-nowrap', 'aria-controls': 'rpm-lint',
-                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+            = link_to('RPM Lint', request_rpm_lint_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Changes', '#changes', id: 'changes-tab', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
@@ -108,11 +107,6 @@
               Mentioned Issues
               %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
-      - if @action[:sprj] || @action[:spkg]
-        .tab-pane.fade.p-2#rpm-lint{ 'aria-labelledby': 'rpm-lint-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/rpm_lint', locals: { project: @action[:sprj],
-                                                                               package: @action[:spkg],
-                                                                               is_staged_request: @staging_project.present? }
       - if @action[:type].in?(actions_for_diff)
         .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/changes', locals: { bs_request: @bs_request, action: @action, refresh: @refresh }
