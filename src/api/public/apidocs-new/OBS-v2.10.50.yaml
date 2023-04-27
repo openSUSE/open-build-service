@@ -66,9 +66,10 @@ info:
     For command-line users, we recommend using [osc](https://github.com/openSUSE/osc) with its _api_ command to interact with the API.
     It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
 
-    In order to make sure complex requests and responses are in the expected format, a validation check is executed on sending and receiving commands.
-    All validations are made against either XML Schema Definition (`.xsd`) files or RELAX NG Schemas (`.rng`) files mentioned in the endpoint. If there is no Schema file mentioned, no validation is done.
-    In case a defined format is not respected, a validation error is reported.
+    In order to make sure that the XML that is send in a requests body is in the expected format, the API validates it. 
+    Either against a XML Schema Definition (`.xsd`) or a RELAX NG Schema (`.rng`). The schemas are mentioned
+    in the endpoint documentation. If there is no schema file mentioned, no validation of the XML is done.
+    In case the XML is not valid, a validation error is reported.
 
     The legacy API documentation is reachable [here](https://api.opensuse.org/apidocs/index).
   version: '2.10.50'
