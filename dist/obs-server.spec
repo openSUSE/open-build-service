@@ -164,6 +164,10 @@ BuildRequires:  perl-YAML-LibYAML
 BuildRequires:  procps
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
+# for the resolve_swagger_yaml.rb script
+BuildRequires:  rubygem-hana
+BuildRequires:  rubygem-json_refs
+# /for the resolve_swagger_yaml.rb script
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
@@ -491,6 +495,12 @@ make
 %sysusers_generate_pre dist/system-user-obsrun.conf obsrun system-user-obsrun.conf
 %sysusers_generate_pre dist/system-user-obsservicerun.conf obsservicerun system-user-obsservicerun.conf
 %endif
+
+# combine swagger yaml files to one big yaml file by resolving all references
+# and replace the development version
+pushd /dist
+ruby resolve_swagger_yaml.rb -i %{__obs_api_prefix}/public/apidocs-new/OBS-v2.10.50.yaml -o %{__obs_api_prefix}/public/apidocs-new/OBS-v2.10.50.yaml -f
+popd
 
 %install
 export DESTDIR=$RPM_BUILD_ROOT
