@@ -196,6 +196,8 @@ sub sync_project {
       $pack = BSUtil::fromxml($packxml, $BSXML::pack);
       $pack->{'project'} = $projid;
       $pack->{'name'} = $packid;
+      delete $pack->{'person'};
+      delete $pack->{'group'};
       BSVerify::verify_pack($pack);
     };
     if ($@) {
