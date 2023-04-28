@@ -431,6 +431,8 @@ paths:
   # Status messages
   /status/messages:
     $ref: 'paths/status_messages.yaml'
+  /status_message:
+    $ref: 'paths/status_message.yaml'
   /status/messages/{id}:
     $ref: 'paths/status_messages_id.yaml'
 
