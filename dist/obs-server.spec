@@ -165,8 +165,8 @@ BuildRequires:  procps
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
 # for the resolve_swagger_yaml.rb script
-BuildRequires:  rubygem-hana
-BuildRequires:  rubygem-json_refs
+BuildRequires:  %{rubygem hana}
+BuildRequires:  %{rubygem json_refs}
 # /for the resolve_swagger_yaml.rb script
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
