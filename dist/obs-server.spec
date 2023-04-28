@@ -498,7 +498,7 @@ make
 
 # combine swagger yaml files to one big yaml file by resolving all references
 # and replace the development version
-pushd /dist
+pushd dist/
 ruby resolve_swagger_yaml.rb -i %{__obs_api_prefix}/public/apidocs-new/OBS-v2.10.50.yaml -o %{__obs_api_prefix}/public/apidocs-new/OBS-v2.10.50.yaml -f
 popd
 
