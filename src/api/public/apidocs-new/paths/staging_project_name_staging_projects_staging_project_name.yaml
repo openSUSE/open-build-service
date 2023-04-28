@@ -1,0 +1,83 @@
+get:
+  summary: Gets the overall state of a staging project.
+  description: |
+    Extra information can be requested by adding any combination of these parameters in the URL: requests, status and history.
+    - If requests is present, the output includes the staged, untracked and obsolete requests as well as missing reviews.
+    - If status is present, the output includes the overall state and the status xml (broken packages, missing reviews, checks, etc.)
+    - If history is present, the output includes the history of the staging project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/staging_project_name.yaml'
+    - name: requests
+      in: query
+      schema:
+        type: string
+        enum:
+          - 1
+      description: |
+        Set to `1` if you want to include the staged, untracked and obsolete requests as well as missing reviews, otherwise don't pass this query parameter.
+    - name: status
+      in: query
+      schema:
+        type: string
+        enum:
+          - 1
+      description: |
+        Set to `1` if you want to include the overall state and the status xml (broken packages, missing reviews, checks, etc.), otherwise don't pass this query parameter.
+    - name: history
+      in: query
+      schema:
+        type: string
+        enum:
+          - 1
+      description: |
+        Set to `1` if you want to include the history of the staging project, otherwise don't pass this query parameter.
+  responses:
+    '200':
+      description: Get the state of a staging project.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/staging/staging_project.yaml'
+          example:
+            name: 'home:Iggy:Staging:A'
+            state: 'empty'
+            staged_requests:
+              count: 0
+            untracked_requests:
+              count: 0
+            obsolete_requests:
+              count: 0
+            missing_reviews:
+              count: 0
+            building_repositories:
+              count: 0
+            broken_packages:
+              count: 0
+            checks:
+              count: 0
+            missing_checks:
+              count: 0
+            history:
+              count: 0
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: Staging Workflow Project Not Found
+              value:
+                code: not_found
+                summary: 'Project home:Adminn not found.'
+            staging_project_not_found:
+              summary: Staging Project Name Not Found
+              value:
+                code: staging_project_not_found
+                details: 'Staging Project "home:Admin:Staging:AA" does not exist.'
+  tags:
+    - Staging Workflow

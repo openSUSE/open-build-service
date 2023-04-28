@@ -45,6 +45,7 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 my $root_extra_expire = 183 * 24 * 3600;	# 6 months
 my $targets_expire = 3 * 366 * 24 * 3600;	# 3 years
 my $timestamp_expire = 14 * 24 * 3600;		# 14 days
+my $timestamp_keytype = 'rsa@2048';
 
 # registry layout:
 #
@@ -127,34 +128,22 @@ sub disownrepo {
 }
 
 sub push_blob {
-  my ($repodir, $containerinfo, $ent) = @_;
+  my ($repodir, $ent) = @_;
 
   my $blobid = $ent->{'blobid'} || BSContar::blobid_entry($ent);
   my $dir = "$repodir/:blobs";
   return $blobid if -e "$dir/$blobid";
   mkdir_p($dir) unless -d $dir;
   unlink("$dir/.$blobid.$$");
-  if ($containerinfo->{'uploadfile'}) {
-    BSContar::write_entry($ent, "$dir/.$blobid.$$");
+  if ($ent->{'blobfile'}) {
+    link($ent->{'blobfile'}, "$dir/.$blobid.$$") || die("link $ent->{'blobfile'} $dir/.$blobid.$$: $!\n");
   } else {
-    my $blobdir = $containerinfo->{'blobdir'};
-    link("$blobdir/_blob.$blobid", "$dir/.$blobid.$$") || die("link $blobdir/_blob.$blobid $dir/.$blobid.$$: $!\n");
+    BSContar::write_entry($ent, "$dir/.$blobid.$$");
   }
   rename("$dir/.$blobid.$$", "$dir/$blobid") || die("rename $dir/.$blobid.$$ $dir/$blobid: $!\n");
   unlink("$dir/.$blobid.$$");
   #BSPublisher::Blobstore::blobstore_lnk($blobid, "$dir/$blobid");
   return $blobid;
-}
-
-sub push_blob_content {
-  my ($repodir, $content) = @_;
-  my $blob_id = BSContar::blobid($content);
-  my $dir = "$repodir/:blobs";
-  return $blob_id if -e "$dir/$blob_id";
-  mkdir_p($dir) unless -d $dir;
-  unlink("$dir/.$blob_id.$$");
-  writestr("$dir/.$blob_id.$$", "$dir/$blob_id", $content);
-  return $blob_id;
 }
 
 sub push_manifest {
@@ -193,7 +182,7 @@ sub push_manifestinfo {
 
 sub gen_timestampkey {
   print "local notary: generating timestamp keypair\n";
-  my @keyargs = ('rsa@2048', '800');	# expire time does not matter...
+  my @keyargs = ($timestamp_keytype, '800', 'timestamp signing key', 'timestampsign@build.opensuse.org');	# only the keytype matters
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
   my @signcmd;
@@ -202,11 +191,12 @@ sub gen_timestampkey {
   push @signcmd, '-P', "$uploaddir/timestampkey.$$";
   my $pubkey = '';
   my $fd;
-  open($fd, '-|', @signcmd, '-g', @keyargs, "timestamp signing key", 'timestampsign@build.opensuse.org') || die("$BSConfig::sign: $!\n");
+  open($fd, '-|', @signcmd, '-g', @keyargs) || die("$BSConfig::sign: $!\n");
   1 while sysread($fd, $pubkey, 4096, length($pubkey));
   close($fd) || die("$BSConfig::sign: $?\n");
   my $privkey = readstr("$uploaddir/timestampkey.$$");
   unlink("$uploaddir/timestampkey.$$");
+  # convert gpg pubkey to x509 pubkey
   $pubkey = BSPGP::unarmor($pubkey);
   $pubkey = BSPGP::pk2keydata($pubkey);
   die unless $pubkey;
@@ -429,27 +419,20 @@ sub update_sigs {
 sub create_cosign_manifest {
   my ($repodir, $oci, $knownmanifests, $knownblobs, $config, @payload_layers) = @_;
 
-  my $config_blobid = push_blob_content($repodir, $config);
+  my ($config_ent, $config_blobid) = BSContar::make_blob_entry('config.json', $config);
+  push_blob($repodir, $config_ent);
   $knownblobs->{$config_blobid} = 1;
-  my $config_data = {
-    'mediaType' => $oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config,
-    'size' => length($config),
-    'digest' => $config_blobid,
-  }; 
-  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
-  my $mani = {
-    'schemaVersion' => 2,
-    'mediaType' => $mediaType,
-    'config' => $config_data,
-    'layers' => [],
-  }; 
+  my $config_data = BSContar::create_config_data($config_ent, $oci);
+  my @layer_data;
   while (@payload_layers >= 2) {
-    my ($payload_layer, $payload) = splice(@payload_layers, 0, 2);
-    my $payload_blobid = push_blob_content($repodir, $payload);
+    my ($payload_layer_data, $payload) = splice(@payload_layers, 0, 2);
+    my ($payload_ent, $payload_blobid) = BSContar::make_blob_entry($payload_layer_data->{'digest'}, $payload);
+    die unless $payload_blobid eq $payload_layer_data->{'digest'};
+    push_blob($repodir, $payload_ent);
     $knownblobs->{$payload_blobid} = 1;
-    die unless $payload_blobid eq $payload_layer->{'digest'};
-    push @{$mani->{'layers'}}, $payload_layer;
+    push @layer_data, $payload_layer_data;
   }
+  my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $mani_id = push_manifest($repodir, $mani_json);
   $knownmanifests->{$mani_id} = 1;
@@ -646,6 +629,10 @@ sub push_containers {
 	}
       } else {
 	($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
+	# set blobfile in entries so we can create a link in push_blob
+        for (@$tar) {
+	  $_->{'blobfile'} = "$containerinfo->{'blobdir'}/_blob.$_->{'blobid'}" if $_->{'blobid'};
+	}
       }
       my %tar = map {$_->{'name'} => $_} @$tar;
 
@@ -676,7 +663,7 @@ sub push_containers {
       # put config blob into repo
       my $config_data = BSContar::create_config_data($config_ent, $oci);
       my $config_blobid = $config_ent->{'blobid'} = $config_data->{'digest'};
-      push_blob($repodir, $containerinfo, $config_ent);
+      push_blob($repodir, $config_ent);
       $knownblobs{$config_blobid} = 1;
 
       # put layer blobs into repo
@@ -698,7 +685,7 @@ sub push_containers {
 	$layer_datas{$layer_file} = $layer_data;
 
         my $layer_blobid = $layer_ent->{'blobid'} = $layer_data->{'digest'};
-        push_blob($repodir, $containerinfo, $layer_ent);
+        push_blob($repodir, $layer_ent);
         $knownblobs{$layer_blobid} = 1;
       }
       close $tarfd if $tarfd;

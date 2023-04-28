@@ -1,0 +1,8 @@
+type: object
+properties:
+  staging_project:
+    type: array
+    items:
+      $ref: 'staging_project.yaml'
+xml:
+  name: staging_projects

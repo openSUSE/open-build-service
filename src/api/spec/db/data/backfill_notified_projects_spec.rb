@@ -39,13 +39,16 @@ RSpec.describe BackfillNotifiedProjects, type: :migration, vcr: true do
     end
 
     it 'backfills the notifications_projects table with all projects from existing notifications' do
-      expect(NotifiedProject.pluck(:project_id)).to eq([
+      expected = NotifiedProject.pluck(:project_id)
+      actual = [
         bs_request_with_submit_action.target_project_objects.distinct.map(&:id),
         user_review.bs_request.target_project_objects.distinct.map(&:id),
         comment_project.commentable.id,
         comment_package.commentable.project_id,
         comment_request.commentable.target_project_objects.distinct.map(&:id)
-      ].flatten!)
+      ].flatten!
+
+      expect(expected).to match_array(actual)
     end
   end
 end

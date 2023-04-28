@@ -1293,6 +1293,47 @@ sub deleterepo_vagrant {
 
 ##########################################################################
 
+sub createrepo_checksumsfile {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+  my @sha256sums;
+  for my $file (grep {/^[^\.].*\.sha256$/} sort(ls($extrep))) {
+    next unless -s "$extrep/$file";
+    next if -s _ > 65536;
+    my $content = readstr("$extrep/$file", 1);
+    next unless $content;
+    for my $line (split("\n", $content)) {
+      chomp $line;
+      push @sha256sums, $line if $line =~ /^[a-f0-9]{64}  .+$/;
+    }
+  }
+  if (@sha256sums) {
+    @sha256sums = sort {substr($a, 66) cmp substr($b, 66)} @sha256sums;
+    my $sha256sums = join("\n", @sha256sums) . "\n";
+    writestr("$extrep/.SHA256SUMS", "$extrep/SHA256SUMS", $sha256sums);
+    unlink("$extrep/SHA256SUMS.asc");
+    if ($BSConfig::sign) {
+      my @signargs;
+      push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, @{$data->{'signargs'} || []};
+      qsystem($BSConfig::sign, @signargs, '-d', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+      pickup_detached_signature($data, "$extrep/SHA256SUMS");
+    }
+  } else {
+    unlink("$extrep/SHA256SUMS");
+    unlink("$extrep/SHA256SUMS.asc");
+  }
+}
+
+sub deleterepo_checksumsfile {
+  my ($extrep) = @_;
+  if (-e "$extrep/SHA256SUMS") {
+    unlink("$extrep/SHA256SUMS");
+    unlink("$extrep/SHA256SUMS.asc");
+  }
+}
+
+##########################################################################
+
 sub createpatterns_rpmmd {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -2928,6 +2969,7 @@ sub publish {
     'binaryorigins' => $binaryorigins,
     'title' => $title,
     'state' => $state,
+    'repotype' => \%repotype,
   };
   $repoinfo->{'projectkind'} = $proj->{'kind'} if $proj->{'kind'};
   $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
@@ -3119,6 +3161,9 @@ sub publish {
   }
   if ($repotype{'helm'}) {
     createrepo_helm($extrep, $projid, $xrepoid, $data, $repotype{'helm'}, \%containers);
+  }
+  if ($repotype{'checksumsfile'}) {
+    createrepo_checksumsfile($extrep, $projid, $xrepoid, $data, $repotype{'checksumsfile'});
   }
 
   if ($patterntype{'ymp'}) {

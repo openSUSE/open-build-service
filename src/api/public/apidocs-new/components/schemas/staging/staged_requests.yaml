@@ -5,4 +5,4 @@ properties:
     items:
       $ref: '../staging/request.yaml'
 xml:
-  name: backlog
+  name: staged_requests

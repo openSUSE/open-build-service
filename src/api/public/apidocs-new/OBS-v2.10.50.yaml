@@ -8,6 +8,7 @@ tags:
   - name: Attribute Namespaces
   - name: Attributes
   - name: Build
+  - name: Comments
   - name: Configuration
   - name: Distributions
   - name: General Information
@@ -65,6 +66,11 @@ info:
 
     For command-line users, we recommend using [osc](https://github.com/openSUSE/osc) with its _api_ command to interact with the API.
     It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
+
+    In order to make sure that the XML that is send in a requests body is in the expected format, the API validates it. 
+    Either against a XML Schema Definition (`.xsd`) or a RELAX NG Schema (`.rng`). The schemas are mentioned
+    in the endpoint documentation. If there is no schema file mentioned, no validation of the XML is done.
+    In case the XML is not valid, a validation error is reported.
 
     The legacy API documentation is reachable [here](https://api.opensuse.org/apidocs/index).
   version: '2.10.50'
@@ -134,6 +140,17 @@ paths:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
+
+  /comment/{comment_id}:
+    $ref: 'paths/comment_comment_id.yaml'
+  /comments/user:
+    $ref: 'paths/comments_user.yaml'
+  /comments/request/{id}:
+    $ref: 'paths/comments_request_id.yaml'
+  /comments/project/{project_name}:
+    $ref: 'paths/comments_project_project_name.yaml'
+  /comments/package/{project_name}/{package_name}:
+    $ref: 'paths/comments_package_project_name_package_name.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
@@ -271,6 +288,8 @@ paths:
     $ref: 'paths/source_project_name_meta.yaml'
   /source/{project_name}/_pattern:
     $ref: 'paths/source_project_name_pattern.yaml'
+  /source/{project_name}/_pattern/{file_name}:
+    $ref: 'paths/source_project_name_pattern_file_name.yaml'
   /source/{project_name}/_project:
     $ref: 'paths/source_project_name_project.yaml'
   /source/{project_name}/_pubkey:
@@ -392,6 +411,20 @@ paths:
   # Staging Workflow
   /staging/{project_name}/backlog:
     $ref: 'paths/staging_project_name_backlog.yaml'
+  /staging/{project_name}/excluded_requests:
+    $ref: 'paths/staging_project_name_excluded_requests.yaml'
+  /staging/{project_name}/staged_requests:
+    $ref: 'paths/staging_project_name_staged_requests.yaml'
+  /staging/{project_name}/staging_projects:
+    $ref: 'paths/staging_project_name_staging_projects.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/accept:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_accept.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/copy/{staging_project_copy_name}:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_copy_staging_project_copy_name.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/staged_requests:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_staged_requests.yaml'
   /staging/{project_name}/workflow:
     $ref: 'paths/staging_project_name_workflow.yaml'
 
@@ -400,6 +433,8 @@ paths:
     $ref: 'paths/status_messages.yaml'
   /status_message:
     $ref: 'paths/status_message.yaml'
+  /status/messages/{id}:
+    $ref: 'paths/status_messages_id.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'

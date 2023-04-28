@@ -1,0 +1,146 @@
+get:
+  summary: List the requests excluded from a staging workflow.
+  description: List the requests excluded from the staging workflow associated to the specified project.
+  # Authentication is not required
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: List of requests that are excluded from the staging workflow
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/staging/excluded_requests.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow
+
+post:
+  summary: Exclude requests from the staging workflow.
+  description: Add requests to the list of excluded requests of the staging workflow associated to the specified project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: List of requests to be excluded from the staging workflow
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/excluded_requests.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Excluding Failed:
+              value:
+                code: invalid_request
+                summary: "Excluding requests for project_name failed:"
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow
+
+delete:
+  summary: Delete the specified requests from the list of excluded requests.
+  description: Stop excluding the requests from the staging workflow.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: List of requests to stop excluding from the staging workflow
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/excluded_requests.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Invalid Request:
+              value:
+                code: invalid_request
+                summary: "Error while unexcluding requests: Requests with number ID are not excluded."
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow
