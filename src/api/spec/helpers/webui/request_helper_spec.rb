@@ -199,8 +199,8 @@ RSpec.describe Webui::RequestHelper do
   end
 
   describe '#next_prev_path' do
-    context 'when user is on conversation page' do
-      it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_conversation')).to eq('/request/show/10/request_action/30/conversation') }
+    context 'when user is on request show page' do
+      it { expect(next_prev_path(number: 10, request_action_id: 30)).to eq('/request/show/10/request_action/30') }
     end
 
     context 'when user is on build results page' do
