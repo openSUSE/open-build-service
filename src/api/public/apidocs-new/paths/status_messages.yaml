@@ -4,6 +4,8 @@ get:
     Get a list of all status messages
   security:
     - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/limit.yaml'
   responses:
     '200':
       description: OK. The request has succeeded.
