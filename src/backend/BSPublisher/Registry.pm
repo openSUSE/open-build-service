@@ -45,6 +45,7 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 my $root_extra_expire = 183 * 24 * 3600;	# 6 months
 my $targets_expire = 3 * 366 * 24 * 3600;	# 3 years
 my $timestamp_expire = 14 * 24 * 3600;		# 14 days
+my $timestamp_keytype = 'rsa@2048';
 
 # registry layout:
 #
@@ -181,7 +182,7 @@ sub push_manifestinfo {
 
 sub gen_timestampkey {
   print "local notary: generating timestamp keypair\n";
-  my @keyargs = ('rsa@2048', '800');	# expire time does not matter...
+  my @keyargs = ($timestamp_keytype, '800', 'timestamp signing key', 'timestampsign@build.opensuse.org');	# only the keytype matters
   mkdir_p($uploaddir);
   unlink("$uploaddir/timestampkey.$$");
   my @signcmd;
@@ -190,11 +191,12 @@ sub gen_timestampkey {
   push @signcmd, '-P', "$uploaddir/timestampkey.$$";
   my $pubkey = '';
   my $fd;
-  open($fd, '-|', @signcmd, '-g', @keyargs, "timestamp signing key", 'timestampsign@build.opensuse.org') || die("$BSConfig::sign: $!\n");
+  open($fd, '-|', @signcmd, '-g', @keyargs) || die("$BSConfig::sign: $!\n");
   1 while sysread($fd, $pubkey, 4096, length($pubkey));
   close($fd) || die("$BSConfig::sign: $?\n");
   my $privkey = readstr("$uploaddir/timestampkey.$$");
   unlink("$uploaddir/timestampkey.$$");
+  # convert gpg pubkey to x509 pubkey
   $pubkey = BSPGP::unarmor($pubkey);
   $pubkey = BSPGP::pk2keydata($pubkey);
   die unless $pubkey;
