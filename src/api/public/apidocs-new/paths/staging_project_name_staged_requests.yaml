@@ -1,0 +1,75 @@
+delete:
+  summary: Delete requests from any of the staging projects.
+  description: Delete the given requests from any of the staging projects they were staged in.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: List of requests to be deleted.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/requests_to_stage.yaml'
+        examples:
+          Multiple Requests:
+            value:
+              request:
+                - id: 1
+                - id: 2
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Request Not Staged:
+              value:
+                code: invalid_request
+                summary: "Error while unassigning requests: Request 'ID' is not staged"
+            Request Not In Staging:
+              value:
+                code: invalid_request
+                summary: "Error while unassigning requests: Requests with number: ID don't belong to Staging: project_name"
+            Unknown Request:
+              value:
+                code: invalid_request
+                summary: "Error while unassigning requests: Requests with number: 212 don't exist"
+            Wrong Request Number:
+              value:
+                code: invalid_request
+                summary: 'Error while parsing the numbers of the requests'
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Without Staging Workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: not_found
+                summary: "Project 'project_name' not found."
+  tags:
+    - Staging Workflow
