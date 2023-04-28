@@ -100,14 +100,9 @@
             = link_to('Changes', request_changes_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('#mentioned-issues', id: 'mentioned-issues-tab', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
-                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab') do
+            = link_to('Mentioned Issues', request_mentioned_issues_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap') do
               Mentioned Issues
               %span.badge.bg-primary.align-text-top= @issues.size
-    .tab-content.p-4#request-tabs-content
-      - if @action[:type].in?(actions_for_diff)
-        .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/mentioned_issues', locals: { issues: @issues }
 
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
