@@ -27,8 +27,7 @@ module RescueHandler
       xml = Nokogiri::XML(text, &:strict).root
       http_status = xml['code'] || 500
       xml['origin'] ||= 'backend'
-      text = xml.to_xml
-      render plain: text, status: http_status
+      render xml: xml, status: http_status
     end
 
     rescue_from Trigger::Errors::InvalidToken do |exception|
