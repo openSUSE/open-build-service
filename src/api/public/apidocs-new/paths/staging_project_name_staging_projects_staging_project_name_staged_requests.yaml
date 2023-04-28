@@ -1,0 +1,220 @@
+get:
+  summary: List all the staged requests of a staging project.
+  description: List all the requests that are already associated to a staging project (staged requests).
+  # Authentication is not required
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/staging_project_name.yaml'
+  responses:
+    '200':
+      description: List of staged requests.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/staging/staged_requests.yaml'
+          examples:
+            Multiple Requests:
+              value:
+                request:
+                  - id: 1
+                    creator: Iggy
+                    type: submit
+                    state: accepted
+                    package: package_a
+                    updated_at: '2023-04-24T08:34:39Z'
+                  - id: 2
+                    creator: Dan
+                    type: submit
+                    state: review
+                    package: package_b
+                    superseded_by: 3
+                    updated_at: '2022-02-22T02:22:22Z'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Project Without Staging Workflow:
+              value:
+                code: not_found
+                summary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Staging Project:
+              value:
+                code: not_found
+                summary: "Staging Project 'staging_project_name' not found in Staging: 'project_name'"
+            Unknown Project:
+              value:
+                code: not_found
+                summary: "Project 'project_name' not found."
+  tags:
+    - Staging Workflow
+
+post:
+  summary: Add requests to the staging project.
+  description: |
+    Add requests to the specified staging project except those that are excluded from the staging workflow.
+    Pass `remove_exclusion` to stop excluding the requests before adding them to the staging project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/staging_project_name.yaml'
+    - in: query
+      name: remove_exclusion
+      schema:
+        type: string
+      description: |
+        Set to `1` if you want to stop excluding the specified requests before you add them to the staging project.
+        Don't pass this parameter to only stage the requests that are not excluded.
+      example: 1
+  requestBody:
+    description: List of requests to be added to the staging project.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/requests_to_stage.yaml'
+        examples:
+          Multiple Requests:
+            value:
+              request:
+                - id: 1
+                - id: 2
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            With Excluded Requests:
+              value:
+                code: invalid_request
+                summary: |
+                  Request ID currently excluded from project project_name. Use --remove-exclusion if you want to force this action.
+            Unknown Request:
+              value:
+                code: invalid_request
+                summary: "Request ID doesn't exist"
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Without Staging Workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Staging Project:
+              value:
+                code: not_found
+                summary: "Staging Project 'project_name:Staging:G' not found in Staging: 'project_name'"
+            Unknown Project:
+              value:
+                code: not_found
+                summary: "Project 'project_name' not found."
+    '424':
+      description: Unacceptable State
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Unacceptable State:
+              value:
+                code: staging_project_not_in_acceptable_state
+                sumary: "Can't change staged requests: Project 'project_name' is being accepted."
+  tags:
+    - Staging Workflow
+
+delete:
+  summary: Delete requests from the staging project.
+  description: Delete the given requests from the staging project they were staged in.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/staging_project_name.yaml'
+  requestBody:
+    description: List of requests to be removed from the staging project.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/requests_to_stage.yaml'
+        examples:
+          Multiple Requests:
+            value:
+              request:
+                - id: 1
+                - id: 2
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Request Not Staged:
+              value:
+                code: invalid_request
+                summary: "Error while unassigning requests: Request 'ID' is not staged"
+            Request Not In Staging:
+              value:
+                code: invalid_request
+                summary: "Error while unassigning requests: Requests with number: ID don't belong to Staging: project_name"
+            Wrong Request Number:
+              value:
+                code: invalid_request
+                summary: 'Error while parsing the numbers of the requests'
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Without Staging Workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: not_found
+                summary: "Project 'project_name' not found."
+  tags:
+    - Staging Workflow

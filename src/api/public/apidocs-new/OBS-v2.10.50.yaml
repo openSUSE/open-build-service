@@ -415,12 +415,14 @@ paths:
     $ref: 'paths/staging_project_name_excluded_requests.yaml'
   /staging/{project_name}/staging_projects:
     $ref: 'paths/staging_project_name_staging_projects.yaml'
-  /staging/{project_name}/workflow:
-    $ref: 'paths/staging_project_name_workflow.yaml'
   /staging/{project_name}/staging_projects/{staging_project_name}:
     $ref: 'paths/staging_project_name_staging_projects_staging_project_name.yaml'
   /staging/{project_name}/staging_projects/{staging_project_name}/copy/{staging_project_copy_name}:
     $ref: 'paths/staging_project_name_staging_projects_staging_project_name_copy_staging_project_copy_name.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/staged_requests:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_staged_requests.yaml'
+  /staging/{project_name}/workflow:
+    $ref: 'paths/staging_project_name_workflow.yaml'
 
   # Status messages
   /status/messages:
