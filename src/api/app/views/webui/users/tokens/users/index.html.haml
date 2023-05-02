@@ -32,7 +32,7 @@
             - @users.each do |user|
               %tr
                 %td.align-middle
-                  = image_tag_for(user, size: 20)
+                  = render(AvatarComponent.new(name: user.name, email: user.email, size: 20))
                   = link_to(display_name(user), user_or_group_path(user))
                 - if User.session
                   %td.text-nowrap
@@ -62,7 +62,7 @@
             - @groups.each do |group|
               %tr
                 %td.align-middle
-                  = image_tag_for(group, size: 20)
+                  = render(AvatarComponent.new(name: group.name, email: group.email, size: 20))
                   = link_to(display_name(group), user_or_group_path(group))
                 - if User.session
                   %td.text-nowrap

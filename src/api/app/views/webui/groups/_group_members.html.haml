@@ -10,7 +10,7 @@
       = render(CardComponent.new) do |component|
         .row.g-0
           .col-md-3
-            = image_tag_for(user, size: 80, custom_class: 'align-self-center')
+            = render(AvatarComponent.new(name: user.name, email: user.email, size: 80, custom_css: 'align-self-center'))
           .col-md-9
             .card-body.py-1
               .form-check.mt-2

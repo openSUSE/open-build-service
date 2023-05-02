@@ -5,7 +5,7 @@
 - records.each do |record|
   %tr
     %td.align-middle
-      = image_tag_for(record, size: 20)
+      = render(AvatarComponent.new(name: record.name, email: record.email, size: 20))
       = link_to(display_name(record), user_or_group_path(record))
     - roles.each do |role|
       %td.align-middle
