@@ -182,6 +182,17 @@ sub DESTROY {
   UNTIE($sslr) if $sslr && $sslr->[0];
 }
 
+sub data_available {
+  my ($sslr) = @_;
+  my ($r, $rv) = Net::SSLeay::peek($sslr->[0], 1);
+  if ($rv && $rv < 0) {
+    my $code = Net::SSLeay::get_error($sslr->[0], $rv);
+    return 0 if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
+    return undef;
+  }
+  return defined($r) ? 1 : 0;
+}
+
 sub peerfingerprint {
   my ($sslr, $type) = @_;
   my $cert = Net::SSLeay::get_peer_certificate($sslr->[0]);
