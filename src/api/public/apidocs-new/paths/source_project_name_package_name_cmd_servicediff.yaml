@@ -64,6 +64,17 @@
                 +version: 2.11~alpha.20221007T165328.9f99a31a
                 +mtime: 1665154408
                 +commit: 9f99a31afe0ab435c1dd1d02be5f52fe4425b00f
+        text/xml:
+          schema:
+            type: object
+            properties:
+              name:
+                key: string
+                xml:
+                  attribute: true
+            xml:
+              name: sourcediff
+          examples:
             # Representing a `sourcediff` xml with a schema is not possible.
             # The `diff` element has both: content and an attribute (`lines`).
             # OpenAPI specification 3.0 doesn't allow to represent XML elements with both content and attributes.
