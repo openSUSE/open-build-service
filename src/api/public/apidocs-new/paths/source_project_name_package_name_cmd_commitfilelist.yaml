@@ -83,8 +83,7 @@ post:
     '400':
       description: Bad Request.
       content:
-        # The response is not "application/xml; charset=utf-8"
-        text/plain; charset=utf-8:
+        application/xml; charset=utf-8:
           schema:
             $ref: '../components/schemas/api_response.yaml'
           examples:
