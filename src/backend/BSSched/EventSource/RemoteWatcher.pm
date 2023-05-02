@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use Data::Dumper;
-use POSIX;
 
 use BSRPC;
 use BSXML;
@@ -94,7 +93,6 @@ sub new {
     $ret = {'retry' => time() + 60};
   } else {
     $ret = { 'rpc' => $ret, 'socket' => $ret->{'socket'} };
-    fcntl($ret->{'socket'}, F_SETFL, O_NONBLOCK);
   }
   if (!exists($watchremote->{'watchlist'})) {
     $watchremote->{'watchlist'} = join("\0", sort keys %$watchremote);
@@ -171,7 +169,6 @@ sub getevents {
   print "response from watcher for $remoteurl\n";
   my $ret;
   die("watcher with no rpc\n") unless $watcher->{'rpc'};
-  fcntl($watcher->{'rpc'}->{'socket'}, F_SETFL, 0);
   eval {
     $ret = BSRPC::rpc($watcher->{'rpc'});
   };

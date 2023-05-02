@@ -420,8 +420,11 @@ sub rpc {
     $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
     $ret->{'receiverarg'} = $xmlargs if $xmlargs;
     $ret->{'is_ssl'} = 1 if $is_ssl;
+    fcntl($sock, F_SETFL, O_NONBLOCK);
     return $ret;
   }
+
+  fcntl($sock, F_SETFL, 0) if $param->{'continuation'};
 
   # read answer from server, first the header block
   my ($status, $ans) = readanswerheaderblock($sock);
