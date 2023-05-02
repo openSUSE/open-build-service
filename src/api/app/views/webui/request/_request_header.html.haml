@@ -1,0 +1,61 @@
+- badge_state = BsRequestStateBadgeComponent.new(bs_request: bs_request, css_class: 'ms-2')
+
+.card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
+  %h3
+    Request #{bs_request.number}
+    -# state badge
+    %small
+      = render badge_state
+  -# watch button
+  - if User.session
+    .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
+      = render WatchlistIconComponent.new(user: User.session!, bs_request: bs_request, current_object: bs_request)
+
+-# author + datetime + (if superseding -> "Superseds something")
+.card-text.px-4.pb-4
+  %p.fst-italic
+    Created by
+    = user_with_realname_and_icon(bs_request.creator)
+    = render TimeComponent.new(time: bs_request.created_at)
+
+  %ul
+    -# superseded
+    - if bs_request.superseded_by.present?
+      %li
+        %mark.text-nowrap.text-light{ class: "bg-#{badge_state.decode_state_color(bs_request.state)}" } Superseded
+        by
+        = link_to "##{bs_request.superseded_by}", number: bs_request.superseded_by
+    -# superseding statement
+    - if bs_request.superseding.present?
+      %li
+        %strong Supersedes
+        - bs_request.superseding.each do |supersed|
+          = link_to "##{supersed['number']}", number: supersed['number']
+    -# staging statement
+    - if staging_status
+      - staging_project = staging_status[:staging_project]
+      %li
+        - if staging_project
+          %mark.text-light.bg-staging.text-nowrap.text Staged
+          in
+          = link_to staging_project[:name], staging_project[:url]
+        - else
+          %strong Waiting
+          to be
+          %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
+            = link_to 'staged', staging_status[:target_project_staging_url]
+    -# auto-accept statement
+    - if bs_request.accept_at.present?
+      %li
+        This request will be
+        %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: bs_request.accept_at }
+          auto accepted
+          = render TimeComponent.new(time: bs_request.accept_at)
+  .mt-4
+    -# action description, prev + dropdown select + next
+        TODO: once we support all types of actions, we have to send @actions instead of @supported_actions
+    = render partial: 'actions_details', locals: { bs_request: bs_request, action: action, active_action: active_action,
+                                                    prev_action: prev_action, next_action: next_action,
+                                                    actions: supported_actions, actions_count: supported_actions.count,
+                                                    diff_to_superseded_id: diff_to_superseded_id, diff_limit: diff_limit,
+                                                    page_name: page_name }

@@ -1,0 +1,22 @@
+-# This will be fixed once the request workflow redesign leaves the beta, since the alert
+  at the top of the page will be removed.
+:ruby
+  @pagetitle = "Request #{bs_request.number}"
+  @pagetitle += ": #{action[:name]}"
+
+.alert.alert-info{ role: 'alert' }
+  As part of the
+  = succeed ',' do
+    = link_to('beta program', my_beta_features_path)
+  we are currently working on a
+  = link_to('redesign of this page', 'https://openbuildservice.org/2022/08/15/request-workflow-redesign/')
+  to help you in your daily work.
+  Certain features might still be missing, but they will be implemented in the future.
+  Give us feedback on this redesign at GitHub by
+  = link_to('opening an issue', 'https://github.com/openSUSE/open-build-service/issues/new/choose')
+  or talk to us on IRC in the
+  %i #opensuse-buildservice
+  on
+  %i Libera.Chat
+  \-
+  %i The OBS team

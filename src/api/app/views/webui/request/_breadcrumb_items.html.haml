@@ -1,3 +1,6 @@
-- if current_page?(controller: 'webui/request', action: 'show', request_action_id: params[:request_action_id])
+:ruby
+  current_page = current_page?(request_show_path(@bs_request.number, params[:request_action_id])) ||
+                 current_page?(request_conversation_path(@bs_request.number, params[:request_action_id]))
+- if current_page
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Request #{@bs_request.number}

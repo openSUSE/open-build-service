@@ -89,8 +89,7 @@
     .border-bottom
       %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }
         %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('Conversation', '#conversation', id: 'conversation-tab', class: 'nav-link text-nowrap', 'aria-controls': 'conversation',
-                    'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+          = link_to('Conversation', request_conversation_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
         - if @action[:sprj] || @action[:spkg]
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('Build Results', '#build-results', id: 'build-results-tab', class: 'nav-link text-nowrap', 'aria-controls': 'build-results',
@@ -110,13 +109,6 @@
               Mentioned Issues
               %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
-      .tab-pane.fade.p-2#conversation{ 'aria-labelledby': 'conversation-tab', role: 'tabpanel' }
-        = render partial: 'webui/request/beta_show_tabs/conversation',
-            locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews,
-                      request_reviews: @request_reviews,
-                      my_open_reviews: @my_open_reviews, package_maintainers: @package_maintainers, action: @action,
-                      is_target_maintainer: @is_target_maintainer, is_author: @is_author,
-                      project_maintainers: @project_maintainers, show_project_maintainer_hint: @show_project_maintainer_hint }
       - if @action[:sprj] || @action[:spkg]
         .tab-pane.fade.p-2#build-results{ 'aria-labelledby': 'build-results-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/build_results', locals: { project: @staging_project || @action[:sprj],
@@ -138,39 +130,5 @@
 
 - content_for :ready_function do
   :plain
-    var anchor = document.location.hash;
-    var result = [];
-    if (result = anchor.match(/^#diff_([\d]+)_n\d+$/)) {
-      var file_index = result[1];
-      $('.nav-tabs:not(.disable-link-generation) .nav-link[href="#changes"]').tab('show');
-
-      $('#revision_details_' + file_index).attr('open', 'open');
-
-      document.location.hash = anchor;
-    }
-    else if (anchor == '#comments-list') {
-      $('#conversation-tab').tab('show');
-
-      document.location.hash = anchor;
-    }
-
-    // TODO: Remove this temporary fix once we load the content every time we change tabs.
-    // It's really important that the information displayed in Conversation is accurate and real-time-ish.
-    $('.diff').on('ajax:complete', function() {
-      $('#request-tabs').find('a#conversation-tab').on('shown.bs.tab', function() {
-        $('.tab-pane#conversation').html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>');
-        window.location.reload();
-      });
-    });
-
-    // Same here, but for Changes tab.
-    $('.timeline').on('ajax:complete', function() {
-      $('#request-tabs').find('a#changes-tab').on('shown.bs.tab', function() {
-        $('.tab-pane#changes').html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>');
-        window.location.reload();
-      });
-    });
-
-  setCollapsible();
-
+    setCollapsible();
 -# haml-lint:enable ViewLength

@@ -182,4 +182,23 @@ module Webui::RequestHelper
 
     bs_request.bs_request_actions.first.type.titleize
   end
+
+  def next_prev_path(**opts)
+    case opts[:page_name]
+    when 'request_conversation'
+      request_conversation_path(
+        number: opts[:number],
+        request_action_id: opts[:request_action_id],
+        full_diff: opts[:full_diff],
+        diff_to_superseded: opts[:diff_to_superseded]
+      )
+    else
+      request_show_path(
+        number: opts[:number],
+        request_action_id: opts[:request_action_id],
+        full_diff: opts[:full_diff],
+        diff_to_superseded: opts[:diff_to_superseded]
+      )
+    end
+  end
 end
