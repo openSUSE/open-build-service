@@ -20,6 +20,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use POSIX;
 
 use BSRPC;
 use BSUtil;
@@ -129,6 +130,7 @@ sub xrpc {
   $handle->{'_ctx'} = $ctx;
   $handle->{'_iswaiting'} = $resource;
   $handle->{'_server'} = $server;
+  fcntl($handle->{'socket'}, F_SETFL, O_NONBLOCK);
 
   $handle->{$_} = $async->{$_} for keys %$async;
   $iswaiting->{$resource} = $handle;
@@ -320,6 +322,11 @@ sub xrpc_resume_nextrpc {
 
 sub xrpc_resume {
   my ($rctx, $handle) = @_;
+
+  # check if the rpc is really done
+  my $isfinished = eval { BSRPC::rpc_isfinished($handle) };
+  return unless $@ || $isfinished;
+  fcntl($handle->{'socket'}, F_SETFL, 0);
 
   # iswaiting rpc, finish...
   my $iswaiting = $rctx->{'iswaiting'};

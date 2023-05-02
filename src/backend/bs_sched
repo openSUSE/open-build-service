@@ -881,6 +881,7 @@ eval {
             delete $remotewatchers{$remoteurl};
             $gotevent = 1;	# force loop restart
           } else {
+	    next unless $watcher->isfinished();
 	    $gctx->{'watchremote_start_copy'} ||= { %$watchremote_start };
 	    my @events = $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
 	    $ev_queue->add_events(@events);
