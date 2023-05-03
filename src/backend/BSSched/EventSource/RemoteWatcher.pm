@@ -210,4 +210,11 @@ sub getevents {
   return @remoteevents;
 }
 
+sub isfinished {
+  my ($watcher) = @_;
+  return 1 unless $watcher->{'rpc'};
+  my $isfinished = eval { BSRPC::rpc_isfinished($watcher->{'rpc'}) };
+  return $@ || $isfinished ? 1 : 0;
+}
+
 1;

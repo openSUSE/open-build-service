@@ -321,6 +321,10 @@ sub xrpc_resume_nextrpc {
 sub xrpc_resume {
   my ($rctx, $handle) = @_;
 
+  # check if the rpc is really done
+  my $isfinished = eval { BSRPC::rpc_isfinished($handle) };
+  return unless $@ || $isfinished;
+
   # iswaiting rpc, finish...
   my $iswaiting = $rctx->{'iswaiting'};
   my $iswaiting_server = $rctx->{'iswaiting_server'};

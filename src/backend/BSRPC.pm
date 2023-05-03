@@ -342,6 +342,7 @@ sub rpc {
   my $keepalive;
   my $keepalivecookie;
   my $sock;
+  my $is_ssl;
   if (exists($param->{'socket'})) {
     $sock = $param->{'socket'};
   } else {
@@ -368,8 +369,9 @@ sub rpc {
         die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
       }
       if ($proto eq 'https' || $proxytunnel) {
-        ($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $host);
-        verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
+	($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $host);
+	$is_ssl = 1;
+	verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
       }
     }
   }
@@ -417,8 +419,12 @@ sub rpc {
     $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
     $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
     $ret->{'receiverarg'} = $xmlargs if $xmlargs;
+    $ret->{'is_ssl'} = 1 if $is_ssl;
+    fcntl($sock, F_SETFL, O_NONBLOCK);
     return $ret;
   }
+
+  fcntl($sock, F_SETFL, 0) if $param->{'continuation'};
 
   # read answer from server, first the header block
   my ($status, $ans) = readanswerheaderblock($sock);
@@ -532,6 +538,17 @@ sub rpc {
     }
   }
   return $ans;
+}
+
+sub rpc_isfinished {
+  my ($param) = @_;
+  die("not an async request\n") unless $param->{'continuation'};
+  my $sock = $param->{'socket'};
+  if ($param->{'is_ssl'}) {
+    my $d = tied(*{$sock})->data_available();
+    return 0 if defined($d) && !$d;
+  }
+  return 1;
 }
 
 1;
