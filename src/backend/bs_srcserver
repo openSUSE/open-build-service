@@ -4411,6 +4411,7 @@ sub docommand {
   push @args, map {"wipe=$_"} @{$cgi->{'wipe'} || []};
   push @args, "sysrq=$cgi->{'sysrq'}" if $cgi->{'sysrq'};
   push @args, "cmd=$cgi->{'cmd'}";
+  push @args, 'allarch=1' unless %archfilter;
   my $param = {
     'uri' => "$reposerver/_command",
     'request' => 'POST',
