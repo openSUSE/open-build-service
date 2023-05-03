@@ -816,6 +816,7 @@ sub wipe {
     print "ignoring wipe, package $projid/$packid is locked!\n";
     return;
   }
+  undef $allarch if $allarch && $projpacks->{$projid}->{'lock'} || $pdata->{'lock'};	# too dangerous
 
   # delete repository done flag
   unlink("$gdst/:repodone");
