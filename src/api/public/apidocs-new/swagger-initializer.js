@@ -14,7 +14,7 @@ window.onload = function() {
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout"
+    showExplorer: false,
   });
 
   //</editor-fold>
