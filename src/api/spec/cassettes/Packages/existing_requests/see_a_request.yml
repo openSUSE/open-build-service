@@ -1042,4 +1042,114 @@ http_interactions:
           <entry name="somefile.txt" md5="8d437cdb4a7473f384c03cfd95ec3619" size="72" mtime="1677246015"/>
         </directory>
   recorded_at: Fri, 24 Feb 2023 13:40:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_3
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 0c0cdad6-e289-4ae0-80a7-a6f1ffa3d9a9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'source_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'source_project' does not exist</summary>
+          <details>404 project 'source_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 10 May 2023 08:40:46 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/package_3?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=test_package&oproject=home:package_test_user&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 0c0cdad6-e289-4ae0-80a7-a6f1ffa3d9a9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'source_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'source_project' does not exist</summary>
+          <details>404 project 'source_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 10 May 2023 08:40:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/source_project/_result?package=package_3&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 0d9b3941-9876-407d-9784-cacb981c9c9d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'source_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'source_project' does not exist</summary>
+          <details>404 project 'source_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 10 May 2023 08:40:46 GMT
 recorded_with: VCR 6.1.0

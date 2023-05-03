@@ -1013,6 +1013,19 @@ class BsRequest < ApplicationRecord
     !staging_project_id.nil?
   end
 
+  def supported_actions
+    bs_request_actions.where(type: [:add_role, :change_devel, :delete, :submit, :maintenance_incident, :maintenance_release])
+  end
+
+  def build_results
+    supported_actions.inject([]) do |acc, action|
+      next(acc) unless action.source_project
+
+      acc += action.build_results
+      acc
+    end
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore

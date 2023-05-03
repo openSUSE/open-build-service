@@ -431,4 +431,57 @@ RSpec.describe BsRequestAction do
       it { expect(bs_request_action.seen_by_users).not_to include(user) }
     end
   end
+
+  describe '#build_results' do
+    subject { bs_request_action.build_results }
+
+    context 'when no source_project defined' do
+      let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
+      let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+      it { expect(subject).to be_empty }
+    end
+
+    context 'when no source_package defined' do
+      let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
+      let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+      before do
+        bs_request_action.source_project = 'home:request_user'
+      end
+
+      it { expect(subject).to be_empty }
+    end
+
+    context 'when having both source_package and source_project', vcr: true do
+      let(:source_prj) { create(:project, name: 'super_source_pkg') }
+      let(:source_pkg) { create(:package, project: source_prj, name: 'source_package') }
+      let(:target_prj) { create(:project) }
+      let(:target_pkg) { create(:package, project: target_prj) }
+      let(:action_attributes) do
+        {
+          type: 'submit',
+          source_package: source_pkg,
+          source_project: source_prj,
+          target_project: target_prj,
+          target_package: target_pkg
+        }
+      end
+      let(:bs_request) { create(:bs_request, action_attributes.merge(creator: user)) }
+      let(:bs_request_action) { bs_request.bs_request_actions.first }
+      let(:fake_build_result_finder) do
+        Class.new do
+          def initialize(package:, project:, show_all:, lastbuild:); end # rubocop:disable Style/RedundantInitialize
+
+          def results
+            {}
+          end
+        end
+      end
+
+      before { source_pkg.buildresult(source_prj, true, false, fake_build_result_finder) }
+
+      it { expect(subject).to be_empty }
+    end
+  end
 end

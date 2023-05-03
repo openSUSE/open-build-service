@@ -13,6 +13,8 @@
         %button.btn.btn-outline-primary.btn-sm.dropdown-toggle.rounded-0{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                                           :type => 'button', 'data-boundary' => 'viewport' }
           Select Action
+          - if build_status_needs_attention?(bs_request.build_results) && actions.count > 1
+            %i.fas{ class: build_status_attention_icon(bs_request.build_results) }
         %ul.dropdown-menu.dropdown-menu-start.scrollable-dropdown.pt-0
           %li.card-header.px-1.sticky-top
             %h6.dropdown-header

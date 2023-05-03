@@ -217,4 +217,14 @@ module Webui::RequestHelper
       request_show_path(parameters)
     end
   end
+
+  def build_status_needs_attention?(buildresults)
+    buildresults.any?(&:unsuccessful_final_status?)
+  end
+
+  def build_status_attention_icon(buildresults)
+    return unless build_status_needs_attention?(buildresults)
+
+    'fa-exclamation-triangle repository-state-broken'
+  end
 end

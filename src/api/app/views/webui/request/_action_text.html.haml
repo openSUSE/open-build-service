@@ -13,10 +13,12 @@
           = details['comment'].truncate(50)
         %p.mb-0.mt-0.small
           = action.name
+          %i.fas{ class: build_status_attention_icon(action.build_results), title: 'Build results of this action needs your attention' }
       - else
         %p.mt-0.mb-0.fw-normal
           %span.me-2 ##{action_index + 1}
           = action.name
+          %i.fas{ class: build_status_attention_icon(action.build_results), title: 'Build results of this action needs your attention' }
       %span.float-end.ms-5
         = details['rev']
     - else
@@ -35,7 +37,7 @@
           Release #{action.source_package}
         - else
           = action.name
-
+          %i.fas{ class: build_status_attention_icon(action.build_results), title: 'Build results of this action needs your attention' }
     -# delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
     - unless %w[delete set_bugowner].include?(action.type)
       %p.mb-0.mt-0.small

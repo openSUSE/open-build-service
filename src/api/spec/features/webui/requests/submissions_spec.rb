@@ -109,12 +109,14 @@ RSpec.describe 'Requests_Submissions', js: true, vcr: true do
         let!(:staging_workflow) { create(:staging_workflow, project: factory) }
         # Create another action to submit new files from different packages to package_b
         let!(:another_bs_request_action) do
-          create(:bs_request_action_submit,
-                 bs_request: bs_request,
-                 source_project: source_project,
-                 source_package: source_package,
-                 target_project: factory,
-                 target_package: target_package_b)
+          receiver.run_as do
+            create(:bs_request_action_submit,
+                   bs_request: bs_request,
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: factory,
+                   target_package: target_package_b)
+          end
         end
         let(:bs_request) do
           create(:bs_request_with_submit_action,

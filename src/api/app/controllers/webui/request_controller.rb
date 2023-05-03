@@ -9,8 +9,6 @@ class Webui::RequestController < Webui::WebuiController
                 only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
-                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action_id, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                 if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_active_action, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
@@ -478,14 +476,9 @@ class Webui::RequestController < Webui::WebuiController
     @actions = @bs_request.bs_request_actions
   end
 
-  def set_supported_actions
-    # Change supported_actions below into actions here when all actions are supported
-    @supported_actions = @actions.where(type: [:add_role, :change_devel, :delete, :submit, :maintenance_incident, :maintenance_release])
-  end
-
   def set_action_id
     # In case the request doesn't have supported actions, we display the first unsupported action.
-    @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
+    @action_id = params[:request_action_id] || @bs_request.supported_actions.first&.id || @actions.first.id
   end
 
   def set_active_action
@@ -535,10 +528,10 @@ class Webui::RequestController < Webui::WebuiController
     # Handling request actions
     @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
                                         diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
-    active_action_index = @supported_actions.index(@active_action)
+    active_action_index = @bs_request.supported_actions.index(@active_action)
     if active_action_index
-      @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
-      @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
+      @prev_action = @bs_request.supported_actions[active_action_index - 1] unless active_action_index.zero?
+      @next_action = @bs_request.supported_actions[active_action_index + 1] if active_action_index + 1 < @bs_request.supported_actions.length
     end
 
     target_project = Project.find_by_name(@bs_request.target_project_name)

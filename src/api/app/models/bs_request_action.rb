@@ -864,6 +864,20 @@ class BsRequestAction < ApplicationRecord
     params
   end
 
+  def build_results
+    return {} unless source_project
+
+    source_project_object = Project.find_by_name(source_project)
+    return {} unless source_project_object
+
+    source_package_object = Package.find_by_project_and_name(source_project_object.name, source_package)
+    return {} unless source_package_object
+
+    build_statuses = source_package_object.buildresult(source_project_object, true).results.map { |_k, v| v.map(&:code) }.flatten
+    # FIXME: Could be more than one buildresult per package?
+    build_statuses.map { |buildstatus| Buildresult.new(buildstatus) }
+  end
+
   private
 
   def cache_diffs

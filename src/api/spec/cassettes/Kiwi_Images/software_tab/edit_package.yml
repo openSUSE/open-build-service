@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:39 GMT
 - request:
     method: put
@@ -78,7 +77,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Dignissimos aut odio tempore.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: put
@@ -117,7 +115,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Dignissimos aut odio tempore.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: put
@@ -160,7 +157,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: put
@@ -199,7 +195,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Dignissimos aut odio tempore.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -233,7 +228,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -267,7 +261,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -301,7 +294,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -335,7 +327,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -369,7 +360,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -1188,7 +1178,6 @@ http_interactions:
             <user>unknown</user>
           </revision>
         </revisionlist>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -1221,7 +1210,6 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000" />
 
 '
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:40 GMT
 - request:
     method: get
@@ -1255,7 +1243,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:41 GMT
 - request:
     method: get
@@ -1289,7 +1276,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:41 GMT
 - request:
     method: get
@@ -1323,7 +1309,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:41 GMT
 - request:
     method: get
@@ -1356,7 +1341,6 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000" />
 
 '
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:41 GMT
 - request:
     method: get
@@ -1390,7 +1374,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1424,7 +1407,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1458,7 +1440,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1492,7 +1473,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="131" vrev="93" srcmd5="518486fc563594c5adf33d7651241bc9">
           <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559558036" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1527,7 +1507,6 @@ http_interactions:
         \   <preferences>\n      <version>0.0.1</version>\n      <type image=\"oem\"
         primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n    </preferences>\n  </image>\n
         \ "
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: put
@@ -1586,7 +1565,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: put
@@ -1625,7 +1603,6 @@ http_interactions:
           <title>Have His Carcase</title>
           <description>Dignissimos aut odio tempore.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1659,7 +1636,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="132" vrev="39" srcmd5="e7674c03590924ddcee9bb68c23a3ee5">
           <entry name="package_with_kiwi_file.kiwi" md5="3adb85a75e5801a7332d6cea378fc216" size="718" mtime="1559573166" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1693,7 +1669,6 @@ http_interactions:
         <sourceinfo package="package_with_kiwi_file" rev="132" vrev="39" srcmd5="e7674c03590924ddcee9bb68c23a3ee5" verifymd5="e7674c03590924ddcee9bb68c23a3ee5">
           <filename>package_with_kiwi_file.kiwi</filename>
         </sourceinfo>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1727,7 +1702,6 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="132" vrev="39" srcmd5="e7674c03590924ddcee9bb68c23a3ee5">
           <entry name="package_with_kiwi_file.kiwi" md5="3adb85a75e5801a7332d6cea378fc216" size="718" mtime="1559573166" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: post
@@ -1767,7 +1741,6 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
 - request:
     method: get
@@ -1801,6 +1774,100 @@ http_interactions:
         <directory name="package_with_kiwi_file" rev="132" vrev="39" srcmd5="e7674c03590924ddcee9bb68c23a3ee5">
           <entry name="package_with_kiwi_file.kiwi" md5="3adb85a75e5801a7332d6cea378fc216" size="718" mtime="1559573166" />
         </directory>
-    http_version: 
   recorded_at: Mon, 03 Jun 2019 16:20:43 GMT
-recorded_with: VCR 5.0.0
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_history?deleted=0&meta=0&rev=131
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 20de59da-0a54-403c-bf0f-1247b23fdef5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Wed, 10 May 2023 08:41:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - bdbd19f6-b8a5-4917-a646-29d753f067f4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1344'
+    body:
+      encoding: UTF-8
+      string: |
+        <workerstatus clients="2">
+          <idle workerid="9bc3b4c0746c:1" hostarch="x86_64"/>
+          <idle workerid="9bc3b4c0746c:2" hostarch="x86_64"/>
+          <waiting arch="i586" jobs="0"/>
+          <waiting arch="x86_64" jobs="0"/>
+          <blocked arch="i586" jobs="0"/>
+          <blocked arch="x86_64" jobs="0"/>
+          <buildavg arch="i586" buildavg="1200"/>
+          <buildavg arch="x86_64" buildavg="1200"/>
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1683706692"/>
+            <daemon type="servicedispatch" state="running" starttime="1683706687"/>
+            <daemon type="service" state="running" starttime="1683706687"/>
+            <daemon type="clouduploadserver" state="running" starttime="1683706687"/>
+            <daemon type="clouduploadworker" state="running" starttime="1683706687"/>
+            <daemon type="scheduler" arch="i586" state="running" starttime="1683706691">
+              <queue high="0" med="0" low="0" next="0"/>
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1683706691">
+              <queue high="0" med="0" low="1" next="0"/>
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1683706692"/>
+            <daemon type="dispatcher" state="running" starttime="1683706688"/>
+            <daemon type="publisher" state="running" starttime="1683706691"/>
+            <daemon type="signer" state="running" starttime="1683706691"/>
+          </partition>
+        </workerstatus>
+  recorded_at: Wed, 10 May 2023 08:41:51 GMT
+recorded_with: VCR 6.1.0

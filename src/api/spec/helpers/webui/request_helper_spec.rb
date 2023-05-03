@@ -211,4 +211,26 @@ RSpec.describe Webui::RequestHelper do
       it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_rpm_lint')).to eq('/request/show/10/request_action/30/rpm_lint') }
     end
   end
+
+  describe '#build_status_attention_icon' do
+    subject { build_status_attention_icon(buildresults) }
+
+    context 'when having a mix of succeeded, disabled or excluded build status' do
+      let(:buildresults) { ['succeeded', 'disabled', 'excluded', 'building'].map { |c| Buildresult.new(c) } }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when having a mix of succeeded and broken builds status' do
+      let(:buildresults) { ['broken', 'succeeded', 'somethingelse'].map { |c| Buildresult.new(c) } }
+
+      it { is_expected.to eql('fa-exclamation-triangle repository-state-broken') }
+    end
+
+    context 'when having a mix of broken build status' do
+      let(:buildresults) { ['broken', 'fail', 'unresolvable'].map { |c| Buildresult.new(c) } }
+
+      it { is_expected.to eql('fa-exclamation-triangle repository-state-broken') }
+    end
+  end
 end

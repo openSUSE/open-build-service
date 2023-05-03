@@ -1,0 +1,286 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 29 Mar 2023 20:16:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_project/_staging_workflow?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:titan" managers="group_1">
+          <staging_project name="home:titan:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1">
+          <srcmd5>9855c52dcd23e16908fcac8941dcb6d8</srcmd5>
+          <time>1680120986</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 29 Mar 2023 20:16:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan:Staging:A/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 29 Mar 2023 20:16:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_project/_staging_workflow?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:titan" managers="group_1">
+          <staging_project name="home:titan:Staging:A"/>
+          <staging_project name="home:titan:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2">
+          <srcmd5>823143df5e4e87ac88887d3f4a9a3b9b</srcmd5>
+          <time>1680120986</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 29 Mar 2023 20:16:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan:Staging:B/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 29 Mar 2023 20:16:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer"/>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+  recorded_at: Wed, 29 Mar 2023 20:16:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '142'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 29 Mar 2023 20:16:27 GMT
+recorded_with: VCR 6.1.0

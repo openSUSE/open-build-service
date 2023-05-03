@@ -1,4 +1,5 @@
-- badge_state = BsRequestStateBadgeComponent.new(bs_request: bs_request, css_class: 'ms-2')
+:ruby
+  badge_state = BsRequestStateBadgeComponent.new(bs_request: bs_request, css_class: 'ms-2')
 
 .card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
   %h3
@@ -62,9 +63,14 @@
         This is a
         %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Release
         request
+
+  - if build_status_needs_attention?(bs_request.build_results) && supported_actions.count > 1
+    %i.fas{ class: build_status_attention_icon(bs_request.build_results) }
+    Some action needs attention
+
   .mt-4
     -# action description, prev + dropdown select + next
-        TODO: once we support all types of actions, we have to send @actions instead of @supported_actions
+        TODO: once we support all types of actions, we have to send @actions instead of @bs_request.supported_actions
     = render partial: 'actions_details', locals: { bs_request: bs_request, action: action, active_action: active_action,
                                                     prev_action: prev_action, next_action: next_action,
                                                     actions: supported_actions, actions_count: supported_actions.count,

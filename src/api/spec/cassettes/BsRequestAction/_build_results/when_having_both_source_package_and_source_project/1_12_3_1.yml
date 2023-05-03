@@ -1,0 +1,299 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title/>
+          <description/>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title></title>
+          <description></description>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 29 May 2023 12:47:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/super_source_pkg/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="super_source_pkg">
+          <title>Great Work of Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="super_source_pkg">
+          <title>Great Work of Time</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 29 May 2023 12:47:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/super_source_pkg/source_package/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="super_source_pkg">
+          <title>Nine Coaches Waiting</title>
+          <description>Qui hic ipsa quam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="super_source_pkg">
+          <title>Nine Coaches Waiting</title>
+          <description>Qui hic ipsa quam.</description>
+        </package>
+  recorded_at: Mon, 29 May 2023 12:47:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>The Doors of Perception</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>The Doors of Perception</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 29 May 2023 12:47:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>O Pioneers!</title>
+          <description>Culpa soluta et totam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '139'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>O Pioneers!</title>
+          <description>Culpa soluta et totam.</description>
+        </package>
+  recorded_at: Mon, 29 May 2023 12:47:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/super_source_pkg/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 29 May 2023 12:47:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/super_source_pkg/source_package?cmd=diff&expand=1&filelimit=10000&opackage=package_1&oproject=project_1&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '320'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="4c7afc010981033effbef5b7dcaaee71">
+          <old project="project_1" package="package_1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="super_source_pkg" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 29 May 2023 12:47:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/super_source_pkg/_result?lastbuild=0&locallink=1&multibuild=1&package=source_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 29 May 2023 12:47:41 GMT
+recorded_with: VCR 6.1.0
