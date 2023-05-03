@@ -872,6 +872,7 @@ eval {
         for my $watcher (@watchers) {
           my $remoteurl = $watcher->{'remoteurl'};
           if (!defined($remoteurl)) {
+	    next unless $gctx->{'rctx'}->xrpc_isfinished($watcher);
             $gctx->{'rctx'}->xrpc_resume($watcher);
             $gotevent = 1;	# force loop restart
           } elsif ($remoteurl eq 'ping') {
