@@ -321,10 +321,6 @@ sub xrpc_resume_nextrpc {
 sub xrpc_resume {
   my ($rctx, $handle) = @_;
 
-  # check if the rpc is really done
-  my $isfinished = eval { BSRPC::rpc_isfinished($handle) };
-  return unless $@ || $isfinished;
-
   # iswaiting rpc, finish...
   my $iswaiting = $rctx->{'iswaiting'};
   my $iswaiting_server = $rctx->{'iswaiting_server'};
@@ -386,6 +382,12 @@ sub xrpc_nextparams {
   my @next = @{$handle->{'_nextxrpc'} || []};
   unshift @next, $handle if $handle->{'_xrpc_data'};	# waiting because of server load
   return map {$_->{'_xrpc_data'}->[2]} @next;		# map to param argument
+}
+
+sub xrpc_isfinished {
+  my ($rctx, $handle) = @_;
+  my $isfinished = eval { BSRPC::rpc_isfinished($handle) };
+  return $@ || $isfinished ? 1 : 0;
 }
 
 1;
