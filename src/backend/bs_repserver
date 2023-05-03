@@ -3132,12 +3132,13 @@ sub docommand {
       wipepublishedlocked($projid, $repoid) unless $wipepublishedlockeddone{$prp};
       $wipepublishedlockeddone{$prp} = 1;
     } elsif ($cmd eq 'wipe') {
+      $cmd = 'wipeallarch' if $cgi->{'allarch'};
       undef $allpacks;
       if ($allpacks) {
-        forwardevent($cgi, 'wipe', $projid, undef, $repoid, $arch);
+        forwardevent($cgi, $cmd, $projid, undef, $repoid, $arch);
       } else {
         for my $packid (@packids) {
-	  forwardevent($cgi, 'wipe', $projid, $packid, $repoid, $arch);
+	  forwardevent($cgi, $cmd, $projid, $packid, $repoid, $arch);
         }
       }
     } elsif ($cmd eq 'force_publish') {
@@ -4528,7 +4529,7 @@ my $dispatches = [
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/_jobhistory $prpa+ package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
-  'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:?' => \&docommand,
+  'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:? allarch:bool?' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,

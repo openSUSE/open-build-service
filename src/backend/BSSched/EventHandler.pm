@@ -61,6 +61,7 @@ our %event_handlers = (
   'dumprepo'        => \&BSSched::EventHandler::event_dumprepo,
   'wipenotyet'      => \&BSSched::EventHandler::event_wipenotyet,
   'wipe'            => \&BSSched::EventHandler::event_wipe,
+  'wipeallarch'     => \&BSSched::EventHandler::event_wipe,
   'exit'            => \&BSSched::EventHandler::event_exit,
   'exitcomplete'    => \&BSSched::EventHandler::event_exit,
   'restart'         => \&BSSched::EventHandler::event_exit,
@@ -397,7 +398,8 @@ sub event_wipe {
   my $gdst = "$reporoot/$prp/$myarch";
   print "wiping $prp $packid\n";
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  BSSched::BuildResult::wipe($gctx, $prp, $packid, $prpsearchpath, $ectx->{'dstcache'}) if -d "$gdst/$packid";
+  my $allarch = $ev->{'type'} eq 'wipeallarch' ? 1 : undef;
+  BSSched::BuildResult::wipe($gctx, $prp, $packid, $prpsearchpath, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
   BSSched::BuildJob::set_genbuildreqs($gctx, $prp, $packid, undef);
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
