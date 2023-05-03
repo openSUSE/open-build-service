@@ -107,7 +107,8 @@ sub blob_exists {
 sub blob_upload {
   my ($blobid, $upload_ent) = @_;
 
-  return $blobid if blob_exists($blobid, $upload_ent->{'size'});
+  my $size = $upload_ent->{'size'};
+  return $blobid if blob_exists($blobid, $size);
   print "uploading layer $blobid... ";
   my $replyheaders;
   my $param = {
@@ -127,7 +128,7 @@ sub blob_upload {
   die("no location in upload reply\n") unless $loc;
   $loc = "$registryserver$loc" if $loc =~ /^\//;
   $param = {
-    'headers' => [ "Content-Length: $upload_ent->{'size'}", "Content-Type: application/octet-stream" ],
+    'headers' => [ "Content-Length: $size", "Content-Type: application/octet-stream" ],
     'uri' => $loc,
     'request' => 'PUT',
     'authenticator' => $registry_authenticator,
@@ -261,8 +262,8 @@ sub cosign_upload {
   my ($tag, $config, @layers) = @_;
   my $oci = 1;
   my ($config_ent, $config_blobid) = BSContar::make_blob_entry('config.json', $config);
-  blob_upload($config_blobid, $config_ent);
   my $config_data = BSContar::create_config_data($config_ent, $oci);
+  blob_upload($config_blobid, $config_ent);
   my @layer_data;
   while (@layers >= 2) {
     my ($payload_layer_data, $payload) = splice(@layers, 0, 2);
@@ -272,7 +273,7 @@ sub cosign_upload {
     push @layer_data, $payload_layer_data;
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
-  my $mani_json = BSContar::create_dist_manifest_list($mani);
+  my $mani_json = BSContar::create_dist_manifest($mani);
   return manifest_upload($mani_json, $tag, $mani->{'mediaType'});
 }
 
