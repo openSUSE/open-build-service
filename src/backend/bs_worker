@@ -1473,6 +1473,7 @@ sub getbinaries_cache {
     push @args, map {"module=$_"} @{$modules || []};
     push @args, "binaries=".join(',', @$bins);
     push @args, "now=$callers_time";
+    push @args, "withevr=1";
     eval {
       $bvl = BSRPC::rpc({
         'uri' => "$server/getbinaryversions",
@@ -1534,8 +1535,13 @@ sub getbinaries_cache {
       $downloadsizek += $bv->{'sizek'};
     } else {
       push @cacheold, [$cacheid, $s[7]];
-      $ret{"$binprefix$bin"} = {'name' => "$binprefix$bv->{'name'}", 'hdrmd5' => $bv->{'hdrmd5'}};
-      $ret{"$binprefix$bin"}->{'meta'} = 1 if !$nometa && $havemeta;
+      my $r = { 'name' => "$binprefix$bv->{'name'}", 'hdrmd5' => $bv->{'hdrmd5'} };
+      $r->{'meta'} = 1 if !$nometa && $havemeta;
+      if ($bv->{'evr'}) {
+	$r->{'evr'} = $bv->{'evr'};
+	$r->{'arch'} = $bv->{'arch'};
+      }
+      $ret{"$binprefix$bin"} = $r;
     }
   }
   $binariescachehits += @cacheold;
@@ -1579,6 +1585,19 @@ sub getbinaries_cache {
 	$r->{'hdrmd5'} = $id;
 	my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $id);
 	push @cachenew, [$cacheid, $s[7], "$dir/$r->{'name'}"];
+	my $bv = $bv{substr($n, length($binprefix))};
+	if ($bv && $bv->{'evr'} && $bv->{'hdrmd5'} eq $id) {
+	  $r->{'evr'} = $bv->{'evr'};
+	  $r->{'arch'} = $bv->{'arch'};
+	} else {
+	  my $q = eval { Build::query("$dir/$r->{'name'}", 'evra' => 1) };
+	  if ($q && $q->{'version'}) {
+	    my $evr = $q->{'version'};
+	    $evr .= "-$q->{'release'}" if defined $q->{'release'};
+	    $r->{'evr'} = $q->{'epoch'} ? "$q->{'epoch'}:$evr" : $evr;
+	    $r->{'arch'} = $q->{'arch'} if $q->{'arch'};
+	  }
+	}
 	$ret{$n} = $r;
       } elsif ($r->{'name'} =~ /^(.*)\.meta$/) {
         $havemeta{$1} = 1;
@@ -2184,7 +2203,7 @@ sub getpreinstallimage {
   # get all bvls to calculate image data
   my @bins = @$todo;
   my %prpas;	# server -> prpas on this server
-  my %hdrmd5s;
+  my %targetbvs;
   my %imageorigins;
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
@@ -2205,6 +2224,7 @@ sub getpreinstallimage {
     push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
     push @args, "binaries=".join(',', @bins);
     push @args, "now=$callers_time";
+    push @args, "withevr=1";
     my $bvl;
     eval {
       $bvl = BSRPC::rpc({
@@ -2230,25 +2250,27 @@ sub getpreinstallimage {
     for my $bin (@bins) {
       my $bv = $bv{$bin} || {};
       next if $bv->{'error'};
-      $hdrmd5s{$bin} = $bv->{'hdrmd5'};
-      $imageorigins{$bin} = \@origin if exists $hdrmd5s{$bin};
+      $targetbvs{$bin} = $bv;
+      $imageorigins{$bin} = \@origin if $bv->{'hdrmd5'};
     }
-    @bins = grep {!exists $hdrmd5s{$_}} @bins;
+    @bins = grep {!$targetbvs{$_}} @bins;
     last unless @bins;
   }
-  # wipe error packages from hdrmd5s
-  for (keys %hdrmd5s) {
-    delete $hdrmd5s{$_} unless defined $hdrmd5s{$_};
+  # wipe error packages from targetbvs
+  for (keys %targetbvs) {
+    delete $targetbvs{$_} unless $targetbvs{$_}->{'hdrmd5'};
   }
   # wipe noinstall packages from hdrmd5s (buildengine case)
   for (grep {$_->{'noinstall'}} @{$buildinfo->{'bdep'} || []}) {
-    delete $hdrmd5s{$_->{'name'}};
+    delete $targetbvs{$_->{'name'}};
   }
-  return undef unless %hdrmd5s && %prpas;
+  return undef unless %targetbvs && %prpas;
 
   # ok, now check if there is an image on one of the repo servers
+  my %targethdrmd5s = %targetbvs;
+  $_ = $_->{'hdrmd5'} for values %targethdrmd5s;
   my $match = "\0" x 512;
-  for (values %hdrmd5s) {
+  for (values %targethdrmd5s) {
     vec($match, hex(substr($_, 0, 3)), 1) = 1;
   }
   #$match = unpack("H*", $match);	# hexify
@@ -2276,8 +2298,7 @@ sub getpreinstallimage {
   # got all available images, now find a good one to use
   my $imagefile;
   my $imageinfo;
-  my %neededhdrmd5s;
-  $neededhdrmd5s{$_} = 1 for values %hdrmd5s;
+  my %neededhdrmd5s = map {$_ => 1} values %targethdrmd5s;
   while (@images) {
     my $bestimgn = 2;
     my $bestimg;
@@ -2291,7 +2312,7 @@ sub getpreinstallimage {
       if ($buildinfo->{'file'} eq '_preinstallimage') {
 	# for building preinstall images we want at least one new package to avoid cycles
 	my %havehdrmd5 = map {$_ => 1} @{$img->{'hdrmd5s'} || []};
-	next unless grep {!$havehdrmd5{$_}} values %hdrmd5s;
+	next unless grep {!$havehdrmd5{$_}} values %targethdrmd5s;
       }
       $bestimg = $img;
       $bestimgn = @{$img->{'hdrmd5s'} || []};
@@ -2317,7 +2338,7 @@ sub getpreinstallimage {
 	      # put entry on top
 	      manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef);
 	    }
-	    if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
+	    if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%targethdrmd5s)) {
 	      $imagefile = $ifile;
 	      $imageinfo = $bestimg;
 	      last;
@@ -2349,7 +2370,7 @@ sub getpreinstallimage {
 	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
 	unlink("$dir/$ifile.meta");
       }
-      if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
+      if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%targethdrmd5s)) {
         $imagefile = $ifile;
         $imageinfo = $bestimg;
         last;
@@ -2365,8 +2386,8 @@ sub getpreinstallimage {
 
   my %imagebins;
   my %havehdrmd5 = map {$_ => 1} @{$imageinfo->{'hdrmd5s'} || []};
-  for my $bin (keys %hdrmd5s) {
-    $imagebins{$bin} = $hdrmd5s{$bin} if $havehdrmd5{$hdrmd5s{$bin}};
+  for my $bin (keys %targetbvs) {
+    $imagebins{$bin} = $targetbvs{$bin} if $havehdrmd5{$targetbvs{$bin}->{'hdrmd5'}};
   }
   for my $bin (keys %metas) {
     delete $metas{$bin} unless $imagebins{$bin};	# only return metas on the image
@@ -2795,7 +2816,14 @@ sub getbinaries {
       if ($outbdep) {
 	# record preinstallimage data
         for (grep {$imagebins->{$_}} @todo) {
-	  my $obdep = { 'name' => $_, 'hdrmd5' => $imagebins->{$_}, 'project' => $imageorigins->{$_}->[0], 'repository' => $imageorigins->{$_}->[1] };
+	  my $bv = $imagebins->{$_};
+	  my $obdep = { 'name' => $_, 'hdrmd5' => $bv->{'hdrmd5'}, 'project' => $imageorigins->{$_}->[0], 'repository' => $imageorigins->{$_}->[1] };
+	  if ($bv->{'evr'}) {
+	    $obdep->{'version'} = $bv->{'evr'};
+	    $obdep->{'epoch'} = $1 if $bv->{'version'} =~ s/^([0-9]+)://;
+	    $obdep->{'release'} = $1 if $bv->{'version'} =~ s/-([^\-]+)$//;
+	    $obdep->{'arch'} = $bv->{'arch'} if $bv->{'arch'};
+	  }
 	  push @$outbdep, $obdep;
         }
       }
@@ -2828,7 +2856,12 @@ sub getbinaries {
 	  $obdep->{'sysroot'} = 1;
 	}
 	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
-	# fill epoch/version/release/arch?
+	if ($gotpkg->{'evr'}) {
+	  $obdep->{'version'} = $gotpkg->{'evr'};
+	  $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
+	  $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
+	  $obdep->{'arch'} = $gotpkg->{'arch'} if $gotpkg->{'arch'};
+	}
 	push @$outbdep, $obdep;
       }
       if (!$cross && $origins) {
@@ -2856,7 +2889,12 @@ sub getbinaries {
       if ($outbdep) {
 	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
 	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
-	# fill epoch/version/release/arch?
+	if ($gotpkg->{'evr'}) {
+	  $obdep->{'version'} = $gotpkg->{'evr'};
+	  $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
+	  $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
+	  $obdep->{'arch'} = $gotpkg->{'arch'} if $gotpkg->{'arch'};
+	}
 	push @$outbdep, $obdep;
       }
       if ($origins) {
@@ -2875,7 +2913,7 @@ sub getbinaries {
   # add meta for all native deps in cross mode
   if ($cross) {
     for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'} && !$_->{'sysroot'}} @bdep) {
-      my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
+      my $id = ($imagebins->{$dep} || {})->{'hdrmd5'} || Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
       push @meta, "$id  $cross:$dep";
     }
   }
@@ -2906,7 +2944,7 @@ sub getbinaries {
     my $m;
     $m = readstr("$dir/$prefixeddep.meta", 1) if $meta{$prefixeddep};
     if (!$m) {
-      my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$prefixeddep}") || "deaddeaddeaddeaddeaddeaddeaddead";
+      my $id = ($imagebins->{$dep} || {})->{'hdrmd5'} || Build::queryhdrmd5("$dir/$done{$prefixeddep}") || "deaddeaddeaddeaddeaddeaddeaddead";
       push @meta, "$id  $dep";
     } else {
       chomp $m;
