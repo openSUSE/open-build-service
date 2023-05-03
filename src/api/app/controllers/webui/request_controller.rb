@@ -12,6 +12,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :conversation]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: [:show, :conversation], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :check_beta_user_redirect, only: [:conversation]
 
   after_action :verify_authorized, only: [:create]
 
@@ -292,6 +293,10 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def check_beta_user_redirect
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless Flipper.enabled?(:request_show_redesign, User.session)
+  end
 
   def addreview_opts
     opts = {}
