@@ -1,6 +1,6 @@
 .d-inline-flex
   %i.fas.fa-lg.fa-comment.text-dark{ title: 'Comment' }
-  = helpers.image_tag_for(comment.user, size: 35, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
+  = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   %p
     = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
     wrote

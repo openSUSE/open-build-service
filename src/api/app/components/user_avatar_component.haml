@@ -1,2 +1,2 @@
-= helpers.image_tag_for(avatar_object, size: 23, custom_class: 'rounded-circle bg-light border border-gray-400')
+= render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
 = short_text
