@@ -446,7 +446,7 @@ sub create_config_data {
   my ($config_ent, $oci) = @_;
   my $config_data = {
     'mediaType' => $config_ent->{'mimetype'} || ($oci ? $mt_oci_config : $mt_docker_config),
-    'size' => $config_ent->{'size'},
+    'size' => 0 + $config_ent->{'size'},
     'digest' => $config_ent->{'blobid'} || blobid_entry($config_ent),
   };
   return $config_data;
@@ -479,7 +479,7 @@ sub create_layer_data {
   $comp = detect_entry_compression($layer_ent) unless defined $comp;
   my $layer_data = {
     'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip),
-    'size' => $layer_ent->{'size'},
+    'size' => 0 + $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
   $layer_data->{'annotations'} = { %$annotations } if $annotations;
