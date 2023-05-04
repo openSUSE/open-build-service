@@ -3,7 +3,7 @@
 = form_for(displayed_user, url: user_path(displayed_user), method: :patch, remote: true) do |f|
   = f.hidden_field(:login, id: 'user')
 
-  .mb-3.text-center= image_tag_for(displayed_user, size: 200)
+  .mb-3.text-center= render(AvatarComponent.new(name: displayed_user.name, email: displayed_user.email, size: 200))
   .mb-3
     = f.text_field(:realname, readonly: behind_proxy, placeholder: 'Name', class: 'form-control')
   .mb-3

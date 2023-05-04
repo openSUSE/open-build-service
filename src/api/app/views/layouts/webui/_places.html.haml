@@ -6,7 +6,7 @@
     - if navigation != :left
       %li.nav-item
         = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link') do
-          = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light me-2')
+          = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 23, shape: :circle, custom_css: 'me-2'))
           Profile
     %li.nav-item
       - tasks = User.session!.tasks

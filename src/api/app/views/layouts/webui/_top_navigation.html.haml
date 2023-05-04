@@ -15,11 +15,11 @@
         .toggler.text-center.justify-content-center.nav-item.dropdown
           = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',
                     'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
-            = image_tag_for(User.session, size: 32, custom_class: 'rounded-circle bg-light me-2')
+            = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 32, shape: :circle, custom_css: 'me-2'))
           .dropdown-menu.dropdown-menu-end{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
             .dropdown-item
               = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
-                = image_tag_for(User.session, size: 20, custom_class: 'rounded-circle bg-light me-2')
+                = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 20, shape: :circle, custom_css: 'me-2'))
                 Your profile
             .dropdown-item
               = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link text-light p-0 w-100') do
