@@ -3334,6 +3334,22 @@ sub createreport {
       }
       close($bf);
     }
+    my %summaries;
+    for my $sumfile ('.basepkgsummaries', '.pkgsummaries') {
+      my $sfile = $file;
+      $sfile =~ s/\.packages$/$sumfile/;
+      my $sf;
+      if (open($sf, '<', "$dir/$sfile")) {
+	while (<$bf>) {
+	  chomp;
+	  my @s = split(/\|/, $_, 6);
+	  $summaries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]"} = $s[5];
+	}
+	close($sf);
+	unlink("$dir/$sfile");	# no longer needed
+      }
+    }
+
     my @bins;
     while (<F>) {
       chomp;
@@ -3361,7 +3377,10 @@ sub createreport {
 	  $bin->{'release'} = $2;
 	}
       }
+      my $summary = $summaries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]"};
+      $bin->{'summary'} = $summary if $summary;
       my $isbase = $baseentries{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"};
+      $bin->{'isbase'} = undef if $isbase;
       my $prpap = $kiwiorigins->{$s[0]};
       if ($prpap) {
         my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
@@ -3926,6 +3945,9 @@ sub dobuild {
     for my $containerurl (@{$buildinfo->{'containerurl'} || []}) {
       push @args, '--kiwi-parameter', "--set-container-derived-from=$containerurl";
     }
+    # touch pkgsummaries marker so we get summaries in the report files
+    mkdir_p("$srcdir/repos");
+    BSUtil::touch("$srcdir/repos/.pkgsummaries");
   }
   qsystem(@args);
 
