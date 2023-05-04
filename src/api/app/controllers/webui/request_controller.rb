@@ -19,6 +19,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
 
   after_action :verify_authorized, only: [:create]
@@ -160,13 +161,6 @@ class Webui::RequestController < Webui::WebuiController
     @active = @action[:name]
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     @diff_to_superseded_id = params[:diff_to_superseded]
-    @refresh = @action[:diff_not_cached]
-
-    if @refresh
-      bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
-    end
 
     respond_to do |format|
       format.js
@@ -184,13 +178,6 @@ class Webui::RequestController < Webui::WebuiController
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     # TODO: Check if @diff_to_superseded_id is really needed
     @diff_to_superseded_id = params[:diff_to_superseded]
-    @refresh = @action[:diff_not_cached]
-
-    if @refresh
-      bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
-    end
 
     respond_to do |format|
       format.js
@@ -515,6 +502,14 @@ class Webui::RequestController < Webui::WebuiController
     }
   end
 
+  def cache_diff_data
+    return unless (@refresh = @action[:diff_not_cached])
+
+    bs_request_action = BsRequestAction.find(@action[:id])
+    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
+    BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+  end
+
   def prepare_request_data
     @is_author = @bs_request.creator == User.possibly_nobody.login
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
@@ -537,7 +532,6 @@ class Webui::RequestController < Webui::WebuiController
     target_project = Project.find_by_name(@bs_request.target_project_name)
     @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
-    @refresh = @action[:diff_not_cached]
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
     @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
@@ -555,12 +549,6 @@ class Webui::RequestController < Webui::WebuiController
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
     @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
-
-    if @refresh
-      bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
-    end
 
     return unless User.session && params[:notification_id]
 
