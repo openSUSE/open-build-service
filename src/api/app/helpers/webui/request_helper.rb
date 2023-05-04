@@ -187,31 +187,19 @@ module Webui::RequestHelper
     case opts[:page_name]
     when 'request_conversation'
       request_conversation_path(
-        number: opts[:number],
-        request_action_id: opts[:request_action_id],
-        full_diff: opts[:full_diff],
-        diff_to_superseded: opts[:diff_to_superseded]
+        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
       )
     when 'request_build_results'
       request_build_results_path(
-        number: opts[:number],
-        request_action_id: opts[:request_action_id],
-        full_diff: opts[:full_diff],
-        diff_to_superseded: opts[:diff_to_superseded]
+        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
       )
     when 'request_rpm_lint'
       request_rpm_lint_path(
-        number: opts[:number],
-        request_action_id: opts[:request_action_id],
-        full_diff: opts[:full_diff],
-        diff_to_superseded: opts[:diff_to_superseded]
+        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
       )
     else
       request_show_path(
-        number: opts[:number],
-        request_action_id: opts[:request_action_id],
-        full_diff: opts[:full_diff],
-        diff_to_superseded: opts[:diff_to_superseded]
+        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
       )
     end
   end
