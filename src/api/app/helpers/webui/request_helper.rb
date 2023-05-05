@@ -184,31 +184,21 @@ module Webui::RequestHelper
   end
 
   def next_prev_path(**opts)
+    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded] }
+
     case opts[:page_name]
     when 'request_conversation'
-      request_conversation_path(
-        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
-      )
+      request_conversation_path(parameters)
     when 'request_build_results'
-      request_build_results_path(
-        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
-      )
+      request_build_results_path(parameters)
     when 'request_rpm_lint'
-      request_rpm_lint_path(
-        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
-      )
+      request_rpm_lint_path(parameters)
     when 'request_changes'
-      request_changes_path(
-        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
-      )
+      request_changes_path(parameters)
     when 'request_mentioned_issues'
-      request_mentioned_issues_path(
-        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
-      )
+      request_mentioned_issues_path(parameters)
     else
-      request_show_path(
-        number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded]
-      )
+      request_show_path(parameters)
     end
   end
 end
