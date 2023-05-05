@@ -17,7 +17,7 @@
                   class: "nav-link text-nowrap #{active == 'changes' ? 'active' : ''}")
     - if action[:type].in?(actions_for_diff)
       %li.nav-item.scrollable-tab-link
-        = link_to(request_show_path(bs_request.number, actions_count > 1 ? active_action : nil, anchor: 'mentioned-issues',
-                  'anchor-tag': 'mentioned-issues'), class: "nav-link text-nowrap #{active == 'mentioned_issues' ? 'active' : ''}") do
+        = link_to(request_mentioned_issues_path(bs_request.number, actions_count > 1 ? active_action : nil),
+                  class: "nav-link text-nowrap #{active == 'mentioned_issues' ? 'active' : ''}") do
           Mentioned Issues
           %span.badge.bg-primary.align-text-top= issues.size
