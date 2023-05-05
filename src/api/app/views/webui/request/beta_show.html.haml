@@ -97,9 +97,7 @@
             = link_to('RPM Lint', request_rpm_lint_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('Changes', '#changes', id: 'changes-tab', class: 'nav-link text-nowrap', 'aria-controls': 'changes',
-                      'data-request-number': @bs_request.number, 'data-request-action-id': @action[:id],
-                      'aria-selected': 'false', 'data-bs-toggle': 'tab', role: 'tab')
+            = link_to('Changes', request_changes_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
         - if @action[:type].in?(actions_for_diff)
           %li.nav-item.scrollable-tab-link{ role: 'presentation' }
             = link_to('#mentioned-issues', id: 'mentioned-issues-tab', class: 'nav-link text-nowrap', 'aria-controls': 'mentioned-issues',
@@ -108,8 +106,6 @@
               %span.badge.bg-primary.align-text-top= @issues.size
     .tab-content.p-4#request-tabs-content
       - if @action[:type].in?(actions_for_diff)
-        .tab-pane.fade.p-2#changes{ 'aria-labelledby': 'changes-tab', role: 'tabpanel' }
-          = render partial: 'webui/request/beta_show_tabs/changes', locals: { bs_request: @bs_request, action: @action, refresh: @refresh }
         .tab-pane.fade.p-2#mentioned-issues{ 'aria-labelledby': 'mentioned-issues-tab', role: 'tabpanel' }
           = render partial: 'webui/request/beta_show_tabs/mentioned_issues', locals: { issues: @issues }
 
