@@ -2024,6 +2024,8 @@ our $report = [
 	    'binaryid',
 	    'supportstatus',
 	    'cpeid',
+	    'summary',
+	    'isbase',
 
 	    'project',
 	    'repository',
