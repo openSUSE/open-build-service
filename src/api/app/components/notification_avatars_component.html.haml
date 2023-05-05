@@ -7,7 +7,7 @@
     %li.list-inline-item
       - case avatar_object.class.name
       - when 'User', 'Group'
-        = helpers.image_tag_for(avatar_object, size: 23, custom_class: 'rounded-circle bg-light border border-gray-400')
+        = render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
       - when 'Package'
         %span.fa.fa-archive.text-warning.rounded-circle.bg-light.border.border-gray-400.simulated-avatar{ title: package_title(avatar_object) }
       - when 'Project'
