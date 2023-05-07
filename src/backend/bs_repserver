@@ -3602,6 +3602,15 @@ sub getworkercode {
   return getcode($cgi, 'worker');
 }
 
+sub getbuildhook {
+  my ($cgi) = @_;
+  if ($BSConfig::buildhookpath) {
+    return getcode($cgi, $BSConfig::buildhookpath);
+  }else{
+    return undef
+  }
+}
+
 sub postrepo {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
@@ -4475,6 +4484,7 @@ my $dispatches = [
   '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool? proto:?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
+  '!worker /getbuildhook' => \&getbuildhook,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
   '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port proto:? workerid?' => \&workerdispatched,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module*' => \&getbinaries,

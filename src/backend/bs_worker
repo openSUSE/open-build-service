@@ -1031,6 +1031,8 @@ sub getcode {
     symlink('.', "$ndir/Time") || die("symlink: $!\n");
     # we just change every file to be on the safe side
     chmod(0755, "$ndir/$_->{'name'}") for @$res;
+  } elsif ($dir eq 'hook') {
+    chmod(0755, "$ndir/$_->{'name'}") for @$res;
   }
 
   # ok, commit
@@ -3582,6 +3584,26 @@ sub add_slsa_materials_config {
 
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
 
+sub buildhook {
+  my ($mode, $projid, $packid, $repoid, $arch) = @_;
+
+  my $hook = {};
+
+  if ($mode eq 'before'){
+    $hook = $BSConfig::beforebuildhook;
+  } elsif ($mode eq 'after'){
+    $hook = $BSConfig::afterbuildhook;
+  }
+
+  for my $key (sort {$b cmp $a} keys %{$hook}) {
+    if ("$projid/$packid" =~ /^$key$/) {
+      my $cmd = "hook/".$hook->{$key};
+      print "calling $mode build hook: '$cmd'\n";
+      qsystem($cmd, $buildroot, $projid, $packid, $repoid, $arch, $mode) && die("$cmd failed: $!\n");
+    }
+  }
+}
+
 sub dobuild {
   my ($buildinfo) = @_;
 
@@ -3949,14 +3971,19 @@ sub dobuild {
     mkdir_p("$srcdir/repos");
     BSUtil::touch("$srcdir/repos/.pkgsummaries");
   }
+
+  buildhook('before', $projid, $packid, $repoid, $arch) if $BSConfig::beforebuildhook;
+
   qsystem(@args);
+  my $ret = $?;
+
+  buildhook('after', $projid, $packid, $repoid, $arch) if $BSConfig::afterbuildhook;
 
   print "\n";
   print BSUtil::isotime(time()).": finished '$packid' for project '$projid' repository '$repoid' arch '$arch'";
   print " using helper $helper" if $helper;
   print "\n";
 
-  my $ret = $?;
   if ($ret == 512) { # system exit code 2 maps to 2 * 256
     if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {
       $ret = 0;
@@ -4296,6 +4323,12 @@ sub startbuild {
     my $peer = $cgi->{'registerserver'} || "http://$req->{'peer'}:$cgi->{'port'}";
     $workercode = getcode('worker', "$peer/getworkercode");
     die("could not update worker code\n") unless $workercode;
+    if (($BSConfig::beforebuildhook && %{ $BSConfig::beforebuildhook })||
+        ($BSConfig::afterbuildhook &&  %{ $BSConfig::afterbuildhook })){
+      print "fetching buildhook\n";
+      my $buildhook = getcode('hook', "http://$peer/getbuildhook");
+      warn("could not update build hook\n") unless $buildhook;
+    }
     $state->{'state'} = 'rebooting';
     print "activating new worker code $workercode\n";
     commitstate($state);
