@@ -37,6 +37,8 @@
 
       <value>k1om</value>
 
+      <value>loongarch64</value>
+
       <value>mips</value>
       <value>mipsel</value>
       <value>mips32</value>
