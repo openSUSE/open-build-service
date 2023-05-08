@@ -1306,21 +1306,24 @@ sub createrepo_checksumsfile {
       push @sha256sums, $line if $line =~ /^[a-f0-9]{64}  .+$/;
     }
   }
+  unlink("$extrep/SHA256SUMS");
+  unlink("$extrep/SHA256SUMS.asc");
+  unlink("$extrep/SHA256SUMS.gpg");
   if (@sha256sums) {
     @sha256sums = sort {substr($a, 66) cmp substr($b, 66)} @sha256sums;
     my $sha256sums = join("\n", @sha256sums) . "\n";
     writestr("$extrep/.SHA256SUMS", "$extrep/SHA256SUMS", $sha256sums);
-    unlink("$extrep/SHA256SUMS.asc");
     if ($BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid if $BSConfig::sign_project;
       push @signargs, @{$data->{'signargs'} || []};
+      my %options = map {$_ => 1} @{$options || []};
+      if ($options{'rawsig'}) {
+        qsystem($BSConfig::sign, @signargs, '-D', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+      }
       qsystem($BSConfig::sign, @signargs, '-d', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
       pickup_detached_signature($data, "$extrep/SHA256SUMS");
     }
-  } else {
-    unlink("$extrep/SHA256SUMS");
-    unlink("$extrep/SHA256SUMS.asc");
   }
 }
 
@@ -1329,6 +1332,7 @@ sub deleterepo_checksumsfile {
   if (-e "$extrep/SHA256SUMS") {
     unlink("$extrep/SHA256SUMS");
     unlink("$extrep/SHA256SUMS.asc");
+    unlink("$extrep/SHA256SUMS.gpg");
   }
 }
 
