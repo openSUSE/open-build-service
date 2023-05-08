@@ -367,26 +367,31 @@ sub server {
       $r = undef;
     }
     # now we know there is a connection on a socket waiting to be accepted
-    my $pid;
     if ($r) {
-      my $chldp = \%chld;
       undef $clnt;
-      if ($sock2 && !vec($rin, fileno($sock), 1)) {
-        $chldp = \%chld2;
-        $peeraddr = accept($clnt, $sock2);
+      if ($sock2 && vec($rin, fileno($sock2), 1) && ($peeraddr = accept($clnt, $sock2))) {
 	$group = 1;
-      } else {
-        $peeraddr = accept($clnt, $sock);
-	$group = 0;
+	my $pid = fork();
+	if (defined($pid)) {
+	  $slot = @idle ? shift(@idle) : $idle_next++;
+	  last if $pid == 0;	# child
+	  $chld2{$pid} = $slot;
+	}
+	close $clnt;
+	undef $clnt;
       }
-      next unless $peeraddr;
-      if (defined($pid = fork())) {
-	$slot = @idle ? shift(@idle) : $idle_next++;
-	last if $pid == 0;	# child
-	$chldp->{$pid} = $slot;
-      }
-      close $clnt;
       undef $clnt;
+      if ((!$sock2 || vec($rin, fileno($sock), 1)) && ($peeraddr = accept($clnt, $sock))) {
+	$group = 0;
+	my $pid = fork();
+	if (defined($pid)) {
+	  $slot = @idle ? shift(@idle) : $idle_next++;
+	  last if $pid == 0;	# child
+	  $chld{$pid} = $slot;
+	}
+	close $clnt;
+	undef $clnt;
+      }
     }
 
     # log if we reached the maxchild limit
@@ -409,7 +414,7 @@ sub server {
       my $hang = 0;
       $hang = POSIX::WNOHANG if !defined($maxchild) || keys(%chld) < $maxchild;
       $hang = POSIX::WNOHANG if $sock2 && (!defined($maxchild2) || keys(%chld2) < $maxchild2);
-      $pid = waitpid(-1, $hang);
+      my $pid = waitpid(-1, $hang);
       last unless $pid > 0;
       my $slot = delete $chld{$pid};
       $slot = delete $chld2{$pid} unless defined $slot;
