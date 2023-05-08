@@ -1,114 +1,107 @@
 -# haml-lint:disable ViewLength
-  This will be fixed once the request workflow redesign leaves the beta, since the alert
-  at the top of the page will be removed.
 :ruby
   @pagetitle = "Request #{@bs_request.number}"
   @pagetitle += ": #{@action[:name]}"
-  actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
-.alert.alert-info{ role: 'alert' }
-  As part of the
-  = succeed ',' do
-    = link_to('beta program', my_beta_features_path)
-  we are currently working on a
-  = link_to('redesign of this page', 'https://openbuildservice.org/2022/08/15/request-workflow-redesign/')
-  to help you in your daily work.
-  Certain features might still be missing, but they will be implemented in the future.
-  Give us feedback on this redesign at GitHub by
-  = link_to('opening an issue', 'https://github.com/openSUSE/open-build-service/issues/new/choose')
-  or talk to us on IRC in the
-  %i #opensuse-buildservice
-  on
-  %i Libera.Chat
-  \-
-  %i The OBS team
-
-- badge_state = BsRequestStateBadgeComponent.new(bs_request: @bs_request, css_class: 'ms-2')
+= render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
 
 .card
   .card-body.p-0
-    .card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
-      %h3
-        Request #{@bs_request.number}
-        -# state badge
-        %small
-          = render badge_state
-      -# watch button
-      - if User.session
-        .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
-          = render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, current_object: @bs_request)
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
+                  prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit, page_name: '' }
+    = render partial: 'request_tabs',
+        locals: { actions_for_diff: @actions_for_diff, bs_request: @bs_request, action: @action, issues: @issues,
+                  active_action: @active_action, actions_count: @supported_actions.count, active: @active }
+    .container.p-4
+      .row
+        .col-md-12
+          .d-flex.justify-content-between.mb-4
+            #description-text
+              - if @bs_request.description.present?
+                = render partial: 'webui/shared/collapsible_text', locals: { text: @bs_request.description }
+              - else
+                %i No description set
+      .row
+        = render partial: 'webui/request/beta_show_tabs/conversation_aside',
+                locals: { bs_request: @bs_request,
+                  can_add_reviews: @can_add_reviews,
+                  my_open_reviews: @my_open_reviews,
+                  request_reviews: @request_reviews,
+                  package_maintainers: @package_maintainers,
+                  project_maintainers: @project_maintainers,
+                  show_project_maintainer_hint: @show_project_maintainer_hint }
 
-    -# author + datetime + (if superseding -> "Superseds something")
-    .card-text.px-4.pb-4
-      %p.fst-italic
-        Created by
-        = user_with_realname_and_icon(@bs_request.creator)
-        = render TimeComponent.new(time: @bs_request.created_at)
+        .col-md-8.order-md-1.order-sm-2#comments-list
+          %h4.list-group.mb-4 Comments & Request History
+          .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
+            .timeline-item
+              .d-inline-flex
+                %i.fas.fa-lg.fa-code-commit.text-dark
+                - creator = User.find_by_login(@bs_request.creator) || User.nobody
+                = image_tag_for(creator, size: 35, custom_class: 'rounded-circle bg-light border border-gray-400 avatars-counter')
+                %p
+                  = link_to(realname_with_login(creator), user_path(creator))
+                  created this request
+                  = link_to('#request-creation', title: I18n.l(@bs_request.created_at.utc), name: 'request-creation') do
+                    = render TimeComponent.new(time: @bs_request.created_at)
+                  - if @bs_request.superseding.any?
+                    superseding
+                    - @bs_request.superseding.each do |superseded_request|
+                      = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
 
-      %ul
-        -# superseded
-        - if @bs_request.superseded_by.present?
-          %li
-            %mark.text-nowrap.text-light{ class: "bg-#{badge_state.decode_state_color(@bs_request.state)}" } Superseded
-            by
-            = link_to "##{@bs_request.superseded_by}", number: @bs_request.superseded_by
-        -# superseding statement
-        - if @bs_request.superseding.present?
-          %li
-            %strong Supersedes
-            - @bs_request.superseding.each do |supersed|
-              = link_to "##{supersed['number']}", number: supersed['number']
-        -# staging statement
-        - if @staging_status
-          - staging_project = @staging_status[:staging_project]
-          %li
-            - if staging_project
-              %mark.text-light.bg-staging.text-nowrap.text Staged
-              in
-              = link_to staging_project[:name], staging_project[:url]
-            - else
-              %strong Waiting
-              to be
-              %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
-                = link_to 'staged', @staging_status[:target_project_staging_url]
-        -# auto-accept statement
-        - if @bs_request.accept_at.present?
-          %li
-            This request will be
-            %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: @bs_request.accept_at }
-              auto accepted
-              = render TimeComponent.new(time: @bs_request.accept_at)
-      .mt-4
-        -# action description, prev + dropdown select + next
-           TODO: once we support all types of actions, we have to send @actions instead of @supported_actions
-        = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action, active_action: @active_action,
-                                                       prev_action: @prev_action, next_action: @next_action,
-                                                       actions: @supported_actions, actions_count: @supported_actions.count,
-                                                       diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit }
+            - @bs_request.superseding.each do |superseding_request|
+              .timeline-item.pb-4
+                = link_to('#collapse-superseding', class: 'd-flex align-items-center',
+                    data: { 'bs-toggle': 'collapse' },
+                    aria: { expanded: false, controls: 'collapse-superseding' }) do
+                  %i.timeline-break.expander>
+                  %i.timeline-offset.collapser>
 
-    .border-bottom
-      %ul.nav.nav-tabs.scrollable-tabs.border-0#request-tabs{ role: 'tablist' }
-        %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-          = link_to('Conversation', request_conversation_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
-        - if @action[:sprj] || @action[:spkg]
-          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('Build Results', request_build_results_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
-          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('RPM Lint', request_rpm_lint_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
-        - if @action[:type].in?(actions_for_diff)
-          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('Changes', request_changes_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap')
-        - if @action[:type].in?(actions_for_diff)
-          %li.nav-item.scrollable-tab-link{ role: 'presentation' }
-            = link_to('Mentioned Issues', request_mentioned_issues_path(@bs_request.number, @active_action), class: 'nav-link text-nowrap') do
-              Mentioned Issues
-              %span.badge.bg-primary.align-text-top= @issues.size
+                  %i.fas.fa-fw.fa-chevron-right.expander.me-1{ title: 'Show history' }>
+                  %i.fas.fa-fw.fa-chevron-down.collapser.me-1{ title: 'Hide history' }>
+                  %span.expander
+                    Expand history from superseded request ##{superseding_request.number}
+                  %span.collapser
+                    Collapse history from superseded request ##{superseding_request.number}
+              .collapse.mb-4#collapse-superseding
+                = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request)
 
+            = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request)
+
+          .comment_new
+            = render partial: 'webui/comment/new', locals: { commentable: @bs_request }
+          %hr
+
+          - if @bs_request.accept_at.present?
+            .alert.alert-warning.p-2
+              %i.fas.fa-exclamation-triangle
+              %span The current request
+              - if BsRequest::FINAL_REQUEST_STATES.include?(@bs_request.state)
+                %span
+                  was
+                  %strong auto-accepted
+                  at
+                  %span{ title: "#{I18n.l @bs_request.accept_at}" }
+                  = succeed '.' do
+                    = I18n.l @bs_request.accept_at, format: :only_date
+              - elsif @bs_request.accept_at.past?
+                %span
+                  will be
+                  %strong auto-accepted
+                  after all the reviews are submitted.
+              - else
+                will be
+                %strong auto-accepted
+                = render TimeComponent.new(time: @bs_request.accept_at)
+
+          = render AccordionReviewsComponent.new(@request_reviews, @bs_request.state, can_handle_request: policy(@bs_request).handle_request?)
+
+          = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,
+                                                is_target_maintainer: @is_target_maintainer,
+                                                is_author: @is_author)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
-
-- content_for :ready_function do
-  :plain
-    setCollapsible();
 -# haml-lint:enable ViewLength

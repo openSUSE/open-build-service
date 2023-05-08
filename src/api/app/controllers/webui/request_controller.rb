@@ -2,37 +2,32 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
+                except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
-  before_action :set_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_action_id, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                 if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:inline_comment, :show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_active_action, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: [:show, :conversation, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :prepare_request_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :check_beta_user_redirect, only: [:conversation, :build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
 
   after_action :verify_authorized, only: [:create]
 
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
-      # Note: This condition should be removed once all the tabs are converted to separate pages
-      if params['anchor-tag']
-        render :beta_show
-      else
-        @active = 'conversation'
-        render :conversation
-      end
+      @active = 'conversation'
+      render :beta_show
     else
       @diff_limit = params[:full_diff] ? 0 : nil
       @diff_to_superseded_id = params[:diff_to_superseded]
@@ -293,10 +288,6 @@ class Webui::RequestController < Webui::WebuiController
     respond_to do |format|
       format.js
     end
-  end
-
-  def conversation
-    @active = 'conversation'
   end
 
   def build_results
