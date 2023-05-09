@@ -544,58 +544,26 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def header_data
-    # @bs_request
-    # provided by `require_request`
-
-    # @staging_status
     target_project = Project.find_by_name(@bs_request.target_project_name)
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
-    # @diff_limit
     @diff_limit = params[:full_diff] ? 0 : nil
-    # @diff_to_superseded_id
     @diff_to_superseded_id = params[:diff_to_superseded]
-    # @action
     @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
       diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
 
-    # @active_action
-    # provided by `set_active_action`
-
-    # @supported_actions
-    # provided by `set_supported_actions`
-
     active_action_index = @supported_actions.index(@active_action)
     if active_action_index
-      # @prev_action
       @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
-      # @next_action
       @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
     end
   end
 
   def tabs_data
-    # @bs_request
-    # provided by `require_request`
-
-    # @action
-    # provided by `header_data`
-
-    # @issues
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
+
     @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
-
-    # @actions_for_diff
     @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
-
-    # @active_action
-    # provided by `set_active_action`
-
-    # @supported_actions
-    # provided by `set_supported_actions`
-
-    # @active_tab
-    # provided by the action the code goes through
   end
 
   def check_notifications
