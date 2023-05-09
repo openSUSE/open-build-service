@@ -39,10 +39,11 @@
               %span.content><
                 = line.content[1..]
         - if commentable
-          - if commented_lines.include?(id)
-            - commentable.comments.where(diff_ref: id).each do |comment|
-              .comments-thread.p-3
-                = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
-          - else
-            .btn.btn-sm.btn-primary.line-new-comment{ id: "comment#{id}", data: { test: 1, check: 3 } }
-              %i.fas.fa-comment-medical
+          .line-comment{ id: "comment#{id}" }
+            - if commented_lines.include?(id)
+              - commentable.comments.where(diff_ref: id).each do |comment|
+                .comments-thread.p-3
+                  = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
+            - else
+              .btn.btn-sm.btn-primary.line-new-comment{ data: { id: id, 'request-number': commentable.bs_request.number, 'action-id': commentable.id } }
+                %i.fas.fa-comment-medical
