@@ -4,9 +4,9 @@
 # It merges the BsRequestCommentComponent and the BsRequestHistoryElement to
 # provide a merged timeline of events.
 class BsRequestActivityTimelineComponent < ApplicationComponent
-  attr_reader :bs_request, :creator, :timeline
+  attr_reader :bs_request, :creator, :timeline, :request_reviews_for_non_staging_projects
 
-  def initialize(bs_request:)
+  def initialize(bs_request:, request_reviews_for_non_staging_projects: [])
     super
     @bs_request = bs_request
     @creator = User.find_by_login(bs_request.creator) || User.nobody
@@ -20,6 +20,7 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
       @bs_request.comments.without_parent.includes(:user) +
       @bs_request.history_elements.includes(:user)
     ).compact.sort_by(&:created_at)
+    @request_reviews_for_non_staging_projects = request_reviews_for_non_staging_projects
   end
 
   def diff_for_ref(comment)

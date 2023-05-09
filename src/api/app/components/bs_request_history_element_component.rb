@@ -3,12 +3,13 @@
 # It is used in the beta view of the request show page, under the Overview tab,
 # merged with the BsRequestCommentComponent.
 class BsRequestHistoryElementComponent < ApplicationComponent
-  attr_reader :element
+  attr_reader :element, :request_reviews_for_non_staging_projects
 
-  def initialize(element:)
+  def initialize(element:, request_reviews_for_non_staging_projects: [])
     super
 
     @element = element
+    @request_reviews_for_non_staging_projects = request_reviews_for_non_staging_projects
   end
 
   private
@@ -33,5 +34,11 @@ class BsRequestHistoryElementComponent < ApplicationComponent
 
   def css_for_comment
     element_with_comment_from_human? ? 'comment-bubble comment-bubble-content' : ''
+  end
+
+  def pending_reviews?
+    return true if request_reviews_for_non_staging_projects.select(&:new?).any?
+
+    false
   end
 end

@@ -66,9 +66,11 @@
                   %span.collapser
                     Collapse history from superseded request ##{superseding_request.number}
               .collapse.mb-4#collapse-superseding
-                = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request)
+                = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
+                                                                request_reviews_for_non_staging_projects: @request_reviews)
 
-            = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request)
+            = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
+                                                            request_reviews_for_non_staging_projects: @request_reviews)
 
           .comment_new
             = render partial: 'webui/comment/new', locals: { commentable: @bs_request }

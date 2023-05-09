@@ -11,6 +11,8 @@
       %strong
         = element.action_target
       = element.user_action_suffix
+    - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
+      #{element.user_action} and dismissed pending reviews
     - else
       = element.user_action
     = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
