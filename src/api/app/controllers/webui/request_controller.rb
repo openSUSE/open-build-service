@@ -21,7 +21,7 @@ class Webui::RequestController < Webui::WebuiController
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :tabs_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :prepare_request_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :prepare_request_data, only: [:build_results, :rpm_lint, :changes, :mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
@@ -32,6 +32,25 @@ class Webui::RequestController < Webui::WebuiController
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
       @active = 'conversation'
+
+      @is_author = @bs_request.creator == User.possibly_nobody.login
+      @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+
+      @my_open_reviews = @bs_request.reviews.where(state: 'new').select { |review| review.matches_user?(User.session) }
+      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
+      target_project = Project.find_by_name(@bs_request.target_project_name)
+      @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
+
+      # retrieve a list of all package maintainers that are assigned to at least one target package
+      @package_maintainers = target_package_maintainers
+      # retrieve a list of all project maintainers
+      @project_maintainers = target_project&.maintainers || []
+
+      # search for a project, where the user is not a package maintainer but a project maintainer and show
+      # a hint if that package has some package maintainers (issue#1970)
+      @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+
       render :beta_show
     else
       @diff_limit = params[:full_diff] ? 0 : nil
@@ -572,23 +591,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def prepare_request_data
-    @is_author = @bs_request.creator == User.possibly_nobody.login
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-    reviews = @bs_request.reviews.where(state: 'new')
-    @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
-    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
-    @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
-
-    # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
-
-    # retrieve a list of all project maintainers
-    @project_maintainers = target_project&.maintainers || []
-
-    # search for a project, where the user is not a package maintainer but a project maintainer and show
-    # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
 
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
