@@ -23,6 +23,8 @@ class Webui::RequestController < Webui::WebuiController
                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :check_notifications, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                                      if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
 
   after_action :verify_authorized, only: [:create]
 
@@ -596,7 +598,7 @@ class Webui::RequestController < Webui::WebuiController
     # provided by the action the code goes through
   end
 
-  def prepare_request_data
+  def check_notifications
     return unless User.session && params[:notification_id]
 
     @current_notification = Notification.find(params[:notification_id])
