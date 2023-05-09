@@ -21,8 +21,6 @@ class Webui::RequestController < Webui::WebuiController
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :tabs_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :prepare_request_data, only: [:mentioned_issues],
-                                       if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
 
