@@ -17,6 +17,8 @@ class Webui::RequestController < Webui::WebuiController
                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_ajax, only: :sourcediff
+  before_action :header_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :prepare_request_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
@@ -512,6 +514,37 @@ class Webui::RequestController < Webui::WebuiController
     BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
   end
 
+  def header_data
+    # @bs_request
+    # provided by `require_request`
+
+    # @staging_status
+    target_project = Project.find_by_name(@bs_request.target_project_name)
+    @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
+
+    # @diff_limit
+    @diff_limit = params[:full_diff] ? 0 : nil
+    # @diff_to_superseded_id
+    @diff_to_superseded_id = params[:diff_to_superseded]
+    # @action
+    @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
+      diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
+
+    # @active_action
+    # provided by `set_active_action`
+
+    # @supported_actions
+    # provided by `set_supported_actions`
+
+    active_action_index = @supported_actions.index(@active_action)
+    if active_action_index
+      # @prev_action
+      @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
+      # @next_action
+      @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
+    end
+  end
+
   def prepare_request_data
     @is_author = @bs_request.creator == User.possibly_nobody.login
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
@@ -519,21 +552,7 @@ class Webui::RequestController < Webui::WebuiController
     @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
 
-    @diff_limit = params[:full_diff] ? 0 : nil
-    @diff_to_superseded_id = params[:diff_to_superseded]
-
-    # Handling request actions
-    @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
-                                        diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
-    active_action_index = @supported_actions.index(@active_action)
-    if active_action_index
-      @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
-      @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
-    end
-
-    target_project = Project.find_by_name(@bs_request.target_project_name)
     @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
-    @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
     @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
