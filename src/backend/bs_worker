@@ -3335,7 +3335,7 @@ sub createreport {
       close($bf);
     }
     my %summaries;
-    for my $sumfile ('.basepkgsummaries', '.pkgsummaries') {
+    for my $sumfile ('.pkgsummaries') {
       my $sfile = $file;
       $sfile =~ s/\.packages$/$sumfile/;
       my $sf;
