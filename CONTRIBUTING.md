@@ -1,12 +1,5 @@
-We are always looking for contributions to the Open Build Service.
-
-In particular, this community seeks the following types of contributions:
-
-* code: contribute your expertise in an area by helping us expand the Open Build Service
-* ideas: participate in an issues thread or start your own to have your voice heard.
-* copy editing: fix typos, clarify language, and generally improve the quality of the content of the Open Build Service
-
-Read this guide on how to do that.
+We are a welcoming Free Software community and are always looking for new contributors to the Open Build Service.
+Read this guide on **how** to do that and **what** types of contributions this community seeks.
 
 1. [How to contribute code](#how-to-contribute-code)
 2. [How to review code submissions](#how-to-review-code-submissions)
@@ -14,15 +7,13 @@ Read this guide on how to do that.
 4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
 6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
+7. [How to figure out what you can contribute to](#how-to-figure-out-what-you-can-contribute-to)
 
 # How to Contribute Code
 
 **Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
 
-If you want to contribute code, check the list of issues that we think are
-[easy to start with](https://github.com/openSUSE/open-build-service/contribute).
-
-Then fork the repository and make a pull request with your changes. A developer of the [open-build-service team](https://openbuildservice.org/team/) will review your pull request. And if the pull request gets a positive review, the reviewer will merge it.
+Fork the repository and make a pull request with your changes. A developer of the [open-build-service team](https://openbuildservice.org/team/) will review your pull request. And if the pull request gets a positive review, the reviewer will merge it.
 
 But first, please bear in mind the following guidelines to create the perfect pull request:
 
@@ -287,5 +278,9 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     ```
 
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
+
+# How to figure out WHAT you can contribute to
+
+This we track in our [What to Contribute](https://github.com/openSUSE/open-build-service/wiki/What-to-contribute) guide. Check it out!
 
 # Happy Hacking! - :heart: Your Open Build Service Team
