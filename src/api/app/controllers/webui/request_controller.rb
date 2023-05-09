@@ -19,6 +19,8 @@ class Webui::RequestController < Webui::WebuiController
   before_action :check_ajax, only: :sourcediff
   before_action :header_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :tabs_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                            if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :prepare_request_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
@@ -545,6 +547,30 @@ class Webui::RequestController < Webui::WebuiController
     end
   end
 
+  def tabs_data
+    # @bs_request
+    # provided by `require_request`
+
+    # @action
+    # provided by `header_data`
+
+    # @issues
+    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
+    @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+
+    # @actions_for_diff
+    @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
+
+    # @active_action
+    # provided by `set_active_action`
+
+    # @supported_actions
+    # provided by `set_supported_actions`
+
+    # @active_tab
+    # provided by the action the code goes through
+  end
+
   def prepare_request_data
     @is_author = @bs_request.creator == User.possibly_nobody.login
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
@@ -553,9 +579,6 @@ class Webui::RequestController < Webui::WebuiController
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
 
     @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
-
-    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = @action.fetch(:sourcediff, []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
@@ -569,7 +592,6 @@ class Webui::RequestController < Webui::WebuiController
 
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
-    @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
     return unless User.session && params[:notification_id]
 
