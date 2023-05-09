@@ -21,7 +21,7 @@ class Webui::RequestController < Webui::WebuiController
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :tabs_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :prepare_request_data, only: [:rpm_lint, :changes, :mentioned_issues],
+  before_action :prepare_request_data, only: [:changes, :mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: [:request_action, :request_action_changes, :show, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
@@ -317,6 +317,9 @@ class Webui::RequestController < Webui::WebuiController
 
   def rpm_lint
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
+
+    # Handling build results
+    @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
     @active = 'rpm_lint'
     @ajax_data = {}
