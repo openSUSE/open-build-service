@@ -26,7 +26,7 @@ class Webui::RequestController < Webui::WebuiController
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
-      @active = 'conversation'
+      @active_tab = 'conversation'
       render :beta_show
     else
       @diff_limit = params[:full_diff] ? 0 : nil
@@ -293,7 +293,7 @@ class Webui::RequestController < Webui::WebuiController
   def build_results
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
 
-    @active = 'build_results'
+    @active_tab = 'build_results'
     @project = @staging_project || @action[:sprj]
     @buildable = @action[:spkg] || @project
 
@@ -305,7 +305,7 @@ class Webui::RequestController < Webui::WebuiController
   def rpm_lint
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
 
-    @active = 'rpm_lint'
+    @active_tab = 'rpm_lint'
     @ajax_data = {}
     @ajax_data['project'] = @action[:sprj] if @action[:sprj]
     @ajax_data['package'] = @action[:spkg] if @action[:spkg]
@@ -315,13 +315,13 @@ class Webui::RequestController < Webui::WebuiController
   def changes
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:type].in?(@actions_for_diff)
 
-    @active = 'changes'
+    @active_tab = 'changes'
   end
 
   def mentioned_issues
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:type].in?(@actions_for_diff)
 
-    @active = 'mentioned_issues'
+    @active_tab = 'mentioned_issues'
   end
 
   private
