@@ -127,15 +127,6 @@ namespace :dev do
 
       # we need to set the user again because some factories set the user back to nil :(
       User.session = admin
-      update_project = create(:update_project, target_project: leap, name: "#{leap.name}:Update")
-      create(
-        :maintenance_project,
-        name: 'MaintenanceProject',
-        title: 'official maintenance space',
-        target_project: update_project,
-        maintainer: admin
-      )
-
       # Create factory dashboard projects
       factory = create(:project, name: 'openSUSE:Factory')
       sworkflow = create(:staging_workflow, project: factory)
@@ -234,8 +225,8 @@ namespace :dev do
       # Create a request with multiple submit actions and diffs
       Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke
 
-      # Create a request with a couple of maintenance incident request actions
-      Rake::Task['dev:requests:request_with_maintenance_incident_actions'].invoke
+      # Create a maintenance environment with maintenance requests
+      Rake::Task['dev:maintenance:all'].invoke
 
       # Create a request with a delete request action
       Rake::Task['dev:requests:request_with_delete_action'].invoke
