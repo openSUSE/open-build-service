@@ -39,7 +39,6 @@ use Data::Dumper;
 use Storable ();
 use MIME::Base64;
 use JSON::XS ();
-use File::Temp qw/tempfile/;
 
 use BSConfiguration;
 use BSCando;
