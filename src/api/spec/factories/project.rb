@@ -167,6 +167,7 @@ FactoryBot.define do
       end
 
       after(:create) do |update_project, evaluator|
+        create(:maintained_attrib, project: update_project)
         create(:update_project_attrib, project: evaluator.target_project, update_project: update_project)
         if evaluator.target_project
           create(:build_flag, status: 'disable', project: evaluator.target_project)
