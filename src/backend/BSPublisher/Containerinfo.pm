@@ -22,6 +22,9 @@
 
 package BSPublisher::Containerinfo;
 
+use BSUtil;
+use BSXML;
+
 sub construct_container_tar {
   my ($containerinfo, $doopen) = @_;
   my $blobdir = $containerinfo->{'blobdir'};
@@ -45,12 +48,28 @@ sub construct_container_tar {
   return (\@tar, $mtime, $containerinfo->{'layer_compression'});
 }
 
+sub nevra {
+  my ($bin) = @_;
+  my $evr = $bin->{'version'};
+  $evr = "$bin->{'epoch'}:$evr" if $bin->{'epoch'};
+  $evr .= "-$bin->{'release'}" if defined $bin->{'release'};
+  return "$bin->{'name'}-$evr.$bin->{'binaryarch'}";
+}
+
 sub create_packagelist {
   my ($containerinfo) = @_;
   my @bins;
   my %basepackages;
   return undef unless $containerinfo->{'container_packages'};
   my $bf;
+  my %summaries;
+  # read .report file to get package summary information
+  if ($containerinfo->{'container_report'}) {
+    my $report = readxml($containerinfo->{'container_report'}, $BSXML::report, 1) || {};
+    for my $bin (@{$report->{'binary'} || []}) {
+      $summaries{nevra($bin)} = $bin->{'summary'} if $bin->{'summary'};
+    }
+  }
   if ($containerinfo->{'container_basepackages'} && open($bf, '<', $containerinfo->{'container_basepackages'})) {
     while(<$bf>) {
       chomp;
@@ -87,6 +106,10 @@ sub create_packagelist {
       }
     }
     $bin->{'base'} = 1 if $basepackages{"$s[0]|$s[1]|$s[2]|$s[3]|$s[4]|$s[5]"};
+    if (%summaries) {
+      my $summary = $summaries{nevra($bin)};
+      $bin->{'summary'} = $summary if $summary;
+    }
     push @bins, $bin;
   }
   close($f);

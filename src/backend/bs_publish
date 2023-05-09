@@ -1957,6 +1957,9 @@ sub readcontainermetafiles {
   if (-e "$prefix.basepackages") {
     $containerinfo->{'container_basepackages'} = linkintoblobdir("$prefix.basepackages", $blobdirref);
   }
+  if (-e "$prefix.report") {
+    $containerinfo->{'container_report'} = linkintoblobdir("$prefix.report", $blobdirref);
+  }
 }
 
 sub publish {
