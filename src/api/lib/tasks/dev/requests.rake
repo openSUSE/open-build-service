@@ -181,6 +181,8 @@ namespace :dev do
       # This is the first maintenance incident action, we reuse the action created by the factory
       home_iggy_project = RakeSupport.find_or_create_project(iggy.home_project_name, iggy)
       maintenance_package = create(:package, name: "maintenance_package_#{Faker::Lorem.word}", project: home_iggy_project)
+
+      User.session = iggy
       request.bs_request_actions.first.tap do |action|
         action.source_project = home_iggy_project
         action.source_package = maintenance_package
