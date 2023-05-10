@@ -2,9 +2,14 @@ require 'browser_helper'
 
 RSpec.describe 'Request with change devel actions', beta: true, vcr: true do
   let(:submitter) { create(:confirmed_user, login: 'submitter') }
-  let(:base_package) { create(:package) }
+  let(:committer) { create(:confirmed_user, login: 'committer') }
+  let(:base_package) { create(:package, commit_user: committer, name: 'base_package') }
   let(:future_devel_package) { create(:package, name: base_package.name) }
   let(:request) do
+    future_devel_package.project.name = 'future_devel_project'
+    future_devel_package.project.save!
+    base_package.project.name = 'base_project'
+    base_package.project.save!
     create(:bs_request_with_change_devel_action,
            source_project: future_devel_package.project,
            source_package: future_devel_package,
