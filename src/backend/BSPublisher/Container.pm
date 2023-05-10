@@ -244,12 +244,11 @@ sub upload_all_containers {
     for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
       if ($registryserver eq 'local:') {
-        do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, {});
+        do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, undef);
 	next;
+      } else {
+        do_remote_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, undef, $notary_uploads);
       }
-      my $containerdigests = '';
-      add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
-      delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
     }
   }
   $have_some_trust = 1 if %$notary_uploads;
@@ -387,7 +386,9 @@ sub query_repostate {
   $pullserver =~ s/\/?$/\//;
   $pullserver = '' if $pullserver =~ /docker.io\/$/;
   $repository = "library/$repository" if $pullserver eq '' && $repository !~ /\//;
-  my ($fh, $tempfile) = tempfile();
+  mkdir_p($uploaddir);
+  my $tempfile = "$uploaddir/publisher.$$.repostate";
+  unlink($tempfile);
   print "querying state of $repository on $registryserver\n";
   my @opts = ('-l');
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
@@ -403,7 +404,7 @@ sub query_repostate {
       my @s = split(' ', $_);
       if (@s == 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[3] =~ /^cosigncookie=/) {
         $repostate->{$s[0]} = $s[3];
-      } elsif (@s >= 3) {
+      } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
       }
     }
@@ -513,7 +514,7 @@ sub compare_to_repostate {
 sub upload_to_registry {
   my ($registry, $projid, $repoid, $repository, $containerinfos, $tags, $pubkey, $signargs, $multicontainer, $repostate) = @_;
 
-  return unless @{$containerinfos || []} && @{$tags || []};
+  return '' unless @{$containerinfos || []} && @{$tags || []};
   
   my $registryserver = $registry->{pushserver} || $registry->{server};
   my $pullserver = $registry->{server};
@@ -641,7 +642,7 @@ sub upload_to_registry {
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository, @uploadfiles);
   print "uploading to registry: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
-  my $containerdigests = readstr($containerdigestfile, 1);
+  my $containerdigests = readstr($containerdigestfile, 1) || '';
   unlink($containerdigestfile);
   unlink($_) for @tempfiles;
   die("error while uploading to registry: $result\n") if $result;
@@ -803,7 +804,7 @@ sub do_local_uploads {
 
   my %todo;
   my @tempfiles;
-  for my $tag (sort keys %$uptags) {
+  for my $tag (sort keys %{$uptags || {}}) {
     my $archs = $uptags->{$tag};
     for my $arch (sort keys %{$archs || {}}) {
       my $p = $archs->{$arch};
@@ -837,6 +838,12 @@ sub do_local_uploads {
 sub do_remote_uploads {
   my ($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags, $notary_uploads) = @_;
 
+  if (!$uptags) {
+    my $containerdigests = '';
+    add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
+    delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
+    return;
+  }
   # find common containerinfos so that we can push multiple tags in one go
   my %todo;
   my %todo_p;
