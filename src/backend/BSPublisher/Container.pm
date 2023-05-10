@@ -404,7 +404,7 @@ sub query_repostate {
       my @s = split(' ', $_);
       if (@s == 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[3] =~ /^cosigncookie=/) {
         $repostate->{$s[0]} = $s[3];
-      } elsif (@s >= 3) {
+      } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
       }
     }
