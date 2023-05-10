@@ -1,7 +1,4 @@
 .comments-list
-  - commentable.comments.where(diff_ref:).each do |comment|
-    .comments-thread
-      = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
   .comments-thread
     = render(partial: 'webui/comment/comment_field',
     locals: { form_method: :post, comment: Comment.new, commentable: commentable,
