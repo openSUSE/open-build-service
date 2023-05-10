@@ -1,4 +1,4 @@
-.pre.scroll
+.pre.scroll{ id: file_name }
   .diff{ class: "digits-#{diff.max_digits}" }>
     - lines.each do |line|
       - id = file_index ? "diff_#{file_index}_n#{line.index}" : nil
@@ -42,8 +42,8 @@
           .line-comment{ id: "comment#{id}" }
             - commentable.comments.where(diff_ref: id).each do |comment|
               .comments-thread.p-3
-                = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
+                = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable, file_name: file_name)
         - else
-          .btn.btn-sm.btn-primary.line-new-comment{ data: { id: id, 'request-number': commentable.bs_request.number, 'action-id': commentable.id } }
+          .btn.btn-sm.btn-primary.line-new-comment{ data: { id: id, 'request-number': commentable.bs_request.number, 'action-id': commentable.id, 'file-name': file_name } }
             %i.fas.fa-comment-medical
           .line-comment{ id: "comment#{id}" }

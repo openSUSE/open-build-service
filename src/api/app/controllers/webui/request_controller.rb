@@ -284,6 +284,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def inline_comment
     @line = params[:line]
+    @file_name = params[:file_name]
     respond_to do |format|
       format.js
     end
@@ -327,7 +328,7 @@ class Webui::RequestController < Webui::WebuiController
     render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: build_results_data }
   end
 
-  def render_action_diff
+  def render_diff
     action = @bs_request.webui_actions(diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
     sourcediff = action[:sourcediff].first
     file_name = params[:file_name]
