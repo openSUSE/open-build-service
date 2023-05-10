@@ -237,6 +237,9 @@ namespace :dev do
       # Create a request with a couple of maintenance incident request actions
       Rake::Task['dev:requests:request_with_maintenance_incident_actions'].invoke
 
+      # Create a request with a delete request action
+      Rake::Task['dev:requests:request_with_delete_action'].invoke
+
       # Create news
       Rake::Task['dev:news:data'].invoke
     end
