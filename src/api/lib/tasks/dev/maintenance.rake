@@ -8,19 +8,22 @@ namespace :dev do
     end
 
     desc 'Create a maintenance project'
-    task project: :development_environment do
-      admin = User.get_default_admin
+    task project: 'dev:test_data:create_leap_project' do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
       leap = Project.find_by(name: 'openSUSE:Leap:15.0')
+      admin = User.get_default_admin
 
-      update_project = create(:update_project, target_project: leap, name: "#{leap.name}:Update", commit_user: admin)
-      create(
-        :maintenance_project,
-        name: 'MaintenanceProject',
-        title: 'official maintenance space',
-        target_project: update_project,
-        maintainer: admin,
-        commit_user: admin
-      )
+      admin.run_as do
+        update_project = create(:update_project, target_project: leap, name: "#{leap.name}:Update")
+        create(
+          :maintenance_project,
+          name: 'MaintenanceProject',
+          title: 'official maintenance space',
+          target_project: update_project,
+          maintainer: admin
+        )
+      end
     end
 
     desc 'Create a request with maintenance incident actions'

@@ -93,10 +93,11 @@ namespace :dev do
       admin = User.get_default_admin
       User.session = admin
 
-      interconnect = create(:remote_project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
-      # The interconnect doesn't work unless we set the distributions
-      FetchRemoteDistributionsJob.perform_now
-      tw_repository = create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
+      Rake::Task['dev:test_data:create_interconnect'].invoke
+      interconnect = Project.find_by(name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+
+      Rake::Task['dev:test_data:create_tw_repository'].invoke
+      tw_repository = Repository.find_by(name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
 
       # the home:Admin is not created because the Admin user is created in seeds.rb
       # therefore we need to create it manually and also set the proper relationship
@@ -120,10 +121,9 @@ namespace :dev do
 
       create(:package_with_files, name: 'hello_world', project: home_admin)
 
-      leap = create(:project, name: 'openSUSE:Leap:15.0')
-      leap_apache = create(:package_with_file, name: 'apache2', project: leap)
-      leap_repository = create(:repository, project: leap, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
-      create(:path_element, link: tw_repository, repository: leap_repository)
+      Rake::Task['dev:test_data:create_leap_project'].invoke
+      leap = Project.find_by(name: 'openSUSE:Leap:15.0')
+      leap_apache = Package.find_by(name: 'apache2', project: leap)
 
       # we need to set the user again because some factories set the user back to nil :(
       User.session = admin
@@ -233,6 +233,34 @@ namespace :dev do
 
       # Create news
       Rake::Task['dev:news:data'].invoke
+    end
+
+    desc 'Create Interconnect'
+    task create_interconnect: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+      create(:remote_project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+      # The interconnect doesn't work unless we set the distributions
+      FetchRemoteDistributionsJob.perform_now
+    end
+
+    desc 'Create Tumbleweed Repository'
+    task create_tw_repository: :create_interconnect do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+      interconnect = Project.find_by(name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+      create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
+    end
+
+    desc 'Create Leap project'
+    task create_leap_project: :create_tw_repository do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+      tw_repository = Repository.find_by(name: 'snapshot', remote_project_name: 'openSUSE:Factory')
+      leap = create(:project, name: 'openSUSE:Leap:15.0')
+      create(:package_with_file, name: 'apache2', project: leap)
+      leap_repository = create(:repository, project: leap, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
+      create(:path_element, link: tw_repository, repository: leap_repository)
     end
   end
 end
