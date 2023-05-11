@@ -9,7 +9,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def render?
-    can_handle_request?
+    policy(@bs_request).handle_request?
   end
 
   def single_action_request
@@ -29,10 +29,6 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   # TODO: Move all those "can_*" checks to a pundit policy
-  def can_handle_request?
-    @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
-  end
-
   def can_revoke_request?
     @is_author && @bs_request.state.in?([:new, :review, :declined])
   end
