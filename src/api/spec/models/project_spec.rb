@@ -525,6 +525,42 @@ RSpec.describe Project, vcr: true do
     it { expect(xml).to have_received(:group).with(groupid: group.title, role: 'bugowner') }
   end
 
+  # NOTE: the code deletes a user with user.delete (not user.destroy) which has a customized behaviour, setting the user to `state=delete`.
+  describe '#maintainers' do
+    let(:user_1) { create(:confirmed_user, :with_home) }
+    let(:user_2) { create(:confirmed_user) }
+    let(:group_user) { create(:confirmed_user) }
+    let(:group) { create(:group_with_user, user: group_user) }
+    let!(:user_relationship) { create(:relationship_project_user, project: subject, user: user_2) }
+    let!(:group_relationship) { create(:relationship_project_group, project: subject, group: group) }
+
+    subject { user_1.home_project }
+
+    before { group.users << user_2 }
+
+    it 'returns all the users but user_2 only once' do
+      expect(subject.maintainers).to match([user_1, user_2, group_user])
+    end
+
+    context 'when one of the users is deleted' do
+      before { user_2.delete }
+
+      it 'still returns the deleted user' do
+        expect(subject.maintainers).to match([user_1, user_2, group_user])
+      end
+    end
+
+    context 'when the group is deleted' do
+      before do
+        group.destroy
+      end
+
+      it "returns the deleted user but not the deleted group's user" do
+        expect(subject.maintainers).to match([user_1, user_2])
+      end
+    end
+  end
+
   describe '#remove_all_persons' do
     let!(:project) { create(:project) }
     let!(:user) { create(:user) }
