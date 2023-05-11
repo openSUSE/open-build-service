@@ -74,5 +74,56 @@ namespace :dev do
 
       puts "* Request with maintenance incident actions #{request.number} has been created."
     end
+
+
+    desc 'Create a request with maintenance release actions'
+    task request_with_release_actions: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      Rake::Task['dev:maintenance:project'].invoke # Really needed?
+      Rake::Task['dev:maintenance:request_with_incident_actions'].invoke
+
+      incident_action = BsRequestActionMaintenanceIncident.last
+      bs_request_maintenance_incident = incident_action.bs_request
+
+      # TODO: replace admin by a maintenance user with the right permissions
+      admin = User.get_default_admin
+      User.session = admin
+      # We accept the incident request so the incident project is automatically created (Maintenance:ID)
+      bs_request_maintenance_incident.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'We want to release already')
+
+      release_request = build(
+        :bs_request_with_maintenance_release_action,
+        creator: admin
+      )
+
+      release_request.bs_request_actions.first.tap do |action|
+        action.source_project = 'Maintenance:0'
+        action.source_package = incident_action.target_package
+        action.target_project = 'openSUSE:Leap:15.0:Update'
+        action.target_releaseproject = nil
+        action.save!
+      end
+
+      puts "* Request with maintenance release actions #{release_request.number} has been created."
+    end
   end
 end
+
+
+=begin
+
+1 target pro + 1 target pack
+1 target pro + M target pack
+M target pro + M target pack
+
+
+ type: "maintenance_release",
+ target_project: "openSUSE:Backports:SLE-15-SP4:Update",
+ target_package: "patchinfo.17900",
+ target_releaseproject: nil,
+ source_project: "openSUSE:Maintenance:17900",
+ source_package: "patchinfo",
+
+=end
