@@ -19,7 +19,7 @@ RSpec.describe SourcediffTabComponent, type: :component, vcr: true do
     before do
       User.session = create(:user)
       action = bs_request.send(:action_details, opts, xml: bs_request.bs_request_actions.last)
-      render_inline(described_class.new(bs_request: bs_request, action: action, active: action[:name], index: 0, diff_not_cached: action[:diff_not_cached]))
+      render_inline(described_class.new(bs_request: bs_request, action: action, active: action[:name], index: 0))
     end
 
     it do

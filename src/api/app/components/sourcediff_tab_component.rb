@@ -1,21 +1,20 @@
 # frozen_string_literal: true
 
 class SourcediffTabComponent < ApplicationComponent
-  attr_accessor :bs_request, :action, :active, :index, :diff_not_cached
+  attr_accessor :bs_request, :action, :active, :index
 
   delegate :valid_xml_id, to: :helpers
   delegate :request_action_header, to: :helpers
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:, active:, index:, diff_not_cached:)
+  def initialize(bs_request:, action:, active:, index:)
     super
 
     @bs_request = bs_request
     @action = action
     @active = active
     @index = index
-    @diff_not_cached = diff_not_cached
   end
 
   def file_view_path(filename, sourcediff)
