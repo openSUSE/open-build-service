@@ -110,6 +110,29 @@ namespace :dev do
       end
 
       puts "* Request with maintenance release actions #{release_request.number} has been created."
+
+
+      # step 2
+      update_project = Project.find_by(name: 'openSUSE:Leap:15.0:Update')
+      5.times do
+        package = create(:package_with_files, project: update_project, changes_file_content: Faker::Lorem.paragraph)
+        incident_project.packages << create(:package_with_files, name: package.name, changes_file_content: Faker::Lorem.paragraph)
+      end
+
+      release_request_with_m_packages = create(
+        :bs_request_with_maintenance_release_action,
+        creator: admin
+      )
+
+      update_project.packages.each do |package|
+        release_request_with_m_packages.bs_request_actions << create(:bs_request_action,
+          type: :maintenance_release,
+          source_project: incident_project.name,
+          source_package: package.name,
+          target_project: update_project.name,
+          target_releaseproject: nil,
+          target_package: package.name)
+      end
     end
   end
 end
