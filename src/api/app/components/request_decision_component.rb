@@ -29,10 +29,6 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   # TODO: Move all those "can_*" checks to a pundit policy
-  def can_revoke_request?
-    @is_author && @bs_request.state.in?([:new, :review, :declined])
-  end
-
   def can_accept_request?
     @bs_request.state.in?([:new, :review]) && @is_target_maintainer
   end
