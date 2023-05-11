@@ -3,16 +3,15 @@
   - if request_reviews.present?
     .mt-4
       .text-end
-        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
-                                              can_add_reviews: can_add_reviews,
-                                              my_open_reviews: my_open_reviews)
+        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session, my_open_reviews: my_open_reviews)
       = render AddReviewCollapsibleComponent.new
       .mb-2
         %h6
           Reviewers
       .mb-4
         = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
-  = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { can_add_reviews: can_add_reviews }
+  - if policy(bs_request).add_reviews?
+    = render partial: 'webui/request/beta_show_tabs/ask_for_review'
 
   -# PACKAGE MAINTAINERS
   - unless package_maintainers.empty?
