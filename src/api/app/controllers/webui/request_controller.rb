@@ -162,9 +162,9 @@ class Webui::RequestController < Webui::WebuiController
     @active = @action[:name]
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     @diff_to_superseded_id = params[:diff_to_superseded]
-    @refresh = @action[:diff_not_cached]
+    @diff_not_cached = @action[:diff_not_cached]
 
-    if @refresh
+    if @diff_not_cached
       bs_request_action = BsRequestAction.find(@action[:id])
       job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
       BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
@@ -186,7 +186,7 @@ class Webui::RequestController < Webui::WebuiController
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
     # TODO: Check if @diff_to_superseded_id is really needed
     @diff_to_superseded_id = params[:diff_to_superseded]
-    @refresh = @action[:diff_not_cached]
+    @diff_not_cached = @action[:diff_not_cached]
 
     cache_diff_data
 
@@ -514,7 +514,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless (@refresh = @action[:diff_not_cached])
+    return unless (@diff_not_cached = @action[:diff_not_cached])
 
     bs_request_action = BsRequestAction.find(@action[:id])
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count

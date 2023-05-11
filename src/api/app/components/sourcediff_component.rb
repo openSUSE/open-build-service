@@ -4,13 +4,13 @@ class SourcediffComponent < ApplicationComponent
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:, index:, refresh:)
+  def initialize(bs_request:, action:, index:, diff_not_cached:)
     super
 
     @bs_request = bs_request
     @action = action
     @index = index
-    @refresh = refresh
+    @diff_not_cached = diff_not_cached
   end
 
   def commentable
