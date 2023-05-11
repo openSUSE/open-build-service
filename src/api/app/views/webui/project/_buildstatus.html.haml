@@ -28,7 +28,7 @@
           - build_results.sort_by(&:architecture).each do |build_result|
             .d-flex.flex-row.flex-nowrap.py-1
               .repository-state
-                = repository_status_icon(status: build_result.state)
+                = repository_status_icon(status: build_result.state, details: build_result.details)
                 %span.ms-1
                   = link_to(build_result.architecture, { action: :monitor,
                                                   "#{valid_xml_id("repo_#{repository}")}": 1,

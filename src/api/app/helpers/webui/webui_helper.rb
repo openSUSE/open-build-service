@@ -93,7 +93,7 @@ module Webui::WebuiHelper
 
     repo_state_class = repository_state_class(outdated, status)
 
-    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}")
+    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", title: description)
   end
 
   def repository_info(status)
