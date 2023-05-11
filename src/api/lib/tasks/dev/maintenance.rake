@@ -5,6 +5,7 @@ namespace :dev do
     task all: :development_environment do
       Rake::Task['dev:maintenance:project'].invoke
       Rake::Task['dev:maintenance:request_with_incident_actions'].invoke
+      Rake::Task['dev:maintenance:request_with_release_actions'].invoke
     end
 
     desc 'Create a maintenance project'
