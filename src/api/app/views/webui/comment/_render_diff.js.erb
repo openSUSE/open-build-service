@@ -1,1 +1,3 @@
-render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:, commented_lines:, file_name: name))
+$("#diff-item-<%= file_name.parameterize %>").html("<%= escape_javascript(render(DiffComponent.new(diff: diff, 
+                                              file_index: file_index, commentable: commentable,
+                                              commented_lines: commented_lines, file_name: file_name))) %>");

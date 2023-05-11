@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $('.line-new-comment').on('click', function(){
+  $(document).on('click', '.line-new-comment', function(){
     var lineNumber = $(this).data('id')
     var requestNumber = $(this).data('request-number')
     var actionId = $(this).data('action-id')

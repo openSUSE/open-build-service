@@ -23,10 +23,7 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-      respond_to do |format|
-        format.html
-        format.js { render_diff }
-      end
+      render_diff
     else
       render(partial: 'webui/comment/comment_list',
              locals: { commentable: @commentable, diff_ref: comment.root.diff_ref },

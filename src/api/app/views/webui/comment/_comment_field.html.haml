@@ -32,7 +32,7 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
       .comment-controls.mb-3
         - case form_method
         - when :post
-          = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, disabled: true
+          = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }
           - if !comment.parent_id && CommentLockPolicy.new(User.session, commentable).create?
             = button_tag(type: 'button', class: 'btn btn-warning me-2', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}-modal" }) do
               - if commentable.comment_lock.blank?
