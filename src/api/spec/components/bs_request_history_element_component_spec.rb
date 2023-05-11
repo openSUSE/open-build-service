@@ -2,9 +2,10 @@ require 'rails_helper'
 
 RSpec.describe BsRequestHistoryElementComponent, type: :component do
   let(:user) { create(:confirmed_user) }
+  let(:reviews) { [] }
 
   before do
-    render_inline(described_class.new(element: element))
+    render_inline(described_class.new(element: element, request_reviews_for_non_staging_projects: reviews))
   end
 
   context 'for any kind of history elements' do
@@ -36,6 +37,14 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
 
     it 'describes the element action' do
       expect(rendered_content).to have_text('accepted request')
+    end
+
+    context 'with pending reviews' do
+      let(:reviews) { build_list(:review, 2, state: 'new') }
+
+      it 'describes the element action and mentions dismissed reviews' do
+        expect(rendered_content).to have_text('accepted request and dismissed pending reviews')
+      end
     end
   end
 

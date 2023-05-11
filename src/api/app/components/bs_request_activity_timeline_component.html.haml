@@ -5,4 +5,5 @@
         = render BsRequestCommentComponent.new(comment: comment_or_history_element, level: 1, commentable: comment_or_history_element.commentable,
                                                diff: diff_for_ref(comment_or_history_element))
     - else
-      = render BsRequestHistoryElementComponent.new(element: comment_or_history_element)
+      = render BsRequestHistoryElementComponent.new(element: comment_or_history_element,
+                                                    request_reviews_for_non_staging_projects: request_reviews_for_non_staging_projects)
