@@ -4571,6 +4571,7 @@ if ($BSConfig::workerreposerver) {
   $wproto = $1 if $BSConfig::workerreposerver =~ /^(https):/;
   die("worker port on $wproto but normal port on $proto: both need to be the same\n") unless $wproto eq $proto;
 }
+%$conf = (%$conf, %{$BSConfig::reposerver_extraconf}) if $BSConfig::reposerver_extraconf;
 
 # create bsdir before root privileges are dropped
 BSUtil::mkdir_p_chown($BSConfig::bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);

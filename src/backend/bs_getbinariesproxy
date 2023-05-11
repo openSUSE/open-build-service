@@ -622,6 +622,7 @@ my $conf = {
 };
 
 $conf->{'maxchild'} = $BSConfig::getbinariesproxyserver_maxchild if $BSConfig::getbinariesproxyserver_maxchild;
+%$conf = (%$conf, %{$BSConfig::getbinariesproxyserver_extraconf}) if $BSConfig::getbinariesproxyserver_extraconf;
 
 BSStdServer::server('bs_getbinariesproxy', \@ARGV, $conf);
 
