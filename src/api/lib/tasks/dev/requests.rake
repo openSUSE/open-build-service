@@ -169,8 +169,6 @@ namespace :dev do
 
       iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
       User.session = iggy
-      admin = User.get_default_admin
-      home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
       request = build(
         :bs_request_with_maintenance_incident_action,
@@ -200,11 +198,23 @@ namespace :dev do
                                            target_project: maintenance_project,
                                            target_releaseproject: release_project)
 
-      create(:bs_request_action_delete,
-             target_project: home_admin_project,
-             bs_request: request)
-
       puts "* Request with maintenance incident actions #{request.number} has been created."
+    end
+
+    # Run this task with: rails dev:requests:request_with_delete_action
+    desc 'Creates a request with a delete action'
+    task request_with_delete_action: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
+      admin = User.get_default_admin
+      home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+
+      target_package = create(:package, project: home_admin_project, name: Faker::Lorem.word)
+      request = create(:delete_bs_request, target_package: target_package, creator: iggy)
+
+      puts "* Request with delete action #{request.number} has been created."
     end
   end
 end
