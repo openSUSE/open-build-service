@@ -144,7 +144,9 @@ sub pack_enumerated {
 
 sub pack_obj_id {
   my ($o1, $o2, @o) = @_;
-  return pack_raw($OBJ_ID, pack('w*', $o1 * 40 + $o2, @o));
+  my $data = pack('w*', $o1 * 40 + $o2, @o);
+  return pack("CC", $OBJ_ID, length($data)).$data if length($data) < 128;
+  return pack_raw($OBJ_ID, $data);
 }
 
 sub pack_sequence {
