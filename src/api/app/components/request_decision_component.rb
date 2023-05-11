@@ -33,10 +33,6 @@ class RequestDecisionComponent < ApplicationComponent
     @bs_request.state.in?(%i[new review]) && @is_target_maintainer
   end
 
-  def can_decline_request?
-    !@is_author
-  end
-
   def can_reopen_request?
     @bs_request.state == :declined
   end
