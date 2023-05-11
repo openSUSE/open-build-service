@@ -23,6 +23,10 @@ class BsRequestPolicy < ApplicationPolicy
     author? && record.state.in?([:new, :review, :declined])
   end
 
+  def can_decline_request?
+    !is_author?
+  end
+
   private
 
   def author?
