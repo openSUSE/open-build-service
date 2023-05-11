@@ -111,8 +111,8 @@ def ignore_by_class?(notice)
 end
 
 def ignore_by_message?(message)
-  messages_to_ignore = ["<summary>undefined method `server_properties' for #<AMQ::Protocol::Connection::Close",
-                        "<summary>undefined method `decode_payload' for #<AMQ::Protocol::HeartbeatFrame"].freeze
+  messages_to_ignore = ["undefined method `server_properties' for #<AMQ::Protocol::Connection::Close",
+                        "undefined method `decode_payload' for #<AMQ::Protocol::HeartbeatFrame"].freeze
 
   messages_to_ignore.any? { |message_to_ignore| message.include?(message_to_ignore) }
 end
