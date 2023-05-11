@@ -16,14 +16,16 @@ namespace :dev do
       admin = User.get_default_admin
 
       admin.run_as do
-        update_project = create(:update_project, target_project: leap, name: "#{leap.name}:Update")
-        create(
-          :maintenance_project,
-          name: 'MaintenanceProject',
-          title: 'official maintenance space',
-          target_project: update_project,
-          maintainer: admin
-        )
+        update_project = Project.find_by(name: 'openSUSE:Leap:15.0:Update') || create(:update_project, target_project: leap, name: "#{leap.name}:Update")
+        unless Project.find_by(name: 'MaintenanceProject')
+          create(
+            :maintenance_project,
+            name: 'MaintenanceProject',
+            title: 'official maintenance space',
+            target_project: update_project,
+            maintainer: admin
+          )
+        end
       end
     end
 
@@ -33,7 +35,7 @@ namespace :dev do
       include FactoryBot::Syntax::Methods
 
       admin = User.get_default_admin
-      home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+      home_admin_project = Project.find_by(name: admin.home_project_name) # RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
       iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
       request = build(
@@ -66,9 +68,9 @@ namespace :dev do
                                            target_project: maintenance_project,
                                            target_releaseproject: release_project)
 
-      create(:bs_request_action_delete,
-             target_project: home_admin_project,
-             bs_request: request)
+      # create(:bs_request_action_delete,
+      #        target_project: home_admin_project,
+      #        bs_request: request)
 
       puts "* Request with maintenance incident actions #{request.number} has been created."
     end
