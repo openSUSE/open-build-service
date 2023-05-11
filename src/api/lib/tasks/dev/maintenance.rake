@@ -92,6 +92,8 @@ namespace :dev do
       User.session = admin
       # We accept the incident request so the incident project is automatically created (Maintenance:ID)
       bs_request_maintenance_incident.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'We want to release already')
+      incident_project = Project.last
+      incident_package = incident_project.packages.last
 
       release_request = build(
         :bs_request_with_maintenance_release_action,
@@ -99,10 +101,11 @@ namespace :dev do
       )
 
       release_request.bs_request_actions.first.tap do |action|
-        action.source_project = 'Maintenance:0'
-        action.source_package = incident_action.target_package
-        action.target_project = 'openSUSE:Leap:15.0:Update'
+        action.source_project = incident_project.name
+        action.source_package = incident_package.name
+        action.target_project = incident_action.target_releaseproject
         action.target_releaseproject = nil
+        action.target_package = incident_package.name
         action.save!
       end
 
