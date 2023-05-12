@@ -37,8 +37,6 @@ class BsRequestHistoryElementComponent < ApplicationComponent
   end
 
   def pending_reviews?
-    return true if request_reviews_for_non_staging_projects.select(&:new?).any?
-
-    false
+    request_reviews_for_non_staging_projects.select(&:new?).any?
   end
 end
