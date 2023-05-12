@@ -2,7 +2,7 @@
   .col
     - if @refresh
       .clearfix.mb-2.text-center
-        .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: 'loadChanges();' }
+        .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "loadChanges(#{@bs_request.number}, #{@action[:id]});" }
           Crunching the latest data. Refresh again in a few seconds
           %i.fas.fa-sync-alt{ id: "cache#{@index}-reload" }
     - else

@@ -185,10 +185,9 @@ function loadDiffs(element){
   });
 }
 
-function loadChanges() { // jshint ignore:line
+function loadChanges(requestNumber, requestActionId) { // jshint ignore:line
   $('.loading-diff').removeClass('invisible');
-  var element = $('#changes-tab');
-  var url = '/request/' + element.data('request-number') + '/request_action/' + element.data('request-action-id') + '/changes';
+  var url = '/request/' + requestNumber + '/request_action/' + requestActionId + '/changes';
   $.ajax({
     url: url,
     success: function() {
