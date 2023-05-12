@@ -1,8 +1,5 @@
 namespace :dev do
   namespace :test_data do
-    require 'factory_bot'
-    include FactoryBot::Syntax::Methods
-
     def create_maintenance_project(project_name)
       admin = User.get_default_admin
       leap = Project.find_by(name: project_name)
