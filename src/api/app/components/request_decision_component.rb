@@ -1,9 +1,8 @@
 class RequestDecisionComponent < ApplicationComponent
-  def initialize(bs_request:, action:, is_target_maintainer:)
+  def initialize(bs_request:, action:)
     super
 
     @bs_request = bs_request
-    @is_target_maintainer = is_target_maintainer
     @action = action
   end
 
@@ -29,7 +28,7 @@ class RequestDecisionComponent < ApplicationComponent
 
   # TODO: Move all those "can_*" checks to a pundit policy
   def can_accept_request?
-    @bs_request.state.in?([:new, :review]) && @is_target_maintainer
+    @bs_request.state.in?([:new, :review]) && policy(@bs_request).target_maintainer?
   end
 
   def can_reopen_request?

@@ -9,14 +9,12 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def handle_request?
-    is_target_maintainer = record.is_target_maintainer?(user)
-    record.state.in?([:new, :review, :declined]) && (is_target_maintainer || author?)
+    record.state.in?([:new, :review, :declined]) && (target_maintainer? || author?)
   end
 
   def can_add_reviews?
-    is_target_maintainer = record.is_target_maintainer?(user)
     open_reviews = record.reviews.where(state: 'new').select { |review| review.matches_user?(user) }
-    record.state.in?([:new, :review]) && (author? || is_target_maintainer || open_reviews.present?)
+    record.state.in?([:new, :review]) && (author? || target_maintainer? || open_reviews.present?)
   end
 
   def can_revoke_request?
@@ -24,7 +22,11 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def can_decline_request?
-    !is_author?
+    !author?
+  end
+
+  def target_maintainer?
+    record.bs_request_actions.all? { |action| action.is_target_maintainer?(user) }
   end
 
   private

@@ -516,9 +516,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def prepare_request_data
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session)
-
     @diff_limit = params[:full_diff] ? 0 : nil
     @diff_to_superseded_id = params[:diff_to_superseded]
 
