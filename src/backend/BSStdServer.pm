@@ -78,23 +78,31 @@ sub authorize {
   my ($conf, $req, $auth) = @_;
   my %auths;
   return () unless $BSConfig::subjectdnaccess || $BSConfig::ipaccess;
-  if ($BSConfig::subjectdnaccess && $conf->{'ssl_verify'}) {
-    my $dn = BSServer::getsubjectdn($req);
-    if (defined($dn)) {
+  my $dn;
+  if ($BSConfig::subjectdnaccess) {
+    if (($conf->{'proto'} || '') eq 'https') {
+      $dn = BSServer::getsubjectdn($req);
+    } elsif ($conf->{'trusted_subjectdn_header'}) {
+      $dn = ($req->{'headers'} || {})->{lc($conf->{'trusted_subjectdn_header'})};
+    }
+    if ($dn) {
       for my $dnre (sort keys %{$BSConfig::subjectdnaccess || {}}) {
         next unless $dn =~ /^$dnre$/s;
         $auths{$_} = 1 for split(',', $BSConfig::subjectdnaccess->{$dnre});
       }
     }
   }
-  my $peer = $req->{'peer'};
-  for my $ipre (sort keys %{$BSConfig::ipaccess || {}}) {
-    next unless $peer =~ /^$ipre$/s;
-    $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});
+  my $peerip = $req->{'peerip'};
+  if ($BSConfig::ipaccess && $peerip) {
+    for my $ipre (sort keys %{$BSConfig::ipaccess || {}}) {
+      next unless $peerip =~ /^$ipre$/s;
+      $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});
+    }
   }
+  die("500 access denied\n") if $auths{'_reject'};
   return () if grep {$auths{$_}} split(',', $auth);
-  warn("500 access denied for $peer by \$ipaccess rules in BSConfig\n");
-  die("500 access denied by \$ipaccess rules\n");
+  warn("500 access denied for ".($peerip || 'unknown').($dn ? " [$dn]" : '')." by access rules in BSConfig\n");
+  die("500 access denied\n");
 }
 
 sub dispatch {
@@ -102,6 +110,10 @@ sub dispatch {
 
   return BSDispatch::dispatch($conf, $req) if $req->{'req_mode'};
   my $peer = $isajax ? 'AJAX' : $req->{'peer'};
+  if (!$isajax && $conf->{'trusted_peerip_header'}) {
+    my $peerip = ($req->{'headers'} || {})->{lc($conf->{'trusted_peerip_header'})};
+    $req->{'peerip'} = $req->{'peer'} = $peer = $peerip if $peerip && $peerip =~ /^[0-9a-fA-F\.\:]+$/s;
+  }
   my $msg = sprintf("%-22s %s%s",
     "$req->{'action'} ($peer)", $req->{'path'},
     defined($req->{'query'}) ? "?$req->{'query'}" : '',
