@@ -361,15 +361,17 @@ sub newconnect {
   my $peeraddr = accept($newfd, *{$ev->{'fd'}});
   return unless $peeraddr;
   fcntl($newfd, F_SETFL, O_NONBLOCK);
-  my ($peer, $peerport);
-  eval { ($peerport, $peer) = BSServer::getpeerdata({ '__socket' => $ev->{'fd'} }, $peeraddr) };
+  my ($peerip, $peerport);
+  eval { ($peerport, $peerip) = BSServer::getpeerdata({ '__socket' => $ev->{'fd'} }, $peeraddr) };
   my $conf = $ev->{'conf'};
-  my $request = { 'conf' => $conf, 'peer' => $peer, 'starttime' => time(), 'state' => 'receiving', 'server' => $ev->{'server'} };
+  my $request = { 'conf' => $conf, 'starttime' => time(), 'state' => 'receiving', 'server' => $ev->{'server'} };
+  $request->{'peer'} = $peerip || 'unknown';
+  $request->{'peerip'} = $peerip if $peerip;
   $request->{'peerport'} = $peerport if $peerport;
   my $nev = BSEvents::new('read', \&getrequest);
   $nev->{'request'} = $request;
   $nev->{'fd'} = $newfd;
-  $nev->{'peer'} = $peer;
+  $nev->{'peer'} = $request->{'peer'};
   $nev->{'timeouthandler'} = \&getrequest_timeout;
   $nev->{'conf'} = $conf;
   if ($conf->{'setkeepalive'}) {
@@ -393,11 +395,12 @@ sub cloneconnect {
   $nev->{'conf'} = $conf;
   $nev->{'request'} = $nreq;
   $nev->{'requestevents'} = $ev->{'requestevents'};
-  my ($peer, $peerport);
-  eval { ($peerport, $peer) = BSServer::getpeerdata({ '__socket' => $nev->{'fd'} }) };
-  $nreq->{'peer'} = $peer || 'unknown';
+  my ($peerip, $peerport);
+  eval { ($peerport, $peerip) = BSServer::getpeerdata({ '__socket' => $nev->{'fd'} }) };
+  $nreq->{'peer'} = $peerip || 'unknown';
+  $nreq->{'peerip'} = $peerip if $peerip;
   $nreq->{'peerport'} = $peerport if $peerport;
-  $nev->{'peer'} = $peer;
+  $nev->{'peer'} = $nreq->{'peer'};
   $nev->{'requestevents'}->{$nev->{'id'}} = $nev;
   if (@reply) {
     if ($conf->{'stdreply'}) {

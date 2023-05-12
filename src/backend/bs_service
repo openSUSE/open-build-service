@@ -341,5 +341,6 @@ my $conf = {
   'setkeepalive' => 1,
   'maxchild' => $maxchild,
 };
+%$conf = (%$conf, %{$BSConfig::serviceserver_extraconf}) if $BSConfig::serviceserver_extraconf;
 
 BSStdServer::server('bs_service', \@ARGV, $conf);

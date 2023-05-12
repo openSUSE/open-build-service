@@ -402,5 +402,7 @@ my $aconf = {
   'dispatches' => $dispatches_ajax,
 };
 
+%$conf = (%$conf, %{$BSConfig::clouduploadserver_extraconf}) if $BSConfig::clouduploadserver_extraconf;
+
 BSStdServer::server('bs_clouduploadserver', \@ARGV, $conf, $aconf);
 

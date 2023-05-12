@@ -212,9 +212,9 @@ sub subjectdn {
   }
   my $cert = Net::SSLeay::get_peer_certificate($sslr->[0]);
   return undef unless $cert;
-  my $issuer = Net::SSLeay::X509_get_issuer_name($cert);
-  return undef unless $issuer;
-  return Net::SSLeay::X509_NAME_print_ex($issuer, &Net::SSLeay::XN_FLAG_RFC2253);
+  my $subject = Net::SSLeay::X509_get_subject_name($cert);
+  return undef unless $subject;
+  return Net::SSLeay::X509_NAME_print_ex($subject, &Net::SSLeay::XN_FLAG_RFC2253);
 }
 
 1;
