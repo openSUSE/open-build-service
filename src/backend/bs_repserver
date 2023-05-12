@@ -1640,7 +1640,8 @@ sub updateredisjobstatus {
 
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
-  my $peerip = BSServer::getpeerdata();
+  my $req = $BSServer::request || {};
+  my $peerip = $req->{'peerip'};
   my $peerproto = $cgi->{'proto'} || 'http';
   die("cannot get your ip address\n") unless $peerip;
   die("unsupported proto $peerproto\n") unless $peerproto eq 'http' || $peerproto eq 'https';
@@ -1736,7 +1737,8 @@ sub workerstate {
 sub workerdispatched {
   my ($cgi, $arch, $job, $jobid) = @_;
   
-  my $peerip = BSServer::getpeerdata();
+  my $req = $BSServer::request || {};
+  my $peerip = $req->{'peerip'};
   my $peerport = $cgi->{'port'};
   my $peerproto = $cgi->{'proto'} || 'http';
   die("cannot get your ip address\n") unless $peerip;
@@ -2189,7 +2191,8 @@ sub putjob {
   die("job is not building\n") if $oldjobstatus->{'code'} ne 'building';
   die("job is building on a different worker: $cgi->{'workerid'} -- $oldjobstatus->{'workerid'}\n") if $cgi->{'workerid'} && $oldjobstatus->{'workerid'} && $cgi->{'workerid'} ne $oldjobstatus->{'workerid'};
   if (defined($BSConfig::putjob_verify_peerip) && $BSConfig::putjob_verify_peerip) {
-    my $peerip = BSServer::getpeerdata();
+    my $req = $BSServer::request || {};
+    my $peerip = $req->{'peerip'};
     my $uri = $oldjobstatus->{'uri'};
     $uri =~ s/.*\///s;
     $uri =~ s/:[\d]+$//s;
