@@ -7,7 +7,7 @@
       Release in #{@action[:releaseproject]}
   %hr
   .row
-    - if @refresh
+    - if @action[:diff_not_cached]
       .col-lg-12
         .clearfix.mb-2.text-center
           .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "reloadRequestAction(#{@index})" }

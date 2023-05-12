@@ -14,7 +14,7 @@
                   active_action: @active_action, actions_count: @supported_actions.count, active_tab: @active_tab }
     .container.p-4
       .tab-content.sourcediff
-        = render SourcediffComponent.new(bs_request: @bs_request, action: @action, index: 0, refresh: @refresh)
+        = render SourcediffComponent.new(bs_request: @bs_request, action: @action, index: 0)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
