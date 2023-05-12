@@ -203,12 +203,14 @@ sub setsocket {
   my $req = $BSServer::request || {};
   $req->{'peer'} = 'unknown';
   delete $req->{'peerport'};
+  delete $req->{'peerip'};
   if (!defined($_[0])) {
     delete $req->{'__socket'};
     return;
   }
   $req->{'__socket'} = $_[0];
-  eval { ($req->{'peerport'}, $req->{'peer'}) = getpeerdata($req) };
+  eval { ($req->{'peerport'}, $req->{'peerip'}) = getpeerdata($req) };
+  $req->{'peer'} = $req->{'peerip'} if $req->{'peerip'};
 }
 
 sub setstatus {
@@ -462,8 +464,9 @@ sub server {
     }
   }
   $BSServer::request = $req;
-  eval { ($req->{'peerport'}, $req->{'peer'}) = getpeerdata($req, $peeraddr) };
+  eval { ($req->{'peerport'}, $req->{'peerip'}) = getpeerdata($req, $peeraddr) };
   warn($@) if $@;
+  $req->{'peer'} = $req->{'peerip'} if $req->{'peerip'};
 
   setsockopt($clnt, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
 
