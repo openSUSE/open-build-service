@@ -49,10 +49,7 @@ class Webui::RequestController < Webui::WebuiController
       @comments = @bs_request.comments
       @comment = Comment.new
 
-      if User.session && params[:notification_id]
-        @current_notification = Notification.find(params[:notification_id])
-        authorize @current_notification, :update?, policy_class: NotificationPolicy
-      end
+      handle_notification
 
       @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
       @action = @actions.first
@@ -519,6 +516,13 @@ class Webui::RequestController < Webui::WebuiController
     BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
   end
 
+  def handle_notification
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
+  end
+
   def prepare_request_data
     @is_author = @bs_request.creator == User.possibly_nobody.login
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
@@ -559,9 +563,6 @@ class Webui::RequestController < Webui::WebuiController
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
     @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
-    return unless User.session && params[:notification_id]
-
-    @current_notification = Notification.find(params[:notification_id])
-    authorize @current_notification, :update?, policy_class: NotificationPolicy
+    handle_notification
   end
 end
