@@ -386,7 +386,7 @@ jobs:
           command: |
             curl -LOs https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
             chmod +x test-reporter-latest-linux-amd64
-            ./test-reporter-latest-linux-amd64 format-coverage coverage/coverage.xml -t cobertura
+            ./test-reporter-latest-linux-amd64 format-coverage --add-prefix src/api/ coverage/coverage.xml -t cobertura
             ./test-reporter-latest-linux-amd64 upload-coverage
       - run:
           name: Compress coverage results
