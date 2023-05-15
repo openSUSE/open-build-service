@@ -4564,6 +4564,7 @@ my $conf = {
 my $aconf = {
   'socketpath' => $ajaxsocket,
   'dispatches' => $dispatches_ajax,
+  'slowrequestthr' => 300,
 };
 
 if ($BSConfig::workerreposerver) {

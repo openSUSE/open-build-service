@@ -435,6 +435,7 @@ sub server {
     $aconf->{'getrequest_timeout'} = 10 unless exists $aconf->{'getrequest_timeout'};
     $aconf->{'replrequest_timeout'} = 10 unless exists $aconf->{'replrequest_timeout'};
     $aconf->{'run'} ||= \&BSEvents::schedule;
+    $aconf->{'slowrequestlog'} ||= "$BSConfig::logdir/${name}_ajax.slow.log" if $aconf->{'slowrequestthr'};
     $aconf->{'name'} = $name;
     BSDispatch::compile($aconf);
   }

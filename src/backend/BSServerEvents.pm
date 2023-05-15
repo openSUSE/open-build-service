@@ -50,6 +50,8 @@ sub replrequest_timeout {
   delete $ev->{'fd'};
   delete $ev->{'nfd'};
   delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+  my $req = $ev->{'request'};
+  BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
 }
 
 sub replrequest_write {
@@ -68,6 +70,8 @@ sub replrequest_write {
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
     delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+    my $req = $ev->{'request'};
+    BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
     return;
   }
   if ($r == length($ev->{'replbuf'})) {
@@ -76,6 +80,8 @@ sub replrequest_write {
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
     delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+    my $req = $ev->{'request'};
+    BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
     return;
   }
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $r) if $r;
@@ -454,6 +460,8 @@ sub stream_close {
     delete $wev->{'fd'};
     delete $wev->{'readev'};
     delete $wev->{'requestevents'}->{$wev->{'id'}} if $wev->{'requestevents'};
+    my $req = $wev->{'request'};
+    BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
   }
 }
 
