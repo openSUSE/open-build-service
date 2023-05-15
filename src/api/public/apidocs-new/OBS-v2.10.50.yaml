@@ -62,7 +62,8 @@ info:
     There is no API versioning, since there is no need for it right now.
 
     Only rudimentary rate limiting is implemented, so please be gentle when using the API concurrently, especially with potentially expensive operations.
-    In case of abuse, we will limit/remove your access.
+
+    Your OBS Admin might have implemented other authentication schemes or stricter rate limiting in front of the application. Check the [site main page](/) for details.
 
     For command-line users, we recommend using [osc](https://github.com/openSUSE/osc) with its _api_ command to interact with the API.
     It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
