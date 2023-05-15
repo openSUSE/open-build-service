@@ -228,8 +228,7 @@ namespace :dev do
       Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke
 
       # Create a maintenance environment with maintenance requests
-      create_maintenance_project('openSUSE:Leap:15.0')
-      request_with_incident_actions
+      create_maintenance_setup
 
       # Create a request with a delete request action
       Rake::Task['dev:requests:request_with_delete_action'].invoke
