@@ -1,3 +1,14 @@
+# Running `dev:test_data:maintenance` as part of the `rails dev:test_data`
+# will create all the elements related to maintenance:
+
+# - Maintained project (GA Project): i.e. openSUSE:Leap:15.4
+# - Update Project: i.e. openSUSE:Leap:15.4:Update
+# - User's branch of the Update Project: i.e. home:Iggy:branches:openSUSE:Leap:15.4:Update
+# - Maintenance Project: i.e. openSUSE:Maintenance
+# - Incident Project: i.e. openSUSE:Maintenance:100
+# - Maintenance Incident Request.
+# - Maintenance Release Request.
+
 module TestData
   module Maintenance
     def create_maintenance_project(project_name)
