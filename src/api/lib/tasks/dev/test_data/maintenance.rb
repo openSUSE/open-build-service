@@ -1,5 +1,5 @@
-namespace :dev do
-  namespace :test_data do
+module TestData
+  module Maintenance
     def create_maintenance_project(project_name)
       admin = User.get_default_admin
       leap = Project.find_by(name: project_name)
@@ -48,13 +48,6 @@ namespace :dev do
                                            target_releaseproject: release_project)
 
       puts "* Request with maintenance incident actions #{request.number} has been created."
-    end
-
-    # Run this task with: rails dev:test_data:maintenance
-    desc 'Set a maintenance environment'
-    task maintenance: :development_environment do
-      create_maintenance_project('openSUSE:Leap:15.0')
-      request_with_incident_actions
     end
   end
 end
