@@ -524,12 +524,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def prepare_request_data
-    @is_author = @bs_request.creator == User.possibly_nobody.login
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-    reviews = @bs_request.reviews.where(state: 'new')
-    @my_open_reviews = reviews.select { |review| review.matches_user?(User.session) }
-    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
+    @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session)
     @diff_limit = params[:full_diff] ? 0 : nil
     @diff_to_superseded_id = params[:diff_to_superseded]
 

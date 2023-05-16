@@ -897,6 +897,9 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  # TODO: Remove this once request_show_redesign is rolled out, this got moved
+  # to the bs_request_policy and is only used in the non beta views for requests
+  # and the CommentPolicy
   # Check if 'user' is maintainer in _all_ request targets:
   def is_target_maintainer?(user)
     bs_request_actions.all? { |action| action.is_target_maintainer?(user) }

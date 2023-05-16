@@ -2,7 +2,7 @@
   = form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
     = hidden_field_tag(:number, @bs_request.number)
     = text_area_tag(:reason, nil, placeholder: 'Please explain your decision...', rows: 4, class: 'w-100 form-control mb-2')
-    - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
+    - if single_action_request && policy(@bs_request).target_maintainer? && @bs_request.state.in?([:new, :review])
       - if show_add_submitter_as_maintainer_option?
         .form-check.mb-2
           = check_box_tag('add_submitter_as_maintainer_0', "#{@action[:tprj]}_#_#{@action[:tpkg]}", false, class: 'form-check-input')
@@ -15,12 +15,12 @@
           %label.form-check-label{ for: "forward-#{index}" }
             Forward submit request to
             #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
-    - if can_revoke_request?
+    - if policy(@bs_request).can_revoke_request?
       = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2'
     - if can_reopen_request?
       = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2'
     - if can_accept_request?
-      - if can_decline_request?
+      - if policy(@bs_request).can_decline_request?
         = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
                      class: 'btn btn-danger me-2')
       = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',

@@ -26,7 +26,6 @@
       .row
         = render partial: 'webui/request/beta_show_tabs/conversation_aside',
                 locals: { bs_request: @bs_request,
-                  can_add_reviews: @can_add_reviews,
                   my_open_reviews: @my_open_reviews,
                   request_reviews: @request_reviews,
                   package_maintainers: @package_maintainers,
@@ -98,11 +97,8 @@
                 %strong auto-accepted
                 = render TimeComponent.new(time: @bs_request.accept_at)
 
-          = render AccordionReviewsComponent.new(@request_reviews, @bs_request.state, can_handle_request: policy(@bs_request).handle_request?)
-
-          = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,
-                                                is_target_maintainer: @is_target_maintainer,
-                                                is_author: @is_author)
+          = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
+          = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
