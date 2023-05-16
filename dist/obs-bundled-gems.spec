@@ -16,7 +16,8 @@
 #
 
 %if 0%{?suse_version}
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
+%define __obs_ruby_suffix      ruby3.1
+%define __obs_ruby_interpreter /usr/bin/ruby.%{__obs_ruby_suffix}
 %define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
 %define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
 %define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
@@ -121,14 +122,14 @@ EOF
 # all operations here since bundle does not decouple compile and install
 pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
-bundle config build.ffi --enable-system-libffi
-bundle config build.nokogiri --use-system-libraries
-bundle config build.sassc --disable-march-tune-native
-bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
-bundle config force_ruby_platform true
-bundle config set --local path %{buildroot}%_libdir/obs-api/
+bundle.%{__obs_ruby_suffix} config build.ffi --enable-system-libffi
+bundle.%{__obs_ruby_suffix} config build.nokogiri --use-system-libraries
+bundle.%{__obs_ruby_suffix} config build.sassc --disable-march-tune-native
+bundle.%{__obs_ruby_suffix} config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+bundle.%{__obs_ruby_suffix} config force_ruby_platform true
+bundle.%{__obs_ruby_suffix} config set --local path %{buildroot}%_libdir/obs-api/
 
-bundle install --local
+bundle.%{__obs_ruby_suffix} install --local
 popd
 
 %if 0%{?suse_version}
