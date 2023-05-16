@@ -35,23 +35,34 @@ use strict;
 
 our $gev;	# our event
 
+sub request_done {
+  my ($ev) = @_;
+  delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+  my $req = $ev->{'request'};
+  BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
+}
+
+sub request_note {
+  my ($ev, $msg) = @_;
+  my $info = $ev->{'request'} ? BSServer::request_infostr($ev->{'request'}) : $ev->{'peer'};
+  print "$msg for $info\n";
+}
+
 sub replstream_timeout {
   my ($ev) = @_;
-  print "replstream timeout for $ev->{'peer'}\n";
+  request_note($ev, 'replstream timeout');
   stream_close($ev->{'readev'}, $ev);
 }
 
 sub replrequest_timeout {
   my ($ev) = @_;
-  print "replrequest timeout for $ev->{'peer'}\n";
+  request_note($ev, 'replrequest timeout');
   $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
   close($ev->{'fd'});
   close($ev->{'nfd'}) if $ev->{'nfd'};
   delete $ev->{'fd'};
   delete $ev->{'nfd'};
-  delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
-  my $req = $ev->{'request'};
-  BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
+  request_done($ev);
 }
 
 sub replrequest_write {
@@ -69,9 +80,7 @@ sub replrequest_write {
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
-    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
-    my $req = $ev->{'request'};
-    BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
+    request_done($ev);
     return;
   }
   if ($r == length($ev->{'replbuf'})) {
@@ -79,13 +88,12 @@ sub replrequest_write {
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
-    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
-    my $req = $ev->{'request'};
-    BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
+    request_done($ev);
     return;
   }
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $r) if $r;
-  BSEvents::add($ev);
+  my $conf = $ev->{'conf'};
+  BSEvents::add($ev, $conf->{'replstream_timeout'});
   return;
 }
 
@@ -98,7 +106,7 @@ sub reply {
     $ev->{'handler'}->($ev) if $ev->{'handler'};
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     print "$str\n" if defined($str) && $str ne '';
-    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+    request_done($ev);
     return;
   }
   if ($ev->{'streaming'}) {
@@ -158,7 +166,8 @@ sub reply_stream {
   $ev->{'streaming'} = 1;
   $rev->{'writeev'} = $ev;
   $rev->{'handler'} ||= \&stream_read_handler;
-  BSEvents::add($ev, 0);
+  my $conf = $ev->{'conf'};
+  BSEvents::add($ev, $conf->{'replstream_timeout'} || 0);
   BSEvents::add($rev);	# do this last (because of "always" type)
 }
 
@@ -270,6 +279,7 @@ sub getrequest_timeout {
   $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
   close($ev->{'fd'});
   close($ev->{'nfd'}) if $ev->{'nfd'};
+  request_done($ev);
   delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
 }
 
@@ -307,7 +317,7 @@ sub getrequest {
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
-      delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+      request_done($ev);
       return;
     }
     if (!$r) {
@@ -315,7 +325,7 @@ sub getrequest {
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
-      delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+      request_done($ev);
       return;
     }
     if ($ev->{'reqbuf'} !~ /^(.*?)\r?\n/s) {
@@ -459,9 +469,7 @@ sub stream_close {
     close $wev->{'fd'} if $wev->{'fd'};
     delete $wev->{'fd'};
     delete $wev->{'readev'};
-    delete $wev->{'requestevents'}->{$wev->{'id'}} if $wev->{'requestevents'};
-    my $req = $wev->{'request'};
-    BSServer::log_slow_requests($req->{'conf'}, $req) if $req && $req->{'conf'}->{'slowrequestlog'};
+    request_done($wev);
   }
 }
 
@@ -535,7 +543,8 @@ sub stream_read_handler {
     if ($wev && $wev->{'paused'}) {
       if (length($wev->{'replbuf'})) {
         delete $wev->{'paused'};
-        BSEvents::add($wev)
+	my $conf = $wev->{'conf'};
+	BSEvents::add($wev, $conf->{'replstream_timeout'});
       } else {
         stream_close($ev, $wev);
       }
@@ -544,7 +553,8 @@ sub stream_read_handler {
   }
   if ($wev->{'paused'}) {
     delete $wev->{'paused'};
-    BSEvents::add($wev);
+    my $conf = $wev->{'conf'};
+    BSEvents::add($wev, $conf->{'replstream_timeout'});
     # check if add() killed us
     return unless $ev->{'fd'};
   }
@@ -595,12 +605,14 @@ sub stream_write_handler {
       if ($wev->{'paused'} && length($wev->{'replbuf'})) {
 	#print "pushing old data\n";
 	delete $wev->{'paused'};
-	BSEvents::add($wev);
+	my $conf = $ev->{'conf'};
+	BSEvents::add($wev, $conf->{'replstream_timeout'});
       }
     }
   }
   if (length($ev->{'replbuf'})) {
-    BSEvents::add($ev);
+    my $conf = $ev->{'conf'};
+    BSEvents::add($ev, $conf->{'replstream_timeout'});
   } else {
     $ev->{'paused'} = 1;
     stream_close($rev, $ev) if $rev->{'eof'};
@@ -652,7 +664,7 @@ sub concheck_handler {
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
-      delete $requestevents->{$ev->{'id'}};
+      request_done($ev);
       BSEvents::rem($ev);	# just in case...
     }
   }
