@@ -128,11 +128,11 @@ FactoryBot.define do
       end
     end
 
-    factory :maintenance_project do
+    factory :maintenance_project do # openSUSE:Maintenance
       kind { 'maintenance' }
 
       transient do
-        target_project { nil }
+        target_project { nil }      # maintains -> update projects (for example: openSUSE:Leap:15.4:Update)
         create_patchinfo { false }
       end
 
@@ -163,20 +163,26 @@ FactoryBot.define do
       kind { 'maintenance_release' }
 
       transient do
-        target_project { create(:project_with_repository) }
+        maintained_project { create(:project_with_repository) }
+        maintenance_project { nil }
       end
 
       after(:create) do |update_project, evaluator|
+        # i.e. Set OBS:Maintained attribute on the openSUSE:Leap:15.4
         create(:maintained_attrib, project: update_project)
-        create(:update_project_attrib, project: evaluator.target_project, update_project: update_project)
-        if evaluator.target_project
-          create(:build_flag, status: 'disable', project: evaluator.target_project)
-          create(:publish_flag, status: 'disable', project: evaluator.target_project)
-          update_project.projects_linking_to << evaluator.target_project
-          CONFIG['global_write_through'] ? update_project.store : update_project.save!
-          new_repository = create(:repository, project: update_project, architectures: ['i586'])
-          create(:path_element, repository: new_repository, link: evaluator.target_project.repositories.first)
-        end
+
+        # i.e. Set OBS:UpdateProject attribute with value openSUSE:Leap:15.4:Update on openSUSE:Leap:15.4
+        create(:update_project_attrib, project: evaluator.maintained_project, update_project: update_project)
+
+        # Set the relationship between the update project and the maintenance project
+        create(:maintained_project, project: update_project, maintenance_project: evaluator.maintenance_project) if evaluator.maintenance_project
+
+        create(:build_flag, status: 'disable', project: evaluator.maintained_project)
+        create(:publish_flag, status: 'disable', project: evaluator.maintained_project)
+        update_project.projects_linking_to << evaluator.maintained_project
+        CONFIG['global_write_through'] ? update_project.store : update_project.save!
+        new_repository = create(:repository, project: update_project, architectures: ['i586'])
+        create(:path_element, repository: new_repository, link: evaluator.maintained_project.repositories.first)
       end
     end
 
