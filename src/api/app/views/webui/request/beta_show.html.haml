@@ -98,8 +98,7 @@
                 %strong auto-accepted
                 = render TimeComponent.new(time: @bs_request.accept_at)
 
-          = render AccordionReviewsComponent.new(@request_reviews, @bs_request.state, can_handle_request: policy(@bs_request).handle_request?)
-
+          = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
           = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,
                                                 is_target_maintainer: @is_target_maintainer,
                                                 is_author: @is_author)
