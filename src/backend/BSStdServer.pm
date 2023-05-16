@@ -433,7 +433,8 @@ sub server {
     $aconf->{'getrequest_recvfd'} ||= \&BSHandoff::receivefd;
     $aconf->{'setkeepalive'} = 1 unless defined $aconf->{'setkeepalive'};
     $aconf->{'getrequest_timeout'} = 10 unless exists $aconf->{'getrequest_timeout'};
-    $aconf->{'replrequest_timeout'} = 10 unless exists $aconf->{'replrequest_timeout'};
+    $aconf->{'replrequest_timeout'} = 60 unless exists $aconf->{'replrequest_timeout'};
+    $aconf->{'replstream_timeout'} = 120 unless exists $aconf->{'replstream_timeout'};
     $aconf->{'run'} ||= \&BSEvents::schedule;
     $aconf->{'slowrequestlog'} ||= "$BSConfig::logdir/${name}_ajax.slow.log" if $aconf->{'slowrequestthr'};
     $aconf->{'name'} = $name;

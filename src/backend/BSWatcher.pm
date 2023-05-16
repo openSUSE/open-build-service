@@ -40,6 +40,8 @@ my %hostlookupcache;
 my %cookiestore;        # our session store to keep iChain fast
 my $tossl;
 
+my $rpc_connect_timeout = 60;
+
 sub import {
   if (grep {$_ eq ':https'} @_) {
     require BSSSL;
@@ -507,7 +509,8 @@ sub rpc_adddata {
   $jev->{'replbuf'} .= $data;
   if ($jev->{'paused'}) {
     delete $jev->{'paused'};
-    BSEvents::add($jev);
+    my $conf = $jev->{'conf'};
+    BSEvents::add($jev, $conf->{'replstream_timeout'});
   }
 }
 
@@ -521,7 +524,8 @@ sub rpc_recv_forward_close_handler {
     $jev->{'replbuf'} .= "0\r\n$trailer\r\n";
     if ($jev->{'paused'}) {
       delete $jev->{'paused'};
-      BSEvents::add($jev);
+      my $conf = $jev->{'conf'};
+      BSEvents::add($jev, $conf->{'replstream_timeout'});
     }
     $jev->{'readev'} = {'eof' => 1, 'rpcuri' => $rev->{'rpcuri'}};
   }
@@ -667,13 +671,14 @@ sub rpc_recv_forward_setup {
      BSServerEvents::reply(undef, @args);
      BSEvents::rem($jev);
      $jev->{'streaming'} = 1;
-     delete $jev->{'timeouthandler'};
   }
-  $jev->{'handler'} = \&BSServerEvents::stream_write_handler;
   $jev->{'readev'} = $ev;
+  $jev->{'handler'} = \&BSServerEvents::stream_write_handler;
+  $jev->{'timeouthandler'} = \&BSServerEvents::replstream_timeout;
   if (length($jev->{'replbuf'})) {
     delete $jev->{'paused'};
-    BSEvents::add($jev, 0);
+    my $conf = $jev->{'conf'};
+    BSEvents::add($jev, $conf->{'replstream_timeout'} || 0);
   } else {
     $jev->{'paused'} = 1;
   }
@@ -1187,7 +1192,7 @@ sub rpc {
     if ($! == POSIX::EINPROGRESS) {
       $ev->{'handler'} = \&rpc_connect_handler;
       $ev->{'timeouthandler'} = \&rpc_connect_timeout;
-      BSEvents::add($ev, 60);	# 60s connect timeout
+      BSEvents::add($ev, $rpc_connect_timeout);
       return undef;
     }
     close $ev->{'fd'};

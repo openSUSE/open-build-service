@@ -596,15 +596,18 @@ sub parse_error_string {
   return ($err, $code, $tag, @hdrs);
 }
 
+sub request_infostr {
+  my ($req) = @_;
+  return sprintf("%s: %3ds %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), time() - $req->{'starttime'}, "[$$]",
+      "$req->{'action'} ($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
+}
+
 sub log_slow_requests {
   my ($conf, $req) = @_;
-  return unless $req && $conf->{'slowrequestthr'} && $req->{'starttime'};
+  return unless $req && $conf->{'slowrequestthr'} && $req->{'starttime'} && time() - $req->{'starttime'} >= $conf->{'slowrequestthr'};
   my $log = $req->{'slowrequestlog'} || $conf->{'slowrequestlog'};
   return unless $log;
-  my $duration = time() - $req->{'starttime'};
-  return unless $duration >= $conf->{'slowrequestthr'};
-  my $msg = sprintf("%s: %3ds %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), $duration, "[$$]",
-      "$req->{'action'} ($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
+  my $msg = request_infostr($req);
   eval { BSUtil::appendstr($log, $msg) };
 }
 
