@@ -1,6 +1,8 @@
 - diff_list.each_with_index do |(name, file_info), file_index|
-  - state = file_info['state']
-  - expanded = expand?(name, state, file_index)
+  :ruby
+    state = file_info['state']
+    old_filename = file_info.dig('old', 'name')
+    expanded = expand?(name, state, file_index)
   .accordion.mb-2{ id: "diff-list-#{name.parameterize}" }
     .accordion-item
       %h2.accordion-header
@@ -8,6 +10,7 @@
                                                                         'bs-target': "#diff-item-#{name.parameterize}" },
                                                 aria: { expanded: 'true', controls: "diff-item-#{name.parameterize}" },
                                                 class: expanded ? '' : 'collapsed' }
-          = render(DiffSubjectComponent.new(state:, old_filename: file_info.dig('old', 'name'), new_filename: name))
+          = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
       .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
-        = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:, commented_lines:))
+        = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:, commented_lines:,
+                                   source_file: source_file(old_filename), target_file: target_file(name)))

@@ -22,4 +22,12 @@ class SourcediffComponent < ApplicationComponent
     diff_params = diff_data(@action[:type], sourcediff)
     package_view_file_path(diff_params.merge(filename: filename))
   end
+
+  def source_package
+    Package.find_by_project_and_name(@action[:sprj], @action[:spkg])
+  end
+
+  def target_package
+    Package.find_by_project_and_name(@action[:tprj], @action[:tpkg])
+  end
 end
