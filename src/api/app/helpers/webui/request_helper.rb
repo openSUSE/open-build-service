@@ -203,6 +203,8 @@ module Webui::RequestHelper
   # Handle tabs visibility
   def request_action_tab_visibility(action, tab_name)
     case tab_name
+    when 'build_results', 'rpm_lint'
+      return action[:sprj] || action[:spkg]
     when 'changes', 'mentioned_issues'
       return action[:type].in?([:submit, :delete, :maintenance_incident, :maintenance_release])
     end
