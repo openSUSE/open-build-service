@@ -10,8 +10,8 @@
                   prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
                   diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit, page_name: 'request_mentioned_issues' }
     = render partial: 'request_tabs',
-        locals: { actions_for_diff: @actions_for_diff, bs_request: @bs_request, action: @action, issues: @issues,
-                  active_action: @active_action, actions_count: @supported_actions.count, active_tab: @active_tab }
+        locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, active_action: @active_action,
+                  actions_count: @supported_actions.count, active_tab: @active_tab }
     .container.p-4
       - if @issues.empty?
         %p No issues are mentioned for this request action.
