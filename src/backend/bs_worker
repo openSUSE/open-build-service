@@ -891,29 +891,44 @@ if ($vm =~ /openstack/) {
 $workerinfo->{'hardware'} = $hw;
 
 sub stream_logfile {
-  my ($nostream, $start, $end) = @_;
-  open(F, "<$buildroot/.build.log") || die("$buildroot/.build.log: $!\n");
-  my @s = stat(F);
+  my ($jobid, $nostream, $start, $end) = @_;
   $start ||= 0;
   if (defined($end)) {
+    die("start cannot be negative if an end position is specified\n") if $start < 0;
     $end -= $start;
     die("end is smaller than start\n") if $end < 0;
   }
+
+  open(F, '<', "$buildroot/.build.log") || die("$buildroot/.build.log: $!\n");
+  my @s = stat(F);
   die("Logfile is not that big\n") if $s[7] < abs($start);
-  defined(sysseek(F, $start, $start < 0 ? Fcntl::SEEK_END : Fcntl::SEEK_SET)) || die("sysseek: $!\n");
+  my $pos = sysseek(F, $start, $start < 0 ? Fcntl::SEEK_END : Fcntl::SEEK_SET);
+  die("sysseek: $!\n") unless defined $pos;
 
   BSServer::reply(undef, 'Content-Type: text/plain', 'Transfer-Encoding: chunked');
-  my $pos = sysseek(F, 0, Fcntl::SEEK_CUR) || die("sysseek: $!\n");
-  while(!defined($end) || $end) {
+  while (!defined($end) || $end) {
     @s = stat(F);
+    last unless @s;
     if ($s[7] <= $pos) {
-      last if !$s[3];
+      if (!$s[3]) {
+	# logfile was deleted or replaced
+	if ($pos == 0) {
+          select(undef, undef, undef, .5);
+	  if (-e "$buildroot/.build.log") {
+	    close(F);
+	    open(F, '<', "$buildroot/.build.log") || die("$buildroot/.build.log: $!\n");
+	    eval { $jobid && getstate($jobid, 1) };
+	    next unless $@;
+	  }
+	}
+        last;
+      }
       select(undef, undef, undef, .5);
       next;
     }
-    my $data = '';
     my $l = $s[7] - $pos;
     $l = 4096 if $l > 4096;
+    my $data = '';
     sysread(F, $data, $l);
     next unless length($data);
     $data = substr($data, 0, $end) if defined($end) && length($data) > $end;
@@ -4234,7 +4249,7 @@ sub getlogfile {
     my $dir = { 'entry' => [ {'name' => '_log', 'size' => $s[7], 'mtime' => $s[9]} ] };
     return ($dir, $BSXML::dir);
   }
-  stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
+  stream_logfile($jobid, $cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
   return undef;
 }
 
