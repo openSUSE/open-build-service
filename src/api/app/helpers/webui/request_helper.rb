@@ -206,7 +206,7 @@ module Webui::RequestHelper
     when 'build_results', 'rpm_lint'
       action[:sprj] || action[:spkg]
     when 'changes'
-      action[:type].in?([:submit, :delete, :maintenance_incident, :maintenance_release])
+      (action[:type] == :delete && action[:spkg]) || action[:type].in?([:submit, :maintenance_incident, :maintenance_release])
     when 'mentioned_issues'
       action[:type].in?([:submit, :maintenance_incident, :maintenance_release])
     end
