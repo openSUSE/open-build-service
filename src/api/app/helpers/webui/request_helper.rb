@@ -205,8 +205,10 @@ module Webui::RequestHelper
     case tab_name
     when 'build_results', 'rpm_lint'
       action[:sprj] || action[:spkg]
-    when 'changes', 'mentioned_issues'
+    when 'changes'
       action[:type].in?([:submit, :delete, :maintenance_incident, :maintenance_release])
+    when 'mentioned_issues'
+      action[:type].in?([:submit, :maintenance_incident, :maintenance_release])
     end
   end
 end
