@@ -85,6 +85,7 @@ class Buildresult
         repository: result['repository'],
         architecture: result['arch'],
         code: result['code'],
+        details: result['details'],
         state: state
       )
 
