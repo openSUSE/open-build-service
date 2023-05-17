@@ -1331,6 +1331,18 @@ sub remove_entry_from_cache {
 
 sub manage_cache {
   my ($prunesize, $cacheold, $cachenew) = @_;
+  eval {
+    manage_cache_internal($prunesize, $cacheold, $cachenew);
+  };
+  if ($@) {
+    send_state('badhost', $port, $hostarch);
+    commitstate({ 'state' => 'dead' });
+    exit(0);
+  }
+}
+
+sub manage_cache_internal {
+  my ($prunesize, $cacheold, $cachenew) = @_;
   # get the lock
   local *F;
   BSUtil::lockopen(\*F, '+>>', "$cachedir/content", 1) || return;

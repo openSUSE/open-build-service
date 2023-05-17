@@ -39,6 +39,7 @@ use Symbol;
 
 use BSConfiguration;
 use BSRPC ':https';
+use BSSQLite;
 use BSServer;
 use BSStdServer;
 use BSUtil;
@@ -56,14 +57,36 @@ my $proto = 'http';
 $port = $1 if $BSConfig::getbinariesproxyserver && $BSConfig::getbinariesproxyserver =~ /:(\d+)$/;
 $proto = $1 if $BSConfig::getbinariesproxyserver && $BSConfig::getbinariesproxyserver =~ /^(https):/;
 
-
 my $cachedir = "$BSConfig::bsdir/getbinariesproxycache";
 my $cachesize = 1024 * 1024 * 1024;	# default: 1G
 $cachesize = $BSConfig::getbinariesproxyserver_cachesize * 1024 * 1024 if $BSConfig::getbinariesproxyserver_cachesize;
 
+# content db init
+my $binarycachedbfile = "$cachedir/content.db";
+my $binarycachedb;
+
 my $cachetmpdir = "$cachedir/tmp";
 
 my $maxopen;	# max number of fds we can open
+
+sub init_db {
+  mkdir_p($cachedir);
+  $binarycachedb = BSSQLite::connectdb($binarycachedbfile);
+  my %dbtables = map {$_ => 1} BSSQLite::list_tables($binarycachedb);
+  if (!$dbtables{'binarycache'}) {
+    BSSQLite::dbdo($binarycachedb, <<'EOS');
+  CREATE TABLE IF NOT EXISTS binarycache(
+    md5 TEXT,
+    size INTEGER,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    UNIQUE(md5)
+  )
+EOS
+  }
+  # create our global sum counter over all entries
+  BSSQLite::dbdo_bind($binarycachedb, 'INSERT OR IGNORE INTO binarycache(md5,size) VALUES("__sum__", 0)');
+#  BSSQLite::dbdo($binarycachedb, 'CREATE INDEX IF NOT EXISTS binarycache_idx on binarycache(md5)');
+}
 
 sub set_maxopen() {
   my $fd = POSIX::open('/dev/null', O_RDONLY);
@@ -116,8 +139,73 @@ sub remove_entry_from_cache {
   unlink("$cachefile.meta");
 }
 
+sub manage_cache_sqlite {
+  my ($prunesize, $cacheold, $cachenew) = @_;
+  # get the handle
+  my $h = $binarycachedb->{'sqlite'} || BSSQLite::connectdb($binarycachedbfile);
+  BSSQLite::begin_work($h);
+
+  # get current cache size
+  my @ary = BSSQLite::selectrow($h, "SELECT size FROM binarycache WHERE md5 = '__sum__'");
+  my $currentcachesize = $ary[0];
+
+  # update time stamp on hits
+  if ($cacheold && @$cacheold) {
+    # FIXME: turn this into a single call?
+    BSSQLite::dbdo_bind($h, 'UPDATE SET time = CURRENT_TIMESTAMP WHERE md5 = ?', $_->[0]) for @$cacheold;
+  }
+
+  # prune cache, oldest first
+  # do it by chunks to avoid to read entire database;
+  while ( $currentcachesize < $prunesize ) {
+    my $sth = $h->prepare("SELECT md5,size FROM binarycache WHERE md5 != '__sum__' ORDER BY time LIMIT 100");
+    $sth->execute();
+    while(my $row = $sth->fetch) {
+      BSSQLite::dbdo_bind($h, 'DELETE FROM binarycache WHERE md5 = ?', [ $row->[0] ]);
+      remove_entry_from_cache($row->[0]);
+      $prunesize -= $row->[1];
+      last if $currentcachesize > $prunesize;
+    }
+  }
+# alternative implementation without chunks
+# my $tobepruned = $currentcachesize - $prunesize;
+# if ( $tobepruned > 0 ) {
+#   my $sth = $h->prepare("SELECT md5,size FROM binarycache WHERE md5 != '__sum__' GROUP BY time HAVING SUM(size) > $tobepruned");
+#   $sth->execute();
+#   while(my $row = $sth->fetch) {
+#     BSSQLite::dbdo_bind($h, 'DELETE FROM binarycache WHERE md5 = ?', [ $row->[0] ]);
+#     $prunesize -= $row->[1];
+#     remove_entry_from_cache($row->[0]);
+#   }
+# }
+
+  # add new files
+  if ($cachenew) {
+    for my $c (reverse @$cachenew) {
+      next unless move_entry_into_cache($c->[0], pop(@$c));
+      eval {
+        BSSQLite::dbdo_bind($h, 'INSERT INTO binarycache(md5,size) VALUES(?,?)', [ $c->[0] ], [ $c->[1] ]);
+      };
+      if ($@ =~ /^UNIQUE constraint failed: binarycache.md5/) {
+        # another process was faster adding same file, that is fine
+      } elsif ($@) {
+        die($@);
+      } else {
+        $prunesize += $c->[1];
+      }
+    }
+  }
+
+  # update size counter, commit and close
+  BSSQLite::dbdo_bind($h, 'UPDATE binarycache SET size = ? WHERE md5 = "__sum__"', [ $currentcachesize + $prunesize ]);
+  BSSQLite::commit($h);
+}
+
 sub manage_cache {
   my ($prunesize, $cacheold, $cachenew) = @_;
+
+  return manage_cache_sqlite($prunesize, $cacheold, $cachenew) unless $BSConfig::use_nstore_cache_db;
+
   # get the lock
   local *F;
   BSUtil::lockopen(\*F, '+>>', "$cachedir/content", 1) || return;
@@ -623,6 +711,8 @@ my $conf = {
 
 $conf->{'maxchild'} = $BSConfig::getbinariesproxyserver_maxchild if $BSConfig::getbinariesproxyserver_maxchild;
 %$conf = (%$conf, %{$BSConfig::getbinariesproxyserver_extraconf}) if $BSConfig::getbinariesproxyserver_extraconf;
+
+init_db();
 
 BSStdServer::server('bs_getbinariesproxy', \@ARGV, $conf);
 
