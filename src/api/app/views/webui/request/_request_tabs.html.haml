@@ -10,11 +10,11 @@
       %li.nav-item.scrollable-tab-link
         = link_to('RPM Lint', request_rpm_lint_path(bs_request.number, actions_count > 1 ? active_action : nil),
                   class: "nav-link text-nowrap #{active_tab == 'rpm_lint' ? 'active' : ''}")
-    - if action[:type].in?(actions_for_diff)
+    - if request_action_tab_visibility(action, 'changes')
       %li.nav-item.scrollable-tab-link
         = link_to('Changes', request_changes_path(bs_request.number, actions_count > 1 ? active_action : nil),
                   class: "nav-link text-nowrap #{active_tab == 'changes' ? 'active' : ''}")
-    - if action[:type].in?(actions_for_diff)
+    - if request_action_tab_visibility(action, 'mentioned_issues')
       %li.nav-item.scrollable-tab-link
         = link_to(request_mentioned_issues_path(bs_request.number, actions_count > 1 ? active_action : nil),
                   class: "nav-link text-nowrap #{active_tab == 'mentioned_issues' ? 'active' : ''}") do

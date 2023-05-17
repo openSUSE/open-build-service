@@ -1,4 +1,5 @@
 class Webui::RequestController < Webui::WebuiController
+  helper 'webui/request'
   helper 'webui/package'
 
   before_action :require_login,
@@ -306,13 +307,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:type].in?(@actions_for_diff)
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless ApplicationController.helpers.request_action_tab_visibility(@action, 'changes')
 
     @active_tab = 'changes'
   end
 
   def mentioned_issues
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:type].in?(@actions_for_diff)
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless ApplicationController.helpers.request_action_tab_visibility(@action, 'mentioned_issues')
 
     @active_tab = 'mentioned_issues'
   end
@@ -561,7 +562,6 @@ class Webui::RequestController < Webui::WebuiController
 
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
-    @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
     handle_notification
   end

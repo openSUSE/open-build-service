@@ -199,4 +199,12 @@ module Webui::RequestHelper
       request_show_path(parameters)
     end
   end
+
+  # Handle tabs visibility
+  def request_action_tab_visibility(action, tab_name)
+    case tab_name
+    when 'changes', 'mentioned_issues'
+      return action[:type].in?([:submit, :delete, :maintenance_incident, :maintenance_release])
+    end
+  end
 end
