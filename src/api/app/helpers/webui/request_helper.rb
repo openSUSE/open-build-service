@@ -209,6 +209,8 @@ module Webui::RequestHelper
       (action[:type] == :delete && action[:spkg]) || action[:type].in?([:submit, :maintenance_incident, :maintenance_release])
     when 'mentioned_issues'
       action[:type].in?([:submit, :maintenance_incident, :maintenance_release])
+    else
+      true
     end
   end
 end
