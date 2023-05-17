@@ -151,6 +151,9 @@ RSpec.describe Webui::RequestHelper do
 
         it { is_expected.to match(expected_regex) }
       end
+
+      it { expect(request_action_tab_visibility(action, 'conversation')).to be(true) }
+      it { expect(request_action_tab_visibility(action, 'mentioned_issues')).to be(false) }
     end
 
     context 'when action is :add_role' do
