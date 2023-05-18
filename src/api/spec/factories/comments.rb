@@ -17,7 +17,7 @@ FactoryBot.define do
     end
 
     trait :bs_request_action do
-      association :commentable, factory: :bs_request_with_submit_action
+      commentable factory: [:bs_request_with_submit_action]
     end
   end
 end

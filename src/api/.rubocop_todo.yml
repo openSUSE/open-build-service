@@ -11,20 +11,6 @@ Capybara/SpecificMatcher:
   Exclude:
     - 'spec/features/webui/users/user_home_page_spec.rb'
 
-# Offense count: 14
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Include, EnforcedStyle, NonImplicitAssociationMethodNames.
-# Include: spec/factories.rb, spec/factories/**/*.rb, features/support/factories/**/*.rb
-# SupportedStyles: explicit, implicit
-FactoryBot/AssociationStyle:
-  Exclude:
-    - 'spec/factories/comments.rb'
-    - 'spec/factories/kiwi_description.rb'
-    - 'spec/factories/kiwi_package_group.rb'
-    - 'spec/factories/kiwi_repository.rb'
-    - 'spec/factories/notification.rb'
-    - 'spec/factories/staging_workflow.rb'
-
 # Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Include, EnforcedStyle, ExplicitOnly.
