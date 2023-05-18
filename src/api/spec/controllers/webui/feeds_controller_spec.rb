@@ -77,8 +77,10 @@ RSpec.describe Webui::FeedsController do
   describe 'GET #notifications' do
     let(:user) { create(:confirmed_user) }
     let(:bs_request) do
-      create(:add_maintainer_request, bs_request_actions: [create(:bs_request_action_add_maintainer_role,
-                                                                  person_name: user.login, target_project: project)])
+      create(:add_maintainer_request, bs_request_actions: Array.new(1) do
+                                                            create(:bs_request_action_add_maintainer_role,
+                                                                   person_name: user.login, target_project: project)
+                                                          end)
     end
     let!(:rss_notification) { create(:rss_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
 
