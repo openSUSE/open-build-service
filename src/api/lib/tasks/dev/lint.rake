@@ -29,13 +29,13 @@ namespace :dev do
 
       desc 'Run the ruby linter in rails'
       task :rails do
-        sh 'rubocop', '--fail-fast', '--display-style-guide', '--fail-level', 'convention', '--ignore_parent_exclusion'
+        sh 'rubocop', '--fail-fast', '--display-style-guide', '--fail-level', 'convention', '--ignore_parent_exclusion', '--format', 'fuubar'
       end
 
       desc 'Run the ruby linter in root'
       task :root do
         Dir.chdir('../..') do
-          sh 'rubocop', '--fail-fast', '--display-style-guide', '--fail-level', 'convention'
+          sh 'rubocop', '--fail-fast', '--display-style-guide', '--fail-level', 'convention', '--format', 'fuubar'
         end
       end
 
