@@ -1,6 +1,160 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>The Moon by Night</title>
+          <description>Ab officia ratione voluptate.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>The Moon by Night</title>
+          <description>Ab officia ratione voluptate.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Id deleniti qui. Autem maxime quas. Quasi facere hic.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>24b04524ccfffffa61f38f9dce37aae3</srcmd5>
+          <version>unknown</version>
+          <time>1684410578</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Et eligendi quisquam. Rerum eum nulla. Omnis dolores officia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>f431a2d968dd9919d6863302ac3cef8d</srcmd5>
+          <version>unknown</version>
+          <time>1684410578</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
     body:
@@ -25,19 +179,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '397'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="34" vrev="34" srcmd5="5533c6e87a7ed3278edbb2fda81355cf">
-          <entry name="_config" md5="b6fab2c2b7ef43fed208d5ca398d9f5f" size="68" mtime="1643724250"/>
-          <entry name="_icon" md5="95ec7ff9a4af00190b5bbdeb9d2215cb" size="70" mtime="1643724251"/>
-          <entry name="somefile.txt" md5="d04d1e7583a8e01c5c1dda514ca86c8f" size="61" mtime="1643724251"/>
+        <directory name="package_with_files" rev="2" vrev="2" srcmd5="f431a2d968dd9919d6863302ac3cef8d">
+          <entry name="_config" md5="8bc94fe881ff70a8ac7fa60e72e5d95f" size="53" mtime="1684410578"/>
+          <entry name="somefile.txt" md5="0fabd7792398a12f54029540d3ba100a" size="61" mtime="1684410578"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:58 GMT
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_files?expand=0
+    uri: http://backend:5352/source/home:tom/package_with_files
     body:
       encoding: US-ASCII
       string: ''
@@ -60,14 +213,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '397'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="34" vrev="34" srcmd5="5533c6e87a7ed3278edbb2fda81355cf">
-          <entry name="_config" md5="b6fab2c2b7ef43fed208d5ca398d9f5f" size="68" mtime="1643724250"/>
-          <entry name="_icon" md5="95ec7ff9a4af00190b5bbdeb9d2215cb" size="70" mtime="1643724251"/>
-          <entry name="somefile.txt" md5="d04d1e7583a8e01c5c1dda514ca86c8f" size="61" mtime="1643724251"/>
+        <directory name="package_with_files" rev="2" vrev="2" srcmd5="f431a2d968dd9919d6863302ac3cef8d">
+          <entry name="_config" md5="8bc94fe881ff70a8ac7fa60e72e5d95f" size="53" mtime="1684410578"/>
+          <entry name="somefile.txt" md5="0fabd7792398a12f54029540d3ba100a" size="61" mtime="1684410578"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:58 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+recorded_with: VCR 6.1.0

@@ -1,6 +1,122 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title>Dulce et Decorum Est</title>
+          <description>Cupiditate ad quis velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title>Dulce et Decorum Est</title>
+          <description>Cupiditate ad quis velit.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_file/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>3ac4b29d09369cc0bd4c17dd6a5c7d4c</srcmd5>
+          <version>unknown</version>
+          <time>1684410579</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+- request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
     body:
@@ -25,18 +141,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '285'
+      - '208'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="4c351807b74cb6a07071ce2dec305095">
-          <serviceinfo code="succeeded" xsrcmd5="18a86687dce43cb25a060f8d7d8628cd"/>
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1643724203"/>
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="3ac4b29d09369cc0bd4c17dd6a5c7d4c">
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1684410579"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:58 GMT
+  recorded_at: Thu, 18 May 2023 11:49:39 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_one_file?expand=0
+    uri: http://backend:5352/source/home:tom/package_with_one_file
     body:
       encoding: US-ASCII
       string: ''
@@ -59,13 +174,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '285'
+      - '208'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="4c351807b74cb6a07071ce2dec305095">
-          <serviceinfo code="succeeded" xsrcmd5="18a86687dce43cb25a060f8d7d8628cd"/>
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1643724203"/>
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="3ac4b29d09369cc0bd4c17dd6a5c7d4c">
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1684410579"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:58 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+recorded_with: VCR 6.1.0

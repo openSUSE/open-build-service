@@ -1,6 +1,160 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>What's Become of Waring</title>
+          <description>Et odit officiis voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>What's Become of Waring</title>
+          <description>Et odit officiis voluptatem.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Voluptates quae distinctio. Aut ducimus minus. Dignissimos at soluta.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>da76f3f190c2265274038bddfc44e1ce</srcmd5>
+          <version>unknown</version>
+          <time>1684410578</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Minima quis sit. Rem atque soluta. Ut voluptatem ducimus.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>2f30b1204f67c072b33a92ee7d6f7110</srcmd5>
+          <version>unknown</version>
+          <time>1684410578</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
     body:
@@ -25,19 +179,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '397'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="34" vrev="34" srcmd5="5533c6e87a7ed3278edbb2fda81355cf">
-          <entry name="_config" md5="b6fab2c2b7ef43fed208d5ca398d9f5f" size="68" mtime="1643724250"/>
-          <entry name="_icon" md5="95ec7ff9a4af00190b5bbdeb9d2215cb" size="70" mtime="1643724251"/>
-          <entry name="somefile.txt" md5="d04d1e7583a8e01c5c1dda514ca86c8f" size="61" mtime="1643724251"/>
+        <directory name="package_with_files" rev="4" vrev="4" srcmd5="2f30b1204f67c072b33a92ee7d6f7110">
+          <entry name="_config" md5="38fd8d7c28fa49f523af6c9c58194f40" size="69" mtime="1684410578"/>
+          <entry name="somefile.txt" md5="9b44c1ac4f6f1ee78db8ca7297ff0f3a" size="57" mtime="1684410578"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:58 GMT
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_files?expand=0
+    uri: http://backend:5352/source/home:tom/package_with_files
     body:
       encoding: US-ASCII
       string: ''
@@ -60,14 +213,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '397'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="34" vrev="34" srcmd5="5533c6e87a7ed3278edbb2fda81355cf">
-          <entry name="_config" md5="b6fab2c2b7ef43fed208d5ca398d9f5f" size="68" mtime="1643724250"/>
-          <entry name="_icon" md5="95ec7ff9a4af00190b5bbdeb9d2215cb" size="70" mtime="1643724251"/>
-          <entry name="somefile.txt" md5="d04d1e7583a8e01c5c1dda514ca86c8f" size="61" mtime="1643724251"/>
+        <directory name="package_with_files" rev="4" vrev="4" srcmd5="2f30b1204f67c072b33a92ee7d6f7110">
+          <entry name="_config" md5="38fd8d7c28fa49f523af6c9c58194f40" size="69" mtime="1684410578"/>
+          <entry name="somefile.txt" md5="9b44c1ac4f6f1ee78db8ca7297ff0f3a" size="57" mtime="1684410578"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:58 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+recorded_with: VCR 6.1.0

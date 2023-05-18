@@ -1,6 +1,160 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Consectetur aut fuga nobis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Consectetur aut fuga nobis.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test/_config
+    body:
+      encoding: UTF-8
+      string: Dicta repudiandae magnam. Qui qui quis. Iste in ducimus.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>99b43fd678d35d068155127957181f56</srcmd5>
+          <version>unknown</version>
+          <time>1684410578</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test/_multibuild
+    body:
+      encoding: UTF-8
+      string: "<multibuild><flavor>flavor_a</flavor><flavor>flavor_b</flavor></multibuild>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>4fcee8b41ee460d94b272f2774061d43</srcmd5>
+          <version>unknown</version>
+          <time>1684410578</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+- request:
     method: get
     uri: http://backend:5352/source/home:tom/test
     body:
@@ -29,14 +183,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test" rev="2" vrev="2" srcmd5="8f29383071d15921b8ec13495e66451d">
-          <entry name="_config" md5="9087f0019f87e12aaf2b999853e4f008" size="63" mtime="1643724206"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643724206"/>
+        <directory name="test" rev="2" vrev="2" srcmd5="4fcee8b41ee460d94b272f2774061d43">
+          <entry name="_config" md5="dfdee503a2a3d1a53115301a8912a5f5" size="56" mtime="1684410578"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1684410578"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:57 GMT
+  recorded_at: Thu, 18 May 2023 11:49:38 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/test?expand=0
+    uri: http://backend:5352/source/home:tom/test
     body:
       encoding: US-ASCII
       string: ''
@@ -63,9 +217,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test" rev="2" vrev="2" srcmd5="8f29383071d15921b8ec13495e66451d">
-          <entry name="_config" md5="9087f0019f87e12aaf2b999853e4f008" size="63" mtime="1643724206"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1643724206"/>
+        <directory name="test" rev="2" vrev="2" srcmd5="4fcee8b41ee460d94b272f2774061d43">
+          <entry name="_config" md5="dfdee503a2a3d1a53115301a8912a5f5" size="56" mtime="1684410578"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1684410578"/>
         </directory>
-  recorded_at: Tue, 01 Feb 2022 14:14:57 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+recorded_with: VCR 6.1.0
