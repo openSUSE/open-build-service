@@ -24,10 +24,10 @@ class SourcediffComponent < ApplicationComponent
   end
 
   def source_package
-    Package.find_by_project_and_name(@action[:sprj], @action[:spkg])
+    Package.get_by_project_and_name(@action[:sprj], @action[:spkg], { follow_multibuild: true })
   end
 
   def target_package
-    Package.find_by_project_and_name(@action[:tprj], @action[:tpkg])
+    Package.get_by_project_and_name(@action[:tprj], @action[:tpkg], { follow_multibuild: true })
   end
 end
