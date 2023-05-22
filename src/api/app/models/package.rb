@@ -471,7 +471,7 @@ class Package < ApplicationRecord
     YAML.safe_load(source_file('ignored_requests')) if file_exists?('ignored_requests')
   end
 
-  def update_issue_list
+  def update_issue_list()
     current_issues = {}
     if is_patchinfo?
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
