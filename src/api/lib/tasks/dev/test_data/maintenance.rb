@@ -128,7 +128,7 @@ module TestData
     end
 
     def mimic_patchinfo(project, comment = 'test comment')
-      Patchinfo.new.create_patchinfo(project, 'patchinfo', comment: comment)
+      create(:patchinfo).create_patchinfo(project, 'patchinfo', comment: comment)
     end
 
     def create_maintenance_setup

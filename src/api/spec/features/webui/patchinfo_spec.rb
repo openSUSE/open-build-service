@@ -38,7 +38,7 @@ RSpec.describe 'Patchinfo', js: true, vcr: true do
 
   describe 'delete Patchinfo' do
     let(:patchinfo_package) do
-      Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.exists?(name: 'patchinfo')
+      create(:patchinfo).create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.exists?(name: 'patchinfo')
       Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
     end
 
