@@ -12,13 +12,14 @@
                                                                              open_release_requests: open_release_requests,
                                                                              release_targets: release_targets }
     = render partial: 'webui/project/show_actions/delete_project', locals: { project: project }
-  - elsif !project.is_locked?
+  - elsif User.session
     = render partial: 'webui/project/show_actions/request_role_addition_and_deletion', locals: { project: project }
 
   - if project.key_info.present?
     = render partial: 'webui/project/show_actions/gpg_key_ssl_certificate', locals: { project: project }
 
-  %li.nav-item
-    = link_to(image_templates_path, class: 'nav-link', title: 'New Image') do
-      %i.fas.fa-compact-disc.fa-lg.me-2
-      %span.nav-item-name New Image
+  - if User.session
+    %li.nav-item
+      = link_to(image_templates_path, class: 'nav-link', title: 'New Image') do
+        %i.fas.fa-compact-disc.fa-lg.me-2
+        %span.nav-item-name New Image

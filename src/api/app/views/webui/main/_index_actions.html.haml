@@ -1,5 +1,6 @@
 - content_for :actions do
-  %li.nav-item
-    = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
-      %i.fas.fa-plus-circle.fa-lg.me-2
-      %span.nav-item-name Create Project
+  - if User.session
+    %li.nav-item
+      = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
+        %i.fas.fa-plus-circle.fa-lg.me-2
+        %span.nav-item-name Create Project

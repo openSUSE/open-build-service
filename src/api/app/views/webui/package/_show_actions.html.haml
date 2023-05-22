@@ -1,5 +1,5 @@
 - content_for :actions do
-  - if bugowners_mail.present? && configuration['bugzilla_url']
+  - if bugowners_mail.present? && Configuration.bugzilla_url.present?
     = render partial: 'webui/package/show_actions/bugzilla_owner', locals: { bugowners_mail: bugowners_mail,
                                                                                             package_name: package.name, project_name: project.name }
   - if User.session
