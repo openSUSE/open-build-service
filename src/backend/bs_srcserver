@@ -946,8 +946,11 @@ sub findfile {
   # 28.4.2009 mls: deleted "&& defined($repoid)"
   return $files{"$packid.$ext"} if $files{"$packid.$ext"};
   # try again without last components
-  if ($packid =~ /^(.*?)\./) {
-    return $files{"$1.$ext"} if $files{"$1.$ext"};
+  if ($packid =~ /\./) {
+    my $p = $packid;
+    while ($p =~ s/\.[^\.]*$//) {
+      return $files{"$p.$ext"} if $files{"$p.$ext"};
+    }
   }
   my @files = grep {/\.$ext$/} keys %files;
   @files = grep {/^\Q$packid\E/i} @files if @files > 1;
