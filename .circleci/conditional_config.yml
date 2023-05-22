@@ -207,6 +207,8 @@ jobs:
           name: Run rubocop
           working_directory: src/api
           command: bundle exec rake dev:lint:rubocop:all
+          environment:
+            CONTINUOUS_INTEGRATION: true
       - *save_rubocop_cache
 
   rspec:
