@@ -14,7 +14,7 @@ unless Rails.env.production?
   require 'haml_lint/rake_task'
 
   RuboCop::RakeTask.new(:rubocop) do |task|
-    task.options = ['-D', '-F', '--fail-level', 'convention', '--format', 'fuubar']
+    task.options = ['-D', '-F', '--fail-level', 'convention']
   end
 
   HamlLint::RakeTask.new
