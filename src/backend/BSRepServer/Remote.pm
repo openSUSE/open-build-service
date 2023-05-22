@@ -51,12 +51,19 @@ sub addrepo_remote {
     'receiver' => \&BSHTTP::cpio_receiver,
     'proxy' => $proxy,
   };
-  my @args = ("view=cache");
-  push @args, map {"module=$_"} @modules;
+  my @args;
+  if ($remoteproj->{'partition'}) {
+    push @args, 'view=solvstate', 'noajax=1';
+  } else {
+    push @args, 'view=cache';
+    push @args, map {"module=$_"} @modules;
+  }
   my $cpio = BSRPC::rpc($param, undef, @args);
-  my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
-  if (exists $cpio{'repositorycache'}) {
-    my $cache = BSUtil::fromstorable($cpio{'repositorycache'}, 2);
+  my %cpio = map {$_->{'name'} => $_} @{$cpio || []};
+  if ($remoteproj->{'partition'} && $cpio{'repositorysolv'}) {
+    return $pool->repofromstr($prp, $cpio{'repositorysolv'}->{'data'});
+  } elsif ($cpio{'repositorycache'}) {
+    my $cache = BSUtil::fromstorable($cpio{'repositorycache'}->{'data'}, 2);
     delete $cpio{'repositorycache'};    # free mem
     return undef unless $cache;
     # postprocess entries
