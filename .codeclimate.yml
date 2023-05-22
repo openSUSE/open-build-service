@@ -49,7 +49,7 @@ exclude_patterns:
   - "src/api/app/components/*.haml"
   - "src/api/app/views/"
   - "src/api/bin/"
-  - "src/api/lib/tasks/*.rake"
+  - "src/api/lib/tasks/"
   - "src/api/vendor/assets/"
   - "src/api/vendor/cache/"
   - "src/api/vendor/cache.next/"
