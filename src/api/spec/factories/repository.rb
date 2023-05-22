@@ -16,7 +16,7 @@ FactoryBot.define do
     end
 
     factory :repository_with_release_target do
-      release_targets { [create(:release_target)] }
+      release_targets { create_list(:release_target, 1) }
     end
   end
 end

@@ -155,7 +155,7 @@ FactoryBot.define do
       end
 
       factory :maintenance_project_with_packages do
-        packages { [create(:package_with_file)] }
+        packages { create_list(:package_with_file, 1) }
       end
     end
 

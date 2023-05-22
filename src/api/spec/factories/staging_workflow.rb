@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :staging_workflow, class: 'Staging::Workflow' do
     project
-    association :managers_group, factory: :group_with_user
+    managers_group factory: [:group_with_user]
 
     after(:build) do |workflow|
       workflow.commit_user ||= build(:confirmed_user)
