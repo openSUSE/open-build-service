@@ -1,6 +1,544 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>In Dubious Battle</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>In Dubious Battle</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/first_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title>a</title>
+          <description>Voluptas aperiam iure similique.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title>a</title>
+          <description>Voluptas aperiam iure similique.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/first_package/_config
+    body:
+      encoding: UTF-8
+      string: Quia corrupti sint. Reiciendis animi consequatur. Eligendi tenetur quia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>2265b1ed461af3197720a25b50b7ca3c</srcmd5>
+          <version>unknown</version>
+          <time>1684410580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/first_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Commodi recusandae illo. Quisquam sed iste. Quia dolores ratione.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>63a573c9bdd2d5c01e9caa0cc00e71ae</srcmd5>
+          <version>unknown</version>
+          <time>1684410580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/second_package/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/second_package/_config
+    body:
+      encoding: UTF-8
+      string: Itaque impedit et. Molestias quisquam ab. Et impedit exercitationem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>5fcf13e7db7a4716667614c960dd8caa</srcmd5>
+          <version>unknown</version>
+          <time>1684410580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/second_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Eum unde magnam. Vitae quae molestias. Rem dicta blanditiis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>7d091fa836670ad9e58065521548e09c</srcmd5>
+          <version>unknown</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Iusto eius enim magni.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Iusto eius enim magni.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_config
+    body:
+      encoding: UTF-8
+      string: Rerum delectus sed. Repudiandae molestias a. Qui dolor ipsa.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>5d6ae99f29a1b87798ca506a76269849</srcmd5>
+          <version>unknown</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Temporibus et blanditiis. Cumque aperiam aut. Adipisci et tempore.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>3678d49f4584dfc0c29ec25859e54c79</srcmd5>
+          <version>unknown</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: UTF-8
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n  <image schemaversion=\"6.2\"
+        name=\"suse-13.2-live\">\n    <description type=\"system\">\n    </description>\n
+        \   <preferences>\n      <version>0.0.1</version>\n      <type image=\"oem\"
+        primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n    </preferences>\n  </image>\n
+        \ "
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>801c545be09c1c468ff2d99b40415aac</srcmd5>
+          <version>0.0.1</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image
     body:
@@ -29,10 +567,50 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="801c545be09c1c468ff2d99b40415aac">
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
           <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ImageTemplates" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10">
+          <srcmd5>6256d54b1876aa627babd0b7a0c7872a</srcmd5>
+          <time>1684410581</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -41,7 +619,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -64,20 +642,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="6" vrev="6" srcmd5="75636523146b8634e20e82e205dcc741">
-          <entry name="_config" md5="f69d35d06f7b54d8c8aaa84af2681cb3" size="58" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="0f2416116d94550631676b18b16d5a2b" size="67" mtime="1677088677"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/first_package?expand=0
+    uri: http://backend:5352/source/my_project/first_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -100,11 +678,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="6" vrev="6" srcmd5="75636523146b8634e20e82e205dcc741">
-          <entry name="_config" md5="f69d35d06f7b54d8c8aaa84af2681cb3" size="58" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="0f2416116d94550631676b18b16d5a2b" size="67" mtime="1677088677"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -113,7 +691,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -136,20 +714,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/second_package?expand=0
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -172,11 +750,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/third_package
@@ -185,7 +763,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -208,20 +786,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="6" vrev="6" srcmd5="0032d4845c61e59d70b2702c1bb70560">
-          <entry name="_config" md5="76ae07b1bd4804a788458d5ed12e9556" size="71" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="ca168ef2f03c136c4762e9e0310db712" size="55" mtime="1677088677"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/third_package?expand=0
+    uri: http://backend:5352/source/my_project/third_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -244,11 +822,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="6" vrev="6" srcmd5="0032d4845c61e59d70b2702c1bb70560">
-          <entry name="_config" md5="76ae07b1bd4804a788458d5ed12e9556" size="71" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="ca168ef2f03c136c4762e9e0310db712" size="55" mtime="1677088677"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image
@@ -257,7 +835,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -280,19 +858,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="801c545be09c1c468ff2d99b40415aac">
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
           <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=0
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - ca7dd789-a244-4c57-8616-3c6ed2dde8f8
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -315,10 +893,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="801c545be09c1c468ff2d99b40415aac">
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
           <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:32 GMT
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
@@ -327,7 +905,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 18ce42c7-6d16-4580-9af2-fa4498e406d4
+      - 28f13683-1dc2-478f-9dc7-11e8f50f4ed1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -352,7 +930,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/_keyinfo?donotcreatecert=1&withsslcert=1
@@ -361,7 +939,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 18ce42c7-6d16-4580-9af2-fa4498e406d4
+      - 28f13683-1dc2-478f-9dc7-11e8f50f4ed1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -412,7 +990,7 @@ http_interactions:
         -----END PGP PUBLIC KEY BLOCK-----
         </pubkey>
         </keyinfo>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:48 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?view=summary
@@ -421,7 +999,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 389d8361-5ac1-4fe5-b1e0-7b889680a4b8
+      - 825ac5cb-e99d-4ad9-83bc-2c38166b19af
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -446,7 +1024,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/first_package
@@ -455,7 +1033,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -478,20 +1056,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="6" vrev="6" srcmd5="75636523146b8634e20e82e205dcc741">
-          <entry name="_config" md5="f69d35d06f7b54d8c8aaa84af2681cb3" size="58" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="0f2416116d94550631676b18b16d5a2b" size="67" mtime="1677088677"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/first_package?expand=0
+    uri: http://backend:5352/source/my_project/first_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -514,11 +1092,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" rev="6" vrev="6" srcmd5="75636523146b8634e20e82e205dcc741">
-          <entry name="_config" md5="f69d35d06f7b54d8c8aaa84af2681cb3" size="58" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="0f2416116d94550631676b18b16d5a2b" size="67" mtime="1677088677"/>
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -527,7 +1105,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -550,20 +1128,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/second_package?expand=0
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -586,11 +1164,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/third_package
@@ -599,7 +1177,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -622,20 +1200,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="6" vrev="6" srcmd5="0032d4845c61e59d70b2702c1bb70560">
-          <entry name="_config" md5="76ae07b1bd4804a788458d5ed12e9556" size="71" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="ca168ef2f03c136c4762e9e0310db712" size="55" mtime="1677088677"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/third_package?expand=0
+    uri: http://backend:5352/source/my_project/third_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -658,11 +1236,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="third_package" rev="6" vrev="6" srcmd5="0032d4845c61e59d70b2702c1bb70560">
-          <entry name="_config" md5="76ae07b1bd4804a788458d5ed12e9556" size="71" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="ca168ef2f03c136c4762e9e0310db712" size="55" mtime="1677088677"/>
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/package_with_kiwi_image
@@ -671,7 +1249,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -694,19 +1272,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="801c545be09c1c468ff2d99b40415aac">
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
           <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/package_with_kiwi_image?expand=0
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 295d1422-f7dd-4816-b817-a802a9930b9e
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -729,10 +1307,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="801c545be09c1c468ff2d99b40415aac">
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
           <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:33 GMT
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package?expand=1
@@ -741,7 +1319,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 979b27b2-5f45-4bca-b552-1618be4715f3
+      - 8de66a45-e61c-4273-811b-37d45da83566
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -764,20 +1342,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/my_project/second_package?rev=6
+    uri: http://backend:5352/source/my_project/second_package?rev=8
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 979b27b2-5f45-4bca-b552-1618be4715f3
+      - 8de66a45-e61c-4273-811b-37d45da83566
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -800,11 +1378,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
@@ -838,10 +1416,134 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '269'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="AutoCleanup" namespace="OBS">
+            <value>2023-06-01 11:49:50 +0000</value>
+          </attribute>
+        </attributes>
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11">
+          <srcmd5>8c49a2e4d47d07c13800527f0259d2d6</srcmd5>
+          <time>1684410590</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=branch&noservice=1&opackage=second_package&oproject=my_project&orev=055f157b268ebdbaff27e03a1d2060ee&user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=branch&noservice=1&opackage=second_package&oproject=my_project&orev=7d091fa836670ad9e58065521548e09c&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -870,15 +1572,53 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>5ac8d6cfb41d4d42c0d7e7ef6fcaa273</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>e196019a6d32d2024c34dd71ca9ddfcd</srcmd5>
           <version>unknown</version>
-          <time>1677243814</time>
+          <time>1684410590</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -908,13 +1648,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="5" vrev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" xsrcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="_link" md5="4cf56ebd40df356acef06107b749a37d" size="182" mtime="1677088687"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?view=info
@@ -923,7 +1663,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 979b27b2-5f45-4bca-b552-1618be4715f3
+      - 8de66a45-e61c-4273-811b-37d45da83566
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -946,11 +1686,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="custom_name" rev="5" vrev="5" srcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273" verifymd5="055f157b268ebdbaff27e03a1d2060ee">
+        <sourceinfo package="custom_name" rev="6" vrev="6" srcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd" verifymd5="7d091fa836670ad9e58065521548e09c">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="my_project" package="second_package"/>
         </sourceinfo>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -959,7 +1699,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 979b27b2-5f45-4bca-b552-1618be4715f3
+      - 8de66a45-e61c-4273-811b-37d45da83566
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -982,13 +1722,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="5" vrev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" xsrcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="_link" md5="4cf56ebd40df356acef06107b749a37d" size="182" mtime="1677088687"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1020,14 +1760,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="64ca9c073627bfe548e36dc9843f1726">
+        <sourcediff key="f935aac6bb47e7c03ba331697f72d644">
           <old project="home:tom:branches:my_project" package="custom_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:my_project" package="custom_name" rev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
+          <new project="home:tom:branches:my_project" package="custom_name" rev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -1050,23 +1790,71 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '387'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '387'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="febdeec98e20860e05beadebe46d869a">
-          <old project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee"/>
-          <new project="home:tom:branches:my_project" package="custom_name" rev="c7a21355aaa4b47f244f7156ac8c88f3" srcmd5="c7a21355aaa4b47f244f7156ac8c88f3"/>
+        <sourcediff key="068a2209949035877b0277e7838f6288">
+          <old project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c"/>
+          <new project="home:tom:branches:my_project" package="custom_name" rev="50b049d063dda2f82b87fac70f47c8f8" srcmd5="50b049d063dda2f82b87fac70f47c8f8"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '309'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1075,7 +1863,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 979b27b2-5f45-4bca-b552-1618be4715f3
+      - 8de66a45-e61c-4273-811b-37d45da83566
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1098,13 +1886,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="5" vrev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" xsrcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="_link" md5="4cf56ebd40df356acef06107b749a37d" size="182" mtime="1677088687"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package?view=info
@@ -1113,7 +1901,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3cc3e491-8848-4e3e-9f96-be68527dec1b
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1136,10 +1924,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee" verifymd5="055f157b268ebdbaff27e03a1d2060ee">
+        <sourceinfo package="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c" verifymd5="7d091fa836670ad9e58065521548e09c">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/second_package
@@ -1148,7 +1936,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3cc3e491-8848-4e3e-9f96-be68527dec1b
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1171,11 +1959,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" rev="6" vrev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee">
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: post
     uri: http://backend:5352/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -1198,23 +1986,23 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '310'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '310'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="bbea7b25ea4d75abbabf50477c4bbfec">
+        <sourcediff key="0cbd4d28bdc94fd677c7e4092cd67923">
           <old project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="my_project" package="second_package" rev="6" srcmd5="055f157b268ebdbaff27e03a1d2060ee"/>
+          <new project="my_project" package="second_package" rev="8" srcmd5="7d091fa836670ad9e58065521548e09c"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1223,7 +2011,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3cc3e491-8848-4e3e-9f96-be68527dec1b
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1246,16 +2034,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="5" vrev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" xsrcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="_link" md5="4cf56ebd40df356acef06107b749a37d" size="182" mtime="1677088687"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?expand=1&rev=5
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?expand=1&rev=6
     body:
       encoding: US-ASCII
       string: ''
@@ -1282,21 +2070,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="c7a21355aaa4b47f244f7156ac8c88f3" vrev="5" srcmd5="c7a21355aaa4b47f244f7156ac8c88f3">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="50b049d063dda2f82b87fac70f47c8f8" vrev="6" srcmd5="50b049d063dda2f82b87fac70f47c8f8">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_history?deleted=0&meta=0&rev=5
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_history?deleted=0&meta=0&rev=6
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 3cc3e491-8848-4e3e-9f96-be68527dec1b
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1320,14 +2108,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revisionlist>
-          <revision rev="5" vrev="5">
-            <srcmd5>5ac8d6cfb41d4d42c0d7e7ef6fcaa273</srcmd5>
+          <revision rev="6" vrev="6">
+            <srcmd5>e196019a6d32d2024c34dd71ca9ddfcd</srcmd5>
             <version>unknown</version>
-            <time>1677243814</time>
+            <time>1684410590</time>
             <user>tom</user>
           </revision>
         </revisionlist>
-  recorded_at: Fri, 24 Feb 2023 13:03:34 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1336,7 +2124,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3cc3e491-8848-4e3e-9f96-be68527dec1b
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1359,13 +2147,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="5" vrev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" xsrcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="_link" md5="4cf56ebd40df356acef06107b749a37d" size="182" mtime="1677088687"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:35 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
@@ -1374,7 +2162,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3cc3e491-8848-4e3e-9f96-be68527dec1b
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1397,13 +2185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="5" vrev="5" srcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273">
-          <linkinfo project="my_project" package="second_package" rev="055f157b268ebdbaff27e03a1d2060ee" srcmd5="055f157b268ebdbaff27e03a1d2060ee" baserev="055f157b268ebdbaff27e03a1d2060ee" xsrcmd5="c7a21355aaa4b47f244f7156ac8c88f3" lsrcmd5="5ac8d6cfb41d4d42c0d7e7ef6fcaa273"/>
-          <entry name="_config" md5="5601a0d621508ca7f3e41db9cdfcb91d" size="56" mtime="1677088677"/>
-          <entry name="_link" md5="4cf56ebd40df356acef06107b749a37d" size="182" mtime="1677088687"/>
-          <entry name="somefile.txt" md5="a2af3efd0634fb08044de0b592af6250" size="59" mtime="1677088677"/>
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:03:35 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:my_project/_result?lastbuild=1&locallink=1&multibuild=1&package=custom_name&view=status
@@ -1412,7 +2200,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 47e12c71-ab83-486a-b717-85545f4c3cb7
+      - a1d0e453-4fc8-4b0d-945d-4630b35e57c3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1437,7 +2225,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:03:35 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:my_project/_result?lastbuild=1&locallink=1&multibuild=1&package=custom_name&view=status
@@ -1446,7 +2234,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 15f4032d-4477-412d-ac57-7cf5e8b10b17
+      - b4cfbe02-b008-479e-bec5-35095d88a30f
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1471,7 +2259,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:03:35 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:my_project/_result?package=custom_name&view=status
@@ -1480,7 +2268,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - afe8b782-0cc9-44f1-b31f-f3ef73309a65
+      - fb814314-d85c-4359-a340-867dff5b4321
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1505,5 +2293,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:03:35 GMT
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
 recorded_with: VCR 6.1.0
