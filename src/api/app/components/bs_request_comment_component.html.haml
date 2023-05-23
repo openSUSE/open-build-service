@@ -42,7 +42,7 @@
          comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
 
   -# This should be refactored to avoid relying on global state
-  - if User.session # rubocop:disable ViewComponent/AvoidGlobalState
+  - if policy(comment).reply?
     .mb-2
       = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                 class: 'font-italic small collapsed') do
