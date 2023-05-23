@@ -29,8 +29,6 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def reply?
-    return false if user.blank? || user.is_nobody? || record.user.is_nobody?
-
-    true
+    !(user.blank? || user.is_nobody? || record.user.is_nobody?)
   end
 end
