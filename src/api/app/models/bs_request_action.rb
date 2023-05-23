@@ -384,7 +384,7 @@ class BsRequestAction < ApplicationRecord
 
   # this is called per action once it's verified that all actions in a request are
   # permitted.
-  def create_post_permissions_hook(_opts)
+  def create_post_permissions_hook
     # does nothing by default
   end
 
@@ -425,24 +425,25 @@ class BsRequestAction < ApplicationRecord
       raise RemoteSource unless pkg.is_a?(Package)
 
       # find target via linkinfo or submit to all.
-      # FIXME: this is currently handling local project links for packages with multiple spec files.
-      #        This can be removed when we handle this as shadow packages in the backend.
+      # this is handling local project links for packages with multiple spec files.
       tpkg = ltpkg    = pkg.name
       data            = nil
       missing_ok_link = false
       suffix          = ''
       tprj            = pkg.project
 
-      while tprj == pkg.project
-        data = Directory.hashed(project: tprj.name, package: ltpkg)
-        data_linkinfo = data['linkinfo']
+      unless is_release?
+        while tprj == pkg.project
+          data = Directory.hashed(project: tprj.name, package: ltpkg)
+          data_linkinfo = data['linkinfo']
 
-        tprj = if data_linkinfo
-                 suffix = ltpkg.gsub(/^#{Regexp.escape(data_linkinfo['package'])}/, '')
-                 ltpkg = data_linkinfo['package']
-                 missing_ok_link = true if data_linkinfo['missingok']
-                 Project.get_by_name(data_linkinfo['project'])
-               end
+          tprj = if data_linkinfo
+                   suffix = ltpkg.gsub(/^#{Regexp.escape(data_linkinfo['package'])}/, '')
+                   ltpkg = data_linkinfo['package']
+                   missing_ok_link = true if data_linkinfo['missingok']
+                   Project.get_by_name(data_linkinfo['project'])
+                 end
+        end
       end
 
       tpkg = if target_package
@@ -605,11 +606,12 @@ class BsRequestAction < ApplicationRecord
           pkg.project.repositories.includes(:release_targets).find_each do |repo|
             repo.release_targets.each do |rt|
               next unless rt.trigger == 'manual'
+              next if target_project.present? && rt.target_repository.project.name != target_project
 
               new_action = dup
               new_action.source_project = pkg.project.name
               new_action.source_package = pkg.name
-              new_action.target_project = new_target_project
+              new_action.target_project = rt.target_repository.project.name
               new_action.target_package = pkg.name
               new_action.target_repository = rt.target_repository.name
               newactions << new_action
@@ -715,17 +717,13 @@ class BsRequestAction < ApplicationRecord
 
     if action_type.in?([:submit, :release, :maintenance_release, :maintenance_incident])
       packages = []
-      per_package_locking = false
       if source_package
         packages << Package.get_by_project_and_name(source_project, source_package)
-        per_package_locking = true
       else
         packages = Project.get_by_name(source_project).packages
-        per_package_locking = true if action_type == :maintenance_release
       end
 
-      return create_expand_package(packages, ignore_build_state: ignore_build_state),
-             per_package_locking
+      return create_expand_package(packages, ignore_build_state: ignore_build_state)
     end
 
     nil

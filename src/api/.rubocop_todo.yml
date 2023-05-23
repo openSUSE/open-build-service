@@ -158,7 +158,7 @@ Lint/UselessMethodDefinition:
 # Offense count: 871
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
 Metrics/AbcSize:
-  Max: 243
+  Max: 254
 
 # Offense count: 17
 # Configuration parameters: CountBlocks, Max.
@@ -311,6 +311,7 @@ Metrics/CyclomaticComplexity:
     - 'app/models/bs_request_action/differ/query_builder.rb'
     - 'app/models/bs_request_action_maintenance_incident.rb'
     - 'app/models/bs_request_action_submit.rb'
+    - 'app/models/bs_request_action_release.rb'
     - 'app/models/bs_request_permission_check.rb'
     - 'app/models/channel.rb'
     - 'app/models/channel_binary.rb'

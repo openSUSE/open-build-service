@@ -40,7 +40,7 @@ class BsRequestActionRelease < BsRequestAction
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.zone.now
 
-    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self })
+    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self, manual: true })
   end
 
   def check_permissions!
@@ -67,27 +67,6 @@ class BsRequestActionRelease < BsRequestAction
   end
   # rubocop:enable Naming/AccessorMethodName
 
-  def create_post_permissions_hook(opts)
-    object = nil
-    spkg = Package.find_by_project_and_name(source_project, source_package)
-    if opts[:per_package_locking]
-      # we avoid patchinfo's to be able to complete meta data about the update
-      return if spkg.is_patchinfo?
-
-      object = spkg
-    else
-      # Workaround: In rails 5 'spkg.project' started to return a readonly object
-      object = Project.find(spkg.project_id)
-    end
-    return if object.enabled_for?('lock', nil, nil)
-
-    object.check_write_access!(true)
-    f = object.flags.find_by_flag_and_status('lock', 'disable')
-    object.flags.delete(f) if f # remove possible existing disable lock flag
-    object.flags.create(status: 'enable', flag: 'lock')
-    object.store(comment: 'maintenance_release request')
-  end
-
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
     return unless spkg && spkg.is_patchinfo?
@@ -105,8 +84,10 @@ class BsRequestActionRelease < BsRequestAction
   def sanity_check!
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(source_project)
-    prj.repositories.includes(:release_targets).find_each do |repo|
-      raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name} / #{repo.name}" if repo.release_targets.empty?
+    manual_targets = prj.repositories.includes(:release_targets).where(release_targets: { trigger: 'manual' })
+    raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name}" unless manual_targets.any?
+
+    manual_targets.each do |repo|
       raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}" if repo.architectures.empty?
 
       repo.release_targets.each do |rt|

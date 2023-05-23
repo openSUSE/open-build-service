@@ -2265,7 +2265,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     reqid = node['id']
 
     # got locked
-    get '/source/home:tom:test/_meta'
+    get '/source/home:tom:test/pack/_meta'
     assert_response :success
     assert_xml_tag(parent: { tag: 'lock' }, tag: 'enable')
     assert_no_xml_tag(parent: { tag: 'lock' }, tag: 'disable') # disable got removed
@@ -2280,7 +2280,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # disable lock and cleanup
-    get '/source/home:tom:test/_meta'
+    get '/source/home:tom:test/pack/_meta'
     assert_response :success
     assert_no_xml_tag(parent: { tag: 'lock' }, tag: 'enable')
 
