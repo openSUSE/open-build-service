@@ -1,5 +1,5 @@
 %ul.list-inline
-  - if User.session && !comment.user.is_nobody?
+  - if policy(comment).reply?
     %li.list-inline-item
       %button.btn.btn-outline-success.collapsed{ id: "reply_button_of_#{comment.id}",
       data: { 'bs-toggle': 'collapse', 'bs-target': "#reply_form_of_#{comment.id}" } }
@@ -15,11 +15,11 @@
       = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': "#delete-comment-modal-#{comment.id}" },
                 class: 'delete_link btn btn-outline-danger', title: 'Delete comment') do
         Delete
-- if User.session && !comment.user.is_nobody?
+- if policy(comment).reply?
   .collapse{ id: "reply_form_of_#{comment.id}" }
     = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
      comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })
-  - if policy(comment).update?
-    .collapse{ id: "edit_form_of_#{comment.id}" }
-      = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
-       comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
+- if policy(comment).update?
+  .collapse{ id: "edit_form_of_#{comment.id}" }
+    = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
+     comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
