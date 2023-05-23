@@ -4,12 +4,13 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def destroy?
-    return false if user.blank?
+    # Can't destroy comments without being logged in or a comment that was already deleted (ie. Comment#user is nobody)
+    return false if user.blank? || record.user.is_nobody?
     # Admins can always delete all comments
     return true if user.is_admin?
 
-    # Users can always delete their own comments - or if the user of the comment is deleted
-    return true if user == record.user || record.user.is_nobody?
+    # Users can always delete their own comments
+    return true if user == record.user
 
     case record.commentable_type
     when 'Package'
