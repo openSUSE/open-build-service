@@ -90,10 +90,9 @@ module TestData
       # TODO: try to convert this to a factory
       update_project_branch_hash = iggy.run_as do
         create(:branch_package,
-          attribute: 'OBS:Maintained',
-          package: package_name,
-          update_project_attribute: 'OBS:UpdateProject'
-        ).branch
+               attribute: 'OBS:Maintained',
+               package: package_name,
+               update_project_attribute: 'OBS:UpdateProject').branch
       end
 
       # So far the project named `home:Iggy:branches:OBS_Maintained:cacti` is created with two `cacti.<update_project>` packages in it.
@@ -119,11 +118,10 @@ module TestData
 
       iggy.run_as do
         create(:branch_package,
-          maintenance: 1,
-          project: project_name,
-          package: package_name,
-          target_project: target_project_name
-        ).branch
+               maintenance: 1,
+               project: project_name,
+               package: package_name,
+               target_project: target_project_name).branch
       end
     end
 
