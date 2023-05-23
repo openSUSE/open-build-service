@@ -1,6 +1,88 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 22 May 2023 16:04:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/custom_packman/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="custom_packman">
+          <title>My custom Build Service Packman</title>
+          <description>This instance can be used to access resources from packman.</description>
+          <remoteurl>https://pmbs-api.links2linux.de/public</remoteurl>
+        </project>
+    headers:
+      X-Request-Id:
+      - bee42edb-f998-4881-bb87-921b7f49b31d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '245'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="custom_packman">
+          <title>My custom Build Service Packman</title>
+          <description>This instance can be used to access resources from packman.</description>
+          <remoteurl>https://pmbs-api.links2linux.de/public</remoteurl>
+        </project>
+  recorded_at: Mon, 22 May 2023 16:04:39 GMT
+- request:
     method: get
     uri: https://pmbs-api.links2linux.de/public/distributions.xml
     body:
@@ -19,9 +101,9 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 08 Jun 2021 14:16:32 GMT
+      - Mon, 22 May 2023 16:04:39 GMT
       Server:
-      - Apache/2.4.43 (Linux/SUSE)
+      - Apache/2.4.51 (Linux/SUSE)
       Cache-Control:
       - max-age=0, private, must-revalidate
       - public
@@ -34,23 +116,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Opensuse-Runtimes:
-      - '{"view":0.38410117849707603,"db":0.5667409859597683,"backend":0}'
+      - '{"view":0.6031449884176254,"db":0.9579329052940011,"backend":0}'
       X-Request-Id:
-      - 63499eb8-f823-4759-be08-06cd8572bdd4
+      - 853eb70b-f20f-4256-babc-dce0b5ffce2a
       X-Opensuse-Apiversion:
-      - 2.10.10
+      - 2.10.20
       X-Download-Options:
       - noopen
       X-Frame-Options:
       - SAMEORIGIN
       X-Runtime:
-      - '0.004311'
+      - '0.006714'
       X-Content-Type-Options:
       - nosniff
       X-Powered-By:
-      - Phusion Passenger 6.0.7
+      - Phusion Passenger(R) 6.0.14
       Etag:
-      - W/"3b4f25197b32d45e6f04f017f956bb09"
+      - W/"97d4acb9776e27a0cb720a4aa37ef715"
       Status:
       - 200 OK
       Transfer-Encoding:
@@ -60,7 +142,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: "<distributions/>\n"
-  recorded_at: Tue, 08 Jun 2021 14:16:32 GMT
+  recorded_at: Mon, 22 May 2023 16:04:39 GMT
 - request:
     method: get
     uri: http://backend:5352/build/custom_packman/_result?code=unresolvable&view=status
@@ -69,7 +151,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 9e2fcb9a-ce1d-4a47-9b15-22f446dc2eb5
+      - 7d7b2be8-46ff-4b89-92c7-131dd52e868e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -78,8 +160,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'custom_packman' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -88,15 +170,45 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '55'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'custom_packman' does not exist</summary>
-          <details>404 project 'custom_packman' does not exist</details>
-        </status>
-  recorded_at: Tue, 08 Jun 2021 14:16:32 GMT
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 16:04:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/custom_packman/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 7d7b2be8-46ff-4b89-92c7-131dd52e868e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+  recorded_at: Mon, 22 May 2023 16:04:39 GMT
 - request:
     method: get
     uri: http://backend:5352/build/custom_packman/_result?view=summary
@@ -105,7 +217,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - e9777282-cef6-4c4f-aa4a-9a553e0c33c0
+      - c57e5fbd-1044-4b86-b47d-862a01cbdfe8
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -114,8 +226,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'custom_packman' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -124,13 +236,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '55'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'custom_packman' does not exist</summary>
-          <details>404 project 'custom_packman' does not exist</details>
-        </status>
-  recorded_at: Tue, 08 Jun 2021 14:16:32 GMT
-recorded_with: VCR 6.0.0
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 16:04:39 GMT
+recorded_with: VCR 6.1.0

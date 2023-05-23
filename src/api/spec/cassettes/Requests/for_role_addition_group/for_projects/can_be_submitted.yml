@@ -1,12 +1,94 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '142'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 22 May 2023 16:01:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 22 May 2023 16:01:33 GMT
+- request:
     method: get
     uri: http://backend:5352/build/home:titan/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - b40eb142-975d-4185-9e36-3034aac6d29c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -31,8 +113,39 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: null
-  recorded_at: Thu, 09 Apr 2020 14:28:25 GMT
+  recorded_at: Mon, 22 May 2023 16:01:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b40eb142-975d-4185-9e36-3034aac6d29c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+  recorded_at: Mon, 22 May 2023 16:01:33 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:titan/_result?view=summary
@@ -40,6 +153,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Request-Id:
+      - 0e84f96e-dd56-40fa-989c-efd0615cd991
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -64,6 +179,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-    http_version: null
-  recorded_at: Thu, 09 Apr 2020 14:28:26 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Mon, 22 May 2023 16:01:34 GMT
+recorded_with: VCR 6.1.0
