@@ -12,6 +12,10 @@ module OwnerSearch
 
         (all_packages - defined_packages).each do |p|
           pkg = project.find_package(p)
+          unless pkg
+            Rails.logger.debug { "Package name #{p} not found in #{project.name}" }
+            next
+          end
 
           owner = Owner.new
           owner.rootproject = project.name
@@ -74,8 +78,14 @@ module OwnerSearch
     end
 
     def all_packages
-      ret = Package.where(project_id: @projects).pluck(:name)
-      ret.grep_v(/\A_product:\w[-+\w.]*\z/)
+      # package names from all projects, except kind=maintenance_release
+      ret = Package.joins(:project).where(project_id: @projects).where.not(projects: { kind: 'maintenance_release' }).pluck(:name)
+      # package names from maintenance release projects need to be reduced to main package name.
+      # Like: PACKAGE_NAME.CODE_STREAM_NAME -> PACKAGE_NAME
+      ret += Package.joins(:project).where(project_id: @projects, projects: { kind: 'maintenance_release' }).pluck(:name)
+                    .map { |name| name.gsub(/.[^.]*$/, '') }
+      # Remove packages in the _product "sub-directory"
+      ret.sort.uniq.reject { |p| p.blank? || p =~ /\A_product:\w[-+\w.]*\z/ }
     end
   end
 end
