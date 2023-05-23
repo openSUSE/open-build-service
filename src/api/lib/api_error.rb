@@ -97,6 +97,10 @@ class NotMissingError < APIError; end
 
 class PackageAlreadyExists < APIError; end
 
+class ArchitectureOrderMissmatch < APIError
+  setup 'architecture_order_missmatch'
+end
+
 class ExpandError < APIError
   setup 'expand_error'
 end

@@ -58,7 +58,5 @@ module BsRequestAction::Errors
 
   class RepositoryWithoutArchitecture < APIError; setup 'repository_without_architecture'; end
 
-  class ArchitectureOrderMissmatch < APIError; setup 'architecture_order_missmatch'; end
-
   class OpenReleaseRequests < APIError; setup 'open_release_requests'; end
 end

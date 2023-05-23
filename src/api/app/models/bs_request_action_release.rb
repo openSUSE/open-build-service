@@ -91,16 +91,7 @@ class BsRequestActionRelease < BsRequestAction
       raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}" if repo.architectures.empty?
 
       repo.release_targets.each do |rt|
-        unless repo.architectures.size == rt.target_repository.architectures.size
-          raise ArchitectureOrderMissmatch, "Repository '#{repo.name}' and releasetarget " \
-                                            "'#{rt.target_repository.name}' have different architectures"
-        end
-        (1..(repo.architectures.size)).each do |i|
-          unless repo.architectures[i - 1] == rt.target_repository.architectures[i - 1]
-            raise ArchitectureOrderMissmatch, "Repository and releasetarget don't have the same architecture " \
-                                              "on position #{i}: #{prj.name} / #{repo.name}"
-          end
-        end
+        repo.check_valid_release_target!(rt.target_repository)
       end
     end
   end

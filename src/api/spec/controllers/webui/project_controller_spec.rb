@@ -670,7 +670,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
        BsRequestAction::BuildNotFinished,
        BsRequestActionMaintenanceRelease::RepositoryWithoutReleaseTarget,
        BsRequestActionMaintenanceRelease::RepositoryWithoutArchitecture,
-       BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
+       ArchitectureOrderMissmatch,
        BsRequestAction::VersionReleaseDiffers,
        BsRequestAction::Errors::UnknownTargetProject,
        BsRequestAction::Errors::UnknownTargetPackage].each do |error_class|

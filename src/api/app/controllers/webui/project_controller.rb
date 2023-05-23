@@ -204,8 +204,8 @@ class Webui::ProjectController < Webui::WebuiController
         end
         flash[:success] = 'Created maintenance release request ' \
                           "<a href='#{url_for(controller: 'request', action: 'show', number: req.number)}'>#{req.number}</a>"
-      rescue Patchinfo::IncompletePatchinfo,
-             BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
+      rescue ArchitectureOrderMissmatch,
+             Patchinfo::IncompletePatchinfo,
              BsRequestActionMaintenanceRelease::OpenReleaseRequests,
              BsRequestActionMaintenanceRelease::RepositoryWithoutReleaseTarget,
              BsRequestActionMaintenanceRelease::RepositoryWithoutArchitecture,

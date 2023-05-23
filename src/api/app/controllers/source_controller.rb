@@ -586,22 +586,40 @@ class SourceController < ApplicationController
     end
   end
 
+  def _check_single_target!(source_repository, target_repository)
+    # checking write access and architectures
+    raise CmdExecutionNoPermission, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
+
+    source_repository.check_valid_release_target!(target_repository)
+  end
+  private :_check_single_target!
+
   def verify_release_targets!(pro)
     repo_matches = nil
     repo_bad_type = nil
+
     pro.repositories.each do |repo|
       next if params[:repository] && params[:repository] != repo.name
 
-      repo.release_targets.each do |releasetarget|
-        unless releasetarget.trigger.in?(['manual', 'maintenance'])
-          repo_bad_type = true
-          next
-        end
-        unless User.session!.can_modify?(releasetarget.target_repository.project)
-          raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
-        end
+      if params[:targetproject] || params[:targetrepository]
+        target_repository = Repository.find_by_project_and_name(params[:targetproject], params[:targetrepository])
+
+        _check_single_target!(repo, target_repository)
 
         repo_matches = true
+      else
+        repo.release_targets.each do |releasetarget|
+          next unless releasetarget
+
+          unless releasetarget.trigger.in?(['manual', 'maintenance'])
+            repo_bad_type = true
+            next
+          end
+
+          _check_single_target!(repo, releasetarget.target_repository)
+
+          repo_matches = true
+        end
       end
     end
     raise NoMatchingReleaseTarget, 'Trigger is not set to manual in any repository' if repo_bad_type && !repo_matches
@@ -1015,8 +1033,16 @@ class SourceController < ApplicationController
 
     # specified target
     if params[:target_project]
+      if params[:target_repository].blank? || params[:repository].blank?
+        raise MissingParameterError, 'release action with specified target project needs also "repository" and "target_repository" parameter'
+      end
+
       # we do not create it ourself
       Project.get_by_name(params[:target_project])
+      # parameter names are different between project and package release unfortunatly.
+      params[:targetproject] = params[:target_project]
+      params[:targetrepository] = params[:target_repository]
+      verify_release_targets!(pkg.project)
       _package_command_release_manual_target(pkg, multibuild_container, time_now)
     else
       verify_release_targets!(pkg.project)
@@ -1046,10 +1072,6 @@ class SourceController < ApplicationController
 
   def _package_command_release_manual_target(pkg, multibuild_container, time_now)
     verify_can_modify_target!
-
-    if params[:target_repository].blank? || params[:repository].blank?
-      raise MissingParameterError, 'release action with specified target project needs also "repository" and "target_repository" parameter'
-    end
 
     targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
     raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
