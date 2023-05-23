@@ -200,9 +200,9 @@ sub getbinaryversions {
     if ($dodurl && $hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
       my @handoff;
       if (defined $cgi->{'binaries'}) {
-	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'binaries', 'module', 'withevr'));
+	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'nometa', 'binaries', 'module', 'withevr'));
       } else {
-	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', BSRPC::args($cgi, 'binary', 'module', 'withevr'));
+	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', BSRPC::args($cgi, 'nometa', 'binary', 'module', 'withevr'));
       }
       $path = BSRepServer::DoD::fetchdodbinary("$reporoot/$prp/$arch", $pool, $repo, $p, \@handoff);
       return unless defined $path;
@@ -438,7 +438,7 @@ sub getbinaries {
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-      my @handoff = ('/getbinaries', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'binaries', 'module'));
+      my @handoff = ('/getbinaries', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'nometa', 'metaonly', 'binaries', 'module'));
       $path = BSRepServer::DoD::fetchdodbinary("$reporoot/$prp/$arch", $pool, $repo, $p, \@handoff);
       return unless defined $path;
       $needscan = 1;
