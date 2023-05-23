@@ -81,7 +81,7 @@ RSpec.describe 'Requests_Submissions', js: true, vcr: true do
         login submitter
 
         # TODO: Create a factory for this (branch a package and save a new file in it - to be able to submit the branched package)
-        BranchPackage.new(
+        create(:branch_package,
           project: source_project.name,
           package: source_package.name,
           target_project: source_project.name,

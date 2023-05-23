@@ -89,7 +89,7 @@ module TestData
 
       # TODO: try to convert this to a factory
       update_project_branch_hash = iggy.run_as do
-        BranchPackage.new(
+        create(:branch_package,
           attribute: 'OBS:Maintained',
           package: package_name,
           update_project_attribute: 'OBS:UpdateProject'
@@ -118,7 +118,7 @@ module TestData
       iggy = User.find_by(login: 'Iggy')
 
       iggy.run_as do
-        BranchPackage.new(
+        create(:branch_package,
           maintenance: 1,
           project: project_name,
           package: package_name,

@@ -77,7 +77,7 @@ FactoryBot.define do
 
       evaluator.staging_owner.run_as do
         request.bs_request_actions.where(type: :submit).each do |action|
-          BranchPackage.new(
+          create(:branch_package,
             project: action.source_project,
             package: action.source_package,
             target_project: request.staging_project.name,

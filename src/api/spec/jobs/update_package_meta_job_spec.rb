@@ -12,7 +12,7 @@ RSpec.describe UpdatePackageMetaJob, vcr: true do
   let(:project) { user.home_project }
   let(:package1) { create(:package, name: 'package_1', project: project) }
   let(:package2) { create(:package, name: 'package_2', project: project) }
-  let!(:branch_package) { BranchPackage.new(project: project.name, package: package1.name) }
+  let!(:branch_package) { create(:branch_package, project: project.name, package: package1.name) }
 
   it 'is in default queue' do
     expect(UpdatePackageMetaJob.new.queue_name).to eq('default')
