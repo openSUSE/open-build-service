@@ -82,6 +82,30 @@ sub tossl {
   tie(*{\*S}, 'BSSSL', \*S, @_);
 }
 
+# this assumes the socket is in non-block mode
+sub ssl_connect_with_timeout {
+  my ($ssl, $socket, $timeout) = @_;
+  $timeout += time();
+  while (1) {
+    my $r = Net::SSLeay::connect($ssl);
+    return if $r > 0;
+    my $code = Net::SSLeay::get_error($ssl, $r);
+    my $now = time();
+    die("SSL_connect timeout\n") if $now >= $timeout;
+    my $vec = '';
+    vec($vec, fileno($socket), 1) = 1;
+    if ($code == &Net::SSLeay::ERROR_WANT_WRITE) {
+      $r = select(undef, $vec, undef, $timeout - $now);
+    } elsif ($code == &Net::SSLeay::ERROR_WANT_READ) {
+      $r = select($vec, undef, undef, $timeout - $now);
+    } else {
+      die("SSL_connect error");
+    }
+    die("select: $!\n") if !defined($r) || $r < 0;
+    die("SSL_connect timeout\n") if time() >= $timeout;
+  }
+}
+
 sub TIEHANDLE {
   my ($self, $socket, %opts) = @_;
 
@@ -111,7 +135,11 @@ sub TIEHANDLE {
     Net::SSLeay::accept($ssl) == 1 || die("SSL_accept error $!\n");
   } else {
     Net::SSLeay::set_tlsext_host_name($ssl, $opts{'sni'}) if $opts{'sni'} && defined(&Net::SSLeay::set_tlsext_host_name);
-    Net::SSLeay::connect($ssl) || die("SSL_connect error");
+    if ($opts{'connect_timeout'}) {
+      ssl_connect_with_timeout($ssl, $socket, $opts{'connect_timeout'});
+    } else {
+      Net::SSLeay::connect($ssl) > 0 || die("SSL_connect error");
+    }
   }
   return bless [$ssl, $socket, \$cert_ok] if $opts{'verify'};
   return bless [$ssl, $socket];
