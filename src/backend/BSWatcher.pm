@@ -864,13 +864,11 @@ sub rpc_tossl {
 #  print "switching to https\n";
   my $sni;
   $sni = $1 if $ev->{'rpcdest'} && $ev->{'rpcdest'} =~ /^(.+):\d+$/;
-  fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
   my $param = $ev->{'param'};
   eval {
-    ($param->{'https'} || $tossl)->($ev->{'fd'}, 'mode' => 'connect', 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $sni);
+    ($param->{'https'} || $tossl)->($ev->{'fd'}, 'mode' => 'connect', 'connect_timeout' => $rpc_connect_timeout, 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $sni);
     BSRPC::verify_sslpeerfingerprint($ev->{'fd'}, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
   };
-  fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
   if ($@) {
     my $err = $@;
     $err =~ s/\n$//s;
@@ -1172,7 +1170,7 @@ sub rpc {
   my $hostaddr = BSRPC::lookuphost($host, $port, \%hostlookupcache);
   die("unknown host '$host'\n") unless $hostaddr;
   my $fd = BSRPC::opensocket($hostaddr);
-  fcntl($fd, F_SETFL,O_NONBLOCK);
+  fcntl($fd, F_SETFL, O_NONBLOCK);
   my $ev = BSEvents::new('write', \&rpc_send_handler);
   if ($proxytunnel) {
     $ev->{'proxytunnel'} = $req;
