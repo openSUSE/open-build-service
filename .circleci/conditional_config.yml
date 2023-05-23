@@ -99,6 +99,7 @@ aliases:
     name: Compress Log Artifacts
     working_directory: src/api/log
     command: for i in *.log; do xz -T 0 -v $i; done
+    when: always
 
   - &compress_capybara_artifacts
     name: Compress Capybara Artifacts
@@ -109,6 +110,7 @@ aliases:
       export NUMBER_OF_FAILED_TESTS=`ls -1|wc -l`
       # Only compress if there are more than 20 tests failed...
       if test $NUMBER_OF_FAILED_TESTS -gt 40; then mkdir capybara; mv  -v *.png *.html capybara; tar cvJf capybara.tar.xz capybara; rm -rf capybara; fi
+    when: always
 
   - &install_circle_cli
     name: Install CircleCI command line
