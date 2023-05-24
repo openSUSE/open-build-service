@@ -52,13 +52,11 @@ FactoryBot.define do
     factory :project_with_package do
       transient do
         package_name { nil }
-        create_patchinfo { false }
       end
 
       after(:create) do |project, evaluator|
         new_package = create(:package, { project: project, name: evaluator.package_name }.compact)
         project.packages << new_package
-        create(:patchinfo, project_name: project.name, package_name: new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
       end
     end
 
@@ -68,7 +66,6 @@ FactoryBot.define do
         package_title { nil }
         package_description { nil }
         package_count { 2 }
-        create_patchinfo { false }
       end
 
       after(:create) do |project, evaluator|
@@ -89,7 +86,6 @@ FactoryBot.define do
             description: package_description
           }.compact)
           project.packages << new_package
-          create(:patchinfo, project_name: project.name, package_name: new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
         end
       end
     end
