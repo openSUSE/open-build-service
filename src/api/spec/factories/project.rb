@@ -142,12 +142,8 @@ FactoryBot.define do
           create(:maintained_project, project: evaluator.target_project, maintenance_project: project)
           CONFIG['global_write_through'] ? project.store : project.save!
         end
-        if evaluator.create_patchinfo
-          old_user = User.session
-          User.session = evaluator.maintainer
-          create(:patchinfo, project_name: project.name, comment: 'Fake comment', force: true)
-          User.session = old_user
-        end
+
+        evaluator.maintainer.run_as { create(:patchinfo, project_name: project.name, comment: 'Fake comment', force: true) } if evaluator.create_patchinfo
       end
 
       factory :maintenance_project_with_packages do
