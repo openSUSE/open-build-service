@@ -82,7 +82,7 @@ namespace :dev do
 
       # Current devel package
       servers_project = Project.find_by(name: 'servers') || create(:project, name: 'servers')
-      apache2_servers = Package.find_by_project_and_name(servers_project.name, 'apache2') || create(:package, project: servers_project, name: 'apache2')
+      apache2_servers = Package.find_by_project_and_name(servers_project.name, 'apache2') || create(:package_with_file, project: servers_project, name: 'apache2')
 
       # Future devel package (source)
       # source_project -> home:Admin:branches:openSUSE:Factory
