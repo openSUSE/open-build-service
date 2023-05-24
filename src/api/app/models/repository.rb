@@ -223,17 +223,17 @@ class Repository < ApplicationRecord
     name
   end
 
-  def check_valid_release_target!(target_repository)
-    # same architectures in same order
-    unless architectures.size == target_repository.architectures.size
+  def check_valid_release_target!(target_repository, architecture_filter = nil)
+    # first architecture must be the same
+    # not using "architectures" here becasue the position is critical
+    unless repository_architectures.first.architecture == target_repository.repository_architectures.first.architecture
       raise ArchitectureOrderMissmatch, "Repository '#{name}' and releasetarget " \
-                                        "'#{target_repository.name}' have different architectures"
+                                        "'#{target_repository.name}' have a different architecture as first entry"
     end
-    (1..(architectures.size)).each do |i|
-      unless architectures[i - 1] == target_repository.architectures[i - 1]
-        raise ArchitectureOrderMissmatch, "Repository and releasetarget don't have the same architecture " \
-                                          "on position #{i}: #{project.name} / #{name}"
-      end
+    repository_architectures.each do |ra|
+      next if architecture_filter.present? && ra.architecture.name != architecture_filter
+
+      raise ArchitectureOrderMissmatch, "Release target repository lacks the architecture #{ra.architecture.name}" unless target_repository.architectures.include?(ra.architecture)
     end
   end
 

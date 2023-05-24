@@ -72,7 +72,7 @@ module MaintenanceHelper
     u_ids = if target.is_a?(Repository)
               copy_binaries_to_repository(filter_source_repository, filter_architecture, source_package, target, target_package_name, multibuild_container, setrelease)
             else
-              copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name, target_project, multibuild_container, setrelease)
+              copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name, target_project, multibuild_container, setrelease, manual)
             end
 
     # create or update main package linking to incident package
@@ -217,8 +217,10 @@ module MaintenanceHelper
     source_repository.architectures.each do |arch|
       # user architecture filter
       next if filter_architecture.present? && arch.name != filter_architecture
+
       # skip automatically because target lacks the architecture
-      next unless target_repo.architectures.include? arch
+      next unless target_repo.architectures.include?(arch)
+
       copy_single_binary(arch, target_repo, source_package.project.name, source_package_name,
                          source_repository, target_package_name, u_id, setrelease)
     end

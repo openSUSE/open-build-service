@@ -81,7 +81,7 @@ module OwnerSearch
       # package names from all projects, except kind=maintenance_release
       ret = Package.joins(:project).where(project_id: @projects).where.not(projects: { kind: 'maintenance_release' }).pluck(:name)
       # package names from maintenance release projects need to be reduced to main package name.
-      # Like: PACKAGE_NAME.CODE_STREAM_NAME -> PACKAGE_NAME
+      # Like: PACKAGE_NAME.INCIDENT_NUMBER -> PACKAGE_NAME
       ret += Package.joins(:project).where(project_id: @projects, projects: { kind: 'maintenance_release' }).pluck(:name)
                     .map { |name| name.gsub(/.[^.]*$/, '') }
       # Remove packages in the _product "sub-directory"

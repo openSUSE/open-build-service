@@ -47,7 +47,8 @@ class Token::Release < Token
     # releasing ...
     manual_release_targets.each do |release_target|
       next if options[:filter_source_repository].present? && options[:filter_source_repository] == release_target.repository.name
-      release_target.repository.check_valid_release_target!(release_target.target_repository, opts[:filter_architecture])
+
+      release_target.repository.check_valid_release_target!(release_target.target_repository, options[:arch])
       release(package_to_release, release_target.repository, release_target.target_repository, time_now, options)
     end
   end
