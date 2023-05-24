@@ -177,6 +177,14 @@ module TestData
       admin = User.get_default_admin
       User.session = admin
       bs_request.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'Accepted by admin')
+
+      # Open a request from a package that is not branched, but developed on an "official" project.
+      # Simulate `osc maintenancerequest servers apache2 openSUSE:Leap:15.4:Update`
+      create_request_with_incident_actions(source_project_name: 'servers',
+                                           target_project_name: maintenance_project.name,
+                                           source_package_names: ['apache2'],
+                                           target_releaseproject_names: [update_project1.name],
+                                           patchinfo: false)
     end
   end
 end
