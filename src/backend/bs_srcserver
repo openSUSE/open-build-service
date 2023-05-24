@@ -7823,6 +7823,7 @@ my $dispatches_ajax = [
 ####################################################################
 
 my $conf = {
+  'runname' => 'bs_srcserver',
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,

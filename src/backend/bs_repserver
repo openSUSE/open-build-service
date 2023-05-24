@@ -4554,6 +4554,7 @@ my $dispatches_ajax = [
 ];
 
 my $conf = {
+  'runname' => 'bs_repserver',
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,

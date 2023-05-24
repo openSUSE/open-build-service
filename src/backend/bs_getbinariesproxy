@@ -613,6 +613,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_getbinariesproxy',
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,

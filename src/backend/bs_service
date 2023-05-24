@@ -335,6 +335,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_service',
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,

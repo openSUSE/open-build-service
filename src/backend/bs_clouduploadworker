@@ -222,6 +222,7 @@ sub run {
 }
 
 my $conf = {
+  'runname' => 'bs_clouduploadworker',
   'eventdir' => $myeventdir,
   'dispatches' => [],
   'maxchild' => $maxchild,

@@ -247,6 +247,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_sourcepublish',
   'run' => \&run,
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,

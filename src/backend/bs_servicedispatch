@@ -191,6 +191,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_servicedispatch',
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,
   'maxchild' => $maxchild,

@@ -419,7 +419,6 @@ sysopen(PING, "$_myeventdir/.ping", POSIX::O_RDWR) || die("$_myeventdir/.ping: $
 fcntl(PING, F_SETFL, POSIX::O_NONBLOCK);
 
 
-
 # create global context
 my $gctx = {
   'arch' => $_myarch,

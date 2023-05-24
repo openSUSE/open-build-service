@@ -40,6 +40,8 @@ my $rundir = "$bsdir/run";
 my $eventdir = "$bsdir/events";
 my $dodsdir = "$bsdir/dods";
 
+my $runname = 'bs_dodup';
+
 my $timeout_small = 60;
 my $timeout_large = 300;
 
@@ -786,15 +788,15 @@ sub check_dod {
 }
 
 sub check_exitrestart {
-  if (-e "$rundir/bs_dodup.exit") {
+  if (-e "$rundir/$runname.exit") {
     close(RUNLOCK);
-    unlink("$rundir/bs_dodup.exit");
+    unlink("$rundir/$runname.exit");
     BSUtil::printlog("exiting...");
     exit(0);
   }
-  if (-e "$rundir/bs_dodup.restart") {
+  if (-e "$rundir/$runname.restart") {
     close(RUNLOCK);
-    unlink("$rundir/bs_dodup.restart");
+    unlink("$rundir/$runname.restart");
     BSUtil::printlog("restarting...");
     exec($0, @ARGV);
     die("$0: $!\n");
@@ -878,12 +880,12 @@ if (@args) {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'dodup', "$rundir/bs_dodup");
+BSUtil::restartexit($options, 'dodup', "$rundir/$runname");
 BSUtil::printlog("starting build service DoD updater");
 
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_dodup.lock") || die("$rundir/bs_dodup.lock: $!\n");
+open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
-utime undef, undef, "$rundir/bs_dodup.lock";
+utime undef, undef, "$rundir/$runname.lock";
 daemon();
 
