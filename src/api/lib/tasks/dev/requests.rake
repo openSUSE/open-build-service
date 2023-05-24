@@ -172,7 +172,7 @@ namespace :dev do
       admin = User.get_default_admin
       home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
-      target_package = create(:package, project: home_admin_project, name: Faker::Lorem.word)
+      target_package = create(:package, project: home_admin_project, name: "#{Faker::Lorem.word}_#{Time.now.to_i}")
       request = create(:delete_bs_request, target_package: target_package, creator: iggy)
 
       puts "* Request with delete action #{request.number} has been created."
