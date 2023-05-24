@@ -1,0 +1,78 @@
+:ruby
+  @pagetitle = "Signing Keys for #{@project}"
+  gpg_key = @project.signing_key(type: :gpg)
+  ssl_cert = @project.signing_key(type: :ssl)
+
+.card.mb-3
+  = render partial: 'webui/project/tabs', locals: { project: @project }
+  .card-body
+    %h3.card-title= @pagetitle
+    .row
+      .col-12.mb-2.p-8
+        %h5
+          GPG Key
+          - if gpg_key.present?
+            - if gpg_key.origin != @project.name
+              %small
+                ( inherited from
+                = link_to project_signing_keys_path(gpg_key.origin) do
+                  = gpg_key.origin
+                \)
+            = link_to(download_project_signing_keys_path(project_name: @project.name, kind: :gpg), title: 'Download Armored Key') do
+              %i.fas.fa-download.text-primary
+        %hr
+        - if gpg_key.present?
+          %dl.row
+            %dt.col-12.col-sm-3 Fingerprint
+            %dd.col-12.col-sm-9.font-monospace= gpg_key.fingerprint
+            %dt.col-6.col-sm-3 Key ID
+            %dd.col-6.col-sm-9.small= gpg_key.id
+            %dt.col-6.col-sm-3 Expires on
+            %dd.col-6.col-sm-9.small
+              - if gpg_key.expires
+                = DateTime.strptime(gpg_key.expires, '%s').strftime('%F')
+              - else
+                This key does not expire
+            %dt.col-6.col-sm-3 Key Size
+            %dd.col-6.col-sm-9.small
+              = gpg_key.size
+              bytes
+            %dt.col-6.col-sm-3 Algorithm type
+            %dd.col-6.col-sm-9.small= gpg_key.algorithm.upcase
+        - else
+          No GPG Key found
+      .col-12.mb-2.p-8
+        %h5
+          SSL Certificate
+          - if ssl_cert.present?
+            - if ssl_cert.origin != @project.name
+              %small
+                ( inherited from
+                = link_to project_signing_keys_path(ssl_cert.origin) do
+                  = ssl_cert.origin
+                \)
+            = link_to(download_project_signing_keys_path(project_name: @project.name, kind: :ssl), title: 'Download PEM Certificate') do
+              %i.fas.fa-download.text-primary
+        %hr
+        - if ssl_cert.present?
+          %dl.row
+            %dt.col-6.col-sm-3 Fingerprint
+            %dd.col-6.col-sm-9.font-monospace= ssl_cert.fingerprint
+            %dt.col-12.col-sm-3 Subject Name
+            %dd.col-12.col-sm-9.small= ssl_cert.subject
+            %dt.col-12.col-sm-3 Issuer Name
+            %dd.col-12.col-sm-9.small= ssl_cert.issuer
+            %dt.col-6.col-sm-3 Valid not before
+            %dd.col-6.col-sm-9.small
+              = DateTime.strptime(ssl_cert.begins, '%s').strftime('%F')
+            %dt.col-6.col-sm-3 Expires on
+            %dd.col-6.col-sm-9.small
+              = DateTime.strptime(ssl_cert.expires, '%s').strftime('%F')
+            %dt.col-6.col-sm-3 Algorithm type
+            %dd.col-6.col-sm-9.small= ssl_cert.algorithm.upcase
+            %dt.col-6.col-sm-3 Size
+            %dd.col-6.col-sm-9.small
+              = ssl_cert.size
+              bytes
+        - else
+          No SSL Certificate found

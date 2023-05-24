@@ -14,9 +14,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :destroy, :remove_path_from_target,
                                      :requests, :save, :monitor, :edit_comment,
                                      :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :clear_failed_comment, :pulse,
-                                     :keys_and_certificates]
-
+                                     :move_path, :clear_failed_comment, :pulse]
   before_action :set_project_by_id, only: :update
 
   before_action :load_project_info, only: :show
@@ -26,8 +24,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
                                             :autocomplete_repositories, :users, :subprojects, :new, :show,
                                             :buildresult, :requests, :monitor, :new_release_request,
-                                            :remove_target_request, :edit_comment, :edit_comment_form,
-                                            :keys_and_certificates]
+                                            :remove_target_request, :edit_comment, :edit_comment_form]
 
   def index
     respond_to do |format|
@@ -372,8 +369,6 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to project_show_path(@project), error: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
     end
   end
-
-  def keys_and_certificates; end
 
   private
 
