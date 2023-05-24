@@ -7863,4 +7863,4 @@ if (! -e "$projectsdir/_repoid") {
 }
 $datarepoid = readstr("$projectsdir/_repoid");
 
-BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);
+BSStdServer::server('src_server', \@ARGV, $conf, $aconf);
