@@ -230,4 +230,4 @@ my $conf = {
   'run' => \&run,
 };
 
-BSStdRunner::run('bs_clouduploadworker', \@ARGV, $conf);
+BSStdRunner::run('clouduploadworker', \@ARGV, $conf);
