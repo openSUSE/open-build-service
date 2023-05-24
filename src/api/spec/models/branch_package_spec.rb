@@ -8,17 +8,17 @@ RSpec.describe BranchPackage, vcr: true do
 
   describe 'new' do
     context 'with wrong arguments' do
-      it { expect { create(:branch_package, add_repositories_block: 'foo') }.to raise_error(BranchPackage::Errors::InvalidArgument) }
+      it { expect { create(:branch_package_base, add_repositories_block: 'foo') }.to raise_error(BranchPackage::Errors::InvalidArgument) }
     end
   end
 
   describe '#branch' do
-    let(:branch_package) { create(:branch_package, project: project.name, package: package.name) }
+    let(:branch_package) { create(:branch_package_base, project: project.name, package: package.name) }
     let!(:update_project) { create(:project, name: 'BaseDistro:Update') }
     let(:update_project_attrib) { create(:update_project_attrib, project: project, update_project: update_project) }
     let(:leap_project) { create(:project, name: 'openSUSE_Leap', url: 'http://remoteproject.com') }
     let(:apache) { create(:package, name: 'apache2', project: leap_project, url: 'http://remotepackage.com') }
-    let(:branch_apache_package) { create(:branch_package, project: leap_project.name, package: apache.name) }
+    let(:branch_apache_package) { create(:branch_package_base, project: leap_project.name, package: apache.name) }
     let(:dryrun_xml) do
       <<~XML
         <collection>
@@ -39,7 +39,7 @@ RSpec.describe BranchPackage, vcr: true do
     end
 
     context 'dryrun' do
-      let(:branch_package) { create(:branch_package, project: project.name, package: package.name, dryrun: true) }
+      let(:branch_package) { create(:branch_package_base, project: project.name, package: package.name, dryrun: true) }
 
       it { expect { branch_package.branch }.not_to(change(Package, :count)) }
 

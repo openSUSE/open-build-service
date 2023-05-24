@@ -92,7 +92,7 @@ module TestData
         create(:branch_package,
                attribute: 'OBS:Maintained',
                package: package_name,
-               update_project_attribute: 'OBS:UpdateProject').branch
+               update_project_attribute: 'OBS:UpdateProject')
       end
 
       # So far the project named `home:Iggy:branches:OBS_Maintained:cacti` is created with two `cacti.<update_project>` packages in it.
@@ -121,7 +121,7 @@ module TestData
                maintenance: 1,
                project: project_name,
                package: package_name,
-               target_project: target_project_name).branch
+               target_project: target_project_name)
       end
     end
 

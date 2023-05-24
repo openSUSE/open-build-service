@@ -85,7 +85,7 @@ RSpec.describe 'Requests_Submissions', js: true, vcr: true do
                project: source_project.name,
                package: source_package.name,
                target_project: source_project.name,
-               target_package: branched_package_name).branch
+               target_package: branched_package_name)
         Package.find_by(project_id: source_project.id, name: branched_package_name).save_file(filename: 'new_file', file: 'I am a new file')
       end
 
