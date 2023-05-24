@@ -362,16 +362,20 @@ sub triggerscmsyncrun {
 
   for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
     my $scmsync;
+    my $projectscmsync;
     if (@$ref[1] eq '_project') {
       my $proj = BSRevision::readproj_local(@$ref[0]);
       die("@$ref[0] is a remote project\n") if $proj->{'remoteurl'};
       $scmsync = $proj->{'scmsync'};
     } else {
       my $pack = BSRevision::readpack_local(@$ref[0], @$ref[1], 1);
-      $scmsync = $pack->{'scmsync'} if $pack;
+      if ($pack) {
+        $scmsync = $pack->{'scmsync'};
+        $projectscmsync = $pack->{'url'};
+      }
     }
     next unless $scmsync;
-    BSSrcServer::Service::runservice_obsscm($cgi, @$ref[0], @$ref[1], $scmsync);
+    BSSrcServer::Service::runservice_obsscm($cgi, @$ref[0], @$ref[1], $scmsync, $projectscmsync);
   }
 }
 
@@ -389,7 +393,7 @@ sub triggerservicerun {
   my $rev = getrev($projid, $packid);
   my $pack = BSRevision::readpack_local($projid, $packid, 1);
   if ($pack && $pack->{'scmsync'}) {
-    BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'});
+    BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'});
     return $BSStdServer::return_ok;
   }
   my $linkinfo = {};
@@ -2317,7 +2321,7 @@ sub putpackage {
       # scmsync changed, trigger a service run
       BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $pack->{'scmsync'});
       print "scmsync changed: trigger $projid/$packid\n";
-      eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}) };
+      eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'}) };
       warn($@) if $@;
     }
   } elsif (($oldpack || {})->{'scmsync'}) {
