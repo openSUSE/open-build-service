@@ -279,7 +279,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with patchinfo' do
       before do
         login admin_user
-        create(:patchinfo).create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
+        create(:patchinfo, project_name: apache_project.name, comment: 'Fake comment', force: false)
         get :show, params: { project: apache_project }
       end
 

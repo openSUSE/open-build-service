@@ -58,7 +58,7 @@ FactoryBot.define do
       after(:create) do |project, evaluator|
         new_package = create(:package, { project: project, name: evaluator.package_name }.compact)
         project.packages << new_package
-        create(:patchinfo).create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
+        create(:patchinfo, project_name: project.name, package_name: new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
       end
     end
 
@@ -89,7 +89,7 @@ FactoryBot.define do
             description: package_description
           }.compact)
           project.packages << new_package
-          create(:patchinfo).create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
+          create(:patchinfo, project_name: project.name, package_name: new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
         end
       end
     end
@@ -149,7 +149,7 @@ FactoryBot.define do
         if evaluator.create_patchinfo
           old_user = User.session
           User.session = evaluator.maintainer
-          create(:patchinfo).create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
+          create(:patchinfo, project_name: project.name, comment: 'Fake comment', force: true)
           User.session = old_user
         end
       end
