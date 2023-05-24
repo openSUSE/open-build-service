@@ -862,6 +862,11 @@ class BsRequest < ApplicationRecord
     bs_request_actions&.first&.target_project.to_s
   end
 
+  # It is considered an "incident request" if it has at least one maintenance_incident action
+  def maintenance_incident_request?
+    bs_request_actions.where(type: 'maintenance_incident').any?
+  end
+
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
