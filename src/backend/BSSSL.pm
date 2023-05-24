@@ -163,6 +163,7 @@ sub READLINE {
 sub READ {
   my ($sslr, undef, $len, $offset) = @_;
   my $buf = \$_[1];
+  $! = 0;
   my ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
   if ($rv && $rv < 0) {
     my $code = Net::SSLeay::get_error($sslr->[0], $rv);
@@ -179,7 +180,14 @@ sub READ {
 sub WRITE {
   my ($sslr, $buf, $len, $offset) = @_;
   return $len unless $len;
-  return Net::SSLeay::write($sslr->[0], substr($buf, $offset || 0, $len)) ? $len : undef;
+  $! = 0;
+  my $rv = Net::SSLeay::write($sslr->[0], substr($buf, $offset || 0, $len));
+  if ($rv <= 0) {
+    my $code = Net::SSLeay::get_error($sslr->[0], $rv);
+    $! = POSIX::EINTR if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
+    return -1;
+  }
+  return $rv;
 }
 
 sub FILENO {
