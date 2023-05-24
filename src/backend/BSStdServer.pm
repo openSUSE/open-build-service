@@ -148,21 +148,22 @@ my $configurationcheck = 0;
 sub periodic {
   my ($conf) = @_;
   my $rundir = $conf->{'rundir'};
-  if (-e "$rundir/$conf->{'name'}.exit") {
+  my $runname = $conf->{'runname'};
+  if (-e "$rundir/$runname.exit") {
     BSServer::dump_child_pids();
     BSServer::msg("$conf->{'name'} exiting...");
     unlink("$conf->{'ajaxsocketpath'}.lock") if $conf->{'ajaxsocketpath'};
-    unlink("$rundir/$conf->{'name'}.exit");
+    unlink("$rundir/$runname.exit");
     exit(0);
   }
-  if (-e "$rundir/$conf->{'name'}.restart") {
+  if (-e "$rundir/$runname.restart") {
     BSServer::dump_child_pids();
     BSServer::msg("$conf->{'name'} restarting...");
     if (system($0, "--test")) {
       BSServer::msg("$0 failed, aborting restart");
       return;
     }
-    unlink("$rundir/$conf->{'name'}.restart");
+    unlink("$rundir/$runname.restart");
     my $arg;
     my $sock = BSServer::getserversocket();
     # clear close-on-exec bit
@@ -356,7 +357,8 @@ sub server {
   }
 
   if ($args && @$args) {
-    my $rundir = ($conf ? $conf->{'rundir'} : undef) || $BSConfig::rundir || "$BSConfig::bsdir/run";
+    my $rundir = ($conf || $aconf || {})->{'rundir'} || $BSConfig::rundir || "$BSConfig::bsdir/run";
+    my $runname = ($conf || $aconf || {})->{'runnname'} || $name;
     if ($args->[0] eq '--test') {
       if ($conf) {
 	$conf->{'verifiers'} ||= $BSVerify::verifiers;
@@ -374,8 +376,8 @@ sub server {
 	exit 0;
       }
       print("exiting server...\n");
-      BSUtil::touch("$rundir/$name.exit");
-      BSUtil::waituntilgone("$rundir/$name.exit");
+      BSUtil::touch("$rundir/$runname.exit");
+      BSUtil::waituntilgone("$rundir/$runname.exit");
       exit 0;
     }
     if ($args->[0] eq '--restart' && @$args == 1) {
@@ -383,8 +385,8 @@ sub server {
 	die("server not running\n");
       }
       print("restarting server...\n");
-      BSUtil::touch("$rundir/$name.restart");
-      BSUtil::waituntilgone("$rundir/$name.restart");
+      BSUtil::touch("$rundir/$runname.restart");
+      BSUtil::waituntilgone("$rundir/$runname.restart");
       exit 0;
     }
     if ($args->[0] eq '--req') {
@@ -413,6 +415,7 @@ sub server {
     $conf->{'slowrequestlog2'} ||= "$BSConfig::logdir/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
     $conf->{'critlogfile'} ||= "$BSConfig::logdir/$name.crit.log";
     $conf->{'name'} = $name;
+    $conf->{'runname'} ||= $name;
     $conf->{'logfile'} = $logfile if $logfile;
     $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
     $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
@@ -438,6 +441,7 @@ sub server {
     $aconf->{'run'} ||= \&BSEvents::schedule;
     $aconf->{'slowrequestlog'} ||= "$BSConfig::logdir/${name}_ajax.slow.log" if $aconf->{'slowrequestthr'};
     $aconf->{'name'} = $name;
+    $aconf->{'runname'} ||= ($conf || {})->{'runname'} || $name;
     BSDispatch::compile($aconf);
   }
   if ($request) {
@@ -501,7 +505,7 @@ sub server {
       eval {
         $aconf->{'run'}->($aconf);
       };
-      writestr("$aconf->{'rundir'}/$name.AJAX.died", undef, $@);
+      writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
       BSUtil::diecritical("AJAX died: $@");
     }
   }
