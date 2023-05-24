@@ -8,7 +8,6 @@ class Token::Release < Token
     # uniq timestring for all targets
     time_now = Time.now.utc
 
-    # FIXME: Take repository and arch into account
     package_to_release = options[:package]
     if options[:targetproject].present? && options[:targetrepository].present? && options[:filter_source_repository].present?
       source_repository = Repository.find_by_project_and_name(options[:project].name, options[:filter_source_repository])
@@ -34,6 +33,7 @@ class Token::Release < Token
              comment: 'Releasing via trigger event' }
     opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
     opts[:filter_architecture] = options[:arch] if options[:arch].present?
+
     release_package(package_to_release,
                     target_repository,
                     package_to_release.release_target_name(target_repository, time_now),
@@ -46,6 +46,8 @@ class Token::Release < Token
 
     # releasing ...
     manual_release_targets.each do |release_target|
+      next if options[:filter_source_repository].present? && options[:filter_source_repository] == release_target.repository.name
+      release_target.repository.check_valid_release_target!(release_target.target_repository, opts[:filter_architecture])
       release(package_to_release, release_target.repository, release_target.target_repository, time_now, options)
     end
   end
