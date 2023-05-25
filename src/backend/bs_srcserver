@@ -1887,9 +1887,9 @@ sub getprojpack {
 	      $rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
 	      $rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
 	    }
-	    # KIWI Images don't build with local arch
-	    if ($type eq 'kiwi' && $imagetype ne 'product') {
-	      $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
+	    if ($arch eq 'local' && defined($BSConfig::localarch)) {
+	      # the local arch only builds kiwi products (and the special types above)
+	      $rinfo->{'error'} = 'excluded' unless $type eq 'kiwi' && $imagetype eq 'product';
 	    }
 	    if ($type eq 'kiwi' && $imagetype eq 'product') {
 	      # KIWI Products always build on the first repo arch
