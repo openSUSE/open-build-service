@@ -236,6 +236,7 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             object_kind: 'tag_push',
             after: '82b3d5ae55f7080f1e6022629cdb57bfae7cccc7',
             ref: 'refs/tags/release_abc',
+            project_id: 12_345,
             project: {
               http_url: 'https://gitlab.com/jane/doe.git',
               path_with_namespace: 'jane/doe'
@@ -253,7 +254,8 @@ RSpec.describe TriggerControllerService::SCMExtractor do
             target_branch: '82b3d5ae55f7080f1e6022629cdb57bfae7cccc7',
             path_with_namespace: 'jane/doe',
             ref: 'refs/tags/release_abc',
-            commit_sha: '82b3d5ae55f7080f1e6022629cdb57bfae7cccc7'
+            commit_sha: '82b3d5ae55f7080f1e6022629cdb57bfae7cccc7',
+            project_id: 12_345
           }
         end
 

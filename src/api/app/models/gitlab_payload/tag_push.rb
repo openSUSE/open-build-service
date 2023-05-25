@@ -12,7 +12,8 @@ class GitlabPayload::TagPush < GitlabPayload
       # We need this for SCMWebhookEventValidator#valid_push_event
       ref: webhook_payload[:ref],
       # We need this for Workflow::Step#branch_request_content_{github,gitlab}
-      commit_sha: webhook_payload[:after]
+      commit_sha: webhook_payload[:after],
+      project_id: webhook_payload[:project_id]
     )
   end
 end
