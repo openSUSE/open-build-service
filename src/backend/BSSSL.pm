@@ -60,6 +60,8 @@ sub newctx {
   }
   if ($opts{'verify_file'} || $opts{'verify_dir'}) {
     Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed\n");
+  } elsif (!defined($opts{'verify_file'}) && !defined($opts{'verify_dir'})) {
+    Net::SSLeay::CTX_set_default_verify_paths($ctx) || Net::SSLeay::die_now("CTX_set_default_verify_paths failed\n");
   }
   return $ctx;
 }
