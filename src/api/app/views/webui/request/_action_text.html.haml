@@ -29,16 +29,21 @@
           Delete #{project_or_package_text(action.target_project, action.target_package)}
         - when 'change_devel'
           Set #{project_or_package_text(action.source_project, action.source_package)}
+        - when 'maintenance_incident'
+          Incident #{action.source_package}
         - else
           = action.name
 
     -# delete and set_bugowner are actions on the target repo, so they don't need to mention where they are coming from
     - unless %w[delete set_bugowner].include?(action.type)
       %p.mb-0.mt-0.small
-        - if action.type == 'add_role'
+        - case action.type
+        - when 'add_role'
           Add #{action.person_name} as #{action.role} of #{project_or_package_text(action.target_project, action.target_package)}
-        - elsif action.type == 'change_devel'
+        - when 'change_devel'
           as development package of #{action.target_project}/#{action.target_package}
+        - when 'maintenance_incident'
+          from #{action.source_project} to #{action.target_project}
         - else
           from #{project_or_package_text(action.source_project, action.source_package)}
     - if details
