@@ -469,7 +469,7 @@ tained version of this package
 Additional Parameters:
   comment: description for the history
   # for set_flag command only:
-  arch: set_flag for given arch (optional)
+  arch: set_flag for given arch (optional) or just release this architecture (optional)
   flag: modify this flag (build/publish/..) for set_flag command
   repository: set_flag for given repository or release just this repository (optional)
   status: enable or disable for set_flag command

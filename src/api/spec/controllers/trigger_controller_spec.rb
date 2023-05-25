@@ -44,7 +44,7 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#release' do
     let(:target_project) { create(:project, name: 'target_project', maintainer: user) }
-    let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
+    let(:target_repository) { create(:repository, name: 'target_repository', project: target_project, architectures: ['x86_64']) }
     let(:release_target) { create(:release_target, repository: repository, target_repository: target_repository, trigger: 'manual') }
 
     context 'for inexistent project' do

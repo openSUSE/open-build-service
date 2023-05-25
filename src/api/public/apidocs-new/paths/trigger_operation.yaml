@@ -101,7 +101,7 @@ post:
     - in: query
       name: arch
       description: |
-        Architecture filter. Only used when the operation is 'rebuild'.
+        Architecture filter. Only used when the operation is 'rebuild' or 'release'.
 
         If it is present, restrict rebuilds of a package to a specific architecture.
       schema:
@@ -116,6 +116,68 @@ post:
           value: ppc64le
         x86_64:
           value: x86_64
+    - in: query
+      name: targetproject
+      description: |
+        Only used when the operation is 'release'.
+
+        Release binaries only to the provided target project. Only works in combination
+        with the `targetrepository` and `filter_source_repository` parameters.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        home:user1:
+          value: home:user1
+    - in: query
+      name: targetrepository
+      description: |
+        Only used when the operation is 'release'.
+
+        Release binaries only to the provided target repository. Only works in combination
+        with the `targetproject` and `filter_source_repository` parameters.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        openSUSE_Factory:
+          value: openSUSE_Factory
+        SLE_15_SP3:
+          value: SLE_15_SP3
+    - in: query
+      name: filter_source_repository
+      description: |
+        Only used when the operation is 'release'.
+
+        Release binaries only from the provided source repository.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        openSUSE_Factory:
+          value: openSUSE_Factory
+        SLE_15_SP3:
+          value: SLE_15_SP3
+    - in: query
+      name: multibuild_flavor
+      description: |
+        Only used when the operation is 'rebuild' or 'release'.
+
+        Trigger a 'rebuild' or 'release' operation for the specified multibuild flavor.
+      schema:
+        type: string
+      examples:
+        empty:
+          summary: '- Empty -'
+          value:
+        obs-server:obs-api-testsuite-rspec:
+          value: obs-server:obs-api-testsuite-rspec
   requestBody:
     description: Payload.
     content:

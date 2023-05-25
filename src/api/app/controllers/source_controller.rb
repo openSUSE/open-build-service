@@ -580,7 +580,7 @@ class SourceController < ApplicationController
       # inject as job
       ProjectDoProjectReleaseJob.perform_later(
         @project.id,
-        params.slice(:project, :targetproject, :targetreposiory, :repository, :setrelease, :user).permit!.to_h
+        params.slice(:project, :targetproject, :targetreposiory, :repository, :arch, :setrelease, :user).permit!.to_h
       )
       render_invoked
     end
@@ -1059,6 +1059,7 @@ class SourceController < ApplicationController
                           releasetarget.target_repository,
                           pkg.release_target_name(releasetarget.target_repository, time_now),
                           { filter_source_repository: repo,
+                            filter_architecture: params[:arch],
                             multibuild_container: multibuild_container,
                             setrelease: params[:setrelease],
                             manual: true,

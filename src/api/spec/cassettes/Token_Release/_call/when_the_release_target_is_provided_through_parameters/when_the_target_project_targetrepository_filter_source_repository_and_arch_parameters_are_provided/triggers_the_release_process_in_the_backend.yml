@@ -1,0 +1,500 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/Baz/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Baz">
+          <title>Nine Coaches Waiting</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Baz">
+          <title>Nine Coaches Waiting</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 25 May 2023 11:55:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Bar:Staging/_meta?user=user_11
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Bar:Staging">
+          <title>The Proper Study</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Bar:Staging">
+          <title>The Proper Study</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 25 May 2023 11:55:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Bar:Staging/bar_package/_meta?user=user_12
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="Bar:Staging">
+          <title>Françoise Sagan</title>
+          <description>Sit aliquid voluptate distinctio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFyX3BhY2thZ2UiIHByb2plY3Q9IkJhcjpTdGFnaW5nIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlNpdCBhbGlxdWlkIHZvbHVwdGF0ZSBkaXN0aW5jdGlvLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+  recorded_at: Thu, 25 May 2023 11:55:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Bar:Staging/bar_package/_meta?user=user_12
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="Bar:Staging">
+          <title>Françoise Sagan</title>
+          <description>Sit aliquid voluptate distinctio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFyX3BhY2thZ2UiIHByb2plY3Q9IkJhcjpTdGFnaW5nIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlNpdCBhbGlxdWlkIHZvbHVwdGF0ZSBkaXN0aW5jdGlvLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+  recorded_at: Thu, 25 May 2023 11:55:11 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/Baz?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Baz/bar_package/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="Baz">
+          <title>Françoise Sagan</title>
+          <description>Sit aliquid voluptate distinctio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFyX3BhY2thZ2UiIHByb2plY3Q9IkJheiI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5TaXQgYWxpcXVpZCB2b2x1cHRhdGUgZGlzdGluY3Rpby48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Baz/bar_package/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="Baz">
+          <title>Françoise Sagan</title>
+          <description>Sit aliquid voluptate distinctio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFyX3BhY2thZ2UiIHByb2plY3Q9IkJheiI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5TaXQgYWxpcXVpZCB2b2x1cHRhdGUgZGlzdGluY3Rpby48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Baz/bar_package?cmd=copy&comment=Release%20from%20Bar:Staging%20/%20bar_package&expand=1&noservice=1&opackage=bar_package&oproject=Bar:Staging&user=foo&withacceptinfo=1&withvrev=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '241'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1685015712</time>
+          <user>foo</user>
+          <comment>Release from Bar:Staging / bar_package</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Baz/bar_package/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="Baz">
+          <title>Françoise Sagan</title>
+          <description>Sit aliquid voluptate distinctio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFyX3BhY2thZ2UiIHByb2plY3Q9IkJheiI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5TaXQgYWxpcXVpZCB2b2x1cHRhdGUgZGlzdGluY3Rpby48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Baz/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Baz/bar_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="bar_package" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Baz/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Baz/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '267'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1d8a2e4dc4a21756443f913d1b25a99e">
+          <old project="Baz" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="Baz" package="bar_package" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/Baz?cmd=resumeproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Thu, 25 May 2023 11:55:12 GMT
+recorded_with: VCR 6.1.0
