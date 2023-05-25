@@ -867,6 +867,11 @@ class BsRequest < ApplicationRecord
     bs_request_actions.where(type: 'maintenance_incident').any?
   end
 
+  # It is considered a "release request" if it has at least one maintenance_release action
+  def maintenance_release_request?
+    bs_request_actions.where(type: 'maintenance_release').any?
+  end
+
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore

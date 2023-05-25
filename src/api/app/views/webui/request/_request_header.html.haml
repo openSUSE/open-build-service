@@ -56,6 +56,11 @@
       %li
         This is a
         %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Incident
+    -# Maintenance Release Request
+    - if bs_request.maintenance_release_request?
+      %li
+        This is a
+        %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Release
         request
   .mt-4
     -# action description, prev + dropdown select + next
