@@ -24,7 +24,7 @@
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
-  # FIXME: currently the bs_dispatcher makes assumptions on being in a
+  # FIXME: currently the dispatcher makes assumptions on being in a
   # properly set up working dir, e.g. with subdirs 'worker' and
   # 'build'.  Either that is cleaned up or this stays in, for the sake
   # of startproc and others being able to start a bs_srcserver without
@@ -52,6 +52,17 @@ use BSRedisnotify;
 use BSDispatcher::Constraints;
 
 use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $workersdir = "$BSConfig::bsdir/workers";
+my $jobsdir = "$BSConfig::bsdir/jobs";
+my $eventdir = "$BSConfig::bsdir/events";
+
+my $runname = 'bs_dispatch';
+# 4h build will add .5 to the load
+# 4h idle will half the load
+my $decay = log(.5)/(4*3600);
 
 sub parse_options {
   my %opts;
@@ -134,8 +145,6 @@ if ($options->{'testconstraints'}) {
     exit 1;
 }
 
-my $bsdir = $BSConfig::bsdir || "/srv/obs";
-
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
 # Open logfile if requested
@@ -162,17 +171,6 @@ for my $harch (keys %BSCando::cando) {
     }
   }
 }
-
-# 4h build will add .5 to the load
-# 4h idle will half the load
-my $decay = log(.5)/(4*3600);
-
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
-my $workersdir = "$BSConfig::bsdir/workers";
-my $jobsdir = "$BSConfig::bsdir/jobs";
-my $eventdir = "$BSConfig::bsdir/events";
-
-my $reporoot = "$BSConfig::bsdir/build";
 
 sub getcodemd5 {
   my ($dir, $cache) = @_;
@@ -668,43 +666,43 @@ sub forwardevents {
 }
 
 sub filechecks {
-  if (-e "$rundir/bs_dispatch.exit") {
+  if (-e "$rundir/$runname.exit") {
     my $state = {
       'infocache' => \%infocache,
       'badhost' => \%badhost,
       'newestsrcchange' => \%newestsrcchange,
     };
-    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    BSUtil::store("$rundir/$runname.state.new", "$rundir/$runname.state", $state);
     close(RUNLOCK);
-    unlink("$rundir/bs_dispatch.exit");
+    unlink("$rundir/$runname.exit");
     BSUtil::printlog("exiting...");
     exit(0);
   }
-  if (-e "$rundir/bs_dispatch.restart") {
+  if (-e "$rundir/$runname.restart") {
     my $state = {
       'infocache' => \%infocache,
       'badhost' => \%badhost,
       'newestsrcchange' => \%newestsrcchange,
     };
-    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    BSUtil::store("$rundir/$runname.state.new", "$rundir/$runname.state", $state);
     close(RUNLOCK);
-    unlink("$rundir/bs_dispatch.restart");
+    unlink("$rundir/$runname.restart");
     BSUtil::printlog("restarting...");
     exec($0, @ARGV);
     die("$0: $!\n");
   }
-  if (-e "$rundir/bs_dispatch.dumpstate") {
+  if (-e "$rundir/$runname.dumpstate") {
     my $state = {
       'infocache' => \%infocache,
       'badhost' => \%badhost,
       'newestsrcchange' => \%newestsrcchange,
     };
-    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
-    unlink("$rundir/bs_dispatch.dumpstate");
-    BSUtil::printlog("dumped state to $rundir/bs_dispatch.state ...");
+    BSUtil::store("$rundir/$runname.state.new", "$rundir/$runname.state", $state);
+    unlink("$rundir/$runname.dumpstate");
+    BSUtil::printlog("dumped state to $rundir/$runname.state ...");
   }
-  if (-e "$rundir/bs_dispatch.dropbadhosts") {
-    unlink("$rundir/bs_dispatch.dropbadhosts");
+  if (-e "$rundir/$runname.dropbadhosts") {
+    unlink("$rundir/$runname.dropbadhosts");
     BSUtil::printlog("removing all badhost entries...");
     %badhost = ();
     $badhostchanged = 1;
@@ -791,23 +789,23 @@ sub checkconstraints {
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'dispatcher', "$rundir/bs_dispatch");
+BSUtil::restartexit($options, 'dispatcher', "$rundir/$runname");
 BSUtil::printlog("starting build service dispatcher");
 
 # get lock
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_dispatch.lock") || die("$rundir/bs_dispatch.lock: $!\n");
+open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
-utime undef, undef, "$rundir/bs_dispatch.lock";
+utime undef, undef, "$rundir/$runname.lock";
 
 my $dispatchprios;
 my $dispatchprios_project;
 my $dispatchprios_id = '';
 
-if (-s "$rundir/bs_dispatch.state") {
+if (-s "$rundir/$runname.state") {
   BSUtil::printlog("reading old state...");
-  my $state = BSUtil::retrieve("$rundir/bs_dispatch.state", 2);
-  unlink("$rundir/bs_dispatch.state");
+  my $state = BSUtil::retrieve("$rundir/$runname.state", 2);
+  unlink("$rundir/$runname.state");
   %infocache = %{$state->{'infocache'}} if $state && $state->{'infocache'};
   %badhost = %{$state->{'badhost'}} if $state && $state->{'badhost'};
   $badhostchanged = 1;

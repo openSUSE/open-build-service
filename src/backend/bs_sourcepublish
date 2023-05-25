@@ -247,6 +247,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_sourcepublish',
   'run' => \&run,
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,
@@ -254,4 +255,4 @@ my $conf = {
   'inprogress' => 1,
 };
 
-BSStdRunner::run('bs_sourcepublish', \@ARGV, $conf);
+BSStdRunner::run('sourcepublish', \@ARGV, $conf);

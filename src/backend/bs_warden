@@ -48,6 +48,8 @@ my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $workersdir = "$BSConfig::bsdir/workers";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 
+my $runname = 'bs_warden';
+
 sub parse_options {
   my %opts;
   if (!Getopt::Long::GetOptionsFromArray(\@_, \%opts,
@@ -73,6 +75,22 @@ Options:
 ";
 }
 
+sub check_exitrestart {
+  if (-e "$rundir/$runname.exit") {
+    close(RUNLOCK);
+    unlink("$rundir/$runname.exit");
+    BSUtil::printlog("exiting...");
+    exit(0);
+  }
+  if (-e "$rundir/$runname.restart") {
+    close(RUNLOCK);
+    unlink("$rundir/$runname.restart");
+    BSUtil::printlog("restarting...");
+    exec($0, @ARGV);
+    die("$0: $!\n");
+  }
+}
+
 sub updateredisjobstatus {
   my ($arch, $job, $info, $details) = @_;
   return unless $BSConfig::redisserver;
@@ -90,14 +108,14 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'warden', "$rundir/bs_warden");
+BSUtil::restartexit($options, 'warden', "$rundir/$runname");
 BSUtil::printlog("starting build service worker warden");
 
 # get lock
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_warden.lock") || die("$rundir/bs_warden.lock: $!\n");
+open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker warden is already running!\n");
-utime undef, undef, "$rundir/bs_warden.lock";
+utime undef, undef, "$rundir/$runname.lock";
 
 my %building;
 my $nextorphan = 0;
@@ -118,8 +136,8 @@ while (1) {
     my $lastcheck = $b->{'lastcheck'};
     $lastcheck += rand(60 * 60);
     next if $lastcheck > $now;
-    last if -e "$rundir/bs_warden.restart";
-    last if -e "$rundir/bs_warden.exit";
+    last if -e "$rundir/$runname.restart";
+    last if -e "$rundir/$runname.exit";
     my $worker = readxml("$workersdir/building/$wname", $BSXML::worker, 1);
     next unless $worker && $worker->{'job'} && $worker->{'arch'};
     my $job = $worker->{'job'};
@@ -285,19 +303,7 @@ while (1) {
 
   #print "sleeping\n";
   for my $i (qw{1 2 3 4 5}) {
-    if (-e "$rundir/bs_warden.exit") {
-      close(RUNLOCK);
-      unlink("$rundir/bs_warden.exit");
-      BSUtil::printlog("exiting...");
-      exit(0);
-    }
-    if (-e "$rundir/bs_warden.restart") {
-      close(RUNLOCK);
-      unlink("$rundir/bs_warden.restart");
-      BSUtil::printlog("restarting...");
-      exec($0, @ARGV);
-      die("$0: $!\n");
-    }
+    check_exitrestart();
     sleep(1);
   }
 }

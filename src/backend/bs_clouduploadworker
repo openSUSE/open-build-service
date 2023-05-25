@@ -222,6 +222,7 @@ sub run {
 }
 
 my $conf = {
+  'runname' => 'bs_clouduploadworker',
   'eventdir' => $myeventdir,
   'dispatches' => [],
   'maxchild' => $maxchild,
@@ -229,4 +230,4 @@ my $conf = {
   'run' => \&run,
 };
 
-BSStdRunner::run('bs_clouduploadworker', \@ARGV, $conf);
+BSStdRunner::run('clouduploadworker', \@ARGV, $conf);

@@ -4554,6 +4554,7 @@ my $dispatches_ajax = [
 ];
 
 my $conf = {
+  'runname' => 'bs_repserver',
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,
@@ -4583,4 +4584,4 @@ if ($BSConfig::workerreposerver) {
 
 # create bsdir before root privileges are dropped
 BSUtil::mkdir_p_chown($BSConfig::bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
-BSStdServer::server('bs_repserver', \@ARGV, $conf, $aconf);
+BSStdServer::server('rep_server', \@ARGV, $conf, $aconf);

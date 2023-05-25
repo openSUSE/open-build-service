@@ -46,6 +46,7 @@ my $eventdir = "$bsdir/events";
 
 
 my $myeventdir = "$eventdir/redis";
+my $runname = 'bs_redis';
 
 sub parse_options {
   my %opts;
@@ -73,15 +74,15 @@ Options:
 }
 
 sub check_exitrestart {
-  if (-e "$rundir/bs_redis.exit") {
+  if (-e "$rundir/$runname.exit") {
     close(RUNLOCK);
-    unlink("$rundir/bs_redis.exit");
+    unlink("$rundir/$runname.exit");
     BSUtil::printlog("exiting...");
     exit(0);
   }
-  if (-e "$rundir/bs_redis.restart") {
+  if (-e "$rundir/$runname.restart") {
     close(RUNLOCK);
-    unlink("$rundir/bs_redis.restart");
+    unlink("$rundir/$runname.restart");
     BSUtil::printlog("restarting...");
     exec($0, @ARGV);
     die("$0: $!\n");
@@ -235,16 +236,16 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'redis', "$rundir/bs_redis", "$myeventdir/.ping");
+BSUtil::restartexit($options, 'redis', "$rundir/$runname", "$myeventdir/.ping");
 BSUtil::printlog("starting build service redis forwarder");
 
 my $critlogfile = "$BSConfig::logdir/redis.crit.log";
 BSUtil::setcritlogger(sub { critlogger($critlogfile, $_[0]) });
 
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_redis.lock") || die("$rundir/bs_redis.lock: $!\n");
+open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("redis is already running!\n");
-utime undef, undef, "$rundir/bs_redis.lock";
+utime undef, undef, "$rundir/$runname.lock";
 
 mkdir_p($myeventdir);
 if (! -p "$myeventdir/.ping") {

@@ -335,6 +335,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_service',
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,
@@ -343,4 +344,4 @@ my $conf = {
 };
 %$conf = (%$conf, %{$BSConfig::serviceserver_extraconf}) if $BSConfig::serviceserver_extraconf;
 
-BSStdServer::server('bs_service', \@ARGV, $conf);
+BSStdServer::server('src_service', \@ARGV, $conf);

@@ -191,6 +191,7 @@ my $dispatches = [
 ];
 
 my $conf = {
+  'runname' => 'bs_servicedispatch',
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,
   'maxchild' => $maxchild,
@@ -199,4 +200,4 @@ my $conf = {
 };
 $conf->{'limitinprogress'} = $BSConfig::servicedispatch_limitinprogress if $BSConfig::servicedispatch_limitinprogress;
 
-BSStdRunner::run('bs_servicedispatch', \@ARGV, $conf);
+BSStdRunner::run('servicedispatch', \@ARGV, $conf);

@@ -117,11 +117,13 @@ if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
   shift @ARGV;
 }
 
-my $_myarch = $ARGV[0] || 'i586';
-
+my $_myarch = $ARGV[0];
+die("Usage: bs_sched [--exit|--stop|--restart|--status] <arch>\n") unless $_myarch;
 if (!$BSCando::knownarch{$_myarch}) {
   die("Architecture '$_myarch' is unknown, please adapt BSCando.pm\n");
 }
+my $_runname = "bs_sched.$_myarch";
+
 
 ##########################################################################
 
@@ -350,11 +352,11 @@ $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 
 if ($testmode && $testmode eq 'status') {
-  if (! -e "$_rundir/bs_sched.$_myarch.lock") {
+  if (! -e "$_rundir/$_runname.lock") {
     print("Scheduler is not running for $_myarch.\n");
     exit(1);
   }
-  my $r = BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock");
+  my $r = BSUtil::lockcheck('>>', "$_rundir/$_runname.lock");
   if ($r < 0) {
     print("Cannot determine status of scheduler for $_myarch.\n");
     exit(2);
@@ -366,7 +368,7 @@ if ($testmode && $testmode eq 'status') {
   print("Scheduler is not running for $_myarch.\n");
   exit(1);
 } elsif ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
-  if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
+  if (!(-e "$_rundir/$_runname.lock") || BSUtil::lockcheck('>>', "$_rundir/$_runname.lock")) {
     die("scheduler is not running for $_myarch.\n") if $testmode eq 'restart';
     print("scheduler is not running for $_myarch.\n");
     exit(0);
@@ -386,7 +388,7 @@ if ($testmode && $testmode eq 'status') {
   if ($testmode eq 'exit') {
     # scheduler saw the event, wait until the process is gone
     local *F;
-    BSUtil::lockopen(\*F, '>>', "$_rundir/bs_sched.$_myarch.lock", 1);
+    BSUtil::lockopen(\*F, '>>', "$_rundir/$_runname.lock", 1);
     close F;
   }
   exit(0);
@@ -395,9 +397,9 @@ if ($testmode && $testmode eq 'status') {
 # get lock
 mkdir_p($_rundir);
 if (!$testprojid) {
-  open(RUNLOCK, '>>', "$_rundir/bs_sched.$_myarch.lock") || die("$_rundir/bs_sched.$_myarch.lock: $!\n");
+  open(RUNLOCK, '>>', "$_rundir/$_runname.lock") || die("$_rundir/$_runname.lock: $!\n");
   flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $_myarch!\n");
-  utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
+  utime undef, undef, "$_rundir/$_runname.lock";
 }
 
 # print welcome message
@@ -417,7 +419,6 @@ if (!-p "$_myeventdir/.ping") {
 }
 sysopen(PING, "$_myeventdir/.ping", POSIX::O_RDWR) || die("$_myeventdir/.ping: $!");
 fcntl(PING, F_SETFL, POSIX::O_NONBLOCK);
-
 
 
 # create global context
@@ -563,10 +564,10 @@ $BSSched::ProjPacks::testprojid = $testprojid if $testprojid;
 BSUtil::setcritlogger(sub { critlogger($gctx, $_[0]) });
 
 # read old state if present
-if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
+if (!$testprojid && -s "$_rundir/$_runname.state") {
   print "reading old state...\n";
-  my $schedstate = BSUtil::retrieve("$_rundir/bs_sched.$_myarch.state", 2);
-  unlink("$_rundir/bs_sched.$_myarch.state");
+  my $schedstate = BSUtil::retrieve("$_rundir/$_runname.state", 2);
+  unlink("$_rundir/$_runname.state");
   if ($schedstate) {
     # just for testing...
     print "  - $_\n" for sort keys %$schedstate;
@@ -790,7 +791,7 @@ if ($BSConfig::enable_download_on_demand) {
 
 BSSched::BuildJob::init_ourjobs($gctx);
 
-unlink("$_rundir/bs_sched.$_myarch.dead");	# alive and kicking
+unlink("$_rundir/$_runname.dead");	# alive and kicking
 
 if (@{$gctx->{'lookat_low'}}) {
   %{$gctx->{'lookat_next'}} = map {$_ => 1} @{$gctx->{'lookat_low'}};
