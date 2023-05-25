@@ -174,6 +174,11 @@ module Webui::RequestHelper
                         source_container: project_or_package_link(source_project_hash),
                         target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
                       }
+                    when :maintenance_release
+                      'Maintenance release %{source_container} to %{target_container}' % {
+                        source_container: project_or_package_link(source_project_hash),
+                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
+                      }
                     else
                       description
                     end
