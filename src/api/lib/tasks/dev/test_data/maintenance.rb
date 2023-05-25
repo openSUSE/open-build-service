@@ -134,6 +134,39 @@ module TestData
       create(:patchinfo, project_name: project, package_name: 'patchinfo', comment: comment)
     end
 
+    def create_request_with_maintenance_release_actions(source_project_name:, package_names:, target_project_names:)
+      # Common users like Iggy don't have permission to modify openSUSE:Maintenance:0
+      admin = User.get_default_admin
+
+      bs_request_actions = []
+      incident_project_id = source_project_name.split(':').last
+
+      admin.run_as do
+        target_project_names.each do |target_project_name|
+          package_names.each do |package_name|
+            bs_request_actions << create(:bs_request_action_maintenance_release,
+                                         source_project: source_project_name,
+                                         source_package: "#{package_name}.#{target_project_name.tr(':', '_')}", # i.e. 'cacti.openSUSE_Leap_15.4_Update'
+                                         target_project: target_project_name,
+                                         target_package: "#{package_name}.#{incident_project_id}")
+          end
+          bs_request_actions << create(:bs_request_action_maintenance_release,
+                                       source_project: source_project_name,
+                                       source_package: 'patchinfo',
+                                       target_project: target_project_name,
+                                       target_package: "patchinfo.#{incident_project_id}")
+        end
+      end
+
+      bs_request = create(:bs_request_with_maintenance_release_action,
+                          creator: admin,
+                          description: "Request with #{bs_request_actions.size} release actions",
+                          bs_request_actions: bs_request_actions)
+
+      puts "* Request #{bs_request.number} with #{bs_request_actions.size} maintenance release actions has been created."
+      bs_request
+    end
+
     def create_maintenance_setup
       maintained_project1 = create_maintained_project('openSUSE:Leap:15.4')
       maintained_project2 = create_maintained_project('openSUSE:Backports:SLE-15-SP3')
@@ -183,6 +216,11 @@ module TestData
                                            source_package_names: ['apache2'],
                                            target_releaseproject_names: [update_project1.name],
                                            patchinfo: false)
+
+      # Create maintenance release request that asks for releasing the changes on openSUSE:Maintenance:0 to openSUSE:*:Update.
+      create_request_with_maintenance_release_actions(source_project_name: 'openSUSE:Maintenance:0',
+                                                      package_names: ['cacti', 'cacti-spine'],
+                                                      target_project_names: [update_project1.name, update_project2.name])
     end
   end
 end
