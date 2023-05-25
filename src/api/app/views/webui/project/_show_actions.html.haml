@@ -15,8 +15,6 @@
   - elsif User.session
     = render partial: 'webui/project/show_actions/request_role_addition_and_deletion', locals: { project: project }
 
-  = render partial: 'webui/project/show_actions/gpg_key_ssl_certificate', locals: { project: project }
-
   - if User.session
     %li.nav-item
       = link_to(image_templates_path, class: 'nav-link', title: 'New Image') do
