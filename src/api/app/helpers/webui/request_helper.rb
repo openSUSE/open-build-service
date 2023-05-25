@@ -117,64 +117,69 @@ module Webui::RequestHelper
   def request_action_header(action, creator)
     source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
 
-    case action[:type]
-    when :submit
-      'Submit %{source_container} to %{target_container}' % {
-        source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
-    when :delete
-      target_repository = "repository #{link_to(action[:trepo], repositories_path(project: action[:tprj], repository: action[:trepo]))} for " if action[:trepo]
+    description = case action[:type]
+                  when :submit
+                    'Submit %{source_container} to %{target_container}' % {
+                      source_container: project_or_package_link(source_project_hash),
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  when :delete
+                    target_repository = "repository #{link_to(action[:trepo], repositories_path(project: action[:tprj], repository: action[:trepo]))} for " if action[:trepo]
 
-      'Delete %{target_repository}%{target_container}' % {
-        target_repository: target_repository,
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
-    when :add_role, :set_bugowner
-      '%{creator} wants %{requester} to %{task} for %{target_container}' % {
-        creator: user_with_realname_and_icon(creator),
-        requester: requester_str(creator, action[:user], action[:group]),
-        task: creator_intentions(action[:role]),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
-    when :change_devel
-      # TODO: leave only the content of the if part when request_show_redesign is rolled out.
-      if Flipper.enabled?(:request_show_redesign, User.session)
-        'Set %{source_container} to be devel project/package of %{target_container}' % {
-          source_container: project_or_package_link(source_project_hash),
-          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-        }
-      else
-        'Set the devel project to %{source_container} for %{target_container}' % {
-          source_container: project_or_package_link(source_project_hash),
-          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-        }
-      end
-    when :maintenance_incident
-      source_project_hash.update(homeproject: creator)
+                    'Delete %{target_repository}%{target_container}' % {
+                      target_repository: target_repository,
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  when :add_role, :set_bugowner
+                    '%{creator} wants %{requester} to %{task} for %{target_container}' % {
+                      creator: user_with_realname_and_icon(creator),
+                      requester: requester_str(creator, action[:user], action[:group]),
+                      task: creator_intentions(action[:role]),
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  when :change_devel
+                    'Set the devel project to %{source_container} for %{target_container}' % {
+                      source_container: project_or_package_link(source_project_hash),
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  when :maintenance_incident
+                    source_project_hash.update(homeproject: creator)
+                    'Submit update from %{source_container} to %{target_container}' % {
+                      source_container: project_or_package_link(source_project_hash),
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  when :maintenance_release
+                    'Maintenance release %{source_container} to %{target_container}' % {
+                      source_container: project_or_package_link(source_project_hash),
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  when :release
+                    'Release %{source_container} to %{target_container}' % {
+                      source_container: project_or_package_link(source_project_hash),
+                      target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                    }
+                  end
 
-      if Flipper.enabled?(:request_show_redesign, User.session)
-        'Submit update from %{source_container} to %{target_container}' % {
-          source_container: project_or_package_link(source_project_hash),
-          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
-        }
-      else
-        'Submit update from %{source_container} to %{target_container}' % {
-          source_container: project_or_package_link(source_project_hash),
-          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-        }
-      end
-    when :maintenance_release
-      'Maintenance release %{source_container} to %{target_container}' % {
-        source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
-    when :release
-      'Release %{source_container} to %{target_container}' % {
-        source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
-    end.html_safe
+    # TODO: merge these extra conditions when request_show_redesign is rolled out.
+    if Flipper.enabled?(:request_show_redesign, User.session)
+      description = case action[:type]
+                    when :change_devel
+                      'Set %{source_container} to be devel project/package of %{target_container}' % {
+                        source_container: project_or_package_link(source_project_hash),
+                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                      }
+                    when :maintenance_incident
+                      source_project_hash.update(homeproject: creator)
+                      'Submit update from %{source_container} to %{target_container}' % {
+                        source_container: project_or_package_link(source_project_hash),
+                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
+                      }
+                    else
+                      description
+                    end
+    end
+
+    description.html_safe
   end
   # rubocop:enable Style/FormatString
 
