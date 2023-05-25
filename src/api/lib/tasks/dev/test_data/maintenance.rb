@@ -49,43 +49,6 @@ module TestData
              commit_user: admin)
     end
 
-    def create_request_with_incident_actions(source_project_name:, source_package_names:, target_project_name:, target_releaseproject_names:, patchinfo: false)
-      iggy = User.find_by(login: 'Iggy')
-      bs_request_actions = []
-
-      iggy.run_as do
-        source_package_names.each do |source_package_name|
-          target_releaseproject_names.each do |target_releaseproject_name|
-            # TODO: find a better way to find out if the request comes from a branched project or and official project
-            # i.e. 'cacti.openSUSE_Leap_15.4_Update'
-            package_name = source_package_name
-            package_name += ".#{target_releaseproject_name.tr(':', '_')}" if source_project_name.starts_with?('home:')
-
-            bs_request_actions << create(:bs_request_action_maintenance_incident,
-                                         source_project: source_project_name,
-                                         source_package: package_name,
-                                         target_project: target_project_name,
-                                         target_releaseproject: target_releaseproject_name)
-          end
-        end
-
-        if patchinfo
-          bs_request_actions << create(:bs_request_action_maintenance_incident,
-                                       source_project: source_project_name,
-                                       source_package: 'patchinfo',
-                                       target_project: target_project_name)
-        end
-      end
-
-      bs_request = create(:bs_request_with_maintenance_incident_action,
-                          creator: iggy,
-                          description: "Request with #{bs_request_actions.size} incident actions",
-                          bs_request_actions: bs_request_actions)
-
-      puts "* Request #{bs_request.number} with #{bs_request_actions.size} maintenance incident actions has been created."
-      bs_request
-    end
-
     def mimic_mbranch(package_name)
       iggy = User.find_by(login: 'Iggy')
 
@@ -150,6 +113,8 @@ module TestData
     end
 
     def create_maintenance_setup
+      iggy = User.find_by(login: 'Iggy')
+
       maintained_project1 = create_maintained_project('openSUSE:Leap:15.4')
       maintained_project2 = create_maintained_project('openSUSE:Backports:SLE-15-SP3')
 
@@ -161,11 +126,16 @@ module TestData
       # Create the first incident request (one action; not accepted; no patchinfo)
       update_project_branch = mimic_mbranch('bash')
       add_changes_to_update_project_branch(update_project_branch)
-      create_request_with_incident_actions(source_project_name: update_project_branch.name,
-                                           target_project_name: maintenance_project,
-                                           source_package_names: ['bash'],
-                                           target_releaseproject_names: [update_project1.name],
-                                           patchinfo: false)
+
+      create(:bs_request_with_maintenance_incident_actions,
+             creator: iggy,
+             description: 'Request with incident actions',
+             source_package_names: ['bash'],
+             target_releaseproject_names: [update_project1.name],
+             source_project_name: update_project_branch.name,
+             target_project_name: maintenance_project).tap do |bs_request|
+        puts "* Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance incident actions has been created."
+      end
 
       update_project_branch = mimic_mbranch('cacti')
       mimic_branch_maintenance(project_name: update_project1.name, package_name: 'cacti-spine', target_project_name: update_project_branch.name)
@@ -174,30 +144,45 @@ module TestData
       mimic_patchinfo(update_project_branch.name)
 
       # Create the second incident request (many actions; not accepted; with patchinfo)
-      create_request_with_incident_actions(source_project_name: update_project_branch.name,
-                                           target_project_name: maintenance_project,
-                                           source_package_names: ['cacti', 'cacti-spine'],
-                                           target_releaseproject_names: [update_project1.name, update_project2.name],
-                                           patchinfo: true)
+      create(:bs_request_with_maintenance_incident_actions,
+             :with_patchinfo,
+             creator: iggy,
+             description: 'Request with incident actions',
+             source_package_names: ['cacti', 'cacti-spine'],
+             target_releaseproject_names: [update_project1.name, update_project2.name],
+             source_project_name: update_project_branch.name,
+             target_project_name: maintenance_project).tap do |bs_request|
+        puts "* Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance incident actions has been created."
+      end
 
       # Create the third incident request (many actions; with patchinfo)
-      bs_request = create_request_with_incident_actions(source_project_name: update_project_branch.name,
-                                                        target_project_name: maintenance_project,
-                                                        source_package_names: ['cacti', 'cacti-spine'],
-                                                        target_releaseproject_names: [update_project1.name, update_project2.name],
-                                                        patchinfo: true)
-      # Accept the last incident request
-      admin = User.get_default_admin
-      User.session = admin
-      bs_request.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'Accepted by admin')
+      create(:bs_request_with_maintenance_incident_actions,
+             :with_patchinfo,
+             creator: iggy,
+             description: 'Request with incident actions',
+             source_package_names: ['cacti', 'cacti-spine'],
+             target_releaseproject_names: [update_project1.name, update_project2.name],
+             source_project_name: update_project_branch.name,
+             target_project_name: maintenance_project).tap do |bs_request|
+        puts "* Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance incident actions has been created."
+        # Accept the last incident request
+        admin = User.get_default_admin
+        admin.run_as do
+          bs_request.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'Accepted by admin')
+        end
+      end
 
       # Open a request from a package that is not branched, but developed on an "official" project.
       # Simulate `osc maintenancerequest servers apache2 openSUSE:Leap:15.4:Update`
-      create_request_with_incident_actions(source_project_name: 'servers',
-                                           target_project_name: maintenance_project.name,
-                                           source_package_names: ['apache2'],
-                                           target_releaseproject_names: [update_project1.name],
-                                           patchinfo: false)
+      create(:bs_request_with_maintenance_incident_actions,
+             creator: iggy,
+             description: 'Request with incident actions',
+             source_package_names: ['apache2'],
+             target_releaseproject_names: [update_project1.name],
+             source_project_name: 'servers',
+             target_project_name: maintenance_project.name).tap do |bs_request|
+        puts "* Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance incident actions has been created."
+      end
 
       # Create maintenance release request that asks for releasing the changes on openSUSE:Maintenance:0 to openSUSE:*:Update.
       create_request_with_maintenance_release_actions(source_project_name: 'openSUSE:Maintenance:0',

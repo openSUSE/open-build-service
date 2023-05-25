@@ -331,10 +331,10 @@ RSpec.describe Project, vcr: true do
       end
 
       let!(:incident) do
-        create(:bs_request_with_maintenance_incident_action, creator: admin_user, target_project: project, source_package: source_package)
+        create(:bs_request_with_maintenance_incident_actions, creator: admin_user, target_project: project, source_package: source_package)
       end
       let(:accepted_incident) do
-        create(:bs_request_with_maintenance_incident_action, creator: admin_user, target_package: package, source_package: source_package)
+        create(:bs_request_with_maintenance_incident_actions, creator: admin_user, target_package: package, source_package: source_package)
       end
 
       let!(:release) do
