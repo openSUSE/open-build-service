@@ -160,7 +160,7 @@ FactoryBot.define do
       end
     end
 
-    factory :bs_request_with_maintenance_release_action do
+    factory :bs_request_with_maintenance_release_actions do
       type { :maintenance_release }
     end
 

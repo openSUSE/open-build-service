@@ -338,10 +338,10 @@ RSpec.describe Project, vcr: true do
       end
 
       let!(:release) do
-        create(:bs_request_with_maintenance_release_action, creator: admin_user, target_package: package, source_package: source_package)
+        create(:bs_request_with_maintenance_release_actions, creator: admin_user, target_package: package, source_package: source_package)
       end
       let!(:other_release) do
-        create(:bs_request_with_maintenance_release_action, creator: admin_user, target_package: package, source_package: source_package)
+        create(:bs_request_with_maintenance_release_actions, creator: admin_user, target_package: package, source_package: source_package)
       end
 
       before do

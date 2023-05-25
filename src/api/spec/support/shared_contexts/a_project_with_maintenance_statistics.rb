@@ -10,7 +10,7 @@ RSpec.shared_context 'a project with maintenance statistics' do
   end
   let!(:bs_request) do
     travel_to(9.days.ago) do
-      create(:bs_request_with_maintenance_release_action,
+      create(:bs_request_with_maintenance_release_actions,
              source_project: project,
              state: :review)
     end

@@ -158,7 +158,7 @@ module TestData
         end
       end
 
-      bs_request = create(:bs_request_with_maintenance_release_action,
+      bs_request = create(:bs_request_with_maintenance_release_actions,
                           creator: admin,
                           description: "Request with #{bs_request_actions.size} release actions",
                           bs_request_actions: bs_request_actions)
