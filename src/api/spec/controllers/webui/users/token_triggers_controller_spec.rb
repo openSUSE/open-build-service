@@ -66,7 +66,7 @@ RSpec.describe Webui::Users::TokenTriggersController, vcr: true do
 
     context 'release token' do
       let(:target_project) { create(:project, name: 'target_project', maintainer: token_user) }
-      let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
+      let(:target_repository) { create(:repository, name: 'target_repository', project: target_project, architectures: ['x86_64']) }
       let(:release_target) { create(:release_target, repository: repository, target_repository: target_repository, trigger: 'manual') }
 
       context 'when token is valid and associated package exist' do
