@@ -22,6 +22,8 @@ AllCops:
     rubocop-minitest: false
     # We lint our rails code with the setup in src/api/.rubocop.yml
     rubocop-rails: false
+    # We don't use factories in dist/t/spec
+    rubocop-factory_bot: false
 
 #################### Layout ###########################
 
