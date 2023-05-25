@@ -160,8 +160,40 @@ FactoryBot.define do
       end
     end
 
-    factory :bs_request_with_maintenance_release_action do
+    factory :bs_request_with_maintenance_release_actions do
       type { :maintenance_release }
+
+      transient do
+        source_project_name { '' }
+        package_names { [] }
+        target_project_names { [] }
+      end
+
+      callback(:before_create) do |instance, evaluator|
+        actions = []
+        incident_project_id = evaluator.source_project_name.split(':').last
+
+        evaluator.creator.run_as do
+          evaluator.target_project_names.each do |target_project_name|
+            evaluator.package_names.each do |package_name|
+              actions << create(:bs_request_action_maintenance_release,
+                                bs_request: instance,
+                                source_project: evaluator.source_project_name,
+                                source_package: "#{package_name}.#{target_project_name.tr(':', '_')}", # i.e. 'cacti.openSUSE_Leap_15.4_Update'
+                                target_project: target_project_name,
+                                target_package: "#{package_name}.#{incident_project_id}")
+            end
+            actions << create(:bs_request_action_maintenance_release,
+                              bs_request: instance,
+                              source_project: evaluator.source_project_name,
+                              source_package: 'patchinfo',
+                              target_project: target_project_name,
+                              target_package: "patchinfo.#{incident_project_id}")
+          end
+        end
+
+        instance.bs_request_actions = actions if actions.present?
+      end
     end
 
     factory :bs_request_with_maintenance_incident_action do

@@ -138,32 +138,14 @@ module TestData
       # Common users like Iggy don't have permission to modify openSUSE:Maintenance:0
       admin = User.get_default_admin
 
-      bs_request_actions = []
-      incident_project_id = source_project_name.split(':').last
-
-      admin.run_as do
-        target_project_names.each do |target_project_name|
-          package_names.each do |package_name|
-            bs_request_actions << create(:bs_request_action_maintenance_release,
-                                         source_project: source_project_name,
-                                         source_package: "#{package_name}.#{target_project_name.tr(':', '_')}", # i.e. 'cacti.openSUSE_Leap_15.4_Update'
-                                         target_project: target_project_name,
-                                         target_package: "#{package_name}.#{incident_project_id}")
-          end
-          bs_request_actions << create(:bs_request_action_maintenance_release,
-                                       source_project: source_project_name,
-                                       source_package: 'patchinfo',
-                                       target_project: target_project_name,
-                                       target_package: "patchinfo.#{incident_project_id}")
-        end
-      end
-
-      bs_request = create(:bs_request_with_maintenance_release_action,
+      bs_request = create(:bs_request_with_maintenance_release_actions,
                           creator: admin,
-                          description: "Request with #{bs_request_actions.size} release actions",
-                          bs_request_actions: bs_request_actions)
+                          description: 'Request with release actions',
+                          source_project_name: source_project_name,
+                          package_names: package_names,
+                          target_project_names: target_project_names)
 
-      puts "* Request #{bs_request.number} with #{bs_request_actions.size} maintenance release actions has been created."
+      puts "* Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance release actions has been created."
       bs_request
     end
 
