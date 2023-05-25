@@ -61,8 +61,10 @@ sub set_clientcert {
   return unless $sslconf;
   $ssl_keyfile = $sslconf->{'keyfile'};
   $ssl_certfile = $sslconf->{'certfile'};
-  $ssl_verify = $sslconf->{'verify'};
-  $ssl_ctx = undef;
+  if (exists($sslconf->{'verify'})) {
+    $ssl_verify = $sslconf->{'verify'};
+    $ssl_ctx = undef;
+  }
 }
 
 my $tcpproto = getprotobyname('tcp');
