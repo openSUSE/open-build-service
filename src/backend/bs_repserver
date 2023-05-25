@@ -3138,7 +3138,7 @@ sub docommand {
       my $prp = "$projid/$repoid";
       wipepublishedlocked($projid, $repoid) unless $wipepublishedlockeddone{$prp};
       $wipepublishedlockeddone{$prp} = 1;
-    } elsif ($cmd eq 'wipe') {
+    } elsif ($cmd eq 'wipe' || $cmd eq 'wipeallarch') {
       $cmd = 'wipeallarch' if $cgi->{'allarch'};
       undef $allpacks;
       if ($allpacks) {
