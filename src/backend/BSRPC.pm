@@ -37,17 +37,33 @@ our $noproxy;
 our $logtimeout;
 our $autoheaders;
 
+our $ssl_keyfile;
+our $ssl_certfile;
+our $ssl_verify;
+
+our $tossl;
+
 my %hostlookupcache;
 my %cookiestore;	# our session store to keep iChain fast
-my $tossl;
+my $ssl_newctx;
+my $ssl_ctx;
 
 sub import {
   if (grep {$_ eq ':https'} @_) {
     require BSSSL;
     $tossl = \&BSSSL::tossl;
+    $ssl_newctx = \&BSSSL::newctx;
   }
 }
 
+sub set_clientcert {
+  my ($sslconf) = @_;
+  return unless $sslconf;
+  $ssl_keyfile = $sslconf->{'keyfile'};
+  $ssl_certfile = $sslconf->{'certfile'};
+  $ssl_verify = $sslconf->{'verify'};
+  $ssl_ctx = undef;
+}
 
 my $tcpproto = getprotobyname('tcp');
 
@@ -235,6 +251,23 @@ sub opensocket {
   return $sock;
 }
 
+sub setup_ssl_client {
+  my ($sock, $param, $host) = @_;
+
+  die("https not supported\n") unless $tossl || $param->{'https'};
+  my ($keyfile, $certfile) = ($ssl_keyfile, $ssl_certfile);
+  my $ctx = $param->{'ssl_ctx'};
+  ($keyfile, $certfile) = ($param->{'ssl_keyfile'}, $param->{'ssl_certfile'}) if $param->{'ssl_keyfile'} || $param->{'ssl_certfile'};
+  my $verify = $ssl_verify ? $ssl_verify->{'mode'} || 'fail_unverified' : undef;
+  if ($ssl_verify && !$ctx) {
+    # openssl only supports setting the verify location in the context
+    $ssl_ctx ||= $ssl_newctx->('verify_file' => $ssl_verify->{'verify_file'}, 'verify_dir' => $ssl_verify->{'verify_dir'});
+    $ctx = $ssl_ctx;
+  }
+  ($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $keyfile, 'certfile' => $certfile, 'verify' => $verify, 'ctx' => $ctx, 'sni' => $host);
+  verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
+}
+
 sub verify_sslpeerfingerprint {
   my ($sock, $sslfingerprint) = @_;
   die("bad sslpeerfingerprint '$sslfingerprint'\n") unless $sslfingerprint =~ /^(.*?):(.*)$/s;
@@ -369,9 +402,8 @@ sub rpc {
         die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
       }
       if ($proto eq 'https' || $proxytunnel) {
-	($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $host);
+	setup_ssl_client($sock, $param, $host, $tossl);
 	$is_ssl = 1;
-	verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
       }
     }
   }

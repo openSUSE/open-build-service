@@ -38,15 +38,12 @@ use strict;
 
 my %hostlookupcache;
 my %cookiestore;        # our session store to keep iChain fast
-my $tossl;
 
 my $rpc_connect_timeout = 60;
 
 sub import {
   if (grep {$_ eq ':https'} @_) {
-    require BSSSL;
-    $tossl = \&BSSSL::tossl;
-    BSRPC::import(':https');
+    BSRPC::import(':https') unless $BSRPC::tossl;
   }
 }
 
@@ -865,10 +862,7 @@ sub rpc_tossl {
   my $sni;
   $sni = $1 if $ev->{'rpcdest'} && $ev->{'rpcdest'} =~ /^(.+):\d+$/;
   my $param = $ev->{'param'};
-  eval {
-    ($param->{'https'} || $tossl)->($ev->{'fd'}, 'mode' => 'connect', 'connect_timeout' => $rpc_connect_timeout, 'keyfile' => $param->{'ssl_keyfile'}, 'certfile' => $param->{'ssl_certfile'}, 'sni' => $sni);
-    BSRPC::verify_sslpeerfingerprint($ev->{'fd'}, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
-  };
+  eval { BSRPC::setup_ssl_client($ev->{'fd'}, $param, $sni) };
   if ($@) {
     my $err = $@;
     $err =~ s/\n$//s;
@@ -1163,7 +1157,7 @@ sub rpc {
   my ($proto, $host, $port, $req, $proxytunnel) = BSRPC::createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
   $req .= $data if defined $data;
   if ($proto eq 'https' || $proxytunnel) {
-    die("https not supported\n") unless $tossl || $param->{'https'};
+    die("https not supported\n") unless $BSRPC::tossl || $param->{'https'};
   }
   $param->{'proto'} = $proto;
   # should do this async, but that's hard to do in perl
