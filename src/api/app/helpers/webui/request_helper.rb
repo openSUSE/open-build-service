@@ -152,10 +152,18 @@ module Webui::RequestHelper
       end
     when :maintenance_incident
       source_project_hash.update(homeproject: creator)
-      'Submit update from %{source_container} to %{target_container}' % {
-        source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-      }
+
+      if Flipper.enabled?(:request_show_redesign, User.session)
+        'Submit update from %{source_container} to %{target_container}' % {
+          source_container: project_or_package_link(source_project_hash),
+          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
+        }
+      else
+        'Submit update from %{source_container} to %{target_container}' % {
+          source_container: project_or_package_link(source_project_hash),
+          target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        }
+      end
     when :maintenance_release
       'Maintenance release %{source_container} to %{target_container}' % {
         source_container: project_or_package_link(source_project_hash),
