@@ -20,6 +20,13 @@
   }
 }
 
+.bg-maintenance {
+  background-color: $orange;
+  > a {
+    color: $white;
+  }
+}
+
 .req-description-box {
   word-break: break-all;
   white-space: pre-line;

@@ -29,6 +29,9 @@ class SourcediffComponent < ApplicationComponent
   end
 
   def target_package
+    # For not accepted maintenance incident requests, the package is not there.
+    return nil unless @action[:tpkg]
+
     Package.get_by_project_and_name(@action[:tprj], @action[:tpkg], { follow_multibuild: true })
   rescue Package::UnknownObjectError
   end
