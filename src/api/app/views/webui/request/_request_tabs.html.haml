@@ -3,7 +3,7 @@
     %li.nav-item.scrollable-tab-link
       = link_to('Conversation', request_show_path(bs_request.number, actions_count > 1 ? active_action : nil),
                 class: "nav-link text-nowrap #{active_tab == 'conversation' ? 'active' : ''}")
-    - if (action[:sprj] || action[:spkg]) && !(action[:type] == :maintenance_incident && action[:spkg] == 'patchinfo')
+    - if (action[:sprj] || action[:spkg]) && !(action[:type].in?([:maintenance_incident, :maintenance_release]) && action[:spkg] == 'patchinfo')
       %li.nav-item.scrollable-tab-link.active
         = link_to('Build Results', request_build_results_path(bs_request.number, actions_count > 1 ? active_action : nil),
                   class: "nav-link text-nowrap #{active_tab == 'build_results' ? 'active' : ''}")
