@@ -10,6 +10,7 @@ namespace :dev do
 
     desc 'Run the haml linter'
     task :haml do
+      puts 'Running haml-lint in src/api...'
       Rake::Task['haml_lint'].invoke('--parallel')
     end
 
@@ -20,6 +21,7 @@ namespace :dev do
 
     desc 'Run JavaScript linter'
     task :js do
+      puts "\nRunning jshint in src/api..."
       sh 'jshint ./app/assets/javascripts/'
     end
 
@@ -29,12 +31,14 @@ namespace :dev do
 
       desc 'Run the ruby linter in rails'
       task :rails do
+        puts "\nRunning rubocop in src/api..."
         sh 'rubocop', '--fail-fast', '--display-style-guide', '--fail-level', 'convention', '--ignore_parent_exclusion'
       end
 
       desc 'Run the ruby linter in root'
       task :root do
         Dir.chdir('../..') do
+          puts "\nRunning rubocop in the root directory..."
           sh 'rubocop', '--fail-fast', '--display-style-guide', '--fail-level', 'convention'
         end
       end
@@ -50,7 +54,7 @@ namespace :dev do
           sh 'rubocop --auto-gen-config --ignore_parent_exclusion --auto-gen-only-exclude --exclude-limit 100'
         end
 
-        desc 'Run the ruby linter in root'
+        desc 'Autogenerate rubocop config in root'
         task :root do
           Dir.chdir('../..') do
             # We set `exclude-limit` to 100 (from the default of 15) to make it easier to tackle TODOs one file at a time
