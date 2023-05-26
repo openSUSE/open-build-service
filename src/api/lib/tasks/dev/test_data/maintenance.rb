@@ -158,18 +158,14 @@ module TestData
       # Create the third incident request (many actions; with patchinfo)
       create(:bs_request_with_maintenance_incident_actions,
              :with_patchinfo,
+             :with_last_incident_accepted,
              creator: iggy,
              description: 'Request with incident actions',
              source_package_names: ['cacti', 'cacti-spine'],
              target_releaseproject_names: [update_project1.name, update_project2.name],
              source_project_name: update_project_branch.name,
              target_project_name: maintenance_project).tap do |bs_request|
-        puts "* Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance incident actions has been created."
-        # Accept the last incident request
-        admin = User.get_default_admin
-        admin.run_as do
-          bs_request.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'Accepted by admin')
-        end
+        puts "* Accepted Request #{bs_request.number} with #{bs_request.bs_request_actions.size} maintenance incident actions has been created."
       end
 
       # Open a request from a package that is not branched, but developed on an "official" project.
