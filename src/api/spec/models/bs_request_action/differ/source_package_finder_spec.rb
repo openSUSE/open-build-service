@@ -41,7 +41,7 @@ RSpec.describe BsRequestAction::Differ::SourcePackageFinder do
 
     context 'without a source package but a source project' do
       let(:bs_request) do
-        create(:bs_request_with_maintenance_incident_action,
+        create(:bs_request_with_maintenance_incident_actions,
                source_project: source_project,
                target_project: target_project)
       end

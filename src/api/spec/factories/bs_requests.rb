@@ -196,8 +196,46 @@ FactoryBot.define do
       end
     end
 
-    factory :bs_request_with_maintenance_incident_action do
+    factory :bs_request_with_maintenance_incident_actions do
       type { :maintenance_incident }
+
+      transient do
+        source_project_name { '' }
+        source_package_names { [] }
+        target_project_name { '' }
+        target_releaseproject_names { [] }
+      end
+
+      callback(:before_create) do |instance, evaluator|
+        actions = []
+        evaluator.creator.run_as do
+          evaluator.source_package_names.each do |source_package_name|
+            evaluator.target_releaseproject_names.each do |target_releaseproject_name|
+              # TODO: find a better way to find out if the request comes from a branched project or and official project
+              # i.e. 'cacti.openSUSE_Leap_15.4_Update'
+              package_name = source_package_name
+              package_name += ".#{target_releaseproject_name.tr(':', '_')}" if evaluator.source_project_name.starts_with?('home:')
+              actions << create(:bs_request_action_maintenance_incident,
+                                bs_request: instance,
+                                source_project: evaluator.source_project_name,
+                                source_package: package_name,
+                                target_project: evaluator.target_project_name,
+                                target_releaseproject: target_releaseproject_name)
+            end
+          end
+        end
+        instance.bs_request_actions = actions if actions.present?
+      end
+
+      trait :with_patchinfo do
+        callback(:before_create) do |instance, evaluator|
+          instance.bs_request_actions << create(:bs_request_action_maintenance_incident,
+                                                bs_request: instance,
+                                                source_project: evaluator.source_project_name,
+                                                source_package: 'patchinfo',
+                                                target_project: evaluator.target_project_name)
+        end
+      end
     end
 
     factory :superseded_bs_request, parent: :set_bugowner_request do
