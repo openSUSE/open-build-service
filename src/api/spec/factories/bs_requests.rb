@@ -236,6 +236,15 @@ FactoryBot.define do
                                                 target_project: evaluator.target_project_name)
         end
       end
+
+      trait :with_last_incident_accepted do
+        callback(:after_create) do |instance, _evaluator|
+          admin = User.get_default_admin
+          admin.run_as do
+            instance.change_state(newstate: 'accepted', force: true, user: admin.login, comment: 'Accepted by admin')
+          end
+        end
+      end
     end
 
     factory :superseded_bs_request, parent: :set_bugowner_request do
