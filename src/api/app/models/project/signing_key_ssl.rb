@@ -16,8 +16,8 @@ class Project
 
     CACHE_EXPIRY_TIME = 5.minutes
 
-    def initialize(project)
-      keyinfo = Xmlhash.parse(key_info_for_project(project))
+    def initialize(project_name)
+      keyinfo = Xmlhash.parse(key_info_for_project(project_name))
       @origin = keyinfo['project']
 
       return if keyinfo['sslcert'].blank?
@@ -36,12 +36,10 @@ class Project
 
     private
 
-    def key_info_for_project(project)
-      Rails.cache.fetch("key_info_project_#{project.cache_key_with_version}", expires_in: CACHE_EXPIRY_TIME) do
-        Backend::Api::Sources::Project.key_info(project.name)
-      rescue Backend::Error
-        '<keyinfo/>'
-      end
+    def key_info_for_project(project_name)
+      Backend::Api::Sources::Project.key_info(project_name)
+    rescue Backend::Error
+      '<keyinfo/>'
     end
   end
 end

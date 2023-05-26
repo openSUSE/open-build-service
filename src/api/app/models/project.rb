@@ -1397,9 +1397,9 @@ class Project < ApplicationRecord
   def signing_key(type:)
     case type.to_sym
     when :ssl
-      key = SigningKeySSL.new(self)
+      key = SigningKeySSL.new(name)
     when :gpg
-      key = SigningKeyGPG.new(self)
+      key = SigningKeyGPG.new(name)
     else
       return nil
     end
