@@ -286,7 +286,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def build_results
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.build
 
     @active_tab = 'build_results'
     @project = @staging_project || @action[:sprj]
@@ -298,7 +298,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def rpm_lint
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.rpm_lint
 
     @active_tab = 'rpm_lint'
     @ajax_data = {}
@@ -308,13 +308,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.visible_tab(:changes)
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.changes
 
     @active_tab = 'changes'
   end
 
   def mentioned_issues
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.visible_tab(:mentioned_issues)
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.issues
 
     @active_tab = 'mentioned_issues'
   end

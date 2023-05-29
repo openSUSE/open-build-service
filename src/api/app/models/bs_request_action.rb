@@ -864,9 +864,8 @@ class BsRequestAction < ApplicationRecord
     params
   end
 
-  def visible_tab(tab_name)
-    action_tab_visibility = BsRequestActionTabVisibility.new(self)
-    action_tab_visibility.visible(tab_name)
+  def tab_visibility
+    BsRequestActionTabVisibility.new(self)
   end
 
   private

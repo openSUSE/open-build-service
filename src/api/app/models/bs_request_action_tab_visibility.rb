@@ -5,18 +5,20 @@ class BsRequestActionTabVisibility
     @action = bs_request_action
   end
 
-  # Handle tabs visibility
-  def visible(tab_name)
-    case tab_name
-    when :build_results, :rpm_lint
-      source_package && !patchinfo_package
-    when :changes
-      (@action.type == :delete && @action.source_package) || @action.type.in?(CHANGES_TABS)
-    when :mentioned_issues
-      @action.type.in?(CHANGES_TABS)
-    else
-      true
-    end
+  def build
+    source_package && !patchinfo_package
+  end
+
+  def rpm_lint
+    build
+  end
+
+  def changes
+    (@action.type == :delete && @action.source_package) || @action.type.in?(CHANGES_TABS)
+  end
+
+  def issues
+    @action.type.in?(CHANGES_TABS)
   end
 
   private
