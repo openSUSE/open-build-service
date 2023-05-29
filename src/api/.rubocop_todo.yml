@@ -624,13 +624,6 @@ Performance/CollectionLiteralInLoop:
     - 'test/functional/backend_test.rb'
 
 # Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Performance/CompareWithBlock:
-  Exclude:
-    - 'app/helpers/status_helper.rb'
-    - 'app/models/branch_package/dry_run.rb'
-
-# Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Performance/Detect:
   Exclude:

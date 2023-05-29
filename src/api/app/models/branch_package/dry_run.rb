@@ -6,7 +6,7 @@ module BranchPackage::DryRun
     end
 
     def to_xml
-      @packages.sort! { |x, y| x[:target_package] <=> y[:target_package] }
+      @packages.sort_by! { |a| a[:target_package] }
       builder = Builder::XmlMarkup.new(indent: 2)
       builder.collection do
         @packages.each do |p|
