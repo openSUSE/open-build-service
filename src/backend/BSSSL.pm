@@ -59,9 +59,9 @@ sub newctx {
     Net::SSLeay::EC_KEY_free($ecdh);
   }
   if ($opts{'verify_file'} || $opts{'verify_dir'}) {
-    Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed\n");
+    Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed");
   } elsif (!defined($opts{'verify_file'}) && !defined($opts{'verify_dir'})) {
-    Net::SSLeay::CTX_set_default_verify_paths($ctx) || Net::SSLeay::die_now("CTX_set_default_verify_paths failed\n");
+    Net::SSLeay::CTX_set_default_verify_paths($ctx) || Net::SSLeay::die_now("CTX_set_default_verify_paths failed");
   }
   return $ctx;
 }
@@ -101,7 +101,7 @@ sub ssl_connect_with_timeout {
     } elsif ($code == &Net::SSLeay::ERROR_WANT_READ) {
       $r = select($vec, undef, undef, $timeout - $now);
     } else {
-      die("SSL_connect error");
+      Net::SSLeay::die_now("SSL_connect error: $!");
     }
     die("select: $!\n") if !defined($r) || $r < 0;
     die("SSL_connect timeout\n") if time() >= $timeout;
@@ -147,7 +147,7 @@ sub TIEHANDLE {
     if ($opts{'connect_timeout'}) {
       ssl_connect_with_timeout($ssl, $socket, $opts{'connect_timeout'});
     } else {
-      Net::SSLeay::connect($ssl) > 0 || die("SSL_connect error");
+      Net::SSLeay::connect($ssl) > 0 || Net::SSLeay::die_now("SSL_connect error: $!");
     }
   }
   return bless [$ssl, $socket, \$cert_ok] if $verify;

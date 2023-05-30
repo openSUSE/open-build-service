@@ -39,7 +39,7 @@ our $autoheaders;
 
 our $ssl_keyfile;
 our $ssl_certfile;
-our $ssl_verify;
+our $ssl_verify = {};
 
 our $tossl;
 
@@ -258,10 +258,11 @@ sub setup_ssl_client {
 
   die("https not supported\n") unless $tossl || $param->{'https'};
   my ($keyfile, $certfile) = ($ssl_keyfile, $ssl_certfile);
-  my $ctx = $param->{'ssl_ctx'};
   ($keyfile, $certfile) = ($param->{'ssl_keyfile'}, $param->{'ssl_certfile'}) if $param->{'ssl_keyfile'} || $param->{'ssl_certfile'};
-  my $verify = $ssl_verify ? $ssl_verify->{'mode'} || 'fail_unverified' : undef;
-  if ($ssl_verify && !$ctx) {
+  my $verify = $param->{'ssl_verify'} || ($ssl_verify ? ($ssl_verify->{'mode'} || 'fail_unverified') : undef);
+  $verify = undef if $verify && $verify eq 'off';
+  my $ctx = $param->{'ssl_ctx'};
+  if ($verify && !$ctx) {
     # openssl only supports setting the verify location in the context
     $ssl_ctx ||= $ssl_newctx->('verify_file' => $ssl_verify->{'verify_file'}, 'verify_dir' => $ssl_verify->{'verify_dir'});
     $ctx = $ssl_ctx;
@@ -300,6 +301,11 @@ sub verify_sslpeerfingerprint {
 # maxredirects
 # proxy
 # formurlencode
+# sslpeerfingerprint
+# ssl_verify
+# ssl_keyfile
+# ssl_certfile
+# ssl_ctx
 #
 
 sub rpc {
