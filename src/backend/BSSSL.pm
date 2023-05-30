@@ -59,7 +59,9 @@ sub newctx {
     Net::SSLeay::EC_KEY_free($ecdh);
   }
   if ($opts{'verify_file'} || $opts{'verify_dir'}) {
-    Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed\n");
+    Net::SSLeay::CTX_load_verify_locations($ctx, $opts{'verify_file'} || '', $opts{'verify_dir'} || '') || Net::SSLeay::die_now("CTX_load_verify_locations failed");
+  } elsif (!defined($opts{'verify_file'}) && !defined($opts{'verify_dir'})) {
+    Net::SSLeay::CTX_set_default_verify_paths($ctx) || Net::SSLeay::die_now("CTX_set_default_verify_paths failed");
   }
   return $ctx;
 }
@@ -99,7 +101,7 @@ sub ssl_connect_with_timeout {
     } elsif ($code == &Net::SSLeay::ERROR_WANT_READ) {
       $r = select($vec, undef, undef, $timeout - $now);
     } else {
-      die("SSL_connect error");
+      Net::SSLeay::die_now("SSL_connect error: $!");
     }
     die("select: $!\n") if !defined($r) || $r < 0;
     die("SSL_connect timeout\n") if time() >= $timeout;
@@ -118,19 +120,26 @@ sub TIEHANDLE {
   if ($opts{'certfile'}) {
     Net::SSLeay::use_certificate_chain_file($ssl, $opts{'certfile'}) || die("certificate $opts{'certfile'} failed to load\n");
   }
+  my $mode = $opts{'mode'} || ($opts{'keyfile'} ? 'accept' : 'connect');
   my $cert_ok;
-  if ($opts{'verify'}) {
-    my $mode = &Net::SSLeay::VERIFY_PEER;
-    $mode |= &Net::SSLeay::VERIFY_FAIL_IF_NO_PEER_CERT if $opts{'verify'} =~ /enforce_cert/;
+  my $verify = $opts{'verify'};
+  if ($verify) {
+    $verify = 'fail_unverified' if $mode eq 'connect' && $verify eq '1';	# sane default for client mode
+    my $flags = &Net::SSLeay::VERIFY_PEER;
+    $flags |= &Net::SSLeay::VERIFY_FAIL_IF_NO_PEER_CERT if $mode eq 'connect' || ($verify =~ /enforce_cert/);
     my $cb;
-    if ($opts{'verify'} !~ /fail_unverified/) {
+    if ($verify !~ /fail_unverified/) {
       $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return 1 };
     } else {
-      $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return $_[0] };
+      if ($mode eq 'connect') {
+	$cb = undef; # can use the default handler
+	$cert_ok = 1;
+      } else {
+        $cb = sub { $cert_ok = $_[0] if !$_[0] || !defined($cert_ok); return $_[0] };
+      }
     }
-    Net::SSLeay::set_verify($ssl, $mode, $cb);
+    Net::SSLeay::set_verify($ssl, $flags, $cb);
   }
-  my $mode = $opts{'mode'} || ($opts{'keyfile'} ? 'accept' : 'connect');
   if ($mode eq 'accept') {
     Net::SSLeay::accept($ssl) == 1 || die("SSL_accept error $!\n");
   } else {
@@ -138,10 +147,10 @@ sub TIEHANDLE {
     if ($opts{'connect_timeout'}) {
       ssl_connect_with_timeout($ssl, $socket, $opts{'connect_timeout'});
     } else {
-      Net::SSLeay::connect($ssl) > 0 || die("SSL_connect error");
+      Net::SSLeay::connect($ssl) > 0 || Net::SSLeay::die_now("SSL_connect error: $!");
     }
   }
-  return bless [$ssl, $socket, \$cert_ok] if $opts{'verify'};
+  return bless [$ssl, $socket, \$cert_ok] if $verify;
   return bless [$ssl, $socket];
 }
 
