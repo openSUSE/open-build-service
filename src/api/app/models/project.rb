@@ -224,10 +224,15 @@ class Project < ApplicationRecord
       end
     end
 
-    # returns an object of project(local or remote) or raises an exception
-    # should be always used when a project is required
-    # The return value is either a Project for local project or an xml
-    # array for a remote project
+    # This finder is checking for
+    #   - a Project in the database
+    #   - read authorization of the Project in the database
+    #   - a Project from an interconnect
+    #
+    # The return value is either
+    #   - an instance of Project
+    #   - a string for a Project from an interconnect
+    #   - UnknownObjectError or ReadAccessError exceptions
     def get_by_name(name, opts = {})
       dbp = find_by_name(name, skip_check_access: true)
       if dbp.nil?
@@ -1389,8 +1394,19 @@ class Project < ApplicationRecord
            .exists?(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' })
   end
 
-  def key_info
-    @key_info ||= KeyInfo.find_by_project(self)
+  def signing_key(type:)
+    case type.to_sym
+    when :ssl
+      key = SigningKeySSL.new(name)
+    when :gpg
+      key = SigningKeyGPG.new(name)
+    else
+      return nil
+    end
+
+    return nil if key.id.blank?
+
+    key
   end
 
   def dashboard

@@ -47,8 +47,6 @@ OBSApi::Application.routes.draw do
     get 'service' => 'service#index'
 
     ### /source
-    get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons
-
     controller :attribute_namespace do
       get 'attribute' => :index
       get 'attribute/:namespace' => :index
@@ -246,6 +244,10 @@ OBSApi::Application.routes.draw do
   controller :source_project_config do
     get 'source/:project/_config' => :show, constraints: cons
     put 'source/:project/_config' => :update, constraints: cons
+  end
+
+  controller :source_project_keyinfo do
+    get 'source/:project/_keyinfo' => :show, constraints: cons
   end
 
   controller :source do

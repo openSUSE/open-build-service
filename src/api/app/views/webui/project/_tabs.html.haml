@@ -1,6 +1,6 @@
 .card-header.p-0
   .scrollable-tabs
-    = tab_link('Overview', [project_show_path(project), keys_and_certificates_path(project)], false, 'scrollable-tab-link')
+    = tab_link('Overview', project_show_path(project), false, 'scrollable-tab-link')
     -# haml-lint:disable InstanceVariables
     - unless @spider_bot
       -# haml-lint:enable InstanceVariables
@@ -17,6 +17,7 @@
         = tab_link('Subprojects', project_subprojects_path(project), false, 'scrollable-tab-link')
         = tab_link('Project Config', project_config_path(project), false, 'scrollable-tab-link')
       = tab_link('Attributes', [index_attribs_path(project)], controller_name == 'attribute', 'scrollable-tab-link')
+      = tab_link('Signing Keys', project_signing_keys_path(project), false, 'scrollable-tab-link')
       = tab_link('Meta', project_meta_path(project), false, 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?
         = tab_link('Status', project_status_path(project), false, 'scrollable-tab-link')

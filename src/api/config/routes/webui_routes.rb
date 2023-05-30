@@ -230,7 +230,6 @@ OBSApi::Application.routes.draw do
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       post 'project/unlock' => :unlock
-      get 'project/keys_and_certificates/:project' => :keys_and_certificates, constraints: cons, as: 'keys_and_certificates'
     end
 
     # For backward compatibility
@@ -250,14 +249,20 @@ OBSApi::Application.routes.draw do
     controller 'webui/projects/project_configuration' do
       get 'project/prjconf/:project', to: redirect('/projects/%{project}/prjconf')
     end
+    controller 'webui/projects/signing_keys' do
+      get 'project/keys_and_certificates/:project', to: redirect('/projects/%{project}/signing_keys')
+      get 'projects/:project/public_key', to: redirect('/projects/%{project}/signing_keys')
+      get 'projects/:project/ssl_certificate', to: redirect('/projects/%{project}/signing_keys')
+    end
     # \For backward compatibility
 
     resources :projects, only: [], param: :name do
       resources :maintained_projects, controller: 'webui/projects/maintained_projects',
                                       param: :maintained_project, only: [:index, :destroy, :create], constraints: cons
       resource :status, controller: 'webui/projects/status', only: [:show], constraints: cons
-      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
-      resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
+      resource :signing_keys, controller: 'webui/projects/signing_keys', only: [:show], constraints: cons do
+        get 'download'
+      end
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
       resource :prjconf, controller: 'webui/projects/project_configuration', only: [:show, :update], as: :config, constraints: cons

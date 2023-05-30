@@ -20,6 +20,8 @@ Rails.autoloaders.each do |autoloader|
     'scm_webhook_event_validator' => 'SCMWebhookEventValidator',
     'scm_webhook_instrumentation' => 'SCMWebhookInstrumentation',
     'yaml_to_workflows_service' => 'YAMLToWorkflowsService',
-    'yaml_downloader' => 'YAMLDownloader'
+    'yaml_downloader' => 'YAMLDownloader',
+    'signing_key_gpg' => 'SigningKeyGPG',
+    'signing_key_ssl' => 'SigningKeySSL'
   )
 end
