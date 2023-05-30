@@ -43,9 +43,12 @@ class Token::Workflow < Token
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
     SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, initial_report: true).call
-    @workflows.each(&:call)
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+    @workflows.each do |workflow|
+      return workflow.errors.full_messages if workflow.invalid?(:call)
 
+      workflow.call
+    end
+    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized

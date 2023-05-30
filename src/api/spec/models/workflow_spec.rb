@@ -328,6 +328,28 @@ RSpec.describe Workflow, vcr: true do
         expect(subject.steps.first).to have_received(:call)
       end
     end
+
+    context 'when the webhook event is not supported by the branches filter' do
+      let(:yaml) do
+        { 'steps' => [{ 'trigger_services' => { 'project' => 'test-project', 'package' => 'test-package' } }],
+          'filters' => { 'branches' => { 'only' => ['develop'] } } }
+      end
+
+      let(:extractor_payload) do
+        {
+          scm: 'gitlab',
+          event: 'Tag Push Hook',
+          ref: 'refs/tags/release_abc',
+          target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
+        }
+      end
+
+      it 'is not valid and has an error message' do
+        subject.valid?(:call)
+        expect(subject.errors.full_messages.to_sentence).to eq('Filters for branches are not supported for the tag push event. ' \
+                                                               "Documentation for filters: #{WorkflowFiltersValidator::DOCUMENTATION_LINK}")
+      end
+    end
   end
 
   describe '#steps' do

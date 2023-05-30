@@ -25,6 +25,7 @@ class Workflow
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
+  validate :event_supports_branches_filter?, on: :call, if: :event_matches_event_filter?
 
   def call
     run_callbacks(:call) do
@@ -42,6 +43,14 @@ class Workflow
         end
       end
     end
+  end
+
+  def event_supports_branches_filter?
+    # Tags do not have a reference to a branch, they are referring to a commit
+    return unless @workflow_instructions.dig(:filters, :branches).present? && scm_webhook.tag_push_event?
+
+    errors.add(:filters, 'for branches are not supported for the tag push event. ' \
+                         "Documentation for filters: #{WorkflowFiltersValidator::DOCUMENTATION_LINK}")
   end
 
   # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
