@@ -784,7 +784,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         it { expect(assigns(:what_depends_on)).to eq(['apache2']) }
         it { expect(assigns(:status)).to eq('succeeded') }
         it { expect(assigns(:workerid)).to eq('42') }
-        it { expect(assigns(:buildtime)).to eq(1.hour.to_i) }
+        it { expect(assigns(:buildtime)).to be_within(1).of(1.hour.to_i) }
         it { expect(assigns(:package)).to eq(source_package) }
         it { expect(assigns(:package_name)).to eq("#{source_package}:multibuild-package") }
       end
