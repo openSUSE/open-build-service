@@ -15,10 +15,9 @@ class Project
 
     def initialize(project_name)
       keyinfo = Xmlhash.parse(key_info_for_project(project_name))
-      @origin = keyinfo['project']
-
       return if keyinfo['pubkey'].blank?
 
+      @origin = keyinfo['project'] || project_name
       @id = keyinfo['pubkey']['keyid']
       @user_id = keyinfo['pubkey']['userid']
       @algorithm = keyinfo['pubkey']['algo']
