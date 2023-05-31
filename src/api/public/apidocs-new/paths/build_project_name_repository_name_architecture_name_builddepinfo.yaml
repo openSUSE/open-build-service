@@ -41,3 +41,12 @@ get:
       $ref: '../components/responses/unknown_project.yaml'
   tags:
     - Build
+
+post:
+  deprecated: true
+  summary: Show the build dependencies of packages that are part of the project.
+  description: |
+    This endpoint is exactly the same as
+    `GET /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_builddepinfo`, please use that one.
+  tags:
+    - Build
