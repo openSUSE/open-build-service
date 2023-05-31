@@ -18,10 +18,9 @@ class Project
 
     def initialize(project_name)
       keyinfo = Xmlhash.parse(key_info_for_project(project_name))
-      @origin = keyinfo['project']
-
       return if keyinfo['sslcert'].blank?
 
+      @origin = keyinfo['project'] || project_name
       @id = keyinfo['sslcert']['keyid']
       @serial = keyinfo['sslcert']['serial']
       @issuer = keyinfo['sslcert']['issuer']
