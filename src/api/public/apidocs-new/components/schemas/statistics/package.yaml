@@ -1,0 +1,24 @@
+type: object
+properties:
+  project:
+    type: string
+    xml:
+      attribute: true
+  name:
+    type: string
+    xml:
+      attribute: true
+  activity:
+    type: number
+    xml:
+      attribute: true
+  created:
+    type: string
+    xml:
+      attribute: true
+  updated:
+    type: string
+    xml:
+      attribute: true
+xml:
+  name: package

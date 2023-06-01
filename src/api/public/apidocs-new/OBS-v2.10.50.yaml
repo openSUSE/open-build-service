@@ -435,6 +435,8 @@ paths:
   # Statistics
   /statistics/most_active_projects:
     $ref: 'paths/statistics_most_active_projects.yaml'
+  /statistics/most_active_packages:
+    $ref: 'paths/statistics_most_active_packages.yaml'
 
   # Status messages
   /status/messages:
