@@ -1,0 +1,44 @@
+get:
+  summary: Get a list of last updated project and packages
+  description: Get a list of last updated project and packages
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/limit_10.yaml'
+    - in: query
+      name: timelimit
+      schema:
+        type: integer
+      description: Limit the maximum age to this number of days.
+      example: 1
+    - in: query
+      name: prjfilter
+      schema:
+        type: string
+      description: Filter by project name.
+      example: openSUSE:Factory
+    - in: query
+      name: pkgfilter
+      schema:
+        type: string
+      description: Filter by package name.
+      example: 0ad
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/latest_updated.yaml'
+          example:
+            package:
+              - name: calc
+                project: openSUSE:Factory:Staging:adi:26
+                created: '2023-06-01T07:07:36Z'
+            project:
+              - name: openSUSE:Factory:Staging:adi:26
+                created: '2023-06-01T07:07:27Z'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Statistics
