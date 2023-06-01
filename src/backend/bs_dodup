@@ -497,12 +497,12 @@ sub registry_fetch_manifest {
   return (\@blobs, $digest, $fatdigest);
 }
 
-# This needs to be in sync with BSRepServer::DoD!
 sub mangle_container_name {
   my ($name) = @_;
   $name =~ s/^container://;
-  $name =~ s/\//_/g;
-  $name = "_$name" if $name =~ /^_/;
+  # keep in sync with BSRepServer::Containerinfo::readcontainerinfo()
+  $name =~ s/[:\/]/-/g;
+  $name = "_$name" if $name =~ /^_/;	# just in case
   return $name;
 }
 
