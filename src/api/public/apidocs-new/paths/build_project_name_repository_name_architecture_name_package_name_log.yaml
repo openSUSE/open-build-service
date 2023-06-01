@@ -1,6 +1,5 @@
 get:
   description: This endpoint returns the last log file for a specific build artifact
-  operationId: getBuildProjectRepositoryArchPackageLog
   security:
     - basic_authentication: []
   parameters:

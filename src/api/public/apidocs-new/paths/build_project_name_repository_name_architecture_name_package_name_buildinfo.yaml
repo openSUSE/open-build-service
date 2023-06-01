@@ -1,6 +1,5 @@
 get:
   description: This endpoint returns information about some specific artifact
-  operationId: getBuildProjectRepositoryArchPackageBuildinfo
   security:
     - basic_authentication: []
   parameters:

@@ -1,6 +1,5 @@
 get:
   description: This endpoint returns the build history for a specific artifact
-  operationId: getBuildProjectRepositoryArchPackageHistory
   security:
     - basic_authentication: []
   parameters:

@@ -2,7 +2,6 @@ get:
   summary: Return a specific artifact file contents
   description: |
     Given a project, repository, architecture and package, retrieve the given file's content.
-  operationId: getBuildProjectRepositoryArchitecturePackageFile
   security:
     - basic_authentication: []
   parameters:
@@ -44,7 +43,6 @@ put:
     Given a project, repository, architecture and package, update the given file's content.
 
     This is for Admins only.
-  operationId: putBuildProjectRepositoryArchitecturePackageFile
   security:
     - basic_authentication: []
   parameters:

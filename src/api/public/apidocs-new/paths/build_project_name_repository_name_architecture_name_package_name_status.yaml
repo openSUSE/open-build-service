@@ -1,6 +1,5 @@
 get:
   description: This endpoint returns the building status for a specific artifact
-  operationId: getBuildProjectRepositoryArchPackageStatus
   security:
     - basic_authentication: []
   parameters:
