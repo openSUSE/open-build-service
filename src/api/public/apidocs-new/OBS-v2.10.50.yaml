@@ -48,6 +48,7 @@ tags:
   - name: Sources - Packages
   - name: Sources - Files
   - name: Staging Workflow
+  - name: Statistics
   - name: Status Messages
   - name: Trigger
   - name: Workers
@@ -430,6 +431,10 @@ paths:
     $ref: 'paths/staging_project_name_staging_projects_staging_project_name_staged_requests.yaml'
   /staging/{project_name}/workflow:
     $ref: 'paths/staging_project_name_workflow.yaml'
+
+  # Statistics
+  /statistics/most_active_projects:
+    $ref: 'paths/statistics_most_active_projects.yaml'
 
   # Status messages
   /status/messages:

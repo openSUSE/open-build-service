@@ -1,0 +1,22 @@
+type: object
+properties:
+  name:
+    type: string
+    xml:
+      attribute: true
+  packages:
+    type: integer
+    xml:
+      attribute: true
+  activity:
+    type: number
+    xml:
+      attribute: true
+  created:
+    type: string
+    xml:
+      attribute: true
+  updated:
+    type: string
+    xml:
+      attribute: true
