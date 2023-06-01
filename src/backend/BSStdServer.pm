@@ -358,7 +358,7 @@ sub server {
 
   if ($args && @$args) {
     my $rundir = ($conf || $aconf || {})->{'rundir'} || $BSConfig::rundir || "$BSConfig::bsdir/run";
-    my $runname = ($conf || $aconf || {})->{'runnname'} || $name;
+    my $runname = ($conf || $aconf || {})->{'runname'} || $name;
     if ($args->[0] eq '--test') {
       if ($conf) {
 	$conf->{'verifiers'} ||= $BSVerify::verifiers;
