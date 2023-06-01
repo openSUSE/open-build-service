@@ -437,6 +437,8 @@ paths:
     $ref: 'paths/statistics_most_active_projects.yaml'
   /statistics/most_active_packages:
     $ref: 'paths/statistics_most_active_packages.yaml'
+  /statistics/latest_added:
+    $ref: 'paths/statistics_latest_added.yaml'
 
   # Status messages
   /status/messages:

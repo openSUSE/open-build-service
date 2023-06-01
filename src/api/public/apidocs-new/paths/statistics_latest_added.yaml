@@ -1,0 +1,26 @@
+get:
+  summary: Get a list of last added project and packages
+  description: Get a list of last added project and packages
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/limit_10.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/latest_added.yaml'
+          example:
+            package:
+              - name: pgbackrest
+                project: openSUSE:Factory:Staging:adi:24
+                created: '2023-06-01T07:07:24Z'
+            project:
+              - name: openSUSE:Factory:Staging:adi:24
+                created: '2023-06-01T07:07:22Z'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Statistics
