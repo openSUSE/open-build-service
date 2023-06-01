@@ -624,6 +624,15 @@ sub ping {
   }
 }
 
+sub openping {
+  my ($ping, $pingfile) = @_;
+  if (! -p $pingfile) {
+    POSIX::mkfifo($pingfile, 0666) || die("$pingfile: $!\n");
+  }
+  sysopen($ping, $pingfile, POSIX::O_RDWR) || die("$pingfile: $!\n");
+  $_[0] = $ping;	# support auto-vivify
+}
+
 sub drainping {
   my ($ping) = @_; 
   my $dummy;
@@ -648,6 +657,14 @@ sub waitping {
   }
   fcntl($ping, F_SETFL, 0); 
   return $timeout > 0 ? 1 : 0;
+}
+
+sub openrunlock {
+  my ($lock, $runfile, $name) = @_;
+  open($lock, '>>', "$runfile.lock") || die("$runfile.lock: $!\n");
+  flock($lock, LOCK_EX | LOCK_NB) || die("$name is already running!\n");
+  utime undef, undef, "$runfile.lock";
+  $_[0] = $lock;	# support auto-vivify
 }
 
 sub restartexit {

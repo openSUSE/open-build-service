@@ -27,9 +27,7 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
-use POSIX;
 use Data::Dumper;
-use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Getopt::Long ();
 use Time::HiRes;
@@ -237,23 +235,16 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($options, 'redis', "$rundir/$runname", "$myeventdir/.ping");
-BSUtil::printlog("starting build service redis forwarder");
 
 my $critlogfile = "$BSConfig::logdir/redis.crit.log";
 BSUtil::setcritlogger(sub { critlogger($critlogfile, $_[0]) });
 
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("redis is already running!\n");
-utime undef, undef, "$rundir/$runname.lock";
+BSUtil::openrunlock(\*RUNLOCK, "$rundir/$runname", 'redis');
+BSUtil::printlog("starting build service redis forwarder");
 
 mkdir_p($myeventdir);
-if (! -p "$myeventdir/.ping") {
-  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-  chmod(0666, "$myeventdir/.ping");
-}
-
-sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+BSUtil::openping(\*PING, "$myeventdir/.ping");
 
 my $retry;
 
