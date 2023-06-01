@@ -272,9 +272,12 @@ sub setup {
   my $repoid = $ctx->{'repository'};
   my $proj = $projpacks->{$projid};
   return (0, 'project does not exist') unless $proj;
-  return (0, $proj->{'error'}) if $proj->{'error'};
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   return (0, 'repo does not exist') unless $repo;
+  if ($proj->{'error'}) {
+    return ('blocked', $proj->{'error'}) if $proj->{'error'} =~ /service in progress/;
+    return ('broken', $proj->{'error'});
+  }
 
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   $ctx->{'prpsearchpath'} = $prpsearchpath if $prpsearchpath;

@@ -216,7 +216,11 @@ sub addrev_service {
   }
   BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
   notify_serviceresult($rev, $error);
-  $notify_repservers->('package', $projid, $packid) unless $rev->{'rev'} eq 'obsscm';
+  if ($packid eq '_project') {
+    $notify_repservers->('project', $projid) unless $rev->{'rev'} eq 'obsscm' || $error;
+  } else {
+    $notify_repservers->('package', $projid, $packid) unless $rev->{'rev'} eq 'obsscm' || $error;
+  }
 }
 
 # store the faked result of a service run. Note that this is done before

@@ -1057,7 +1057,7 @@ eval {
     if ($state ne 'scheduling') {
       if ($state) {
         $ctx->set_repo_state($state, $details);
-        $gctx->{'prpfinished'}->{$prp} = 1;
+        $gctx->{'prpfinished'}->{$prp} = 1 unless $state eq 'blocked';
       }
       $details ||= $state;
       print "  - $prp: $details\n";

@@ -388,7 +388,7 @@ sub addrepo_remote {
   my $cpio;
   my $solvok;
   eval {
-    die('unsupported view\n') unless $remoteproj->{'partition'} || defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate;
+    die('unsupported view\n') unless $remoteproj->{'partition'} || (defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate);
     $param->{'async'}->{'_solvok'} = 1 if $param->{'async'};
     my @args = ('view=solvstate');
     push @args, 'noajax=1' if $remoteproj->{'partition'};
