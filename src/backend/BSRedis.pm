@@ -30,12 +30,9 @@ use BSRPC;
 
 use strict;
 
-my $tossl;
-
 sub import {
   if (grep {$_ eq ':tls'} @_) {
-    require BSSSL;
-    $tossl = \&BSSSL::tossl;
+    BSRPC::import(':https') unless $BSRPC::tossl;
   }
 }
 
@@ -57,11 +54,7 @@ sub connect {
   die("unknown host '$self->{'server'}'\n") unless $hostaddr;
   my $sock = BSRPC::opensocket($hostaddr);
   connect($sock, $hostaddr) || die("connect to $self->{'server'}:$self->{'port'}: $!\n");
-  if ($self->{'tls'}) {
-    die("tls not supported\n") unless $self->{'tossl'} || $tossl;
-    ($self->{'tossl'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $self->{'ssl_keyfile'}, 'certfile' => $self->{'certfile'}, 'sni' => $self->{'server'});
-    BSRPC::verify_sslpeerfingerprint($sock, $self->{'sslpeerfingerprint'}) if $self->{'sslpeerfingerprint'};
-  }
+  BSRPC::setup_ssl_client($sock, $self, $self->{'server'}) if $self->{'tls'};
   $self->{'sock'} = $sock;
   $self->{'buf'} = '';
   $self->run('AUTH', $self->{'password'}) if defined $self->{'password'};
