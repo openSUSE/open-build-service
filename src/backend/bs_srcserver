@@ -1246,6 +1246,14 @@ sub getprojpack {
       }
     }
 
+    if ($proj->{'scmsync'} && !$cgi->{'buildinfo'} && !$proj->{'remoteurl'} && !$jinfo->{'error'}) {
+      my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, '_project');
+      my $serviceerror = BSSrcrep::getserviceerror($projid, '_project', $servicemark);
+      if ($serviceerror && $serviceerror !~ /service in progress/) {
+	$jinfo->{'error'} = $serviceerror;
+      }
+    }
+
     if ($cgi->{'withconfig'}) {
       my $config = readstr("$projectsdir/$projid.conf", 1);
       if ($config) {
@@ -1495,6 +1503,14 @@ sub getprojpack {
 	    for (qw{bcntsynctag releasename}) {
 	      $pinfo->{$_} = $lpack->{$_} if $lpack->{$_};
 	    }
+	  }
+	}
+	if ($pack->{'scmsync'}) {
+	  my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, $packid);
+	  my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
+          if ($serviceerror) {
+	    $pinfo->{'error'} = $serviceerror;
+	    next;
 	  }
 	}
 	my $files;

@@ -20,10 +20,7 @@
 
 package BSStdRunner;
 
-use POSIX;
-use IO::Handle;
-use Fcntl qw(:DEFAULT :flock);
-
+use IO::Handle;		# so that flush works in older perl versions
 
 use BSUtil;
 use BSConfiguration;
@@ -216,17 +213,10 @@ sub run {
     $conf->{'maxchild'} = 1;
   }
   mkdir_p($rundir);
-  open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
-  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("$name is already running!\n");
-  utime undef, undef, "$rundir/$runname.lock";
+  BSUtil::openrunlock(\*RUNLOCK, "$rundir/$runname", $name);
 
   mkdir_p($myeventdir);
-  if (! -p "$myeventdir/.ping") {
-    POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-    chmod(0666, "$myeventdir/.ping");
-  }
-
-  sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+  BSUtil::openping(\*PING, "$myeventdir/.ping");
 
   $conf->{'name'} = $name;
   $conf->{'ping'} = \*PING;
