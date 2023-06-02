@@ -340,7 +340,8 @@ OBSApi::Application.routes.draw do
   end
 
   # this can be requested by non browsers (like HA proxies :)
-  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons, as: 'apidocs_file'
+  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons
+  get 'apidocs-old/:filename' => 'webui/apidocs#file', constraints: cons
 
   # spiders request this, not browsers
   controller 'webui/sitemaps' do
