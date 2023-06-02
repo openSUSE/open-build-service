@@ -1050,6 +1050,7 @@ our $ajaxjob = [
 our $ajaxstatus = [
     'ajaxstatus' =>
 	'starttime',
+	'pid',
 	'ev',
      [[ 'watcher' =>
 	    'filename',

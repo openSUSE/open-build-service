@@ -166,12 +166,7 @@ sub TIEHANDLE {
 
 sub PRINT {
   my $sslr = shift;
-  my $r = 0;
-  for my $msg (@_) {
-    next unless defined $msg;
-    $r = Net::SSLeay::write($sslr->[0], $msg) or last;
-  }
-  return $r;
+  return WRITE($sslr, join($, || '', @_, $\ || ''));
 }
 
 sub READLINE {

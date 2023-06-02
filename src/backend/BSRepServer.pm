@@ -8,6 +8,8 @@ use BSUtil;
 use BSVerify;
 use Build;
 
+use BSSolv;
+
 my $reporoot = "$BSConfig::bsdir/build";
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
@@ -21,6 +23,41 @@ sub getconfig {
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
   $bconf->{'binarytype'} ||= 'UNDEFINED';
   return $bconf;
+}
+
+my @setup_pool_with_repo_cache;
+
+sub setup_pool_with_repo {
+  my ($prp, $arch, $modules) = @_;
+  my $dir = "$reporoot/$prp/$arch/:full";
+  
+  if ($BSStdServer::isajax) {
+    my @s = stat("$dir.solv");
+    if (@s && $s[7] >= 65536) {
+      my $cachekey = "$s[9]/$s[7]/$s[1]/$prp/$arch/".join('/', @{$modules || []});
+      for my $idx (0..7) {
+	if (($setup_pool_with_repo_cache[$idx][0] || '') eq $cachekey) {
+	  print "setup_pool_with_repo cache hit for $cachekey at index $idx\n";
+	  unshift @setup_pool_with_repo_cache, splice(@setup_pool_with_repo_cache, $idx, 1) if $idx;
+	  return $setup_pool_with_repo_cache[0][1], $setup_pool_with_repo_cache[0][2];
+	}
+      }
+      print "setup_pool_with_repo cache miss for $cachekey\n";
+      my $pool = BSSolv::pool->new();
+      $pool->setmodules($modules || []) if defined &BSSolv::pool::setmodules;
+      my $repo = eval { $pool->repofromfile($prp, "$dir.solv") };
+      my @s2 = stat("$dir.solv");
+      if ($repo && @s2 && "$s2[9]/$s2[7]/$s2[1]" eq $s[9]/$s[7]/$s[1]) {
+        pop @setup_pool_with_repo_cache;
+        unshift @setup_pool_with_repo_cache, [$cachekey, $pool, $repo];
+        return $pool, $repo;
+      }
+    }
+  }
+  my $pool = BSSolv::pool->new();
+  $pool->setmodules($modules || []) if defined &BSSolv::pool::setmodules;
+  my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+  return ($pool, $repo);
 }
 
 sub addrepo_scan {
