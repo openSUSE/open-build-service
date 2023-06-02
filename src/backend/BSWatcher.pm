@@ -862,7 +862,7 @@ sub rpc_tossl {
   my $sni;
   $sni = $1 if $ev->{'rpcdest'} && $ev->{'rpcdest'} =~ /^(.+):\d+$/;
   my $param = $ev->{'param'};
-  eval { BSRPC::setup_ssl_client($ev->{'fd'}, $param, $sni) };
+  eval { BSRPC::setup_ssl_client($ev->{'fd'}, { %$param, 'ssl_connect_timeout' => $rpc_connect_timeout }, $sni) };
   if ($@) {
     my $err = $@;
     $err =~ s/\n$//s;
