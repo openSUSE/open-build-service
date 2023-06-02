@@ -1087,6 +1087,7 @@ class SourceController < ApplicationController
                     pkg.release_target_name(targetrepo, time_now),
                     { filter_source_repository: repo,
                       multibuild_container: multibuild_container,
+                      filter_architecture: params[:arch],
                       setrelease: params[:setrelease],
                       manual: true,
                       comment: "Releasing package #{pkg.name}" })
