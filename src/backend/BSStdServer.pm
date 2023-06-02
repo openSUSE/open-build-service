@@ -400,7 +400,9 @@ sub server {
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
+    $conf->{'name'} = $name;
     $conf->{'rundir'} ||= $BSConfig::rundir || "$BSConfig::bsdir/run";
+    $conf->{'runname'} ||= $name;
     $conf->{'verifiers'} ||= $BSVerify::verifiers;
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
@@ -408,14 +410,12 @@ sub server {
     $conf->{'authorize'} ||= \&authorize;
     $conf->{'periodic'} ||= \&periodic;
     $conf->{'periodic_interval'} ||= 1;
-    $conf->{'serverstatus'} ||= "$conf->{'rundir'}/$name.status";
+    $conf->{'serverstatus'} ||= "$conf->{'rundir'}/$conf->{'runname'}.status";
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
     $conf->{'run'} ||= \&BSServer::server;
     $conf->{'slowrequestlog'} ||= "$BSConfig::logdir/$name.slow.log" if $conf->{'slowrequestthr'};
     $conf->{'slowrequestlog2'} ||= "$BSConfig::logdir/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
     $conf->{'critlogfile'} ||= "$BSConfig::logdir/$name.crit.log";
-    $conf->{'name'} = $name;
-    $conf->{'runname'} ||= $name;
     $conf->{'logfile'} = $logfile if $logfile;
     $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
     $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
@@ -425,7 +425,9 @@ sub server {
   }
   if ($aconf) {
     require BSHandoff;
+    $aconf->{'name'} = $name;
     $aconf->{'rundir'} ||= $BSConfig::rundir || "$BSConfig::bsdir/run";
+    $aconf->{'runname'} ||= ($conf || {})->{'runname'} || $name;
     $aconf->{'verifiers'} ||= $BSVerify::verifiers;
     $aconf->{'dispatch'} ||= \&dispatch;
     $aconf->{'stdreply'} ||= \&stdreply;
@@ -440,8 +442,6 @@ sub server {
     $aconf->{'replstream_timeout'} = 120 unless exists $aconf->{'replstream_timeout'};
     $aconf->{'run'} ||= \&BSEvents::schedule;
     $aconf->{'slowrequestlog'} ||= "$BSConfig::logdir/${name}_ajax.slow.log" if $aconf->{'slowrequestthr'};
-    $aconf->{'name'} = $name;
-    $aconf->{'runname'} ||= ($conf || {})->{'runname'} || $name;
     BSDispatch::compile($aconf);
   }
   if ($request) {
