@@ -1238,6 +1238,7 @@ sub getstatus {
   $ret->{'ev'} = $jev->{'id'};
   my $req = $jev->{'request'};
   $ret->{'starttime'} = $req->{'server'}->{'starttime'};
+  $ret->{'pid'} = $$;
   for my $filename (sort keys %filewatchers) {
     my $fw = {'filename' => $filename, 'state' => $filewatchers_s{$filename}};
     for my $jev (@{$filewatchers{$filename}}) {
