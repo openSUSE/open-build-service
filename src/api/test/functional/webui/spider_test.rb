@@ -27,8 +27,8 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link =~ %r{/live_build_log}
     # we do not really serve binary packages in the test environment
     return true if link =~ %r{/package/binary/}
-    # apidocs is not configured in test environment
-    return true if link.end_with?('/apidocs/index')
+    # old apidocs are not configured in test environment
+    return true if link.end_with?('/apidocs-old/index')
     # no need to visit flipper
     return true if link.end_with?('/flipper')
   end
