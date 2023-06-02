@@ -133,6 +133,30 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response 404
   end
 
+  def test_layer_project
+    login_king
+    get '/source/RemoteInstance:RemoteInstance:BaseDistro/_meta'
+    assert_response :success
+    meta = '<project name="RemoteInstance:RemoteInstance:BaseDistro">
+  <title>This is a base distro</title>
+  <description>Layering it above</description>
+  <repository name="BaseDistro_repo">
+    <arch>x86_64</arch>
+  </repository>
+</project>
+'
+    raw_put '/source/RemoteInstance:RemoteInstance:BaseDistro/_meta', meta
+    assert_response :success
+    delete '/source/RemoteInstance:RemoteInstance:BaseDistro'
+    assert_response :success
+    # still exists via IC
+    get '/source/RemoteInstance:RemoteInstance:BaseDistro'
+    assert_response :success
+    # fails now, as it is the remote project
+    delete '/source/RemoteInstance:RemoteInstance:BaseDistro'
+    assert_response 403
+  end
+
   def test_backend_support
     get '/public/source/UseRemoteInstance?package=pack1&package=pack2&view=info'
     assert_response :success
