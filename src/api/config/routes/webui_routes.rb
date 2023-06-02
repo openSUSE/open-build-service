@@ -404,11 +404,6 @@ OBSApi::Application.routes.draw do
     ### /apidocs-old
     get 'apidocs-old', to: redirect('/apidocs-old/index')
     get 'apidocs-old/(index)' => 'webui/apidocs#index', as: 'apidocs_index'
-
-    # Redirections to be removed, just to keep the legacy routes reachable
-    ### /apidocs
-    get 'apidocs', to: redirect('/apidocs-old/index')
-    get 'apidocs/(index)', to: redirect('apidocs-old/index')
   end
 
   resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', param: :workflow_project, constraints: cons do
