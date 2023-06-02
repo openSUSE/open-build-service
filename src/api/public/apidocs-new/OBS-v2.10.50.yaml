@@ -433,14 +433,14 @@ paths:
     $ref: 'paths/staging_project_name_workflow.yaml'
 
   # Statistics
-  /statistics/most_active_projects:
-    $ref: 'paths/statistics_most_active_projects.yaml'
-  /statistics/most_active_packages:
-    $ref: 'paths/statistics_most_active_packages.yaml'
   /statistics/latest_added:
     $ref: 'paths/statistics_latest_added.yaml'
   /statistics/latest_updated:
     $ref: 'paths/statistics_latest_updated.yaml'
+  /statistics/most_active_packages:
+    $ref: 'paths/statistics_most_active_packages.yaml'
+  /statistics/most_active_projects:
+    $ref: 'paths/statistics_most_active_projects.yaml'
 
   # Status messages
   /status/messages:
