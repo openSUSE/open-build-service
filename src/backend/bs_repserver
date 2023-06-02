@@ -179,9 +179,7 @@ sub getbinaryversions {
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
-  my $pool = BSSolv::pool->new();
-  $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
-  my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+  my ($pool, $repo) = BSRepServer::setup_pool_with_repo($prp, $arch, $cgi->{'module'});
   my %names = $repo ? $repo->pkgnames() : ();
   @bins = sort keys %names if !@bins && !defined $cgi->{'binaries'};
   my @res;
@@ -423,9 +421,7 @@ sub getbinaries {
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
-  my $pool = BSSolv::pool->new();
-  $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
-  my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+  my ($pool, $repo) = BSRepServer::setup_pool_with_repo($prp, $arch, $cgi->{'module'});
   my %names = $repo ? $repo->pkgnames() : ();
   my @send;
   my $needscan;
@@ -789,9 +785,7 @@ sub getbinarylist_repository {
   }
 
   if ($view eq 'cpioheaders') {
-    my $pool = BSSolv::pool->new();
-    $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
-    my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+    my ($pool, $repo) = BSRepServer::setup_pool_with_repo($prp, $arch, $cgi->{'module'});
     my %names = $repo ? $repo->pkgnames() : ();
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
     my @files;
@@ -827,9 +821,7 @@ sub getbinarylist_repository {
     $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
     return if $BSStdServer::isajax && !defined $serial;
     my @files;
-    my $pool = BSSolv::pool->new();
-    $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
-    my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+    my ($pool, $repo) = BSRepServer::setup_pool_with_repo($prp, $arch, $cgi->{'module'});
     my %names = $repo ? $repo->pkgnames() : ();
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
     my $dodurl = $repo->dodurl();
@@ -896,9 +888,7 @@ sub getbinarylist_repository {
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
-  my $pool = BSSolv::pool->new();
-  $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
-  my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+  my ($pool, $repo) = BSRepServer::setup_pool_with_repo($prp, $arch, $cgi->{'module'});
   my %names = $repo ? $repo->pkgnames() : ();
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
   my @res;
@@ -1435,9 +1425,7 @@ sub getbinary_repository {
   if (! -f $path) {
     # return by name
     my $prp = "$projid/$repoid";
-    my $pool = BSSolv::pool->new();
-    $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
-    my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
+    my ($pool, $repo) = BSRepServer::setup_pool_with_repo($prp, $arch, $cgi->{'module'});
     my $dodurl = $repo->dodurl();
     my %rnames = $repo ? $repo->pkgnames() : ();
     my $p = $rnames{$bin};
