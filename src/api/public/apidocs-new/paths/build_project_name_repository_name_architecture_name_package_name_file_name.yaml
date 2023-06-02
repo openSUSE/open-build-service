@@ -106,3 +106,64 @@ put:
             details: "404 project 'home:Admin' has no repository '4'"
   tags:
     - Build
+
+delete:
+  summary: Delete an existing repository artifact
+  description: |
+    Given a project, repository and architecture delete the given file in the repository.
+
+    The user needs to have write permissions into the artifact
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - name: package_name
+      in: path
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - "_repository"
+      required: true
+      description: Package name. '_repository' is the only posible value.
+    - $ref: '../components/parameters/file_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Operation is not allowed
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'invalid_operation'
+            summary: 'Delete operation of build results is not allowed'
+    '403':
+      description: |
+        No permission to delete binaries from this project
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'delete_binary_no_permission'
+            summary: "No permission to delete binaries from project home:Admin."
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: '404'
+            summary: "project 'home:Admin' has no repository '4'"
+  tags:
+    - Build
