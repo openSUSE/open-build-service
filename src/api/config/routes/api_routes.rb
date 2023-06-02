@@ -340,8 +340,9 @@ OBSApi::Application.routes.draw do
   end
 
   # this can be requested by non browsers (like HA proxies :)
-  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons
   get 'apidocs-old/:filename' => 'webui/apidocs#file', constraints: cons
+  # Redirection to be removed, just to keep the legacy route reachable
+  get 'apidocs/:filename', to: redirect('/apidocs-old/%{filename}'), constraints: cons
 
   # spiders request this, not browsers
   controller 'webui/sitemaps' do
