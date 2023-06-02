@@ -1,5 +1,5 @@
-# The Group class represents a group record in the database and thus a group
-# in the ActiveRbac model. Groups are arranged in trees and have a title.
+# The Group class represents a group record in the database and thus a
+# group model. Groups are arranged in trees and have a title.
 # Groups have an arbitrary number of roles and users assigned to them.
 #
 class Group < ApplicationRecord
