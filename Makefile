@@ -15,4 +15,4 @@ clean:
 	make -C src/api clean
 
 resolve_swagger_yaml:
-	cd dist/ && ./resolve_swagger_yaml.rb -i ../src/api/public/apidocs-new/OBS-v2.10.50.yaml -o ../src/api/public/apidocs-new/OBS-v2.10.50.yaml -f
+	cd dist/ && ./resolve_swagger_yaml.rb -i ../src/api/public/apidocs/OBS-v2.10.50.yaml -o ../src/api/public/apidocs/OBS-v2.10.50.yaml -f

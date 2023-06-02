@@ -16,7 +16,7 @@ namespace :dev do
 
     desc 'Run apidocs linter'
     task :apidocs do
-      sh 'find public/apidocs-new -name  \'*.yaml\' | xargs -P8 -I % ruby -e "require \'yaml\'; YAML.load_file(\'%\',  permitted_classes: [Time])"'
+      sh 'find public/apidocs -name  \'*.yaml\' | xargs -P8 -I % ruby -e "require \'yaml\'; YAML.load_file(\'%\',  permitted_classes: [Time])"'
     end
 
     desc 'Run JavaScript linter'
