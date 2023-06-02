@@ -267,7 +267,7 @@ sub setup_ssl_client {
     $ssl_ctx ||= $ssl_newctx->('verify_file' => $ssl_verify->{'verify_file'}, 'verify_dir' => $ssl_verify->{'verify_dir'});
     $ctx = $ssl_ctx;
   }
-  ($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'keyfile' => $keyfile, 'certfile' => $certfile, 'verify' => $verify, 'ctx' => $ctx, 'sni' => $host);
+  ($param->{'https'} || $tossl)->($sock, 'mode' => 'connect', 'connect_timeout' => $param->{'ssl_connect_timeout'}, 'keyfile' => $keyfile, 'certfile' => $certfile, 'verify' => $verify, 'ctx' => $ctx, 'sni' => $host);
   verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
 }
 
