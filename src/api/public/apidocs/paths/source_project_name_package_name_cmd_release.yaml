@@ -41,6 +41,12 @@ post:
       description: |
         If this parameter is present, the release will be tagged with this parameter's value.
       example: Build8.18
+    - in: query
+      name: arch
+      schema:
+        type: string
+      description:
+        The name of the architecture. Limit the release to a certain architecture.
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'
