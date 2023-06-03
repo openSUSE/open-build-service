@@ -260,6 +260,7 @@ sub generate_obs_scm_bridge_service {
   my @params;
   push @params, { 'name' => 'url', '_content' => $data->{'url'} };
   push @params, { 'name' => 'projectmode', '_content' => '1' } if $data->{'projectmode'};
+  push @params, { 'name' => 'projectscmsync', '_content' => $data->{'projectscmsync'} } if $data->{'projectscmsync'};
   my $services = { 
     'service' => [ { 'name' => 'obs_scm_bridge', 'param' => \@params } ],
   };
@@ -274,7 +275,7 @@ sub generate_obsscm_rev {
 }
 
 sub runservice_obsscm {
-  my ($cgi, $projid, $packid, $scmurl) = @_;
+  my ($cgi, $projid, $packid, $scmurl, $projectscmsync) = @_;
   die("Cannot use the scm bridge with old style services\n") if $BSConfig::old_style_services;
   my $servicemark = genservicemark_obsscm($projid, $packid);
   # generate random run id, store "in progress" marker with the run id
@@ -283,6 +284,7 @@ sub runservice_obsscm {
   $data->{'user'} = $cgi->{'user'} if $cgi->{'user'};
   $data->{'commit'} = $cgi->{'comment'} if $cgi->{'comment'};
   $data->{'projectmode'} = 1 if $packid eq '_project';
+  $data->{'projectscmsync'} = $projectscmsync if $projectscmsync;
   my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
   BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, $data);
   close($fd);
