@@ -450,6 +450,9 @@ paths:
   /status/messages/{id}:
     $ref: 'paths/status_messages_id.yaml'
 
+  /status/project/{project_name}:
+    $ref: 'paths/status_project_name.yaml'
+
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
 
