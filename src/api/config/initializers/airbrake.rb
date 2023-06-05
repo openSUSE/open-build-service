@@ -84,7 +84,7 @@ def ignore_by_class_and_message?(notice)
 end
 
 def ignore_by_backend_400_message?(message)
-  messages_to_ignore = ['<summary>conflict in file', '<summary>unknown request:', '<summary>bad link',
+  messages_to_ignore = ['<summary>unknown request:', '<summary>bad link',
                         '<summary>broken link in', '<summary>bad files', 'does not exist</summary>',
                         'is illegal</summary>', '<summary>service in progress</summary>', '<summary>service error',
                         '<summary>could not apply patch', '<summary>illegal characters</summary>',
@@ -94,6 +94,10 @@ def ignore_by_backend_400_message?(message)
                         '<summary>excess hash entries: '].freeze
   messages_to_ignore.each do |ignored_error_message|
     return true if message.include?(ignored_error_message)
+  end
+  messages_to_ignore_re = ['<summary>[^<>]*conflict in file [^<>]*</summary>'].freeze
+  messages_to_ignore_re.each do |ignored_error_message|
+    return true if message.match?(ignored_error_message)
   end
 
   false
