@@ -1,9 +1,10 @@
 testbuild:
   steps:
-    - link_package:
+    - branch_package:
         source_project: OBS:Server:Unstable
         source_package: obs-server
         target_project: home:bs-team
+        add_repositories: disable
     - configure_repositories:
         project: home:bs-team
         repositories:
