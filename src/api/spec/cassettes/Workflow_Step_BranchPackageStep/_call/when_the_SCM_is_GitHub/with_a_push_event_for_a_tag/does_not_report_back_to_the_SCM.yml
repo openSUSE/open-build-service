@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:05:46 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_59
+    uri: http://backend:5352/source/foo_project/_meta?user=user_93
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Terrible Swift Sword</title>
+          <title>I Know Why the Caged Bird Sings</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Terrible Swift Sword</title>
+          <title>I Know Why the Caged Bird Sings</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:05:46 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_60
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_94
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:05:46 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Eum reprehenderit occaecati. Amet sit officia. Exercitationem reiciendis
-        sed.
+      string: Sint illo nemo. Et ipsum aut. Quia expedita ipsam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="67" vrev="67">
-          <srcmd5>8da43aebcfb915a3dc5183bb0a93cbdc</srcmd5>
+        <revision rev="99" vrev="99">
+          <srcmd5>ed714744a9bd3d4a0babfec0fb634f17</srcmd5>
           <version>unknown</version>
-          <time>1643641546</time>
+          <time>1685969072</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Eos vel minus. Eum occaecati impedit. Adipisci quis rerum.
+      string: Odio iusto autem. Hic et enim. Debitis ratione laboriosam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="68" vrev="68">
-          <srcmd5>d9983205a17055acc7cf2858cd9851aa</srcmd5>
+        <revision rev="100" vrev="100">
+          <srcmd5>9f8b76d36d242fb9939e2db0d15fe7e9</srcmd5>
           <version>unknown</version>
-          <time>1643641547</time>
+          <time>1685969072</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -228,7 +227,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -236,8 +235,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -258,15 +257,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
@@ -298,15 +297,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>8151d04f284674c41a6202091671c1bb</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>26cfca2ff21be418aa12876f2d10b88c</srcmd5>
           <version>unknown</version>
-          <time>1643641547</time>
+          <time>1685969072</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -314,8 +313,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -336,15 +335,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -374,14 +373,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="5" vrev="5" srcmd5="8151d04f284674c41a6202091671c1bb">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="d9983205a17055acc7cf2858cd9851aa" baserev="d9983205a17055acc7cf2858cd9851aa" xsrcmd5="4f19286b96ab498f70151d9c811f12b1" lsrcmd5="8151d04f284674c41a6202091671c1bb"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1643641537"/>
-          <entry name="_config" md5="5118cd17e886f9b134e5274a097a0425" size="77" mtime="1643641546"/>
-          <entry name="_link" md5="86c67445005fcdaada073a9b64e6ddd4" size="141" mtime="1643641547"/>
-          <entry name="somefile.txt" md5="9491d8819b4c390b3932a1d32a08944d" size="58" mtime="1643641547"/>
+        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="26cfca2ff21be418aa12876f2d10b88c">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9f8b76d36d242fb9939e2db0d15fe7e9" baserev="9f8b76d36d242fb9939e2db0d15fe7e9" xsrcmd5="f169771937ba9db7be204c71f9535ae0" lsrcmd5="26cfca2ff21be418aa12876f2d10b88c"/>
+          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1685969043"/>
+          <entry name="_config" md5="0864ec64b2d2bc9ca5f12ae98f081f7b" size="50" mtime="1685969072"/>
+          <entry name="_link" md5="dce4d4d9e28d43a0de6c9246a5f6b12a" size="141" mtime="1685969072"/>
+          <entry name="somefile.txt" md5="bf4b1fff9e730c570f42e09a135c3e79" size="58" mtime="1685969072"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
@@ -407,15 +406,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '341'
+      - '342'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="5" vrev="73" srcmd5="4f19286b96ab498f70151d9c811f12b1" lsrcmd5="8151d04f284674c41a6202091671c1bb" verifymd5="d9983205a17055acc7cf2858cd9851aa">
+        <sourceinfo package="bar_package-release_abc" rev="7" vrev="107" srcmd5="f169771937ba9db7be204c71f9535ae0" lsrcmd5="26cfca2ff21be418aa12876f2d10b88c" verifymd5="9f8b76d36d242fb9939e2db0d15fe7e9">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -445,14 +444,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="5" vrev="5" srcmd5="8151d04f284674c41a6202091671c1bb">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="d9983205a17055acc7cf2858cd9851aa" baserev="d9983205a17055acc7cf2858cd9851aa" xsrcmd5="4f19286b96ab498f70151d9c811f12b1" lsrcmd5="8151d04f284674c41a6202091671c1bb"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1643641537"/>
-          <entry name="_config" md5="5118cd17e886f9b134e5274a097a0425" size="77" mtime="1643641546"/>
-          <entry name="_link" md5="86c67445005fcdaada073a9b64e6ddd4" size="141" mtime="1643641547"/>
-          <entry name="somefile.txt" md5="9491d8819b4c390b3932a1d32a08944d" size="58" mtime="1643641547"/>
+        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="26cfca2ff21be418aa12876f2d10b88c">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9f8b76d36d242fb9939e2db0d15fe7e9" baserev="9f8b76d36d242fb9939e2db0d15fe7e9" xsrcmd5="f169771937ba9db7be204c71f9535ae0" lsrcmd5="26cfca2ff21be418aa12876f2d10b88c"/>
+          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1685969043"/>
+          <entry name="_config" md5="0864ec64b2d2bc9ca5f12ae98f081f7b" size="50" mtime="1685969072"/>
+          <entry name="_link" md5="dce4d4d9e28d43a0de6c9246a5f6b12a" size="141" mtime="1685969072"/>
+          <entry name="somefile.txt" md5="bf4b1fff9e730c570f42e09a135c3e79" size="58" mtime="1685969072"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -484,14 +483,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="7772c48f45a19210c556fc4ebf38bfaf">
+        <sourcediff key="72b86bb52d5c21fc5a82740ac8ad427c">
           <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="5" srcmd5="8151d04f284674c41a6202091671c1bb"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="7" srcmd5="26cfca2ff21be418aa12876f2d10b88c"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -523,14 +522,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8068b624e37aeeb1a9651ebb65873db2">
-          <old project="foo_project" package="bar_package" rev="d9983205a17055acc7cf2858cd9851aa" srcmd5="d9983205a17055acc7cf2858cd9851aa"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="4f19286b96ab498f70151d9c811f12b1" srcmd5="4f19286b96ab498f70151d9c811f12b1"/>
+        <sourcediff key="2af73722980871916f1ac21d37c213a3">
+          <old project="foo_project" package="bar_package" rev="9f8b76d36d242fb9939e2db0d15fe7e9" srcmd5="9f8b76d36d242fb9939e2db0d15fe7e9"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="f169771937ba9db7be204c71f9535ae0" srcmd5="f169771937ba9db7be204c71f9535ae0"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
@@ -588,7 +587,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:05:47 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_branch_request?user=Iggy
@@ -618,15 +617,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>0dd50f3280e6d68bad0811067f31f596</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>4c528373eb95ccd0e439f895375017eb</srcmd5>
           <version>unknown</version>
-          <time>1643641547</time>
+          <time>1685969072</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -634,8 +633,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -656,15 +655,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>Of Human Bondage</title>
-          <description>Et omnis reiciendis sit.</description>
+          <title>That Good Night</title>
+          <description>Fugiat repudiandae quidem quia.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -694,14 +693,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="6" vrev="6" srcmd5="0dd50f3280e6d68bad0811067f31f596">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="d9983205a17055acc7cf2858cd9851aa" baserev="d9983205a17055acc7cf2858cd9851aa" xsrcmd5="5ed8b15e9828186e33134e4d63114cfc" lsrcmd5="0dd50f3280e6d68bad0811067f31f596"/>
-          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1643641545"/>
-          <entry name="_config" md5="5118cd17e886f9b134e5274a097a0425" size="77" mtime="1643641546"/>
-          <entry name="_link" md5="86c67445005fcdaada073a9b64e6ddd4" size="141" mtime="1643641547"/>
-          <entry name="somefile.txt" md5="9491d8819b4c390b3932a1d32a08944d" size="58" mtime="1643641547"/>
+        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="4c528373eb95ccd0e439f895375017eb">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9f8b76d36d242fb9939e2db0d15fe7e9" baserev="9f8b76d36d242fb9939e2db0d15fe7e9" xsrcmd5="0f5795ae87d0c85790163c3eaf002448" lsrcmd5="4c528373eb95ccd0e439f895375017eb"/>
+          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1685969068"/>
+          <entry name="_config" md5="0864ec64b2d2bc9ca5f12ae98f081f7b" size="50" mtime="1685969072"/>
+          <entry name="_link" md5="dce4d4d9e28d43a0de6c9246a5f6b12a" size="141" mtime="1685969072"/>
+          <entry name="somefile.txt" md5="bf4b1fff9e730c570f42e09a135c3e79" size="58" mtime="1685969072"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
@@ -727,15 +726,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '341'
+      - '342'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="6" vrev="74" srcmd5="5ed8b15e9828186e33134e4d63114cfc" lsrcmd5="0dd50f3280e6d68bad0811067f31f596" verifymd5="1d025b47100ac79ac3aa527be7f61995">
+        <sourceinfo package="bar_package-release_abc" rev="8" vrev="108" srcmd5="0f5795ae87d0c85790163c3eaf002448" lsrcmd5="4c528373eb95ccd0e439f895375017eb" verifymd5="68ff13f760769f13112b0f73f80ad7fb">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -765,14 +764,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="6" vrev="6" srcmd5="0dd50f3280e6d68bad0811067f31f596">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="d9983205a17055acc7cf2858cd9851aa" baserev="d9983205a17055acc7cf2858cd9851aa" xsrcmd5="5ed8b15e9828186e33134e4d63114cfc" lsrcmd5="0dd50f3280e6d68bad0811067f31f596"/>
-          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1643641545"/>
-          <entry name="_config" md5="5118cd17e886f9b134e5274a097a0425" size="77" mtime="1643641546"/>
-          <entry name="_link" md5="86c67445005fcdaada073a9b64e6ddd4" size="141" mtime="1643641547"/>
-          <entry name="somefile.txt" md5="9491d8819b4c390b3932a1d32a08944d" size="58" mtime="1643641547"/>
+        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="4c528373eb95ccd0e439f895375017eb">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9f8b76d36d242fb9939e2db0d15fe7e9" baserev="9f8b76d36d242fb9939e2db0d15fe7e9" xsrcmd5="0f5795ae87d0c85790163c3eaf002448" lsrcmd5="4c528373eb95ccd0e439f895375017eb"/>
+          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1685969068"/>
+          <entry name="_config" md5="0864ec64b2d2bc9ca5f12ae98f081f7b" size="50" mtime="1685969072"/>
+          <entry name="_link" md5="dce4d4d9e28d43a0de6c9246a5f6b12a" size="141" mtime="1685969072"/>
+          <entry name="somefile.txt" md5="bf4b1fff9e730c570f42e09a135c3e79" size="58" mtime="1685969072"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -804,14 +803,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3fcbc05ae4bc9d7d3180642fc3ab6eac">
+        <sourcediff key="d6b837cb499a7df16332d4bc98e02f3b">
           <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="6" srcmd5="0dd50f3280e6d68bad0811067f31f596"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="8" srcmd5="4c528373eb95ccd0e439f895375017eb"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -843,12 +842,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c408509c8b5ef8cf7fbfdb18c1232818">
-          <old project="foo_project" package="bar_package" rev="d9983205a17055acc7cf2858cd9851aa" srcmd5="d9983205a17055acc7cf2858cd9851aa"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="5ed8b15e9828186e33134e4d63114cfc" srcmd5="5ed8b15e9828186e33134e4d63114cfc"/>
+        <sourcediff key="93b400df8ac0d2ea1e16c8ddba0ef781">
+          <old project="foo_project" package="bar_package" rev="9f8b76d36d242fb9939e2db0d15fe7e9" srcmd5="9f8b76d36d242fb9939e2db0d15fe7e9"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="0f5795ae87d0c85790163c3eaf002448" srcmd5="0f5795ae87d0c85790163c3eaf002448"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:05:48 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:44:32 GMT
+recorded_with: VCR 6.1.0

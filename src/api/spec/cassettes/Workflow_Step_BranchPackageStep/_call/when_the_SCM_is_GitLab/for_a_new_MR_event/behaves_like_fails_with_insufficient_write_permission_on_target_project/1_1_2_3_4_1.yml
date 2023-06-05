@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:57 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_41
+    uri: http://backend:5352/source/foo_project/_meta?user=user_43
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Dance Dance Dance</title>
+          <title>The Far-Distant Oxus</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Dance Dance Dance</title>
+          <title>The Far-Distant Oxus</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:58 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_42
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>An Acceptable Time</title>
-          <description>Iste et animi earum.</description>
+          <title>The Daffodil Sky</title>
+          <description>Facere sit tempore rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>An Acceptable Time</title>
-          <description>Iste et animi earum.</description>
+          <title>The Daffodil Sky</title>
+          <description>Facere sit tempore rerum.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:07:58 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Alias aliquam quia. Iusto ipsum dolores. Unde sed non.
+      string: Assumenda temporibus doloribus. Voluptate natus ut. Ullam ut cumque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="149" vrev="149">
-          <srcmd5>854d7bdbcd81559b05f414933ab782fe</srcmd5>
+        <revision rev="49" vrev="49">
+          <srcmd5>16ad081702793cf3e659f8b5da2f553e</srcmd5>
           <version>unknown</version>
-          <time>1643641678</time>
+          <time>1685969050</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:58 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Suscipit possimus minus. Placeat voluptas et. Eligendi illo excepturi.
+      string: Quo eum magni. Fuga veniam sed. Hic nihil eveniet.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="150" vrev="150">
-          <srcmd5>a824fb606cdd6253c225af545526fbd0</srcmd5>
+        <revision rev="50" vrev="50">
+          <srcmd5>27f9cf339c2c6df8d57a14d723f2c1f6</srcmd5>
           <version>unknown</version>
-          <time>1643641678</time>
+          <time>1685969050</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:58 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_without_maintainer_rights/_meta?user=Iggy
@@ -201,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>Of Mice and Men</title>
+          <title>An Acceptable Time</title>
           <description/>
         </project>
     headers:
@@ -223,15 +223,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '125'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>Of Mice and Men</title>
+          <title>An Acceptable Time</title>
           <description></description>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:58 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -265,5 +265,5 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 31 Jan 2022 15:07:58 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
+recorded_with: VCR 6.1.0

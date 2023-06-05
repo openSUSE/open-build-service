@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_382
+    uri: http://backend:5352/source/foo_project/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Butter In a Lordly Dish</title>
+          <title>Beyond the Mexique Bay</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Butter In a Lordly Dish</title>
+          <title>Beyond the Mexique Bay</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_383
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>A Passage to India</title>
-          <description>Dolorum in quod perferendis.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>Necessitatibus aut asperiores libero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>A Passage to India</title>
-          <description>Dolorum in quod perferendis.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>Necessitatibus aut asperiores libero.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Consequatur voluptatem libero. Cumque ad explicabo. Cumque voluptatum
-        aliquid.
+      string: Non est voluptatem. Placeat amet repudiandae. Repellat quidem odit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1761" vrev="1761">
-          <srcmd5>3f94aa68c3ab6871cc7a65a1f0815ddc</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>d7c015a68502f05d3c01cdf12a7769d7</srcmd5>
           <version>unknown</version>
-          <time>1642674812</time>
+          <time>1685969035</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Velit aut maxime. Consequatur itaque quia. Quo dolorem odit.
+      string: Et et eius. Enim aperiam quae. Sequi soluta ullam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1762" vrev="1762">
-          <srcmd5>309460da7ecc3e289dfee31fb830f805</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>a524d51c3f3289f7230c316828a39ca3</srcmd5>
           <version>unknown</version>
-          <time>1642674812</time>
+          <time>1685969035</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
+recorded_with: VCR 6.1.0
