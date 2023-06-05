@@ -1395,6 +1395,8 @@ class Project < ApplicationRecord
   end
 
   def signing_key(type:)
+    return nil if type.nil?
+
     case type.to_sym
     when :ssl
       key = SigningKeySSL.new(name)
