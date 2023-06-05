@@ -92,16 +92,23 @@ properties:
         xml:
           attribute: true
   path:
-    project:
-      type: string
-      example: 'home:Admin'
-      xml:
-        attribute: true
-    repository:
-      type: string
-      example: 'openSUSE_Tumbleweed'
-      xml:
-        attribute: true
+    type: object
+    properties:
+      project:
+        type: string
+        example: 'home:Admin'
+        xml:
+          attribute: true
+      repository:
+        type: string
+        example: 'openSUSE_Tumbleweed'
+        xml:
+          attribute: true
+      url:
+        type: string
+        example: 'https://download.opensuse.org/repositories/home:/enavarro_suse/openSUSE_Tumbleweed/'
+        xml:
+          attribute: true
 
 xml:
   name: 'buildinfo'
