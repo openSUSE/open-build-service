@@ -154,8 +154,8 @@ sub TIEHANDLE {
     Net::SSLeay::accept($ssl) == 1 || die("SSL_accept error $!\n");
   } else {
     Net::SSLeay::set_tlsext_host_name($ssl, $opts{'sni'}) if $opts{'sni'} && defined(&Net::SSLeay::set_tlsext_host_name);
-    if ($opts{'connect_timeout'}) {
-      ssl_connect_with_timeout($ssl, $socket, $opts{'connect_timeout'});
+    if ($opts{'nonblocking'} || $opts{'connect_timeout'}) {
+      ssl_connect_with_timeout($ssl, $socket, $opts{'connect_timeout'} || 300);
     } else {
       Net::SSLeay::connect($ssl) > 0 || die_with_error_stack("SSL_connect error");
     }
