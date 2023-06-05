@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_384
+    uri: http://backend:5352/source/foo_project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Specimen Days</title>
+          <title>Beneath the Bleeding</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Specimen Days</title>
+          <title>Beneath the Bleeding</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_385
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Where Angels Fear to Tread</title>
-          <description>Molestiae possimus nulla corporis.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Sit quae aliquam facilis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Where Angels Fear to Tread</title>
-          <description>Molestiae possimus nulla corporis.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Sit quae aliquam facilis.</description>
         </package>
-  recorded_at: Thu, 20 Jan 2022 10:33:32 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Maxime voluptates ratione. Velit aut libero. Qui ut quo.
+      string: Eveniet ea veniam. Et occaecati iusto. Ut enim blanditiis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1763" vrev="1763">
-          <srcmd5>f31670f5df12829b0563b0f9eb102144</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>df10ef36998399d686d42876f01a4de2</srcmd5>
           <version>unknown</version>
-          <time>1642674812</time>
+          <time>1685969034</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:33 GMT
+  recorded_at: Mon, 05 Jun 2023 12:43:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Laborum provident est. Ex iusto impedit. Libero recusandae nihil.
+      string: Esse officia laboriosam. Ratione in esse. Laudantium occaecati culpa.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1764" vrev="1764">
-          <srcmd5>c52f1a54926769f387a5ddfe6450fb20</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>f90494a1bed5de63b8427ff5c8a165a3</srcmd5>
           <version>unknown</version>
-          <time>1642674813</time>
+          <time>1685969034</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 20 Jan 2022 10:33:33 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:43:54 GMT
+recorded_with: VCR 6.1.0

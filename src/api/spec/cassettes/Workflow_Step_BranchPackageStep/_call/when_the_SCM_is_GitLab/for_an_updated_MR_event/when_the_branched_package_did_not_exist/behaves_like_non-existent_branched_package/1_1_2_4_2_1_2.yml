@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_21
+    uri: http://backend:5352/source/foo_project/_meta?user=user_37
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Precious Bane</title>
+          <title>Dying of the Light</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Precious Bane</title>
+          <title>Dying of the Light</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_22
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_38
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Nihil laudantium ut. Nihil et vitae. Quia et nesciunt.
+      string: Odit qui excepturi. Tempora at voluptatem. Laboriosam assumenda eligendi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="123" vrev="123">
-          <srcmd5>7f648f3095271f9f98e562d1acf0781d</srcmd5>
+        <revision rev="43" vrev="43">
+          <srcmd5>8cba54f42a52105e6b53146fab242a97</srcmd5>
           <version>unknown</version>
-          <time>1643641668</time>
+          <time>1685969047</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quos tenetur repudiandae. Perferendis qui tempora. Velit quos omnis.
+      string: Vero aspernatur explicabo. Quod nihil velit. Eos nulla aliquam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="124" vrev="124">
-          <srcmd5>4f6e030f438019b53d66286b8d5427b4</srcmd5>
+        <revision rev="44" vrev="44">
+          <srcmd5>9fe8b4e380d5388b683ddbd02a94b553</srcmd5>
           <version>unknown</version>
-          <time>1643641668</time>
+          <time>1685969048</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -227,7 +227,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -267,7 +267,7 @@ http_interactions:
           <description>This project was created for package bar_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -275,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -297,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '190'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
@@ -337,15 +337,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="39" vrev="39">
-          <srcmd5>6976d447e49288e10c9bf94ff981ad87</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>28fde3ad437fd5ba81b1244debcb2ad9</srcmd5>
           <version>unknown</version>
-          <time>1643641669</time>
+          <time>1685969048</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -353,8 +353,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -375,15 +375,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '190'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -413,14 +413,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="39" vrev="39" srcmd5="6976d447e49288e10c9bf94ff981ad87">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="4f6e030f438019b53d66286b8d5427b4" baserev="4f6e030f438019b53d66286b8d5427b4" xsrcmd5="75e872581b48784d23d757976531a1b4" lsrcmd5="6976d447e49288e10c9bf94ff981ad87"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1643641537"/>
-          <entry name="_config" md5="41fb5472c63e0f0d80902a1e741122bb" size="54" mtime="1643641668"/>
-          <entry name="_link" md5="a9487de068890f2fa9240ead0222fe74" size="119" mtime="1643641668"/>
-          <entry name="somefile.txt" md5="a364bc046a46524b47e3561944dd07e2" size="68" mtime="1643641668"/>
+        <directory name="bar_package" rev="19" vrev="19" srcmd5="28fde3ad437fd5ba81b1244debcb2ad9">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9fe8b4e380d5388b683ddbd02a94b553" baserev="9fe8b4e380d5388b683ddbd02a94b553" xsrcmd5="45b12424c6454b42cde88eb160662458" lsrcmd5="28fde3ad437fd5ba81b1244debcb2ad9"/>
+          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1685969043"/>
+          <entry name="_config" md5="13be7fc303aebe37dfc2fb57d0a89510" size="73" mtime="1685969047"/>
+          <entry name="_link" md5="a4e063b8ae16a25ad1f3b6b4781ac2e4" size="119" mtime="1685969048"/>
+          <entry name="somefile.txt" md5="5f147bb73494162d3e7dbab8258eb458" size="63" mtime="1685969047"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?view=info
@@ -446,15 +446,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '331'
+      - '330'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="39" vrev="163" srcmd5="75e872581b48784d23d757976531a1b4" lsrcmd5="6976d447e49288e10c9bf94ff981ad87" verifymd5="4f6e030f438019b53d66286b8d5427b4">
+        <sourceinfo package="bar_package" rev="19" vrev="63" srcmd5="45b12424c6454b42cde88eb160662458" lsrcmd5="28fde3ad437fd5ba81b1244debcb2ad9" verifymd5="9fe8b4e380d5388b683ddbd02a94b553">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -484,14 +484,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="39" vrev="39" srcmd5="6976d447e49288e10c9bf94ff981ad87">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="4f6e030f438019b53d66286b8d5427b4" baserev="4f6e030f438019b53d66286b8d5427b4" xsrcmd5="75e872581b48784d23d757976531a1b4" lsrcmd5="6976d447e49288e10c9bf94ff981ad87"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1643641537"/>
-          <entry name="_config" md5="41fb5472c63e0f0d80902a1e741122bb" size="54" mtime="1643641668"/>
-          <entry name="_link" md5="a9487de068890f2fa9240ead0222fe74" size="119" mtime="1643641668"/>
-          <entry name="somefile.txt" md5="a364bc046a46524b47e3561944dd07e2" size="68" mtime="1643641668"/>
+        <directory name="bar_package" rev="19" vrev="19" srcmd5="28fde3ad437fd5ba81b1244debcb2ad9">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9fe8b4e380d5388b683ddbd02a94b553" baserev="9fe8b4e380d5388b683ddbd02a94b553" xsrcmd5="45b12424c6454b42cde88eb160662458" lsrcmd5="28fde3ad437fd5ba81b1244debcb2ad9"/>
+          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1685969043"/>
+          <entry name="_config" md5="13be7fc303aebe37dfc2fb57d0a89510" size="73" mtime="1685969047"/>
+          <entry name="_link" md5="a4e063b8ae16a25ad1f3b6b4781ac2e4" size="119" mtime="1685969048"/>
+          <entry name="somefile.txt" md5="5f147bb73494162d3e7dbab8258eb458" size="63" mtime="1685969047"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -523,14 +523,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="24817a2f566cb6a2893b6c50e93c064d">
+        <sourcediff key="e4166c51121f1a76f0374504c19e118f">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="39" srcmd5="6976d447e49288e10c9bf94ff981ad87"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="19" srcmd5="28fde3ad437fd5ba81b1244debcb2ad9"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -562,12 +562,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="78ee1232a370d2a590f41b79767847c6">
-          <old project="foo_project" package="bar_package" rev="4f6e030f438019b53d66286b8d5427b4" srcmd5="4f6e030f438019b53d66286b8d5427b4"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="75e872581b48784d23d757976531a1b4" srcmd5="75e872581b48784d23d757976531a1b4"/>
+        <sourcediff key="67684995e5b265eba16f2ea795380b9b">
+          <old project="foo_project" package="bar_package" rev="9fe8b4e380d5388b683ddbd02a94b553" srcmd5="9fe8b4e380d5388b683ddbd02a94b553"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="45b12424c6454b42cde88eb160662458" srcmd5="45b12424c6454b42cde88eb160662458"/>
           <files/>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -613,7 +613,7 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_branch_request?user=Iggy
@@ -643,15 +643,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="40" vrev="40">
-          <srcmd5>f4d478f43c98c36be16389a89732c775</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>e9cf5701f5120569d472c06d2784410c</srcmd5>
           <version>unknown</version>
-          <time>1643641669</time>
+          <time>1685969048</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -659,8 +659,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -681,15 +681,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '190'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Nihil dignissimos vel aut.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Iure explicabo ratione sed.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -719,14 +719,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="40" vrev="40" srcmd5="f4d478f43c98c36be16389a89732c775">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="4f6e030f438019b53d66286b8d5427b4" baserev="4f6e030f438019b53d66286b8d5427b4" xsrcmd5="3403c8f900b79158b3a044654ec81898" lsrcmd5="f4d478f43c98c36be16389a89732c775"/>
-          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1643641669"/>
-          <entry name="_config" md5="41fb5472c63e0f0d80902a1e741122bb" size="54" mtime="1643641668"/>
-          <entry name="_link" md5="a9487de068890f2fa9240ead0222fe74" size="119" mtime="1643641668"/>
-          <entry name="somefile.txt" md5="a364bc046a46524b47e3561944dd07e2" size="68" mtime="1643641668"/>
+        <directory name="bar_package" rev="20" vrev="20" srcmd5="e9cf5701f5120569d472c06d2784410c">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9fe8b4e380d5388b683ddbd02a94b553" baserev="9fe8b4e380d5388b683ddbd02a94b553" xsrcmd5="aae4cd41abe33825d09f5baac6b365d0" lsrcmd5="e9cf5701f5120569d472c06d2784410c"/>
+          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1685969043"/>
+          <entry name="_config" md5="13be7fc303aebe37dfc2fb57d0a89510" size="73" mtime="1685969047"/>
+          <entry name="_link" md5="a4e063b8ae16a25ad1f3b6b4781ac2e4" size="119" mtime="1685969048"/>
+          <entry name="somefile.txt" md5="5f147bb73494162d3e7dbab8258eb458" size="63" mtime="1685969047"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?view=info
@@ -752,15 +752,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '331'
+      - '330'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="40" vrev="164" srcmd5="3403c8f900b79158b3a044654ec81898" lsrcmd5="f4d478f43c98c36be16389a89732c775" verifymd5="a9f09911d1d77421784888dabf3ae83a">
+        <sourceinfo package="bar_package" rev="20" vrev="64" srcmd5="aae4cd41abe33825d09f5baac6b365d0" lsrcmd5="e9cf5701f5120569d472c06d2784410c" verifymd5="237a3c2aaaf8a6ab04a61a9726bd602f">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -790,14 +790,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="40" vrev="40" srcmd5="f4d478f43c98c36be16389a89732c775">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="4f6e030f438019b53d66286b8d5427b4" baserev="4f6e030f438019b53d66286b8d5427b4" xsrcmd5="3403c8f900b79158b3a044654ec81898" lsrcmd5="f4d478f43c98c36be16389a89732c775"/>
-          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1643641669"/>
-          <entry name="_config" md5="41fb5472c63e0f0d80902a1e741122bb" size="54" mtime="1643641668"/>
-          <entry name="_link" md5="a9487de068890f2fa9240ead0222fe74" size="119" mtime="1643641668"/>
-          <entry name="somefile.txt" md5="a364bc046a46524b47e3561944dd07e2" size="68" mtime="1643641668"/>
+        <directory name="bar_package" rev="20" vrev="20" srcmd5="e9cf5701f5120569d472c06d2784410c">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9fe8b4e380d5388b683ddbd02a94b553" baserev="9fe8b4e380d5388b683ddbd02a94b553" xsrcmd5="aae4cd41abe33825d09f5baac6b365d0" lsrcmd5="e9cf5701f5120569d472c06d2784410c"/>
+          <entry name="_branch_request" md5="1ecf0e682a06f24b71446f85ff3bd803" size="110" mtime="1685969043"/>
+          <entry name="_config" md5="13be7fc303aebe37dfc2fb57d0a89510" size="73" mtime="1685969047"/>
+          <entry name="_link" md5="a4e063b8ae16a25ad1f3b6b4781ac2e4" size="119" mtime="1685969048"/>
+          <entry name="somefile.txt" md5="5f147bb73494162d3e7dbab8258eb458" size="63" mtime="1685969047"/>
         </directory>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -829,14 +829,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="dae69387ce073f3dd185666332029282">
+        <sourcediff key="b8e7917e75ec5632ac987c1968277411">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="40" srcmd5="f4d478f43c98c36be16389a89732c775"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="20" srcmd5="e9cf5701f5120569d472c06d2784410c"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -868,12 +868,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="df2f7910eb10a0b81177e09a81a47074">
-          <old project="foo_project" package="bar_package" rev="4f6e030f438019b53d66286b8d5427b4" srcmd5="4f6e030f438019b53d66286b8d5427b4"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="3403c8f900b79158b3a044654ec81898" srcmd5="3403c8f900b79158b3a044654ec81898"/>
+        <sourcediff key="e485183ce97a0ff5023471351c741f5c">
+          <old project="foo_project" package="bar_package" rev="9fe8b4e380d5388b683ddbd02a94b553" srcmd5="9fe8b4e380d5388b683ddbd02a94b553"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="aae4cd41abe33825d09f5baac6b365d0" srcmd5="aae4cd41abe33825d09f5baac6b365d0"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Jan 2022 15:07:49 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:44:08 GMT
+recorded_with: VCR 6.1.0

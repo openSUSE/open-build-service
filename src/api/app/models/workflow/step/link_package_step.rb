@@ -16,7 +16,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def link_package
     create_target_package if webhook_event_for_linking_or_branching?
 
-    scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
+    set_scmsync_on_target_package if scm_synced?
 
     # SCMs don't support statuses for tags, so we don't need to report back in this case
     create_or_update_subscriptions(target_package) unless scm_webhook.tag_push_event?
@@ -36,7 +36,6 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     create_project_and_package
     return if scm_synced?
 
-    create_project_services
     create_link
   end
 
@@ -64,20 +63,6 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     return if remote_source?
 
     Package.get_by_project_and_name(source_project_name, source_package_name)
-  end
-
-  # NOTE: the next lines are a temporary fix the allow the service to run in a linked package. A project service is needed.
-  def create_project_services
-    service_file = ProjectServiceFile.new(project_name: target_project)
-    service_file.save!({}, special_package_file_content)
-  end
-
-  def special_package_file_content
-    <<~XML
-      <services>
-        <service name="format_spec_file" mode="localonly"/>
-      </services>
-    XML
   end
 
   def create_link

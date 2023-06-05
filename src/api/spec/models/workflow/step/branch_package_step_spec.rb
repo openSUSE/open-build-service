@@ -71,6 +71,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
 
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq(target_project_final_name) }
+    it { expect(subject.call.project.repositories.map(&:name).sort).to eq(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -195,6 +196,57 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'failed without branch permissions'
         it_behaves_like 'fails with insufficient write permission on target project'
+      end
+
+      context 'and we disabled add_repositories' do
+        let(:action) { 'opened' }
+        let(:octokit_client) { instance_double(Octokit::Client) }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name,
+            add_repositories: 'disabled'
+          }
+        end
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+          subject.call
+        end
+
+        it 'does not add repositories to target project' do
+          expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq([])
+        end
+      end
+
+      context 'and we enabled add_repositories' do
+        let(:action) { 'opened' }
+        let(:octokit_client) { instance_double(Octokit::Client) }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name,
+            add_repositories: 'enabled'
+          }
+        end
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_return(true)
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+
+          subject.call
+        end
+
+        it 'adds repositories to target project' do
+          expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(['Unicorn_123', 'openSUSE_Tumbleweed'])
+        end
       end
 
       context 'for a multibuild package' do
@@ -558,6 +610,40 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         expect { subject.call }.not_to change(Package, :count)
         expect(subject.errors.full_messages.to_sentence).to eq("invalid source package 'Invalid/format'")
       end
+    end
+  end
+
+  describe '.add_repositories?' do
+    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
+    let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
+    let(:scm_webhook) do
+      SCMWebhook.new(payload: {
+                       scm: 'github',
+                       event: 'pull_request',
+                       action: 'opened',
+                       pr_number: 1,
+                       source_repository_full_name: 'reponame',
+                       commit_sha: long_commit_sha,
+                       target_repository_full_name: 'openSUSE/open-build-service'
+                     })
+    end
+
+    context 'when add_repositories is enabled' do
+      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'enabled' } }
+
+      it { expect(subject.send(:add_repositories?)).to be_truthy }
+    end
+
+    context 'when add_repositories is disabled' do
+      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'disabled' } }
+
+      it { expect(subject.send(:add_repositories?)).not_to be_truthy }
+    end
+
+    context 'when add_repositories is blank' do
+      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name } }
+
+      it { expect(subject.send(:add_repositories?)).to be_truthy }
     end
   end
 end

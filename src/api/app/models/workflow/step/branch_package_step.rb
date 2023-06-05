@@ -16,6 +16,14 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     step_instructions[:target_project]
   end
 
+  def target_project
+    Project.find_by(name: target_project_name)
+  end
+
+  def add_repositories?
+    step_instructions[:add_repositories].blank? || step_instructions[:add_repositories] == 'enabled'
+  end
+
   def branch_package
     create_branched_package if webhook_event_for_linking_or_branching?
 
@@ -50,6 +58,17 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
   def create_branched_package
     check_source_access
+
+    # If we create target_project, BranchPackage.branch below will not create repositories
+    if !add_repositories? && target_project.nil?
+      project = Project.new(name: target_project_name)
+      Pundit.authorize(@token.executor, project, :create?)
+
+      project.relationships.build(user: @token.executor,
+                                  role: Role.find_by_title('maintainer'))
+      project.commit_user = User.session
+      project.store
+    end
 
     begin
       BranchPackage.new({ project: source_project_name, package: source_package_name,

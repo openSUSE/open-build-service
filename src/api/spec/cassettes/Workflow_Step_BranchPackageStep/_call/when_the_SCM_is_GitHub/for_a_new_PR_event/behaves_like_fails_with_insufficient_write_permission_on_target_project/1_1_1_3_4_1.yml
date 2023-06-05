@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_3
+    uri: http://backend:5352/source/foo_project/_meta?user=user_109
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Line of Beauty</title>
+          <title>A Farewell to Arms</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -75,20 +75,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Line of Beauty</title>
+          <title>A Farewell to Arms</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_4
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_110
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Moving Finger</title>
-          <description>Similique eum architecto et.</description>
+          <title>A Many-Splendoured Thing</title>
+          <description>Magnam est consequatur qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Moving Finger</title>
-          <description>Similique eum architecto et.</description>
+          <title>A Many-Splendoured Thing</title>
+          <description>Magnam est consequatur qui.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Ratione numquam enim. Qui consectetur debitis. Dolor beatae placeat.
+      string: Culpa illo qui. Voluptates nihil fugiat. Tempore quo similique.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>386455ce087ad6e305b5d9a2d6b59877</srcmd5>
+        <revision rev="115" vrev="115">
+          <srcmd5>3a6a0a2ed7b728c81c40a899ebdad823</srcmd5>
           <version>unknown</version>
-          <time>1643641507</time>
+          <time>1685969078</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Aut autem error. Neque voluptates nulla. Molestiae cum mollitia.
+      string: Ipsam est ea. Earum dolorem hic. Facere rem odit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>4ed1c4f2bc1aa18d5e659033dc17da28</srcmd5>
+        <revision rev="116" vrev="116">
+          <srcmd5>2579fab1b4bd4d67dbf1c01f13499970</srcmd5>
           <version>unknown</version>
-          <time>1643641507</time>
+          <time>1685969078</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_without_maintainer_rights/_meta?user=Iggy
@@ -201,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>The Lathe of Heaven</title>
+          <title>The World, the Flesh and the Devil</title>
           <description/>
         </project>
     headers:
@@ -223,15 +223,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>The Lathe of Heaven</title>
+          <title>The World, the Flesh and the Devil</title>
           <description></description>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:38 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -265,5 +265,5 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 31 Jan 2022 15:05:07 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:44:38 GMT
+recorded_with: VCR 6.1.0

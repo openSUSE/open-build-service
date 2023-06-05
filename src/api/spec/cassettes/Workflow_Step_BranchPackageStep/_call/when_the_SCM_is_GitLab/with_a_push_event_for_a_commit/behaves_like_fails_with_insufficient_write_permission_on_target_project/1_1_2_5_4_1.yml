@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    uri: http://backend:5352/source/foo_project/_meta?user=user_21
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Violent Bear It Away</title>
+          <title>Nine Coaches Waiting</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Violent Bear It Away</title>
+          <title>Nine Coaches Waiting</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_22
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The World, the Flesh and the Devil</title>
-          <description>Corrupti sit et sint.</description>
+          <title>The Moving Finger</title>
+          <description>Sunt quos ad ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The World, the Flesh and the Devil</title>
-          <description>Corrupti sit et sint.</description>
+          <title>The Moving Finger</title>
+          <description>Sunt quos ad ut.</description>
         </package>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Rerum nostrum et. Autem nemo maxime. Ipsa rerum suscipit.
+      string: Eveniet tempora sunt. Nihil beatae rerum. Ut velit aliquam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,26 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="121" vrev="121">
-          <srcmd5>d71639e89bd44c2ebf6c6459d4a722a0</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>d293d0207da37d140dbfd9c0d3997e63</srcmd5>
           <version>unknown</version>
-          <time>1643641668</time>
+          <time>1685969042</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Temporibus voluptas sapiente. Error eius mollitia. Magni praesentium
-        iste.
+      string: Expedita commodi sint. Perferendis sit sint. Fuga deleniti reprehenderit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="122" vrev="122">
-          <srcmd5>773b5caddbb904b93186784781babbba</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>2a3f9d03c4d93b8152b28c9c93b711de</srcmd5>
           <version>unknown</version>
-          <time>1643641668</time>
+          <time>1685969042</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_without_maintainer_rights/_meta?user=Iggy
@@ -202,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>In a Dry Season</title>
+          <title>That Good Night</title>
           <description/>
         </project>
     headers:
@@ -229,10 +228,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>In a Dry Season</title>
+          <title>That Good Night</title>
           <description></description>
         </project>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -266,5 +265,5 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 31 Jan 2022 15:07:48 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
+recorded_with: VCR 6.1.0
