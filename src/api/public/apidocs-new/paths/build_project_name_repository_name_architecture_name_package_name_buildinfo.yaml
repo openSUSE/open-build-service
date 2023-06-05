@@ -1,5 +1,9 @@
 get:
-  description: This endpoint returns information about some specific artifact
+  summary: Return build information about a build description would produce.
+  description: |
+    Get build information using the default spec file.
+
+    To use other file than the default spec file, use this same endpoint path with the `POST` action.
   security:
     - basic_authentication: []
   parameters:
@@ -7,6 +11,22 @@ get:
     - $ref: '../components/parameters/repository_name.yaml'
     - $ref: '../components/parameters/architecture_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
+    - name: add
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      description: Add a list of build dependencies (`BuildRequires`) to the build.
+      example:
+        - less
+        - vim
+    - name: debug
+      in: query
+      schema:
+        type: string
+      description: Set to `1` to add debug information about dependencies. This information is added inside an `expandeddebug` xml element.
+      example: 0
   responses:
     '200':
       description:
