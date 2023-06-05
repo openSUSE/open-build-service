@@ -47,7 +47,7 @@ sub setup_pool_with_repo {
       $pool->setmodules($modules || []) if defined &BSSolv::pool::setmodules;
       my $repo = eval { $pool->repofromfile($prp, "$dir.solv") };
       my @s2 = stat("$dir.solv");
-      if ($repo && @s2 && "$s2[9]/$s2[7]/$s2[1]" eq $s[9]/$s[7]/$s[1]) {
+      if ($repo && @s2 && "$s2[9]/$s2[7]/$s2[1]" eq "$s[9]/$s[7]/$s[1]") {
         pop @setup_pool_with_repo_cache;
         unshift @setup_pool_with_repo_cache, [$cachekey, $pool, $repo];
         return $pool, $repo;
