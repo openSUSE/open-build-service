@@ -227,7 +227,7 @@ module Webui::WebuiHelper
   # Only the first one will be used as link though if more than one is present.
   def tab_link(label, paths, active = false, html_class = 'nav-link text-nowrap')
     paths = [paths] unless paths.respond_to?(:select)
-    paths_match = paths.select { |path| request.path.eql?(path) }.any?
+    paths_match = paths.any? { |path| request.path.eql?(path) }
     html_class << ' active' if active || paths_match
 
     link_to(label, paths.first, class: html_class)
