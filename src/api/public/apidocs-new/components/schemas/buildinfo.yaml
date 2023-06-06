@@ -92,16 +92,33 @@ properties:
         xml:
           attribute: true
   path:
-    project:
-      type: string
-      example: 'home:Admin'
-      xml:
-        attribute: true
-    repository:
-      type: string
-      example: 'openSUSE_Tumbleweed'
-      xml:
-        attribute: true
+    type: object
+    properties:
+      project:
+        type: string
+        example: 'home:Admin'
+        xml:
+          attribute: true
+      repository:
+        type: string
+        example: 'openSUSE_Tumbleweed'
+        xml:
+          attribute: true
+      url:
+        type: string
+        example: 'https://download.opensuse.org/repositories/home:/enavarro_suse/openSUSE_Tumbleweed/'
+        xml:
+          attribute: true
+  expanddebug:
+    type: string
+    example: |
+      === meta deps expansion
+      expand args: rpm-build gcc-PIE
+      added rpm-build@openSUSE:Tumbleweed/dod because of (direct):rpm-build
+      added gcc-PIE@openSUSE:Tumbleweed/dod because of (direct):gcc-PIE
+      --- now doing normal dependencies
+      added glibc@openSUSE:Tumbleweed/dod because of rpm-build:libc.so.6(GLIBC_2.34)(64bit)
+      added glibc@openSUSE:Tumbleweed/dod because of rpm-build:libc.so.6(GLIBC_2.4)(64bit)
 
 xml:
   name: 'buildinfo'
