@@ -1318,7 +1318,9 @@ sub createrepo_checksumsfile {
       push @signargs, @{$data->{'signargs'} || []};
       my %options = map {$_ => 1} @{$options || []};
       if ($options{'rawsig'}) {
-        qsystem($BSConfig::sign, @signargs, '-D', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+	unlink("$extrep/SHA256SUMS.sig");
+	qsystem($BSConfig::sign, @signargs, '-D', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+	rename("$extrep/SHA256SUMS.sig", "$extrep/SHA256SUMS.gpg");
       }
       qsystem($BSConfig::sign, @signargs, '-d', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
       pickup_detached_signature($data, "$extrep/SHA256SUMS");
