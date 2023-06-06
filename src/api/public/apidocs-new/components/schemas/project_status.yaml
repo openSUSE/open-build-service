@@ -1,0 +1,56 @@
+type: object
+properties:
+  package:
+    type: array
+    items:
+      type: object
+      properties:
+        project:
+          type: string
+          xml:
+            attribute: true
+        name:
+          type: string
+          xml:
+            attribute: true
+        version:
+          type: string
+          xml:
+            attribute: true
+        srcmd5:
+          type: string
+          xml:
+            attribute: true
+        changesmd5:
+          type: string
+          xml:
+            attribute: true
+        maxmtime:
+          type: string
+          xml:
+            attribute: true
+        release:
+          type: string
+          xml:
+            attribute: true
+        verifymd5:
+          type: string
+          xml:
+            attribute: true
+        link:
+          type: object
+          properties:
+            project:
+              type: string
+              xml:
+                attribute: true
+            package:
+              type: string
+              xml:
+                attribute: true
+        error:
+          type: string
+      xml:
+        name: package
+xml:
+  name: packages
