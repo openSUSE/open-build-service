@@ -106,4 +106,4 @@ get:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
   tags:
-    - Workers
+    - Build

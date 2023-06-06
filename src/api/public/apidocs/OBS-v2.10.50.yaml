@@ -145,6 +145,8 @@ paths:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
+  /build/_workerstatus:
+    $ref: 'paths/build__workerstatus.yaml'
 
   /comment/{comment_id}:
     $ref: 'paths/comment_comment_id.yaml'
@@ -471,6 +473,8 @@ paths:
 
   /status/project/{project_name}:
     $ref: 'paths/status_project_name.yaml'
+  /status/workerstatus:
+    $ref: 'paths/status_workerstatus.yaml'
 
   # Status reports
   /status_reports/built/{project_name}/{repository_name}/{architecture_name}/reports/{build_id}:
@@ -497,6 +501,8 @@ paths:
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
 
+  /worker/_status:
+    $ref: 'paths/worker__status.yaml'
   /worker/status:
     $ref: 'paths/worker_status.yaml'
   /worker/{architecture_name}:{worker_id}:
