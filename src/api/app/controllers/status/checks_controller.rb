@@ -7,7 +7,7 @@ class Status::ChecksController < ApplicationController
 
   # POST /status_reports/published/:project_name/:repository_name/reports/:uuid
   # POST /status_reports/built/:project_name/:repository_name/:arch/reports/:uuid
-  # PUT /status_reports/requests/:number
+  # POST /status_reports/requests/:number/reports
   def update
     authorize @status_report
 
