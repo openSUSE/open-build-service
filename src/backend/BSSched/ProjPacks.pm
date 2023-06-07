@@ -444,11 +444,15 @@ sub update_projpacks {
       delete $proj->{'package'};
     }
   }
+  if (defined($projid) && $isgone) {
+    update_prpcheckuseforbuild($gctx, $projid);
+    BSSched::DoD::update_doddata($gctx, $projid) if $BSConfig::enable_download_on_demand;
+  }
+
   my $remoteprojs = $gctx->{'remoteprojs'};
   if (!defined($projid)) {
     %$remoteprojs = ();
   } elsif (!($packids && @$packids)) {
-    update_prpcheckuseforbuild($gctx, $projid) if $isgone;
     # delete project from remoteprojs if it is not in the remotemap
     if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
       delete $remoteprojs->{$projid};
