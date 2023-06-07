@@ -7,7 +7,6 @@ setup: true
 # the path-filtering orb is required to continue a pipeline based on
 # the path of an updated fileset
 orbs:
-  continuation: circleci/continuation@0
   path-filtering: circleci/path-filtering@0
 
 workflows:
