@@ -1,6 +1,6 @@
 module StatusHelper
   def self.resample(values, samples = 400)
-    values.sort! { |a, b| a[0] <=> b[0] }
+    values.sort_by! { |a| a[0] }
 
     result = []
     return result if values.empty?
