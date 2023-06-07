@@ -790,13 +790,14 @@ sub checkconstraints {
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($options, 'dispatcher', "$rundir/$runname");
-BSUtil::printlog("starting build service dispatcher");
 
 # get lock
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
 utime undef, undef, "$rundir/$runname.lock";
+
+BSUtil::printlog("starting build service dispatcher");
 
 my $dispatchprios;
 my $dispatchprios_project;
@@ -1313,7 +1314,7 @@ while (1) {
 	  next;
 	}
 	if (%{$pkgconstraints || {}}) {
-	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($pkgconstraints, $constraints) : $pkgconstraints;
+	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($constraints, $pkgconstraints) : $pkgconstraints;
 	}
       }
       if ($info->{'prjconfconstraint'}) {
