@@ -674,7 +674,7 @@ class User < ApplicationRecord
       project.destroy
     end
 
-    # comments are non-critical personal content, drop them as well. Even though they shouldn't be visiable anymore
+    # comments are non-critical personal content, drop them as well. Even though they shouldn't be visible anymore
     Comment.where(user: self).delete_all
     # no need to send out notifications anymore
     EventSubscription.where(user: self).delete_all
