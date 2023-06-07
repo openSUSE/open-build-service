@@ -39,15 +39,21 @@ if test -z "$OBS_SCHEDULER_ARCHITECTURES" ; then
 	OBS_SCHEDULER_ARCHITECTURES=i586
 fi
 
+bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
 
 case "$1" in
 	start)
 		mkdir -p "$rundir" "$logdir"
-		chown obsrun:obsrun "$logdir" "$rundir"
+		chown $bsuser:$bsgroup "$logdir" "$rundir"
 		cd "$obsdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		for i in $OBS_SCHEDULER_ARCHITECTURES; do
+			if ! test -e "$logdir"/scheduler_$i.log; then
+				touch "$logdir"/scheduler_$i.log
+				chown $bsuser:$bsgroup "$logdir"/scheduler_$i.log
+			fi
 		        $OBS_SCHEDULER_WRAPPER ./bs_sched $i >> "$logdir"/scheduler_$i.log 2>&1 &
 		done
 	;;
