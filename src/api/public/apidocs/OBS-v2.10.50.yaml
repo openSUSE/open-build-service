@@ -458,6 +458,8 @@ paths:
   # Status reports
   /status_reports/built/{project_name}/{repository_name}/{architecture_name}/reports/{build_id}:
     $ref: 'paths/status_reports_built_project_name_repository_name_architecture_name_reports_build_id.yaml'
+  /status_reports/published/{project_name}/{repository_name}/reports/{build_id}:
+    $ref: 'paths/status_reports_published_project_name_repository_name_reports_build_id.yaml'
 
   # Status reports - Required Checks
   /status_reports/built_repositories/{project_name}/{repository_name}/{architecture_name}/required_checks:

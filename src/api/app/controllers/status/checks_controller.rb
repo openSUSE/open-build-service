@@ -6,7 +6,7 @@ class Status::ChecksController < ApplicationController
   after_action :verify_authorized
 
   # POST /status_reports/published/:project_name/:repository_name/reports/:uuid
-  # PUT /status_reports/built/:project_name/:repository_name/:arch/reports/:uuid
+  # POST /status_reports/built/:project_name/:repository_name/:arch/reports/:uuid
   # PUT /status_reports/requests/:number
   def update
     authorize @status_report
