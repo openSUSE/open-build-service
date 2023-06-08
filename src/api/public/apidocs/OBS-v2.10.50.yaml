@@ -50,6 +50,7 @@ tags:
   - name: Staging Workflow
   - name: Statistics
   - name: Status Messages
+  - name: Status Reports - Required Checks
   - name: Trigger
   - name: Workers
 
@@ -452,6 +453,10 @@ paths:
 
   /status/project/{project_name}:
     $ref: 'paths/status_project_name.yaml'
+
+  # Status reports - Required Checks
+  /status_reports/built_repositories/{project_name}/{repository_name}/{architecture_name}/required_checks:
+    $ref: 'paths/status_reports_built_repositories_project_name_repository_name_architecture_name_required_checks.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
