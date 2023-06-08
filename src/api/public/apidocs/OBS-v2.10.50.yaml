@@ -459,6 +459,8 @@ paths:
     $ref: 'paths/status_reports_built_repositories_project_name_repository_name_architecture_name_required_checks.yaml'
   /status_reports/projects/{project_name}/required_checks:
     $ref: 'paths/status_reports_projects_project_name_required_checks.yaml'
+  /status_reports/repositories/{project_name}/{repository_name}/required_checks:
+    $ref: 'paths/status_reports_repositories_project_name_repository_name_required_checks.yaml'
 
   /trigger/{operation}:
     $ref: 'paths/trigger_operation.yaml'
