@@ -1,0 +1,7 @@
+in: path
+name: check_name
+schema:
+  type: string
+required: true
+description: Check name.
+example: first
