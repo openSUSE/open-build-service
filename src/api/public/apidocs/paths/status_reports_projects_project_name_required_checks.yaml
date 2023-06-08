@@ -1,0 +1,66 @@
+get:
+  summary: Get list of required checks in the project
+  description: Get a full list of required checks in the project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/required_checks.yaml'
+          example:
+            project: home:Admin
+            name:
+              - first
+              - second
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Status Reports - Required Checks
+
+post:
+  summary: Submit a required checks list to the project
+  description: Submit a new or modified required checks list to the project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: Required checks list.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/required_checks.yaml'
+        example:
+          project: home:Admin
+          name:
+            - first
+            - second
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/required_checks.yaml'
+          example:
+            project: home:Admin
+            name:
+              - first
+              - second
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/status_report/project_forbidden.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+    '422':
+      $ref: '../components/responses/invalid_required_check.yaml'
+  tags:
+    - Status Reports - Required Checks

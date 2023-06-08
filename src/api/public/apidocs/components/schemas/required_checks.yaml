@@ -1,0 +1,26 @@
+type: object
+properties:
+  name:
+    type: array
+    items:
+      type: string
+    example:
+      - first
+      - second
+  project:
+    type: string
+    xml:
+      attribute: true
+    example: home:Admin
+  repository:
+    type: string
+    xml:
+      attribute: true
+    example: openSUSE_Tumbleweed
+  architecture:
+    type: string
+    xml:
+      attribute: true
+    example: x86_64
+xml:
+  name: required_checks
