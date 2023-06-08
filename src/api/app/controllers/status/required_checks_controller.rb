@@ -8,7 +8,6 @@ class Status::RequiredChecksController < ApplicationController
   #### Callbacks macros: before_action, after_action, etc.
   before_action :set_project, only: [:index, :create, :destroy]
   before_action :set_checkable, only: [:index, :create, :destroy]
-  before_action :set_required_check, only: [:destroy]
   skip_before_action :require_login, only: [:index]
   # Pundit authorization policies control
   after_action :verify_authorized
@@ -46,7 +45,8 @@ class Status::RequiredChecksController < ApplicationController
   # DELETE /status_reports/built_repositories/:project_name/:repository_name/:architecture_name/required_checks/:name
   def destroy
     authorize @checkable
-    @checkable.required_checks -= [params[:name]]
+    set_required_check
+    @checkable.required_checks.delete(@required_check)
 
     if @checkable.save
       render_ok
@@ -95,12 +95,10 @@ class Status::RequiredChecksController < ApplicationController
     repo_architecture
   end
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_required_check
-    @required_check = @checkable.required_checks.find(params[:id])
-    return if @required_check
+    @required_check = params[:name] if @checkable.required_checks.include?(params[:name])
 
-    render_error status: 404, message: "Unable to find required check with id '#{params[:id]}'"
+    raise NotFoundError, "Unable to find required check with name '#{params[:name]}'" if @required_check.nil?
   end
 
   def names
