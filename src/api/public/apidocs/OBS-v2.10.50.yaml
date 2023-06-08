@@ -460,6 +460,8 @@ paths:
   /status_reports/built_repositories/{project_name}/{repository_name}/{architecture_name}/required_checks/{check_name}:
     $ref: 'paths/status_reports_built_repositories_project_name_repository_name_architecture_name_required_checks_check_name.yaml'
   /status_reports/projects/{project_name}/required_checks:
+    $ref: 'paths/status_reports_projects_project_name_required_checks.yaml'
+  /status_reports/projects/{project_name}/required_checks/{check_name}:
     $ref: 'paths/status_reports_projects_project_name_required_checks_check_name.yaml'
   /status_reports/repositories/{project_name}/{repository_name}/required_checks:
     $ref: 'paths/status_reports_repositories_project_name_repository_name_required_checks.yaml'
