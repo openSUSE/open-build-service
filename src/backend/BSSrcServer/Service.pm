@@ -260,7 +260,7 @@ sub generate_obs_scm_bridge_service {
   my @params;
   push @params, { 'name' => 'url', '_content' => $data->{'url'} };
   push @params, { 'name' => 'projectmode', '_content' => '1' } if $data->{'projectmode'};
-  push @params, { 'name' => 'projectscmsync', '_content' => $data->{'projectscmsync'} } if $data->{'projectscmsync'};
+  push @params, { 'name' => 'projectscmsync', '_content' => $data->{'projectscmsync'} } if $data->{'projectmode'} && $data->{'projectscmsync'};
   my $services = { 
     'service' => [ { 'name' => 'obs_scm_bridge', 'param' => \@params } ],
   };
@@ -284,7 +284,7 @@ sub runservice_obsscm {
   $data->{'user'} = $cgi->{'user'} if $cgi->{'user'};
   $data->{'commit'} = $cgi->{'comment'} if $cgi->{'comment'};
   $data->{'projectmode'} = 1 if $packid eq '_project';
-  $data->{'projectscmsync'} = $projectscmsync if $projectscmsync;
+  $data->{'projectscmsync'} = $projectscmsync if $packid eq '_project' && $projectscmsync;
   my $fd = BSSrcrep::lockobsscmfile($projid, $packid, $servicemark);
   BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, $data);
   close($fd);
