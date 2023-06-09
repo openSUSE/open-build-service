@@ -4,7 +4,8 @@ class Status::ReportsController < ApplicationController
   skip_before_action :require_login, only: [:show]
 
   # GET /status_reports/published/:project_name/:repository_name/reports/:uuid
-  # GET /status_reports/build/:project_name/:repository_name/:arch/reports/:uuid
+  # GET /status_reports/built/:project_name/:repository_name/:arch/reports/:uuid
+  # GET /status_reports/requests/:number/reports
   def show
     @checks = @status_report.checks
     @missing_checks = @status_report.missing_checks

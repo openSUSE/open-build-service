@@ -1,0 +1,27 @@
+type: object
+properties:
+  name:
+    type: string
+    example: first_ci
+    xml:
+      attribute: true
+  required:
+    type: string
+    enum: [true, false]
+    xml:
+      attribute: true
+  state:
+    type: string
+    enum:
+      - pending
+      - error
+      - failure
+      - success
+  short_description:
+    type: string
+    example: A short description of the check
+  url:
+    type: string
+    example: https://ci.opensuse.org/
+xml:
+  name: check

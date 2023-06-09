@@ -1,0 +1,73 @@
+get:
+  summary: Get list of checks in the published project repository
+  description: Get a full list of checks in the published project repository's status reports
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/build_id.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/status_report.yaml'
+          example:
+            check:
+              - name: First
+                required: false
+                state: pending
+                short_description: This is the first of the checks
+                url: https://ci.opensuse.org/
+              - name: Second
+                required: true
+                state: success
+                short_description: This is the second of the checks
+                url: https://check.opensuse.org/
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/not_found.yaml'
+  tags:
+    - Status Reports
+
+post:
+  summary: Submit a check to a published project repository's status report
+  description: Create or update a check to the status report for the published project repository
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/build_id.yaml'
+  requestBody:
+    description: Check definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/check.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/check.yaml'
+          example:
+            name: First
+            required: false
+            state: pending
+            short_description: This is the first of the checks
+            url: https://ci.opensuse.org/
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/report_forbidden.yaml'
+    '404':
+      $ref: '../components/responses/not_found.yaml'
+    '422':
+      $ref: '../components/responses/invalid_check.yaml'
+  tags:
+    - Status Reports
