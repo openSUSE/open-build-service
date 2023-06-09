@@ -492,7 +492,6 @@ jobs:
           destination: log
 
 workflows:
-  version: 2
 
   migration_tests:
     when: << pipeline.parameters.run-migrations-tests >>
