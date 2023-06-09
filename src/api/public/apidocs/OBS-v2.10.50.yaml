@@ -50,6 +50,7 @@ tags:
   - name: Staging Workflow
   - name: Statistics
   - name: Status Messages
+  - name: Status Project
   - name: Status Reports
   - name: Status Reports - Required Checks
   - name: Trigger
