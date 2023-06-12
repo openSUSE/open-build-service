@@ -357,7 +357,7 @@ GEM
     rbtree3 (0.7.1)
     rdoc (6.3.3)
     redcarpet (3.6.0)
-    regexp_parser (2.8.0)
+    regexp_parser (2.8.1)
     request_store (1.5.1)
       rack (>= 1.4)
     rexml (3.2.5)
