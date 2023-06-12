@@ -359,23 +359,18 @@ sub triggerscmsync {
 
 sub triggerscmsyncrun {
   my ($cgi, $scmrepo, $scmbranch) = @_;
-
   for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
-    my $scmsync;
-    my $projectscmsync;
-    if (@$ref[1] eq '_project') {
-      my $proj = BSRevision::readproj_local(@$ref[0]);
-      die("@$ref[0] is a remote project\n") if $proj->{'remoteurl'};
-      $scmsync = $proj->{'scmsync'};
+    my ($projid, $packid) = @$ref;
+    if ($packid eq '_project') {
+      my $proj = BSRevision::readproj_local($projid);
+      next unless $proj;
+      die("$projid is a remote project\n") if $proj->{'remoteurl'};
+      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $proj->{'scmsync'}) if $proj->{'scmsync'};
     } else {
-      my $pack = BSRevision::readpack_local(@$ref[0], @$ref[1], 1);
-      if ($pack) {
-        $scmsync = $pack->{'scmsync'};
-        $projectscmsync = $pack->{'url'};
-      }
+      my $pack = BSRevision::readpack_local($projid, $packid, 1);
+      next unless $pack;
+      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'}) if $pack->{'scmsync'};
     }
-    next unless $scmsync;
-    BSSrcServer::Service::runservice_obsscm($cgi, @$ref[0], @$ref[1], $scmsync, $projectscmsync);
   }
 }
 
