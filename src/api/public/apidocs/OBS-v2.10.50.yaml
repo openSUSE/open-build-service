@@ -286,6 +286,8 @@ paths:
     $ref: 'paths/source.yaml'
   /source/{project_name}:
     $ref: 'paths/source_project_name.yaml'
+  /source/{project_name}?view=info:
+    $ref: 'paths/source_project_name_view_info.yaml'
   /source/{project_name}/_config:
     $ref: 'paths/source_project_name_config.yaml'
   /source/{project_name}/_meta:

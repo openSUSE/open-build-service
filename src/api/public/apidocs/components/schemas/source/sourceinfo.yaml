@@ -20,6 +20,10 @@ properties:
     type: string
     xml:
       attribute: true
+  metamd5:
+    type: string
+    xml:
+      attribute: true
   filename:
     type: string
   originproject:
@@ -42,6 +46,10 @@ properties:
   version:
     type: string
   release:
+    type: string
+  revtime:
+    type: string
+  error:
     type: string
   subpacks:
     type: array
