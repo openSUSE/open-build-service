@@ -15,6 +15,7 @@ window.onload = function() {
       SwaggerUIBundle.plugins.DownloadUrl
     ],
     showExplorer: false,
+    docExpansion : "none",
   });
 
   //</editor-fold>
