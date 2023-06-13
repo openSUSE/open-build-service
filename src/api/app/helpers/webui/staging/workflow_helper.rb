@@ -19,6 +19,7 @@ module Webui::Staging::WorkflowHelper
     staged_requests_numbers = staging_project.staged_requests.pluck(:number)
     total = Review.where(bs_request: staging_project.staged_requests).size
     missing = staging_project.missing_reviews.count { |missing_review| staged_requests_numbers.include?(missing_review[:request]) }
+    return 100 if total.zero?
 
     100 - (missing * 100 / total)
   end
