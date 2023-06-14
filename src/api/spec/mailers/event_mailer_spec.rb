@@ -78,8 +78,8 @@ RSpec.describe EventMailer, vcr: true do
       end
 
       it 'renders links absolute' do
-        expected_html = "<p>Hey <a href=\"https://build.example.com/users/#{receiver.login}\">@#{receiver.login}</a> "
-        expected_html += 'how are things? Look at <a href="https://build.example.com/project/show/apache">bug</a> please.'
+        expected_html = "<p>Hey <a href=\"https://build.example.com/users/#{receiver.login}\" rel=\"nofollow\">@#{receiver.login}</a> "
+        expected_html += 'how are things? Look at <a href="https://build.example.com/project/show/apache" rel="nofollow">bug</a> please.'
         expect(mail.html_part.to_s).to include(expected_html)
       end
 
