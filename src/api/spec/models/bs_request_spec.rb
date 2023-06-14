@@ -500,8 +500,8 @@ RSpec.describe BsRequest, vcr: true do
     let(:bs_request) { create(:add_maintainer_request, target_project: create(:project)) }
 
     before do
-      create(:bs_request_action_add_maintainer_role, bs_request: bs_request, target_project: create(:project))
       login(create(:admin_user))
+      create(:bs_request_action_add_maintainer_role, bs_request: bs_request, target_project: create(:project))
     end
 
     context 'when the bs request actions only have lower priorities' do

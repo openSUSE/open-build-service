@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_26
+    uri: http://backend:5352/source/target_project/_meta?user=user_99
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>Dance Dance Dance</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '135'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>Dance Dance Dance</title>
           <description></description>
         </project>
-  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_27
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_100
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Nam sapiente nostrum eligendi.</description>
+          <title>Fear and Trembling</title>
+          <description>Omnis architecto molestiae tempora.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,23 +67,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Nam sapiente nostrum eligendi.</description>
+          <title>Fear and Trembling</title>
+          <description>Omnis architecto molestiae tempora.</description>
         </package>
-  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_28
+    uri: http://backend:5352/source/source_project/_meta?user=user_101
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>In a Dry Season</title>
+          <title>Let Us Now Praise Famous Men</title>
           <description/>
         </project>
     headers:
@@ -105,18 +105,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '119'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>In a Dry Season</title>
+          <title>Let Us Now Praise Famous Men</title>
           <description></description>
         </project>
-  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_28
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_101
     body:
       encoding: UTF-8
       string: |
@@ -146,23 +146,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="132">
-          <srcmd5>4ab463ddf2214537196313bd00a8ae08</srcmd5>
-          <time>1597244494</time>
-          <user>user_28</user>
+        <revision rev="28">
+          <srcmd5>deb1758b7b57b04b2585c1c5cb7427ca</srcmd5>
+          <time>1686759793</time>
+          <user>user_101</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_29
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_102
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Way Through the Woods</title>
-          <description>Molestiae eligendi id error.</description>
+          <title>The Moving Finger</title>
+          <description>Saepe ullam quae possimus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,15 +183,87 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Way Through the Woods</title>
-          <description>Molestiae eligendi id error.</description>
+          <title>The Moving Finger</title>
+          <description>Saepe ullam quae possimus.</description>
         </package>
-  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '328'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1d2d66e37ffce337361288aaa1a481e8">
+          <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Wed, 14 Jun 2023 16:23:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -231,7 +303,7 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -257,15 +329,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
-          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
-          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -291,15 +361,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
-          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
-          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -325,18 +393,48 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
-          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
-          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=37
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=
     body:
       encoding: UTF-8
       string: ''
@@ -351,40 +449,27 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: revision is empty
     headers:
       Content-Type:
-      - text/plain
+      - text/xml
       Cache-Control:
       - no-cache
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '69'
     body:
       encoding: UTF-8
-      string: |2
-
-        new:
-        ----
-          _config
-          somefile.txt
-
-        other changes:
-        --------------
-
-        ++++++ _config (new)
-        --- _config
-        +++ _config
-
-        ++++++ somefile.txt (new)
-        --- somefile.txt
-        +++ somefile.txt
-  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/target_project/target_package?expand=1&rev=37
+    uri: http://backend:5352/source/target_project/target_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -407,13 +492,110 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
-          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
-          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+  recorded_at: Wed, 14 Jun 2023 16:23:14 GMT
+recorded_with: VCR 6.1.0

@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_69
+    uri: http://backend:5352/source/target_project/_meta?user=user_59
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Heart Is a Lonely Hunter</title>
+          <title>Dance Dance Dance</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '119'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Heart Is a Lonely Hunter</title>
+          <title>Dance Dance Dance</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_70
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_60
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Endless Night</title>
-          <description>Eligendi officiis quia dicta.</description>
+          <title>The Skull Beneath the Skin</title>
+          <description>Quia numquam cupiditate voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,23 +67,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Endless Night</title>
-          <description>Eligendi officiis quia dicta.</description>
+          <title>The Skull Beneath the Skin</title>
+          <description>Quia numquam cupiditate voluptas.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_71
+    uri: http://backend:5352/source/source_project/_meta?user=user_61
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Dulce et Decorum Est</title>
+          <title>Mr Standfast</title>
           <description/>
         </project>
     headers:
@@ -105,18 +105,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '103'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Dulce et Decorum Est</title>
+          <title>Mr Standfast</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_71
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_61
     body:
       encoding: UTF-8
       string: |
@@ -146,23 +146,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16">
-          <srcmd5>2bdd16c4cadcba385d4bba51be342f39</srcmd5>
-          <time>1686759789</time>
-          <user>user_71</user>
+        <revision rev="12">
+          <srcmd5>e3e7a77c4bb3e3314f2d3df4d4b0ce8d</srcmd5>
+          <time>1686759788</time>
+          <user>user_61</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_72
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_62
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Farewell to Arms</title>
-          <description>Neque unde beatae sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Deserunt quam rerum ducimus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,15 +183,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Farewell to Arms</title>
-          <description>Neque unde beatae sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Deserunt quam rerum ducimus.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -223,7 +223,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -263,7 +263,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -303,168 +303,5 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/target_project/target_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '89'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/target_project/target_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '89'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/target_project/target_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '89'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/target_project/target_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '89'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: revision is empty
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '69'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="400">
-          <summary>revision is empty</summary>
-        </status>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
 recorded_with: VCR 6.1.0
