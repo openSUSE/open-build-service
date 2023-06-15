@@ -1,4 +1,4 @@
-.card.write-and-preview
+.card.write-and-preview{ data: { preview_message_url: preview_message_url, message_body_param: 'status_message[message]' } }
   %ul.nav.nav-tabs.px-3.pt-2.disable-link-generation{ role: 'tablist' }
     %li.nav-item
       = link_to('Write', '#write_message', class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
@@ -14,3 +14,6 @@
         class: 'w-100 form-control message-field')
     .tab-pane.fade{ id: 'preview_message', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
       .message-preview.my-3
+
+:javascript
+  attachPreviewMessageOnCommentBoxes();

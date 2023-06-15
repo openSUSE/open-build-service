@@ -1,5 +1,6 @@
 = form_for(comment, method: form_method, remote: true, html: { id: "#{element_suffix}_form",
-class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_comments_path }) do |f|
+class: "#{form_method}-comment-form write-and-preview" },
+data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do |f|
   = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
   - if defined?(line)
@@ -11,15 +12,15 @@ class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_com
         = link_to('Write', "#write_#{element_suffix}", class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
         aria: { controls: 'write-comment-tab', selected: 'true' })
       %li.nav-item
-        = link_to('Preview', "#preview_#{element_suffix}", class: 'nav-link preview-comment-tab', data: { 'bs-toggle': 'tab' },
-        role: 'tab', aria: { controls: 'preview-comment-tab', selected: 'false' })
+        = link_to('Preview', "#preview_#{element_suffix}", class: 'nav-link preview-message-tab', data: { 'bs-toggle': 'tab' },
+        role: 'tab', aria: { controls: 'preview-message-tab', selected: 'false' })
     .tab-content.px-3
       .tab-pane.fade.show.active.my-3{ id: "write_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'write-comment-tab' }
         ~ f.text_area :body, id: "#{element_suffix}_body", rows: '4',
         placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
-        class: 'w-100 form-control comment-field'
-      .tab-pane.fade{ id: "preview_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'preview-comment-tab' }
-        .comment-preview.border-bottom.border-gray-300.my-3
+        class: 'w-100 form-control comment-field message-field'
+      .tab-pane.fade{ id: "preview_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
+        .comment-preview.message-preview.border-bottom.border-gray-300.my-3
       .comment-controls.mb-3
         - case form_method
         - when :post
@@ -29,3 +30,6 @@ class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_com
         - if has_cancel
           %a.cancel-comment.btn.btn-outline-secondary
             Cancel
+
+:javascript
+  attachPreviewMessageOnCommentBoxes();
