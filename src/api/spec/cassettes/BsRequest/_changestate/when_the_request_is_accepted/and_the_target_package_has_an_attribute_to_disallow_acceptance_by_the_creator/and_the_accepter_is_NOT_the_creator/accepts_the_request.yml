@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/source_project_123/_meta?user=user_17
+    uri: http://backend:5352/source/source_project_123/_meta?user=user_16
     body:
       encoding: UTF-8
       string: |
         <project name="source_project_123">
-          <title>The Torment of Others</title>
+          <title>For a Breath I Tarry</title>
           <description/>
           <person userid="sagan" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project_123">
-          <title>The Torment of Others</title>
+          <title>For a Breath I Tarry</title>
           <description></description>
           <person userid="sagan" role="maintainer"/>
         </project>
-  recorded_at: Mon, 21 Mar 2022 10:17:43 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project_123/source_package_123/_meta?user=user_18
+    uri: http://backend:5352/source/source_project_123/source_package_123/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
         <package name="source_package_123" project="source_project_123">
-          <title>Recalled to Life</title>
-          <description>Aliquam est rem et.</description>
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Sint non in eos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package_123" project="source_project_123">
-          <title>Recalled to Life</title>
-          <description>Aliquam est rem et.</description>
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Sint non in eos.</description>
         </package>
-  recorded_at: Mon, 21 Mar 2022 10:17:43 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_123/_meta?user=user_19
+    uri: http://backend:5352/source/project_123/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
         <project name="project_123">
-          <title>Recalled to Life</title>
+          <title>The Wealth of Nations</title>
           <description/>
           <person userid="sagan" role="maintainer"/>
         </project>
@@ -108,25 +108,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <project name="project_123">
-          <title>Recalled to Life</title>
+          <title>The Wealth of Nations</title>
           <description></description>
           <person userid="sagan" role="maintainer"/>
         </project>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_123/package_123/_meta?user=user_20
+    uri: http://backend:5352/source/project_123/package_123/_meta?user=user_19
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>No Country for Old Men</title>
-          <description>Tempore dolorem dolor dignissimos.</description>
+          <title>Unweaving the Rainbow</title>
+          <description>Voluptas ea aspernatur atque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -147,15 +147,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>No Country for Old Men</title>
-          <description>Tempore dolorem dolor dignissimos.</description>
+          <title>Unweaving the Rainbow</title>
+          <description>Voluptas ea aspernatur atque.</description>
         </package>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123
@@ -187,7 +187,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project_123/source_package_123?cmd=diff&expand=1&filelimit=10000&opackage=package_123&oproject=project_123&tarlimit=10000&view=xml&withissues=1
@@ -211,7 +211,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '331'
+      - '330'
       Cache-Control:
       - no-cache
       Connection:
@@ -219,15 +219,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="6bdc6c334f16ef2ea3480f27a675b7c8">
-          <old project="project_123" package="package_123" rev="60" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="36426383506e4e97ca7e23b422bc1f4c">
+          <old project="project_123" package="package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project_123" package="source_package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_123/package_123/_attribute?meta=1&user=bujold
@@ -256,18 +256,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="140">
-          <srcmd5>66c9c830bf5dae56e8997be26c47a44c</srcmd5>
-          <time>1647857864</time>
+        <revision rev="4">
+          <srcmd5>e57d3fc6838daf0fd97b9c871082a661</srcmd5>
+          <time>1686759782</time>
           <user>bujold</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123?expand=1
@@ -299,7 +299,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123?expand=1
@@ -331,7 +331,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_123/package_123?cmd=copy&comment=A%20single%20comment&expand=1&keeplink=1&noservice=1&opackage=source_package_123&oproject=source_project_123&requestid=1&user=bujold&withacceptinfo=1
@@ -359,20 +359,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '346'
+      - '343'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="61" vrev="61">
+        <revision rev="1" vrev="1">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1647857864</time>
+          <time>1686759782</time>
           <user>bujold</user>
           <comment>A single comment</comment>
           <requestid>1</requestid>
-          <acceptinfo rev="61" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <acceptinfo rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
         </revision>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_123/package_123/_meta?user=bujold
@@ -380,8 +380,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>No Country for Old Men</title>
-          <description>Tempore dolorem dolor dignissimos.</description>
+          <title>Unweaving the Rainbow</title>
+          <description>Voluptas ea aspernatur atque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -402,15 +402,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>No Country for Old Men</title>
-          <description>Tempore dolorem dolor dignissimos.</description>
+          <title>Unweaving the Rainbow</title>
+          <description>Voluptas ea aspernatur atque.</description>
         </package>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_123/package_123
@@ -436,13 +436,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '105'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_123" rev="61" vrev="61" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_123" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_123/package_123?view=info
@@ -468,14 +468,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '144'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_123" rev="61" vrev="61" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="package_123" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_123/package_123
@@ -501,13 +501,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '105'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_123" rev="61" vrev="61" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_123" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_123/package_123?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -535,14 +535,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '284'
+      - '283'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1f4a7c462b391aec08ee338bac308428">
+        <sourcediff key="616ad3a5a7c3778bebe3cd4dccf6c171">
           <old project="project_123" package="package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="project_123" package="package_123" rev="61" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_123" package="package_123" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Mon, 21 Mar 2022 10:17:44 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 14 Jun 2023 16:23:02 GMT
+recorded_with: VCR 6.1.0
