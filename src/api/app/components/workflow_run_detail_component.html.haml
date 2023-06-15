@@ -4,6 +4,10 @@
                  role: 'tab', aria: { controls: "incoming-webhook-tab-content#{id}", selected: 'false' } }
       Webhook from #{scm_vendor}
   %li.nav-item{ role: 'presentation' }
+    %a.nav-link{ id: "workflow-configuration-tab#{id}", data: { 'bs-toggle': 'tab' }, href: "#workflow-configuration-tab-content#{id}",
+                 role: 'tab', aria: { controls: "workflow-configuration-tab-content#{id}", selected: 'false' } }
+      Workflow Configuration
+  %li.nav-item{ role: 'presentation' }
     %a.nav-link{ id: "scm-reports-tab#{id}", data: { 'bs-toggle': 'tab' }, href: "#scm-reports-tab-content#{id}",
                  role: 'tab', aria: { controls: "scm-reports-tab-content#{id}", selected: 'false' } }
       Reports to the SCM
@@ -29,6 +33,9 @@
       %h5 Webhook Request Payload
       %pre.border.p-2#request-payload
         = pretty_request_payload
+  .tab-pane.fade{ id: "workflow-configuration-tab-content#{id}", role: 'tabpanel',
+                  aria: { labelledby: "workflow-configuration-tab#{id}" } }
+    = workflow_configuration_data
   .tab-pane.fade{ id: "scm-reports-tab-content#{id}", role: 'tabpanel',
                   aria: { labelledby: "scm-reports-tab#{id}" } }
     - if status_reports.any?
