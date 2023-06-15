@@ -1273,7 +1273,7 @@ class Package < ApplicationRecord
   end
 
   def file_exists?(filename, opts = {})
-    dir_hash(opts).key?('entry') && [dir_hash(opts)['entry']].flatten.any? { |item| item['name'] == filename }
+    dir_hash(opts).key?('entry') && [dir_hash(opts)['entry']].flatten.compact.any? { |item| item['name'] == filename }
   end
 
   def has_icon?
