@@ -314,7 +314,7 @@ GEM
       nio4r (~> 2.0)
     pundit (2.3.0)
       activesupport (>= 3.0.0)
-    racc (1.7.0)
+    racc (1.7.1)
     rack (2.2.7)
     rack-protection (3.0.6)
       rack
