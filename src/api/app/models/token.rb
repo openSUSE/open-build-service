@@ -15,6 +15,8 @@ class Token < ApplicationRecord
   validates :string, uniqueness: { case_sensitive: false }
   validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
 
+  validate :workflow_configuration_url_valid_and_accessible
+
   include Token::Errors
 
   # TODO: move to Token::Workflow model
@@ -64,6 +66,22 @@ class Token < ApplicationRecord
 
   def owned_by?(some_user)
     executor == some_user
+  end
+
+  private
+
+  def workflow_configuration_url_valid_and_accessible
+    return true if workflow_configuration_url.blank?
+
+    # Check if the URI is valid
+    URI.parse(workflow_configuration_url)
+
+    # Check if we get a successful response
+    Workflows::YAMLDownloader.new({}, token: self).call
+  rescue URI::InvalidURIError => e
+    errors.add(:workflow_configuration_url, "must be a valid url: #{e}")
+  rescue Token::Errors::NonExistentWorkflowsFile => e
+    errors.add(:workflow_configuration_url, "failed to get: #{e}")
   end
 end
 
