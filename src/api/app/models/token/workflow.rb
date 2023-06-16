@@ -49,6 +49,9 @@ class Token::Workflow < Token
       workflow.call
     end
     SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+    # Report build job pending when evnt is pr or mr
+    report_job_pending_status(workflow_run)
+
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
@@ -62,6 +65,30 @@ class Token::Workflow < Token
 
   def workflow_configuration_path_default?
     workflow_configuration_path == '.obs/workflows.yml'
+  end
+
+  def report_job_pending_status(workflow_run)
+    return unless workflow_run.hook_event.in?(['pull_request', 'Merge Request Hook'])
+
+    @workflows.each do |workflow|
+      workflow.steps.each do |step|
+        next unless step.repositories
+
+        payload = @scm_webhook.payload.deep_symbolize_keys
+        package = payload[:target_repository_full_name].split('/').last
+        step.repositories.each do |repository|
+          repository.fetch(:architectures, []).each do |architecture|
+            name = repository.fetch(:name, '')
+            arch = architecture
+            payload['repository'] = name
+            payload['arch'] = arch
+            payload['project'] = step.target_project_name
+            payload['package'] = package
+            SCMStatusReporter.new(payload, payload, scm_token, workflow_run, 'pending', initial_report: false).call
+          end
+        end
+      end
+    end
   end
 
   private

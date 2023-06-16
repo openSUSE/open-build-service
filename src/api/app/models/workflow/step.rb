@@ -72,6 +72,10 @@ class Workflow::Step
     end
   end
 
+  def repositories
+    step_instructions[:repositories]
+  end
+
   protected
 
   def validate_step_instructions
