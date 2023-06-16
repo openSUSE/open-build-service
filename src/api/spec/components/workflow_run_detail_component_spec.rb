@@ -32,4 +32,24 @@ RSpec.describe WorkflowRunDetailComponent, type: :component do
       expect(rendered_content).to have_text('Unparseable payload')
     end
   end
+
+  context 'in Workflow Configuration tab' do
+    context 'when the configuration information was not stored' do
+      it { expect(rendered_content).to have_text('This information is not available.') }
+    end
+
+    context 'when the configuration path was stored' do
+      let(:workflow_run) { create(:workflow_run, :with_configuration_path, token: workflow_token) }
+
+      it { expect(rendered_content).to have_text('Workflow Configuration File Path') }
+      it { expect(rendered_content).to have_text('.obs/workflows.yml') }
+    end
+
+    context 'when the configuration URL was stored' do
+      let(:workflow_run) { create(:workflow_run, :with_configuration_url, token: workflow_token) }
+
+      it { expect(rendered_content).to have_text('Workflow Configuration File URL') }
+      it { expect(rendered_content).to have_text('http://example.com/workflows.yml') }
+    end
+  end
 end

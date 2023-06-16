@@ -9,6 +9,14 @@ FactoryBot.define do
     request_payload do
       File.read('spec/support/files/request_payload_github_pull_request_opened.json')
     end
+
+    trait 'with_configuration_path' do
+      workflow_configuration_path { '.obs/workflows.yml' }
+    end
+
+    trait 'with_configuration_url' do
+      workflow_configuration_url { 'http://example.com/workflows.yml' }
+    end
   end
 
   # GitHub
