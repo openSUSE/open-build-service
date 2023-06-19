@@ -106,7 +106,7 @@ sub get_notary_pubkey {
   my $pkalgo;
   eval { $pkalgo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
   if ($pkalgo && $pkalgo ne 'rsa') {
-    print "public key algorithm is '$pkalgo', skipping notary upload\n";
+    print "public key algorithm is '$pkalgo', skipping container signing and notary upload\n";
     return (undef, undef);
   }
   # get rid of --project option
@@ -170,14 +170,15 @@ sub cmp_containerinfo {
 =cut
 
 sub upload_all_containers {
-  my ($extrep, $projid, $repoid, $containers, $pubkey, $signargs, $multicontainer, $old_container_repositories) = @_;
+  my ($extrep, $projid, $repoid, $containers, $data, $old_container_repositories) = @_;
 
   my $isdelete;
   if (!defined($containers)) {
     $isdelete = 1;
     $containers = {};
   } else {
-    ($pubkey, $signargs) = get_notary_pubkey($projid, $pubkey, $signargs);
+    my ($pubkey, $signargs) = get_notary_pubkey($projid, $data->{'pubkey'}, $data->{'signargs'});
+    $data = { %$data, 'pubkey' => $pubkey, 'signargs' => $signargs };
   }
 
   my $notary_uploads = {};
@@ -221,10 +222,10 @@ sub upload_all_containers {
 
       if ($registryserver eq 'local:') {
 	my $gunprefix = $registry->{'notary_gunprefix'} || $registry->{'server'};
-	$have_some_trust = 1 if defined($pubkey) && $gunprefix && $gunprefix ne 'local:';
-	do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags);
+	$have_some_trust = 1 if defined($data->{'pubkey'}) && $gunprefix && $gunprefix ne 'local:';
+	do_local_uploads($registry, $projid, $repoid, $repository, $containers, $data, $uptags);
       } else {
-        do_remote_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags, $notary_uploads);
+        do_remote_uploads($registry, $projid, $repoid, $repository, $containers, $data, $uptags, $notary_uploads);
       }
 
       # add references
@@ -244,10 +245,10 @@ sub upload_all_containers {
     for my $repository (@{$old_container_repositories->{$regname} || []}) {
       next if $uploads{$repository};
       if ($registryserver eq 'local:') {
-        do_local_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, undef);
+        do_local_uploads($registry, $projid, $repoid, $repository, $containers, $data, undef);
 	next;
       } else {
-        do_remote_uploads($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, undef, $notary_uploads);
+        do_remote_uploads($registry, $projid, $repoid, $repository, $containers, $data, undef, $notary_uploads);
       }
     }
   }
@@ -259,7 +260,7 @@ sub upload_all_containers {
   for my $p (sort keys %$containers) {
     my $containerinfo = $containers->{$p};
     my $pp = $p;
-    $pp =~ s/.*?\/// if $multicontainer;
+    $pp =~ s/.*?\/// if $data->{'multiarch'};
     $allrefs_pp_lastp{$pp} = $p;	# for link creation
     push @{$allrefs_pp{$pp}}, @{$allrefs{$p} || []};	# collect all archs for the link
   }
@@ -274,7 +275,7 @@ sub upload_all_containers {
       $readme .= "  docker pull $_\n" for @r;
       $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if $have_some_trust;
       writestr("$extrep/$pp.registry.txt", undef, $readme);
-    } elsif ($multicontainer && $allrefs_pp_lastp{$pp} ne $pp) {
+    } elsif ($data->{'multiarch'} && $allrefs_pp_lastp{$pp} ne $pp) {
       # create symlink to last arch
       unlink("$extrep/$pp");
       symlink("$allrefs_pp_lastp{$pp}", "$extrep/$pp");
@@ -286,10 +287,10 @@ sub upload_all_containers {
     if ($isdelete) {
       delete_from_notary($projid, $notary_uploads);
     } else {
-      if (!defined($pubkey)) {
+      if (!defined($data->{'pubkey'})) {
 	print "skipping notary upload\n";
       } else {
-        upload_to_notary($projid, $notary_uploads, $signargs, $pubkey);
+        upload_to_notary($projid, $notary_uploads, $data);
       }
     }
   }
@@ -512,24 +513,29 @@ sub compare_to_repostate {
 =cut
 
 sub upload_to_registry {
-  my ($registry, $projid, $repoid, $repository, $containerinfos, $tags, $pubkey, $signargs, $multicontainer, $repostate) = @_;
+  my ($registry, $projid, $repoid, $repository, $containerinfos, $tags, $data, $repostate) = @_;
 
   return '' unless @{$containerinfos || []} && @{$tags || []};
   
+  my ($pubkey, $signargs) = ($data->{'pubkey'}, $data->{'signargs'});
   my $registryserver = $registry->{pushserver} || $registry->{server};
   my $pullserver = $registry->{server};
   $pullserver =~ s/https?:\/\///;
   $pullserver =~ s/\/?$/\//;
   $repository = "library/$repository" if $repository !~ /\// && $registry->{server} =~ /docker.io\/?$/ && $repository !~ /\//;
 
-  $multicontainer = 0;
-  my $multiarch = @$containerinfos > 1 || $multicontainer ? 1 : 0;
+  my $multiarch = 0;	# XXX: use $data->{'multiarch'}
+  $multiarch = 1 if @$containerinfos > 1;
   $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
   my $oci;
   for my $containerinfo (@$containerinfos) {
     $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm';
     $oci = 1 if grep {$_ && $_ ne 'gzip'} @{$containerinfo->{'layer_compression'} || []};
   }
+
+  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+  $gun =~ s/^https?:\/\///;
+  $gun .= "/$repository";
 
   my $cosign = $registry->{'cosign'};
   $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
@@ -541,9 +547,6 @@ sub upload_to_registry {
   
   my $cosigncookie;
   if (defined($pubkey) && $cosign) {
-    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-    $gun =~ s/^https?:\/\///;
-    $gun .= "/$repository";
     my $creator = 'OBS';
     $cosigncookie = BSConSign::createcosigncookie($pubkey, $gun, $creator);
   }
@@ -620,9 +623,6 @@ sub upload_to_registry {
   push @opts, '--oci' if $oci;
   push @opts, '-B', $blobdir if $blobdir;
   if ($cosigncookie) {
-    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-    $gun =~ s/^https?:\/\///;
-    $gun .= "/$repository";
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$signargs || []};
@@ -646,6 +646,10 @@ sub upload_to_registry {
   unlink($containerdigestfile);
   unlink($_) for @tempfiles;
   die("error while uploading to registry: $result\n") if $result;
+
+  if ($data->{'notify'}) {
+    $data->{'notify'}->("$gun:$_") for @$tags;
+  }
 
   if ($uploadinfofile) {
     my $uploadinfo_json = readstr($uploadinfofile, 1);
@@ -710,8 +714,9 @@ sub add_notary_upload {
 =cut
 
 sub upload_to_notary {
-  my ($projid, $notary_uploads, $signargs, $pubkey) = @_;
+  my ($projid, $notary_uploads, $data) = @_;
 
+  my ($pubkey, $signargs) = ($data->{'pubkey'}, $data->{'signargs'});
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, @{$signargs || []};
@@ -792,7 +797,8 @@ sub decompress_container {
 sub delete_container_repositories {
   my ($extrep, $projid, $repoid, $old_container_repositories) = @_;
   return unless $old_container_repositories;
-  upload_all_containers($extrep, $projid, $repoid, undef, undef, undef, 0, $old_container_repositories);
+  my $data = {};
+  upload_all_containers($extrep, $projid, $repoid, undef, $data, $old_container_repositories);
 }
 
 =head2 do_local_uploads - sync containers to a repository in a local registry
@@ -800,7 +806,7 @@ sub delete_container_repositories {
 =cut
 
 sub do_local_uploads {
-  my ($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags) = @_;
+  my ($registry, $projid, $repoid, $repository, $containers, $data, $uptags) = @_;
 
   my %todo;
   my @tempfiles;
@@ -825,7 +831,7 @@ sub do_local_uploads {
     }
   }
   eval {
-    BSPublisher::Registry::push_containers($registry, $projid, $repoid, $repository, \%todo, $pubkey, $signargs, $multicontainer);
+    BSPublisher::Registry::push_containers($registry, $projid, $repoid, $repository, \%todo, $data);
   };
   unlink($_) for @tempfiles;
   die($@) if $@;
@@ -836,7 +842,7 @@ sub do_local_uploads {
 =cut
 
 sub do_remote_uploads {
-  my ($registry, $projid, $repoid, $repository, $containers, $pubkey, $signargs, $multicontainer, $uptags, $notary_uploads) = @_;
+  my ($registry, $projid, $repoid, $repository, $containers, $data, $uptags, $notary_uploads) = @_;
 
   if (!$uptags) {
     my $containerdigests = '';
@@ -865,7 +871,7 @@ sub do_remote_uploads {
   for my $joinp (sort keys %todo) {
     my @tags = @{$todo{$joinp}};
     my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-    my $digests = upload_to_registry($registry, $projid, $repoid, $repository, \@containerinfos, \@tags, $pubkey, $signargs, $multicontainer, $repostate);
+    my $digests = upload_to_registry($registry, $projid, $repoid, $repository, \@containerinfos, \@tags, $data, $repostate);
     $containerdigests .= $digests;
   }
   # all is pushed, now clean the rest

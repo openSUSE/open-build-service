@@ -2807,11 +2807,19 @@ sub publish {
   # upload all containers to configured registries
   my $container_repositories;
   if (%containers || $oldrepoinfo->{'container_repositories'}) {
+    my $data = {
+      'pubkey' => $pubkey,
+      'signargs' => $signargs,
+      'config' => $config,
+      'publishid' => $publishid,
+      'multiarch' => $multicontainer,
+    };
+    # $data->{'notify'} = sub { BSNotify::notify('CONTAINER_PUBLISHED', { project => $projid , 'repo' => $repoid, 'buildid' => $publishid, 'container' => "$_[0]"}) };
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
     }
     eval {
-      $container_repositories = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $pubkey, $signargs, $multicontainer, $oldrepoinfo->{'container_repositories'} || {});
+      $container_repositories = BSPublisher::Container::upload_all_containers($extrep, $projid, $repoid, \%containers, $data, $oldrepoinfo->{'container_repositories'} || {});
     };
     if ($@) {
       clean_blobdir($blobdir);
@@ -3124,6 +3132,7 @@ sub publish {
     'patterninfo' => {},
     'modulemds' => $modulemds,
     'sigs' => [],
+    'publishid' => $publishid,
   };
 
   if ($repotype{'rpm-md'}) {

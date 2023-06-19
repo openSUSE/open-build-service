@@ -549,11 +549,13 @@ sub create_manifestinfo {
 }
 
 sub push_containers {
-  my ($registry, $projid, $repoid, $repo, $tags, $pubkey, $signargs, $multiarch) = @_;
+  my ($registry, $projid, $repoid, $repo, $tags, $data) = @_;
+
+  my ($pubkey, $signargs) = ($data->{'pubkey'}, $data->{'signargs'});
 
   my $rekorserver = $registry->{'rekorserver'};
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-  undef $gun if ($gun && $gun eq 'local:') || !defined($pubkey);
+  undef $gun if $gun && $gun eq 'local:';
   if ($gun) {
     $gun =~ s/^https?:\/\///;
     $gun = "$gun/$repo";
@@ -589,10 +591,10 @@ sub push_containers {
       next;
     }
     my $containerinfos = $tags->{$tag};
-    my $multiarchtag = $multiarch;
-    $multiarchtag = 1 if @$containerinfos > 1;
-    $multiarchtag = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
-    die("must use multiarch if multiple containers are to be pushed\n") if @$containerinfos > 1 && !$multiarchtag;
+    my $multiarch = $data->{'multiarch'};
+    $multiarch = 1 if @$containerinfos > 1;
+    $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
+    die("must use multiarch if multiple containers are to be pushed\n") if @$containerinfos > 1 && !$multiarch;
     my %multiplatforms;
     my @multimanifests;
     my @imginfos;
@@ -741,7 +743,7 @@ sub push_containers {
       'images' => \@imginfos,
     };
     my ($mani_id, $mani_size);
-    if ($multiarchtag) {
+    if ($multiarch) {
       # create fat manifest
       my $mani = BSContar::create_dist_manifest_list_data(\@multimanifests, $oci);
       my $mani_json = BSContar::create_dist_manifest_list($mani);
@@ -763,7 +765,7 @@ sub push_containers {
   }
 
   # write signatures file (need to do this early as it adds manifests/blobs)
-  if ($gun && %digests_to_cosign) {
+  if ($gun && defined($pubkey) && %digests_to_cosign) {
     update_cosign($prp, $repo, $gun, \%digests_to_cosign, $pubkey, $signargs, $rekorserver, \%knownmanifests, \%knownblobs);
   } elsif (-e "$repodir/:cosign") {
     unlink("$repodir/:cosign");
@@ -810,11 +812,16 @@ sub push_containers {
   if (BSUtil::identical($oldinfo, $info)) {
     print "local registry: no change\n";
   } else {
+    if ($data->{'notify'} && $gun) {
+      for my $tag (sort keys %info) {
+        $data->{'notify'}->("$gun:$tag") unless $oldinfo && BSUtil::identical(($oldinfo->{'tags'} || {})->{$tag}, $info{$tag});
+      }
+    }
     BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
   }
 
   # write TUF file
-  if ($gun) {
+  if ($gun && defined($pubkey)) {
     update_tuf($prp, $repo, $gun, $containerdigests, $pubkey, $signargs);
   } elsif (-e "$repodir/:tuf") {
     unlink("$repodir/:tuf.old");
@@ -822,7 +829,7 @@ sub push_containers {
   }
 
   # write signatures file
-  if ($gun) {
+  if ($gun && defined($pubkey)) {
     update_sigs($prp, $repo, $gun, \%knownimagedigests, $pubkey, $signargs);
   } elsif (-e "$repodir/:sigs") {
     unlink("$repodir/:sigs");
