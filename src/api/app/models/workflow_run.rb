@@ -23,7 +23,7 @@ class WorkflowRun < ApplicationRecord
     :state, :status_options
   ].freeze
 
-  validates :response_url, :workflow_configuration_path, :workflow_configuration_url, length: { maximum: 255 }
+  validates :response_url, :workflow_configuration_path, :workflow_configuration_url, :scm_vendor, :hook_event, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
@@ -155,10 +155,12 @@ end
 # Table name: workflow_runs
 #
 #  id                          :integer          not null, primary key
+#  hook_event                  :string(255)
 #  request_headers             :text(65535)      not null
 #  request_payload             :text(4294967295) not null
 #  response_body               :text(65535)
 #  response_url                :string(255)
+#  scm_vendor                  :string(255)
 #  status                      :integer          default("running"), not null
 #  workflow_configuration_path :string(255)
 #  workflow_configuration_url  :string(255)
