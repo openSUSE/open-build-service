@@ -2068,7 +2068,8 @@ sub extendkey {
   die("don't know how to extend a key\n") unless $BSConfig::sign;
   die("project does not have a key\n") unless -s "$projectsdir/$projid.pkg/_pubkey";
   die("project does not have a signkey\n") unless -s "$projectsdir/$projid.pkg/_signkey";
-  my $pubkey = BSSrcServer::Signkey::extendkey($projid, "$projectsdir/$projid.pkg/_pubkey", "$projectsdir/$projid.pkg/_signkey");
+  die("too far in the future\n") if $cgi->{'days'} && $cgi->{'days'} >= 100000;
+  my $pubkey = BSSrcServer::Signkey::extendkey($projid, "$projectsdir/$projid.pkg/_pubkey", "$projectsdir/$projid.pkg/_signkey", $cgi->{'days'});
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
   my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_signkey");
@@ -7613,7 +7614,7 @@ my $dispatches = [
   '/source deleted:bool? project*' => \&getprojectlist,
 
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
-  'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
+  'POST:/source/$project cmd=extendkey user:? comment:? days:num?' => \&extendkey,
   'POST:/source/$project cmd=recreatesslcert user:? comment:?' => \&recreatesslcert,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? makeoriginolder:bool? resign:bool? noservice:bool?' => \&copyproject,
