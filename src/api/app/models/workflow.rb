@@ -1,6 +1,7 @@
 class Workflow
   include ActiveModel::Model
   include WorkflowInstrumentation # for run_callbacks
+  include WorkflowVersionMatcher
 
   SCM_CI_DOCUMENTATION_URL = 'https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration.html'.freeze
 
@@ -14,7 +15,7 @@ class Workflow
   STEPS_WITH_NO_TARGET_PROJECT_TO_RESTORE_OR_DESTROY = [Workflow::Step::ConfigureRepositories, Workflow::Step::RebuildPackage,
                                                         Workflow::Step::SetFlags, Workflow::Step::TriggerServices].freeze
 
-  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
+  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run, :workflow_version_number
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
