@@ -27,6 +27,7 @@ class Workflow
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
+  validates_with WorkflowVersionValidator
   validate :event_supports_branches_filter?, on: :call, if: :event_matches_event_filter?
 
   def call
