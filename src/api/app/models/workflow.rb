@@ -108,6 +108,8 @@ class Workflow
       scm_webhook.tag_push_event?
     when 'pull_request'
       scm_webhook.pull_request_event?
+    when 'merge_request'
+      scm_webhook.pull_request_event? && feature_available_for_workflow_version?(workflow_version: workflow_version_number, feature_name: 'event_aliases')
     else
       false
     end
