@@ -1,6 +1,8 @@
 FactoryBot.define do
   factory :workflow_run do
     token { create(:workflow_token) }
+    scm_vendor { 'github' }
+    hook_event { 'pull_request' }
     request_headers do
       <<~END_OF_HEADERS
         HTTP_X_GITHUB_EVENT: pull_request
@@ -42,6 +44,7 @@ FactoryBot.define do
         end
       end
       trait :push do
+        hook_event { 'push' }
         request_headers do
           <<~END_OF_HEADERS
             HTTP_X_GITHUB_EVENT: push
@@ -52,6 +55,7 @@ FactoryBot.define do
         end
       end
       trait :tag_push do
+        hook_event { 'push' }
         request_headers do
           <<~END_OF_HEADERS
             HTTP_X_GITHUB_EVENT: push
@@ -115,6 +119,8 @@ FactoryBot.define do
 
   # GitLab
   factory :workflow_run_gitlab, parent: :workflow_run do
+    scm_vendor { 'gitlab' }
+    hook_event { 'Merge Request Hook' }
     request_headers do
       <<~END_OF_HEADERS
         HTTP_X_GITLAB_EVENT: Merge Request Hook
@@ -145,6 +151,7 @@ FactoryBot.define do
         end
       end
       trait :push do
+        hook_event { 'Push Hook' }
         request_headers do
           <<~END_OF_HEADERS
             HTTP_X_GITLAB_EVENT: Push Hook
@@ -155,6 +162,7 @@ FactoryBot.define do
         end
       end
       trait :tag_push do
+        hook_event { 'Tag Push Hook' }
         request_headers do
           <<~END_OF_HEADERS
             HTTP_X_GITLAB_EVENT: Tag Push Hook
@@ -168,12 +176,16 @@ FactoryBot.define do
 
     factory :workflow_run_gitlab_running do
       status { 'running' }
+      scm_vendor { 'gitlab' }
+      hook_event { 'Merge Request Hook' }
       response_body { nil }
       response_url { nil }
     end
 
     factory :workflow_run_gitlab_failed do
       status { 'fail' }
+      scm_vendor { 'gitlab' }
+      hook_event { 'Merge Request Hook' }
       response_body do
         <<~END_OF_RESPONSE_BODY
           <status code="unknown">

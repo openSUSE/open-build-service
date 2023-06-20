@@ -2,11 +2,13 @@ require 'rails_helper'
 
 RSpec.describe WorkflowRunHeaderComponent, type: :component do
   let(:workflow_token) { create(:workflow_token) }
+  let(:hook_event) { 'fake' }
   let(:workflow_run) do
     create(:workflow_run,
            token: workflow_token,
            request_headers: request_headers,
-           request_payload: request_payload)
+           request_payload: request_payload,
+           hook_event: hook_event)
   end
 
   before do
@@ -65,6 +67,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
             }
           END_OF_REQUEST
         end
+        let(:hook_event) { 'pull_request' }
 
         it 'shows the action' do
           expect(rendered_content).to have_text('Opened')
@@ -95,6 +98,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
             }
           END_OF_REQUEST
         end
+        let(:hook_event) { 'pull_request' }
 
         it 'does not show the action' do
           expect(rendered_content).not_to have_text('edit')
@@ -130,6 +134,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
           }
         END_OF_REQUEST
       end
+      let(:hook_event) { 'push' }
 
       it 'shows a link to the commit diff' do
         expect(rendered_content).to have_link('1234', href: 'https://example.com/commit/1234')
@@ -154,6 +159,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
         }
       END_OF_PAYLOAD
     end
+    let(:hook_event) { 'Fake Hook' }
 
     it 'shows the event as a title' do
       expect(rendered_content).to have_text('Fake hook event')
@@ -187,6 +193,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
           }
         END_OF_REQUEST
       end
+      let(:hook_event) { 'Merge Request Hook' }
 
       ['close', 'merge', 'open', 'reopen', 'update'].each do |action|
         context "and has an #{action}" do
@@ -204,6 +211,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
               }
             END_OF_REQUEST
           end
+          let(:hook_event) { 'Merge Request Hook' }
 
           it "shows the #{action}" do
             expect(rendered_content).to have_text(action.humanize)
@@ -227,6 +235,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
             }
           END_OF_REQUEST
         end
+        let(:hook_event) { 'Merge Request Hook' }
 
         it 'does not show the action' do
           expect(rendered_content).not_to have_text('unapproved')
@@ -276,6 +285,7 @@ RSpec.describe WorkflowRunHeaderComponent, type: :component do
           }
         END_OF_PAYLOAD
       end
+      let(:hook_event) { 'Push Hook' }
 
       it 'shows a link to the commit diff' do
         expect(rendered_content).to have_link('3075e06879c6c4bd2ab207b30c5a09d75f825d78',

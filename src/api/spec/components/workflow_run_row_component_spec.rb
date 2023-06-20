@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe WorkflowRunRowComponent, type: :component do
   let(:workflow_token) { create(:workflow_token) }
+  let(:hook_event) { 'pull_request' }
   let(:request_headers) do
     <<~END_OF_HEADERS
       HTTP_X_GITHUB_EVENT: pull_request
@@ -18,7 +19,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
     create(:workflow_run,
            token: workflow_token,
            request_headers: request_headers,
-           request_payload: request_payload)
+           request_payload: request_payload,
+           hook_event: hook_event)
   end
 
   before do
@@ -119,6 +121,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
     end
 
     context 'when the workflow comes from a push event' do
+      let(:hook_event) { 'push' }
       let(:request_headers) do
         <<~END_OF_HEADERS
           HTTP_X_GITHUB_EVENT: push
@@ -152,6 +155,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
   end
 
   context 'when the workflow is triggered via GitLab' do
+    let(:hook_event) { 'Merge Request Hook' }
     let(:request_headers) do
       <<~END_OF_HEADERS
         HTTP_X_GITLAB_EVENT: Merge Request Hook
@@ -235,6 +239,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
     end
 
     context 'and comes from a push event' do
+      let(:hook_event) { 'Push Hook' }
       let(:request_headers) do
         <<~END_OF_HEADERS
           HTTP_X_GITLAB_EVENT: Push Hook
@@ -273,7 +278,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
         expect(rendered_content).to have_link('vpereira/hello_world', href: 'https://gitlab.com/vpereira/hello_world')
       end
 
-      it 'is expected to have text "Push Event"' do
+      it 'is expected to have text "Push hook event"' do
         expect(rendered_content).to have_text('Push hook event')
       end
 
@@ -341,7 +346,8 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
                status: 'fail',
                token: workflow_token,
                request_headers: request_headers,
-               request_payload: request_payload)
+               request_payload: request_payload,
+               hook_event: nil)
       end
       let(:request_payload) { {} }
       let(:request_headers) do
@@ -351,7 +357,7 @@ RSpec.describe WorkflowRunRowComponent, type: :component do
       end
 
       it 'does not blow up' do
-        expect(rendered_content).to have_text('Fake event')
+        expect(rendered_content).to have_text('Unknown event')
       end
     end
   end
