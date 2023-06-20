@@ -12,7 +12,7 @@ class Workflow
 
   SUPPORTED_FILTERS = [:branches, :event].freeze
   STEPS_WITH_NO_TARGET_PROJECT_TO_RESTORE_OR_DESTROY = [Workflow::Step::ConfigureRepositories, Workflow::Step::RebuildPackage,
-                                                        Workflow::Step::SetFlags].freeze
+                                                        Workflow::Step::SetFlags, Workflow::Step::TriggerServices].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
 
