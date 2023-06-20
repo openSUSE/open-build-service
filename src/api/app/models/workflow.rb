@@ -20,6 +20,7 @@ class Workflow
     run_callbacks(:initialize) do
       super
       @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
+      @workflow_version_number = attributes[:workflow_version_number]
     end
   end
 
