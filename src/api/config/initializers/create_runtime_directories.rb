@@ -4,5 +4,5 @@ require 'fileutils'
 sub_dirs = ['log', 'tmp', 'tmp/cache', 'tmp/pids', 'tmp/sessions', 'tmp/sockets']
 
 sub_dirs.each do |subdir|
-  FileUtils.mkdir_p("#{Rails.root}/#{subdir}") unless File.exist?(subdir)
+  FileUtils.mkdir_p("#{Rails.root.join("#{subdir}")}") unless File.exist?(subdir)
 end
