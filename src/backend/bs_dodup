@@ -40,6 +40,7 @@ my $rundir = "$bsdir/run";
 my $eventdir = "$bsdir/events";
 my $dodsdir = "$bsdir/dods";
 my $faileddir = "$dodsdir/.failed";
+my $pubkeydir;
 
 my $runname = 'bs_dodup';
 
@@ -51,6 +52,7 @@ my $checkinterval_error = 10 * 60;
 
 $checkinterval_ok = $BSConfig::dodup_checkinterval_ok if $BSConfig::dodup_checkinterval_ok;
 $checkinterval_error = $BSConfig::dodup_checkinterval_error if $BSConfig::dodup_checkinterval_error;
+$pubkeydir = $BSConfig::dodup_pubkeydir if $BSConfig::dodup_pubkeydir;
 
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
@@ -131,6 +133,20 @@ sub chkverify {
 
 sub gpgverify {
   my ($data, $sig, $pubkey) = @_;
+  if ($pubkeydir) {
+    # expand pubkeys coming from pubkeydir
+    my $extradata = '';
+    while ($pubkey =~ /\A([0-9a-zA-Z_\-\#][0-9a-zA-Z_\.\-]*)$/m) {
+      my $file = $1;
+      if (substr($file, 0, 1) ne '#') {
+        last unless -s "$pubkeydir/$file";
+        $extradata .= readstr("$pubkeydir/$file")."\n" if -s "$pubkeydir/$file";
+      }
+      $pubkey = substr($pubkey, length($file));
+      $pubkey =~ s/\A\n//s;
+    }
+    $pubkey = "$extradata$pubkey";
+  }
   my $tempdir = File::Temp->newdir();
   writestr("$tempdir/pubkey", undef, $pubkey);
   system('gpg2', '-q', '--homedir', $tempdir, '--import', "$tempdir/pubkey") && die("gpg2 key import failed: $?\n");
