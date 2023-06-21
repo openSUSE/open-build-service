@@ -249,22 +249,7 @@ RSpec.describe TriggerWorkflowController do
     context 'no validation errors' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
-      let(:github_payload) do
-        {
-          action: 'opened',
-          pull_request: {
-            head: {
-              repo: { full_name: 'username/test_repo' }
-            },
-            base: {
-              ref: 'main',
-              repo: { full_name: 'rubhanazeem/hello_world' }
-            }
-          },
-          number: 4,
-          sender: { url: 'https://api.github.com' }
-        }
-      end
+      let(:github_payload) { File.read('spec/support/files/request_payload_github_pull_request_opened.json') }
 
       before do
         allow(token).to receive(:call).and_return([])
@@ -276,7 +261,7 @@ RSpec.describe TriggerWorkflowController do
         request.headers['CONTENT_TYPE'] = 'application/json'
         request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
 
-        post :create, body: github_payload.to_json
+        post :create, body: github_payload
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -284,6 +269,12 @@ RSpec.describe TriggerWorkflowController do
 
       it { expect(WorkflowRun.count).to eq(1) }
       it { expect(WorkflowRun.last.status).to eq('success') }
+      it { expect(WorkflowRun.last.repository_full_name).to eq('iggy/hello_world') }
+      it { expect(WorkflowRun.last.hook_event).to eq('pull_request') }
+      it { expect(WorkflowRun.last.hook_action).to eq('opened') }
+      it { expect(WorkflowRun.last.scm_vendor).to eq('github') }
+      it { expect(WorkflowRun.last.generic_event_type).to eq('pull_request') }
+      it { expect(WorkflowRun.last.event_source_name).to eq('1') }
       it { expect(response.body).to include('Ok') }
     end
 

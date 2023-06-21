@@ -1,4 +1,7 @@
 class TriggerWorkflowController < TriggerController
+  include ScmWebhookHeadersDataExtractor
+  include ScmWebhookPayloadDataExtractor
+
   # We don't need to validate that the body of the request is XML. We receive JSON
   skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
 
@@ -27,30 +30,33 @@ class TriggerWorkflowController < TriggerController
 
   private
 
-  def set_scm_event
-    @gitlab_event = request.env['HTTP_X_GITLAB_EVENT']
-    # Gitea contains the Github headers as well, so we have to check that the Gitea ones are
-    # not present for Github
-    @github_event = request.env['HTTP_X_GITHUB_EVENT'] unless request.env['HTTP_X_GITEA_EVENT']
-    @gitea_event = request.env['HTTP_X_GITEA_EVENT']
-  end
-
   def set_scm_extractor
-    @scm_extractor = TriggerControllerService::SCMExtractor.new(scm, event, payload)
+    @scm_extractor = TriggerControllerService::SCMExtractor.new(scm_vendor, hook_event, payload)
   end
 
-  def scm
-    if @gitlab_event
-      'gitlab'
-    elsif @github_event
-      'github'
-    elsif @gitea_event
-      'gitea'
-    end
+  def extract_scm_webhook
+    @scm_webhook = @scm_extractor.call
+
+    # There are plenty of different pull/merge request and push events which we don't support.
+    # Those should not cause an error, we simply ignore them.
+    render_ok if @scm_webhook && (@scm_webhook.ignored_pull_request_action? || @scm_webhook.ignored_push_event?)
   end
 
-  def event
-    @github_event || @gitlab_event || @gitea_event
+  def create_workflow_run
+    raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
+
+    request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
+    @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
+                                                request_payload: request.body.read,
+                                                workflow_configuration_path: @token.workflow_configuration_path,
+                                                workflow_configuration_url: @token.workflow_configuration_url,
+                                                scm_vendor: scm_vendor,
+                                                hook_event: hook_event,
+                                                hook_action: extract_hook_action,
+                                                repository_name: extract_repository_name,
+                                                repository_owner: extract_repository_owner,
+                                                event_source_name: extract_event_source_name,
+                                                generic_event_type: extract_generic_event_type)
   end
 
   def validate_scm_event
@@ -63,36 +69,5 @@ class TriggerWorkflowController < TriggerController
         message: @scm_extractor.error_message
       )
     )
-  end
-
-  def payload
-    request_body = request.body.read
-    raise BadSCMPayload if request_body.blank?
-
-    begin
-      JSON.parse(request_body)
-    rescue JSON::ParserError
-      raise BadSCMPayload
-    end
-  end
-
-  def create_workflow_run
-    raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
-
-    request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
-    @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
-                                                request_payload: request.body.read,
-                                                workflow_configuration_path: @token.workflow_configuration_path,
-                                                workflow_configuration_url: @token.workflow_configuration_url,
-                                                scm_vendor: scm,
-                                                hook_event: event)
-  end
-
-  def extract_scm_webhook
-    @scm_webhook = @scm_extractor.call
-
-    # There are plenty of different pull/merge request and push events which we don't support.
-    # Those should not cause an error, we simply ignore them.
-    render_ok if @scm_webhook && (@scm_webhook.ignored_pull_request_action? || @scm_webhook.ignored_push_event?)
   end
 end
