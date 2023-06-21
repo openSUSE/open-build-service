@@ -75,7 +75,10 @@ class TriggerWorkflowController < TriggerController
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
 
     request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
-    @workflow_run = @token.workflow_runs.create(request_headers: request_headers, request_payload: request.body.read)
+    @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
+                                                request_payload: request.body.read,
+                                                workflow_configuration_path: @token.workflow_configuration_path,
+                                                workflow_configuration_url: @token.workflow_configuration_url)
   end
 
   def extract_scm_webhook

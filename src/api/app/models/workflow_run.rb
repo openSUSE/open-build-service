@@ -23,7 +23,7 @@ class WorkflowRun < ApplicationRecord
     :state, :status_options
   ].freeze
 
-  validates :response_url, length: { maximum: 255 }
+  validates :response_url, :workflow_configuration_path, :workflow_configuration_url, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
@@ -125,6 +125,10 @@ class WorkflowRun < ApplicationRecord
     scm_status_reports.last&.response_body
   end
 
+  def configuration_source
+    [workflow_configuration_url, workflow_configuration_path].filter_map(&:presence).first
+  end
+
   private
 
   def parsed_request_headers
@@ -150,15 +154,17 @@ end
 #
 # Table name: workflow_runs
 #
-#  id              :integer          not null, primary key
-#  request_headers :text(65535)      not null
-#  request_payload :text(4294967295) not null
-#  response_body   :text(65535)
-#  response_url    :string(255)
-#  status          :integer          default("running"), not null
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  token_id        :integer          not null, indexed
+#  id                          :integer          not null, primary key
+#  request_headers             :text(65535)      not null
+#  request_payload             :text(4294967295) not null
+#  response_body               :text(65535)
+#  response_url                :string(255)
+#  status                      :integer          default("running"), not null
+#  workflow_configuration_path :string(255)
+#  workflow_configuration_url  :string(255)
+#  created_at                  :datetime         not null
+#  updated_at                  :datetime         not null
+#  token_id                    :integer          not null, indexed
 #
 # Indexes
 #
