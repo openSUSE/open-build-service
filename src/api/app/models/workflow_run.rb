@@ -125,6 +125,10 @@ class WorkflowRun < ApplicationRecord
     scm_status_reports.last&.response_body
   end
 
+  def configuration_source
+    [workflow_configuration_url, workflow_configuration_path].filter_map(&:presence).first
+  end
+
   private
 
   def parsed_request_headers

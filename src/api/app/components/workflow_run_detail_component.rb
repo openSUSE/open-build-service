@@ -26,14 +26,11 @@ class WorkflowRunDetailComponent < ApplicationComponent
 
   # Old workflow run entries didn't store the configuration-related information
   def workflow_configuration_data
-    configuration_source = [workflow_run.workflow_configuration_url,
-                            workflow_run.workflow_configuration_path].filter_map(&:presence).first
-
-    return content_tag(:p, 'This information is not available.') unless configuration_source
+    return content_tag(:p, 'This information is not available.') unless workflow_run.configuration_source
 
     content_tag(:h5, "Workflow Configuration File #{workflow_run.workflow_configuration_url.present? ? 'URL' : 'Path'}").concat(
       content_tag(:pre,
-                  configuration_source,
+                  workflow_run.configuration_source,
                   class: 'border p-2')
     )
   end
