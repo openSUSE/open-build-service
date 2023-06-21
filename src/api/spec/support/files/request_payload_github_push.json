@@ -10,10 +10,12 @@
   "repository": {
     "id": 371734220,
     "name": "hello_world",
-    "full_name": "iggy/hello_world",
     "html_url": "https://github.com/iggy/hello_world",
     "url": "https://github.com/iggy/hello_world",
     "git_url": "git://github.com/iggy/hello_world.git",
-    "master_branch": "master"
+    "master_branch": "master",
+    "owner": {
+      "login": "iggy"
+    }
   }
 }
