@@ -880,6 +880,7 @@ sub is_related {
   my $lprojid2 = length($projid2);
   return 1 if $lprojid1 > $lprojid2 && substr($projid1, 0, $lprojid2 + 1) eq "$projid2:";
   return 1 if $lprojid2 > $lprojid1 && substr($projid2, 0, $lprojid1 + 1) eq "$projid1:";
+  return 1 if $BSConfig::related_projects && ($BSConfig::related_projects->{"$projid1/$projid2"} || $BSConfig::related_projects->{"$projid2/$projid1"});
   return 0;
 }
 
