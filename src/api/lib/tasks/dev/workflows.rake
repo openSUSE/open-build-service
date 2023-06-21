@@ -74,5 +74,5 @@ end
 # If the name of the project created by the workflow is "home:Iggy:iggy:hello_world:PR-68", its postfix
 # is "iggy:hello_world:PR-68". This is the only information we can extract from the workflow_run.
 def target_project_name_postfix(workflow_run)
-  ":#{workflow_run.repository_name.tr('/', ':')}:PR-#{workflow_run.event_source_name}" if workflow_run.repository_name && workflow_run.event_source_name
+  ":#{workflow_run.repository_owner}:#{workflow_run.repository_name}:PR-#{workflow_run.event_source_name}" if workflow_run.repository_name && workflow_run.event_source_name
 end
