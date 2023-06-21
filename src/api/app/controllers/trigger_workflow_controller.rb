@@ -36,16 +36,21 @@ class TriggerWorkflowController < TriggerController
   end
 
   def set_scm_extractor
-    scm = if @gitlab_event
-            'gitlab'
-          elsif @github_event
-            'github'
-          elsif @gitea_event
-            'gitea'
-          end
-    event = @github_event || @gitlab_event || @gitea_event
-
     @scm_extractor = TriggerControllerService::SCMExtractor.new(scm, event, payload)
+  end
+
+  def scm
+    if @gitlab_event
+      'gitlab'
+    elsif @github_event
+      'github'
+    elsif @gitea_event
+      'gitea'
+    end
+  end
+
+  def event
+    @github_event || @gitlab_event || @gitea_event
   end
 
   def validate_scm_event
@@ -78,7 +83,9 @@ class TriggerWorkflowController < TriggerController
     @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
                                                 request_payload: request.body.read,
                                                 workflow_configuration_path: @token.workflow_configuration_path,
-                                                workflow_configuration_url: @token.workflow_configuration_url)
+                                                workflow_configuration_url: @token.workflow_configuration_url,
+                                                scm_vendor: scm,
+                                                hook_event: event)
   end
 
   def extract_scm_webhook

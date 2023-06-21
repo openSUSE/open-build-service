@@ -12,7 +12,7 @@ class WorkflowRunDetailComponent < ApplicationComponent
     @response_url = workflow_run.response_url
     @response_body = workflow_run.response_body
     @artifacts = workflow_run.artifacts # collection of WorkflowArtifactsPerStep
-    @scm_vendor = workflow_run.scm_vendor.to_s.humanize
+    @scm_vendor = workflow_run.scm_vendor.humanize
     @status_reports = workflow_run.scm_status_reports
   end
 

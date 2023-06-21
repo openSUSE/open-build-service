@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/ClassLength
 class WorkflowRun < ApplicationRecord
   SOURCE_NAME_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'number'],
@@ -23,7 +22,7 @@ class WorkflowRun < ApplicationRecord
     :state, :status_options
   ].freeze
 
-  validates :response_url, :workflow_configuration_path, :workflow_configuration_url, length: { maximum: 255 }
+  validates :response_url, :workflow_configuration_path, :workflow_configuration_url, :scm_vendor, :hook_event, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
@@ -64,11 +63,6 @@ class WorkflowRun < ApplicationRecord
     { payload: 'unparseable' }
   end
 
-  def hook_event
-    parsed_request_headers['HTTP_X_GITHUB_EVENT'] ||
-      parsed_request_headers['HTTP_X_GITLAB_EVENT']
-  end
-
   def hook_action
     return payload['action'] if pull_request_with_allowed_action
     return payload.dig('object_attributes', 'action') if merge_request_with_allowed_action
@@ -105,22 +99,6 @@ class WorkflowRun < ApplicationRecord
     end
   end
 
-  # FIXME: This `if github do this and if gitlab do that` is scattered around
-  # the code regarding workflow runs. It is asking for a refactor putting
-  # together all the behaviour regarding GitHub and all the behaviour regarding
-  # GitLab.
-  def scm_vendor
-    if parsed_request_headers['HTTP_X_GITEA_EVENT']
-      :gitea
-    elsif parsed_request_headers['HTTP_X_GITHUB_EVENT']
-      :github
-    elsif parsed_request_headers['HTTP_X_GITLAB_EVENT']
-      :gitlab
-    else
-      :unknown
-    end
-  end
-
   def last_response_body
     scm_status_reports.last&.response_body
   end
@@ -130,13 +108,6 @@ class WorkflowRun < ApplicationRecord
   end
 
   private
-
-  def parsed_request_headers
-    request_headers.split("\n").each_with_object({}) do |h, headers|
-      k, v = h.split(':')
-      headers[k] = v.strip
-    end
-  end
 
   def pull_request_with_allowed_action
     hook_event == 'pull_request' &&
@@ -148,17 +119,18 @@ class WorkflowRun < ApplicationRecord
       SCMWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
-# rubocop:enable Metrics/ClassLength
 
 # == Schema Information
 #
 # Table name: workflow_runs
 #
 #  id                          :integer          not null, primary key
+#  hook_event                  :string(255)
 #  request_headers             :text(65535)      not null
 #  request_payload             :text(4294967295) not null
 #  response_body               :text(65535)
 #  response_url                :string(255)
+#  scm_vendor                  :string(255)
 #  status                      :integer          default("running"), not null
 #  workflow_configuration_path :string(255)
 #  workflow_configuration_url  :string(255)
