@@ -133,7 +133,7 @@ GEM
     crass (1.0.6)
     daemons (1.4.1)
     dalli (3.2.5)
-    data_migrate (10.0.2)
+    data_migrate (9.0.0)
       activerecord (>= 6.0)
       railties (>= 6.0)
     database_cleaner-active_record (2.1.0)
@@ -537,7 +537,7 @@ DEPENDENCIES
   coderay
   daemons
   dalli
-  data_migrate
+  data_migrate (~> 9.0)
   database_cleaner-active_record
   database_consistency
   deep_cloneable
