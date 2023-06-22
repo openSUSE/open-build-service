@@ -25,10 +25,11 @@ module Workflows
         raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
       end
 
+      parsed_workflows_yaml = extract_and_set_workflow_version(parsed_workflows_yaml: parsed_workflows_yaml)
       parsed_workflows_yaml
         .map do |_workflow_name, workflow_instructions|
         Workflow.new(workflow_instructions: workflow_instructions, scm_webhook: @scm_webhook, token: @token,
-                     workflow_run: @workflow_run)
+                     workflow_run: @workflow_run, workflow_version_number: @workflow_version_number)
       end
     end
 
@@ -52,6 +53,14 @@ module Workflows
       rescue ArgumentError => e
         raise Token::Errors::WorkflowsYamlFormatError, e.message
       end
+    end
+
+    def extract_and_set_workflow_version(parsed_workflows_yaml:)
+      # Receive and delete the version key from the parsed yaml, so it is not
+      # confused with a workflow name. Check if the version key points to a hash
+      # incase 'version' is the name of a workflow e.g. {"version"=>1.1, "version"=>{"steps"=>[{"trigger_services"...
+      @workflow_version_number ||= parsed_workflows_yaml.delete('version') unless parsed_workflows_yaml['version'].is_a?(Hash)
+      parsed_workflows_yaml
     end
   end
 end

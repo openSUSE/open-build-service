@@ -1,6 +1,7 @@
 class Workflow
   include ActiveModel::Model
   include WorkflowInstrumentation # for run_callbacks
+  include WorkflowVersionMatcher
 
   SCM_CI_DOCUMENTATION_URL = 'https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration.html'.freeze
 
@@ -14,17 +15,19 @@ class Workflow
   STEPS_WITH_NO_TARGET_PROJECT_TO_RESTORE_OR_DESTROY = [Workflow::Step::ConfigureRepositories, Workflow::Step::RebuildPackage,
                                                         Workflow::Step::SetFlags, Workflow::Step::TriggerServices].freeze
 
-  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run
+  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run, :workflow_version_number
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
       super
       @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
+      @workflow_version_number = attributes[:workflow_version_number]
     end
   end
 
   validates_with WorkflowStepsValidator
   validates_with WorkflowFiltersValidator
+  validates_with WorkflowVersionValidator
   validate :event_supports_branches_filter?, on: :call, if: :event_matches_event_filter?
 
   def call
@@ -105,6 +108,8 @@ class Workflow
       scm_webhook.tag_push_event?
     when 'pull_request'
       scm_webhook.pull_request_event?
+    when 'merge_request'
+      scm_webhook.pull_request_event? && feature_available_for_workflow_version?(workflow_version: workflow_version_number, feature_name: 'event_aliases')
     else
       false
     end

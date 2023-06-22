@@ -232,6 +232,43 @@ RSpec.describe Workflow, vcr: true do
       end
     end
 
+    context 'with GitHub "pull_request" event matching the "merge_request" event filter alias' do
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+          'filters' => { 'event' => 'merge_request' } }
+      end
+      let(:extractor_payload) do
+        {
+          scm: 'github',
+          action: 'opened',
+          event: 'pull_request'
+        }
+      end
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      context 'when no workflow version is provided' do
+        it 'the workflow runs' do
+          subject.call
+          expect(subject.steps.first).to have_received(:call)
+        end
+      end
+
+      context 'when a workflow version is provided that does not support the alias' do
+        subject do
+          described_class.new(workflow_instructions: yaml, scm_webhook: SCMWebhook.new(payload: extractor_payload),
+                              token: token, workflow_run: workflow_run, workflow_version_number: '1.0')
+        end
+
+        it 'the workflow does not run' do
+          subject.call
+          expect(subject.steps.first).not_to have_received(:call)
+        end
+      end
+    end
+
     context 'when the webhook event is against none of the branches in the branches/ignore filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
