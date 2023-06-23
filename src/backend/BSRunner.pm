@@ -85,9 +85,7 @@ sub run {
 
       if ($nofork || !$maxchild || $maxchild == 1) {
 	$numreaped += reap(0, \%chld, \%chld_flavor) if $nofork && $nofork == 2 && %chld;
-	eval {
-	  $conf->{'dispatch'}->($req);
-	};
+	eval { $conf->{'dispatch'}->($req) };
 	warn($@) if $@;
 	next;
       }
@@ -108,6 +106,7 @@ sub run {
 
     for my $fc (sort %{$conf->{'filechecks'} || {}}) {
       next unless -e $fc;
+      print "waiting for all children to finish\n" if %chld;
       $numreaped += reap(0, \%chld, \%chld_flavor) if %chld;
       $conf->{'filechecks'}->{$fc}->($conf, $fc);
     }

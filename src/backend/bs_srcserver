@@ -498,11 +498,11 @@ sub getcommitinfo {
   my $cfile;
   $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
   my $bconf = Build::read_config('noarch', $cfile);
-  for my $type ('spec', 'dsc', 'kiwi') {
+  for my $type ('spec', 'dsc', 'kiwi', 'docker') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my $file = findfile($rev, undef, $type, $files);
     next unless defined $file;
-    my $d = Build::parse($bconf, BSRevision::revfilename($rev, $file, $files->{$file}));
+    my $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $type);
     next unless defined $d->{'version'};
     $version = $d->{'version'};
     $release = $d->{'release'} if defined $d->{'release'};
