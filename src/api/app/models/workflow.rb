@@ -135,8 +135,13 @@ class Workflow
     EventSubscription.where(channel: 'scm', token: token, package: target_packages).delete_all
 
     target_project_names = processable_steps.map(&:target_project_name).uniq.compact
-    # We want the callbacks to run after destroy, so we can't use delete_all
-    Project.where(name: target_project_names).destroy_all
+
+    begin
+      Project.where(name: target_project_names).destroy_all
+    rescue Project::Errors::UnknownObjectError, Pundit::NotAuthorizedError => e
+      workflow_run.update_as_failed(e.message)
+      raise e
+    end
   end
 
   # TODO: Extract this into a service
