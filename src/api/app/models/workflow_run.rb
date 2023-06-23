@@ -61,7 +61,7 @@ class WorkflowRun < ApplicationRecord
   end
 
   def payload
-    JSON.parse(request_payload)
+    JSON.parse(request_payload.presence || {})
   rescue JSON::ParserError
     { payload: 'unparseable' }
   end
