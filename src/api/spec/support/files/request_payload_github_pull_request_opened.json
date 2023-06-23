@@ -4,7 +4,10 @@
     "number": 1
   },
   "repository": {
-    "full_name": "iggy/hello_world",
-    "html_url": "https://github.com"
+    "name": "hello_world",
+    "html_url": "https://github.com",
+    "owner": {
+      "login": "iggy"
+    }
   }
 }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_16_154316) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_21_071327) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -1119,6 +1119,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_154316) do
     t.string "workflow_configuration_url"
     t.string "scm_vendor"
     t.string "hook_event"
+    t.string "hook_action"
+    t.string "repository_name"
+    t.string "repository_owner"
+    t.string "event_source_name"
+    t.string "generic_event_type"
     t.index ["token_id"], name: "index_workflow_runs_on_token_id"
   end
 
