@@ -21,7 +21,7 @@ class BackfillWorkflowRunPayloadData < ActiveRecord::Migration[7.0]
   end
 
   def payload
-    @workflow_run.payload
+    @workflow_run.payload.presence || {}
   end
 
   def hook_event
