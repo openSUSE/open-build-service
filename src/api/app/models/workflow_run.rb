@@ -16,6 +16,7 @@ class WorkflowRun < ApplicationRecord
   ].freeze
 
   validates :scm_vendor, :response_url,
+            :event_uuid, :webhook_id,
             :workflow_configuration_path, :workflow_configuration_url,
             :hook_event, :hook_action, :generic_event_type,
             :repository_name, :repository_owner, :event_source_name, length: { maximum: 255 }
@@ -90,6 +91,7 @@ end
 #
 #  id                          :integer          not null, primary key
 #  event_source_name           :string(255)
+#  event_uuid                  :string(255)
 #  generic_event_type          :string(255)
 #  hook_action                 :string(255)
 #  hook_event                  :string(255)
@@ -106,6 +108,7 @@ end
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  token_id                    :integer          not null, indexed
+#  webhook_id                  :string(255)
 #
 # Indexes
 #

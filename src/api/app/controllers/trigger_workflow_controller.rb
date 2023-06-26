@@ -45,13 +45,15 @@ class TriggerWorkflowController < TriggerController
   def create_workflow_run
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
 
-    request_headers = request.headers.to_h.keys.map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.compact.join("\n")
+    request_headers = request.headers.to_h.select {|key, _value| key.starts_with?('HTTP_X') }
     @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
                                                 request_payload: request.body.read,
                                                 workflow_configuration_path: @token.workflow_configuration_path,
                                                 workflow_configuration_url: @token.workflow_configuration_url,
                                                 scm_vendor: scm_vendor,
                                                 hook_event: hook_event,
+                                                event_uuid: extract_event_uuid,
+                                                webhook_id: extract_webhook_id,
                                                 hook_action: extract_hook_action,
                                                 repository_name: extract_repository_name,
                                                 repository_owner: extract_repository_owner,

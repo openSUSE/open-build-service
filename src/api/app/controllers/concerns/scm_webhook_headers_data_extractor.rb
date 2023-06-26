@@ -23,6 +23,14 @@ module ScmWebhookHeadersDataExtractor
     @github_event || @gitlab_event || @gitea_event
   end
 
+  def extract_event_uuid
+    request.env['HTTP_X_GITHUB_DELIVERY'] || request.env['HTTP_X_GITLAB_EVENT_UUID']
+  end
+
+  def extract_webhook_id
+    request.env['HTTP_X_GITHUB_HOOK_ID']
+  end
+
   def extract_generic_event_type
     # We only have filters for push, tag_push, and pull_request
     if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
