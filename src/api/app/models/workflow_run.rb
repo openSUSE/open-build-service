@@ -1,11 +1,4 @@
 class WorkflowRun < ApplicationRecord
-  SOURCE_NAME_PAYLOAD_MAPPING = {
-    'pull_request' => ['pull_request', 'number'],
-    'Merge Request Hook' => ['object_attributes', 'iid'],
-    'push' => ['head_commit', 'id'],
-    'Push Hook' => ['commits', 0, 'id']
-  }.freeze
-
   SOURCE_URL_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'html_url'],
     'Merge Request Hook' => ['object_attributes', 'url'],
@@ -66,14 +59,10 @@ class WorkflowRun < ApplicationRecord
     { payload: 'unparseable' }
   end
 
-  def hook_action
-    return payload['action'] if pull_request_with_allowed_action
-    return payload.dig('object_attributes', 'action') if merge_request_with_allowed_action
-  end
+  def repository_full_name
+    return unless repository_owner && repository_name
 
-  def repository_name
-    payload.dig('repository', 'full_name') || # For GitHub and Gitea on pull_request and push events
-      payload.dig('project', 'path_with_namespace') # For GitLab on merge request and push events
+    "#{repository_owner}/#{repository_name}"
   end
 
   def repository_url
@@ -81,25 +70,9 @@ class WorkflowRun < ApplicationRecord
       payload.dig('project', 'web_url') # For GitLab on merge request and push events
   end
 
-  def event_source_name
-    path = SOURCE_NAME_PAYLOAD_MAPPING[hook_event]
-    payload.dig(*path) if path
-  end
-
   def event_source_url
     mapped_source_url = SOURCE_URL_PAYLOAD_MAPPING[hook_event]
     payload.dig(*mapped_source_url) if mapped_source_url
-  end
-
-  def generic_event_type
-    # We only have filters for push, tag_push, and pull_request
-    if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
-      'push'
-    elsif hook_event == 'Tag Push Hook' || payload.fetch('ref', '').match('refs/tag')
-      'tag_push'
-    elsif hook_event.in?(['pull_request', 'Merge Request Hook'])
-      'pull_request'
-    end
   end
 
   def last_response_body
@@ -108,18 +81,6 @@ class WorkflowRun < ApplicationRecord
 
   def configuration_source
     [workflow_configuration_url, workflow_configuration_path].filter_map(&:presence).first
-  end
-
-  private
-
-  def pull_request_with_allowed_action
-    hook_event == 'pull_request' &&
-      SCMWebhook::ALLOWED_PULL_REQUEST_ACTIONS.include?(payload['action'])
-  end
-
-  def merge_request_with_allowed_action
-    hook_event == 'Merge Request Hook' &&
-      SCMWebhook::ALLOWED_MERGE_REQUEST_ACTIONS.include?(payload.dig('object_attributes', 'action'))
   end
 end
 

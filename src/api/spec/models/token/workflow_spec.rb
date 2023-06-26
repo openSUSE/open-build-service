@@ -4,7 +4,7 @@ RSpec.describe Token::Workflow do
   describe '#call' do
     let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
     let(:workflow_token) { create(:workflow_token, executor: token_user) }
-    let(:workflow_run) { create(:workflow_run, token: workflow_token) }
+    let(:workflow_run) { create(:workflow_run, token: workflow_token, response_url: 'https://example.com') }
 
     context 'without a payload' do
       it do

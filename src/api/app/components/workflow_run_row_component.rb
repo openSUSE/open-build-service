@@ -8,7 +8,7 @@ class WorkflowRunRowComponent < ApplicationComponent
     @status = workflow_run.status
     @hook_event = workflow_run.hook_event || 'unknown'
     @hook_action = workflow_run.hook_action
-    @repository_name = workflow_run.repository_name
+    @repository_name = workflow_run.repository_full_name
     @repository_url = workflow_run.repository_url
     @event_source_name = workflow_run.event_source_name
     @event_source_url = workflow_run.event_source_url

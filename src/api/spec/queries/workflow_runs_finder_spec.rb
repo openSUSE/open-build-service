@@ -3,15 +3,15 @@ require 'rails_helper'
 RSpec.describe WorkflowRunsFinder do
   let(:workflow_token) { create(:workflow_token) }
   # GitHub
-  let!(:workflow_run_github_push) { create(:workflow_run_github_succeeded, :push, token: workflow_token) }
-  let!(:workflow_run_github_tag_push) { create(:workflow_run_github_succeeded, :tag_push, token: workflow_token) }
-  let!(:workflow_run_github_pull_request_opened) { create(:workflow_run_github_succeeded, :pull_request_opened, token: workflow_token) }
-  let!(:workflow_run_github_pull_request_closed) { create(:workflow_run_github_succeeded, :pull_request_closed, token: workflow_token) }
+  let!(:workflow_run_github_push) { create(:workflow_run, :push, :succeeded, token: workflow_token) }
+  let!(:workflow_run_github_tag_push) { create(:workflow_run, :tag_push, :succeeded, token: workflow_token) }
+  let!(:workflow_run_github_pull_request_opened) { create(:workflow_run, :succeeded, token: workflow_token) }
+  let!(:workflow_run_github_pull_request_closed) { create(:workflow_run, :succeeded, :pull_request_closed, token: workflow_token) }
   # GitLab
-  let!(:workflow_run_gitlab_push) { create(:workflow_run_gitlab_succeeded, :push, token: workflow_token) }
-  let!(:workflow_run_gitlab_tag_push) { create(:workflow_run_gitlab_succeeded, :tag_push, token: workflow_token) }
-  let!(:workflow_run_gitlab_pull_request_opened) { create(:workflow_run_gitlab_succeeded, :pull_request_opened, token: workflow_token) }
-  let!(:workflow_run_gitlab_pull_request_closed) { create(:workflow_run_gitlab_succeeded, :pull_request_closed, token: workflow_token) }
+  let!(:workflow_run_gitlab_push) { create(:workflow_run_gitlab, :push, :succeeded, token: workflow_token) }
+  let!(:workflow_run_gitlab_tag_push) { create(:workflow_run_gitlab, :tag_push, :succeeded, token: workflow_token) }
+  let!(:workflow_run_gitlab_pull_request_opened) { create(:workflow_run_gitlab, :succeeded, token: workflow_token) }
+  let!(:workflow_run_gitlab_pull_request_closed) { create(:workflow_run_gitlab, :succeeded, :pull_request_closed, token: workflow_token) }
 
   before do
     ['success', 'running', 'fail'].each do |status|
