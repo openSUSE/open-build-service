@@ -19,21 +19,22 @@ module Workflows
     private
 
     def create_workflows
+      @workflow_run.update(workflow_configuration: File.read(@yaml_file))
       begin
-        parsed_workflows_yaml = YAML.safe_load(parse_workflows_file(@yaml_file))
+        parsed_workflow_configuration = YAML.safe_load(parse_workflow_configuration(@workflow_run.workflow_configuration))
       rescue Psych::SyntaxError, Token::Errors::WorkflowsYamlFormatError => e
         raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
       end
 
-      parsed_workflows_yaml = extract_and_set_workflow_version(parsed_workflows_yaml: parsed_workflows_yaml)
-      parsed_workflows_yaml
+      parsed_workflow_configuration = extract_and_set_workflow_version(parsed_workflow_configuration: parsed_workflow_configuration)
+      parsed_workflow_configuration
         .map do |_workflow_name, workflow_instructions|
         Workflow.new(workflow_instructions: workflow_instructions, scm_webhook: @scm_webhook, token: @token,
                      workflow_run: @workflow_run, workflow_version_number: @workflow_version_number)
       end
     end
 
-    def parse_workflows_file(file_path)
+    def parse_workflow_configuration(workflow_configuration)
       target_repository_full_name = @scm_webhook.payload.values_at(:target_repository_full_name, :path_with_namespace).compact.first
       scm_organization_name, scm_repository_name = target_repository_full_name.split('/')
 
@@ -43,24 +44,23 @@ module Workflows
 
       commit_sha = @scm_webhook.payload.fetch(:commit_sha)
 
-      workflows_file_content = File.read(file_path)
-      track_placeholder_variables(workflows_file_content)
+      track_placeholder_variables(workflow_configuration)
 
       # Mapping the placeholder variables to their values from the webhook event payload
       placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha]).to_h
       begin
-        format(workflows_file_content, placeholder_variables)
+        format(workflow_configuration, placeholder_variables)
       rescue ArgumentError => e
         raise Token::Errors::WorkflowsYamlFormatError, e.message
       end
     end
 
-    def extract_and_set_workflow_version(parsed_workflows_yaml:)
+    def extract_and_set_workflow_version(parsed_workflow_configuration:)
       # Receive and delete the version key from the parsed yaml, so it is not
       # confused with a workflow name. Check if the version key points to a hash
       # incase 'version' is the name of a workflow e.g. {"version"=>1.1, "version"=>{"steps"=>[{"trigger_services"...
-      @workflow_version_number ||= parsed_workflows_yaml.delete('version') unless parsed_workflows_yaml['version'].is_a?(Hash)
-      parsed_workflows_yaml
+      @workflow_version_number ||= parsed_workflow_configuration.delete('version') unless parsed_workflow_configuration['version'].is_a?(Hash)
+      parsed_workflow_configuration
     end
   end
 end

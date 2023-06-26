@@ -20,6 +20,7 @@ class WorkflowRun < ApplicationRecord
             :hook_event, :hook_action, :generic_event_type,
             :repository_name, :repository_owner, :event_source_name, length: { maximum: 255 }
   validates :request_headers, :status, presence: true
+  validates :workflow_configuration, length: { maximum: 65_535 }
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
@@ -101,6 +102,7 @@ end
 #  response_url                :string(255)
 #  scm_vendor                  :string(255)
 #  status                      :integer          default("running"), not null
+#  workflow_configuration      :text(65535)
 #  workflow_configuration_path :string(255)
 #  workflow_configuration_url  :string(255)
 #  created_at                  :datetime         not null
