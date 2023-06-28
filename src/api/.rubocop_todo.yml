@@ -1286,15 +1286,6 @@ Style/RedundantFreeze:
   Exclude:
     - 'lib/pretty_nested_errors/key_and_messages_parser.rb'
 
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedMethods, AllowedPatterns.
-Style/ReturnNilInPredicateMethodDefinition:
-  Exclude:
-    - 'app/mixins/flipper_feature.rb'
-    - 'app/models/relationship/add_role.rb'
-    - 'app/models/workflow.rb'
-
 # Offense count: 11
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/SlicingWithRange:

@@ -50,7 +50,7 @@ class Workflow
 
   def event_supports_branches_filter?
     # Tags do not have a reference to a branch, they are referring to a commit
-    return unless @workflow_instructions.dig(:filters, :branches).present? && scm_webhook.tag_push_event?
+    return false unless @workflow_instructions.dig(:filters, :branches).present? && scm_webhook.tag_push_event?
 
     errors.add(:filters, 'for branches are not supported for the tag push event. ' \
                          "Documentation for filters: #{WorkflowFiltersValidator::DOCUMENTATION_LINK}")

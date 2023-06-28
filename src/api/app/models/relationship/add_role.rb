@@ -23,7 +23,7 @@ class Relationship::AddRole
   attr_accessor :package_or_project, :role, :user, :group, :check
 
   def duplicate?
-    return unless package_or_project.relationships.exists?(user: user, group: group, role: role)
+    return false unless package_or_project.relationships.exists?(user: user, group: group, role: role)
     raise SaveError, 'Relationship already exists' if check
 
     true
