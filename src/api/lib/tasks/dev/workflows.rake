@@ -15,20 +15,20 @@ namespace :dev do
       workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token, executor: admin, description: 'Testing token')
 
       # GitHub
-      create(:workflow_run_github_running, token: workflow_token)
-      create(:workflow_run_github_failed, token: workflow_token)
-      create(:workflow_run_github_succeeded, :push, token: workflow_token)
-      create(:workflow_run_github_succeeded, :tag_push, token: workflow_token)
-      create(:workflow_run_github_succeeded, :pull_request_opened, token: workflow_token)
-      create(:workflow_run_github_succeeded, :pull_request_closed, token: workflow_token)
+      create(:workflow_run, token: workflow_token)
+      create(:workflow_run, :failed, token: workflow_token)
+      create(:workflow_run, :succeeded, :push, token: workflow_token)
+      create(:workflow_run, :succeeded, :tag_push, token: workflow_token)
+      create(:workflow_run, :succeeded, token: workflow_token)
+      create(:workflow_run, :succeeded, :pull_request_closed, token: workflow_token)
 
       # GitLab
-      create(:workflow_run_gitlab_running, token: workflow_token)
-      create(:workflow_run_gitlab_failed, token: workflow_token)
-      create(:workflow_run_gitlab_succeeded, :push, token: workflow_token)
-      create(:workflow_run_gitlab_succeeded, :tag_push, token: workflow_token)
-      create(:workflow_run_gitlab_succeeded, :pull_request_opened, token: workflow_token)
-      create(:workflow_run_gitlab_succeeded, :pull_request_closed, token: workflow_token)
+      create(:workflow_run_gitlab, token: workflow_token)
+      create(:workflow_run_gitlab, :failed, token: workflow_token)
+      create(:workflow_run_gitlab, :succeeded, :push, token: workflow_token)
+      create(:workflow_run_gitlab, :succeeded, :tag_push, token: workflow_token)
+      create(:workflow_run_gitlab, :succeeded, token: workflow_token)
+      create(:workflow_run_gitlab, :succeeded, :pull_request_closed, token: workflow_token)
 
       workflow_runs_with_artifacts = WorkflowRun.where(status: 'success')
 
