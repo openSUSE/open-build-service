@@ -22,7 +22,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     assert_match(/To: Iggy Pop <Iggy@pop.org>/, mail)
     pattern = Regexp.new('Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586')
-    assert_match(pattern, mail.gsub(/=\n/, ''))
+    assert_match(pattern, mail.gsub("=\n", ''))
     pattern = Regexp.new('Package home:Iggy/TestPack failed to build in 10.2/i586')
     assert_match(pattern, mail)
     assert_match(/osc checkout home:Iggy TestPack/, mail)
@@ -40,7 +40,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     assert_match(/To: Frederic Feuerstone <fred@feuerstein.de>/, mail)
     pattern = Regexp.new('Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586')
-    assert_match(pattern, mail.gsub(/=\n/, ''))
+    assert_match(pattern, mail.gsub("=\n", ''))
     pattern = Regexp.new('Package home:Iggy/TestPack failed to build in 10.2/i586')
     assert_match(pattern, mail)
     assert_match(/osc checkout home:Iggy TestPack/, mail)

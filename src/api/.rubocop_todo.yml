@@ -1286,16 +1286,6 @@ Style/RedundantFreeze:
   Exclude:
     - 'lib/pretty_nested_errors/key_and_messages_parser.rb'
 
-# Offense count: 20
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantRegexpArgument:
-  Exclude:
-    - 'app/components/download_repository_link_component.rb'
-    - 'app/models/maintenance_incident.rb'
-    - 'script/start_test_backend'
-    - 'test/functional/issue_controller_test.rb'
-    - 'test/unit/event_mailer_test.rb'
-
 # Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowedMethods, AllowedPatterns.

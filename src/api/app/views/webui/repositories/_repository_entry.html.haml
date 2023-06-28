@@ -41,7 +41,7 @@
                       data: { 'bs-toggle': 'modal', 'bs-target': "#add-repository-path-#{repository.id}" }) do
           %i.fas.fa-plus-circle.text-primary
     - component.with_action do
-      - url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
+      - url = "#{download_url}/#{project.to_s.gsub(':', ':/')}/#{repository}"
       = link_to(url, title: 'Download Repository', class: 'nav-link p-1') do
         %i.fas.fa-download.text-secondary
 

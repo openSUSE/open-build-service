@@ -9,6 +9,6 @@ class DownloadRepositoryLinkComponent < ApplicationComponent
     return unless download_url
 
     @published_repository_exist = Backend::Api::Published.published_repository_exist?(project.to_s, repository.to_s)
-    @download_area_url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
+    @download_area_url = "#{download_url}/#{project.to_s.gsub(':', ':/')}/#{repository}"
   end
 end

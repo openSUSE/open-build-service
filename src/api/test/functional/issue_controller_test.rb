@@ -132,8 +132,8 @@ Blubber bnc#15\n
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
 "
-    changes.gsub!(/Blubber/, 'Blabber') # leads to changed
-    changes.gsub!(/bnc#14/, '') # leads to removed
+    changes.gsub!('Blubber', 'Blabber') # leads to changed
+    changes.gsub!('bnc#14', '') # leads to removed
     put '/source/home:Iggy:branches:BaseDistro/pack_new/file.changes', params: changes
     assert_response :success
 
@@ -257,8 +257,8 @@ Blubber bnc#15\n
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456 github#openSUSE/build#123\n
 "
-    changes.gsub!(/Blubber/, 'Blabber') # leads to changed
-    changes.gsub!(/bnc#14/, '') # leads to removed
+    changes.gsub!('Blubber', 'Blabber') # leads to changed
+    changes.gsub!('bnc#14', '') # leads to removed
     put '/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository', params: changes
     assert_response :success
     raw_post '/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1',
