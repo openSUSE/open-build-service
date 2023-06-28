@@ -77,13 +77,13 @@ class MaintenanceIncident < ApplicationRecord
     my_id = id_template
 
     # replace place holders
-    my_id.gsub!(/%C/, counter.value.to_s)
-    my_id.gsub!(/%Y/, counter.released_at.year.to_s)
-    my_id.gsub!(/%M/, counter.released_at.month.to_s)
-    my_id.gsub!(/%D/, counter.released_at.day.to_s)
-    my_id.gsub!(/%N/, patch_name || '')
-    my_id.gsub!(/%i/, incident_id.to_s)
-    my_id.gsub!(/%g/, id.to_s)
+    my_id.gsub!('%C', counter.value.to_s)
+    my_id.gsub!('%Y', counter.released_at.year.to_s)
+    my_id.gsub!('%M', counter.released_at.month.to_s)
+    my_id.gsub!('%D', counter.released_at.day.to_s)
+    my_id.gsub!('%N', patch_name || '')
+    my_id.gsub!('%i', incident_id.to_s)
+    my_id.gsub!('%g', id.to_s)
 
     my_id
   end

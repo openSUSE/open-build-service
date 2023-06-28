@@ -67,7 +67,7 @@ FileUtils.mkdir backend_config
 file = File.open("#{backend_config}/BSConfig.pm", 'w')
 File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
   template.readlines.each do |line|
-    line.gsub!(/our \$ipaccess/, 'our $ipaccess = undef; our $dummy')
+    line.gsub!('our $ipaccess', 'our $ipaccess = undef; our $dummy')
     line.gsub!(/(our \$bsuser)/, '#\1')
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/(our \$bsserviceuser)/, '#\1')
@@ -76,12 +76,12 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/.*our \$localarch.*/, 'our $localarch = "x86_64";')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{backend_data}';")
     line.gsub!(/our \$servicedir = .*/, "our $servicedir = '#{Rails.root}/test/fixtures/backend/services';")
-    line.gsub!(/:5352/, ":#{port_src_server}")
-    line.gsub!(/:5252/, ":#{port_rep_server}") # repservier, used via source server
-    line.gsub!(/:5152/, ":#{port_service_server}") # source service, used via source server
+    line.gsub!(':5352', ":#{port_src_server}")
+    line.gsub!(':5252', ":#{port_rep_server}") # repservier, used via source server
+    line.gsub!(':5152', ":#{port_service_server}") # source service, used via source server
     # hardcode createrepo_c
-    line.gsub!(/#our \$createrepo/, 'our $createrepo')
-    line.gsub!(/#our \$modifyrepo/, 'our $modifyrepo')
+    line.gsub!('#our $createrepo', 'our $createrepo')
+    line.gsub!('#our $modifyrepo', 'our $modifyrepo')
     file.print line
   end
 end

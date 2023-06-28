@@ -12,7 +12,7 @@
                 - messages.each do |message|
                   %li= message
         - else
-          = sanitize(content.gsub(/\\n/, ''), tags: ['a', 'b', 'ul', 'li', 'br', 'u'], attributes: ['href', 'title'])
+          = sanitize(content.gsub('\\n', ''), tags: ['a', 'b', 'ul', 'li', 'br', 'u'], attributes: ['href', 'title'])
         -# haml-lint:disable InstanceVariables
            FIXME: This is used in only one action of the package controller
         - if @more_info
