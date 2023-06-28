@@ -151,7 +151,7 @@ sub sync_package {
   }
   if ($needtrigger) {
     print "scmsync: trigger $projid/$packid\n";
-    $runservice->($cgi, $projid, $packid, $pack->{'scmsync'});
+    $runservice->($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'});
   }
 }
 
