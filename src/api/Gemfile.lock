@@ -482,7 +482,7 @@ GEM
       riddle (~> 2.3)
     thor (1.2.2)
     tilt (2.2.0)
-    timeout (0.3.2)
+    timeout (0.4.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.4.2)
