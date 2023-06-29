@@ -11,7 +11,7 @@ RSpec.describe 'workflows' do
   let!(:project_iggy_test_pr3) { create(:project, name: 'home:Iggy:iggy:test:PR-3') }
 
   let!(:workflow_run_running_pr_opened) { create(:workflow_run, repository_owner: 'iggy', repository_name: 'hello_world') }
-  let!(:workflow_run_succeeded_pr_opened) { create(:workflow_run, :success, repository_owner: 'iggy', repository_name: 'hello_world') }
+  let!(:workflow_run_succeeded_pr_opened) { create(:workflow_run, :succeeded, repository_owner: 'iggy', repository_name: 'hello_world') }
   let!(:workflow_run_failed_pr_opened) { create(:workflow_run, :failed, repository_owner: 'iggy', repository_name: 'hello_world') }
 
   let!(:workflow_run_running_pr_closed) { create(:workflow_run, :pull_request_closed, repository_owner: 'iggy', repository_name: 'hello_world', event_source_name: 1) }
