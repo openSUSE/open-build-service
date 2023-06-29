@@ -1,8 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.6.0)
-      public_suffix (>= 2.0.2, < 4.0)
+    addressable (2.8.4)
+      public_suffix (>= 2.0.2, < 6.0)
     apparition (0.6.0)
       capybara (~> 3.13, < 4)
       websocket-driver (>= 0.6.5)
@@ -20,7 +20,7 @@ GEM
     nokogiri (1.15.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    public_suffix (3.1.1)
+    public_suffix (5.0.1)
     racc (1.7.1)
     rack (2.0.7)
     rack-test (1.1.0)
