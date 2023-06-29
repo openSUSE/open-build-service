@@ -7,6 +7,13 @@ get:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
     - in: query
+      name: deleted
+      schema:
+        type: string
+        enum:
+          - null
+      description: Set to retrieve the package metadata of a deleted package.
+    - in: query
       name: meta
       schema:
         type: string
