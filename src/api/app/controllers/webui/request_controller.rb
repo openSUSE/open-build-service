@@ -491,7 +491,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_bs_request_action
-    @bs_request_action = BsRequestAction.find(@action_id)
+    @bs_request_action = @bs_request.bs_request_actions.find(@action_id)
   end
 
   def set_active_action
