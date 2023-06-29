@@ -349,7 +349,7 @@ sub notify_all_repservers {
 sub triggerscmsync {
   my ($cgi) = @_;
 
-  return '<status code="fail" details="scmsync tracking is not enabled" />\n' unless $BSConfig::source_db_sqlite;
+  die("scmsync tracking is not enabled\n") unless $BSConfig::source_db_sqlite;
 
   triggerscmsyncrun($cgi, $cgi->{'scmrepository'}, $cgi->{'scmbranch'});
   triggerscmsyncrun($cgi, $cgi->{'scmrepository'}, '') if $cgi->{'isdefaultbranch'};
@@ -361,15 +361,18 @@ sub triggerscmsyncrun {
   my ($cgi, $scmrepo, $scmbranch) = @_;
   for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
     my ($projid, $packid) = @$ref;
+    my $proj = BSRevision::readproj_local($projid);
+    next unless $proj;
     if ($packid eq '_project') {
-      my $proj = BSRevision::readproj_local($projid);
-      next unless $proj;
       die("$projid is a remote project\n") if $proj->{'remoteurl'};
       BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $proj->{'scmsync'}) if $proj->{'scmsync'};
     } else {
       my $pack = BSRevision::readpack_local($projid, $packid, 1);
       next unless $pack;
-      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'}) if $pack->{'scmsync'};
+      my $projectscmsync;
+      # the package url is used for the project scm URL. Do not use it if it is only defined on package level
+      $projectscmsync = $pack->{'url'} if $proj->{'scmsync'};
+      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $projectscmsync) if $pack->{'scmsync'};
     }
   }
 }
@@ -388,7 +391,11 @@ sub triggerservicerun {
   my $rev = getrev($projid, $packid);
   my $pack = BSRevision::readpack_local($projid, $packid, 1);
   if ($pack && $pack->{'scmsync'}) {
-    BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'});
+    my $projectscmsync;
+    # the package url is used for the project scm URL. Do not use it if it is only defined on package level
+    my $proj = BSRevision::readproj_local($projid);
+    $projectscmsync = $pack->{'url'} if $proj->{'scmsync'};
+    BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $projectscmsync);
     return $BSStdServer::return_ok;
   }
   my $linkinfo = {};
@@ -2310,6 +2317,7 @@ sub putpackage {
   unlink("$uploaddir/$$");
   my $proj = BSRevision::readproj_local($projid);
   die("$projid is a remote project\n") if $proj->{'remoteurl'};
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   if ($packid eq '_product' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # creating a _product package, make sure that there is no _product:xxx package
     my @pkgs = BSRevision::lspackages_local($projid);
@@ -2333,7 +2341,7 @@ sub putpackage {
       # scmsync changed, trigger a service run
       BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $pack->{'scmsync'});
       print "scmsync changed: trigger $projid/$packid\n";
-      eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'}) };
+      eval { BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}) };
       warn($@) if $@;
     }
   } elsif (($oldpack || {})->{'scmsync'}) {
