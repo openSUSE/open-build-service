@@ -1,5 +1,5 @@
 class Repository < ApplicationRecord
-  include Status::Checkable
+  include StatusCheckable
 
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
