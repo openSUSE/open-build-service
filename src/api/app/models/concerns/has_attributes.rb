@@ -1,5 +1,7 @@
 # a model that has attributes - e.g. a project and a package
 module HasAttributes
+  extend ActiveSupport::Concern
+
   class AttributeSaveError < APIError
   end
 
