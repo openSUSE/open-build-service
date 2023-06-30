@@ -1,5 +1,7 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
+  extend ActiveSupport::Concern
+
   class SaveError < APIError
   end
 
