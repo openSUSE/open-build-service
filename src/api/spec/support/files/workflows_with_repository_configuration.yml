@@ -1,0 +1,22 @@
+workflow123:
+  steps:
+    - branch_package:
+        source_project: "test-project"
+        source_package: "test-package"
+        target_project: "test-target-project"
+    - configure_repositories:
+        project: "test-target-project"
+        repositories:
+          - name: "test-repository"
+            paths:
+              - target_project: "test-target-project"
+                target_repository: "test-repository"
+            architectures:
+              - x86_64
+
+  filters:
+    branches:
+      only:
+        - 'main'
+        - 'master'
+        - 'source'
