@@ -1,4 +1,6 @@
 module Webui::ManageRelationships
+  extend ActiveSupport::Concern
+
   def save_person_or_group(what)
     authorize main_object, :update?
     begin
