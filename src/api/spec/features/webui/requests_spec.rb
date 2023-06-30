@@ -356,6 +356,16 @@ RSpec.describe 'Requests', js: true, vcr: true do
       visit request_show_path(delete_bs_request)
       expect(page).to have_text('Project Maintainers')
     end
+
+    it 'a delete request does not show the Changes Tab' do
+      visit request_show_path(delete_bs_request)
+      expect(page).not_to have_text('Changes')
+    end
+
+    it 'a delete request does not show the Issues Tab' do
+      visit request_show_path(delete_bs_request)
+      expect(page).not_to have_text('Issues')
+    end
   end
 
   describe 'for a request with a deleted target project' do

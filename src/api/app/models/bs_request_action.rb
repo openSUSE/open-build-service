@@ -864,6 +864,10 @@ class BsRequestAction < ApplicationRecord
     params
   end
 
+  def tab_visibility
+    BsRequestActionTabVisibility.new(self)
+  end
+
   private
 
   def cache_diffs

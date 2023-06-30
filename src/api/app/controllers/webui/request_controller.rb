@@ -13,6 +13,8 @@ class Webui::RequestController < Webui::WebuiController
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action_id, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                 if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_bs_request_action, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_active_action, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :build_results, :rpm_lint, :changes, :mentioned_issues]
@@ -284,7 +286,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def build_results
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.build
 
     @active_tab = 'build_results'
     @project = @staging_project || @action[:sprj]
@@ -296,7 +298,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def rpm_lint
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:sprj] || @action[:spkg]
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.rpm_lint
 
     @active_tab = 'rpm_lint'
     @ajax_data = {}
@@ -306,13 +308,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:type].in?(@actions_for_diff)
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.changes
 
     @active_tab = 'changes'
   end
 
   def mentioned_issues
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action[:type].in?(@actions_for_diff)
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.issues
 
     @active_tab = 'mentioned_issues'
   end
@@ -488,6 +490,10 @@ class Webui::RequestController < Webui::WebuiController
     @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
   end
 
+  def set_bs_request_action
+    @bs_request_action = @bs_request.bs_request_actions.find(@action_id)
+  end
+
   def set_active_action
     @active_action = @actions.find(@action_id)
   end
@@ -560,7 +566,6 @@ class Webui::RequestController < Webui::WebuiController
 
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
-    @actions_for_diff = [:submit, :delete, :maintenance_incident, :maintenance_release]
 
     handle_notification
   end
