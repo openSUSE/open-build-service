@@ -185,8 +185,10 @@ RSpec.describe 'Projects', js: true, vcr: true do
       visit project_show_path(maintenance_project)
       click_link('Incidents')
       page.execute_script('window.scrollBy(0,50)')
+      # The next click fires a step that might take longer than expected
+      # therefore the test after that has a `wait` parameter with a sufficient amount of time to wait for it
       click_link('Create Maintenance Incident')
-      expect(page).to have_css('#project-title', text: "#{maintenance_project}:0")
+      expect(page).to have_css('#project-title', text: "#{maintenance_project}:0", wait: 12)
 
       # We can not create this via the Bootstrap UI, except by adding plain XML to the meta editor
       repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"), name: 'target')
