@@ -7,7 +7,7 @@
   .d-block.w-100
     - details = action.commit_details
     - if details
-      - if details.key?('comment')
+      - if details.key?('comment') && details['comment'].instance_of?(String)
         %p.mt-0.mb-0.fw-normal
           %span.me-2 ##{action_index + 1}
           = details['comment'].truncate(50)
