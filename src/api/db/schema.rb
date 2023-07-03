@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_general_ci"
+    t.string "name", null: false
     t.boolean "available", default: false
     t.index ["name"], name: "arch_name_index", unique: true
   end
@@ -52,7 +52,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "attrib_namespaces", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", collation: "utf8mb3_general_ci"
+    t.string "name"
     t.index ["name"], name: "index_attrib_namespaces_on_name"
   end
 
@@ -68,9 +68,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "attrib_types", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_general_ci"
-    t.string "description", collation: "utf8mb3_general_ci"
-    t.string "type", collation: "utf8mb3_general_ci"
+    t.string "name", null: false
+    t.string "description"
+    t.string "type"
     t.integer "value_count"
     t.integer "attrib_namespace_id", null: false
     t.boolean "issue_list", default: false
@@ -88,7 +88,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "attribs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "attrib_type_id", null: false
     t.integer "package_id"
-    t.string "binary", collation: "utf8mb3_general_ci"
+    t.string "binary"
     t.integer "project_id"
     t.index ["attrib_type_id", "package_id", "project_id", "binary"], name: "attribs_index", unique: true
     t.index ["attrib_type_id", "project_id", "package_id", "binary"], name: "attribs_on_proj_and_pack", unique: true
@@ -97,8 +97,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "backend_infos", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "key", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "value", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "key", null: false
+    t.string "value", null: false
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
   end
@@ -106,10 +106,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "backend_packages", primary_key: "package_id", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "links_to_id"
     t.datetime "updated_at"
-    t.string "srcmd5", collation: "utf8mb3_unicode_ci"
-    t.string "changesmd5", collation: "utf8mb3_unicode_ci"
-    t.string "verifymd5", collation: "utf8mb3_unicode_ci"
-    t.string "expandedmd5", collation: "utf8mb3_unicode_ci"
+    t.string "srcmd5"
+    t.string "changesmd5"
+    t.string "verifymd5"
+    t.string "expandedmd5"
     t.text "error"
     t.datetime "maxmtime", precision: nil
     t.index ["links_to_id"], name: "index_backend_packages_on_links_to_id"
@@ -117,27 +117,27 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "binary_releases", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "repository_id", null: false
-    t.column "operation", "enum('added','removed','modified')", default: "added", collation: "utf8mb3_general_ci"
+    t.column "operation", "enum('added','removed','modified')", default: "added"
     t.datetime "obsolete_time", precision: nil
     t.integer "release_package_id"
-    t.string "binary_name", null: false, collation: "utf8mb3_general_ci"
-    t.string "binary_epoch", limit: 64, collation: "utf8mb3_general_ci"
-    t.string "binary_version", limit: 64, null: false, collation: "utf8mb3_general_ci"
-    t.string "binary_release", limit: 64, null: false, collation: "utf8mb3_general_ci"
-    t.string "binary_arch", limit: 64, null: false, collation: "utf8mb3_general_ci"
-    t.string "binary_disturl", collation: "utf8mb3_general_ci"
+    t.string "binary_name", null: false
+    t.string "binary_epoch", limit: 64
+    t.string "binary_version", limit: 64, null: false
+    t.string "binary_release", limit: 64, null: false
+    t.string "binary_arch", limit: 64, null: false
+    t.string "binary_disturl"
     t.datetime "binary_buildtime", precision: nil
     t.datetime "binary_releasetime", precision: nil, null: false
-    t.string "binary_supportstatus", collation: "utf8mb3_general_ci"
-    t.string "binary_maintainer", collation: "utf8mb3_general_ci"
-    t.string "medium", collation: "utf8mb3_general_ci"
-    t.string "binary_updateinfo", collation: "utf8mb3_general_ci"
-    t.string "binary_updateinfo_version", collation: "utf8mb3_general_ci"
+    t.string "binary_supportstatus"
+    t.string "binary_maintainer"
+    t.string "medium"
+    t.string "binary_updateinfo"
+    t.string "binary_updateinfo_version"
     t.datetime "modify_time", precision: nil
     t.integer "on_medium_id"
-    t.string "binary_id", collation: "utf8mb3_general_ci"
-    t.string "flavor", collation: "utf8mb3_general_ci"
-    t.string "binary_cpeid", collation: "utf8mb3_general_ci"
+    t.string "binary_id"
+    t.string "flavor"
+    t.string "binary_cpeid"
     t.index ["binary_id"], name: "index_binary_releases_on_binary_id"
     t.index ["binary_name", "binary_arch"], name: "index_binary_releases_on_binary_name_and_binary_arch"
     t.index ["binary_name", "binary_epoch", "binary_version", "binary_release", "binary_arch"], name: "exact_search_index"
@@ -149,33 +149,33 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "bs_request_action_accept_infos", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "bs_request_action_id"
-    t.string "rev", collation: "utf8mb3_unicode_ci"
-    t.string "srcmd5", collation: "utf8mb3_unicode_ci"
-    t.string "xsrcmd5", collation: "utf8mb3_unicode_ci"
-    t.string "osrcmd5", collation: "utf8mb3_unicode_ci"
-    t.string "oxsrcmd5", collation: "utf8mb3_unicode_ci"
+    t.string "rev"
+    t.string "srcmd5"
+    t.string "xsrcmd5"
+    t.string "osrcmd5"
+    t.string "oxsrcmd5"
     t.datetime "created_at", precision: nil
-    t.string "oproject", collation: "utf8mb3_unicode_ci"
-    t.string "opackage", collation: "utf8mb3_unicode_ci"
+    t.string "oproject"
+    t.string "opackage"
     t.index ["bs_request_action_id"], name: "bs_request_action_id"
   end
 
   create_table "bs_request_actions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "bs_request_id"
-    t.string "type", collation: "utf8mb3_bin"
-    t.string "target_project", collation: "utf8mb3_unicode_ci"
-    t.string "target_package", collation: "utf8mb3_unicode_ci"
-    t.string "target_releaseproject", collation: "utf8mb3_unicode_ci"
-    t.string "source_project", collation: "utf8mb3_unicode_ci"
-    t.string "source_package", collation: "utf8mb3_unicode_ci"
-    t.string "source_rev", collation: "utf8mb3_unicode_ci"
-    t.string "sourceupdate", collation: "utf8mb3_unicode_ci"
+    t.string "type"
+    t.string "target_project"
+    t.string "target_package"
+    t.string "target_releaseproject"
+    t.string "source_project"
+    t.string "source_package"
+    t.string "source_rev"
+    t.string "sourceupdate"
     t.boolean "updatelink", default: false
-    t.string "person_name", collation: "utf8mb3_unicode_ci"
-    t.string "group_name", collation: "utf8mb3_unicode_ci"
-    t.string "role", collation: "utf8mb3_unicode_ci"
+    t.string "person_name"
+    t.string "group_name"
+    t.string "role"
     t.datetime "created_at", precision: nil
-    t.string "target_repository", collation: "utf8mb3_bin"
+    t.string "target_repository"
     t.boolean "makeoriginolder", default: false
     t.integer "target_package_id"
     t.integer "target_project_id"
@@ -202,15 +202,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "bs_requests", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.text "description"
-    t.string "creator", collation: "utf8mb3_unicode_ci"
-    t.string "state", collation: "utf8mb3_unicode_ci"
+    t.string "creator"
+    t.string "state"
     t.text "comment"
-    t.string "commenter", collation: "utf8mb3_unicode_ci"
+    t.string "commenter"
     t.integer "superseded_by"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", null: false
     t.datetime "accept_at", precision: nil
-    t.column "priority", "enum('critical','important','moderate','low')", default: "moderate", collation: "utf8mb3_bin"
+    t.column "priority", "enum('critical','important','moderate','low')", default: "moderate"
     t.integer "number"
     t.datetime "updated_when", precision: nil
     t.string "approver"
@@ -223,14 +223,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "channel_binaries", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "name", null: false
     t.integer "channel_binary_list_id", null: false
     t.integer "project_id"
     t.integer "repository_id"
     t.integer "architecture_id"
-    t.string "package", collation: "utf8mb3_unicode_ci"
-    t.string "binaryarch", collation: "utf8mb3_unicode_ci"
-    t.string "supportstatus", collation: "utf8mb3_unicode_ci"
+    t.string "package"
+    t.string "binaryarch"
+    t.string "supportstatus"
     t.index ["architecture_id"], name: "architecture_id"
     t.index ["channel_binary_list_id"], name: "channel_binary_list_id"
     t.index ["name", "channel_binary_list_id"], name: "index_channel_binaries_on_name_and_channel_binary_list_id"
@@ -252,8 +252,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "channel_targets", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "channel_id", null: false
     t.integer "repository_id", null: false
-    t.string "prefix", collation: "utf8mb3_unicode_ci"
-    t.string "id_template", collation: "utf8mb3_unicode_ci"
+    t.string "prefix"
+    t.string "id_template"
     t.boolean "disabled", default: false
     t.boolean "requires_issue"
     t.index ["channel_id", "repository_id"], name: "index_channel_targets_on_channel_id_and_repository_id", unique: true
@@ -268,8 +268,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "cloud_azure_configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "user_id"
-    t.text "application_id", collation: "utf8mb3_general_ci"
-    t.text "application_key", collation: "utf8mb3_general_ci"
+    t.text "application_id"
+    t.text "application_key"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_cloud_azure_configurations_on_user_id"
@@ -277,8 +277,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "cloud_ec2_configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "user_id"
-    t.string "external_id", collation: "utf8mb3_general_ci"
-    t.string "arn", collation: "utf8mb3_general_ci"
+    t.string "external_id"
+    t.string "arn"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["external_id", "arn"], name: "index_cloud_ec2_configurations_on_external_id_and_arn", unique: true
@@ -300,7 +300,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
     t.integer "user_id", null: false
-    t.string "commentable_type", collation: "utf8mb3_unicode_ci"
+    t.string "commentable_type"
     t.integer "commentable_id"
     t.string "diff_ref"
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable_type_and_commentable_id"
@@ -308,7 +308,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
     t.index ["user_id"], name: "user_id"
   end
 
-  create_table "commit_activities", id: :integer, charset: "utf8mb3", collation: "utf8mb3_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "commit_activities", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.date "date", null: false
     t.integer "user_id", null: false
     t.string "project", null: false
@@ -320,12 +320,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "title", default: "", collation: "utf8mb3_bin"
+    t.string "title", default: ""
     t.text "description"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
-    t.string "name", default: "", collation: "utf8mb3_bin"
-    t.column "registration", "enum('allow','confirmation','deny')", default: "allow", collation: "utf8mb3_bin"
+    t.string "name", default: ""
+    t.column "registration", "enum('allow','confirmation','deny')", default: "allow"
     t.boolean "anonymous", default: true
     t.boolean "default_access_disabled", default: false
     t.boolean "allow_user_to_create_home_project", default: true
@@ -335,37 +335,38 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
     t.boolean "gravatar", default: true
     t.boolean "enforce_project_keys", default: false
     t.boolean "download_on_demand", default: true
-    t.string "download_url", collation: "utf8mb3_bin"
-    t.string "ymp_url", collation: "utf8mb3_bin"
-    t.string "bugzilla_url", collation: "utf8mb3_bin"
-    t.string "http_proxy", collation: "utf8mb3_bin"
-    t.string "no_proxy", collation: "utf8mb3_bin"
-    t.string "theme", collation: "utf8mb3_bin"
-    t.string "obs_url", default: "https://unconfigured.openbuildservice.org", collation: "utf8mb3_bin"
+    t.string "download_url"
+    t.string "ymp_url"
+    t.string "bugzilla_url"
+    t.string "http_proxy"
+    t.string "no_proxy"
+    t.string "theme"
+    t.string "obs_url", default: "https://unconfigured.openbuildservice.org"
     t.integer "cleanup_after_days"
-    t.string "admin_email", default: "unconfigured@openbuildservice.org", collation: "utf8mb3_bin"
+    t.string "admin_email", default: "unconfigured@openbuildservice.org"
     t.boolean "cleanup_empty_projects", default: true
     t.boolean "disable_publish_for_branches", default: true
-    t.string "default_tracker", default: "bnc", collation: "utf8mb3_bin"
-    t.string "api_url", collation: "utf8mb3_bin"
-    t.string "unlisted_projects_filter", default: "^home:.+", collation: "utf8mb3_bin"
-    t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8mb3_bin"
+    t.string "default_tracker", default: "bnc"
+    t.string "api_url"
+    t.string "unlisted_projects_filter", default: "^home:.+"
+    t.string "unlisted_projects_filter_description", default: "home projects"
     t.string "tos_url"
   end
 
-  create_table "data_migrations", primary_key: "version", id: :string, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "data_migrations", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "version"
   end
 
   create_table "delayed_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
-    t.text "handler", size: :medium, collation: "utf8mb3_bin"
+    t.text "handler", size: :medium
     t.text "last_error"
     t.datetime "run_at", precision: nil
     t.datetime "locked_at", precision: nil
     t.datetime "failed_at", precision: nil
-    t.string "locked_by", collation: "utf8mb3_general_ci"
-    t.string "queue", collation: "utf8mb3_general_ci"
+    t.string "locked_by"
+    t.string "queue"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
   end
 
@@ -378,7 +379,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "distribution_icons", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "url", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "url", null: false
     t.integer "width"
     t.integer "height"
   end
@@ -389,31 +390,31 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "distributions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "vendor", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "version", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "name", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "project", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "reponame", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "repository", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "link", collation: "utf8mb3_unicode_ci"
+    t.string "vendor", null: false
+    t.string "version", null: false
+    t.string "name", null: false
+    t.string "project", null: false
+    t.string "reponame", null: false
+    t.string "repository", null: false
+    t.string "link"
     t.boolean "remote", default: false
   end
 
   create_table "download_repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "repository_id", null: false
-    t.string "arch", null: false, collation: "utf8mb3_general_ci"
-    t.string "url", null: false, collation: "utf8mb3_general_ci"
-    t.string "repotype", collation: "utf8mb3_general_ci"
-    t.string "archfilter", collation: "utf8mb3_general_ci"
-    t.string "masterurl", collation: "utf8mb3_general_ci"
-    t.string "mastersslfingerprint", collation: "utf8mb3_general_ci"
-    t.text "pubkey", collation: "utf8mb3_general_ci"
+    t.string "arch", null: false
+    t.string "url", null: false
+    t.string "repotype"
+    t.string "archfilter"
+    t.string "masterurl"
+    t.string "mastersslfingerprint"
+    t.text "pubkey"
     t.index ["repository_id"], name: "repository_id"
   end
 
   create_table "event_subscriptions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "eventtype", null: false, collation: "utf8mb3_unicode_ci"
-    t.string "receiver_role", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "eventtype", null: false
+    t.string "receiver_role", null: false
     t.integer "user_id"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
@@ -432,7 +433,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "eventtype", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "eventtype", null: false
     t.text "payload"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
@@ -444,27 +445,27 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "flags", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.column "status", "enum('enable','disable')", null: false, collation: "utf8mb3_general_ci"
-    t.string "repo", collation: "utf8mb3_general_ci"
+    t.column "status", "enum('enable','disable')", null: false
+    t.string "repo"
     t.integer "project_id"
     t.integer "package_id"
     t.integer "architecture_id"
     t.integer "position", null: false
-    t.column "flag", "enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock')", null: false, collation: "utf8mb3_general_ci"
+    t.column "flag", "enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock')", null: false
     t.index ["architecture_id"], name: "architecture_id"
     t.index ["flag"], name: "index_flags_on_flag"
     t.index ["package_id"], name: "index_flags_on_package_id"
     t.index ["project_id"], name: "index_flags_on_project_id"
   end
 
-  create_table "flipper_features", id: :integer, charset: "utf8mb3", collation: "utf8mb3_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "flipper_features", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["key"], name: "index_flipper_features_on_key", unique: true
   end
 
-  create_table "flipper_gates", id: :integer, charset: "utf8mb3", collation: "utf8mb3_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "flipper_gates", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "feature_key", null: false
     t.string "key", null: false
     t.string "value"
@@ -483,9 +484,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "groups", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
-    t.string "title", limit: 200, default: "", null: false, collation: "utf8mb3_general_ci"
+    t.string "title", limit: 200, default: "", null: false
     t.integer "parent_id"
-    t.string "email", collation: "utf8mb3_bin"
+    t.string "email"
     t.index ["parent_id"], name: "groups_parent_id_index"
     t.index ["title"], name: "index_groups_on_title"
   end
@@ -516,11 +517,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "history_elements", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "type", null: false, collation: "utf8mb3_general_ci"
+    t.string "type", null: false
     t.integer "op_object_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.integer "user_id", null: false
-    t.string "description_extension", collation: "utf8mb3_general_ci"
+    t.string "description_extension"
     t.text "comment"
     t.index ["created_at"], name: "index_history_elements_on_created_at"
     t.index ["op_object_id", "type"], name: "index_search"
@@ -542,15 +543,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "issue_trackers", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_general_ci"
+    t.string "name", null: false
     t.column "kind", "enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira')", null: false
-    t.string "description", collation: "utf8mb3_general_ci"
-    t.string "url", null: false, collation: "utf8mb3_general_ci"
-    t.string "show_url", collation: "utf8mb3_general_ci"
-    t.string "regex", null: false, collation: "utf8mb3_general_ci"
-    t.string "user", collation: "utf8mb3_general_ci"
-    t.string "password", collation: "utf8mb3_general_ci"
-    t.text "label", null: false, collation: "utf8mb3_general_ci"
+    t.string "description"
+    t.string "url", null: false
+    t.string "show_url"
+    t.string "regex", null: false
+    t.string "user"
+    t.string "password"
+    t.text "label", null: false
     t.datetime "issues_updated", precision: nil, null: false
     t.boolean "enable_fetch", default: false
     t.boolean "publish_issues", default: true
@@ -558,13 +559,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_general_ci"
+    t.string "name", null: false
     t.integer "issue_tracker_id", null: false
-    t.string "summary", collation: "utf8mb3_general_ci"
+    t.string "summary"
     t.integer "owner_id"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
-    t.column "state", "enum('OPEN','CLOSED','UNKNOWN')", collation: "utf8mb3_general_ci"
+    t.column "state", "enum('OPEN','CLOSED','UNKNOWN')"
     t.index ["issue_tracker_id"], name: "issue_tracker_id"
     t.index ["name", "issue_tracker_id"], name: "index_issues_on_name_and_issue_tracker_id"
     t.index ["owner_id"], name: "owner_id"
@@ -573,17 +574,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "kiwi_descriptions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "image_id"
     t.integer "description_type", default: 0
-    t.string "author", collation: "utf8mb3_general_ci"
-    t.string "contact", collation: "utf8mb3_general_ci"
-    t.string "specification", collation: "utf8mb3_general_ci"
+    t.string "author"
+    t.string "contact"
+    t.string "specification"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["image_id"], name: "index_kiwi_descriptions_on_image_id"
   end
 
   create_table "kiwi_images", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", collation: "utf8mb3_general_ci"
-    t.string "md5_last_revision", limit: 32, collation: "utf8mb3_general_ci"
+    t.string "name"
+    t.string "md5_last_revision", limit: 32
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", null: false
     t.boolean "use_project_repositories", default: false
@@ -591,8 +592,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "kiwi_package_groups", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "kiwi_type", null: false
-    t.string "profiles", collation: "utf8mb3_general_ci"
-    t.string "pattern_type", collation: "utf8mb3_general_ci"
+    t.string "profiles"
+    t.string "pattern_type"
     t.integer "image_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -600,9 +601,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "kiwi_packages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_general_ci"
-    t.string "arch", collation: "utf8mb3_general_ci"
-    t.string "replaces", collation: "utf8mb3_general_ci"
+    t.string "name", null: false
+    t.string "arch"
+    t.string "replaces"
     t.boolean "bootinclude"
     t.boolean "bootdelete"
     t.integer "package_group_id"
@@ -614,9 +615,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "kiwi_preferences", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "image_id"
     t.integer "type_image"
-    t.string "type_containerconfig_name", collation: "utf8mb3_general_ci"
-    t.string "type_containerconfig_tag", collation: "utf8mb3_general_ci"
-    t.string "version", collation: "utf8mb3_general_ci"
+    t.string "type_containerconfig_name"
+    t.string "type_containerconfig_tag"
+    t.string "version"
     t.string "profile", limit: 191
     t.index ["image_id"], name: "index_kiwi_preferences_on_image_id"
   end
@@ -634,18 +635,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "kiwi_repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "image_id"
-    t.string "repo_type", collation: "utf8mb3_general_ci"
-    t.string "source_path", collation: "utf8mb3_general_ci"
+    t.string "repo_type"
+    t.string "source_path"
     t.integer "order"
     t.integer "priority"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", null: false
-    t.string "alias", collation: "utf8mb3_general_ci"
+    t.string "alias"
     t.boolean "imageinclude"
-    t.string "password", collation: "utf8mb3_general_ci"
+    t.string "password"
     t.boolean "prefer_license"
     t.boolean "replaceable"
-    t.string "username", collation: "utf8mb3_general_ci"
+    t.string "username"
     t.index ["image_id", "order"], name: "index_kiwi_repositories_on_image_id_and_order", unique: true
     t.index ["image_id"], name: "index_kiwi_repositories_on_image_id"
   end
@@ -654,8 +655,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
     t.integer "db_project_id", null: false
     t.integer "linked_db_project_id"
     t.integer "position"
-    t.string "linked_remote_project_name", collation: "utf8mb3_general_ci"
-    t.column "vrevmode", "enum('standard','unextend','extend')", default: "standard", collation: "utf8mb3_bin"
+    t.string "linked_remote_project_name"
+    t.column "vrevmode", "enum('standard','unextend','extend')", default: "standard"
     t.index ["db_project_id", "linked_db_project_id"], name: "linked_projects_index", unique: true
   end
 
@@ -669,7 +670,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "maintenance_incidents", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "db_project_id"
     t.integer "maintenance_db_project_id"
-    t.string "updateinfo_id", collation: "utf8mb3_general_ci"
+    t.string "updateinfo_id"
     t.integer "incident_id"
     t.datetime "released_at", precision: nil
     t.index ["db_project_id"], name: "index_maintenance_incidents_on_db_project_id"
@@ -677,19 +678,19 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "event_type", null: false, collation: "utf8mb3_general_ci"
+    t.string "event_type", null: false
     t.text "event_payload", null: false
-    t.string "subscription_receiver_role", null: false, collation: "utf8mb3_general_ci"
+    t.string "subscription_receiver_role", null: false
     t.boolean "delivered", default: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", null: false
-    t.string "subscriber_type", collation: "utf8mb3_general_ci"
+    t.string "subscriber_type"
     t.integer "subscriber_id"
     t.string "notifiable_type"
     t.integer "notifiable_id"
-    t.string "bs_request_oldstate", collation: "utf8mb3_unicode_ci"
+    t.string "bs_request_oldstate"
     t.string "bs_request_state"
-    t.string "title", collation: "utf8mb3_unicode_ci"
+    t.string "title"
     t.boolean "rss", default: false
     t.boolean "web", default: false
     t.datetime "last_seen_at", precision: nil
@@ -709,30 +710,30 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "package_issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id", null: false
     t.integer "issue_id", null: false
-    t.column "change", "enum('added','deleted','changed','kept')", collation: "utf8mb3_general_ci"
+    t.column "change", "enum('added','deleted','changed','kept')"
     t.index ["issue_id"], name: "index_package_issues_on_issue_id"
     t.index ["package_id", "issue_id"], name: "index_package_issues_on_package_id_and_issue_id"
   end
 
   create_table "package_kinds", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id"
-    t.column "kind", "enum('patchinfo','aggregate','link','channel','product')", null: false, collation: "utf8mb3_general_ci"
+    t.column "kind", "enum('patchinfo','aggregate','link','channel','product')", null: false
     t.index ["package_id"], name: "index_package_kinds_on_package_id"
   end
 
   create_table "packages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "project_id", null: false
-    t.string "name", limit: 200, null: false, collation: "utf8mb3_bin"
-    t.string "title", collation: "utf8mb3_general_ci"
+    t.string "name", limit: 200, null: false
+    t.string "title"
     t.text "description"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
-    t.string "url", collation: "utf8mb3_general_ci"
+    t.string "url"
     t.float "activity_index", default: 100.0
-    t.string "bcntsynctag", collation: "utf8mb3_general_ci"
+    t.string "bcntsynctag"
     t.integer "develpackage_id"
     t.boolean "delta", default: true, null: false
-    t.string "releasename", collation: "utf8mb3_bin"
+    t.string "releasename"
     t.integer "kiwi_image_id"
     t.string "scmsync"
     t.index ["develpackage_id"], name: "devel_package_id_index"
@@ -760,7 +761,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
     t.integer "product_id"
     t.integer "repository_id"
     t.integer "arch_filter_id"
-    t.string "name", collation: "utf8mb3_general_ci"
+    t.string "name"
     t.index ["arch_filter_id"], name: "index_product_media_on_arch_filter_id"
     t.index ["name"], name: "index_product_media_on_name"
     t.index ["product_id", "repository_id", "name", "arch_filter_id"], name: "index_unique", unique: true
@@ -779,24 +780,24 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "products", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "name", null: false
     t.integer "package_id", null: false
-    t.string "cpe", collation: "utf8mb3_unicode_ci"
-    t.string "version", collation: "utf8mb3_unicode_ci"
-    t.string "baseversion", collation: "utf8mb3_unicode_ci"
-    t.string "patchlevel", collation: "utf8mb3_unicode_ci"
-    t.string "release", collation: "utf8mb3_unicode_ci"
+    t.string "cpe"
+    t.string "version"
+    t.string "baseversion"
+    t.string "patchlevel"
+    t.string "release"
     t.index ["name", "package_id"], name: "index_products_on_name_and_package_id", unique: true
     t.index ["package_id"], name: "package_id"
   end
 
   create_table "project_log_entries", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "project_id"
-    t.string "user_name", collation: "utf8mb3_unicode_ci"
-    t.string "package_name", collation: "utf8mb3_unicode_ci"
+    t.string "user_name"
+    t.string "package_name"
     t.integer "bs_request_id"
     t.datetime "datetime", precision: nil
-    t.string "event_type", collation: "utf8mb3_unicode_ci"
+    t.string "event_type"
     t.text "additional_info"
     t.index ["bs_request_id"], name: "index_project_log_entries_on_bs_request_id"
     t.index ["datetime"], name: "index_project_log_entries_on_datetime"
@@ -808,17 +809,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", limit: 200, null: false, collation: "utf8mb3_bin"
-    t.string "title", collation: "utf8mb3_general_ci"
+    t.string "name", limit: 200, null: false
+    t.string "title"
     t.text "description"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
-    t.string "remoteurl", collation: "utf8mb3_general_ci"
-    t.string "remoteproject", collation: "utf8mb3_general_ci"
+    t.string "remoteurl"
+    t.string "remoteproject"
     t.integer "develproject_id"
     t.boolean "delta", default: true, null: false
-    t.column "kind", "enum('standard','maintenance','maintenance_incident','maintenance_release')", default: "standard", collation: "utf8mb3_bin"
-    t.string "url", collation: "utf8mb3_bin"
+    t.column "kind", "enum('standard','maintenance','maintenance_incident','maintenance_release')", default: "standard"
+    t.string "url"
     t.string "required_checks"
     t.integer "staging_workflow_id"
     t.string "scmsync"
@@ -852,10 +853,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "db_project_id", null: false
-    t.string "name", null: false, collation: "utf8mb3_bin"
-    t.string "remote_project_name", default: "", null: false, collation: "utf8mb3_bin"
-    t.column "rebuild", "enum('transitive','direct','local')", collation: "utf8mb3_general_ci"
-    t.column "block", "enum('all','local','never')", collation: "utf8mb3_general_ci"
+    t.string "name", null: false
+    t.string "remote_project_name", default: "", null: false
+    t.column "rebuild", "enum('transitive','direct','local')"
+    t.column "block", "enum('all','local','never')"
     t.column "linkedbuild", "enum('off','localdep','all','alldirect')"
     t.integer "hostsystem_id"
     t.string "required_checks"
@@ -875,14 +876,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "reviews", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "bs_request_id"
-    t.string "creator", collation: "utf8mb3_unicode_ci"
-    t.string "reviewer", collation: "utf8mb3_unicode_ci"
+    t.string "creator"
+    t.string "reviewer"
     t.text "reason"
-    t.string "state", collation: "utf8mb3_unicode_ci"
-    t.string "by_user", collation: "utf8mb3_general_ci"
-    t.string "by_group", collation: "utf8mb3_general_ci"
-    t.string "by_project", collation: "utf8mb3_general_ci"
-    t.string "by_package", collation: "utf8mb3_general_ci"
+    t.string "state"
+    t.string "by_user"
+    t.string "by_group"
+    t.string "by_project"
+    t.string "by_package"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", null: false
     t.integer "review_id"
@@ -909,7 +910,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "roles", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "title", limit: 100, default: "", null: false, collation: "utf8mb3_general_ci"
+    t.string "title", limit: 100, default: "", null: false
     t.integer "parent_id"
     t.boolean "global", default: false
     t.datetime "created_at", precision: nil, null: false
@@ -942,7 +943,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "sessions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "session_id", null: false, collation: "utf8mb3_unicode_ci"
+    t.string "session_id", null: false
     t.text "data"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
@@ -971,7 +972,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "static_permissions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "title", limit: 200, default: "", null: false, collation: "utf8mb3_general_ci"
+    t.string "title", limit: 200, default: "", null: false
     t.index ["title"], name: "static_permissions_title_index", unique: true
   end
 
@@ -988,7 +989,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
 
   create_table "status_histories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "time"
-    t.string "key", collation: "utf8mb3_general_ci"
+    t.string "key"
     t.float "value", null: false
     t.index ["key"], name: "index_status_histories_on_key"
     t.index ["time", "key"], name: "index_status_histories_on_time_and_key"
@@ -1023,10 +1024,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   end
 
   create_table "tokens", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "string", collation: "utf8mb3_unicode_ci"
+    t.string "string"
     t.integer "executor_id", null: false
     t.integer "package_id"
-    t.string "type", collation: "utf8mb3_unicode_ci"
+    t.string "type"
     t.string "scm_token"
     t.string "description", limit: 64, default: ""
     t.datetime "triggered_at", precision: nil
@@ -1051,15 +1052,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
     t.datetime "updated_at"
     t.datetime "last_logged_in_at", precision: nil
     t.integer "login_failure_count", default: 0, null: false
-    t.text "login", collation: "utf8mb3_bin"
-    t.string "email", limit: 200, default: "", null: false, collation: "utf8mb3_general_ci"
-    t.string "realname", limit: 200, default: "", null: false, collation: "utf8mb3_general_ci"
-    t.string "password_digest", collation: "utf8mb3_bin"
-    t.string "deprecated_password", collation: "utf8mb3_bin"
-    t.string "deprecated_password_hash_type", collation: "utf8mb3_bin"
-    t.string "deprecated_password_salt", collation: "utf8mb3_bin"
+    t.text "login"
+    t.string "email", limit: 200, default: "", null: false
+    t.string "realname", limit: 200, default: "", null: false
+    t.string "password_digest"
+    t.string "deprecated_password"
+    t.string "deprecated_password_hash_type"
+    t.string "deprecated_password_salt"
     t.text "adminnote"
-    t.column "state", "enum('unconfirmed','confirmed','locked','deleted','subaccount')", default: "unconfirmed", collation: "utf8mb3_bin"
+    t.column "state", "enum('unconfirmed','confirmed','locked','deleted','subaccount')", default: "unconfirmed"
     t.integer "owner_id"
     t.boolean "ignore_auth_services", default: false
     t.boolean "in_beta", default: false
