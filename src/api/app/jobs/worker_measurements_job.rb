@@ -12,6 +12,7 @@ class WorkerMeasurementsJob < ApplicationJob
     send_worker_metrics
     send_job_metrics
     send_scheduler_metrics
+    send_daemon_metrics
   end
 
   private
@@ -48,6 +49,18 @@ class WorkerMeasurementsJob < ApplicationJob
         value = scheduler.attribute(queue).value.to_i
         RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition},queue=#{queue} value=#{value}") if value.positive?
       end
+    end
+  end
+
+  def send_daemon_metrics
+    @workerstatus.xpath('//partition/daemon').each do |daemon|
+      partition = daemon.parent.values.first
+      type = daemon.attributes['type'].value
+      state = daemon.attributes['state'].value
+      starttime = daemon.attributes['starttime'].value
+      arch = daemon.attributes['arch']
+      arch = (arch.nil? ? '' : ",arch=#{arch.value}")
+      RabbitmqBus.send_to_bus('metrics', "backend_daemon_status,partition=#{partition},type=#{type},state=#{state}#{arch} starttime=#{starttime}")
     end
   end
 end
