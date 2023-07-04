@@ -8,8 +8,18 @@
       wrote
       = link_to("#comment-#{comment.id}", title: I18n.l(comment.created_at.utc), name: "comment-#{comment.id}") do
         = render TimeComponent.new(time: comment.created_at)
+    - if level == 1 && comment.commentable.is_a?(BsRequestAction)
+      - sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true, cacheonly: 1).first[:sourcediff].first
+      - unless sourcediff[:error]
+        :ruby
+          target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
+          file_index, line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
+          filename = sourcediff['filenames'][file_index.to_i]
+        %p
+          %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}.
     = render_as_markdown(comment)
-    = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+    - unless comment.commentable.is_a?(BsRequestAction)
+      = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
     - if level <= 3
       - comment.children.includes(:user).each do |children|
         = render partial: 'webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
