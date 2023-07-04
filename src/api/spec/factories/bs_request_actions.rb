@@ -13,7 +13,6 @@ FactoryBot.define do
     factory :bs_request_action_submit, class: 'BsRequestActionSubmit' do
       type { 'submit' }
 
-      # This is used by the dev.rake task to create a BsRequestAction with a diff
       factory :bs_request_action_submit_with_diff, class: 'BsRequestActionSubmit' do
         transient do
           source_project_name { 'source_project' }

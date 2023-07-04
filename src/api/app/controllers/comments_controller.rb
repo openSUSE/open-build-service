@@ -2,7 +2,9 @@ class CommentsController < ApplicationController
   before_action :find_obj, only: [:index, :create]
 
   def index
-    @comments = @obj.comments.includes(:user).order(:id)
+    comments = @obj.comments.includes(:user)
+    comments += @obj.bs_request_actions.flat_map { |a| a.comments.includes(:user) } if @obj.is_a?(BsRequest)
+    @comments = comments.sort_by(&:id)
   end
 
   def create

@@ -54,6 +54,35 @@ RSpec.describe CommentsController do
       it { expect(response.body).to include("<comments request=\"#{object.number}\">") }
     end
 
+    context 'of a bs_request_action (inline comment)', vcr: true do
+      let(:submit_request) { create(:bs_request_with_submit_action) }
+      let(:object) { create(:bs_request_action_submit_with_diff, bs_request: submit_request) }
+      let(:comment) { create(:comment, commentable: object, diff_ref: 'diff_0_n1') }
+
+      before do
+        login user
+        comment
+      end
+
+      context 'with an inline comment' do
+        before do
+          get :index, format: :xml, params: { request_number: object.bs_request.number }
+        end
+
+        it { expect(response.body).to include('Inline comment for target:').and(include(comment.body)) }
+      end
+
+      context 'with an inline comment of a removed target package' do
+        before do
+          object.target_package_object.destroy
+
+          get :index, format: :xml, params: { request_number: object.bs_request.number }
+        end
+
+        it { expect(response.body).to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>") }
+      end
+    end
+
     context 'of a user' do
       let!(:comment) { create(:comment_request, user: user) }
       let(:object) { user }
