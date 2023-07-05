@@ -22,7 +22,7 @@ class CommentComponent < ApplicationComponent
   end
 
   def body
-    return inline_comment_body if comment.commentable.is_a?(BsRequestAction)
+    return inline_comment_body if comment.commentable.is_a?(BsRequestAction) && comment.diff_ref.present?
 
     comment.body.delete("\u0000")
   end
