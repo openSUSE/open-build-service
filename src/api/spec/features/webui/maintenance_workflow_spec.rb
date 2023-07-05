@@ -39,8 +39,8 @@ RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
     # change the package sources so we have a difference
     Backend::Connection.put('/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE', 'dummy')
 
-    # Step 2: The user submits the update
-    #####################################
+    # Step 2: The user submits the update creating a maintenance incident
+    #####################################################################
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
     desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
@@ -67,7 +67,6 @@ RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
     login(maintenance_coord_user)
 
     visit request_show_path(bs_request)
-
     fill_in('reason', with: 'really? ok')
 
     click_button('Accept request')
