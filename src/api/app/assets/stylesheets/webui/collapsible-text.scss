@@ -29,6 +29,15 @@
       }
     }
   }
+
+  .obs-collapsible-textbox.full-width {
+    max-width: none;
+    width: 100%;
+
+    .show-content {
+      @extend .mt-0;
+    }
+  }
 }
 
 #description-text {

@@ -1,15 +1,14 @@
-.col-md-4.order-md-2.order-sm-1.mb-4#side-links
+#side-links
   -# REVIEWERS
   - if request_reviews.present?
-    .mt-4
-      .text-end
-        = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session, my_open_reviews: my_open_reviews)
-      = render AddReviewCollapsibleComponent.new
-      .mb-2
-        %h6
-          Reviewers
-      .mb-4
-        = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
+    .text-end
+      = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session, my_open_reviews: my_open_reviews)
+    = render AddReviewCollapsibleComponent.new
+    .mb-2
+      %h6
+        Reviewers
+    .mb-4
+      = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
   - if policy(bs_request).add_reviews?
     = render partial: 'webui/request/beta_show_tabs/ask_for_review'
 
