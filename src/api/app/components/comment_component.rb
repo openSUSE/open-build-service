@@ -32,12 +32,12 @@ class CommentComponent < ApplicationComponent
   attr_accessor :comment
 
   def inline_comment_body
-    target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
-    file_index, line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
     sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true, cacheonly: 1).first[:sourcediff].first
 
     return comment.body if sourcediff[:error]
 
+    target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
+    file_index, line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
     filename = sourcediff['filenames'][file_index.to_i]
 
     "Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}:\n\n#{comment.body}"
