@@ -10,7 +10,7 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
     super
     @bs_request = bs_request
     @creator = User.find_by_login(bs_request.creator) || User.nobody
-    action_comments = @bs_request.bs_request_actions.flat_map { |a| a.comments.without_parent.includes(:user) }
+    action_comments = Comment.without_parent.where(commentable: BsRequestAction.where(bs_request: @bs_request)).includes(:user)
     commented_actions = action_comments.map { |c| c.commentable.id }.uniq.compact
     @diffs = commented_actions.flat_map { |a| @bs_request.webui_actions(action_id: a, diffs: true, cacheonly: 1) }
 
