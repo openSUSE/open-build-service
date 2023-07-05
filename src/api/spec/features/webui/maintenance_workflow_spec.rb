@@ -7,14 +7,6 @@ RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
   let(:project) { create(:project_with_repository, name: 'ProjectWithRepo') }
   let(:package) { create(:package_with_file, project: project, name: 'ProjectWithRepo_package') }
   let(:update_project) { create(:update_project, maintained_project: project, name: "#{project}:Update") }
-  let(:maintenance_project) do
-    create(:maintenance_project,
-           name: 'MaintenanceProject',
-           title: 'official maintenance space',
-           target_project: update_project,
-           create_patchinfo: true,
-           maintainer: maintenance_coord_user)
-  end
   let(:bs_request) { BsRequest.last }
 
   before do
@@ -22,135 +14,147 @@ RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
     create(:maintenance_project_attrib, project: maintenance_project)
   end
 
-  it 'maintenance workflow' do
-    # Step 1: The user branches a package
-    ####################################
-    login(user)
+  [true, false].each do |patchinfo_presence|
+    let(:maintenance_project) do
+      create(:maintenance_project,
+             name: 'MaintenanceProject',
+             title: 'official maintenance space',
+             target_project: update_project,
+             create_patchinfo: patchinfo_presence,
+             maintainer: maintenance_coord_user)
+    end
 
-    visit package_show_path(project: update_project, package: package)
+    [false, true].each do |beta_flag|
+      it "maintenance workflow when beta is #{beta_flag} and having a patchinfo is #{patchinfo_presence}", beta: beta_flag do
+        # Step 1: The user branches a package
+        ####################################
+        login(user)
 
-    desktop? ? click_link('Branch Package') : click_menu_link('Actions', 'Branch Package')
-    expect(page).to have_text('Source')
+        visit package_show_path(project: update_project, package: package)
 
-    click_button('Branch')
+        desktop? ? click_link('Branch Package') : click_menu_link('Actions', 'Branch Package')
+        expect(page).to have_text('Source')
 
-    expect(page).to have_text('Successfully branched package')
+        click_button('Branch')
 
-    # change the package sources so we have a difference
-    Backend::Connection.put('/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE', 'dummy')
+        expect(page).to have_text('Successfully branched package')
 
-    # Step 2: The user submits the update
-    #####################################
-    visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
+        # change the package sources so we have a difference
+        Backend::Connection.put('/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE', 'dummy')
 
-    desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
-    expect(page).to have_title('Submit as Update')
-    fill_in('description', with: 'I want the update')
-    click_button('Submit')
+        # Step 2: The user submits the update creating a maintenance incident
+        #####################################################################
+        visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
-    expect(page).to have_css('#flash', text: 'Created maintenance incident request')
+        desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
+        expect(page).to have_title('Submit as Update')
+        fill_in('description', with: 'I want the update')
+        click_button('Submit')
 
-    # Check that sending maintenance updates adds the source revision
-    new_bs_request_action = BsRequestAction.where(
-      type: 'maintenance_incident',
-      target_project: maintenance_project.name,
-      target_releaseproject: update_project.name,
-      source_project: "#{user.home_project}:branches:#{update_project}",
-      source_package: package.name
-    )
-    expect(new_bs_request_action.pick(:source_rev)).not_to be_nil
+        expect(page).to have_css('#flash', text: 'Created maintenance incident request')
 
-    logout
+        # Check that sending maintenance updates adds the source revision
+        new_bs_request_action = BsRequestAction.where(
+          type: 'maintenance_incident',
+          target_project: maintenance_project.name,
+          target_releaseproject: update_project.name,
+          source_project: "#{user.home_project}:branches:#{update_project}",
+          source_package: package.name
+        )
+        expect(new_bs_request_action.pick(:source_rev)).not_to be_nil
 
-    # Step 3: The maintenance coordinator accepts the request
-    #########################################################
-    login(maintenance_coord_user)
+        logout
 
-    visit request_show_path(bs_request)
+        # Step 3: The maintenance coordinator accepts the request
+        #########################################################
+        login(maintenance_coord_user)
 
-    fill_in('reason', with: 'really? ok')
+        visit request_show_path(bs_request)
+        fill_in('reason', with: 'really? ok')
 
-    click_button('Accept request')
-    expect(page).to have_css('#overview h3', text: "Request #{bs_request.number} accepted")
+        click_button('Accept request')
+        expect(page).to have_text("Request #{bs_request.number} accepted")
 
-    # Step 4: The maintenance coordinator edits the patchinfo file
-    ##############################################################
-    # FIXME: Editing patchinfos should be it's own spec...
-    visit(edit_patchinfo_path(package: 'patchinfo', project: 'MaintenanceProject:0'))
+        # Step 4: The maintenance coordinator edits the patchinfo file
+        ##############################################################
+        # FIXME: Editing patchinfos should be it's own spec...
+        visit(edit_patchinfo_path(package: 'patchinfo', project: 'MaintenanceProject:0'))
 
-    # needed for patchinfo validation
-    fill_in('patchinfo_summary', with: 'ProjectWithRepo_package is much better than the old one')
-    fill_in('patchinfo_description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
-    check('patchinfo_block')
-    fill_in('patchinfo_block_reason', with: 'locked!')
+        # needed for patchinfo validation
+        fill_in('patchinfo_summary', with: 'ProjectWithRepo_package is much better than the old one')
+        fill_in('patchinfo_description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
+        check('patchinfo_block')
+        fill_in('patchinfo_block_reason', with: 'locked!')
 
-    click_button('Save')
-    expect(page).to have_css('#flash', text: 'Successfully edited patchinfo')
-    expect(find(:css, '.block-reason span:first-child')).to have_text('Release is blocked')
+        click_button('Save')
+        expect(page).to have_css('#flash', text: 'Successfully edited patchinfo')
+        expect(find(:css, '.block-reason span:first-child')).to have_text('Release is blocked')
 
-    click_link('Edit patchinfo')
-    uncheck('patchinfo_block')
-    expect(page).to have_css('input[id=patchinfo_block_reason][disabled]')
-    click_button 'Save'
+        click_link('Edit patchinfo')
+        uncheck('patchinfo_block')
+        expect(page).to have_css('input[id=patchinfo_block_reason][disabled]')
+        click_button 'Save'
 
-    logout
+        logout
 
-    # Step 5: The user adds an additional fix to the incident
-    #########################################################
-    login(user)
-    visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
+        # Step 5: The user adds an additional fix to the incident
+        #########################################################
+        login(user)
+        visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
-    desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
-    expect(page).to have_title('Submit as Update')
-    fill_in('description', with: 'I have a additional fix')
-    click_button('Submit')
+        desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
+        expect(page).to have_title('Submit as Update')
+        fill_in('description', with: 'I have a additional fix')
+        click_button('Submit')
 
-    logout
+        logout
 
-    # FIXME: This isn't working anymore in Bootstrap.
-    #        The link "Merge with existing incident" wasn't migrated. See #8207 on GitHub.
-    # Step 6: The maintenance coordinator adds the new submit to the running incident
-    #################################################################################
-    # login(maintenance_coord_user)
+        # FIXME: This isn't working anymore in Bootstrap.
+        #        The link "Merge with existing incident" wasn't migrated. See #8207 on GitHub.
+        # Step 6: The maintenance coordinator adds the new submit to the running incident
+        #################################################################################
+        # login(maintenance_coord_user)
 
-    # visit request_show_path(BsRequest.last)
-    # click_link('Merge with existing incident')
-    # # we need this find to wait for the dialog to appear
-    # expect(find(:css, '.dialog h2')).to have_text('Set Incident')
+        # visit request_show_path(BsRequest.last)
+        # click_link('Merge with existing incident')
+        # # we need this find to wait for the dialog to appear
+        # expect(find(:css, '.dialog h2')).to have_text('Set Incident')
 
-    # fill_in('incident_project', with: 2)
+        # fill_in('incident_project', with: 2)
 
-    # click_button('Accept')
-    # expect(page).to have_css('#flash', text: 'Incident MaintenanceProject:2 does not exist')
+        # click_button('Accept')
+        # expect(page).to have_css('#flash', text: 'Incident MaintenanceProject:2 does not exist')
 
-    # click_link('Merge with existing incident')
-    # # we need this find to wait for the dialog to appear
-    # expect(find(:css, '.dialog h2')).to have_text('Set Incident')
+        # click_link('Merge with existing incident')
+        # # we need this find to wait for the dialog to appear
+        # expect(find(:css, '.dialog h2')).to have_text('Set Incident')
 
-    # fill_in('incident_project', with: 0)
+        # fill_in('incident_project', with: 0)
 
-    # click_button('Accept')
-    # expect(page).to have_css('#flash', text: 'Set target of request 2 to incident 0')
+        # click_button('Accept')
+        # expect(page).to have_css('#flash', text: 'Set target of request 2 to incident 0')
 
-    # click_button('Accept request')
+        # click_button('Accept request')
 
-    # expect(page).to have_css('#flash', text: 'Request 2 accepted')
+        # expect(page).to have_css('#flash', text: 'Request 2 accepted')
 
-    # # Step 7: The maintenance coordinator releases the request
-    # ##########################################################
-    # visit project_show_path('MaintenanceProject:0')
-    # click_link('Request to Release')
+        # # Step 7: The maintenance coordinator releases the request
+        # ##########################################################
+        # visit project_show_path('MaintenanceProject:0')
+        # click_link('Request to Release')
 
-    # # we need this find to wait for the dialog to appear
-    # expect(find('#project-release-request-modal-label')).to have_text('Create Maintenance Release Request')
-    # fill_in('description', with: 'RELEASE!')
+        # # we need this find to wait for the dialog to appear
+        # expect(find('#project-release-request-modal-label')).to have_text('Create Maintenance Release Request')
+        # fill_in('description', with: 'RELEASE!')
 
-    # within('#project-release-request-modal .modal-footer') do
-    #   click_button('Accept')
-    # end
+        # within('#project-release-request-modal .modal-footer') do
+        #   click_button('Accept')
+        # end
 
-    # # As we can't release without build results this should fail
-    # expect(page).to have_css('#flash',
-    #                          text: "The repository 'MaintenanceProject:0' / 'ProjectWithRepo_Update' / i586 did not finish the build yet")
+        # # As we can't release without build results this should fail
+        # expect(page).to have_css('#flash',
+        #                          text: "The repository 'MaintenanceProject:0' / 'ProjectWithRepo_Update' / i586 did not finish the build yet")
+      end
+    end
   end
 end
