@@ -1,4 +1,4 @@
-module Status::Checkable
+module StatusCheckable
   extend ActiveSupport::Concern
 
   included do

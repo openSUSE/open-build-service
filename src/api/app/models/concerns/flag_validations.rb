@@ -1,4 +1,4 @@
-module Flag::Validations
+module FlagValidations
   extend ActiveSupport::Concern
 
   included do

@@ -1,7 +1,7 @@
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper
-  include Flag::Validations
+  include FlagValidations
   include CanRenderModel
   include HasRelationships
   include HasAttributes

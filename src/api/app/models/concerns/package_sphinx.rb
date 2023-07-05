@@ -1,4 +1,6 @@
 module PackageSphinx
+  extend ActiveSupport::Concern
+
   def attribs_attrib_type_ids
     attribs.pluck(:attrib_type_id)
   end

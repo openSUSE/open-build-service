@@ -5,7 +5,7 @@ require 'rexml/document'
 # rubocop: disable Metrics/ClassLength
 class Package < ApplicationRecord
   include FlagHelper
-  include Flag::Validations
+  include FlagValidations
   include CanRenderModel
   include HasRelationships
   include Package::Errors

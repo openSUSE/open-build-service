@@ -1,4 +1,6 @@
 module FlipperFeature
+  extend ActiveSupport::Concern
+
   def feature_enabled?(feature)
     return false if Flipper.enabled?(feature.to_sym, User.possibly_nobody)
 

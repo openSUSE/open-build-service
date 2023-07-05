@@ -1,5 +1,5 @@
 class RepositoryArchitecture < ApplicationRecord
-  include Status::Checkable
+  include StatusCheckable
 
   belongs_to :repository,   inverse_of: :repository_architectures
   belongs_to :architecture, inverse_of: :repository_architectures
