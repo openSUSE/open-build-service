@@ -56,18 +56,20 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
+    @revision_parameter = params[:rev]
     if @spider_bot
       params.delete(:rev)
       params.delete(:srcmd5)
       @expand = 0
     elsif params[:expand]
       @expand = params[:expand].to_i
+    elsif @revision_parameter.presence
+      @expand = 0
     else
       @expand = 1
     end
 
     @srcmd5 = params[:srcmd5]
-    @revision_parameter = params[:rev]
 
     @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
     @revision = params[:rev]
