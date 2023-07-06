@@ -1,5 +1,5 @@
 - if commentable.is_a?(BsRequest)
-  - Comment.without_parent.where(commentable: BsRequestAction.where(bs_request: commentable)).includes(:user).each do |comment|
+  - Comment.without_parent.on_actions_for_request(commentable).includes(:user).each do |comment|
     = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 - commentable.comments.without_parent.includes(:user).each do |comment|
   = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
