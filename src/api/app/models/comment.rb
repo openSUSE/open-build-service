@@ -22,6 +22,7 @@ class Comment < ApplicationRecord
   extend ActsAsTree::TreeWalker
   acts_as_tree order: 'created_at'
 
+  scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
 
   def to_s

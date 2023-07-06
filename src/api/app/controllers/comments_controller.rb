@@ -3,7 +3,7 @@ class CommentsController < ApplicationController
 
   def index
     comments = @obj.comments.includes(:user)
-    comments += Comment.where(commentable: BsRequestAction.where(bs_request: @obj)).includes(:user) if @obj.is_a?(BsRequest)
+    comments += Comment.on_actions_for_request(@obj).includes(:user) if @obj.is_a?(BsRequest)
     @comments = comments.sort_by(&:id)
   end
 
