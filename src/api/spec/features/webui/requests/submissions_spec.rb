@@ -139,7 +139,7 @@ RSpec.describe 'Requests_Submissions', js: true, vcr: true do
           login receiver
           visit request_show_path(bs_request.number)
 
-          expect(page).to have_text('Select Action')
+          expect(page).to have_text(bs_request.bs_request_actions.first[:name])
           expect(page).to have_text('Next')
           expect(page).to have_text("(of #{bs_request.bs_request_actions.count})")
           expect(page).to have_css('.bg-staging')
