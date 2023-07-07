@@ -65,6 +65,28 @@ namespace :dev do
       bs_req_action = build(:bs_request_action, action_attributes)
       bs_req_action.save! if bs_req_action.valid?
 
+      # Create an action to set a user as bugowner
+      action_attributes = {
+        target_project: target_project,
+        target_package: target_package_b,
+        person_name: 'user_1',
+        type: 'set_bugowner',
+        bs_request: request
+      }
+      bs_req_action = build(:bs_request_action, action_attributes)
+      bs_req_action.save! if bs_req_action.valid?
+
+      # Create an action to set a group as bugowner
+      action_attributes = {
+        target_project: target_project,
+        target_package: target_package_a,
+        group_name: 'group_1',
+        type: 'set_bugowner',
+        bs_request: request
+      }
+      bs_req_action = build(:bs_request_action, action_attributes)
+      bs_req_action.save! if bs_req_action.valid?
+
       create(:bs_request_action_delete,
              target_project: target_project,
              bs_request: request)
