@@ -482,7 +482,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_supported_actions
     # Change supported_actions below into actions here when all actions are supported
-    @supported_actions = @actions.where(type: [:add_role, :change_devel, :delete, :submit, :maintenance_incident, :maintenance_release])
+    @supported_actions = @actions.where(type: [:add_role, :change_devel, :delete, :submit, :maintenance_incident, :maintenance_release, :set_bugowner])
   end
 
   def set_action_id
