@@ -32,6 +32,9 @@ namespace :dev do
         source_package: source_package_a
       )
 
+      target_package_b = Package.where(name: 'package_b', project: target_project).first ||
+                         create(:package, name: 'package_b', project: target_project)
+
       # Create more actions to submit new files from different packages to package_b
       ('b'..'z').each_with_index do |char, index|
         figure = (index + 1).to_s.rjust(2, '0') # Generate the last two figures for the issue code
@@ -39,9 +42,6 @@ namespace :dev do
 
         source_package = Package.where(name: "package_#{char}", project: source_project).first ||
                          create(:package_with_files, name: "package_#{char}", project: source_project, changes_file_content: changes_file_content)
-
-        target_package_b = Package.where(name: 'package_b', project: target_project).first ||
-                           create(:package, name: 'package_b', project: target_project)
 
         action_attributes = {
           source_package: source_package,
