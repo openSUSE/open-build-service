@@ -15,6 +15,8 @@ class Webui::RequestController < Webui::WebuiController
                                 if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_bs_request_action, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_influxdb_data_request_actions, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_active_action, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :build_results, :rpm_lint, :changes, :mentioned_issues]
@@ -568,5 +570,11 @@ class Webui::RequestController < Webui::WebuiController
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
     handle_notification
+  end
+
+  def set_influxdb_data_request_actions
+    InfluxDB::Rails.current.tags = {
+      bs_request_action_type: @bs_request_action.class.name
+    }
   end
 end
