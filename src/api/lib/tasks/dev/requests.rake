@@ -32,6 +32,9 @@ namespace :dev do
         source_package: source_package_a
       )
 
+      target_package_b = Package.where(name: 'package_b', project: target_project).first ||
+                         create(:package, name: 'package_b', project: target_project)
+
       # Create more actions to submit new files from different packages to package_b
       ('b'..'z').each_with_index do |char, index|
         figure = (index + 1).to_s.rjust(2, '0') # Generate the last two figures for the issue code
@@ -39,9 +42,6 @@ namespace :dev do
 
         source_package = Package.where(name: "package_#{char}", project: source_project).first ||
                          create(:package_with_files, name: "package_#{char}", project: source_project, changes_file_content: changes_file_content)
-
-        target_package_b = Package.where(name: 'package_b', project: target_project).first ||
-                           create(:package, name: 'package_b', project: target_project)
 
         action_attributes = {
           source_package: source_package,
@@ -60,6 +60,28 @@ namespace :dev do
         person_name: User.last.login,
         role: Role.find_by_title!('maintainer'),
         type: 'add_role',
+        bs_request: request
+      }
+      bs_req_action = build(:bs_request_action, action_attributes)
+      bs_req_action.save! if bs_req_action.valid?
+
+      # Create an action to set a user as bugowner
+      action_attributes = {
+        target_project: target_project,
+        target_package: target_package_b,
+        person_name: 'user_1',
+        type: 'set_bugowner',
+        bs_request: request
+      }
+      bs_req_action = build(:bs_request_action, action_attributes)
+      bs_req_action.save! if bs_req_action.valid?
+
+      # Create an action to set a group as bugowner
+      action_attributes = {
+        target_project: target_project,
+        target_package: target_package_a,
+        group_name: 'group_1',
+        type: 'set_bugowner',
         bs_request: request
       }
       bs_req_action = build(:bs_request_action, action_attributes)

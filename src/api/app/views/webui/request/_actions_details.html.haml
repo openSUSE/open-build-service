@@ -46,7 +46,7 @@
 - if active_action.target_releaseproject
   %p.fst-italic Release in #{project_or_package_link(project: active_action.target_releaseproject)}
 
-- if active_action.type == 'add_role'
+- if %w[add_role set_bugowner].include?(active_action.type)
   :ruby
     parameters = { project: active_action.target_project, request_action_id: active_action.id, notification_id: @current_notification }
     roles_link = if active_action.target_package

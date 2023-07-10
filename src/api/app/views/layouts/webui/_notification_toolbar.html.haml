@@ -4,7 +4,7 @@
       = link_to(request_show_path(number: request_action.bs_request.number, request_action_id: request_action.id, notification_id: notification),
                 class: 'btn btn-sm btn-outline-secondary', title: 'Back to request action') do
         %i.fas.fa-arrow-left
-        Back to request action "Add #{request_action.person_name} as #{request_action.role}"
+        Back to request action "#{request_action.type.titleize}"
     - else
       = link_to(my_notifications_path, class: 'btn btn-sm btn-outline-secondary', title: 'Back to notifications') do
         %i.fas.fa-arrow-left
