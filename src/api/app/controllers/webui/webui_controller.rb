@@ -14,10 +14,10 @@ class Webui::WebuiController < ActionController::Base
   include Webui::ElisionsHelper
   protect_from_forgery
 
-  before_action :set_influxdb_data
   before_action :setup_view_path
   before_action :check_user
   before_action :check_anonymous
+  before_action :set_influxdb_data
   before_action :require_configuration
   before_action :current_announcement
   after_action :clean_cache
