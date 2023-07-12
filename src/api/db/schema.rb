@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_26_092852) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_12_141001) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8mb3_general_ci"
     t.boolean "available", default: false
@@ -1046,15 +1046,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_26_092852) do
     t.integer "counter", default: 0
   end
 
-  create_table "user_registrations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id", default: 0, null: false
-    t.text "token", null: false, collation: "utf8mb3_general_ci"
-    t.datetime "created_at", precision: nil
-    t.datetime "expires_at", precision: nil
-    t.index ["expires_at"], name: "user_registrations_expires_at_index"
-    t.index ["user_id"], name: "user_registrations_user_id_index", unique: true
-  end
-
   create_table "users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
@@ -1232,6 +1223,5 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_26_092852) do
   add_foreign_key "status_checks", "status_reports", column: "status_reports_id"
   add_foreign_key "tokens", "packages", name: "tokens_ibfk_2"
   add_foreign_key "tokens", "users", column: "executor_id", name: "tokens_ibfk_1"
-  add_foreign_key "user_registrations", "users", name: "user_registrations_ibfk_1"
   add_foreign_key "watched_projects", "users", name: "watched_projects_ibfk_1"
 end
