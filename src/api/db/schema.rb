@@ -117,14 +117,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
 
   create_table "binary_releases", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "repository_id", null: false
-    t.column "operation", "enum('added','removed','modified')", default: "added"
+    t.column "operation", "enum('added','removed','modified')", default: "added", collation: "utf8mb3_general_ci"
     t.datetime "obsolete_time", precision: nil
     t.integer "release_package_id"
     t.string "binary_name", null: false
-    t.string "binary_epoch", limit: 64
-    t.string "binary_version", limit: 64, null: false
-    t.string "binary_release", limit: 64, null: false
-    t.string "binary_arch", limit: 64, null: false
+    t.string "binary_epoch", limit: 64, collation: "utf8mb3_general_ci"
+    t.string "binary_version", limit: 64, null: false, collation: "utf8mb3_general_ci"
+    t.string "binary_release", limit: 64, null: false, collation: "utf8mb3_general_ci"
+    t.string "binary_arch", limit: 64, null: false, collation: "utf8mb3_general_ci"
     t.string "binary_disturl"
     t.datetime "binary_buildtime", precision: nil
     t.datetime "binary_releasetime", precision: nil, null: false
@@ -162,7 +162,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
 
   create_table "bs_request_actions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "bs_request_id"
-    t.string "type"
+    t.string "type", collation: "utf8mb4_bin"
     t.string "target_project"
     t.string "target_package"
     t.string "target_releaseproject"
@@ -175,7 +175,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.string "group_name"
     t.string "role"
     t.datetime "created_at", precision: nil
-    t.string "target_repository"
+    t.string "target_repository", collation: "utf8mb4_bin"
     t.boolean "makeoriginolder", default: false
     t.integer "target_package_id"
     t.integer "target_project_id"
@@ -308,7 +308,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.index ["user_id"], name: "user_id"
   end
 
-  create_table "commit_activities", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "commit_activities", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.date "date", null: false
     t.integer "user_id", null: false
     t.string "project", null: false
@@ -320,11 +320,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   end
 
   create_table "configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "title", default: ""
+    t.string "title", default: "", collation: "utf8mb4_bin"
     t.text "description"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
-    t.string "name", default: ""
+    t.string "name", default: "", collation: "utf8mb4_bin"
     t.column "registration", "enum('allow','confirmation','deny')", default: "allow"
     t.boolean "anonymous", default: true
     t.boolean "default_access_disabled", default: false
@@ -335,21 +335,21 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.boolean "gravatar", default: true
     t.boolean "enforce_project_keys", default: false
     t.boolean "download_on_demand", default: true
-    t.string "download_url"
-    t.string "ymp_url"
-    t.string "bugzilla_url"
-    t.string "http_proxy"
-    t.string "no_proxy"
-    t.string "theme"
-    t.string "obs_url", default: "https://unconfigured.openbuildservice.org"
+    t.string "download_url", collation: "utf8mb4_bin"
+    t.string "ymp_url", collation: "utf8mb4_bin"
+    t.string "bugzilla_url", collation: "utf8mb4_bin"
+    t.string "http_proxy", collation: "utf8mb4_bin"
+    t.string "no_proxy", collation: "utf8mb4_bin"
+    t.string "theme", collation: "utf8mb4_bin"
+    t.string "obs_url", default: "https://unconfigured.openbuildservice.org", collation: "utf8mb4_bin"
     t.integer "cleanup_after_days"
-    t.string "admin_email", default: "unconfigured@openbuildservice.org"
+    t.string "admin_email", default: "unconfigured@openbuildservice.org", collation: "utf8mb4_bin"
     t.boolean "cleanup_empty_projects", default: true
     t.boolean "disable_publish_for_branches", default: true
-    t.string "default_tracker", default: "bnc"
-    t.string "api_url"
-    t.string "unlisted_projects_filter", default: "^home:.+"
-    t.string "unlisted_projects_filter_description", default: "home projects"
+    t.string "default_tracker", default: "bnc", collation: "utf8mb4_bin"
+    t.string "api_url", collation: "utf8mb4_bin"
+    t.string "unlisted_projects_filter", default: "^home:.+", collation: "utf8mb4_bin"
+    t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8mb4_bin"
     t.string "tos_url"
   end
 
@@ -360,7 +360,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   create_table "delayed_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
-    t.text "handler", size: :medium
+    t.text "handler", size: :medium, collation: "utf8mb4_bin"
     t.text "last_error"
     t.datetime "run_at", precision: nil
     t.datetime "locked_at", precision: nil
@@ -458,14 +458,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.index ["project_id"], name: "index_flags_on_project_id"
   end
 
-  create_table "flipper_features", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "flipper_features", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["key"], name: "index_flipper_features_on_key", unique: true
   end
 
-  create_table "flipper_gates", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "flipper_gates", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "feature_key", null: false
     t.string "key", null: false
     t.string "value"
@@ -710,7 +710,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   create_table "package_issues", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id", null: false
     t.integer "issue_id", null: false
-    t.column "change", "enum('added','deleted','changed','kept')"
+    t.column "change", "enum('added','deleted','changed','kept')", collation: "utf8mb3_general_ci"
     t.index ["issue_id"], name: "index_package_issues_on_issue_id"
     t.index ["package_id", "issue_id"], name: "index_package_issues_on_package_id_and_issue_id"
   end
@@ -723,7 +723,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
 
   create_table "packages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "project_id", null: false
-    t.string "name", limit: 200, null: false
+    t.string "name", limit: 200, null: false, collation: "utf8mb4_bin"
     t.string "title"
     t.text "description"
     t.datetime "created_at", precision: nil
@@ -733,7 +733,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.string "bcntsynctag"
     t.integer "develpackage_id"
     t.boolean "delta", default: true, null: false
-    t.string "releasename"
+    t.string "releasename", collation: "utf8mb4_bin"
     t.integer "kiwi_image_id"
     t.string "scmsync"
     t.index ["develpackage_id"], name: "devel_package_id_index"
@@ -809,7 +809,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   end
 
   create_table "projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name", limit: 200, null: false
+    t.string "name", limit: 200, null: false, collation: "utf8mb4_bin"
     t.string "title"
     t.text "description"
     t.datetime "created_at", precision: nil
@@ -853,8 +853,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
 
   create_table "repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "db_project_id", null: false
-    t.string "name", null: false
-    t.string "remote_project_name", default: "", null: false
+    t.string "name", null: false, collation: "utf8mb4_bin"
+    t.string "remote_project_name", default: "", null: false, collation: "utf8mb4_bin"
     t.column "rebuild", "enum('transitive','direct','local')"
     t.column "block", "enum('all','local','never')"
     t.column "linkedbuild", "enum('off','localdep','all','alldirect')"
@@ -1052,13 +1052,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.datetime "updated_at"
     t.datetime "last_logged_in_at", precision: nil
     t.integer "login_failure_count", default: 0, null: false
-    t.text "login"
+    t.text "login", collation: "utf8mb4_bin"
     t.string "email", limit: 200, default: "", null: false
     t.string "realname", limit: 200, default: "", null: false
-    t.string "password_digest"
-    t.string "deprecated_password"
-    t.string "deprecated_password_hash_type"
-    t.string "deprecated_password_salt"
+    t.string "password_digest", collation: "utf8mb4_bin"
+    t.string "deprecated_password", collation: "utf8mb4_bin"
+    t.string "deprecated_password_hash_type", collation: "utf8mb4_bin"
+    t.string "deprecated_password_salt", collation: "utf8mb4_bin"
     t.text "adminnote"
     t.column "state", "enum('unconfirmed','confirmed','locked','deleted','subaccount')", default: "unconfirmed"
     t.integer "owner_id"
