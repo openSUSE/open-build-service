@@ -13,3 +13,8 @@ linters:
     file_types: not_breadcrumb_items
     matchers:
       not_breadcrumb_items: \A_(?!breadcrumb_items).*\.haml\z
+
+  SetPagetitleInView:
+    enabled: true
+    exclude:
+      - 'app/views/webui/users/new.html.haml'
