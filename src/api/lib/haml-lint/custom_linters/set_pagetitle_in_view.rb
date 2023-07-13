@@ -23,7 +23,7 @@ module HamlLint
 
     # @param [HamlLint::Document] a parsed Haml document and its associated metadata
     def instance_variable_pagetitle_is_defined?(document)
-      parsed_ruby = HamlLint::RubyParser.new.parse(HamlLint::RubyExtractor.new.extract(document).source)
+      parsed_ruby = HamlLint::RubyParser.new.parse(HamlLint::RubyExtraction::ChunkExtractor.new.extract(document).source)
 
       parsed_ruby.each_descendant.find do |descendant_node|
         # Details on Abstract Syntax Tree from Parser gem: https://github.com/whitequark/parser/blob/11c7644365fe554217bb4670a4cbc905ab8504cd/doc/AST_FORMAT.md#to-instance-variable
