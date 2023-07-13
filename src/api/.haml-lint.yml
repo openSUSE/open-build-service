@@ -1,3 +1,5 @@
+inherits_from: .haml-lint_todo.yml
+
 require:
   - './lib/haml-lint/custom_linters/set_pagetitle_in_view.rb'
 
@@ -5,72 +7,9 @@ linters:
   LineLength:
     max: 150
 
-  # This custom linter will report an offense if @pagetitle is not set in a Haml view. Partials aren't processed by this linter.
-  SetPagetitleInView:
-    enabled: true
-    exclude:
-      # @pagetitle is set in the controller
-      - 'app/views/webui/users/new.html.haml'
-
   # Apply lint in all partials, but exclude 'breadcrumb_items' partials
   InstanceVariables:
     enabled: true
     file_types: not_breadcrumb_items
     matchers:
       not_breadcrumb_items: \A_(?!breadcrumb_items).*\.haml\z
-
-  RuboCop:
-    enabled: true
-    # These cops are incredibly noisy when it comes to HAML templates, so we
-    # ignore them.
-    ignored_cops:
-      - Lint/BlockAlignment
-      - Lint/EndAlignment
-      - Lint/Void
-      - Layout/ArgumentAlignment
-      # It's impossible to fix since new lines aren't taken into account - https://github.com/sds/haml-lint/issues/285
-      - Layout/EmptyLineAfterGuardClause
-      - Layout/ParameterAlignment
-      - Layout/ElseAlignment
-      - Layout/EndOfLine
-      - Layout/IndentationWidth
-      - Layout/TrailingEmptyLines
-      - Layout/TrailingWhitespace
-      - Layout/HashAlignment
-      - Metrics/BlockLength
-      - Metrics/BlockNesting
-      - Layout/LineLength
-      - Naming/FileName
-      - Style/FrozenStringLiteralComment
-      - Style/IfUnlessModifier
-      - Style/Next
-      - Style/WhileUntilModifier
-      # This cop doesn't apply to HAML templates
-      - ViewComponent/FileName
-
-exclude:
-- 'vendor/bundle/**/*'
-# Kaminari views were created by its generator, they don't pass lint tests
-- 'app/views/webui/kaminari/**/*'
-# Everything below is the API, we don't lint it (it's mostly XML anyway)
-- 'app/views/about/**/*'
-- 'app/views/attribute/**/*'
-- 'app/views/attribute_namespace/**/*'
-- 'app/views/build/**/*'
-- 'app/views/comments/**/*'
-- 'app/views/distributions/**/*'
-- 'app/views/exception_notifier/**/*'
-- 'app/views/group/**/*'
-- 'app/views/ichain_notifier/**/*'
-- 'app/views/message/**/*'
-- 'app/views/models/**/*'
-- 'app/views/person/**/*'
-- 'app/views/public/**/*'
-- 'app/views/request/**/*'
-- 'app/views/result/**/*'
-- 'app/views/search/**/*'
-- 'app/views/shared/**/*'
-- 'app/views/source/**/*'
-- 'app/views/source_project/**/*'
-- 'app/views/statistics/**/*'
-- 'app/views/status/**/*'
