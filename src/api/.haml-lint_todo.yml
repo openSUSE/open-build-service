@@ -11,7 +11,3 @@ linters:
   # Offense count: 47
   RuboCop:
     enabled: false
-
-  # Offense count: 105
-  SetPagetitleInView:
-    enabled: false

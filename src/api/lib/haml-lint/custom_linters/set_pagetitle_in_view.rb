@@ -1,6 +1,10 @@
 # This custom linter for haml-lint will report an offense if @pagetitle is not set in a Haml view. Partials are ignored by this linter.
 module HamlLint
   class Linter::SetPagetitleInView < Linter
+    CHUNKS_WITH_POSSIBLE_PAGETITLES = [HamlLint::RubyExtraction::RubyFilterChunk,
+                                       HamlLint::RubyExtraction::ScriptChunk,
+                                       HamlLint::RubyExtraction::ImplicitEndChunk].freeze
+
     include LinterRegistry
 
     # Report an offense if the instance variable @pagetitle is not set in a Haml view. Partials are ignored by this linter.
@@ -23,9 +27,11 @@ module HamlLint
 
     # @param [HamlLint::Document] a parsed Haml document and its associated metadata
     def instance_variable_pagetitle_is_defined?(document)
-      parsed_ruby = HamlLint::RubyParser.new.parse(HamlLint::RubyExtraction::ChunkExtractor.new.extract(document).source)
+      chunks = HamlLint::RubyExtraction::ChunkExtractor.new(document, script_output_prefix: '').extract
+      ruby_source_code = chunks.select { |c| CHUNKS_WITH_POSSIBLE_PAGETITLES.member?(c.class) }.map(&:ruby_lines).join("\n")
+      parsed_ruby = HamlLint::RubyParser.new.parse(ruby_source_code)
 
-      parsed_ruby.each_descendant.find do |descendant_node|
+      parsed_ruby.each_node.find do |descendant_node|
         # Details on Abstract Syntax Tree from Parser gem: https://github.com/whitequark/parser/blob/11c7644365fe554217bb4670a4cbc905ab8504cd/doc/AST_FORMAT.md#to-instance-variable
         # Are we assigning an instance variable? Is it called @pagetitle?
         descendant_node.ivasgn_type? && descendant_node.children.first == :@pagetitle
