@@ -49,9 +49,6 @@ class User < ApplicationRecord
   has_many :bs_request_actions_seen_by_users, dependent: :nullify
   has_many :bs_request_actions_seen, through: :bs_request_actions_seen_by_users, source: :bs_request_action
 
-  # users have 0..1 user_registration records assigned to them
-  has_one :user_registration
-
   has_one :ec2_configuration, class_name: 'Cloud::Ec2::Configuration', dependent: :destroy
   has_one :azure_configuration, class_name: 'Cloud::Azure::Configuration', dependent: :destroy
   has_many :upload_jobs, class_name: 'Cloud::User::UploadJob', dependent: :destroy
@@ -312,18 +309,6 @@ class User < ApplicationRecord
     end
 
     !obj.nil?
-  end
-
-  # This method creates a new registration token for the current user. Raises
-  # a MultipleRegistrationTokens Exception if the user already has a
-  # registration token assigned to him.
-  #
-  # Use this method instead of creating user_registration objects directly!
-  def create_user_registration
-    raise unless user_registration.nil?
-
-    token = UserRegistration.new
-    self.user_registration = token
   end
 
   # This method checks whether the given value equals the password when
