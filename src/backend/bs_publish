@@ -2814,7 +2814,7 @@ sub publish {
       'publishid' => $publishid,
       'multiarch' => $multicontainer,
     };
-    # $data->{'notify'} = sub { BSNotify::notify('CONTAINER_PUBLISHED', { project => $projid , 'repo' => $repoid, 'buildid' => $publishid, 'container' => "$_[0]"}) };
+    $data->{'notify'} = sub { BSNotify::notify('CONTAINER_PUBLISHED', { project => $projid , 'repo' => $repoid, 'buildid' => $publishid, 'container' => "$_[0]"}) };
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
     }

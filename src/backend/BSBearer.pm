@@ -51,6 +51,7 @@ sub authenticator_function {
     my $realm = ($bearer->{'realm'} || [])->[0];
     return '' unless $realm && $realm =~ /^https?:\/\//i;
     my @args = BSRPC::args($bearer, 'service', 'scope');
+    push @args, "account=$state->{'account'}" if $state->{'account'} && $state->{'account'} ne '';
     print "requesting bearer auth from $realm [@args]\n" if $state->{'verbose'};
     my $bparam = { 'uri' => $realm };
     push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
@@ -67,6 +68,7 @@ sub generate_authenticator {
   my ($creds, %opts) = @_;
   my $state = { %opts };
   $state->{'creds'} = $creds if defined $creds;
+  $state->{'account'} ||= $1 if defined($creds) && $creds =~ /^([^:]+):/;
   return sub { authenticator_function($state, @_) };
 }
 
