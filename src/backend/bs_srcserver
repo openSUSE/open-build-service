@@ -6049,7 +6049,7 @@ sub getkeyinfo {
     undef $pk if $pk && length($pk) <= 2;
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
   }
-  if ($cgi->{'withsslcert'} && $skprojid && $pk) {
+  if ($cgi->{'withsslcert'} && $skprojid && $sk) {
     $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype);
   }
   if ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::sign_project && $BSConfig::sign) {
