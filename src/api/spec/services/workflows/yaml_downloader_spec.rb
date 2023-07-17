@@ -39,14 +39,30 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
       end
 
       context 'gitlab' do
+        let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
+        let(:payload) do
+          {
+            scm: 'gitlab',
+            object_kind: 'push',
+            http_url: 'https://gitlab.com/example/hello_world.git',
+            api_endpoint: 'https://gitlab.com',
+            event: 'Push Hook',
+            commit_sha: 'd6568a7e5137e2c09bbb613d83c94fc68601ff93',
+            target_branch: 'master',
+            path_with_namespace: 'example/hello_world',
+            project_id: 7_836_486,
+            ref: 'refs/heads/master'
+          }
+        end
+
         before do
+          allow(Gitlab).to receive(:client).and_return(gitlab_client)
           yaml_downloader.call
         end
 
-        let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
-        let(:url) { "https://gitlab.com/#{payload[:path_with_namespace]}/-/raw/#{payload[:target_branch]}/.obs/workflows.yml" }
-
-        it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+        it 'downloads the workflow file' do
+          expect(gitlab_client).to have_received(:file_contents)
+        end
       end
 
       context 'gitea' do
@@ -97,15 +113,16 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
     end
 
     context 'given workflow_configuration_path' do
+      let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
+      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+
       before do
+        allow(Gitlab).to receive(:client).and_return(gitlab_client)
         workflow_token.workflow_configuration_path = 'subdir/config_file.yml'
         yaml_downloader.call
       end
 
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
-      let(:url) { "https://gitlab.com/#{payload[:path_with_namespace]}/-/raw/#{payload[:target_branch]}/subdir/config_file.yml" }
-
-      it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+      it { expect(gitlab_client).to have_received(:file_contents) }
     end
 
     context 'given both workflow_configuration_path and workflow_configuration_url' do

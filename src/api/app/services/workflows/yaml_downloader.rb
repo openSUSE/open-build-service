@@ -15,7 +15,10 @@ module Workflows
     private
 
     def download_yaml_file
-      Down.download(download_url, max_size: MAX_FILE_SIZE)
+      url = download_url
+      return download_gitlab_yaml_file if url.nil? && @scm_payload[:scm] == 'gitlab'
+
+      Down.download(url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
       raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
 
@@ -33,9 +36,6 @@ module Workflows
         client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])
         # :ref can be the name of the commit, branch or tag.
         client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:download_url]
-      when 'gitlab'
-        # This GitLab URL admits both a branch name and a commit sha.
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
       when 'gitea'
         gitea_download_url
       end
@@ -53,6 +53,21 @@ module Workflows
       else
         "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
       end
+    end
+
+    # Note: For GitLab we still use the Down gem when workflow_configuration_url is present
+    def download_gitlab_yaml_file
+      begin
+        gitlab_client = Gitlab.client(endpoint: "#{@scm_payload[:api_endpoint]}/api/v4", private_token: @token.scm_token)
+        gitlab_file = gitlab_client.file_contents(@scm_payload[:project_id], @token.workflow_configuration_path, @scm_payload[:target_branch])
+      rescue Gitlab::Error::NotFound => e
+        raise Token::Errors::NonExistentRepository, e.message
+      end
+
+      tempfile = Tempfile.new(["#{Time.zone.now}", '.yaml'])
+      tempfile.write(gitlab_file)
+      tempfile.rewind
+      tempfile
     end
   end
 end
