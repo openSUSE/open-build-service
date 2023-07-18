@@ -116,11 +116,8 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
 
-  after_create :create_home_project, :track_create
-
-  def track_create
-    RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
-  end
+  after_create :create_home_project, :measure_create
+  after_update :measure_delete
 
   def create_home_project
     # avoid errors during seeding
@@ -655,7 +652,7 @@ class User < ApplicationRecord
 
     # wipe also all home projects
     destroy_home_projects(reason: 'User account got deleted')
-    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
+
     true
   end
 
@@ -665,9 +662,8 @@ class User < ApplicationRecord
     self.adminnote = message
     self.state = 'deleted'
     save!
-
     destroy_home_projects(reason: message)
-    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
+
     true
   end
 
@@ -867,6 +863,16 @@ class User < ApplicationRecord
   end
 
   private
+
+  def measure_create
+    RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
+  end
+
+  def measure_delete
+    return unless saved_change_to_attribute?('state', to: 'deleted')
+
+    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1')
+  end
 
   # The currently logged in user (might be nil). It's reset after
   # every request and normally set during authentification
