@@ -1,3 +1,2 @@
 %li.list-group-item.table-list-group-item
   = link_to "#{check.name} (#{check.state} - #{TimeComponent.new(time: check.updated_at).human_time})", check.url
-
