@@ -156,9 +156,6 @@ class Workflow
     end
 
     target_packages = processable_steps.map(&:target_package).uniq.compact
-    target_packages.each do |target_package|
-      # FIXME: We shouldn't rely on a workflow step to be able to create/update subscriptions
-      processable_steps.first.create_or_update_subscriptions(target_package)
-    end
+    target_packages.each { |target_package| Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call }
   end
 end

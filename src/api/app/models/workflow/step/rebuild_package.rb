@@ -20,7 +20,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
 
     Pundit.authorize(@token.executor, @token, :rebuild?)
     rebuild_package
-    create_or_update_subscriptions(@package)
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @package).call
   end
 
   def set_project_name

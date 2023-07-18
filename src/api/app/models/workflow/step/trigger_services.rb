@@ -23,7 +23,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
       raise NoSourceServiceDefined, "Package #{@project_name}/#{@package_name} does not have a source service defined: #{e.summary}"
     end
 
-    create_or_update_subscriptions(@package)
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @package).call
   end
 
   private
