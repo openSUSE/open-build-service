@@ -654,13 +654,28 @@ class User < ApplicationRecord
     save!
 
     # wipe also all home projects
-    Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
-      project.commit_opts = { comment: 'User account got deleted' }
-      project.destroy
-    end
-
+    destroy_home_projects(reason: 'User account got deleted')
     RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
     true
+  end
+
+  def mark_as_spammer!
+    message = "User account got marked as spammer by #{User.session!}"
+    comments.delete_all
+    self.adminnote = message
+    self.state = 'deleted'
+    save!
+
+    destroy_home_projects(reason: message)
+    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
+    true
+  end
+
+  def destroy_home_projects(reason:)
+    Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
+      project.commit_opts = { comment: "#{reason}" }
+      project.destroy
+    end
   end
 
   def involved_projects
