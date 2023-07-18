@@ -20,6 +20,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
 
     Pundit.authorize(@token.executor, @token, :rebuild?)
     rebuild_package
+    create_or_update_subscriptions(@package)
   end
 
   def set_project_name
