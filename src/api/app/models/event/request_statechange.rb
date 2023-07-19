@@ -6,6 +6,8 @@ module Event
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
+    create_jobs :report_to_scm_job
+
     def subject
       "Request #{payload['number']} changed from #{payload['oldstate']} to #{payload['state']} (#{actions_summary})"
     end
