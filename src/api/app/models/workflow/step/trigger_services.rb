@@ -22,6 +22,8 @@ class Workflow::Step::TriggerServices < Workflow::Step
     rescue Backend::NotFoundError => e
       raise NoSourceServiceDefined, "Package #{@project_name}/#{@package_name} does not have a source service defined: #{e.summary}"
     end
+
+    create_or_update_subscriptions(@package)
   end
 
   private
