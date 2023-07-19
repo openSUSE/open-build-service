@@ -425,6 +425,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.text "payload"
     t.integer "package_id"
     t.integer "workflow_run_id"
+    t.integer "bs_request_id"
+    t.index ["bs_request_id"], name: "index_event_subscriptions_on_bs_request_id"
     t.index ["group_id"], name: "index_event_subscriptions_on_group_id"
     t.index ["package_id"], name: "index_event_subscriptions_on_package_id"
     t.index ["token_id"], name: "index_event_subscriptions_on_token_id"
