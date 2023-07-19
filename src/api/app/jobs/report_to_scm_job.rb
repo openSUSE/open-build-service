@@ -1,5 +1,5 @@
 class ReportToSCMJob < CreateJob
-  ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess'].freeze
+  ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess', 'Event::RequestStatechange'].freeze
 
   queue_as :scm
 
@@ -25,14 +25,16 @@ class ReportToSCMJob < CreateJob
     @event_type = @event.eventtype
     return false unless ALLOWED_EVENTS.include?(@event_type)
 
-    @event_package = Package.find_by_project_and_name(@event.payload['project'], Package.striping_multibuild_suffix(@event.payload['package']))
-    return false if @event_package.blank?
+    @event_package = Package.find_by_project_and_name(@event.payload['project'], Package.striping_multibuild_suffix(@event.payload['package'])) unless @event_type == 'Event::RequestStatechange'
+    @event_request = BsRequest.find_by_number(@event.payload['number'])
+
+    return false if @event_package.blank? && @event_request.blank?
 
     true
   end
 
   def matched_event_subscription
     EventSubscriptionsFinder.new
-                            .for_scm_channel_with_token(event_type: @event_type, event_package: @event_package)
+                            .for_scm_channel_with_token(event_type: @event_type, event_package: @event_package, event_request: @event_request)
   end
 end

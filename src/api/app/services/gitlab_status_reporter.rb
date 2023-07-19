@@ -38,6 +38,9 @@ class GitlabStatusReporter < SCMExceptionHandler
     if @initial_report
       { context: 'OBS SCM/CI Workflow Integration started',
         target_url: Rails.application.routes.url_helpers.token_workflow_run_url(@workflow_run.token_id, @workflow_run.id, host: Configuration.obs_url) }
+    elsif @event_payload[:number]
+      { context: "OBS Request #{@event_payload[:number]} - #{@event_payload[:state]}",
+        target_url: Rails.application.routes.url_helpers.request_show_url(@event_payload[:number], host: Configuration.obs_url) }
     else
       { context: "OBS: #{@event_payload[:package]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
         target_url: Rails.application.routes.url_helpers.package_show_url(@event_payload[:project], @event_payload[:package], host: Configuration.obs_url) }
