@@ -1,8 +1,9 @@
 module Workflows
   class ArtifactsCollector
-    def initialize(step:, workflow_run_id:)
+    def initialize(step:, workflow_run_id:, request_numbers_and_state_for_artifacts: nil)
       @step = step
       @workflow_run_id = workflow_run_id
+      @request_numbers_and_state_for_artifacts = request_numbers_and_state_for_artifacts
     end
 
     def call
@@ -23,11 +24,7 @@ module Workflows
                     }
                   when 'Workflow::Step::SubmitRequest'
                     {
-                      source_project: @step.step_instructions[:source_project],
-                      source_package: @step.step_instructions[:source_package],
-                      target_project: @step.step_instructions[:target_project],
-                      target_package: @step.step_instructions[:target_package],
-                      description: @step.step_instructions[:description]
+                      request_numbers_and_state: @request_numbers_and_state_for_artifacts
                     }
                   end
       WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json) if artifacts

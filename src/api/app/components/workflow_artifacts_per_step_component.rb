@@ -24,6 +24,8 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
       artifacts_for_rebuild_or_trigger_package(parsed_artifacts, 'Triggered services on package ')
     when 'Workflow::Step::ConfigureRepositories'
       artifacts_for_configure_repositories(parsed_artifacts)
+    when 'Workflow::Step::SubmitRequest'
+      artifacts_for_submit_request(parsed_artifacts)
     end
   rescue JSON::ParserError, ActionController::UrlGenerationError => e
     Airbrake.notify(e, artifacts_per_step_id: artifacts_per_step.id)
@@ -31,6 +33,17 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   private
+
+  def artifacts_for_submit_request(parsed_artifacts)
+    capture do
+      parsed_artifacts[:request_numbers_and_state].each do |key, value|
+        value.each do |request_number|
+          request_path = helpers.request_show_path(number: request_number)
+          concat(tag.li(link_to("Request #{request_number} -> #{key}", request_path)))
+        end
+      end
+    end
+  end
 
   def artifacts_for_branch_or_link_package(parsed_artifacts, label)
     source_path = helpers.package_show_path(project: parsed_artifacts[:source_project], package: parsed_artifacts[:source_package])

@@ -4,8 +4,13 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
   def call
     return unless valid?
+    @request_numbers_and_state_for_artifacts = {}
 
-    revoke_submit_requests if scm_webhook.closed_merged_pull_request?
+    if scm_webhook.closed_merged_pull_request?
+      revoke_submit_requests
+      collect_artifacts
+      return
+    end
     # Fetch current open submit request which are going to be superseded
     # after the new sumbit request is created
     requests_to_be_superseded = submit_requests_with_same_target_and_source
@@ -18,9 +23,14 @@ class Workflow::Step::SubmitRequest < Workflow::Step
       supersede_previous_submit_requests(new_submit_request: new_submit_request,
                                          requests_to_be_superseded: requests_to_be_superseded)
     end
+    collect_artifacts
   end
 
   private
+
+  def collect_artifacts
+    Workflows::ArtifactsCollector.new(step: self, workflow_run_id: workflow_run.id, request_numbers_and_state_for_artifacts: @request_numbers_and_state_for_artifacts).call
+  end
 
   def submit_package
     bs_request_action = BsRequestAction.new(source_project: step_instructions[:source_project],
@@ -46,6 +56,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     end
 
     create_or_update_subscriptions(bs_request: bs_request)
+    (@request_numbers_and_state_for_artifacts["#{bs_request.state}"] ||= []) << bs_request.number
     bs_request
   end
 
@@ -54,10 +65,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
     requests_to_be_superseded.each do |submit_request|
       # Authorization happens on model level
-      BsRequest.find_by_number!(submit_request.number)
-      .change_state(newstate: 'superseded',
+      request = BsRequest.find_by_number!(submit_request.number)
+      request.change_state(newstate: 'superseded',
                     reason: "Superseded by request #{new_submit_request.number}",
                     superseded_by: new_submit_request.number)
+      (@request_numbers_and_state_for_artifacts["#{request.state}"] ||= []) << request.number
     end
   end
 
@@ -69,6 +81,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
       # TODO: Proper comment
       submit_request.change_state(newstate: 'revoked', comment: "Revoked through SCM/CI integration")
+      (@request_numbers_and_state_for_artifacts["#{submit_request.state}"] ||= []) << submit_request.number
     end
   end
 
