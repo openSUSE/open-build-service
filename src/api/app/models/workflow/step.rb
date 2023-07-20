@@ -40,20 +40,6 @@ class Workflow::Step
     # It's possible for a package to not exist, so we simply rescue and do nothing. The package will be created later in the step.
   end
 
-  def create_or_update_subscriptions(package)
-    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-      subscription = EventSubscription.find_or_create_by!(eventtype: build_event,
-                                                          receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                                          user: @token.executor,
-                                                          channel: 'scm',
-                                                          enabled: true,
-                                                          token: @token,
-                                                          package: package,
-                                                          workflow_run: workflow_run)
-      subscription.update!(payload: scm_webhook.payload) # The payload is updated regardless of whether the subscription already existed or not.
-    end
-  end
-
   def target_package_name(short_commit_sha: false)
     package_name = step_instructions[:target_package] || source_package_name
 

@@ -19,7 +19,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     set_scmsync_on_target_package if scm_synced?
 
     # SCMs don't support statuses for tags, so we don't need to report back in this case
-    create_or_update_subscriptions(target_package) unless scm_webhook.tag_push_event?
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call unless scm_webhook.tag_push_event?
 
     target_package
   end
