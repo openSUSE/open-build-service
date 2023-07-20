@@ -23,10 +23,12 @@
         %hr
         - if gpg_key.present?
           %dl.row
-            %dt.col-12.col-sm-3 Fingerprint
-            %dd.col-12.col-sm-9.font-monospace= gpg_key.fingerprint
+            %dt.col-12.col-sm-3 User ID
+            %dd.col-12.col-sm-9.font-monospace= gpg_key.user_id
             %dt.col-6.col-sm-3 Key ID
             %dd.col-6.col-sm-9.small= gpg_key.id
+            %dt.col-12.col-sm-3 Fingerprint
+            %dd.col-12.col-sm-9.font-monospace= gpg_key.fingerprint
             %dt.col-6.col-sm-3 Expires on
             %dd.col-6.col-sm-9.small
               - if gpg_key.expires
