@@ -1,27 +1,19 @@
 class Workflow::Step::SubmitRequest < Workflow::Step
-  REQUIRED_KEYS = [:source_project, :source_package, :target_project]
+  REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
   validate :validate_source_project_and_package_name
 
   def call
     return unless valid?
+
     @request_numbers_and_state_for_artifacts = {}
-
-    if scm_webhook.closed_merged_pull_request?
+    case
+    when scm_webhook.closed_merged_pull_request?
       revoke_submit_requests
-      collect_artifacts
-      return
-    end
-    # Fetch current open submit request which are going to be superseded
-    # after the new sumbit request is created
-    requests_to_be_superseded = submit_requests_with_same_target_and_source
-    # TODO: wait for source services to finish before submitting
-    if scm_webhook.new_pull_request? || scm_webhook.updated_pull_request? || scm_webhook.reopened_pull_request? || scm_webhook.push_event? || scm_webhook.tag_push_event?
-      new_submit_request = submit_package
-    end
-
-    if scm_webhook.updated_pull_request?
-      supersede_previous_submit_requests(new_submit_request: new_submit_request,
-                                         requests_to_be_superseded: requests_to_be_superseded)
+    when scm_webhook.updated_pull_request?
+      supersede_previous_and_submit_request
+    when scm_webhook.new_pull_request?, scm_webhook.reopened_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
+      # TODO: wait for source services to finish before submitting
+      submit_package
     end
     collect_artifacts
   end
@@ -60,15 +52,20 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     bs_request
   end
 
-  def supersede_previous_submit_requests(new_submit_request:, requests_to_be_superseded:)
+  def supersede_previous_and_submit_request
+    # Fetch current open submit request which are going to be superseded
+    # after the new sumbit request is created
+    requests_to_be_superseded = submit_requests_with_same_target_and_source
+    submit_package
+
     return if requests_to_be_superseded.blank?
 
     requests_to_be_superseded.each do |submit_request|
       # Authorization happens on model level
       request = BsRequest.find_by_number!(submit_request.number)
       request.change_state(newstate: 'superseded',
-                    reason: "Superseded by request #{new_submit_request.number}",
-                    superseded_by: new_submit_request.number)
+                           reason: "Superseded by request #{new_submit_request.number}",
+                           superseded_by: new_submit_request.number)
       (@request_numbers_and_state_for_artifacts["#{request.state}"] ||= []) << request.number
     end
   end
@@ -80,7 +77,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
       next unless Pundit.authorize(@token.executor, submit_request, :revoke_request?)
 
       # TODO: Proper comment
-      submit_request.change_state(newstate: 'revoked', comment: "Revoked through SCM/CI integration")
+      submit_request.change_state(newstate: 'revoked', comment: 'Revoked through SCM/CI integration')
       (@request_numbers_and_state_for_artifacts["#{submit_request.state}"] ||= []) << submit_request.number
     end
   end
@@ -89,8 +86,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     BsRequest.list({ project: step_instructions[:target_project],
                      source_project: step_instructions[:source_project],
                      package: step_instructions[:source_package],
-                     types: 'submit', states: ['new', 'review', 'declined']
-                  })
+                     types: 'submit', states: ['new', 'review', 'declined'] })
   end
 
   def source_package
