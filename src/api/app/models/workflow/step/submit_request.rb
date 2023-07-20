@@ -15,7 +15,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     # after the new sumbit request is created
     requests_to_be_superseded = submit_requests_with_same_target_and_source
     # TODO: wait for source services to finish before submitting
-    if scm_webhook.new_pull_request? || scm_webhook.updated_pull_request? || scm_webhook.reopened_pull_request?
+    if scm_webhook.new_pull_request? || scm_webhook.updated_pull_request? || scm_webhook.reopened_pull_request? || scm_webhook.push_event? || scm_webhook.tag_push_event?
       new_submit_request = submit_package
     end
 
