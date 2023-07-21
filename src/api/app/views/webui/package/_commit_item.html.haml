@@ -12,7 +12,7 @@
   - if commit['requestid']
     accepted
     = link_to("request #{commit['requestid']}", request_show_path(commit['requestid']))
-    - creator = BsRequest.find_by(id: commit['requestid'])&.creator
+    - creator = BsRequest.find_by(number: commit['requestid'])&.creator
     - if creator
       from
       = user_with_realname_and_icon(creator)
