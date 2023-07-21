@@ -23,6 +23,10 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     Workflows::ArtifactsCollector.new(step: self, workflow_run_id: workflow_run.id, request_numbers_and_state_for_artifacts: @request_numbers_and_state_for_artifacts).call
   end
 
+  def bs_request_description
+    step_instructions[:description] || workflow_run.event_source_message
+  end
+
   def submit_package
     # let possible running source services finish, before submitting the sources
     Backend::Api::Sources::Package.wait_service(step_instructions[:source_project], step_instructions[:source_package])
@@ -33,7 +37,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
                                             source_rev: source_package_revision,
                                             type: 'submit')
     bs_request = BsRequest.new(bs_request_actions: [bs_request_action],
-                               description: step_instructions[:description])
+                               description: bs_request_description)
     Pundit.authorize(@token.executor, bs_request, :create?)
 
     begin
