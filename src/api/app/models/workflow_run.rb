@@ -76,12 +76,52 @@ class WorkflowRun < ApplicationRecord
     payload.dig(*mapped_source_url) if mapped_source_url
   end
 
+  def event_source_message
+    case generic_event_type
+    when 'pull_request'
+      pull_request_message
+    when generic_event_type == 'push'
+      push_message
+    when generic_event_type == 'tag_push'
+      tag_push_message
+    end
+  end
+
   def last_response_body
     scm_status_reports.last&.response_body
   end
 
   def configuration_source
     [workflow_configuration_url, workflow_configuration_path].filter_map(&:presence).first
+  end
+
+  private
+
+  def pull_request_message
+    case scm_vendor
+    when 'github', 'gitea'
+      title = payload.dig(:pull_request, :title)
+      body = payload.dig(:pull_request, :body)
+      "#{title}\n#{body}"
+    when "gitlab"
+      title = payload.dig(:object_attributes, :title)
+      body = payload.dig(:object_attributes, :description)
+      "#{title}\n#{body}"
+    end
+  end
+
+  def push_message
+    case scm_vendor
+    when "github", "gitea"
+      payload.dig(:head_commit, :message)
+    when "gitlab"
+      payload.dig(:commits, 0, :message)
+    end
+  end
+
+  # FIXME: How to get the real commit message for tag_push?
+  def tag_push_message
+    "Tag #{payload[:ref]} got pushed"
   end
 end
 
