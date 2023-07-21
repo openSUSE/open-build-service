@@ -3,7 +3,7 @@ require 'yaml'
 
 desc 'Migrate config/options.yml to new format'
 task :migrate_options_yml do
-  config = YAML.load_file('config/options.yml')
+  config = YAML.load_file('config/options.yml', aliases: true)
   if config.is_a?(Hash) && config.key?('default')
     puts 'config/options.yml is already converted. Nothing to do here.'
   else
