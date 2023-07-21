@@ -118,8 +118,6 @@ group :development, :production do
   gem 'daemons'
   # as memcache client
   gem 'dalli'
-  # to document ruby code
-  gem 'rdoc'
   # to not rely on cron+rake
   gem 'clockwork'
   # as interface to LDAP
