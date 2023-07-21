@@ -136,12 +136,7 @@ class Workflow
 
     target_project_names = processable_steps.map(&:target_project_name).uniq.compact
 
-    begin
-      Project.where(name: target_project_names).destroy_all
-    rescue Project::Errors::UnknownObjectError, Pundit::NotAuthorizedError => e
-      workflow_run.update_as_failed(e.message)
-      raise e
-    end
+    Project.where(name: target_project_names).destroy_all
   end
 
   # TODO: Extract this into a service

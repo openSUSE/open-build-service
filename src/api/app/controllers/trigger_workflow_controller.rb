@@ -23,8 +23,12 @@ class TriggerWorkflowController < TriggerController
           @workflow_run.update_as_failed(render_error(status: 400, message: validation_errors.to_sentence))
         end
       end
+    # We always want to return 200 in the request. Because a lot of things in `Workflow`` can go wrong outside this request cycle.
+    # People need to have a look at their `WorkflowRun` to see how `Workflow` went.
     rescue APIError => e
       @workflow_run.update_as_failed(render_error(status: e.status, errorcode: e.errorcode, message: e.message))
+    rescue Pundit::NotAuthorizedError => e
+      @workflow_run.update_as_failed(e.message)
     end
   end
 
