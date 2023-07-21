@@ -12,7 +12,6 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     when scm_webhook.updated_pull_request?
       supersede_previous_and_submit_request
     when scm_webhook.new_pull_request?, scm_webhook.reopened_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
-      # TODO: wait for source services to finish before submitting
       submit_package
     end
     collect_artifacts
@@ -25,6 +24,8 @@ class Workflow::Step::SubmitRequest < Workflow::Step
   end
 
   def submit_package
+    # let possible running source services finish, before submitting the sources
+    Backend::Api::Sources::Package.wait_service(step_instructions[:source_project], step_instructions[:source_package])
     bs_request_action = BsRequestAction.new(source_project: step_instructions[:source_project],
                                             source_package: step_instructions[:source_package],
                                             target_project: step_instructions[:target_project],
