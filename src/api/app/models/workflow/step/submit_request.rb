@@ -81,8 +81,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     submit_requests_with_same_target_and_source.each do |submit_request|
       next unless Pundit.authorize(@token.executor, submit_request, :revoke_request?)
 
-      # TODO: Proper comment
-      submit_request.change_state(newstate: 'revoked', comment: 'Revoked through SCM/CI integration')
+      submit_request.change_state(newstate: 'revoked', comment: "Revoke as #{workflow_run.event_source_url} got closed")
       (@request_numbers_and_state_for_artifacts["#{submit_request.state}"] ||= []) << submit_request.number
     end
   end
