@@ -6,7 +6,7 @@
   .card-body
     %h3= @pagetitle
     - if @revisions.present?
-      .list-group
+      .list-group.mt-4
         - @revisions.each do |revision|
           .list-group-item{ id: "commit_item_#{revision}" }
             - commit = @package.commit(revision)
