@@ -8,6 +8,9 @@ module Workflows
     end
 
     def call
+      # SCMs don't support commit status for tags, so we don't need to report back in this case
+      return if @scm_webhook.tag_push_event?
+
       ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
         EventSubscription.find_or_create_by!(eventtype: build_event,
                                              # We pass a valid value, but we don't need this.
