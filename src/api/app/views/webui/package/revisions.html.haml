@@ -23,11 +23,10 @@
         .col-auto
           = page_entries_info @revisions, entry_name: 'revision'
 
-      - unless params['show_all']
-        - unless @revisions.total_pages == 1 || !User.session
-          .text-center.mt-4= link_to('Show all',
-                                package_view_revisions_path(project: @project, package: @package, show_all: 1),
-                                class: 'btn btn-sm btn-secondary')
+      - unless params['show_all'] || @revisions.total_pages == 1 || !User.session
+        .text-center.mt-4= link_to('Show all',
+                              package_view_revisions_path(project: @project, package: @package, show_all: 1),
+                              class: 'btn btn-sm btn-secondary')
     - else
       %p
         %i No commits exists yet.
