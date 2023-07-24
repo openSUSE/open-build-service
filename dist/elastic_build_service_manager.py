@@ -236,7 +236,7 @@ def fetch_metrics(elastic_build_hosts, job_status):
     osc.conf.get_config()
     api = osc.conf.config['apiurl']
 
-    apitest = osc.core.http_GET(api + '/build/_workerstatus')
+    apitest = osc.core.http_GET(api + '/worker/_status')
     dom = minidom.parseString(apitest.read())
 
     # store all idle workers
