@@ -1171,6 +1171,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   add_foreign_key "comments", "comments", column: "parent_id", name: "comments_ibfk_4"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
   add_foreign_key "download_repositories", "repositories", name: "download_repositories_ibfk_1"
+  add_foreign_key "event_subscriptions", "bs_requests"
   add_foreign_key "flags", "architectures", name: "flags_ibfk_3"
   add_foreign_key "flags", "packages", name: "flags_ibfk_5"
   add_foreign_key "flags", "projects", name: "flags_ibfk_4"
