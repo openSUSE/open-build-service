@@ -16,9 +16,9 @@ module Workflows
                                              channel: 'scm',
                                              enabled: true,
                                              token: @token,
-                                             package: @package,
-                                             workflow_run: @workflow_run).tap do |subscription|
-          subscription.update!(payload: @scm_webhook.payload) # The payload is updated regardless of whether the subscription already existed or not.
+                                             package: @package).tap do |subscription|
+          # Set payload and workflow_run regardless of whether the subscription already existed or not
+          subscription.update!(workflow_run: @workflow_run, payload: @scm_webhook.payload)
         end
       end
     end
