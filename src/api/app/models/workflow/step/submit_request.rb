@@ -61,7 +61,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     # Fetch current open submit request which are going to be superseded
     # after the new sumbit request is created
     requests_to_be_superseded = submit_requests_with_same_target_and_source
-    submit_package
+    new_submit_request = submit_package
 
     return if requests_to_be_superseded.blank?
 
