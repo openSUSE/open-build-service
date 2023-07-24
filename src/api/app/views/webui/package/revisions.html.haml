@@ -4,11 +4,9 @@
   = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
 
   .card-body
-    %h3
-      = @pagetitle
-      %span.badge.bg-primary= @revisions.count
+    %h3= @pagetitle
     - if @revisions.present?
-      .list-group
+      .list-group.mt-4
         - @revisions.each do |revision|
           .list-group-item{ id: "commit_item_#{revision}" }
             - commit = @package.commit(revision)
@@ -16,12 +14,19 @@
               = render(partial: 'commit_item', locals: { project: @project, package: @package, revision: revision, commit: commit })
             - else
               %i Revision #{revision} not found
-      - unless params['show_all']
-        = paginate @revisions, views_prefix: 'webui'
-        - unless @revisions.total_pages == 1 || !User.session
-          .text-center= link_to('Show all',
-                                package_view_revisions_path(project: @project, package: @package, show_all: 1),
-                                class: 'btn btn-sm btn-secondary')
+
+      .row.justify-content-center.mt-2
+        .col-auto
+          = paginate @revisions, views_prefix: 'webui'
+
+      .row.justify-content-center.mt-2
+        .col-auto
+          = page_entries_info @revisions, entry_name: 'revision'
+
+      - unless params['show_all'] || @revisions.total_pages == 1 || !User.session
+        .text-center.mt-4= link_to('Show all',
+                              package_view_revisions_path(project: @project, package: @package, show_all: 1),
+                              class: 'btn btn-sm btn-secondary')
     - else
       %p
         %i No commits exists yet.
