@@ -943,6 +943,13 @@ sub compress_and_rename {
   my ($tmpfile, $file) =@_;
   if (-s $tmpfile) {
     unlink($file);
+    # drop leading ./ from path to deb
+    open(my $f, "<", $tmpfile) or die $!;
+    my @lines=<$f>;
+    s,^Filename: \./,Filename: , foreach @lines;
+    open($f, ">", $tmpfile) or die $!;
+    print $f @lines;
+    close($f);
     link($tmpfile, $file);
     qsystem('gzip', '-9', '-n', '-f', $tmpfile) && print "    gzip $tmpfile failed: $?\n";
     unlink($tmpfile);
