@@ -955,6 +955,22 @@ sub compress_and_rename {
   }
 }
 
+sub fixup_scanpackages_output {
+  my ($file) = @_;
+  return unless -s $file;
+  my $f;
+  open ($f, '<', $file) || die("$file: $!\n");
+  my $f2;
+  open ($f2, '>', "$file.tmp") || die("$file.tmp: $!\n");
+  while (<$f>) {
+    s/^Filename: \.\//Filename: /;
+    print $f2 $_ or die("$file.tmp: $!\n");
+  }
+  close($f);
+  close($f2) || die("$file.tmp: $!\n");
+  rename("$file.tmp", $file) || die("rename $file.tmp $file: $!\n");
+}
+
 sub createrepo_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -962,6 +978,7 @@ sub createrepo_debian {
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
     die("    dpkg-scanpackages failed: $?\n");
   }
+  fixup_scanpackages_output("$extrep/Packages.new");
   compress_and_rename("$extrep/Packages.new", "$extrep/Packages");
 
   print "    running dpkg-scansources\n";
@@ -976,6 +993,7 @@ sub createrepo_debian {
   if (qsystem('chdir', $udebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t', 'udeb', '-m', '..', '/dev/null')) {
     die("    dpkg-scanpackages for udebs failed: $?\n");
   }
+  fixup_scanpackages_output("$udebs/Packages.new");
   compress_and_rename("$udebs/Packages.new", "$udebs/Packages");
 
   if ( -e "$udebs/Packages") {
