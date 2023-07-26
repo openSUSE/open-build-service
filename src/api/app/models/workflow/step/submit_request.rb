@@ -39,20 +39,9 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     bs_request = BsRequest.new(bs_request_actions: [bs_request_action],
                                description: bs_request_description)
     Pundit.authorize(@token.executor, bs_request, :create?)
+    bs_request.save!
 
-    begin
-      bs_request.save!
-    rescue MaintenanceHelper::MissingAction
-      raise 'Unable to submit, sources are unchanged'
-    rescue Project::Errors::UnknownObjectError
-      raise "Unable to submit: The source of package #{source_project_name}/#{source_package_name} is broken"
-    rescue APIError, ActiveRecord::RecordInvalid => e
-      raise e.message
-    rescue Backend::Error => e
-      raise e.summary
-    end
-
-    create_or_update_subscriptions(bs_request: bs_request)
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, bs_request).call
     (@request_numbers_and_state_for_artifacts["#{bs_request.state}"] ||= []) << bs_request.number
     bs_request
   end
@@ -62,8 +51,6 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     # after the new sumbit request is created
     requests_to_be_superseded = submit_requests_with_same_target_and_source
     new_submit_request = submit_package
-
-    return if requests_to_be_superseded.blank?
 
     requests_to_be_superseded.each do |submit_request|
       # Authorization happens on model level
@@ -76,8 +63,6 @@ class Workflow::Step::SubmitRequest < Workflow::Step
   end
 
   def revoke_submit_requests
-    return if submit_requests_with_same_target_and_source.blank?
-
     submit_requests_with_same_target_and_source.each do |submit_request|
       next unless Pundit.authorize(@token.executor, submit_request, :revoke_request?)
 
@@ -95,24 +80,9 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
   def source_package
     Package.get_by_project_and_name(source_project_name, source_package_name, follow_multibuild: true)
-  rescue Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError
-    # We rely on Package.get_by_project_and_name since it's the only way to work with multibuild packages.
-    raise "The source project or package '#{source_project_name}/#{source_package_name}' does not exist"
   end
 
   def source_package_revision
     source_package.rev
-  end
-
-  def create_or_update_subscriptions(bs_request:)
-    subscription = EventSubscription.find_or_create_by!(eventtype: 'Event::RequestStatechange',
-                                                        receiver_role: 'reader', # We pass a valid value, but we don't need this.
-                                                        user: @token.executor,
-                                                        channel: 'scm',
-                                                        enabled: true,
-                                                        token: @token,
-                                                        workflow_run: workflow_run,
-                                                        bs_request: bs_request)
-    subscription.update!(payload: scm_webhook.payload)
   end
 end
