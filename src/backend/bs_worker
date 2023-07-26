@@ -2835,8 +2835,8 @@ sub getbinaries {
 	  my $obdep = { 'name' => $_, 'hdrmd5' => $bv->{'hdrmd5'}, 'project' => $imageorigins->{$_}->[0], 'repository' => $imageorigins->{$_}->[1] };
 	  if ($bv->{'evr'}) {
 	    $obdep->{'version'} = $bv->{'evr'};
-	    $obdep->{'epoch'} = $1 if $bv->{'version'} =~ s/^([0-9]+)://;
-	    $obdep->{'release'} = $1 if $bv->{'version'} =~ s/-([^\-]+)$//;
+	    $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
+	    $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
 	    $obdep->{'arch'} = $bv->{'arch'} if $bv->{'arch'};
 	  }
 	  push @$outbdep, $obdep;
