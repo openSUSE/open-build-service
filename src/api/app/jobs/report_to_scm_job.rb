@@ -25,19 +25,19 @@ class ReportToSCMJob < CreateJob
     @event_type = @event.eventtype
     return false unless ALLOWED_EVENTS.include?(@event_type)
 
-    if @event_type == 'Event::RequestStatechange'
-      @event_request = BsRequest.find_by_number(@event.payload['number'])
-    else
-      @event_package = Package.find_by_project_and_name(@event.payload['project'], Package.striping_multibuild_suffix(@event.payload['package']))
-    end
+    @event_package_or_request = if @event_type == 'Event::RequestStatechange'
+                                  BsRequest.find_by_number(@event.payload['number'])
+                                else
+                                  Package.find_by_project_and_name(@event.payload['project'], Package.striping_multibuild_suffix(@event.payload['package']))
+                                end
 
-    return false if @event_package.blank? && @event_request.blank?
+    return false if @event_package_or_request.blank?
 
     true
   end
 
   def matched_event_subscription
-    EventSubscriptionsFinder.new
-                            .for_scm_channel_with_token(event_type: @event_type, event_package: @event_package, event_request: @event_request)
+    EventSubscriptionsFinder.new(event_package_or_request: @event_package_or_request)
+                            .for_scm_channel_with_token(event_type: @event_type)
   end
 end
