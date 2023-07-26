@@ -36,6 +36,7 @@ our $useragent = 'BSRPC 0.9.1';
 our $noproxy;
 our $logtimeout;
 our $autoheaders;
+our $dnscachettl = 3600;
 
 our $ssl_keyfile;
 our $ssl_certfile;
@@ -227,7 +228,7 @@ sub lookuphost {
       $hostaddr = sockaddr_in(0, $hostaddr) if $hostaddr;
     }
     return undef unless $hostaddr;
-    $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
+    $cache->{$host} = [ $hostaddr, time() + $dnscachettl ] if $cache;
   }
   if (defined($port)) {
     if (sockaddr_family($hostaddr) == AF_INET6) {

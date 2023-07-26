@@ -34,6 +34,8 @@ use Build::Modules;
 
 use strict;
 
+$BSRPC::logtimeout = 1;         # see better errors
+
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 my $reporoot = "$bsdir/build";
 my $rundir = "$bsdir/run";
