@@ -257,10 +257,13 @@ sub upload_all_containers {
   # postprocessing: write readme, create links
   my %allrefs_pp;
   my %allrefs_pp_lastp;
+  # store the type associated with each $pp
+  my %pp_type;
   for my $p (sort keys %$containers) {
     my $containerinfo = $containers->{$p};
     my $pp = $p;
     $pp =~ s/.*?\/// if $data->{'multiarch'};
+    $pp_type{$pp} = $containerinfo->{'type'}; # store the type associated with this $pp
     $allrefs_pp_lastp{$pp} = $p;	# for link creation
     push @{$allrefs_pp{$pp}}, @{$allrefs{$p} || []};	# collect all archs for the link
   }
@@ -272,7 +275,15 @@ sub upload_all_containers {
       # write readme file where to find the container
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$pp}}));
       my $readme = "This container can be pulled via:\n";
-      $readme .= "  docker pull $_\n" for @r;
+      my $type = $pp_type{$pp};
+      if ($type eq 'helm') {
+	for (@r) {
+            s/:/ --version /; # replace the colon(:) with ' --version '
+            $readme .= "  helm pull oci://$_\n"; # add a helm pull command
+         }
+      } else {
+	$readme .= "  docker pull $_\n" for @r; # add a docker pull command
+      }
       $readme .= "\nSet DOCKER_CONTENT_TRUST=1 to enable image tag verification.\n" if $have_some_trust;
       writestr("$extrep/$pp.registry.txt", undef, $readme);
     } elsif ($data->{'multiarch'} && $allrefs_pp_lastp{$pp} ne $pp) {
