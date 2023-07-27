@@ -497,7 +497,7 @@ sub stream_read_handler {
     }
     if (!defined($r)) {
       if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
-        BSEvents::add($ev);
+        BSEvents::add($ev) unless $ev->{'paused'};
         return;
       }
       print "stream_read_handler: $!\n";
@@ -580,7 +580,7 @@ sub stream_write_handler {
   my $r = syswrite($ev->{'fd'}, $ev->{'replbuf'}, $l);
   if (!defined($r)) {
     if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
-      BSEvents::add($ev);
+      BSEvents::add($ev) unless $ev->{'paused'};
       return;
     }
     print "stream_write_handler: $!\n";
