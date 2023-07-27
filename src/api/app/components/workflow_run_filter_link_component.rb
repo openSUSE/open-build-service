@@ -14,10 +14,6 @@ class WorkflowRunFilterLinkComponent < ApplicationComponent
     workflow_run_filter_matches? ? 'active' : ''
   end
 
-  def css_for_badge_color
-    workflow_run_filter_matches? ? 'text-bg-light' : 'text-bg-primary'
-  end
-
   def css_for_icon
     workflow_run_filter_matches? ? 'text-light' : ''
   end
