@@ -295,6 +295,7 @@ our $productdesc = [
             'debugmedia',
             'separate',
             'create_pattern',
+            'download_mirror_policy',       # may be "true" when content is delivered via download redirector
             'ignore_missing_packages',      # may be "true", default for mediastyle 11.3 and before
             'ignore_missing_meta_packages', # may be "true", default for mediastyle 11.3 and before
             'skip_release_package',         # skip adding the release packages to the media
