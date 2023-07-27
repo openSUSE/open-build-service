@@ -4,6 +4,7 @@ class MigrateToUtf8mb4 < ActiveRecord::Migration[7.0]
   end
 
   def up
+    # rubocop:disable Metrics/BlockLength
     safety_assured do
       execute 'ALTER TABLE `commit_activities` ROW_FORMAT=DYNAMIC CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;'
       execute 'ALTER TABLE `flipper_features` ROW_FORMAT=DYNAMIC CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;'
@@ -61,7 +62,7 @@ class MigrateToUtf8mb4 < ActiveRecord::Migration[7.0]
 
       # In some circumstances these columns don't exist, this is to make sure that they do
       execute 'ALTER TABLE `channel_targets` MODIFY IF EXISTS `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
-      execute 'ALTER TABLE `channel_targets` ADD IF NOT EXISTS `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL' 
+      execute 'ALTER TABLE `channel_targets` ADD IF NOT EXISTS `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
 
       execute 'ALTER TABLE `channel_targets` MODIFY `id_template` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
       execute 'ALTER TABLE `cloud_azure_configurations` MODIFY `application_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
@@ -209,5 +210,6 @@ class MigrateToUtf8mb4 < ActiveRecord::Migration[7.0]
       execute 'ALTER TABLE `users` MODIFY `deprecated_password_salt` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL'
       execute "ALTER TABLE `users` MODIFY `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'unconfirmed'"
     end
+    # rubocop:enable Metrics/BlockLength
   end
 end
