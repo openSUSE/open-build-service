@@ -161,7 +161,9 @@ sub forwardredis {
     'data' => BSUtil::tostorable($redisdata),
     'receiver' => \&ansreqreceiver,
   };
-  BSRPC::rpc($param, undef, 'multirequest=1');
+  my @args;
+  push @args, 'multirequest=1' if $BSConfig::srcserver =~ /^http:/;	# sock dup only works for http
+  BSRPC::rpc($param, undef, @args);
   markdone($markfd, $_) for @$markoffs;
   print "forwarded ".@$markoffs." redis notifications\n";
 }
