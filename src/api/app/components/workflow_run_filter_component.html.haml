@@ -9,11 +9,11 @@
                                                                <p><b>Succeeded: </b>Workflow run execution was successful</p>
                                                                <p><b>Running: </b>Workflow run is still in progress</p>
                                                                <p><b>Failed: </b>Workflow run failed at some point</p>' } }
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'],
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
                                               filter_item: { status: 'success' }, selected_filter: @selected_filter)
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'],
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'], icon: 'fas fa-running',
                                               filter_item: { status: 'running' }, selected_filter: @selected_filter)
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Failed', amount: @count['fail'],
+  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Failed', amount: @count['fail'], icon: 'fas fa-exclamation-triangle text-danger',
                                               filter_item: { status: 'fail' }, selected_filter: @selected_filter)
 .list-group.list-group-flush.mt-5.mb-2
   %h5.mx-3

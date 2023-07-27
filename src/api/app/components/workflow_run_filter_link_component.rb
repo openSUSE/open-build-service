@@ -1,5 +1,5 @@
 class WorkflowRunFilterLinkComponent < ApplicationComponent
-  def initialize(text:, filter_item:, selected_filter:, token:, amount:)
+  def initialize(text:, filter_item:, selected_filter:, token:, amount:, icon: '')
     super
 
     @text = text
@@ -7,6 +7,7 @@ class WorkflowRunFilterLinkComponent < ApplicationComponent
     @selected_filter = selected_filter
     @amount = amount || 0
     @token = token
+    @icon = icon
   end
 
   def css_for_link
@@ -15,6 +16,10 @@ class WorkflowRunFilterLinkComponent < ApplicationComponent
 
   def css_for_badge_color
     workflow_run_filter_matches? ? 'text-bg-light' : 'text-bg-primary'
+  end
+
+  def css_for_icon
+    workflow_run_filter_matches? ? 'text-light' : ''
   end
 
   private
