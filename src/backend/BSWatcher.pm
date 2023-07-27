@@ -713,7 +713,7 @@ sub rpc_recv_forward {
   $wev->{'datahandler'} = \&rpc_recv_forward_data_handler;
   $wev->{'closehandler'} = \&rpc_recv_forward_close_handler;
   $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
-  BSEvents::add($ev);
+  BSEvents::add($ev) unless $ev->{'paused'};
   BSEvents::add($wev);	# do this last
 }
 
