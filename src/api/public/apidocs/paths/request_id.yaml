@@ -49,7 +49,7 @@ post:
         - `changestate`: Modify the state of a given request.
           **NOTE:** You need to pass the new state through the `newstate` parameter. Changing
           from one state to another is in certain cases not allowed. You can still force
-          the operation by using the `force=1` parameter.
+          the operation by using the `force` parameter.
 
           To supersede the given request with another request, pass the ID of the other request
           in the `superseded_by` parameter, in addition to `newstate=superseded`.
@@ -136,6 +136,12 @@ post:
       schema:
         type: string
       description: Specify the package of the new review
+    - in: query
+      name: force
+      schema:
+        type: string
+      allowEmptyValue: true
+      description: Pass this parameter with an empty value to force the `changestate` command.
     - in: query
       name: incident
       schema:
