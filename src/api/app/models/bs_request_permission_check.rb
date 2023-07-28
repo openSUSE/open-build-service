@@ -171,7 +171,7 @@ class BsRequestPermissionCheck
 
   private
 
-  def check_accepted_action(action)
+  def check_accepted_action(action, opts)
     raise NotExistingTarget, "Unable to process project #{action.target_project}; it does not exist." unless @target_project
 
     check_action_target(action)
@@ -200,7 +200,7 @@ class BsRequestPermissionCheck
       end
     end
 
-    check_delete_accept(action) if action.action_type == :delete
+    check_delete_accept(action, opts) if action.action_type == :delete
 
     return unless action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
 
@@ -243,8 +243,10 @@ class BsRequestPermissionCheck
     raise TargetNotMaintenance, "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
 
-  def check_delete_accept(action)
+  def check_delete_accept(action, opts)
     if @target_package
+      return if opts.include?(:force) && opts[:force].in?([nil, '1'])
+
       @target_package.check_weak_dependencies!
     elsif action.target_repository
       r = Repository.find_by_project_and_name(@target_project.name, action.target_repository)
@@ -283,7 +285,7 @@ class BsRequestPermissionCheck
     return if opts[:newstate].in?(['declined', 'revoked', 'superseded'])
 
     if opts[:newstate] == 'accepted' || opts[:cmd] == 'approve'
-      check_accepted_action(action)
+      check_accepted_action(action, opts)
     else # only check the target is sane
       check_action_target(action)
     end
