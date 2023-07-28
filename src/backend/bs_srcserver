@@ -5915,7 +5915,7 @@ sub published_path {
     $medium = "iso/$medium";
   } elsif ($medium) {
     my @path = expandsearchpath($projid, $repoid);
-    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+    my $c = concatconfigs($projid, $repoid, undef, @path);
     my $bconf = Build::read_config('noarch', [ split("\n", $c) ]);
     my %repotype;
     for (@{$bconf->{'repotype'} || []}) {
