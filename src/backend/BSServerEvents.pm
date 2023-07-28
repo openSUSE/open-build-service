@@ -521,9 +521,8 @@ sub stream_read_handler {
         if ($ev->{'makechunks'}) {
 	  # keep those chunks small, otherwise our receiver will choke
           while (length($data) > 4096) {
-	    my $d = substr($data, 0, 4096);
-            $wev->{'replbuf'} .= sprintf("%X\r\n", length($d)).$d."\r\n";
-	    $data = substr($data, 4096);
+	    my $d = substr($data, 0, 4096, '');
+	    $wev->{'replbuf'} .= sprintf("%X\r\n", length($d)).$d."\r\n";
           }
           $wev->{'replbuf'} .= sprintf("%X\r\n", length($data)).$data."\r\n";
 	} else {
@@ -600,14 +599,12 @@ sub stream_write_handler {
   if ($rev->{'paused'} && length($ev->{'replbuf'}) <= 8192) {
     delete $rev->{'paused'};
     BSEvents::add($rev);
-    if ($rev->{'writeev'} != $ev) {
-      my $wev = $rev->{'writeev'};
-      if ($wev->{'paused'} && length($wev->{'replbuf'})) {
-	#print "pushing old data\n";
-	delete $wev->{'paused'};
-	my $conf = $ev->{'conf'};
-	BSEvents::add($wev, $conf->{'replstream_timeout'});
-      }
+    my $wev = $rev->{'writeev'};
+    if ($wev != $ev && $wev->{'paused'} && length($wev->{'replbuf'})) {
+      #print "pushing old data\n";
+      delete $wev->{'paused'};
+      my $conf = $ev->{'conf'};
+      BSEvents::add($wev, $conf->{'replstream_timeout'});
     }
   }
   if (length($ev->{'replbuf'})) {
