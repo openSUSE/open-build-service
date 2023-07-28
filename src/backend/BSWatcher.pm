@@ -554,6 +554,7 @@ sub rpc_recv_forward_data_handler {
     # too full! wait till there is more room
     #print "stay=".@stay.", leave=".@leave.", blocking\n";
     $rev->{'paused'} = 1;
+    BSEvents::rem($rev);
     return 0;
   }
 
@@ -595,6 +596,7 @@ sub rpc_recv_forward_data_handler {
     }
     # too full! wait till there is more room
     $rev->{'paused'} = 1;
+    BSEvents::rem($rev);
     return 0;
   }
 
@@ -678,6 +680,7 @@ sub rpc_recv_forward_setup {
     BSEvents::add($jev, $conf->{'replstream_timeout'} || 0);
   } else {
     $jev->{'paused'} = 1;
+    BSEvents::rem($jev);
   }
 }
 
