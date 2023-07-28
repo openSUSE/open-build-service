@@ -1,4 +1,7 @@
-= link_to(my_notifications_path(@filter_item), class: "list-group-item list-group-item-action #{css_for_link}") do
-  = @text
+= link_to(my_notifications_path(@filter_item),
+          class: "list-group-item list-group-item-action #{css_for_link} d-flex justify-content-between") do
+  %span
+    = icon_tag
+    = @text
   - if @amount.positive?
-    %span.badge.align-text-top.ms-2{ class: css_for_badge_color }>= @amount
+    %span= @amount

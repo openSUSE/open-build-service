@@ -1,19 +1,20 @@
 class NotificationFilterLinkComponent < ApplicationComponent
-  def initialize(text:, filter_item:, selected_filter:, amount: 0)
+  def initialize(text:, filter_item:, selected_filter:, amount: 0, icon: '')
     super
 
     @text = text
     @filter_item = filter_item
     @selected_filter = selected_filter
     @amount = ensure_integer_amount(amount)
+    @icon = icon
   end
 
   def css_for_link
     notification_filter_matches? ? 'active' : ''
   end
 
-  def css_for_badge_color
-    notification_filter_matches? ? 'bg-light text-dark' : 'bg-primary'
+  def icon_tag
+    tag.i(class: ['me-1', @icon, ('text-light' if notification_filter_matches?)]) if @icon != ''
   end
 
   private

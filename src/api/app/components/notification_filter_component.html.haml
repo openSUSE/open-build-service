@@ -5,19 +5,19 @@
                                                selected_filter: @selected_filter)
 .list-group.list-group-flush.mt-5.mb-2
   %h5.ms-3 Filter
-  = render NotificationFilterLinkComponent.new(text: 'Comments', amount: @count['Comment'],
+  = render NotificationFilterLinkComponent.new(text: 'Comments', amount: @count['Comment'], icon: 'fas fa-comments',
                                                filter_item: { type: 'comments' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Requests', amount: @count['BsRequest'],
+  = render NotificationFilterLinkComponent.new(text: 'Requests', amount: @count['BsRequest'], icon: 'fas fa-code-pull-request',
                                                filter_item: { type: 'requests' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Incoming Requests', amount: @count['incoming_requests'],
+  = render NotificationFilterLinkComponent.new(text: 'Incoming Requests', amount: @count['incoming_requests'], icon: 'fas fa-code-pull-request',
                                                filter_item: { type: 'incoming_requests' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: @count['outgoing_requests'],
+  = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: @count['outgoing_requests'], icon: 'fas fa-code-pull-request',
                                                filter_item: { type: 'outgoing_requests' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Roles Granted', amount: @count['relationships_created'],
+  = render NotificationFilterLinkComponent.new(text: 'Roles Granted', amount: @count['relationships_created'], icon: 'fas fa-user-tag',
                                                filter_item: { type: 'relationships_created' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Roles Revoked', amount: @count['relationships_deleted'],
+  = render NotificationFilterLinkComponent.new(text: 'Roles Revoked', amount: @count['relationships_deleted'], icon: 'fas fa-user-tag',
                                                filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Build Failures', amount: @count['build_failures'],
+  = render NotificationFilterLinkComponent.new(text: 'Build Failures', amount: @count['build_failures'], icon: "fas fa-xmark text-danger",
                                                filter_item: { type: 'build_failures' }, selected_filter: @selected_filter)
 
 - unless @projects_for_filter.empty?

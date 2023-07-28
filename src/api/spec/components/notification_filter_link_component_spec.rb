@@ -9,10 +9,10 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
                                         selected_filter: { type: 'comments' }, amount: 20))
     end
 
-    it 'displays a link with the active class and containing a badge of the light color' do
+    it 'displays a link with the active class and containing the amount of the type' do
       expect(rendered_content).to have_css(link_selector, text: 'Comments')
 
-      expect(rendered_content).to have_css("#{link_selector} span.badge.bg-light", text: 20)
+      expect(rendered_content).to have_css("#{link_selector} span", text: 20)
     end
   end
 
@@ -24,10 +24,10 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
                                         selected_filter: { project: 'home:Admin' }, amount: 0))
     end
 
-    it 'displays a link with the active class, but without a badge' do
+    it 'displays a link with the active class, but without the amount of the type' do
       expect(rendered_content).to have_css(link_selector, text: 'home:Admin')
 
-      expect(rendered_content).not_to have_css("#{link_selector} span.badge")
+      expect(rendered_content).not_to have_css("#{link_selector} span", text: 0)
     end
   end
 
@@ -39,10 +39,10 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
                                         selected_filter: { type: 'requests' }, amount: 10))
     end
 
-    it 'displays a link without the active class, but containing a badge of the primary color' do
+    it 'displays a link without the active class, but containing the amount of the type' do
       expect(rendered_content).to have_css(link_selector, text: 'iron_maiden')
 
-      expect(rendered_content).to have_css("#{link_selector} span.badge.bg-primary", text: 10)
+      expect(rendered_content).to have_css("#{link_selector} span", text: 10)
     end
   end
 
@@ -54,10 +54,10 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
                                         selected_filter: { type: 'requests' }, amount: 0))
     end
 
-    it 'displays a link without the active class and a badge' do
+    it 'displays a link without the active class and the amount counter' do
       expect(rendered_content).to have_css(link_selector, text: 'iron_maiden')
 
-      expect(rendered_content).not_to have_css("#{link_selector} span.badge")
+      expect(rendered_content).not_to have_css("#{link_selector} span", text: 0)
     end
   end
 end
