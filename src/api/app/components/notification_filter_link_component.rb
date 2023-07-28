@@ -13,8 +13,8 @@ class NotificationFilterLinkComponent < ApplicationComponent
     notification_filter_matches? ? 'active' : ''
   end
 
-  def css_for_icon
-    notification_filter_matches? ? 'text-light' : ''
+  def icon_tag
+    tag.i(class: ['me-1', @icon, ('text-light' if notification_filter_matches?)]) if @icon != ''
   end
 
   private
