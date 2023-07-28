@@ -14,8 +14,8 @@ class WorkflowRunFilterLinkComponent < ApplicationComponent
     workflow_run_filter_matches? ? 'active' : ''
   end
 
-  def css_for_icon
-    workflow_run_filter_matches? ? 'text-light' : ''
+  def icon_tag
+    tag.i(class: ['me-1', @icon, ('text-light' if workflow_run_filter_matches?)]) if @icon != ''
   end
 
   private
