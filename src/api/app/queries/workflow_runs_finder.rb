@@ -36,7 +36,21 @@ class WorkflowRunsFinder
       workflow_runs = workflow_runs.where("JSON_EXTRACT(request_payload, '$.action') = (?) OR JSON_EXTRACT(request_payload, '$.object_attributes.action') = (?)", request_action,
                                           request_action)
     end
+
     workflow_runs
+  end
+
+  def with_event_source_name(event_source_name, filter)
+    hook_events_array = case filter
+                        when 'commit'
+                          # Both push and tag_push related events deal with commit sha.
+                          (EVENT_TYPE_MAPPING['push'] + EVENT_TYPE_MAPPING['tag_push']).uniq
+                        when 'pr_mr'
+                          EVENT_TYPE_MAPPING['pull_request']
+                        else
+                          []
+                        end
+    @relation.where(event_source_name: event_source_name, hook_event: hook_events_array)
   end
 
   def with_status(status)

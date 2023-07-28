@@ -30,3 +30,17 @@
                                               filter_item: { generic_event_type: 'push' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Tag Push', amount: @count['tag_push'],
                                               filter_item: { generic_event_type: 'tag_push' }, selected_filter: @selected_filter)
+.list-group.list-group-flush.mt-5.mb-2
+  %h5.mx-3
+    Event Source
+    %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
+                                                'bs-content': '<p>Filter your workflow runs by the event source. The event source depend on
+                                                               the event that triggers the workflow.</p>
+                                                               <p><b>Source of a pull/merge request event: </b>
+                                                               A pull/merge request number like #2468.</p>
+                                                               <p><b>Source of a push event: </b>A commit sha like
+                                                               97561db8664eaf86a1e4c7b77d5fb5d5bff6681e.</p>' } }
+  = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'PR/MR', selected_input_filter: @selected_filter[:pr_number],
+                                               placeholder: 'Type PR/MR number...')
+  = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'Commit', selected_input_filter: @selected_filter[:commit_sha],
+                                               placeholder: 'Type commit SHA...')
