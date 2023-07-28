@@ -227,7 +227,6 @@ Metrics/ClassLength:
     - 'app/models/staging/workflow.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
-    - 'app/models/workflow.rb'
     - 'app/models/workflow/step.rb'
     - 'app/services/user_service/involved.rb'
     - 'db/migrate/20230727110437_migrate_to_utf8mb4.rb'
@@ -368,7 +367,7 @@ Metrics/ModuleLength:
     - 'app/helpers/webui/user_helper.rb'
     - 'app/models/concerns/has_relationships.rb'
 
-# Offense count: 16
+# Offense count: 19
 # Configuration parameters: Max, CountKeywordArgs, MaxOptionalParameters.
 Metrics/ParameterLists:
   Exclude:
@@ -378,6 +377,9 @@ Metrics/ParameterLists:
     - 'app/lib/backend/logger.rb'
     - 'app/mixins/build_log_support.rb'
     - 'app/models/bs_request/find_for/project.rb'
+    - 'app/services/gitea_status_reporter.rb'
+    - 'app/services/github_status_reporter.rb'
+    - 'app/services/gitlab_status_reporter.rb'
     - 'lib/statistics_calculations.rb'
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/source_controller_test.rb'
@@ -694,7 +696,7 @@ RSpec/AnyInstance:
     - 'spec/models/project_spec.rb'
     - 'spec/policies/package_policy_spec.rb'
 
-# Offense count: 1217
+# Offense count: 1222
 # Configuration parameters: Prefixes, AllowedPatterns.
 # Prefixes: when, with, without
 RSpec/ContextWording:
@@ -829,7 +831,7 @@ RSpec/IteratedExpectation:
   Exclude:
     - 'spec/models/user_spec.rb'
 
-# Offense count: 373
+# Offense count: 374
 # This cop supports safe autocorrection (--autocorrect).
 RSpec/LeadingSubject:
   Enabled: false
@@ -869,7 +871,7 @@ RSpec/MessageSpies:
     - 'spec/controllers/webui/apidocs_controller_spec.rb'
     - 'spec/models/kiwi/image_spec.rb'
 
-# Offense count: 1660
+# Offense count: 1670
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
   Max: 28
@@ -1166,7 +1168,7 @@ Style/ArgumentsForwarding:
   Exclude:
     - 'app/models/configuration.rb'
 
-# Offense count: 151
+# Offense count: 152
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: nested, compact
@@ -1345,14 +1347,14 @@ Style/SoleNestedConditional:
     - 'script/reformat_memprof'
     - 'test/node_matcher.rb'
 
-# Offense count: 374
+# Offense count: 376
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: MinSize.
 # SupportedStyles: percent, brackets
 Style/SymbolArray:
   EnforcedStyle: brackets
 
-# Offense count: 295
+# Offense count: 297
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle, MinSize, WordRegex.
 # SupportedStyles: percent, brackets
