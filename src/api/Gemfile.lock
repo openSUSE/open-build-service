@@ -117,9 +117,6 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
-    capybara_minitest_spec (1.0.7)
-      capybara (>= 2)
-      minitest (>= 4)
     childprocess (4.1.0)
     clockwork (3.0.2)
       activesupport
@@ -533,7 +530,6 @@ DEPENDENCIES
   bunny
   bunny-mock
   capybara
-  capybara_minitest_spec
   clockwork
   cocoon
   coderay
