@@ -16,6 +16,8 @@ require 'rails/test_help'
 
 require 'minitest/unit'
 
+require 'minitest/spec'
+
 require 'webmock/minitest'
 
 require_relative 'node_matcher'

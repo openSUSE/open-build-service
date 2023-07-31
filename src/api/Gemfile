@@ -149,8 +149,6 @@ group :test do
   gem 'minitest-reporters'
   # for integration testing
   gem 'capybara'
-  # for rspec like matchers
-  gem 'capybara_minitest_spec'
   # to fake backend replies
   gem 'webmock'
   # for mocking and stubbing
