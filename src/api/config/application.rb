@@ -109,6 +109,10 @@ module OBSApi
     config.active_record.cache_versioning = true
     config.active_record.collection_cache_versioning = false
 
+    # Disable partial writes to avoid causing incorrect values
+    # to be inserted when changing the default value of a column.
+    config.active_record.partial_inserts = false
+
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.action_dispatch.rescue_responses['Backend::Error'] = 500
