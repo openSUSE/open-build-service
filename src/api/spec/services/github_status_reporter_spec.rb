@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe GithubStatusReporter, type: :service do
-  let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: initial_report) }
+  let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -108,35 +108,71 @@ RSpec.describe GithubStatusReporter, type: :service do
     end
 
     context 'when sending a report back to GitHub' do
-      let(:event_payload) do
-        { project: 'home:danidoni', package: 'hello_world',
-          repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
-      end
-      let(:event_subscription_payload) do
-        { scm: 'github', target_repository_full_name: 'danidoni/hello_world', commit_sha: '123456789' }
-      end
-      let(:token) { 'XYCABC' }
-      let(:event_type) { nil }
-      let(:state) { 'pending' }
-      let(:workflow_run) { nil }
-      let(:initial_report) { false }
-      let(:status_options) do
-        {
-          context: 'OBS: hello_world - openSUSE_Tumbleweed/x86_64',
-          target_url: 'https://unconfigured.openbuildservice.org/package/show/home:danidoni/hello_world'
-        }
-      end
-      let(:octokit_client) { instance_spy(Octokit::Client, create_status: true) }
+      context 'when is an initial report' do
+        let(:event_payload) do
+          { project: 'home:danidoni', package: 'hello_world',
+            repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
+        end
+        let(:event_subscription_payload) do
+          { scm: 'github', target_repository_full_name: 'danidoni/hello_world', commit_sha: '123456789' }
+        end
+        let(:token) { 'XYCABC' }
+        let(:event_type) { nil }
+        let(:state) { 'pending' }
+        let(:workflow_run) { nil }
+        let(:initial_report) { false }
+        let(:expected_status_options) do
+          {
+            context: 'OBS: hello_world - openSUSE_Tumbleweed/x86_64',
+            target_url: 'https://unconfigured.openbuildservice.org/package/show/home:danidoni/hello_world'
+          }
+        end
+        let(:octokit_client) { instance_spy(Octokit::Client, create_status: true) }
 
-      subject { scm_status_reporter.call }
+        subject { scm_status_reporter.call }
 
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        subject
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          subject
+        end
+
+        it 'creates a commit status' do
+          expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, expected_status_options)
+        end
       end
 
-      it 'sends a short commit sha' do
-        expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, status_options)
+      context 'when reporting a submit request' do
+        let(:event_payload) do
+          { project: 'home:danidoni', package: 'hello_world',
+            repository: 'openSUSE_Tumbleweed', arch: 'x86_64',
+            number: 1, state: 'new' }
+        end
+        let(:event_subscription_payload) do
+          { scm: 'github', target_repository_full_name: 'danidoni/hello_world', commit_sha: '123456789' }
+        end
+        let(:token) { 'XYCABC' }
+        let(:event_type) { 'Event::RequestStatechange' }
+        let(:state) { 'pending' }
+        let(:workflow_run) { nil }
+        let(:initial_report) { false }
+        let(:expected_status_options) do
+          {
+            context: 'OBS: Request 1 - new',
+            target_url: 'https://unconfigured.openbuildservice.org/request/show/1'
+          }
+        end
+        let(:octokit_client) { instance_spy(Octokit::Client, create_status: true) }
+
+        subject { scm_status_reporter.call }
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          subject
+        end
+
+        it 'creates a commit status' do
+          expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, expected_status_options)
+        end
       end
     end
   end
