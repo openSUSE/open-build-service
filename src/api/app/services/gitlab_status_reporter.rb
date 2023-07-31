@@ -4,7 +4,7 @@ class GitlabStatusReporter < SCMExceptionHandler
   def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, initial_report: false)
     super(event_payload, event_subscription_payload, scm_token, workflow_run)
 
-    @state = state
+    @state = translate_state(state)
     @initial_report = initial_report
   end
 
@@ -23,6 +23,14 @@ class GitlabStatusReporter < SCMExceptionHandler
   rescue Gitlab::Error::Error => e
     rescue_with_handler(e) || raise(e)
     RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if @workflow_run.present?
+  end
+
+  private
+
+  def translate_state(state)
+    return 'failed' if state == 'failure'
+
+    state
   end
 
   # TODO: extract to a parent class
