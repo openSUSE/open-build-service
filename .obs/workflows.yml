@@ -17,13 +17,3 @@ testbuild:
   filters:
     event: pull_request
 
-rebuild:
-  steps:
-    - trigger_services:
-        project: OBS:Server:2.10:Staging
-        package: obs-server
-  filters:
-    event: push
-    branches:
-      only:
-        - 2.10
