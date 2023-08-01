@@ -63,9 +63,12 @@ module Workflows
       rescue Gitlab::Error::NotFound => e
         raise Token::Errors::NonExistentRepository, e.message
       end
+      create_temp_file(gitlab_file)
+    end
 
+    def create_temp_file(content)
       tempfile = Tempfile.new(["#{Time.zone.now}", '.yaml'])
-      tempfile.write(gitlab_file)
+      tempfile.write(content)
       tempfile.rewind
       tempfile
     end
