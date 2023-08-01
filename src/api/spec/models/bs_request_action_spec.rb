@@ -208,8 +208,7 @@ RSpec.describe BsRequestAction do
 
     context 'everything works as expected' do
       before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return(binary_list)
-        allow(Backend::Api::BuildResults::Binaries).to receive(:history).and_return(build_history)
+        allow(Backend::Api::BuildResults::Binaries).to receive_messages(files: binary_list, history: build_history)
         allow(Directory).to receive(:hashed).and_return('srcmd5' => 'ef521827053c2e3b3cc735662c5d5bb0')
       end
 
@@ -226,8 +225,7 @@ RSpec.describe BsRequestAction do
 
     context 'last patchinfo is not build', vcr: true do
       before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return(binary_list)
-        allow(Backend::Api::BuildResults::Binaries).to receive(:history).and_return(build_history)
+        allow(Backend::Api::BuildResults::Binaries).to receive_messages(files: binary_list, history: build_history)
       end
 
       it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
@@ -237,8 +235,7 @@ RSpec.describe BsRequestAction do
   describe 'create_expand_package' do
     before do
       allow(User).to receive(:session!).and_return(user)
-      allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return(binary_list)
-      allow(Backend::Api::BuildResults::Binaries).to receive(:history).and_return(build_history)
+      allow(Backend::Api::BuildResults::Binaries).to receive_messages(files: binary_list, history: build_history)
       allow(Directory).to receive(:hashed).and_return(hashed)
     end
 

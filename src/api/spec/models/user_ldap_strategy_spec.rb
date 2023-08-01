@@ -242,8 +242,7 @@ RSpec.describe UserLdapStrategy do
 
         before do
           allow(ldap_mock).to receive(:search).and_raise(ArgumentError)
-          allow(ldap_mock).to receive(:err).and_return('something went wrong')
-          allow(ldap_mock).to receive(:err2string).and_return('something went wrong')
+          allow(ldap_mock).to receive_messages(err: 'something went wrong', err2string: 'something went wrong')
           allow(ldap_mock).to receive(:unbind)
         end
 
@@ -386,8 +385,7 @@ RSpec.describe UserLdapStrategy do
 
             times_called += 1
           end
-          allow(ldap_mock).to receive(:err).and_return('something went wrong')
-          allow(ldap_mock).to receive(:err2string).and_return('something went wrong')
+          allow(ldap_mock).to receive_messages(err: 'something went wrong', err2string: 'something went wrong')
           allow(ldap_mock).to receive(:unbind)
           # This connects to LDAP and stores the connection in a class var
           UserLdapStrategy.find_with_ldap('tux', 'tux_password')

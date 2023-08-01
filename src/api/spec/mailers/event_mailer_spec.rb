@@ -281,8 +281,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:faillog) { "invalid byte sequence ->\xD3'" }
 
       before do
-        allow(event_stub).to receive(:faillog).and_return(faillog)
-        allow(event_stub).to receive(:payload).and_return(expanded_payload)
+        allow(event_stub).to receive_messages(faillog: faillog, payload: expanded_payload)
       end
 
       it 'renders the headers' do

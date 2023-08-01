@@ -244,8 +244,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it 'restores a project' do
-      allow(Project).to receive(:deleted?).and_return(true)
-      allow(Project).to receive(:restore).and_return(fake_project)
+      allow(Project).to receive_messages(deleted?: true, restore: fake_project)
 
       post :restore, params: { project: 'project_name' }
 

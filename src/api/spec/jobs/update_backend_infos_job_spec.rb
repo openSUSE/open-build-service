@@ -28,9 +28,8 @@ RSpec.describe UpdateBackendInfosJob, vcr: true do
     let!(:linking_backend_package) { BackendPackage.create(package: package2, links_to: package) }
 
     before do
-      allow(Package).to receive(:find_by_project_and_name).and_return(package)
+      allow(Package).to receive_messages(find_by_project_and_name: package, find_by_id: package2)
       allow(package).to receive(:update_backendinfo)
-      allow(Package).to receive(:find_by_id).and_return(package2)
       allow(package2).to receive(:update_backendinfo)
     end
 
