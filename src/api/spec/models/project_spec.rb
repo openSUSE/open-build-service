@@ -43,8 +43,7 @@ RSpec.describe Project, vcr: true do
 
   describe '#store' do
     before do
-      allow(project).to receive(:save!).and_return(true)
-      allow(project).to receive(:write_to_backend).and_return(true)
+      allow(project).to receive_messages(save!: true, write_to_backend: true)
       project.commit_opts = { comment: 'the comment' }
     end
 

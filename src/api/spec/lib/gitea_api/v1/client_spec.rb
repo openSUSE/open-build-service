@@ -11,8 +11,7 @@ RSpec.describe GiteaAPI::V1::Client do
       before do
         allow(Faraday::Connection).to receive(:new).and_return(faraday)
         allow(faraday).to receive(:post).and_return(Faraday::Response)
-        allow(Faraday::Response).to receive(:status).and_return(200)
-        allow(Faraday::Response).to receive(:body).and_return(true)
+        allow(Faraday::Response).to receive_messages(status: 200, body: true)
 
         client.create_commit_status(owner: 'krauselukas', repo: 'hello_world', sha: 'abc123cdf', state: 'succeeded')
       end
@@ -26,8 +25,7 @@ RSpec.describe GiteaAPI::V1::Client do
       before do
         allow(Faraday::Connection).to receive(:new).and_return(faraday)
         allow(faraday).to receive(:post).and_return(Faraday::Response)
-        allow(Faraday::Response).to receive(:status).and_return(400)
-        allow(Faraday::Response).to receive(:body).and_return({ 'message' => 'upppsss something went wrong' })
+        allow(Faraday::Response).to receive_messages(status: 400, body: { 'message' => 'upppsss something went wrong' })
       end
 
       it 'sends a post request and returns the correct exception class' do

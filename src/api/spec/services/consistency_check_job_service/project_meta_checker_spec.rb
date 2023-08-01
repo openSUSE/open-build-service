@@ -11,8 +11,7 @@ RSpec.describe ConsistencyCheckJobService::ProjectMetaChecker, vcr: true do
       let(:backend_meta) { { 'name' => 'Test', 'title' => 'test project foo', 'description' => {}, 'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } } }
 
       before do
-        allow(project_meta_checker).to receive(:frontend_meta).and_return(frontend_meta)
-        allow(project_meta_checker).to receive(:backend_meta).and_return(backend_meta)
+        allow(project_meta_checker).to receive_messages(frontend_meta: frontend_meta, backend_meta: backend_meta)
         project_meta_checker.call
       end
 

@@ -318,8 +318,7 @@ RSpec.describe Kiwi::Image, vcr: true do
       subject { Nokogiri::XML::Document.parse(kiwi_image.to_xml) }
 
       before do
-        allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
-        allow(package).to receive(:source_file).and_return(kiwi_xml)
+        allow(package).to receive_messages(kiwi_image_file: 'config.kiwi', source_file: kiwi_xml)
         kiwi_image.package = package
         kiwi_image.save
       end
@@ -338,8 +337,7 @@ RSpec.describe Kiwi::Image, vcr: true do
       subject { Nokogiri::XML::Document.parse(kiwi_image.to_xml) }
 
       before do
-        allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
-        allow(package).to receive(:source_file).and_return(Kiwi::Image::DEFAULT_KIWI_BODY)
+        allow(package).to receive_messages(kiwi_image_file: 'config.kiwi', source_file: Kiwi::Image::DEFAULT_KIWI_BODY)
         kiwi_image.save
         kiwi_image.package = package
         kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
