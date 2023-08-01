@@ -227,6 +227,7 @@ Metrics/ClassLength:
     - 'app/models/staging/workflow.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
+    - 'app/models/workflow.rb'
     - 'app/models/workflow/step.rb'
     - 'app/services/user_service/involved.rb'
     - 'db/migrate/20230727110437_migrate_to_utf8mb4.rb'
