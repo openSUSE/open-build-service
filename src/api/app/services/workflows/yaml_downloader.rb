@@ -23,7 +23,6 @@ module Workflows
       elsif @scm_payload[:scm] == 'github'
         download_github_yaml_file
       end
-
     rescue Down::Error => e
       raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
 

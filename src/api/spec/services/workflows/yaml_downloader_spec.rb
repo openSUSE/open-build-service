@@ -14,7 +14,7 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
       context 'github' do
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:content).and_return({ download_url: url })
+          allow(octokit_client).to receive(:content).and_return({ content: Base64.encode64('Test content') })
           yaml_downloader.call
         end
 
@@ -33,9 +33,10 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
           }
         end
         let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:url) { "https://raw.githubusercontent.com/#{payload[:target_repository_full_name]}/#{payload[:target_branch]}/.obs/workflows.yml" }
 
-        it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+        it 'downloads the workflow file' do
+          expect(octokit_client).to have_received(:content)
+        end
       end
 
       context 'gitlab' do
