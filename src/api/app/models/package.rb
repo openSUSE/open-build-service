@@ -55,6 +55,7 @@ class Package < ApplicationRecord
   has_many :watched_items, as: :watchable, dependent: :destroy
 
   before_update :update_activity
+  after_update :convert_to_symsync
 
   before_destroy :delete_on_backend
   before_destroy :revoke_requests_with_self_as_source
@@ -1366,6 +1367,14 @@ class Package < ApplicationRecord
 
   def delete_from_sphinx
     DeleteFromSphinxJob.perform_later(id, self.class)
+  end
+
+  def convert_to_symsync
+    return unless saved_change_to_attribute?('scmsync', from: nil)
+
+    package_kinds.delete_all
+    BackendPackage.where(package_id: id).delete_all
+    revoke_requests_with_self_as_target("The package '#{project.name} / #{name}' is now maintained at #{scmsync}")
   end
 end
 # rubocop: enable Metrics/ClassLength
