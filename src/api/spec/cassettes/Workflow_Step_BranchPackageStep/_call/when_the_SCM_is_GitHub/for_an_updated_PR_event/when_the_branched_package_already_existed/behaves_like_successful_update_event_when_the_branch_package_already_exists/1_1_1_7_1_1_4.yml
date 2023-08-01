@@ -39,18 +39,57 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:45:05 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_167
+    uri: http://backend:5352/source/foo_project/_meta?user=user_111
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Françoise Sagan</title>
+          <title>An Instant In The Wind</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>An Instant In The Wind</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_112
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>Sleep the Brave</title>
+          <description>Et ullam nobis nostrum.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,54 +111,19 @@ http_interactions:
       Content-Length:
       - '148'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHByb2plY3QgbmFtZT0iZm9vX3Byb2plY3QiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+PC9kZXNjcmlwdGlvbj4KICA8cGVyc29uIHVzZXJpZD0iSWdneSIgcm9sZT0ibWFpbnRhaW5lciIvPgo8L3Byb2plY3Q+Cg==
-  recorded_at: Mon, 05 Jun 2023 12:45:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_168
-    body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Recalled to Life</title>
-          <description>Possimus aut quo sed.</description>
+          <title>Sleep the Brave</title>
+          <description>Et ullam nobis nostrum.</description>
         </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '147'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package" project="foo_project">
-          <title>Recalled to Life</title>
-          <description>Possimus aut quo sed.</description>
-        </package>
-  recorded_at: Mon, 05 Jun 2023 12:45:05 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Ratione illo harum. Qui non incidunt. Enim laborum eos.
+      string: Adipisci perspiciatis esse. Et voluptatem enim. Debitis et natus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -139,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="143" vrev="143">
-          <srcmd5>1108afa0f7b5b90e807db9ae57d82140</srcmd5>
+        <revision rev="2136" vrev="2136">
+          <srcmd5>f3e2bf00af7a59363c25d87c0debcb8d</srcmd5>
           <version>unknown</version>
-          <time>1685969105</time>
+          <time>1690970567</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:05 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Omnis optio aliquid. Tenetur at tempore. Pariatur adipisci fugiat.
+      string: Et id est. Dolor commodi ipsa. Ratione officia consectetur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -177,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="144" vrev="144">
-          <srcmd5>a368da047c1b370fa972deb7575df9e7</srcmd5>
+        <revision rev="2137" vrev="2137">
+          <srcmd5>062a58c409e790b5dcf689e2ce3c133a</srcmd5>
           <version>unknown</version>
-          <time>1685969105</time>
+          <time>1690970567</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -197,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>An Evil Cradling</title>
+          <title>The Waste Land</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -220,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <project name="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>An Evil Cradling</title>
+          <title>The Waste Land</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -237,8 +241,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Parliament of Man</title>
-          <description>Non aspernatur aut et.</description>
+          <title>East of Eden</title>
+          <description>Dolores possimus modi reprehenderit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -259,21 +263,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Parliament of Man</title>
-          <description>Non aspernatur aut et.</description>
+          <title>East of Eden</title>
+          <description>Dolores possimus modi reprehenderit.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_config
     body:
       encoding: UTF-8
-      string: Aut et aut. Sit maxime illo. Reiciendis culpa dolores.
+      string: Facere sunt voluptates. Illo excepturi qui. Voluptate est quisquam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -293,25 +297,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="63" vrev="63">
-          <srcmd5>8d594d819b645a54cdfd099143922b6a</srcmd5>
+        <revision rev="952" vrev="952">
+          <srcmd5>5abf43f6c04666a2b69db51ddda3346c</srcmd5>
           <version>unknown</version>
-          <time>1685969106</time>
+          <time>1690970567</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Libero sunt excepturi. Ex voluptatem ullam. Eos quasi similique.
+      string: Ipsa veniam vitae. Error et id. Est esse nihil.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -331,19 +335,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="64" vrev="64">
-          <srcmd5>12e9b08df383e0648efa713cfb79d903</srcmd5>
+        <revision rev="953" vrev="953">
+          <srcmd5>930bb55e494cf1d0cfcc06a60553f3ca</srcmd5>
           <version>unknown</version>
-          <time>1685969106</time>
+          <time>1690970567</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_branch_request?user=Iggy
@@ -369,28 +373,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '210'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="145" vrev="145">
-          <srcmd5>a368da047c1b370fa972deb7575df9e7</srcmd5>
+        <revision rev="2138" vrev="2138">
+          <srcmd5>062a58c409e790b5dcf689e2ce3c133a</srcmd5>
           <version>unknown</version>
-          <time>1685969106</time>
+          <time>1690970567</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_168
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_112
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Recalled to Life</title>
-          <description>Possimus aut quo sed.</description>
+          <title>Sleep the Brave</title>
+          <description>Et ullam nobis nostrum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -411,15 +415,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Recalled to Life</title>
-          <description>Possimus aut quo sed.</description>
+          <title>Sleep the Brave</title>
+          <description>Et ullam nobis nostrum.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -445,16 +449,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '403'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="145" vrev="145" srcmd5="a368da047c1b370fa972deb7575df9e7">
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1685969104"/>
-          <entry name="_config" md5="1839870db4b93b65128a101609f74ae6" size="55" mtime="1685969105"/>
-          <entry name="somefile.txt" md5="10b8f94aa0459ada827ee675f7f52946" size="66" mtime="1685969105"/>
+        <directory name="bar_package" rev="2138" vrev="2138" srcmd5="062a58c409e790b5dcf689e2ce3c133a">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="fab64cc823f5ea0a222f95119eec5081" size="65" mtime="1690970567"/>
+          <entry name="somefile.txt" md5="d623717f0954ece54543c9d19fa1460f" size="59" mtime="1690970567"/>
         </directory>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package?view=info
@@ -480,14 +484,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '233'
+      - '235'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="145" vrev="145" srcmd5="a368da047c1b370fa972deb7575df9e7" verifymd5="a368da047c1b370fa972deb7575df9e7">
+        <sourceinfo package="bar_package" rev="2138" vrev="2138" srcmd5="062a58c409e790b5dcf689e2ce3c133a" verifymd5="062a58c409e790b5dcf689e2ce3c133a">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -513,16 +517,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '403'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="145" vrev="145" srcmd5="a368da047c1b370fa972deb7575df9e7">
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1685969104"/>
-          <entry name="_config" md5="1839870db4b93b65128a101609f74ae6" size="55" mtime="1685969105"/>
-          <entry name="somefile.txt" md5="10b8f94aa0459ada827ee675f7f52946" size="66" mtime="1685969105"/>
+        <directory name="bar_package" rev="2138" vrev="2138" srcmd5="062a58c409e790b5dcf689e2ce3c133a">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="fab64cc823f5ea0a222f95119eec5081" size="65" mtime="1690970567"/>
+          <entry name="somefile.txt" md5="d623717f0954ece54543c9d19fa1460f" size="59" mtime="1690970567"/>
         </directory>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -550,18 +554,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '309'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8cf511f120d1c05fa0b77b42774aa17d">
+        <sourcediff key="c947d50d12f05ba236b256b52a592d5f">
           <old project="foo_project" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="foo_project" package="bar_package" rev="145" srcmd5="a368da047c1b370fa972deb7575df9e7"/>
+          <new project="foo_project" package="bar_package" rev="2138" srcmd5="062a58c409e790b5dcf689e2ce3c133a"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_branch_request?user=Iggy
@@ -587,19 +591,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '208'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="65" vrev="65">
-          <srcmd5>12e9b08df383e0648efa713cfb79d903</srcmd5>
+        <revision rev="954" vrev="954">
+          <srcmd5>930bb55e494cf1d0cfcc06a60553f3ca</srcmd5>
           <version>unknown</version>
-          <time>1685969106</time>
+          <time>1690970567</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -607,8 +611,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Parliament of Man</title>
-          <description>Non aspernatur aut et.</description>
+          <title>East of Eden</title>
+          <description>Dolores possimus modi reprehenderit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -629,15 +633,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>The Parliament of Man</title>
-          <description>Non aspernatur aut et.</description>
+          <title>East of Eden</title>
+          <description>Dolores possimus modi reprehenderit.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -663,18 +667,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '670'
+      - '672'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="65" vrev="65" srcmd5="12e9b08df383e0648efa713cfb79d903">
-          <linkinfo project="foo_project" package="bar_package" baserev="ecffdcb7b652179fd3badc023164a020" xsrcmd5="51182063001ec53f5aa473d33d7fec6e" error="conflict in file _config"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1685969059"/>
-          <entry name="_config" md5="515169c3bee97be37514290dde616db1" size="54" mtime="1685969106"/>
-          <entry name="_link" md5="335d068aedc790b5076d635de70d1a86" size="119" mtime="1685969103"/>
-          <entry name="somefile.txt" md5="79508610d941268889f3596b3135a6ae" size="64" mtime="1685969106"/>
+        <directory name="bar_package" rev="954" vrev="954" srcmd5="930bb55e494cf1d0cfcc06a60553f3ca">
+          <linkinfo project="foo_project" package="bar_package" baserev="d16a761e1987f12d920539bcb512cb96" xsrcmd5="f58b3c11274b7c6d5bc53dfe300d047e" error="conflict in file _config"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1690882782"/>
+          <entry name="_config" md5="341ab224d547d30cbd3656755ad55977" size="67" mtime="1690970567"/>
+          <entry name="_link" md5="db65b2f20406b79a3f2ca604a01d0472" size="119" mtime="1690970561"/>
+          <entry name="somefile.txt" md5="c8ac9f5235c671de45f6f0a7904cfeb2" size="47" mtime="1690970567"/>
         </directory>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?view=info
@@ -700,15 +704,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '254'
+      - '256'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package" rev="65" vrev="210" srcmd5="12e9b08df383e0648efa713cfb79d903" verifymd5="12e9b08df383e0648efa713cfb79d903">
+        <sourceinfo package="bar_package" rev="954" vrev="3092" srcmd5="930bb55e494cf1d0cfcc06a60553f3ca" verifymd5="930bb55e494cf1d0cfcc06a60553f3ca">
           <error>conflict in file _config</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package
@@ -734,18 +738,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '670'
+      - '672'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="65" vrev="65" srcmd5="12e9b08df383e0648efa713cfb79d903">
-          <linkinfo project="foo_project" package="bar_package" baserev="ecffdcb7b652179fd3badc023164a020" xsrcmd5="51182063001ec53f5aa473d33d7fec6e" error="conflict in file _config"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1685969059"/>
-          <entry name="_config" md5="515169c3bee97be37514290dde616db1" size="54" mtime="1685969106"/>
-          <entry name="_link" md5="335d068aedc790b5076d635de70d1a86" size="119" mtime="1685969103"/>
-          <entry name="somefile.txt" md5="79508610d941268889f3596b3135a6ae" size="64" mtime="1685969106"/>
+        <directory name="bar_package" rev="954" vrev="954" srcmd5="930bb55e494cf1d0cfcc06a60553f3ca">
+          <linkinfo project="foo_project" package="bar_package" baserev="d16a761e1987f12d920539bcb512cb96" xsrcmd5="f58b3c11274b7c6d5bc53dfe300d047e" error="conflict in file _config"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1690882782"/>
+          <entry name="_config" md5="341ab224d547d30cbd3656755ad55977" size="67" mtime="1690970567"/>
+          <entry name="_link" md5="db65b2f20406b79a3f2ca604a01d0472" size="119" mtime="1690970561"/>
+          <entry name="somefile.txt" md5="c8ac9f5235c671de45f6f0a7904cfeb2" size="47" mtime="1690970567"/>
         </directory>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -773,18 +777,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '369'
+      - '370'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3dec2d6418c54285b0fca2b89e97733c">
+        <sourcediff key="a9039d104c0f34de4f9659ab7c46beee">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="65" srcmd5="12e9b08df383e0648efa713cfb79d903"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="954" srcmd5="930bb55e494cf1d0cfcc06a60553f3ca"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -816,12 +820,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e2ef3960ef8a8aa3b2b2fceb3a69eb5a">
-          <old project="foo_project" package="bar_package" rev="ecffdcb7b652179fd3badc023164a020" srcmd5="ecffdcb7b652179fd3badc023164a020"/>
-          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="e2e0072a193628c4db9df0c6e60bef01" srcmd5="e2e0072a193628c4db9df0c6e60bef01"/>
+        <sourcediff key="eec450036d1023511991ca2e883fe6ee">
+          <old project="foo_project" package="bar_package" rev="d16a761e1987f12d920539bcb512cb96" srcmd5="d16a761e1987f12d920539bcb512cb96"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_package" rev="f7d1fbced9274094365896674ffb985d" srcmd5="f7d1fbced9274094365896674ffb985d"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 05 Jun 2023 12:45:06 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 02 Aug 2023 10:02:47 GMT
+recorded_with: VCR 6.2.0

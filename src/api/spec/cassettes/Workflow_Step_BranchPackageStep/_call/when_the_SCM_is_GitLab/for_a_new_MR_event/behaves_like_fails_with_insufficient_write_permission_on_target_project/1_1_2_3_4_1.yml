@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:09 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/_meta?user=user_43
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Far-Distant Oxus</title>
+          <title>Oh! To be in England</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -75,11 +75,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Far-Distant Oxus</title>
+          <title>Oh! To be in England</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_44
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Daffodil Sky</title>
-          <description>Facere sit tempore rerum.</description>
+          <title>From Here to Eternity</title>
+          <description>Tenetur vitae provident est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Daffodil Sky</title>
-          <description>Facere sit tempore rerum.</description>
+          <title>From Here to Eternity</title>
+          <description>Tenetur vitae provident est.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Assumenda temporibus doloribus. Voluptate natus ut. Ullam ut cumque.
+      string: Officia assumenda dolore. Omnis minima exercitationem. Suscipit iusto
+        cumque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +144,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="49" vrev="49">
-          <srcmd5>16ad081702793cf3e659f8b5da2f553e</srcmd5>
+        <revision rev="2063" vrev="2063">
+          <srcmd5>da91648a76cf77c45737ff1df230d1ca</srcmd5>
           <version>unknown</version>
-          <time>1685969050</time>
+          <time>1690970537</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quo eum magni. Fuga veniam sed. Hic nihil eveniet.
+      string: Enim cum qui. Sunt exercitationem autem. Necessitatibus eum nisi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +182,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="50" vrev="50">
-          <srcmd5>27f9cf339c2c6df8d57a14d723f2c1f6</srcmd5>
+        <revision rev="2064" vrev="2064">
+          <srcmd5>49efd4ea77297fcd3769073371becff5</srcmd5>
           <version>unknown</version>
-          <time>1685969050</time>
+          <time>1690970537</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_without_maintainer_rights/_meta?user=Iggy
@@ -201,7 +202,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>An Acceptable Time</title>
+          <title>Unweaving the Rainbow</title>
           <description/>
         </project>
     headers:
@@ -223,15 +224,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '128'
+      - '131'
     body:
       encoding: UTF-8
       string: |
         <project name="project_without_maintainer_rights">
-          <title>An Acceptable Time</title>
+          <title>Unweaving the Rainbow</title>
           <description></description>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -265,5 +300,5 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Mon, 05 Jun 2023 12:44:10 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 02 Aug 2023 10:02:17 GMT
+recorded_with: VCR 6.2.0

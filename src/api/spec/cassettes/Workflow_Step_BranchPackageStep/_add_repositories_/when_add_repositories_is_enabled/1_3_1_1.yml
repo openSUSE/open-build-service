@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:45:17 GMT
+  recorded_at: Wed, 02 Aug 2023 10:03:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_197
+    uri: http://backend:5352/source/foo_project/_meta?user=user_193
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Where Angels Fear to Tread</title>
+          <title>Things Fall Apart</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Where Angels Fear to Tread</title>
+          <title>Things Fall Apart</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:45:17 GMT
+  recorded_at: Wed, 02 Aug 2023 10:03:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_198
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_194
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Tender Is the Night</title>
-          <description>Ab soluta ipsam et.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Assumenda atque facilis maxime.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Tender Is the Night</title>
-          <description>Ab soluta ipsam et.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Assumenda atque facilis maxime.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:45:17 GMT
+  recorded_at: Wed, 02 Aug 2023 10:03:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Nemo harum consequatur. Sed voluptas quasi. Quasi sequi fuga.
+      string: Non doloribus quisquam. Rerum sint aut. Eius at officia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="165" vrev="165">
-          <srcmd5>b3c76be3e9976dfdfe1c31de8b3aefd3</srcmd5>
+        <revision rev="2175" vrev="2175">
+          <srcmd5>43f4215da6b92d7cca4327a8b70dc7ec</srcmd5>
           <version>unknown</version>
-          <time>1685969117</time>
+          <time>1690970626</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:17 GMT
+  recorded_at: Wed, 02 Aug 2023 10:03:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sint labore asperiores. Unde dolores est. Et totam veniam.
+      string: Eos doloribus minima. Corrupti non et. Laudantium quae nulla.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="166" vrev="166">
-          <srcmd5>5af4dce1ec8613a6dcd8d197618d78d0</srcmd5>
+        <revision rev="2176" vrev="2176">
+          <srcmd5>18c25a3efcdc8a0d522d7d7266f9c25d</srcmd5>
           <version>unknown</version>
-          <time>1685969117</time>
+          <time>1690970626</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:45:17 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 02 Aug 2023 10:03:46 GMT
+recorded_with: VCR 6.2.0
