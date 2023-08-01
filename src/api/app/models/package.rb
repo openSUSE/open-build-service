@@ -52,20 +52,23 @@ class Package < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_package_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
+  has_many :watched_items, as: :watchable, dependent: :destroy
+
   before_update :update_activity
+
   before_destroy :delete_on_backend
-  before_destroy :close_requests
+  before_destroy :revoke_requests_with_self_as_source
+  before_destroy :revoke_requests_with_self_as_target
+  before_destroy :obsolete_reviews_for_self
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
-
   after_destroy :delete_from_sphinx
+
   after_save :write_to_backend
   after_save :populate_to_sphinx
 
   after_rollback :reset_cache
-
-  has_many :watched_items, as: :watchable, dependent: :destroy
 
   # The default scope is necessary to exclude the forbidden projects.
   # It's necessary to write it as a nested Active Record query for performance reasons
@@ -806,11 +809,15 @@ class Package < ApplicationRecord
     activity_index * (2.3276**((updated_at_was.to_f - Time.now.to_f) / 10_000_000))
   end
 
-  def open_requests_with_package_as_source_or_target
+  def open_requests_with_package_as_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    # rubocop:disable Layout/LineLength
-    rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name, project.name, name)
-    # rubocop:enable Layout/LineLength
+    rel = rel.where('(bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name)
+    BsRequest.where(id: rel.select('bs_requests.id'))
+  end
+
+  def open_requests_with_package_as_source
+    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?)', project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
@@ -1057,36 +1064,41 @@ class Package < ApplicationRecord
     end
   end
 
-  def close_requests
-    # Find open requests involving self and:
-    # - revoke them if self is source
-    # - decline if self is target
-    open_requests_with_package_as_source_or_target.each do |request|
-      logger.debug "#{self.class} #{name} doing close_requests on request #{request.id} with #{@commit_opts.inspect}"
+  def revoke_requests_with_self_as_target(message = nil)
+    message ||= "The package '#{project.name}/#{name}' has been removed"
+
+    open_requests_with_package_as_target.each do |request|
       # Don't alter the request that is the trigger of this close_requests run
       next if request == @commit_opts[:request]
 
-      request.bs_request_actions.each do |action|
-        if action.source_project == project.name && action.source_package == name
-          begin
-            request.change_state(newstate: 'revoked', comment: "The source package '#{name}' has been removed")
-          rescue PostRequestNoPermission
-            logger.debug "#{User.session!.login} tried to revoke request #{id} but had no permissions"
-          end
-          break
-        end
-        next unless action.target_project == project.name && action.target_package == name
+      logger.debug "#{self.class} #{name} doing revoke_requests_with_self_as_target on request #{request.id} with #{@commit_opts.inspect}"
 
-        begin
-          request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
-        rescue PostRequestNoPermission
-          logger.debug "#{User.session!.login} tried to decline request #{id} but had no permissions"
-        end
-        break
+      begin
+        request.change_state(newstate: 'declined', comment: message)
+      rescue PostRequestNoPermission
+        logger.info "#{User.session!.login} tried to decline request #{id} but had no permissions"
       end
     end
-    # Find open requests which have a review involving this package and remove those reviews
-    # but leave the requests otherwise untouched.
+  end
+
+  def revoke_requests_with_self_as_source(message = nil)
+    message ||= "The package '#{project.name}/#{name}' has been removed"
+
+    open_requests_with_package_as_source.each do |request|
+      # Don't alter the request that is the trigger of this close_requests run
+      next if request == @commit_opts[:request]
+
+      logger.debug "#{self.class} #{name} doing revoke_requests_with_self_as_source on request #{request.id} with #{@commit_opts.inspect}"
+
+      begin
+        request.change_state(newstate: 'revoked', comment: message)
+      rescue PostRequestNoPermission
+        logger.info "#{User.session!.login} tried to revoke request #{id} but had no permissions"
+      end
+    end
+  end
+
+  def obsolete_reviews_for_self
     open_requests_with_by_package_review.each do |request|
       # Don't alter the request that is the trigger of this close_requests run
       next if request.id == @commit_opts[:request]

@@ -17,7 +17,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
 
     @request.reload
     assert_equal :revoked, @request.state
-    assert_equal "The source package 'apache2' has been removed", @request.comment
+    assert_equal "The package 'home:Iggy:branches:Apache/apache2' has been removed", @request.comment
     assert_equal 1, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
   end
 
@@ -62,7 +62,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
 
     @request.reload
     assert_equal :declined, @request.state
-    assert_equal "The target package 'pack' has been removed", @request.comment
+    assert_equal "The package 'test_destroy_target_declines_request/pack' has been removed", @request.comment
     assert_equal 1, HistoryElement::RequestDeclined.where(op_object_id: @request.id).count
 
     @package.project.destroy

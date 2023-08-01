@@ -2909,7 +2909,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/request/#{id2}"
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'declined', when: '2010-07-14T00:00:00', who: 'Iggy' })
-    assert_xml_tag(tag: 'comment', content: "The target package 'TestPack' has been removed")
+    assert_xml_tag(tag: 'comment', content: "The package 'home:Iggy/TestPack' has been removed")
 
     # good, now revive to fix the state of the union
     post '/source/home:Iggy/TestPack?cmd=undelete'
