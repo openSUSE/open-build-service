@@ -1,0 +1,187 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="44" vrev="44" srcmd5="4396b4a132bffaabbb500466b145a77a">
+          <entry name="_config" md5="c5ee09169a8a9e0ea982b64eed17b571" size="68" mtime="1690894965"/>
+          <entry name="somefile.txt" md5="54d9df3dc3ddd080a26b4e9d24ed1a8c" size="76" mtime="1690894965"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:13:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="44" vrev="44" srcmd5="4396b4a132bffaabbb500466b145a77a">
+          <entry name="_config" md5="c5ee09169a8a9e0ea982b64eed17b571" size="68" mtime="1690894965"/>
+          <entry name="somefile.txt" md5="54d9df3dc3ddd080a26b4e9d24ed1a8c" size="76" mtime="1690894965"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:13:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="44" vrev="44" srcmd5="4396b4a132bffaabbb500466b145a77a">
+          <entry name="_config" md5="c5ee09169a8a9e0ea982b64eed17b571" size="68" mtime="1690894965"/>
+          <entry name="somefile.txt" md5="54d9df3dc3ddd080a26b4e9d24ed1a8c" size="76" mtime="1690894965"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:13:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=44
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          _config
+          somefile.txt
+
+        other changes:
+        --------------
+
+        ++++++ _config (new)
+        --- _config
+        +++ _config
+
+        ++++++ somefile.txt (new)
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Tue, 01 Aug 2023 13:13:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package?expand=1&rev=44
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="44" vrev="44" srcmd5="4396b4a132bffaabbb500466b145a77a">
+          <entry name="_config" md5="c5ee09169a8a9e0ea982b64eed17b571" size="68" mtime="1690894965"/>
+          <entry name="somefile.txt" md5="54d9df3dc3ddd080a26b4e9d24ed1a8c" size="76" mtime="1690894965"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:13:34 GMT
+recorded_with: VCR 6.2.0

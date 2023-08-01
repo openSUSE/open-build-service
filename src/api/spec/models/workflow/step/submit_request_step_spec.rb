@@ -48,8 +48,11 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
         expect { subject.call }.to(change(BsRequest.where(state: 'new'), :count).by(1))
       end
 
-      it 'creates a event subcription and the workflow artifacts' do
+      it 'creates an event subcription' do
         expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
+      end
+
+      it 'creates workflow artifacts' do
         expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
       end
     end
@@ -128,8 +131,11 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
         expect { subject.call }.to(change(BsRequest.where(state: 'new'), :count).by(1))
       end
 
-      it 'creates a event subcription and the workflow artifacts' do
+      it 'creates an event subcription' do
         expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
+      end
+
+      it 'creates workflow artifacts' do
         expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
       end
     end
@@ -151,8 +157,11 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
         expect { subject.call }.to(change(BsRequest.where(state: 'new'), :count).by(1))
       end
 
-      it 'creates a event subcription and the workflow artifacts' do
+      it 'creates no event subcription' do
         expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count))
+      end
+
+      it 'creates workflow artifacts' do
         expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
       end
     end
