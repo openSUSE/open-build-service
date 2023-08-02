@@ -34,13 +34,12 @@
   %h5.mx-3
     Event Source
     %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
-                                                'bs-content': '<p>Filter your workflow runs by the event source. The event source depend on
-                                                               the event that triggers the workflow.</p>
-                                                               <p><b>Source of a pull/merge request event: </b>
-                                                               A pull/merge request number like #2468.</p>
-                                                               <p><b>Source of a push event: </b>A commit sha like
-                                                               97561db8664eaf86a1e4c7b77d5fb5d5bff6681e.</p>' } }
+                                                'bs-content': '<p>Filter your workflow runs by the event source. The event source
+                                                               is what triggered this workflow on the SCM.</p>
+                                                               <p> A pull/merge request number like <em>12345</em></p>
+                                                               <p>or a git commit hash like
+                                                               <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>' } }
   = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'PR/MR', selected_input_filter: @selected_filter[:pr_number],
-                                               placeholder: 'Type PR/MR number...')
+                                               placeholder: '12345')
   = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'Commit', selected_input_filter: @selected_filter[:commit_sha],
-                                               placeholder: 'Type commit SHA...')
+                                               placeholder: '97561db8664eaf86a1e4c7b77d5fb5d5bff6681e')
