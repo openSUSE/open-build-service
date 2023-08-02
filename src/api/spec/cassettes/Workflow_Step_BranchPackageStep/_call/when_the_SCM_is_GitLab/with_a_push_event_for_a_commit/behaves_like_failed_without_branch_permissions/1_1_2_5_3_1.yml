@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_5
+    uri: http://backend:5352/source/foo_project/_meta?user=user_35
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>In Dubious Battle</title>
+          <title>Edna O'Brien</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>In Dubious Battle</title>
+          <title>Edna O'Brien</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_6
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_36
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Rosemary Sutcliff</title>
-          <description>Aliquam a distinctio placeat.</description>
+          <title>A Farewell to Arms</title>
+          <description>Qui qui voluptatibus voluptatem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Rosemary Sutcliff</title>
-          <description>Aliquam a distinctio placeat.</description>
+          <title>A Farewell to Arms</title>
+          <description>Qui qui voluptatibus voluptatem.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Laborum quia qui. Ullam impedit inventore. Rerum modi qui.
+      string: Consequuntur deserunt est. Natus totam occaecati. Explicabo eveniet
+        facere.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +144,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>77a59da6ac11ba006c45d80822155227</srcmd5>
+        <revision rev="2055" vrev="2055">
+          <srcmd5>7e33a1f10731aa770b86a10e77f3aa04</srcmd5>
           <version>unknown</version>
-          <time>1685969035</time>
+          <time>1690970535</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sit eum necessitatibus. Debitis omnis amet. Nemo odio libero.
+      string: Praesentium corrupti sapiente. Itaque voluptatibus odit. Aut natus omnis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +182,51 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>db359e61f69237f7777cf2a291a44df6</srcmd5>
+        <revision rev="2056" vrev="2056">
+          <srcmd5>dd626e79494dfe00c7e6246a7ff0399d</srcmd5>
           <version>unknown</version>
-          <time>1685969035</time>
+          <time>1690970535</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:43:55 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
+recorded_with: VCR 6.2.0

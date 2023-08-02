@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:02 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_23
+    uri: http://backend:5352/source/foo_project/_meta?user=user_33
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Sleep the Brave</title>
+          <title>Precious Bane</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Sleep the Brave</title>
+          <title>Precious Bane</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:03 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_24
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_34
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Officia commodi odit beatae.</description>
+          <title>The Wind's Twelve Quarters</title>
+          <description>Repudiandae ex voluptatem tenetur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Officia commodi odit beatae.</description>
+          <title>The Wind's Twelve Quarters</title>
+          <description>Repudiandae ex voluptatem tenetur.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:44:03 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Et magni in. Sit eius qui. Libero perspiciatis sed.
+      string: Ex suscipit deleniti. In odio suscipit. Sed et aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,26 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>251b6e0fe093428654d66128e883c6a5</srcmd5>
+        <revision rev="2053" vrev="2053">
+          <srcmd5>e8f03a95c3e739a86af2d090220276b0</srcmd5>
           <version>unknown</version>
-          <time>1685969043</time>
+          <time>1690970535</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:44:03 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Occaecati recusandae et. Excepturi voluptatem ipsum. Distinctio veniam
-        eos.
+      string: Iste odit necessitatibus. Molestiae sunt sint. Ut voluptatibus aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>0470110c9dcb4b36b3e27cd3b8ffbd59</srcmd5>
+        <revision rev="2054" vrev="2054">
+          <srcmd5>4c03b909d31d7248c6aeae4253855657</srcmd5>
           <version>unknown</version>
-          <time>1685969043</time>
+          <time>1690970535</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:44:03 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 02 Aug 2023 10:02:15 GMT
+recorded_with: VCR 6.2.0

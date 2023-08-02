@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:45 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_125
+    uri: http://backend:5352/source/foo_project/_meta?user=user_97
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Monkey's Raincoat</title>
+          <title>The Golden Apples of the Sun</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Monkey's Raincoat</title>
+          <title>The Golden Apples of the Sun</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 05 Jun 2023 12:44:45 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_126
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_98
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Omnis magni et delectus.</description>
+          <title>Eyeless in Gaza</title>
+          <description>Autem quod quibusdam excepturi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Omnis magni et delectus.</description>
+          <title>Eyeless in Gaza</title>
+          <description>Autem quod quibusdam excepturi.</description>
         </package>
-  recorded_at: Mon, 05 Jun 2023 12:44:45 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Voluptatem voluptates saepe. Consequuntur asperiores dolore. Minima
-        ea autem.
+      string: Et quo dolores. Et corporis velit. Quia et reiciendis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="131" vrev="131">
-          <srcmd5>bb975dd325ae493ff86d9a28a2fa4fd3</srcmd5>
+        <revision rev="2117" vrev="2117">
+          <srcmd5>eb6e9c77363a54155aeaa01521285eaa</srcmd5>
           <version>unknown</version>
-          <time>1685969085</time>
+          <time>1690970562</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:44:45 GMT
+  recorded_at: Wed, 02 Aug 2023 10:02:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: In natus nostrum. Facilis sapiente ut. Quae nihil non.
+      string: Pariatur ratione numquam. Commodi voluptatem ducimus. Quo quidem est.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,17 +181,51 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="132" vrev="132">
-          <srcmd5>c33a9efcfced7c6f65f795c84b7daba5</srcmd5>
+        <revision rev="2118" vrev="2118">
+          <srcmd5>6e2ef6744e89dd2f2e5313ed772ebf89</srcmd5>
           <version>unknown</version>
-          <time>1685969085</time>
+          <time>1690970562</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 05 Jun 2023 12:44:45 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 02 Aug 2023 10:02:42 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 02 Aug 2023 10:02:42 GMT
+recorded_with: VCR 6.2.0

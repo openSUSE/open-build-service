@@ -70,6 +70,9 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     end
 
     begin
+      # Service running on package avoids branching it: wait until services finish
+      Backend::Api::Sources::Package.wait_service(source_project_name, source_package_name)
+
       BranchPackage.new({ project: source_project_name, package: source_package_name,
                           target_project: target_project_name,
                           target_package: target_package_name }).branch
