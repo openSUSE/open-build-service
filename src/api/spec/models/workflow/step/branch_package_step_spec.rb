@@ -441,7 +441,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         end
 
         context 'on a package level with a subdir query' do
-          subdir = '?subdir=my_awesome_pkg'
+          subdir = '?subdir=hello_world01'
           before do
             package.update(scmsync: scmsync_url + subdir)
           end
@@ -451,7 +451,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         end
 
         context 'on a package level with a branch fragment' do
-          fragment = '#my-test-branch'
+          fragment = '#krauselukas-patch-2'
           before do
             package.update(scmsync: scmsync_url + fragment)
           end
@@ -461,8 +461,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
         end
 
         context 'on a package level with a subdir query and a branch fragment' do
-          subdir = '?subdir=my_test_pkg'
-          fragment = '#my-branch'
+          subdir = '?subdir=hello_world01'
+          fragment = '#krauselukas-patch-2'
           before do
             package.update(scmsync: scmsync_url + subdir + fragment)
           end
