@@ -6,7 +6,7 @@ class WorkflowRunsFinder
   }.freeze
 
   def initialize(relation = WorkflowRun.all)
-    @relation = relation.order(created_at: :desc)
+    @relation = relation.includes([:token]).order(created_at: :desc)
   end
 
   def all
