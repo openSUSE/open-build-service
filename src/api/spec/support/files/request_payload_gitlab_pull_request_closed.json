@@ -9,7 +9,8 @@
   "object_attributes": {
     "id": 49732567,
     "iid": 1,
-    "action": "close"
+    "action": "close",
+    "url": "http://github.com/something"
   },
   "repository": {
     "name": "hello_world",

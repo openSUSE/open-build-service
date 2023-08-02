@@ -3,7 +3,8 @@
   "event_type": "merge_request",
   "object_attributes": {
     "iid": 3,
-    "action": "merge"
+    "action": "merge",
+    "url": "http://github.com/something"
   },
   "project": {
     "path_with_namespace": "iggy/test"
