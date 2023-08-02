@@ -1,11 +1,12 @@
 class GitlabStatusReporter < SCMExceptionHandler
   attr_accessor :state, :initial_report, :event_type
 
-  def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, _event_type = nil, initial_report: false)
+  def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, event_type = nil, initial_report: false)
     super(event_payload, event_subscription_payload, scm_token, workflow_run)
 
     @state = translate_state(state)
     @initial_report = initial_report
+    @event_type = event_type
   end
 
   def call
