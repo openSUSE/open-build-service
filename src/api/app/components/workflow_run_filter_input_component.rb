@@ -11,7 +11,7 @@ class WorkflowRunFilterInputComponent < ApplicationComponent
   end
 
   def css_for_filter_item
-    'active' if @selected_input_filter
+    'active' if @selected_input_filter.present?
   end
 
   def selected_filter_value

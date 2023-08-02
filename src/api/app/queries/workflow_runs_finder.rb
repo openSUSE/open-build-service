@@ -41,6 +41,8 @@ class WorkflowRunsFinder
   end
 
   def with_event_source_name(event_source_name, filter)
+    return @relation.all if event_source_name.blank?
+
     hook_events_array = case filter
                         when 'commit'
                           # Both push and tag_push related events deal with commit sha.
