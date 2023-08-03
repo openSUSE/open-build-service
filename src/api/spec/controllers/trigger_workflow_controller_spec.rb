@@ -29,8 +29,7 @@ RSpec.describe TriggerWorkflowController do
         allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
-        allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
+        allow(octokit_client).to receive(:content).and_raise(Octokit::NotFound)
         request.headers['ACCEPT'] = '*/*'
         request.headers['CONTENT_TYPE'] = 'application/json'
         request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
@@ -40,8 +39,7 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response).to have_http_status(:not_found) }
 
       it "displays a user-friendly error message in the response's body" do
-        expect(response.body).to include(".obs/workflows.yml could not be downloaded from the SCM branch/commit main.\nIs the configuration file in the expected place? " \
-                                         "Check #{Workflows::YAMLDownloader::DOCUMENTATION_LINK}\nBeep Boop, something is wrong")
+        expect(response.body).to include('.obs/workflows.yml could not be downloaded from the SCM branch/commit main: Octokit::NotFound')
       end
 
       it { expect(WorkflowRun.count).to eq(1) }
@@ -136,7 +134,7 @@ RSpec.describe TriggerWorkflowController do
         allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(token)
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:content).and_return({ download_url: 'https://google.com' })
+        allow(octokit_client).to receive(:content).and_return({ content: Base64.encode64('Test content') })
         allow(Down).to receive(:download).and_raise(Down::Error, 'Beep Boop, something is wrong')
         request.headers['ACCEPT'] = '*/*'
         request.headers['CONTENT_TYPE'] = 'application/json'
