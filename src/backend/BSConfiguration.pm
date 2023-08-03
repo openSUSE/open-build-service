@@ -93,6 +93,7 @@ $BSConfig::service_timeout          = $BSConfig::service_timeout          || 360
 $BSConfig::cloudupload_pubkey       = $BSConfig::cloudupload_pubkey       || '/etc/obs/cloudupload/_pubkey';
 
 $BSConfig::redisserver = undef unless $BSConfig::redisserver;
+$BSConfig::notifyforward = undef unless defined $BSConfig::notifyforward;
 $BSConfig::local_registry_signatures_extension = undef unless $BSConfig::local_registry_signatures_extension;
 $BSConfig::sourcepublish_sync = undef unless $BSConfig::sourcepublish_sync;
 

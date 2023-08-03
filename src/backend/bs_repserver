@@ -1932,7 +1932,7 @@ sub workerstatus {
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
   push @daemonarchs, 'dodup' if -e "$rundir/bs_dodup.lock";
-  push @daemonarchs, 'notifyforward' if $BSConfig::redisserver;
+  push @daemonarchs, 'notifyforward' if $BSConfig::notifyforward || $BSConfig::redisserver;
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $arch (@daemonarchs) {
     local *F;
