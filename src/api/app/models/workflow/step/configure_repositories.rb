@@ -9,8 +9,8 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_project_name
 
   def call
-    return unless valid?
     return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+    return unless valid?
 
     configure_repositories
   end
