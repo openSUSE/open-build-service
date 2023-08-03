@@ -814,7 +814,7 @@ if (-s "$rundir/$runname.state") {
 }
 
 if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
-  BSUtil::printlog("running is dispatch slave mode");
+  BSUtil::printlog("running in dispatch slave mode");
 }
 
 if ($options->{testmode}) {

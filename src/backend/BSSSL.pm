@@ -94,6 +94,21 @@ sub tossl {
   tie(*{\*S}, 'BSSSL', \*S, @_);
 }
 
+sub ssl_iseof {
+  my ($socket, $noselect) = @_;
+  if (!$noselect) {
+    my $vec = '';
+    vec($vec, fileno($socket), 1) = 1;
+    my $r = select($vec, undef, undef, 0);
+    die("select: $!\n") if !defined($r) || $r < 0;
+    return 0 unless $r;
+  }
+  my $buf = '';
+  my $r = recv($socket, $buf, 1, Socket::MSG_PEEK());
+  die("recv: $!\n") unless defined $r;
+  return length($buf) ? 0 : 1;
+}
+
 # this assumes the socket is in non-block mode
 sub ssl_connect_with_timeout {
   my ($ssl, $socket, $timeout) = @_;
@@ -110,6 +125,7 @@ sub ssl_connect_with_timeout {
       $r = select(undef, $vec, undef, $timeout - $now);
     } elsif ($code == &Net::SSLeay::ERROR_WANT_READ) {
       $r = select($vec, undef, undef, $timeout - $now);
+      die("SSL_connect EOF\n") if $r && ssl_iseof($socket, 1);
     } else {
       die_with_error_stack("SSL_connect error ($code)");
     }
@@ -181,6 +197,7 @@ sub READ {
   my ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
   if ($rv && $rv < 0) {
     my $code = Net::SSLeay::get_error($sslr->[0], $rv);
+    return 0 if $code == &Net::SSLeay::ERROR_WANT_READ && ssl_iseof($sslr->[1]);
     $! = POSIX::EINTR if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
   }
   return undef unless defined $r;

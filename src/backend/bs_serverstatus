@@ -73,12 +73,17 @@ if (-S $ARGV[0]) {
     }
     # create slots
     my $lasteventscount = 0;
+    my $lasteventsproxycount = 0;
     my @slots;
     for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
       my $id = $job->{'ev'};
       next if $id == $ajaxstatus->{'ev'};
       if ($nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lastevents\?/) {
 	$lasteventscount++;
+	next;
+      }
+      if ($nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lasteventsproxy\?/) {
+	$lasteventsproxycount++;
 	next;
       }
       my $slot = $slots{$id};
@@ -96,6 +101,7 @@ if (-S $ARGV[0]) {
       $slots[$slot] = substr($str, 0, $cols - 1);
     }
     if ($nolastevents) {
+      unshift @slots, "suppressed lasteventsproxy: $lasteventsproxycount";
       unshift @slots, "suppressed lastevents: $lasteventscount";
     }
     if ($ajaxstatus->{'watcher'}) {
