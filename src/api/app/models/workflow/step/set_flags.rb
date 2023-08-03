@@ -7,6 +7,7 @@ class Workflow::Step::SetFlags < Workflow::Step
 
   def call
     return unless valid?
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
 
     set_flags
   end

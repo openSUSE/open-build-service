@@ -65,7 +65,10 @@ RSpec.describe Workflow, vcr: true do
           { 'steps' => [
             {
               'configure_repositories' => {
-                'project' => 'test-target-project'
+                'project' => 'test-target-project',
+                'repositories' => [{
+                  'name' => 'openSUSE_Tumbleweed'
+                }]
               }
             }
           ] }

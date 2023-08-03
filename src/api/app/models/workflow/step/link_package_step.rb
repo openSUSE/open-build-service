@@ -1,5 +1,6 @@
 class Workflow::Step::LinkPackageStep < Workflow::Step
   include ScmSyncEnabledStep
+  include TargetProjectLifeCycleSupport
 
   REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
 
@@ -8,7 +9,13 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def call
     return unless valid?
 
-    link_package
+    if scm_webhook.closed_merged_pull_request?
+      destroy_target_project
+    elsif scm_webhook.reopened_pull_request?
+      restore_target_project
+    else
+      link_package
+    end
   end
 
   private
