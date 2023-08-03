@@ -7,6 +7,8 @@ class Workflow::Step::TriggerServices < Workflow::Step
   validate :validate_project_and_package_name
 
   def call
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+
     @project_name = step_instructions[:project]
     @package_name = step_instructions[:package]
 
