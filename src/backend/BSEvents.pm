@@ -107,6 +107,16 @@ sub rem {
   delete $events{$ev->{'id'}};
 }
 
+sub call_event_handler {
+  my ($ev, $handler) = @_;
+  my $now = time();
+  $handler->($ev);
+  my $duration = time() - $now;
+  if ($duration > 5) {
+    warn("event handler $handler of event $ev took $duration seconds\n");
+  }
+}
+
 sub schedule {
 
   while (1) {
@@ -124,7 +134,7 @@ sub schedule {
 	next unless $ev && $ev->{'timeout'} && $ev->{'timeout'} <= $now;
         #print "timeout for event #$ev->{'id'}\n" if $ev->{'fd'};
 	rem($ev);
-	$ev->{'timeouthandler'}->($ev) if $ev->{'timeouthandler'};
+	call_event_handler($ev, $ev->{'timeouthandler'}) if $ev->{'timeouthandler'};
       }
       next;
     }
@@ -139,14 +149,14 @@ sub schedule {
     if ($ev) {
       #print "fast call for read #$ev->{'id'} fd ".fileno(*{$ev->{'fd'}})."\n";
       rem($ev);
-      $ev->{'handler'}->($ev);
+      call_event_handler($ev, $ev->{'handler'});
       undef $rvec;
     }
     $ev = $events_wvec{$wvec};
     if ($ev) {
       #print "fast call for write #$ev->{'id'} fd ".fileno(*{$ev->{'fd'}})."\n";
       rem($ev);
-      $ev->{'handler'}->($ev);
+      call_event_handler($ev, $ev->{'handler'});
       undef $wvec;
     }
     $rvec = undef if defined($rvec) && $rvec eq $emptyvec;
@@ -159,13 +169,13 @@ sub schedule {
       if (defined($rvec) && $ev->{'type'} eq 'read' && vec($rvec, fileno(*{$ev->{'fd'}}), 1)) {
         #print "slow call for read #$ev->{'id'} fd ".fileno(*{$ev->{'fd'}})."\n";
         rem($ev);
-        $ev->{'handler'}->($ev);
+        call_event_handler($ev, $ev->{'handler'});
         next;
       }
       if (defined($wvec) && $ev->{'type'} eq 'write' && vec($wvec, fileno(*{$ev->{'fd'}}), 1)) {
         #print "slow call for write #$ev->{'id'} fd ".fileno(*{$ev->{'fd'}})."\n";
         rem($ev);
-        $ev->{'handler'}->($ev);
+        call_event_handler($ev, $ev->{'handler'});
         next;
       }
     }
