@@ -9,8 +9,13 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_project_name
 
   def call
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
     return unless valid?
 
+    configure_repositories
+  end
+
+  def configure_repositories
     target_project = Project.get_by_name(target_project_name)
     Pundit.authorize(@token.executor, target_project, :update?)
 

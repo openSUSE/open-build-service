@@ -6,6 +6,7 @@ class Workflow::Step::SetFlags < Workflow::Step
   validate :validate_flags
 
   def call
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
     return unless valid?
 
     set_flags

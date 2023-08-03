@@ -8,6 +8,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
   validate :validate_project_and_package_name
 
   def call
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
     return unless valid?
 
     # Call Triggerable method to set all the elements needed for rebuilding
