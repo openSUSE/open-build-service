@@ -29,7 +29,6 @@ class Workflow
   validates_with WorkflowVersionValidator
   validate :event_supports_branches_filter?, on: :call, if: :event_matches_event_filter?
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def call
     run_callbacks(:call) do
       return unless event_matches_event_filter?
@@ -41,7 +40,6 @@ class Workflow
       end
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def event_supports_branches_filter?
     # Tags do not have a reference to a branch, they are referring to a commit
