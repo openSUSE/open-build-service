@@ -113,13 +113,13 @@ sub notify {
   my ($ctx, $type, $buildid) = @_;
 
   my $myarch = $ctx->{'gctx'}->{'arch'};
-  if ($BSConfig::redisserver) {
-    # use the redis forwarder to send the notification
+  if (defined($BSConfig::notifyforward) ? $BSConfig::notifyforward : $BSConfig::redisserver) {
+    # use the notification/redis forwarder to send the notification
     BSRedisnotify::addforwardjob($type, "project=$ctx->{'project'}", "repo=$ctx->{'repository'}", "arch=$myarch", "buildid=$buildid");
-    return;
+  } else {
+    my $body = { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $buildid };
+    BSNotify::notify($type, $body);
   }
-  my $body = { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $buildid };
-  BSNotify::notify($type, $body);
 }
 
 =head2 set_repo_state - update the :schedulerstate file of a prp
