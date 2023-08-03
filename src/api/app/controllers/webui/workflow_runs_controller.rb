@@ -5,6 +5,10 @@ class Webui::WorkflowRunsController < Webui::WebuiController
     @request_action = params[:request_action] if params[:request_action].present? && params[:request_action] != 'all'
     @workflow_runs = if params[:status]
                        @workflow_runs_finder.with_status(params[:status])
+                     elsif params[:pr_mr]
+                       @workflow_runs_finder.with_event_source_name(params[:pr_mr], 'pr_mr')
+                     elsif params[:commit]
+                       @workflow_runs_finder.with_event_source_name(params[:commit], 'commit')
                      elsif params[:generic_event_type]
                        @workflow_runs_finder.with_generic_event_type(params[:generic_event_type], @request_action)
                      else
@@ -25,6 +29,9 @@ class Webui::WorkflowRunsController < Webui::WebuiController
   end
 
   def selected_filter
-    { generic_event_type: params[:generic_event_type], status: params[:status] }.compact
+    { generic_event_type: params[:generic_event_type],
+      status: params[:status],
+      pr_number: params[:pr_mr],
+      commit_sha: params[:commit] }.compact
   end
 end

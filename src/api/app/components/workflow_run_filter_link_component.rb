@@ -21,6 +21,9 @@ class WorkflowRunFilterLinkComponent < ApplicationComponent
   private
 
   def workflow_run_filter_matches?
+    # None of the filter links is active when filtering by PR/MR number or commit SHA
+    return false if @selected_filter[:pr_mr] || @selected_filter[:commit]
+
     if @selected_filter[:status].present?
       @filter_item[:status] == @selected_filter[:status]
     elsif @selected_filter[:generic_event_type].present?
