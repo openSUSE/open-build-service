@@ -57,10 +57,9 @@ class WorkerMeasurementsJob < ApplicationJob
       partition = daemon.parent.values.first
       type = daemon.attributes['type'].value
       state = daemon.attributes['state'].value
-      starttime = daemon.attributes['starttime'].value
       arch = daemon.attributes['arch']
       arch = (arch.nil? ? '' : ",arch=#{arch.value}")
-      RabbitmqBus.send_to_bus('metrics', "backend_daemon_status,partition=#{partition},type=#{type},state=#{state}#{arch} starttime=#{starttime}")
+      RabbitmqBus.send_to_bus('metrics', "backend_daemon_status,partition=#{partition},type=#{type},state=#{state}#{arch} count=1")
     end
   end
 end
