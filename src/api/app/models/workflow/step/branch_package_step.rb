@@ -101,7 +101,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                             branch_request_content_gitea
                           end
 
-    package.save_file({ file: branch_request_file, filename: '_branch_request' })
+    package.save_file({ file: branch_request_file, filename: '_branch_request', comment: 'Updated _branch_request file via SCM/CI Workflow run' })
   end
 
   def branch_request_content_github
