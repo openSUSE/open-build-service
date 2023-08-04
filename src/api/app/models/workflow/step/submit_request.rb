@@ -14,14 +14,15 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     when scm_webhook.new_pull_request?, scm_webhook.reopened_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
       submit_package
     end
-    collect_artifacts
+  end
+
+  def artifact
+    return { @bs_request.state => @bs_request.number } if @bs_request
+
+    {}
   end
 
   private
-
-  def collect_artifacts
-    Workflows::ArtifactsCollector.new(step: self, workflow_run_id: workflow_run.id, request_numbers_and_state_for_artifacts: @request_numbers_and_state_for_artifacts).call
-  end
 
   def bs_request_description
     step_instructions[:description] || workflow_run.event_source_message
@@ -36,14 +37,13 @@ class Workflow::Step::SubmitRequest < Workflow::Step
                                             target_package: step_instructions[:target_package],
                                             source_rev: source_package_revision,
                                             type: 'submit')
-    bs_request = BsRequest.new(bs_request_actions: [bs_request_action],
-                               description: bs_request_description)
-    Pundit.authorize(@token.executor, bs_request, :create?)
-    bs_request.save!
+    @bs_request = BsRequest.new(bs_request_actions: [bs_request_action],
+                                description: bs_request_description)
+    Pundit.authorize(@token.executor, @bs_request, :create?)
+    @bs_request.save!
 
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, bs_request).call
-    (@request_numbers_and_state_for_artifacts["#{bs_request.state}"] ||= []) << bs_request.number
-    bs_request
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @bs_request).call
+    @bs_request
   end
 
   def supersede_previous_and_submit_request

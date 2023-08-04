@@ -51,10 +51,6 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
       it 'creates an event subcription' do
         expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
       end
-
-      it 'creates workflow artifacts' do
-        expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
-      end
     end
 
     context 'for a closed PR' do
@@ -94,10 +90,6 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
             bs_request.reload
           end.to(change(bs_request, :state).from(:new).to(:superseded))
         end
-
-        it 'creates the workflow artifact' do
-          expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
-        end
       end
 
       context 'when the token user is not authorized' do
@@ -134,10 +126,6 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
       it 'creates an event subcription' do
         expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
       end
-
-      it 'creates workflow artifacts' do
-        expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
-      end
     end
 
     context 'for a tag push event' do
@@ -159,10 +147,6 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
 
       it 'creates no event subcription' do
         expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count))
-      end
-
-      it 'creates workflow artifacts' do
-        expect { subject.call }.to(change(WorkflowArtifactsPerStep.where(workflow_run_id: workflow_run.id), :count).by(1))
       end
     end
   end

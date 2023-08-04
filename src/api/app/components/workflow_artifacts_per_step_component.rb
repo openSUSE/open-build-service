@@ -36,11 +36,9 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
 
   def artifacts_for_submit_request(parsed_artifacts)
     capture do
-      parsed_artifacts[:request_numbers_and_state].each do |key, value|
-        value.each do |request_number|
-          request_path = helpers.request_show_path(number: request_number)
-          concat(tag.li(link_to("Request #{request_number} -> #{key}", request_path)))
-        end
+      parsed_artifacts[:request_numbers_and_state].each do |key, request_number|
+        request_path = helpers.request_show_path(number: request_number)
+        concat(tag.li(link_to("Request #{request_number} -> #{key}", request_path)))
       end
     end
   end
