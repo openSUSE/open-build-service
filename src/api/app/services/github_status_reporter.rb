@@ -1,11 +1,12 @@
 class GithubStatusReporter < SCMExceptionHandler
-  attr_accessor :state, :initial_report
+  attr_accessor :state, :initial_report, :event_type
 
-  def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, initial_report: false)
+  def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, event_type = nil, initial_report: false)
     super(event_payload, event_subscription_payload, scm_token, workflow_run)
 
     @state = state
     @initial_report = initial_report
+    @event_type = event_type
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
@@ -47,6 +48,9 @@ class GithubStatusReporter < SCMExceptionHandler
     if @initial_report
       { context: 'OBS SCM/CI Workflow Integration started',
         target_url: Rails.application.routes.url_helpers.token_workflow_run_url(@workflow_run.token_id, @workflow_run.id, host: Configuration.obs_url) }
+    elsif @event_type == 'Event::RequestStatechange'
+      { context: "OBS: Request #{@event_payload[:number]} - #{@event_payload[:state]}",
+        target_url: Rails.application.routes.url_helpers.request_show_url(@event_payload[:number], host: Configuration.obs_url) }
     else
       { context: "OBS: #{@event_payload[:package]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
         target_url: Rails.application.routes.url_helpers.package_show_url(@event_payload[:project], @event_payload[:package], host: Configuration.obs_url) }

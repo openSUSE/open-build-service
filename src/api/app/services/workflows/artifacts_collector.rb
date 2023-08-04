@@ -21,6 +21,10 @@ module Workflows
                       project: @step.target_project_name,
                       repositories: @step.step_instructions[:repositories]
                     }
+                  when 'Workflow::Step::SubmitRequest'
+                    {
+                      request_numbers_and_state: @step.artifact
+                    }
                   end
       WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json) if artifacts
     end

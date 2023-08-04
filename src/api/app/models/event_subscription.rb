@@ -37,6 +37,7 @@ class EventSubscription < ApplicationRecord
   belongs_to :token, inverse_of: :event_subscriptions, optional: true
   belongs_to :package, optional: true
   belongs_to :workflow_run, inverse_of: :event_subscriptions, optional: true
+  belongs_to :bs_request, optional: true
 
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
@@ -113,6 +114,7 @@ end
 #  receiver_role   :string(255)      not null
 #  created_at      :datetime
 #  updated_at      :datetime
+#  bs_request_id   :integer          indexed
 #  group_id        :integer          indexed
 #  package_id      :integer          indexed
 #  token_id        :integer          indexed
@@ -121,6 +123,7 @@ end
 #
 # Indexes
 #
+#  index_event_subscriptions_on_bs_request_id    (bs_request_id)
 #  index_event_subscriptions_on_group_id         (group_id)
 #  index_event_subscriptions_on_package_id       (package_id)
 #  index_event_subscriptions_on_token_id         (token_id)

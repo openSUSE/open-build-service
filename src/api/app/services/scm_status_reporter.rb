@@ -7,6 +7,7 @@ class SCMStatusReporter
     @scm_token = scm_token
     @workflow_run = workflow_run
     @initial_report = initial_report
+    @event_type = event_type
 
     @state = if @initial_report
                event_type.nil? ? 'pending' : 'success'
@@ -22,6 +23,7 @@ class SCMStatusReporter
                                @scm_token,
                                @state,
                                @workflow_run,
+                               @event_type,
                                initial_report: @initial_report).call
     elsif gitlab?
       GitlabStatusReporter.new(@event_payload,
@@ -29,6 +31,7 @@ class SCMStatusReporter
                                @scm_token,
                                @state,
                                @workflow_run,
+                               @event_type,
                                initial_report: @initial_report).call
     elsif gitea?
       GiteaStatusReporter.new(@event_payload,
@@ -36,6 +39,7 @@ class SCMStatusReporter
                               @scm_token,
                               @state,
                               @workflow_run,
+                              @event_type,
                               initial_report: @initial_report).call
     end
   end
@@ -60,6 +64,11 @@ class SCMStatusReporter
       'failure'
     when 'Event::BuildSuccess'
       'success'
+    when 'Event::RequestStatechange'
+      return 'success' if @event_payload[:state] == 'accepted'
+      return 'failure' if ['declined', 'superseded', 'revoked'].include?(@event_payload[:state])
+
+      'pending'
     else
       'pending'
     end

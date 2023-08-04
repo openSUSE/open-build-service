@@ -1,0 +1,508 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 01 Aug 2023 13:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=user_11
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>The Stars' Tennis Balls</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>The Stars' Tennis Balls</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 01 Aug 2023 13:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_12
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>Recalled to Life</title>
+          <description>Qui vitae eos qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>Recalled to Life</title>
+          <description>Qui vitae eos qui.</description>
+        </package>
+  recorded_at: Tue, 01 Aug 2023 13:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_config
+    body:
+      encoding: UTF-8
+      string: Veritatis possimus voluptatem. Repudiandae dolorem doloremque. Et labore
+        consequuntur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="35" vrev="35">
+          <srcmd5>3a1f5f99059a5e4daf2a2be799158995</srcmd5>
+          <version>unknown</version>
+          <time>1690894958</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 01 Aug 2023 13:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Atque occaecati iusto. Suscipit temporibus debitis. Omnis cum enim.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="36" vrev="36">
+          <srcmd5>f32e3004bfe3646fab6b9252e10d98b4</srcmd5>
+          <version>unknown</version>
+          <time>1690894958</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 01 Aug 2023 13:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/baz_project/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="baz_project">
+          <title>Tender Is the Night</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="baz_project">
+          <title>Tender Is the Night</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="36" vrev="36" srcmd5="f32e3004bfe3646fab6b9252e10d98b4">
+          <entry name="_config" md5="247335c576163749617423d6b9a78e93" size="86" mtime="1690894958"/>
+          <entry name="somefile.txt" md5="65b06319e5965de7c583d7519cb80bc2" size="67" mtime="1690894958"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="36" vrev="36" srcmd5="f32e3004bfe3646fab6b9252e10d98b4">
+          <entry name="_config" md5="247335c576163749617423d6b9a78e93" size="86" mtime="1690894958"/>
+          <entry name="somefile.txt" md5="65b06319e5965de7c583d7519cb80bc2" size="67" mtime="1690894958"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="36" vrev="36" srcmd5="f32e3004bfe3646fab6b9252e10d98b4">
+          <entry name="_config" md5="247335c576163749617423d6b9a78e93" size="86" mtime="1690894958"/>
+          <entry name="somefile.txt" md5="65b06319e5965de7c583d7519cb80bc2" size="67" mtime="1690894958"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=36
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          _config
+          somefile.txt
+
+        other changes:
+        --------------
+
+        ++++++ _config (new)
+        --- _config
+        +++ _config
+
+        ++++++ somefile.txt (new)
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package?expand=1&rev=36
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="36" vrev="36" srcmd5="f32e3004bfe3646fab6b9252e10d98b4">
+          <entry name="_config" md5="247335c576163749617423d6b9a78e93" size="86" mtime="1690894958"/>
+          <entry name="somefile.txt" md5="65b06319e5965de7c583d7519cb80bc2" size="67" mtime="1690894958"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="36" vrev="36" srcmd5="f32e3004bfe3646fab6b9252e10d98b4">
+          <entry name="_config" md5="247335c576163749617423d6b9a78e93" size="86" mtime="1690894958"/>
+          <entry name="somefile.txt" md5="65b06319e5965de7c583d7519cb80bc2" size="67" mtime="1690894958"/>
+        </directory>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=36&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '855'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="aa0e606182e865cf74e866a6fde1238b">
+          <old project="foo_project" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="foo_project" package="bar_package" rev="36" srcmd5="f32e3004bfe3646fab6b9252e10d98b4"/>
+          <files>
+            <file state="added">
+              <new name="_config" md5="247335c576163749617423d6b9a78e93" size="86"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Veritatis possimus voluptatem. Repudiandae dolorem doloremque. Et labore consequuntur.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="somefile.txt" md5="65b06319e5965de7c583d7519cb80bc2" size="67"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Atque occaecati iusto. Suscipit temporibus debitis. Omnis cum enim.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 01 Aug 2023 13:02:39 GMT
+recorded_with: VCR 6.2.0
