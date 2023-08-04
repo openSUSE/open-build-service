@@ -130,7 +130,7 @@ GEM
     crass (1.0.6)
     daemons (1.4.1)
     dalli (3.2.5)
-    data_migrate (9.1.0)
+    data_migrate (9.1.1)
       activerecord (>= 6.0)
       railties (>= 6.0)
     database_cleaner-active_record (2.1.0)
@@ -336,7 +336,7 @@ GEM
       actionpack (>= 5.0.1.rc1)
       actionview (>= 5.0.1.rc1)
       activesupport (>= 5.0.1.rc1)
-    rails-dom-testing (2.1.1)
+    rails-dom-testing (2.2.0)
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
