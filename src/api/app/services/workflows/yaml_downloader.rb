@@ -9,44 +9,27 @@ module Workflows
     end
 
     def call
-      download_yaml_file
+      return download_from_url(@token.workflow_configuration_url) if @token.workflow_configuration_url.present?
+
+      case @scm_payload[:scm]
+      when 'gitea'
+        download_gitea_yaml_file
+      when 'github'
+        download_github_yaml_file
+      when 'gitlab'
+        download_gitlab_yaml_file
+      end
     end
 
     private
 
-    def download_yaml_file
-      url = download_url
-      if url.present?
-        Down.download(url, max_size: MAX_FILE_SIZE)
-      elsif @scm_payload[:scm] == 'gitlab'
-        download_gitlab_yaml_file
-      elsif @scm_payload[:scm] == 'github'
-        download_github_yaml_file
-      end
-    rescue Down::Error => e
-      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
-
-      # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
-      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}." \
-                                                     "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}"
-    end
-
-    def download_url
-      # When an external URL is given, it prevails over the path.
-      return @token.workflow_configuration_url if @token.workflow_configuration_url.present?
-
-      case @scm_payload[:scm]
-      when 'gitea'
-        gitea_download_url
-      end
-    end
-
-    def gitea_download_url
-      if @scm_payload[:tag_name].present?
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/tag/#{@scm_payload[:tag_name]}/#{@token.workflow_configuration_path}"
-      else
-        "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
-      end
+    def download_gitea_yaml_file
+      url = if @scm_payload[:tag_name].present?
+              "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/tag/#{@scm_payload[:tag_name]}/#{@token.workflow_configuration_path}"
+            else
+              "#{@scm_payload[:api_endpoint]}/#{@scm_payload[:target_repository_full_name]}/raw/branch/#{@scm_payload[:target_branch]}/#{@token.workflow_configuration_path}"
+            end
+      download_from_url(url)
     end
 
     def download_github_yaml_file
@@ -80,6 +63,16 @@ module Workflows
       tempfile.write(content)
       tempfile.rewind
       tempfile
+    end
+
+    def download_from_url(url)
+      Down.download(url, max_size: MAX_FILE_SIZE)
+    rescue Down::Error => e
+      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
+
+      # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
+      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}." \
+                                                     "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}"
     end
   end
 end
