@@ -90,4 +90,44 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
     target_package
   end
+
+  def add_branch_request_file(package:)
+    branch_request_file = case scm_webhook.payload[:scm]
+                          when 'github'
+                            branch_request_content_github
+                          when 'gitlab'
+                            branch_request_content_gitlab
+                          when 'gitea'
+                            branch_request_content_gitea
+                          end
+
+    package.save_file({ file: branch_request_file, filename: '_branch_request' })
+  end
+
+  def branch_request_content_github
+    {
+      # TODO: change to scm_webhook.payload[:action]
+      # when check_for_branch_request method in obs-service-tar_scm accepts other actions than 'opened'
+      # https://github.com/openSUSE/obs-service-tar_scm/blob/2319f50e741e058ad599a6890ac5c710112d5e48/TarSCM/tasks.py#L145
+      action: 'opened',
+      pull_request: {
+        head: {
+          repo: { full_name: scm_webhook.payload[:source_repository_full_name] },
+          sha: scm_webhook.payload[:commit_sha]
+        }
+      }
+    }.to_json
+  end
+
+  def branch_request_content_gitlab
+    { object_kind: scm_webhook.payload[:object_kind],
+      project: { http_url: scm_webhook.payload[:http_url] },
+      object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
+  end
+
+  def branch_request_content_gitea
+    { object_kind: 'merge_request',
+      project: { http_url: scm_webhook.payload[:http_url] },
+      object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
+  end
 end
