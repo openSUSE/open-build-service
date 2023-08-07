@@ -100,12 +100,12 @@ class WorkflowRun < ApplicationRecord
   def pull_request_message
     case scm_vendor
     when 'github', 'gitea'
-      title = payload.dig(:pull_request, :title)
-      body = payload.dig(:pull_request, :body)
+      title = payload.dig('pull_request', 'title')
+      body = payload.dig('pull_request', 'body')
       "#{title}\n#{body}"
     when 'gitlab'
-      title = payload.dig(:object_attributes, :title)
-      body = payload.dig(:object_attributes, :description)
+      title = payload.dig('object_attributes', 'title')
+      body = payload.dig('object_attributes', 'description')
       "#{title}\n#{body}"
     end
   end
@@ -113,15 +113,15 @@ class WorkflowRun < ApplicationRecord
   def push_message
     case scm_vendor
     when 'github', 'gitea'
-      payload.dig(:head_commit, :message)
+      payload.dig('head_commit', 'message')
     when 'gitlab'
-      payload.dig(:commits, 0, :message)
+      payload.dig('commits', 0, 'message')
     end
   end
 
   # FIXME: How to get the real commit message for tag_push?
   def tag_push_message
-    "Tag #{payload[:ref]} got pushed"
+    "Tag #{payload['ref']} got pushed"
   end
 end
 
