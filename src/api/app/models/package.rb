@@ -175,6 +175,9 @@ class Package < ApplicationRecord
       # backend may be able to find it even when we don't have the package local
       prj.expand_all_projects.each do |p|
         return nil unless p.is_a?(Project)
+        if p.scmsync.present? && Project.check_access?(p)
+          return nil if opts[:use_source].nil? || !p.disabled_for?('sourceaccess', nil, nil)
+        end
       end
     end
 
