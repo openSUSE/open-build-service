@@ -59,7 +59,7 @@ class Package < ApplicationRecord
 
   before_destroy :delete_on_backend
   before_destroy :revoke_requests_with_self_as_source
-  before_destroy :revoke_requests_with_self_as_target
+  before_destroy :decline_requests_with_self_as_target
   before_destroy :obsolete_reviews_for_self
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
@@ -1065,14 +1065,14 @@ class Package < ApplicationRecord
     end
   end
 
-  def revoke_requests_with_self_as_target(message = nil)
+  def decline_requests_with_self_as_target(message = nil)
     message ||= "The package '#{project.name}/#{name}' has been removed"
 
     open_requests_with_package_as_target.each do |request|
       # Don't alter the request that is the trigger of this close_requests run
       next if request == @commit_opts[:request]
 
-      logger.debug "#{self.class} #{name} doing revoke_requests_with_self_as_target on request #{request.id} with #{@commit_opts.inspect}"
+      logger.debug "#{self.class} #{name} doing decline_requests_with_self_as_target on request #{request.id} with #{@commit_opts.inspect}"
 
       begin
         request.change_state(newstate: 'declined', comment: message)
@@ -1374,7 +1374,7 @@ class Package < ApplicationRecord
 
     package_kinds.delete_all
     BackendPackage.where(package_id: id).delete_all
-    revoke_requests_with_self_as_target("The package '#{project.name} / #{name}' is now maintained at #{scmsync}")
+    decline_requests_with_self_as_target("The package '#{project.name} / #{name}' is now maintained at #{scmsync}")
   end
 end
 # rubocop: enable Metrics/ClassLength
