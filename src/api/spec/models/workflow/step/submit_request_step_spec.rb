@@ -13,7 +13,7 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
                      scm: 'github',
                      event: 'pull_request',
                      action: action,
-                     pr_number: 1,
+                     number: 1,
                      source_repository_full_name: 'reponame',
                      commit_sha: '123456789',
                      target_repository_full_name: 'openSUSE/open-build-service'
@@ -115,7 +115,8 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
                          source_repository_full_name: 'reponame',
                          commit_sha: '123456789',
                          target_repository_full_name: 'openSUSE/open-build-service',
-                         ref: 'refs/heads/branch_123'
+                         ref: 'refs/heads/branch_123',
+                         number: 1
                        })
       end
 
@@ -137,7 +138,8 @@ RSpec.describe Workflow::Step::SubmitRequest, vcr: true do
                          source_repository_full_name: 'reponame',
                          commit_sha: '123456789',
                          target_repository_full_name: 'openSUSE/open-build-service',
-                         ref: 'refs/tags/release_abc'
+                         ref: 'refs/tags/release_abc',
+                         number: 1
                        })
       end
 

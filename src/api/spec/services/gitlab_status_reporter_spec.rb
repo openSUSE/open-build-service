@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe GitlabStatusReporter, type: :service do
-  let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: initial_report) }
+  let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -64,6 +64,40 @@ RSpec.describe GitlabStatusReporter, type: :service do
 
       it 'sends a short commit sha' do
         expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state, status_options)
+      end
+    end
+
+    context 'when reporting a submit request' do
+      let(:event_payload) do
+        { project: 'home:danidoni', package: 'hello_world',
+          repository: 'openSUSE_Tumbleweed', arch: 'x86_64',
+          number: 1, state: 'new' }
+      end
+      let(:event_subscription_payload) do
+        { scm: 'gitlab', project_id: 'danidoni/hello_world', commit_sha: '123456789' }
+      end
+      let(:token) { 'XYCABC' }
+      let(:event_type) { 'Event::RequestStatechange' }
+      let(:state) { 'pending' }
+      let(:workflow_run) { nil }
+      let(:initial_report) { false }
+      let(:status_options) do
+        {
+          context: 'OBS: Request 1 - new',
+          target_url: 'https://unconfigured.openbuildservice.org/request/show/1'
+        }
+      end
+      let(:gitlab_instance) { instance_spy(Gitlab::Client, update_commit_status: true) }
+
+      subject { scm_status_reporter.call }
+
+      before do
+        allow(Gitlab).to receive(:client).and_return(gitlab_instance)
+        subject
+      end
+
+      it 'creates a commit status' do
+        expect(gitlab_instance).to have_received(:update_commit_status).with('danidoni/hello_world', '123456789', state, status_options)
       end
     end
   end
