@@ -82,11 +82,12 @@ sub writexml {
 }
 
 sub writestr {
-  my ($fn, $fnf, $d) = @_;
+  my ($fn, $fnf) = @_;
   my $f;
   open($f, '>', $fn) || die("$fn: $!\n");
-  if (length($d)) {
-    (syswrite($f, $d) || 0) == length($d) || die("$fn write: $!\n");
+  my $l = length($_[2]);
+  if ($l) {
+    (syswrite($f, $_[2] || 0) == $l) || die("$fn write: $!\n");
   }
   do_fdatasync(fileno($f)) if defined($fnf) && $fdatasync_before_rename;
   close($f) || die("$fn close: $!\n");
@@ -126,20 +127,19 @@ sub readxml {
     return undef;
   }
   return XMLin($dtd, $d) unless $nonfatal;
-  eval { $d = XMLin($dtd, $d); };
+  $d = eval { XMLin($dtd, $d) };
   return $@ ? undef : $d;
 }
 
 sub fromxml {
-  my ($d, $dtd, $nonfatal) = @_;
-  return XMLin($dtd, $d) unless $nonfatal;
-  eval { $d = XMLin($dtd, $d); };
+  my (undef, $dtd, $nonfatal) = @_;
+  return XMLin($dtd, $_[0]) unless $nonfatal;
+  my $d = eval { XMLin($dtd, $_[0]) };
   return $@ ? undef : $d;
 }
 
 sub toxml {
-  my ($d, $dtd) = @_;
-  return XMLout($dtd, $d);
+  XMLout($_[1], $_[0]);
 }
 
 sub touch($) {
@@ -606,8 +606,7 @@ sub tostorable {
 sub fromstorable {
   my $nonfatal = $_[1];
   return Storable::thaw(substr($_[0], 4)) unless $nonfatal;
-  my $d;
-  eval { $d = Storable::thaw(substr($_[0], 4)); };
+  my $d = eval { Storable::thaw(substr($_[0], 4)) };
   if ($@) {
     warn($@) if $nonfatal == 2;
     return undef;

@@ -95,7 +95,7 @@ sub tossl {
 }
 
 sub ssl_iseof {
-  my ($ssl, $noselect) = @_;
+  my ($ssl, $noselect, $socket) = @_;
   my $fn = Net::SSLeay::get_fd($ssl);
   return 0 unless defined $fn;
   if (!$noselect) {
@@ -109,16 +109,16 @@ sub ssl_iseof {
     return 0 unless $r;
   }
   # sigh. we need to find a better way to call recv on the file descriptor
-  my $fd;
-  return 0 unless open($fd, '<&', $fn);
+  my $fd = $socket;
+  return 0 unless $fd || open($fd, '<&', $fn);
   my $buf = '';
   my $r = recv($fd, $buf, 1, Socket::MSG_PEEK());
   if (!defined($r)) {
     warn("recv: $!\n");
-    close($fd);
+    close($fd) unless $socket;
     return 1;
   }
-  close($fd);
+  close($fd) unless $socket;
   return length($buf) ? 0 : 1;
 }
 
@@ -138,7 +138,7 @@ sub ssl_connect_with_timeout {
       $r = select(undef, $vec, undef, $timeout - $now);
     } elsif ($code == &Net::SSLeay::ERROR_WANT_READ) {
       $r = select($vec, undef, undef, $timeout - $now);
-      die("SSL_connect EOF\n") if $r && ssl_iseof($ssl, 1);
+      die("SSL_connect EOF\n") if $r && ssl_iseof($ssl, 1, $socket);
     } else {
       die_with_error_stack("SSL_connect error ($code)");
     }

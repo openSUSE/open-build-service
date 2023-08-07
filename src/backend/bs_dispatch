@@ -247,18 +247,16 @@ sub assignjob {
     return 'badjob';
   }
 
-  # got the lock, re-check if job is still there
-  if (! -e "$jobsdir/$arch/$job") {
+  # got the lock, re-check if job is still there and prepare job data
+  my $infoxml = readstr("$jobsdir/$arch/$job", 1);
+  if (!defined($infoxml)) {
     unlink("$jobsdir/$arch/$job:status");
     close F;
     BSUtil::printlog("job disappeared!");
     return 'badjob';
   }
-
-  # prepare job data
-  my $infoxml = readstr("$jobsdir/$arch/$job");
   my $jobid = Digest::MD5::md5_hex($infoxml);
-  my $info = XMLin($BSXML::buildinfo, $infoxml);
+  my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo);
 
   my $now = time();
   if (!$lastcodechecktime || $now - $lastcodechecktime > 20 || $now - $lastcodechecktime < 0) {
@@ -512,7 +510,7 @@ sub dispatchslave {
       my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo, 1);
       next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
       $info->{'masterdispatched'} = Digest::MD5::md5_hex($infoxml);
-      $infoxml = XMLout($BSXML::buildinfo, $info);
+      $infoxml = BSUtil::toxml($info, $BSXML::buildinfo);
       undef $info;
       eval {
 	BSRPC::rpc({
