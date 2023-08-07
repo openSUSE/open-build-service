@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:05 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_151
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_71
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Dulce et Decorum Est</title>
+          <title>Unweaving the Rainbow</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Dulce et Decorum Est</title>
+          <title>Unweaving the Rainbow</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:05 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_152
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_72
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Françoise Sagan</title>
-          <description>Corrupti et nemo sit.</description>
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,18 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '171'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0iYmFyX3NjbV9zeW5jZWRfcGFja2FnZSIgcHJvamVjdD0iZm9vX3NjbV9zeW5jZWRfcHJvamVjdCI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5Db3JydXB0aSBldCBuZW1vIHNpdC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
-  recorded_at: Wed, 02 Aug 2023 10:03:05 GMT
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="foo_scm_synced_project">
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
+        </package>
+  recorded_at: Mon, 07 Aug 2023 10:13:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Fugit delectus voluptatem. Corporis aliquam eos. Quasi atque est.
+      string: Occaecati adipisci minus. Et repellat blanditiis. Enim fugit assumenda.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -140,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="533" vrev="514">
-          <srcmd5>779607a8c74c9e3ec5bfdbe57848b580</srcmd5>
+        <revision rev="32" vrev="24">
+          <srcmd5>b0f9d2760938b9c547e2c4d291a47c67</srcmd5>
           <version>unknown</version>
-          <time>1690970585</time>
+          <time>1691403217</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:03:05 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Et optio voluptas. Voluptate sint repellat. Et minus aut.
+      string: Nobis rem voluptas. Iusto a aliquam. Alias est nam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -178,28 +181,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="534" vrev="515">
-          <srcmd5>424993add3e57c123db0e7046974120d</srcmd5>
+        <revision rev="33" vrev="25">
+          <srcmd5>9f1e0f3573492318dc0a5e44edf6b0f8</srcmd5>
           <version>unknown</version>
-          <time>1690970585</time>
+          <time>1691403217</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:03:05 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_152
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_72
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Françoise Sagan</title>
-          <description>Corrupti et nemo sit.</description>
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
     headers:
@@ -221,12 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '238'
+      - '240'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0iYmFyX3NjbV9zeW5jZWRfcGFja2FnZSIgcHJvamVjdD0iZm9vX3NjbV9zeW5jZWRfcHJvamVjdCI+CiAgPHRpdGxlPkZyYW7Dp29pc2UgU2FnYW48L3RpdGxlPgogIDxkZXNjcmlwdGlvbj5Db3JydXB0aSBldCBuZW1vIHNpdC48L2Rlc2NyaXB0aW9uPgogIDxzY21zeW5jPmh0dHBzOi8vZ2l0aHViLmNvbS9rcmF1c2VsdWthcy90ZXN0X3NjbXN5bmMuZ2l0PC9zY21zeW5jPgo8L3BhY2thZ2U+Cg==
-  recorded_at: Wed, 02 Aug 2023 10:03:05 GMT
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="foo_scm_synced_project">
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
+        </package>
+  recorded_at: Mon, 07 Aug 2023 10:13:37 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package?cmd=waitservice
@@ -260,7 +267,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:03:07 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_scm_synced_package%22%20and%20linkinfo/@project=%22foo_scm_synced_project%22%20and%20@project=%22foo_scm_synced_project%22)
@@ -294,7 +301,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 02 Aug 2023 10:03:07 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -334,7 +341,7 @@ http_interactions:
           <description>This project was created for package bar_scm_synced_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -342,8 +349,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Françoise Sagan</title>
-          <description>Corrupti et nemo sit.</description>
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -364,12 +371,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '191'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0iYmFyX3NjbV9zeW5jZWRfcGFja2FnZSIgcHJvamVjdD0iaG9tZTpJZ2d5Om9wZW5TVVNFOm9wZW4tYnVpbGQtc2VydmljZTpQUi0xIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPkNvcnJ1cHRpIGV0IG5lbW8gc2l0LjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
+        </package>
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -377,8 +387,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Françoise Sagan</title>
-          <description>Corrupti et nemo sit.</description>
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -399,12 +409,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '191'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0iYmFyX3NjbV9zeW5jZWRfcGFja2FnZSIgcHJvamVjdD0iaG9tZTpJZ2d5Om9wZW5TVVNFOm9wZW4tYnVpbGQtc2VydmljZTpQUi0xIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPkNvcnJ1cHRpIGV0IG5lbW8gc2l0LjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
+        </package>
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -436,7 +449,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?view=info
@@ -469,7 +482,7 @@ http_interactions:
         <sourceinfo package="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -501,7 +514,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -533,12 +546,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fcd36f1333f8fa73c0b08e56c60a1651">
+        <sourcediff key="bd5a136da41c9d04a09d535fae68821f">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -606,7 +619,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -614,8 +627,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Françoise Sagan</title>
-          <description>Corrupti et nemo sit.</description>
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#123456789</scmsync>
         </package>
     headers:
@@ -637,12 +650,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '268'
+      - '270'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0iYmFyX3NjbV9zeW5jZWRfcGFja2FnZSIgcHJvamVjdD0iaG9tZTpJZ2d5Om9wZW5TVVNFOm9wZW4tYnVpbGQtc2VydmljZTpQUi0xIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPkNvcnJ1cHRpIGV0IG5lbW8gc2l0LjwvZGVzY3JpcHRpb24+CiAgPHNjbXN5bmM+aHR0cHM6Ly9naXRodWIuY29tL2tyYXVzZWx1a2FzL3Rlc3Rfc2Ntc3luYy5naXQjMTIzNDU2Nzg5PC9zY21zeW5jPgo8L3BhY2thZ2U+Cg==
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Proper Study</title>
+          <description>Nam tenetur quae animi.</description>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git#123456789</scmsync>
+        </package>
+  recorded_at: Mon, 07 Aug 2023 10:13:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_branch_request
@@ -676,5 +693,5 @@ http_interactions:
           <summary>_branch_request: no such file</summary>
           <details>404 _branch_request: no such file</details>
         </status>
-  recorded_at: Wed, 02 Aug 2023 10:03:08 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:40 GMT
 recorded_with: VCR 6.2.0

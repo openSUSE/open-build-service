@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:02:59 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_143
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_63
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Unweaving the Rainbow</title>
+          <title>Taming a Sea Horse</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Unweaving the Rainbow</title>
+          <title>Taming a Sea Horse</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:02:59 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_144
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_64
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>In a Dry Season</title>
-          <description>Placeat commodi rerum eos.</description>
+          <title>Fear and Trembling</title>
+          <description>Quam quis earum atque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>In a Dry Season</title>
-          <description>Placeat commodi rerum eos.</description>
+          <title>Fear and Trembling</title>
+          <description>Quam quis earum atque.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:02:59 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Iste debitis perspiciatis. Ad ullam consequatur. Fuga id velit.
+      string: Mollitia id voluptatem. Rem recusandae laborum. Odit veritatis id.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="524" vrev="505">
-          <srcmd5>4dfe05abcd357813b7f5764c1eff3800</srcmd5>
-          <version>2</version>
-          <time>1690970579</time>
+        <revision rev="21" vrev="13">
+          <srcmd5>06ecdd60e272b3826818b5f400131df7</srcmd5>
+          <version>1</version>
+          <time>1691403207</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:02:59 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Ut velit aliquam. Et magni quasi. Aperiam itaque reprehenderit.
+      string: Ut quaerat quis. Eveniet ad velit. Rerum nesciunt similique.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="525" vrev="506">
-          <srcmd5>679f1bc8fa3381ed9f8eb97c046f3e33</srcmd5>
-          <version>2</version>
-          <time>1690970579</time>
+        <revision rev="22" vrev="14">
+          <srcmd5>1db65f5dcac5ba87cb3eb24f003074ff</srcmd5>
+          <version>1</version>
+          <time>1691403207</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:02:59 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package?cmd=waitservice
@@ -227,7 +227,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -267,7 +267,7 @@ http_interactions:
           <description>This project was created for package bar_scm_synced_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -305,7 +305,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -343,7 +343,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -375,7 +375,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?view=info
@@ -408,7 +408,7 @@ http_interactions:
         <sourceinfo package="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -440,7 +440,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -472,12 +472,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fcd36f1333f8fa73c0b08e56c60a1651">
+        <sourcediff key="bd5a136da41c9d04a09d535fae68821f">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -545,7 +545,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -585,5 +585,5 @@ http_interactions:
           <description></description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=bar_scm_synced_package#123456789</scmsync>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:00 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:27 GMT
 recorded_with: VCR 6.2.0

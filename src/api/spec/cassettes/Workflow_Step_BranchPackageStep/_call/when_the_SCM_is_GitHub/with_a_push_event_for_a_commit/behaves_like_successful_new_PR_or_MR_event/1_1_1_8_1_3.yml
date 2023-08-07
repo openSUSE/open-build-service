@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:02:30 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_75
+    uri: http://backend:5352/source/foo_project/_meta?user=user_115
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Clouds of Witness</title>
+          <title>Moab Is My Washpot</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Clouds of Witness</title>
+          <title>Moab Is My Washpot</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:02:30 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_76
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_116
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:02:30 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Vitae voluptatem nihil. Architecto dolor tempore. Quidem non nihil.
+      string: Eveniet veniam exercitationem. Aut impedit quae. Ut sed quas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2095" vrev="2095">
-          <srcmd5>74174a428ffe2e1d2f847ff5c4b61a5d</srcmd5>
+        <revision rev="77" vrev="77">
+          <srcmd5>1396908ad6fc1a764026340793941d4f</srcmd5>
           <version>unknown</version>
-          <time>1690970550</time>
+          <time>1691403245</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:02:30 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Et ut laborum. Magni voluptate autem. Iure eius est.
+      string: Placeat occaecati et. Et aut soluta. Molestias asperiores et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2096" vrev="2096">
-          <srcmd5>7aba93579350d98a60290e724c960da7</srcmd5>
+        <revision rev="78" vrev="78">
+          <srcmd5>451399485dcd2383aae8f741dfda60d5</srcmd5>
           <version>unknown</version>
-          <time>1690970550</time>
+          <time>1691403245</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:02:30 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:05 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
@@ -227,7 +227,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:05 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -261,7 +261,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789/_meta?user=Iggy
@@ -269,8 +269,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-123456789" project="home:Iggy">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -291,15 +291,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-123456789" project="home:Iggy">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
@@ -327,19 +327,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '206'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="331" vrev="331">
-          <srcmd5>b5091945a8cce0fffb9b752575924c46</srcmd5>
+        <revision rev="13" vrev="13">
+          <srcmd5>1e7d8325fff56913116ace600dbfa154</srcmd5>
           <version>unknown</version>
-          <time>1690970551</time>
+          <time>1691403246</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789/_meta?user=Iggy
@@ -347,8 +347,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-123456789" project="home:Iggy">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -369,15 +369,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-123456789" project="home:Iggy">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789
@@ -403,18 +403,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '735'
+      - '733'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-123456789" rev="331" vrev="331" srcmd5="b5091945a8cce0fffb9b752575924c46">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="7aba93579350d98a60290e724c960da7" baserev="7aba93579350d98a60290e724c960da7" xsrcmd5="aca6a6acdcfc1cb1c9fd06bdf2592044" lsrcmd5="b5091945a8cce0fffb9b752575924c46"/>
-          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1690882765"/>
-          <entry name="_config" md5="ab46d50fac3833c1aea4ebefa24c2ac5" size="67" mtime="1690970550"/>
-          <entry name="_link" md5="b533df581e9e7961046c50d4c7929e5c" size="141" mtime="1690970551"/>
-          <entry name="somefile.txt" md5="a8c78c6ea5bbb70c80d3e0a8a1b36f56" size="52" mtime="1690970550"/>
+        <directory name="bar_package-123456789" rev="13" vrev="13" srcmd5="1e7d8325fff56913116ace600dbfa154">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="451399485dcd2383aae8f741dfda60d5" baserev="451399485dcd2383aae8f741dfda60d5" xsrcmd5="22b76b807bbebf0983a5691d5894c007" lsrcmd5="1e7d8325fff56913116ace600dbfa154"/>
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1691403185"/>
+          <entry name="_config" md5="14b68d29025430d7fa9ad50945ef2cb1" size="61" mtime="1691403245"/>
+          <entry name="_link" md5="a2fea2147319188ac4979a738ee1c0bb" size="141" mtime="1691403246"/>
+          <entry name="somefile.txt" md5="8cedbf78d5a9fe4a6d4c6506b8a169e0" size="61" mtime="1691403245"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?view=info
@@ -440,15 +440,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '343'
+      - '340'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-123456789" rev="331" vrev="2427" srcmd5="aca6a6acdcfc1cb1c9fd06bdf2592044" lsrcmd5="b5091945a8cce0fffb9b752575924c46" verifymd5="7aba93579350d98a60290e724c960da7">
+        <sourceinfo package="bar_package-123456789" rev="13" vrev="91" srcmd5="22b76b807bbebf0983a5691d5894c007" lsrcmd5="1e7d8325fff56913116ace600dbfa154" verifymd5="451399485dcd2383aae8f741dfda60d5">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789
@@ -474,18 +474,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '735'
+      - '733'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-123456789" rev="331" vrev="331" srcmd5="b5091945a8cce0fffb9b752575924c46">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="7aba93579350d98a60290e724c960da7" baserev="7aba93579350d98a60290e724c960da7" xsrcmd5="aca6a6acdcfc1cb1c9fd06bdf2592044" lsrcmd5="b5091945a8cce0fffb9b752575924c46"/>
-          <entry name="_branch_request" md5="aea524cf047993d430e69b477e07f3df" size="114" mtime="1690882765"/>
-          <entry name="_config" md5="ab46d50fac3833c1aea4ebefa24c2ac5" size="67" mtime="1690970550"/>
-          <entry name="_link" md5="b533df581e9e7961046c50d4c7929e5c" size="141" mtime="1690970551"/>
-          <entry name="somefile.txt" md5="a8c78c6ea5bbb70c80d3e0a8a1b36f56" size="52" mtime="1690970550"/>
+        <directory name="bar_package-123456789" rev="13" vrev="13" srcmd5="1e7d8325fff56913116ace600dbfa154">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="451399485dcd2383aae8f741dfda60d5" baserev="451399485dcd2383aae8f741dfda60d5" xsrcmd5="22b76b807bbebf0983a5691d5894c007" lsrcmd5="1e7d8325fff56913116ace600dbfa154"/>
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1691403185"/>
+          <entry name="_config" md5="14b68d29025430d7fa9ad50945ef2cb1" size="61" mtime="1691403245"/>
+          <entry name="_link" md5="a2fea2147319188ac4979a738ee1c0bb" size="141" mtime="1691403246"/>
+          <entry name="somefile.txt" md5="8cedbf78d5a9fe4a6d4c6506b8a169e0" size="61" mtime="1691403245"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -513,18 +513,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '324'
+      - '323'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1d299c436ba4a2ac59bdaac5fbb7734f">
+        <sourcediff key="de69930e96f36a1e492285096bbf7c5d">
           <old project="home:Iggy" package="bar_package-123456789" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-123456789" rev="331" srcmd5="b5091945a8cce0fffb9b752575924c46"/>
+          <new project="home:Iggy" package="bar_package-123456789" rev="13" srcmd5="1e7d8325fff56913116ace600dbfa154"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -556,14 +556,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="33ab8b07d5247e772d7220cdbc237558">
-          <old project="foo_project" package="bar_package" rev="7aba93579350d98a60290e724c960da7" srcmd5="7aba93579350d98a60290e724c960da7"/>
-          <new project="home:Iggy" package="bar_package-123456789" rev="aca6a6acdcfc1cb1c9fd06bdf2592044" srcmd5="aca6a6acdcfc1cb1c9fd06bdf2592044"/>
+        <sourcediff key="821b51717511354b79bfc715b360687c">
+          <old project="foo_project" package="bar_package" rev="451399485dcd2383aae8f741dfda60d5" srcmd5="451399485dcd2383aae8f741dfda60d5"/>
+          <new project="home:Iggy" package="bar_package-123456789" rev="22b76b807bbebf0983a5691d5894c007" srcmd5="22b76b807bbebf0983a5691d5894c007"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
@@ -621,10 +621,10 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-123456789/_branch_request?user=Iggy
+    uri: http://backend:5352/source/home:Iggy/bar_package-123456789/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=Iggy
     body:
       encoding: UTF-8
       string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"reponame"},"sha":"123456789"}}}'
@@ -647,19 +647,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '258'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="332" vrev="332">
-          <srcmd5>2a0f0c35f9868aedb8a661767df1d206</srcmd5>
+        <revision rev="14" vrev="14">
+          <srcmd5>17838a434873201b9055d2e3ff94d4b6</srcmd5>
           <version>unknown</version>
-          <time>1690970551</time>
+          <time>1691403246</time>
           <user>Iggy</user>
-          <comment></comment>
+          <comment>Updated _branch_request file via SCM/CI Workflow run</comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789/_meta?user=Iggy
@@ -667,8 +667,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-123456789" project="home:Iggy">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -689,15 +689,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-123456789" project="home:Iggy">
-          <title>What's Become of Waring</title>
-          <description>Soluta ex aut optio.</description>
+          <title>Jesting Pilate</title>
+          <description>Quibusdam quisquam aut sit.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789
@@ -723,18 +723,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '734'
+      - '732'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-123456789" rev="332" vrev="332" srcmd5="2a0f0c35f9868aedb8a661767df1d206">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="7aba93579350d98a60290e724c960da7" baserev="7aba93579350d98a60290e724c960da7" xsrcmd5="0b4cb7bd9b870d352c71ca33fa4c0735" lsrcmd5="2a0f0c35f9868aedb8a661767df1d206"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1690882820"/>
-          <entry name="_config" md5="ab46d50fac3833c1aea4ebefa24c2ac5" size="67" mtime="1690970550"/>
-          <entry name="_link" md5="b533df581e9e7961046c50d4c7929e5c" size="141" mtime="1690970551"/>
-          <entry name="somefile.txt" md5="a8c78c6ea5bbb70c80d3e0a8a1b36f56" size="52" mtime="1690970550"/>
+        <directory name="bar_package-123456789" rev="14" vrev="14" srcmd5="17838a434873201b9055d2e3ff94d4b6">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="451399485dcd2383aae8f741dfda60d5" baserev="451399485dcd2383aae8f741dfda60d5" xsrcmd5="99ab31a583c4e935f4f0318a90b7438e" lsrcmd5="17838a434873201b9055d2e3ff94d4b6"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1691403240"/>
+          <entry name="_config" md5="14b68d29025430d7fa9ad50945ef2cb1" size="61" mtime="1691403245"/>
+          <entry name="_link" md5="a2fea2147319188ac4979a738ee1c0bb" size="141" mtime="1691403246"/>
+          <entry name="somefile.txt" md5="8cedbf78d5a9fe4a6d4c6506b8a169e0" size="61" mtime="1691403245"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?view=info
@@ -760,15 +760,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '343'
+      - '340'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-123456789" rev="332" vrev="2428" srcmd5="0b4cb7bd9b870d352c71ca33fa4c0735" lsrcmd5="2a0f0c35f9868aedb8a661767df1d206" verifymd5="77e2d3fc0df9120bbee3fdc93e83a2ad">
+        <sourceinfo package="bar_package-123456789" rev="14" vrev="92" srcmd5="99ab31a583c4e935f4f0318a90b7438e" lsrcmd5="17838a434873201b9055d2e3ff94d4b6" verifymd5="7f35c4b2ef7734aeb25ee53c138c06af">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789
@@ -794,18 +794,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '734'
+      - '732'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-123456789" rev="332" vrev="332" srcmd5="2a0f0c35f9868aedb8a661767df1d206">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="7aba93579350d98a60290e724c960da7" baserev="7aba93579350d98a60290e724c960da7" xsrcmd5="0b4cb7bd9b870d352c71ca33fa4c0735" lsrcmd5="2a0f0c35f9868aedb8a661767df1d206"/>
-          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1690882820"/>
-          <entry name="_config" md5="ab46d50fac3833c1aea4ebefa24c2ac5" size="67" mtime="1690970550"/>
-          <entry name="_link" md5="b533df581e9e7961046c50d4c7929e5c" size="141" mtime="1690970551"/>
-          <entry name="somefile.txt" md5="a8c78c6ea5bbb70c80d3e0a8a1b36f56" size="52" mtime="1690970550"/>
+        <directory name="bar_package-123456789" rev="14" vrev="14" srcmd5="17838a434873201b9055d2e3ff94d4b6">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="451399485dcd2383aae8f741dfda60d5" baserev="451399485dcd2383aae8f741dfda60d5" xsrcmd5="99ab31a583c4e935f4f0318a90b7438e" lsrcmd5="17838a434873201b9055d2e3ff94d4b6"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1691403240"/>
+          <entry name="_config" md5="14b68d29025430d7fa9ad50945ef2cb1" size="61" mtime="1691403245"/>
+          <entry name="_link" md5="a2fea2147319188ac4979a738ee1c0bb" size="141" mtime="1691403246"/>
+          <entry name="somefile.txt" md5="8cedbf78d5a9fe4a6d4c6506b8a169e0" size="61" mtime="1691403245"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -833,18 +833,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '324'
+      - '323'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="a43221acbf243426810b15466dee65b8">
+        <sourcediff key="66915528a317d084b5f39f87fd96e6c4">
           <old project="home:Iggy" package="bar_package-123456789" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-123456789" rev="332" srcmd5="2a0f0c35f9868aedb8a661767df1d206"/>
+          <new project="home:Iggy" package="bar_package-123456789" rev="14" srcmd5="17838a434873201b9055d2e3ff94d4b6"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-123456789?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -876,12 +876,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="7353a9a167631e7b2ba70e8725db1ad1">
-          <old project="foo_project" package="bar_package" rev="7aba93579350d98a60290e724c960da7" srcmd5="7aba93579350d98a60290e724c960da7"/>
-          <new project="home:Iggy" package="bar_package-123456789" rev="0b4cb7bd9b870d352c71ca33fa4c0735" srcmd5="0b4cb7bd9b870d352c71ca33fa4c0735"/>
+        <sourcediff key="d212c03e54d9a28b43f0aaeb66d7d8cc">
+          <old project="foo_project" package="bar_package" rev="451399485dcd2383aae8f741dfda60d5" srcmd5="451399485dcd2383aae8f741dfda60d5"/>
+          <new project="home:Iggy" package="bar_package-123456789" rev="99ab31a583c4e935f4f0318a90b7438e" srcmd5="99ab31a583c4e935f4f0318a90b7438e"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:02:31 GMT
+  recorded_at: Mon, 07 Aug 2023 10:14:06 GMT
 recorded_with: VCR 6.2.0
