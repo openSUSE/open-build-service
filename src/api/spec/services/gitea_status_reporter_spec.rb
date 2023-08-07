@@ -83,7 +83,7 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:initial_report) { false }
       let(:status_options) do
         {
-          context: 'OBS: Request 1 - new',
+          context: 'OBS: Request 1',
           target_url: 'https://unconfigured.openbuildservice.org/request/show/1'
         }
       end
