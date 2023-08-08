@@ -217,9 +217,9 @@ sub addrev_service {
   BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
   notify_serviceresult($rev, $error);
   if ($packid eq '_project') {
-    $notify_repservers->('project', $projid) unless $rev->{'rev'} eq 'obsscm' || $error;
+    $notify_repservers->('project', $projid) if $rev->{'rev'} ne 'obsscm' || $error;
   } else {
-    $notify_repservers->('package', $projid, $packid) unless $rev->{'rev'} eq 'obsscm' || $error;
+    $notify_repservers->('package', $projid, $packid) if $rev->{'rev'} ne 'obsscm' || $error;
   }
 }
 
