@@ -4,6 +4,12 @@ module ScmSyncEnabledStep
     parsed_scmsync_url = Addressable::URI.parse(scmsync_url)
     parsed_scmsync_url.fragment = scm_webhook.payload[:commit_sha]
 
+    # We must adjust the url path in case when the payload contains a source repo.
+    # This happens for push events in forks of the origin package.
+    if payload[:source_repository_full_name]
+      parsed_scmsync_url.path = "/#{payload[:source_repository_full_name]}"
+    end
+
     # if we use scmsync to sync a whole project, then each package will be
     # fetched from a subdirectory
     if scm_synced_project?
