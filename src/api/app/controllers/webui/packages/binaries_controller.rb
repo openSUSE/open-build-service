@@ -58,7 +58,7 @@ module Webui
           end
           format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
         end
-      end 
+      end
 
       # Get an URL to a binary produced by the build.
       # In the published repo for everyone, in the backend directly only for logged in users.

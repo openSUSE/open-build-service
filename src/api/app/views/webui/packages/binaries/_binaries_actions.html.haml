@@ -8,7 +8,7 @@
     %i.fas.fa-download.text-secondary
     Download
 - if binary[:links][:details?]
-  = link_to(project_package_binary_path(project_name: project, package_name: package_name, repository: repository,
+  = link_to(project_package_repository_binary_path(project_name: project, package_name: package_name, repository_name: repository,
     arch: architecture, filename: binary[:filename]), title: 'Information', class: 'ms-2') do
     %i.fas.fa-info-circle
     Details

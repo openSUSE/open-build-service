@@ -1,7 +1,7 @@
 - @pagetitle = "State of #{@repository} for #{@project} / #{params[:package]}"
 
 .card
-  = render partial: 'tabs', locals: { package: @package, project: @project }
+  = render partial: 'webui/package/tabs', locals: { package: @package, project: @project }
   .card-body
     %h3= @pagetitle
     %ul.list-inline
@@ -41,11 +41,11 @@
                 %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
                 %td.text-nowrap.text-end.px-2
                   - render_partial = render partial: 'binaries_actions', locals: { project: @project,
-                                                                                                                 package_name: params[:package],
-                                                                                                                 package: @package,
-                                                                                                                 binary: binary,
-                                                                                                                 repository: @repository,
-                                                                                                                 architecture: result[:arch] }
+                                                                                   package_name: @package_name,
+                                                                                   package: @package,
+                                                                                   binary: binary,
+                                                                                   repository: @repository,
+                                                                                   architecture: result[:arch] }
                   .d-none.d-sm-block
                     = render_partial
                   .d-sm-none
@@ -53,7 +53,7 @@
       %ul.nav
         - if User.possibly_nobody.can_modify?(@package)
           = render partial: 'trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
-                                                            package: params[:package], repository: @repository }
+                                                            package: @package_name, repository: @repository }
 
         = render partial: 'show_statistics_job_history_build_reason', locals: { result: result,
-          project: @project, package: params[:package], repository: @repository }
+          project: @project, package: @package_name, repository: @repository }

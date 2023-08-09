@@ -22,7 +22,7 @@ RSpec.describe Webui::Packages::JobHistoryController, vcr: true do
       end
 
       it { expect(flash[:error]).not_to be_empty }
-      it { expect(response).to redirect_to(package_binaries_path(package: package, project: source_project, repository: 'fake_repo')) }
+      it { expect(response).to redirect_to(project_package_repository_binaries_path(package_name: package, project_name: source_project, repository_name: 'fake_repo')) }
     end
 
     context 'without a valid architecture' do
@@ -34,8 +34,9 @@ RSpec.describe Webui::Packages::JobHistoryController, vcr: true do
       it { expect(flash[:error]).not_to be_empty }
 
       it 'redirects to package_binaries_path' do
-        expect(response).to redirect_to(package_binaries_path(package: package,
-                                                              project: source_project, repository: repo_for_source_project.name))
+        expect(response).to redirect_to(project_package_repository_binaries_path(package_name: package,
+                                                                                 project_name: source_project,
+                                                                                 repository_name: repo_for_source_project.name))
       end
     end
 

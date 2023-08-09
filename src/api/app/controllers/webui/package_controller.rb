@@ -185,8 +185,8 @@ class Webui::PackageController < Webui::WebuiController
                                                                   @arch, params[:dependant_name])
     return if @fileinfo # avoid displaying an error for non-existing packages
 
-    redirect_back(fallback_location: project_package_binary_path(project_name: params[:project], package_name: params[:package],
-                                                                 repository: @repository, arch: @arch, filename: @filename))
+    redirect_back(fallback_location: project_package_repository_binary_path(project_name: params[:project], package_name: params[:package],
+                                                                            repository_name: @repository, arch: @arch, filename: @filename))
   end
   # rubocop:enable Lint/NonLocalExitFromIterator
 
@@ -475,7 +475,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = rebuild_trigger.error_message
-      redirect_to project_package_binaries_path(project: @project, package: @package, repository: params[:repository])
+      redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
     end
   end
 
@@ -488,7 +488,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
     end
 
-    redirect_to project_package_binaries_path(project: @project, package: @package, repository: params[:repository])
+    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
   end
 
   def devel_project
@@ -683,7 +683,7 @@ class Webui::PackageController < Webui::WebuiController
     return if @architecture
 
     flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
-    redirect_to project_package_binaries_path(project: @project, package: @package, repository: @repository.name)
+    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository.name)
   end
 
   def require_repository

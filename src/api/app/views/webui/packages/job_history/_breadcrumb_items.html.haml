@@ -2,6 +2,8 @@
 %li.breadcrumb-item
   = link_to @package, package_show_path(@project, @package)
 %li.breadcrumb-item
-  = link_to 'Repository State', package_binaries_path(package: @package)
+  = link_to 'Repository State', project_package_repository_binaries_path(project_name: @project,
+                                                                         package_name: @package,
+                                                                         repository_name: @repository.name)
 %li.breadcrumb-item.active{ 'aria-current' => 'page' }
   Job History
