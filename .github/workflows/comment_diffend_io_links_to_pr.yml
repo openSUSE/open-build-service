@@ -25,3 +25,4 @@ jobs:
         with:
           filePath: comment_text_and_pr_number/comment_text.txt
           pr_number: ${{ env.pr_number }}
+          comment_tag: comment_with_diffend_io_links
