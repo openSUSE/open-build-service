@@ -11,6 +11,24 @@ The dist/README.UPDATERS file has information for people updating
 from a previous OBS release.
 
 
+Update of the Base Distributions
+================================
+
+We have updated the base distribution of the appliance to Leap 15.5. We also
+have updated the supported distros to the 2 latest Leap versions / SLES 15 and
+SLES 12 Service Packs. In other words, the supported distributions are now:
+
+    - openSUSE Leap 15.5 x86_64
+    - openSUSE Leap 15.4 x86_64
+    - SUSE Linux Enterprise Server 15 Service Pack 5 x86_64
+    - SUSE Linux Enterprise Server 15 Service Pack 4 x86_64
+    - SUSE Linux Enterprise Server 12 Service Pack 5 x86_64
+    - SUSE Linux Enterprise Server 12 Service Pack 4 x86_64
+
+If you are running OBS on a previous distribution version, we kindly ask you to
+update your systems to a supported one.
+
+
 Bugfixes
 ========
 Frontend:
