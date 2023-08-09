@@ -128,7 +128,7 @@ sub sync_package {
   }
   my $oldpack = BSRevision::readpack_local($projid, $packid, 1);
 
-  if ($undeleted || !$oldpack || !BSUtil::identical($pack, $oldpack)) {
+  if ($undeleted || !$oldpack || !BSUtil::identical($pack, $oldpack, $pack->{'scmsync'} ? { 'url' => 1 } : undef)) {
     print "scmsync: update $projid/$packid\n";
     putpackage($cgi, $projid, $packid, $pack);
     my %except = map {$_ => 1} qw{title description devel person group url};
