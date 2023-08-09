@@ -1895,6 +1895,7 @@ sub getprojpack {
 	    $rinfo->{'alsonative'} = $d->{'alsonative'} if @{$d->{'alsonative'} || []};
 	    $rinfo->{'nativebuild'} = 1 if $d->{'nativebuild'};
 	    $rinfo->{'constraint'} = $d->{'buildconstraint'} if @{$d->{'buildconstraint'} || []};
+	    $rinfo->{'bcntsynctag'} = $d->{'bcntsynctag'} if $d->{'bcntsynctag'};
             # add all source services to be used at build time
 	    if ($files->{'_service'}) {
               my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};

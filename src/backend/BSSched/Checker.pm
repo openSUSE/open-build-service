@@ -870,6 +870,7 @@ sub calcrelsynctrigger {
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
   my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
 
   if ($ctx->{'conf'}->{'buildflags:norelsync'}) {
     $ctx->{'relsynctrigger'} = {};
@@ -887,8 +888,14 @@ sub calcrelsynctrigger {
     if ($relsyncmax && -s "$gdst/:relsync") {
       my $relsync = BSUtil::retrieve("$gdst/:relsync", 2);
       for my $packid (sort keys %$pdatas) {
-	my $tag = $pdatas->{$packid}->{'bcntsynctag'} || $packid;
 	next unless $relsync->{$packid};
+	my $pdata = $pdatas->{$packid};
+	my $tag = $pdata->{$packid};
+	if (!$tag) {
+	  my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
+	  $tag = $info->{'bcntsynctag'} if $info;
+	}
+	$tag ||= $packid;
 	next unless $relsync->{$packid} =~ /(.*)\.(\d+)$/;
 	next unless defined($relsyncmax->{"$tag/$1"}) && $2 < $relsyncmax->{"$tag/$1"};
 	$relsynctrigger{$packid} = 1;

@@ -250,7 +250,13 @@ sub sendrelsyncupdate {
   my $relsyncmax = {};
   for my $packid (sort keys %$relsync) {
     next unless $relsync->{$packid} =~ /^(.*)\.([^-]*)$/;
-    my $tag = ($packs->{$packid} || {})->{'bcntsynctag'} || $packid;
+    my $pdata = $packs->{$packid} || {};
+    my $tag = $pdata->{'bcntsynctag'};
+    if (!$tag) {
+      my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
+      $tag = $info->{'bcntsynctag'} if $info;
+    }
+    $tag ||= $packid;
     next if defined($relsyncmax->{"$tag/$1"}) && $relsyncmax->{"$tag/$1"} >= $2;
     $relsyncmax->{"$tag/$1"} = $2;
   }
