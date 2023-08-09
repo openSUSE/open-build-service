@@ -198,6 +198,7 @@ our $packinfo = [
 	    'nosrcpkgs',	# kiwi
 	    'nativebuild',	# cross build: native
 	    'hasbuildenv',
+	    'bcntsynctag',
 	 [[ 'path' =>
 		'project',
 		'repository',
