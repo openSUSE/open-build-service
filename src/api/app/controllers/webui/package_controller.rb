@@ -1,33 +1,24 @@
 class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
   include Webui::PackageHelper
-  include Webui::Packages::BinariesHelper
   include Webui::ManageRelationships
   include BuildLogSupport
 
-  # TODO: Keep in sync with Build::query in backend/build/Build.pm.
-  #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
-  QUERYABLE_BUILD_RESULTS = [Regexp.new('\.rpm$'),
-                             Regexp.new('\.deb$'),
-                             Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
-                             Regexp.new('\.arch$')].freeze
-
-  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binaries, :requests, :statistics, :revisions,
+  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :requests, :statistics, :revisions,
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
 
-  before_action :require_package, only: [:edit, :update, :show, :dependency, :binaries, :requests, :statistics, :revisions,
+  before_action :require_package, only: [:edit, :update, :show, :dependency, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
 
   before_action :validate_xml, only: [:save_meta]
 
-  before_action :require_repository, only: [:binaries]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :index, :branch_diff_info, :binaries,
+  before_action :require_login, except: [:show, :index, :branch_diff_info,
                                          :users, :requests, :statistics, :revisions, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
 
@@ -38,7 +29,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
-  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binaries, :requests]
+  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :requests]
 
   after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
@@ -207,33 +198,6 @@ class Webui::PackageController < Webui::WebuiController
                                                       project: @project.name,
                                                       repository: @repository,
                                                       architecture: params[:arch]).results
-  end
-
-  # FIXME: This is Webui::Packages::BinariesController#index
-  def binaries
-    results_from_backend = Buildresult.find_hashed(project: @project.name, package: params[:package], repository: @repository.name, view: ['binarylist', 'status'])
-    raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
-
-    @buildresults = []
-    results_from_backend.elements('result') do |result|
-      build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
-
-      result.get('binarylist').try(:elements, 'binary') do |binary|
-        if binary['filename'] == '_statistics'
-          build_results_set[:statistics] = true
-        else
-          build_results_set[:binaries] << { filename: binary['filename'],
-                                            size: binary['size'],
-                                            links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                     download_url: download_url_for_binary(@project, @repository, @package, result['arch'], binary['filename']),
-                                                     cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
-        end
-      end
-      @buildresults << build_results_set
-    end
-  rescue Backend::Error => e
-    flash[:error] = e.message
-    redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
   end
 
   def users
@@ -511,7 +475,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = rebuild_trigger.error_message
-      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
+      redirect_to project_package_binaries_path(project: @project, package: @package, repository: params[:repository])
     end
   end
 
@@ -524,7 +488,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
     end
 
-    redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
+    redirect_to project_package_binaries_path(project: @project, package: @package, repository: params[:repository])
   end
 
   def devel_project
@@ -719,7 +683,7 @@ class Webui::PackageController < Webui::WebuiController
     return if @architecture
 
     flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
-    redirect_to package_binaries_path(project: @project, package: @package, repository: @repository.name)
+    redirect_to project_package_binaries_path(project: @project, package: @package, repository: @repository.name)
   end
 
   def require_repository

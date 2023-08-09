@@ -40,7 +40,7 @@
               %tr
                 %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
                 %td.text-nowrap.text-end.px-2
-                  - render_partial = render partial: 'webui/package/binaries/binaries_actions', locals: { project: @project,
+                  - render_partial = render partial: 'binaries_actions', locals: { project: @project,
                                                                                                                  package_name: params[:package],
                                                                                                                  package: @package,
                                                                                                                  binary: binary,
@@ -52,8 +52,8 @@
                     %i.fas.fa-ellipsis-h.text-secondary{ data: { 'bs-toggle': 'popover', 'bs-html': 'true', 'bs-content': "#{render_partial}" } }
       %ul.nav
         - if User.possibly_nobody.can_modify?(@package)
-          = render partial: 'webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
+          = render partial: 'trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
                                                             package: params[:package], repository: @repository }
 
-        = render partial: 'webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
+        = render partial: 'show_statistics_job_history_build_reason', locals: { result: result,
           project: @project, package: params[:package], repository: @repository }

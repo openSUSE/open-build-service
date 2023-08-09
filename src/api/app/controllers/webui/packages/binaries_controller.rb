@@ -3,14 +3,47 @@ module Webui
     class BinariesController < Packages::MainController
       include Webui::Packages::BinariesHelper
 
+      # TODO: Keep in sync with Build::query in backend/build/Build.pm.
+      #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
+      QUERYABLE_BUILD_RESULTS = [Regexp.new('\.rpm$'),
+                                 Regexp.new('\.deb$'),
+                                 Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
+                                 Regexp.new('\.arch$')].freeze
+
       before_action :set_project
       before_action :set_package
       before_action :set_repository
-      before_action :set_architecture
+      before_action :set_architecture, only: [:show]
 
       prepend_before_action :lockout_spiders
 
-      before_action :require_login
+      before_action :require_login, except: [:index]
+
+      def index
+        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package.name, repository: @repository.name, view: ['binarylist', 'status'])
+        raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
+
+        @buildresults = []
+        results_from_backend.elements('result') do |result|
+          build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
+
+          result.get('binarylist').try(:elements, 'binary') do |binary|
+            if binary['filename'] == '_statistics'
+              build_results_set[:statistics] = true
+            else
+              build_results_set[:binaries] << { filename: binary['filename'],
+                                                size: binary['size'],
+                                                links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
+                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']),
+                                                         cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
+            end
+          end
+          @buildresults << build_results_set
+        end
+      rescue Backend::Error => e
+        flash[:error] = e.message
+        redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
+      end
 
       def show
         # Ensure it really is just a file name, no '/..', etc.
