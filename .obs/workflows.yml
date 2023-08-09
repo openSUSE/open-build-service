@@ -8,10 +8,10 @@ testbuild:
     - configure_repositories:
         project: home:bs-team
         repositories:
-          - name: 15.4
+          - name: 15.5
             paths:
               - target_project: OBS:Server:2.10:Staging
-                target_repository: 15.4
+                target_repository: 15.5
             architectures:
               - x86_64
   filters:
