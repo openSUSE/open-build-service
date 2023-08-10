@@ -5,10 +5,14 @@ RSpec.describe WatchlistIconComponent, type: :component do
   let(:project) { nil }
   let(:package) { nil }
   let(:bs_request) { nil }
+  let(:bs_requests) { [] }
+  let(:packages) { [] }
+  let(:projects) { [] }
 
   context 'when the item is not in the watchlist yet' do
     before do
-      render_inline(described_class.new(user: user, current_object: item, project: project, package: package, bs_request: bs_request))
+      render_inline(described_class.new(user: user, current_object: item, project: project, package: package, bs_request: bs_request, bs_requests: bs_requests, packages: packages,
+                                        projects: projects))
     end
 
     context 'and the item is a project' do
@@ -66,7 +70,8 @@ RSpec.describe WatchlistIconComponent, type: :component do
     before do
       user.watched_items.create(watchable: item)
       item.reload
-      render_inline(described_class.new(user: user, current_object: item, project: project, package: package, bs_request: bs_request))
+      render_inline(described_class.new(user: user, current_object: item, project: project, package: package, bs_request: bs_request, bs_requests: bs_requests, packages: packages,
+                                        projects: projects))
     end
 
     context 'and the item is a project' do
