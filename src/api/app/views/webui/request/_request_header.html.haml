@@ -12,9 +12,9 @@
       = render WatchlistIconComponent.new(user: User.session!,
                                           bs_request: bs_request,
                                           current_object: bs_request,
-                                          bs_requests: RequestsForWatchlistFinder.new.call(User.session!),
-                                          packages: PackagesForWatchlistFinder.new.call(User.session!),
-                                          projects: ProjectsForWatchlistFinder.new.call(User.session!))
+                                          bs_requests: bs_requests,
+                                          packages: packages,
+                                          projects: projects)
 
 -# author + datetime + (if superseding -> "Superseds something")
 .card-text.px-4.pb-4

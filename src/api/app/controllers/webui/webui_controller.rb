@@ -20,6 +20,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :set_influxdb_data
   before_action :require_configuration
   before_action :current_announcement
+  before_action :fetch_watchlist_items
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -207,6 +208,12 @@ class Webui::WebuiController < ActionController::Base
 
   def current_announcement
     @current_announcement = StatusMessage.latest_for_current_user
+  end
+
+  def fetch_watchlist_items
+    @watched_requests = User.possibly_nobody.watched_requests
+    @watched_packages = User.possibly_nobody.watched_packages
+    @watched_projects = User.possibly_nobody.watched_projects
   end
 
   def add_arrays(arr1, arr2)

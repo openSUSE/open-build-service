@@ -83,7 +83,7 @@
                                           package: @package,
                                           project: @project,
                                           current_object: @bs_request || @package || @project,
-                                          bs_requests: RequestsForWatchlistFinder.new.call(User.session!),
-                                          packages: PackagesForWatchlistFinder.new.call(User.session!),
-                                          projects: ProjectsForWatchlistFinder.new.call(User.session!))
+                                          bs_requests: @watched_requests,
+                                          packages: @watched_packages,
+                                          projects: @watched_projects)
         = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-item-from-watchlist-modal', method: :put, options: { remote: true })

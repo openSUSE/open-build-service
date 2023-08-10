@@ -20,9 +20,9 @@
           = render WatchlistIconComponent.new(user: User.session!,
                                               project: @project,
                                               current_object: @project,
-                                              bs_requests: RequestsForWatchlistFinder.new.call(User.session!),
-                                              packages: PackagesForWatchlistFinder.new.call(User.session!),
-                                              projects: ProjectsForWatchlistFinder.new.call(User.session!))
+                                              bs_requests: @watched_requests,
+                                              packages: @watched_packages,
+                                              projects: @watched_projects)
     .row
       .col-md-8
         = render partial: 'basic_info', locals: { project: @project }
