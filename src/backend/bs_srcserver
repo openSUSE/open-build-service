@@ -1223,22 +1223,26 @@ sub getprojpack {
     }
 
     if ($cgi->{'buildinfo'} && !@res) {
+      my $repoid = $cgi->{'repository'}->[0];
       # add all projects from the expanded path
-      my $er = $expandedrepos{"$projid/$cgi->{'repository'}->[0]"};
+      my $er = $expandedrepos{"$projid/$repoid"};
       die($er) unless ref($er);
-      my $c;
-      eval {
-	$c = concatconfigs($projid, $cgi->{'repository'}->[0], $remotemap, @$er);
-      };
+      my $c = eval { concatconfigs($projid, $repoid, $remotemap, @$er) };
       for my $prp (@$er) {
         my ($p) = split('/', $prp, 2);
         next if $remotemap && $remotemap->{$p};
 	push @projids, $p unless $p eq $projid || grep {$_ eq $p} @projids;
       }
-      my $repo = (grep {$_->{'name'} eq $cgi->{'repository'}->[0]} @{$jinfo->{'repository'} || []})[0];
+      my $repo = (grep {$_->{'name'} eq $repoid} @{$jinfo->{'repository'} || []})[0];
       if ($repo && $repo->{'hostsystem'}) {
         my $conf = Build::read_config($arch, [ split("\n", $c) ]);
         $repo->{'crosshostarch'} = $conf->{'hostarch'} || $arch;
+	eval {
+	  my @path = expandsearchpath($projid, $repoid, $remotemap, undef, 'hostsystem');
+	  $expandedrepos{"$projid/$repoid/hostsystem"} = \@path;
+	  concatconfigs($projid, $repoid, $remotemap, @path);
+	};
+	$expandedrepos{"$projid/$repoid/hostsystem"} = $@ if $@;
       }
     }
 

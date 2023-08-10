@@ -266,18 +266,8 @@ sub build {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
 
-  if ($ctx->{'conf_host'}) {
-    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
-    no warnings 'redefine';
-    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
-    use warnings 'redefine';
-    $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'prpsearchpath' => $ctx->{'prpsearchpath_host'} }, ref($ctx);
-    BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
-    return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
-  }
-
-  if (!@{$repo->{'path'} || []}) {
-    # repo has no path, use kiwi repositories also for kiwi system setup
+  if (!$ctx->{'conf_host'} && !@{$repo->{'path'} || []}) {
+    # repo has no path and not cross building, use kiwi repositories also for kiwi system setup
     my $xp = BSSolv::expander->new($epool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
@@ -287,9 +277,7 @@ sub build {
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
-  # clone the ctx so we can change it
-  $ctx = bless { %$ctx, 'realctx' => $ctx}, ref($ctx);
-
+  my $extrabdeps;
   if ($ctx->{'dobuildinfo'} || $unorderedrepos) {
     # need to dump the image packages first...
     my @bdeps;
@@ -309,9 +297,24 @@ sub build {
       $b->{'noinstall'} = 1;
       push @bdeps, $b;
     }
-    $ctx->{'extrabdeps'} = \@bdeps;
+    $extrabdeps = \@bdeps;
     $edeps = [];
   }
+
+  if ($ctx->{'conf_host'}) {
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+    $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'prpsearchpath' => $ctx->{'prpsearchpath_host'} }, ref($ctx);
+    $ctx->{'extrabdeps'} = $extrabdeps if $extrabdeps;
+    BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
+    return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
+  }
+
+  # clone the ctx so we can change it
+  $ctx = bless { %$ctx, 'realctx' => $ctx}, ref($ctx);
+  $ctx->{'extrabdeps'} = $extrabdeps if $extrabdeps;
 
   BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
 
