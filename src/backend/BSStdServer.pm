@@ -349,6 +349,7 @@ sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;
   my $request;
+  my $request_content;
 
   if (@{$args || []} && $args->[0] eq '--logfile') {
     shift @$args;
@@ -393,6 +394,10 @@ sub server {
       shift @$args;
       $request = shift @$args;
       die("need a server config for --req\n") unless $conf;
+      if (@$args && $args->[0] eq '--req-content') {
+        shift @$args;
+        $request_content = shift @$args;
+      }
     }
   }
 
@@ -455,6 +460,7 @@ sub server {
     $req->{'path'} = $request;
     ($req->{'path'}, $req->{'query'}) = ($1, $2) if $request =~ /^(.*?)\?(.*)$/;
     $req->{'path'} =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    $req = { %$req, %{BSHTTP::str2req(readstr($request_content))} } if $request_content;
     $BSServer::request = $req;
     if ($req->{'action'} eq 'AJAX') {
       $isajax = 1;
