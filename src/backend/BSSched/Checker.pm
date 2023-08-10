@@ -890,7 +890,7 @@ sub calcrelsynctrigger {
       for my $packid (sort keys %$pdatas) {
 	next unless $relsync->{$packid};
 	my $pdata = $pdatas->{$packid};
-	my $tag = $pdata->{$packid};
+	my $tag = $pdata->{'bcntsynctag'};
 	if (!$tag) {
 	  my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
 	  $tag = $info->{'bcntsynctag'} if $info;
