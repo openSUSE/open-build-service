@@ -862,6 +862,18 @@ class User < ApplicationRecord
     end
   end
 
+  def watched_requests
+    BsRequest.where(id: watched_items.where(watchable_type: 'BsRequest').pluck(:watchable_id)).order('number DESC')
+  end
+
+  def watched_packages
+    Package.where(id: watched_items.where(watchable_type: 'Package').pluck(:watchable_id)).order('LOWER(name), name')
+  end
+
+  def watched_projects
+    Project.where(id: watched_items.where(watchable_type: 'Project').pluck(:watchable_id)).order('LOWER(name), name')
+  end
+
   private
 
   def measure_create
