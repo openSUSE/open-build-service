@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_167
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_77
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>To Say Nothing of the Dog</title>
+          <title>Far From the Madding Crowd</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>To Say Nothing of the Dog</title>
+          <title>Far From the Madding Crowd</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_168
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_78
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Laudantium atque aspernatur. Harum error earum. Corporis officiis unde.
+      string: Voluptatem dolorem ullam. Voluptate magni velit. Esse molestiae doloribus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="557" vrev="517">
-          <srcmd5>325b3e6ba4d46da599746ea2beaf765a</srcmd5>
-          <version>2</version>
-          <time>1690970606</time>
+        <revision rev="41" vrev="33">
+          <srcmd5>db2493a3e8bf6305c61766cff52c1ae7</srcmd5>
+          <version>unknown</version>
+          <time>1691403226</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Illo voluptates itaque. Ut sit aut. Quisquam et totam.
+      string: Molestiae sit alias. Accusamus sequi et. Dolorem distinctio rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,28 +181,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="558" vrev="518">
-          <srcmd5>508ea5c93f0904a4884891eeade5c0cf</srcmd5>
-          <version>2</version>
-          <time>1690970606</time>
+        <revision rev="42" vrev="34">
+          <srcmd5>e0ebd5fb6f5b315db38c3e8cd2c78b1f</srcmd5>
+          <version>unknown</version>
+          <time>1691403226</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_168
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_78
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#krauselukas-patch-2</scmsync>
         </package>
     headers:
@@ -224,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '269'
+      - '278'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#krauselukas-patch-2</scmsync>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:46 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package?cmd=waitservice
@@ -267,7 +267,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:48 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_scm_synced_package%22%20and%20linkinfo/@project=%22foo_scm_synced_project%22%20and%20@project=%22foo_scm_synced_project%22)
@@ -301,7 +301,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -341,7 +341,7 @@ http_interactions:
           <description>This project was created for package bar_scm_synced_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -350,7 +350,7 @@ http_interactions:
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -371,15 +371,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '209'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -388,7 +388,7 @@ http_interactions:
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -409,15 +409,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '209'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -449,7 +449,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?view=info
@@ -482,7 +482,7 @@ http_interactions:
         <sourceinfo package="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -514,7 +514,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -546,12 +546,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fcd36f1333f8fa73c0b08e56c60a1651">
+        <sourcediff key="bd5a136da41c9d04a09d535fae68821f">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -619,7 +619,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -628,7 +628,7 @@ http_interactions:
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#123456789</scmsync>
         </package>
     headers:
@@ -650,16 +650,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '279'
+      - '288'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title>Far From the Madding Crowd</title>
-          <description>Unde et omnis ducimus.</description>
+          <description>Minus repellendus sapiente eum.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git#123456789</scmsync>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_branch_request
@@ -693,5 +693,5 @@ http_interactions:
           <summary>_branch_request: no such file</summary>
           <details>404 _branch_request: no such file</details>
         </status>
-  recorded_at: Wed, 02 Aug 2023 10:03:33 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:49 GMT
 recorded_with: VCR 6.2.0

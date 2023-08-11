@@ -568,7 +568,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2023 10:06:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_branch_request?user=cameron
+    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=cameron
     body:
       encoding: UTF-8
       string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'

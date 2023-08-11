@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:24 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_165
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_49
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Butter In a Lordly Dish</title>
+          <title>Nine Coaches Waiting</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>Butter In a Lordly Dish</title>
+          <title>Nine Coaches Waiting</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:24 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_166
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_50
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '187'
+      - '184'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:24 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Sed omnis esse. Culpa voluptas alias. Aut quia consectetur.
+      string: Minima aut a. Non velit quae. Provident hic alias.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '201'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="554" vrev="514">
-          <srcmd5>fc0b0166b5bd91c77fdeb6aa528a91f6</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>4bde97f95ad31aa7a46ee69c2782955d</srcmd5>
           <version>2</version>
-          <time>1690970604</time>
+          <time>1691403193</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:03:24 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Et numquam rerum. Voluptatibus optio porro. Aut eaque aut.
+      string: Rem veniam eos. Omnis unde dolores. Expedita officiis minima.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,28 +181,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '201'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="555" vrev="515">
-          <srcmd5>72510dc94fcab603b82b8f4b071ec3ff</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>0a2e4e734454e9f10720cdb6f9baeb97</srcmd5>
           <version>2</version>
-          <time>1690970604</time>
+          <time>1691403193</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:03:24 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_166
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_50
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#krauselukas-patch-2</scmsync>
         </package>
     headers:
@@ -224,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '297'
+      - '294'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#krauselukas-patch-2</scmsync>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:24 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package?cmd=waitservice
@@ -267,7 +267,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_scm_synced_package%22%20and%20linkinfo/@project=%22foo_scm_synced_project%22%20and%20@project=%22foo_scm_synced_project%22)
@@ -301,7 +301,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -341,7 +341,7 @@ http_interactions:
           <description>This project was created for package bar_scm_synced_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -349,8 +349,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -371,15 +371,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '204'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -387,8 +387,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -409,15 +409,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '204'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -449,7 +449,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?view=info
@@ -482,7 +482,7 @@ http_interactions:
         <sourceinfo package="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package
@@ -514,7 +514,7 @@ http_interactions:
       string: |
         <directory name="bar_scm_synced_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -546,12 +546,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fcd36f1333f8fa73c0b08e56c60a1651">
+        <sourcediff key="bd5a136da41c9d04a09d535fae68821f">
           <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="bar_scm_synced_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -619,7 +619,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:03:25 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -627,8 +627,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#123456789</scmsync>
         </package>
     headers:
@@ -650,14 +650,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '304'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title>Blue Remembered Earth</title>
-          <description>Veniam consectetur pariatur saepe.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Molestiae necessitatibus in alias.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#123456789</scmsync>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:03:26 GMT
+  recorded_at: Mon, 07 Aug 2023 10:13:16 GMT
 recorded_with: VCR 6.2.0
