@@ -63,7 +63,7 @@ class MaintenanceIncident < ApplicationRecord
   end
 
   def getUpdateinfoCounter(time, template = '%Y-%C')
-    uc = UpdateinfoCounter.find_or_create(time, template)
+    uc = UpdateinfoCounter.find_or_create(time, maintenance_db_project, template)
     IncidentUpdateinfoCounterValue.find_or_create(time, uc, project)
   end
 
