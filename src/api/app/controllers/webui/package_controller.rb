@@ -645,7 +645,7 @@ class Webui::PackageController < Webui::WebuiController
       return published_url if published_url
     end
 
-    return "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{params[:package]}/#{file_name}" if User.session
+    "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{params[:package]}/#{file_name}" if User.session
   end
 
   def publishing_enabled(architecture_name:)

@@ -274,7 +274,8 @@ class Review < ApplicationRecord
     return User.find_by(login: by_user) if by_user
     return Group.find_by(title: by_group) if by_group
     return Package.find_by_project_and_name(by_project, by_package) if by_package
-    return Project.find_by(name: by_project) if by_project
+
+    Project.find_by(name: by_project) if by_project
   end
 
   # Make sure this is always set, also for old records

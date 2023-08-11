@@ -56,7 +56,8 @@ class BuildResultForArchitectureComponent < ApplicationComponent
     return 'border-warning' if build_result.in_progress_status?
     return 'border-success' if build_result.successful_final_status?
     return 'border-danger' if build_result.unsuccessful_final_status?
-    return 'border-gray-300' if build_result.refused_status?
+
+    'border-gray-300' if build_result.refused_status?
   end
 
   def build_status
