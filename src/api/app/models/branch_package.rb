@@ -147,7 +147,7 @@ class BranchPackage
         raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}" unless params[:force]
       else
         if pac.is_a?(Package)
-          tpkg = tprj.packages.new(name: pack_name, title: pac.title, description: pac.description, url: pac.url)
+          tpkg = tprj.packages.new(name: pack_name, title: pac.title, description: pac.description, url: pac.url, scmsync: pac.scmsync)
           tpkg.bcntsynctag = pac.bcntsynctag
         else
           tpkg = tprj.packages.new(name: pack_name)
