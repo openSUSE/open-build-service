@@ -8,7 +8,7 @@ Backend:
 "Documentation :book:":
 - docs/**/*
 - '**/*.md'
-- src/api/public/apidocs-new/**/*
+- src/api/public/apidocs/**/*
 - ReleaseNotes-*
 
 "Test Suite / CI :syringe:":
