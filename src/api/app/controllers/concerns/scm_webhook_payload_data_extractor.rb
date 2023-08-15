@@ -21,7 +21,8 @@ module ScmWebhookPayloadDataExtractor
 
   def extract_hook_action
     return payload['action'] if pull_request_with_allowed_action
-    return payload.dig('object_attributes', 'action') if merge_request_with_allowed_action
+
+    payload.dig('object_attributes', 'action') if merge_request_with_allowed_action
   end
 
   def extract_repository_name

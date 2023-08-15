@@ -29,8 +29,9 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link =~ %r{/package/binary/}
     # apidocs is not configured in test environment
     return true if link.end_with?('/apidocs/index')
+
     # no need to visit flipper
-    return true if link.end_with?('/flipper')
+    true if link.end_with?('/flipper')
   end
 
   def getlinks(baseuri, body)

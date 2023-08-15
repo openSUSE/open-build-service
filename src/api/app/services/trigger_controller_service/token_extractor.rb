@@ -33,7 +33,7 @@ module TriggerControllerService
 
     def extract_token_from_request_signature
       token = Token.find_by(id: @token_id)
-      return token if token && valid_signature?(token.string)
+      token if token && valid_signature?(token.string)
     end
 
     def valid_signature?(token_string)

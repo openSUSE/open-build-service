@@ -9,7 +9,7 @@ parameters:
     type: boolean
     default: false
 
-  run-passenger-tests:
+  run-passenger-and-ruby-default-gem-tests:
     type: boolean
     default: false
 
@@ -309,7 +309,7 @@ jobs:
             bundle exec rake db:seed
             bundle exec rake data:migrate
 
-  passenger_tests:
+  passenger_and_ruby_default_gem_tests:
     docker:
       - <<: *frontend_base
     steps:
@@ -320,6 +320,7 @@ jobs:
           command: |
             make -C src/api test_rake
             make -C src/api test_rack
+            make -C src/api test_base64_gem
 
   spider:
     parallelism: 2
@@ -502,11 +503,11 @@ workflows:
           requires:
             - checkout_code
 
-  passenger_tests:
-    when: << pipeline.parameters.run-passenger-tests >>
+  passenger_and_ruby_default_gem_tests:
+    when: << pipeline.parameters.run-passenger-and-ruby-default-gem-tests >>
     jobs:
       - checkout_code
-      - passenger_tests:
+      - passenger_and_ruby_default_gem_tests:
           requires:
             - checkout_code
 
@@ -556,4 +557,3 @@ workflows:
       - feature:
           requires:
             - linters
-
