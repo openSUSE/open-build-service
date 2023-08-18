@@ -26,7 +26,10 @@
           - @upload_jobs.each do |job|
             %tr
               %td= job.id
-              %td= link_to(job.filename, package_binaries_path(project: job.project, package: job.package, repository: job.repository))
+              %td
+                = link_to(job.filename, project_package_repository_binaries_path(project_name: job.project,
+                                                                                 package_name: job.package,
+                                                                                 repository_name: job.repository))
               %td= job.details
               %td= job.target.upcase
               %td= job.state

@@ -14,7 +14,8 @@
             - if repository.nil?
               All
             - elsif package
-              = link_to(repository_name, package_binaries_path(project: project, package: package, repository: repository_name))
+              = link_to(repository_name, project_package_repository_binaries_path(project_name: project, package_name: package,
+                                                                                  repository_name: repository_name))
             - else
               = link_to(repository_name, action: :state, project: project, repository: repository_name)
           - ([nil] + architectures).each do |architecture|

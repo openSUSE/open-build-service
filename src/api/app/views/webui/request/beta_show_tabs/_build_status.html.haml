@@ -13,7 +13,7 @@
       .float-start.mb-4
         %div
           = link_to(word_break(repository, 22),
-            package_binaries_path(project: project, package: package, repository: repository),
+            project_package_repository_binaries_path(project_name: project, package_name: package, repository_name: repository),
             title: "Binaries for #{repository}")
         .results.d-flex.flex-wrap
           - results_per_repository.sort_by! { |result| Buildresult::AVAIL_STATUS_VALUES[result.code.to_sym] }

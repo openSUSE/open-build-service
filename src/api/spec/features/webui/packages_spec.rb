@@ -130,7 +130,7 @@ RSpec.describe 'Packages', js: true, vcr: true do
         .with(project: user.home_project.name, package: package.name, repository: repository.name, view: ['binarylist', 'status'])
         .and_return(Xmlhash.parse(fake_buildresult))
 
-      visit package_binaries_path(project: user.home_project, package: package, repository: repository.name)
+      visit project_package_repository_binaries_path(project_name: user.home_project, package_name: package, repository_name: repository.name)
       click_link('Trigger')
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end

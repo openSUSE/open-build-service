@@ -854,8 +854,9 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it 'redirects to the package binaries path' do
-        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
-                                                              repository: 'non_existant_repository'))
+        expect(response).to redirect_to(project_package_repository_binaries_path(project_name: source_project,
+                                                                                 package_name: source_package,
+                                                                                 repository_name: 'non_existant_repository'))
       end
     end
 
