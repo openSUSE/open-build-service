@@ -4,7 +4,12 @@
     = render BsRequestStateBadgeComponent.new(bs_request: bs_request, css_class: 'ms-1')
   - if User.session
     .d-inline.ms-2#watchlist-icon-wrapper
-      = render WatchlistIconComponent.new(user: User.session!, bs_request: bs_request, current_object: bs_request)
+      = render WatchlistIconComponent.new(user: User.session!,
+                                          bs_request: bs_request,
+                                          current_object: bs_request,
+                                          bs_requests: bs_requests,
+                                          packages: packages,
+                                          projects: projects)
 
 #description-text
   - if bs_request.description.present?

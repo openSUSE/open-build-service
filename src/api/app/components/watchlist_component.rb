@@ -5,12 +5,17 @@ class WatchlistComponent < ApplicationComponent
     'BsRequest' => 'request'
   }.freeze
 
-  def initialize(user:, current_object:, bs_request: nil, package: nil, project: nil)
+  attr_reader :projects, :packages, :bs_requests
+
+  def initialize(user:, current_object:, bs_request: nil, package: nil, project: nil, bs_requests: [], packages: [], projects: [])
     super
 
     @user = user
     @object_to_be_watched = object_to_be_watched(bs_request, package, project)
     @current_object = current_object
+    @bs_requests = bs_requests
+    @packages = packages
+    @projects = projects
   end
 
   private
@@ -53,17 +58,5 @@ class WatchlistComponent < ApplicationComponent
     when BsRequest
       toggle_watched_item_request_path(number: @current_object.number)
     end
-  end
-
-  def projects
-    @projects ||= ProjectsForWatchlistFinder.new.call(@user)
-  end
-
-  def packages
-    @packages ||= PackagesForWatchlistFinder.new.call(@user)
-  end
-
-  def bs_requests
-    @bs_requests ||= RequestsForWatchlistFinder.new.call(@user)
   end
 end

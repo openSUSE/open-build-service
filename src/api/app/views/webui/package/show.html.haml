@@ -24,7 +24,13 @@
         = @package.title.presence || @package.name
       - if User.session
         .d-inline.ms-1#watchlist-icon-wrapper
-          = render WatchlistIconComponent.new(user: User.session!, package: @package, project: @project, current_object: @package)
+          = render WatchlistIconComponent.new(user: User.session!,
+                                              package: @package,
+                                              project: @project,
+                                              current_object: @package,
+                                              bs_requests: @watched_requests,
+                                              packages: @watched_packages,
+                                              projects: @watched_projects)
     .row
       .col-md-8
         .in-place-editing

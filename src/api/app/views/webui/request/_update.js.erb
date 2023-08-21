@@ -1,5 +1,5 @@
 $('#request-history .card-body').html("<%= escape_javascript(render partial: 'request_history', locals: { bs_request: bs_request, history: history }) %>");
-$('#overview').html("<%= escape_javascript(render partial: 'show_overview', locals: { bs_request: bs_request, can_add_reviews: can_add_reviews }) %>");
+$('#overview').html("<%= escape_javascript(render partial: 'show_overview', locals: { bs_request: bs_request, can_add_reviews: can_add_reviews, bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }) %>");
 $('#side-links').html("<%= escape_javascript(render partial: 'show_side_links', locals: { bs_request: bs_request, package_maintainers: package_maintainers }) %>");
 $('#flash').html("<%= escape_javascript(render partial: 'layouts/webui/flash') %>");
 $('#handle-request').replaceWith("<%= escape_javascript(render partial: 'handle_request', locals: {

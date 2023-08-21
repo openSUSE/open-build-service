@@ -3,13 +3,13 @@ class WatchlistIconComponentPreview < ViewComponent::Preview
   # Preview at http://HOST:PORT/rails/view_components/watchlist_icon_component/icon_to_add
   def icon_to_add
     remove_from_watchlist(item)
-    render(WatchlistIconComponent.new(user, item))
+    render(WatchlistIconComponent.new(user: user, current_object: item, bs_request: nil, package: nil, project: nil, bs_requests: [], packages: [], projects: [item]))
   end
 
   # Preview at http://HOST:PORT/rails/view_components/watchlist_icon_component/icon_to_remove
   def icon_to_remove
     add_to_watchlist(item)
-    render(WatchlistIconComponent.new(user, item))
+    render(WatchlistIconComponent.new(user: user, current_object: item, bs_request: nil, package: nil, project: nil, bs_requests: [], packages: [], projects: [item]))
   end
 
   private

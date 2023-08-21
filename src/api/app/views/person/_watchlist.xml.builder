@@ -1,11 +1,11 @@
 builder.watchlist do
-  ProjectsForWatchlistFinder.new.call(my_model).each do |project|
+  my_model.watched_projects.each do |project|
     builder.project(name: project.name)
   end
-  PackagesForWatchlistFinder.new.call(my_model).each do |package|
+  my_model.watched_packages.each do |package|
     builder.package(name: package.name, project: package.project.name)
   end
-  RequestsForWatchlistFinder.new.call(my_model).each do |request|
+  my_model.watched_requests.each do |request|
     builder.request(number: request.number)
   end
 end

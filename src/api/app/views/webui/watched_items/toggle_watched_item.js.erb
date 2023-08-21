@@ -1,6 +1,6 @@
 $("#delete-item-from-watchlist-modal").modal('hide');
 $('#flash').html("<%= escape_javascript(render(partial: 'layouts/webui/flash'))%>")
-$('.watchlist-collapse').html("<%= escape_javascript(render WatchlistComponent.new(user: User.session!, bs_request: @bs_request, package: @package, project: @project, current_object: @current_object)) %>");
-$('#watchlist-icon-wrapper').html("<%= escape_javascript(render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, package: @package, project: @project, current_object: @current_object)) %>");
+$('.watchlist-collapse').html("<%= escape_javascript(render WatchlistComponent.new(user: User.session!, bs_request: @bs_request, package: @package, project: @project, current_object: @current_object, bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects)) %>");
+$('#watchlist-icon-wrapper').html("<%= escape_javascript(render WatchlistIconComponent.new(user: User.session!, bs_request: @bs_request, package: @package, project: @project, current_object: @current_object, bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects)) %>");
 
 collectDeleteConfirmationModalsAndSetValues();
