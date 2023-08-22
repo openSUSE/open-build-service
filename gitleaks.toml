@@ -1,0 +1,19 @@
+# Title for the gitleaks configuration file.
+title = "OBS Gitleaks Confiugration"
+
+# Extend the base (this) configuration
+[extend]
+
+useDefault = true
+
+[allowlist]
+description = "global OBS allow list"
+paths = [
+  '''src/api/spec/''',
+  '''src/api/test/''',
+  '''src/api/public/apidocs/''',
+  '''src/api/log''',
+  '''src/backend/cover_db''',
+  '''dist/t/tmp/certs/'''
+]
+

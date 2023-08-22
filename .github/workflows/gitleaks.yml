@@ -1,0 +1,15 @@
+name: Gitleaks
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Gitleaks
+      run: |
+        docker run --user $(id -u):1000 -v .:/path ghcr.io/gitleaks/gitleaks:latest detect --source="/path" -v --no-git -c /path/gitleaks.toml
