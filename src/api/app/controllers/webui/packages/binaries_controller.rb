@@ -20,7 +20,7 @@ module Webui
       before_action :require_login, except: [:index]
 
       def index
-        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package.name, repository: @repository.name, view: ['binarylist', 'status'])
+        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: ['binarylist', 'status'])
         raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
         @buildresults = []
@@ -49,7 +49,7 @@ module Webui
         # Ensure it really is just a file name, no '/..', etc.
         @filename = File.basename(params[:filename])
 
-        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package.name, @repository.name, @architecture.name, @filename)
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
         respond_to do |format|
@@ -64,11 +64,11 @@ module Webui
       # In the published repo for everyone, in the backend directly only for logged in users.
       def download_url_for_binary(architecture_name:, file_name:)
         if publishing_enabled(architecture_name: architecture_name)
-          published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, @package.name, architecture_name, file_name)
+          published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, @package_name, architecture_name, file_name)
           return published_url if published_url
         end
 
-        "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{@package.name}/#{file_name}" if User.session
+        "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{@package_name}/#{file_name}" if User.session
       end
 
       def publishing_enabled(architecture_name:)
