@@ -12,12 +12,24 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
       destroy_target_project
     elsif scm_webhook.reopened_pull_request?
       restore_target_project
-    else
-      branch_package
+    elsif scm_webhook.new_commit_event?
+      create_branched_package
+      point_branched_package_to_new_commit
+      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
+
+      target_package
     end
   end
 
   private
+
+  def point_branched_package_to_new_commit
+    if scm_synced?
+      target_package.update(scmsync: parse_scmsync_for_target_package)
+    else
+      add_branch_request_file(package: target_package)
+    end
+  end
 
   def target_project_base_name
     step_instructions[:target_project]
@@ -29,16 +41,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
   def add_repositories?
     step_instructions[:add_repositories].blank? || step_instructions[:add_repositories] == 'enabled'
-  end
-
-  def branch_package
-    create_branched_package if webhook_event_for_linking_or_branching?
-
-    scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
-
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
-
-    target_package
   end
 
   def check_source_access
@@ -63,6 +65,8 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   def create_branched_package
+    return if target_package.present?
+
     check_source_access
 
     # If we create target_project, BranchPackage.branch below will not create repositories

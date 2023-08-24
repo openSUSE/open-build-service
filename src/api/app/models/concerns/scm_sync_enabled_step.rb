@@ -1,5 +1,7 @@
 module ScmSyncEnabledStep
-  def set_scmsync_on_target_package
+  def parse_scmsync_for_target_package
+    return unless scm_synced?
+
     # only change the fragment here and leave the query alone!
     parsed_scmsync_url = Addressable::URI.parse(scmsync_url)
     parsed_scmsync_url.fragment = scm_webhook.payload[:commit_sha]
@@ -12,7 +14,7 @@ module ScmSyncEnabledStep
       parsed_scmsync_url.query_values = query
     end
 
-    target_package.update(scmsync: parsed_scmsync_url.to_s)
+    parsed_scmsync_url.to_s
   end
 
   def scm_synced?
