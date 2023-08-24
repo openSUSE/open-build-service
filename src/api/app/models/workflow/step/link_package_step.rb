@@ -14,20 +14,16 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
       destroy_target_project
     elsif scm_webhook.reopened_pull_request?
       restore_target_project
-    else
-      link_package
+    elsif scm_webhook.new_commit_event?
+      create_target_package
+      create_link
+      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
+
+      target_package
     end
   end
 
   private
-
-  def link_package
-    create_target_package if webhook_event_for_linking_or_branching?
-
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
-
-    target_package
-  end
 
   def target_project_base_name
     step_instructions[:target_project]
@@ -38,16 +34,9 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   end
 
   def create_target_package
-    create_project_and_package
-    return if scm_synced?
+    return if target_package.present?
 
-    create_link
-  end
-
-  def create_project_and_package
     check_source_access
-
-    raise PackageAlreadyExists, "Can not link package. The package #{target_package_name} already exists." if target_package.present?
 
     if target_project.nil?
       project = Project.new(name: target_project_name)
@@ -75,8 +64,6 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
                                               target_package_name,
                                               @token.executor,
                                               link_xml(project: source_project_name, package: source_package_name))
-
-    target_package
   end
 
   def link_xml(opts = {})
