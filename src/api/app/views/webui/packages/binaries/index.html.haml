@@ -1,4 +1,4 @@
-- @pagetitle = "State of #{@repository} for #{@project} / #{params[:package]}"
+- @pagetitle = "State of #{@repository} for #{@project} / #{@package_name}"
 
 .card
   = render partial: 'webui/package/tabs', locals: { package: @package, project: @project }
