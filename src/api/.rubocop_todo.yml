@@ -218,6 +218,7 @@ Metrics/ClassLength:
     - 'app/models/relationship.rb'
     - 'app/models/repository.rb'
     - 'app/models/review.rb'
+    - 'app/models/scm_webhook.rb'
     - 'app/models/staging/staged_requests.rb'
     - 'app/models/staging/workflow.rb'
     - 'app/models/user.rb'
