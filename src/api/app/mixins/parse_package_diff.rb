@@ -5,7 +5,12 @@ module ParsePackageDiff
       next unless issue['name']
 
       i = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'], nonfatal: 1)
-      ret[issue['label']] = i.webui_infos if i
+      next unless i
+
+      issue_infos = i.webui_infos
+      issue_infos[:state] = issue['state'] if issue['state']
+
+      ret[issue['label']] = issue_infos
     end
     ret
   end

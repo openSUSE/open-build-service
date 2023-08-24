@@ -21,8 +21,9 @@
           - @issues.each do |issue_name, issue_details|
             %li.list-group-item
               = link_to(issue_name, issue_details[:url], target: '_blank', rel: 'noopener')
-              - if issue_details[:owner] && issue_details[:state]
+              - if issue_details[:state]
                 %span.ms-3= issue_details[:state]&.capitalize
+              - if issue_details[:owner]
                 %span.ms-3= user_with_realname_and_icon issue_details[:owner], short: true
 
               - if issue_details[:summary]
