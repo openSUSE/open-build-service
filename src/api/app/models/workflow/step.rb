@@ -100,8 +100,4 @@ class Workflow::Step
     errors.add(:base, "invalid project '#{step_instructions[:project]}'") if step_instructions[:project] && !Project.valid_name?(step_instructions[:project])
     errors.add(:base, "invalid package '#{step_instructions[:package]}'") if step_instructions[:package] && !Package.valid_name?(step_instructions[:package])
   end
-
-  def webhook_event_for_linking_or_branching?
-    scm_webhook.new_pull_request? || (scm_webhook.updated_pull_request? && target_package.blank?) || scm_webhook.push_event? || scm_webhook.tag_push_event?
-  end
 end
