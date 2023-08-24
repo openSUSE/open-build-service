@@ -39,8 +39,10 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     Project.find_by(name: target_project_name)
   end
 
-  def add_repositories?
-    step_instructions[:add_repositories].blank? || step_instructions[:add_repositories] == 'enabled'
+  def skip_repositories?
+    return false if step_instructions[:add_repositories].blank?
+
+    step_instructions[:add_repositories] != 'enabled'
   end
 
   def check_source_access
@@ -69,8 +71,8 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
     check_source_access
 
-    # If we create target_project, BranchPackage.branch below will not create repositories
-    create_target_project unless add_repositories?
+    # BranchPackage.branch below will skip "copying" repositories from the source project if the target project already exists...
+    create_target_project if skip_repositories?
 
     branch_options = { project: source_project_name, package: source_package_name,
                        target_project: target_project_name, target_package: target_package_name }
