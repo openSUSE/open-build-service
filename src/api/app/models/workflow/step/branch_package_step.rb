@@ -70,23 +70,16 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     check_source_access
 
     # If we create target_project, BranchPackage.branch below will not create repositories
-    if !add_repositories? && target_project.nil?
-      project = Project.new(name: target_project_name)
-      Pundit.authorize(@token.executor, project, :create?)
+    create_target_project unless add_repositories?
 
-      project.relationships.build(user: @token.executor,
-                                  role: Role.find_by_title('maintainer'))
-      project.commit_user = User.session
-      project.store
-    end
+    branch_options = { project: source_project_name, package: source_package_name,
+                       target_project: target_project_name, target_package: target_package_name }
 
     begin
       # Service running on package avoids branching it: wait until services finish
       Backend::Api::Sources::Package.wait_service(source_project_name, source_package_name)
 
-      BranchPackage.new({ project: source_project_name, package: source_package_name,
-                          target_project: target_project_name,
-                          target_package: target_package_name }).branch
+      BranchPackage.new(branch_options).branch
     rescue BranchPackage::InvalidArgument, InvalidProjectNameError, ArgumentError => e
       raise BranchPackage::Errors::CanNotBranchPackage, "Package #{source_project_name}/#{source_package_name} could not be branched: #{e.message}"
     rescue Project::WritePermissionError, CreateProjectNoPermission => e
@@ -100,6 +93,18 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                                 user: @token.executor.login)
 
     target_package
+  end
+
+  def create_target_project
+    return if target_project.present?
+
+    project = Project.new(name: target_project_name)
+    Pundit.authorize(@token.executor, project, :create?)
+
+    project.relationships.build(user: @token.executor,
+                                role: Role.find_by_title('maintainer'))
+    project.commit_user = User.session
+    project.store
   end
 
   def add_branch_request_file(package:)
