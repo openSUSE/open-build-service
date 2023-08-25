@@ -130,11 +130,6 @@ Lint/RescueException:
     - 'lib/tasks/extract.rake'
 
 # Offense count: 1
-Lint/ShadowedException:
-  Exclude:
-    - 'app/models/project/remote_url.rb'
-
-# Offense count: 1
 Lint/StructNewOverride:
   Exclude:
     - 'app/models/buildresult.rb'

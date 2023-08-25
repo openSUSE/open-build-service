@@ -115,11 +115,9 @@ module Backend
                             end
         begin
           http.request(backend_request)
-        # rubocop:disable Lint/ShadowedException
-        rescue Errno::EPIPE, Errno::ECONNRESET, SocketError, Errno::EINTR, EOFError, IOError, Errno::ETIMEDOUT
+        rescue Errno::EPIPE, Errno::ECONNRESET, SocketError, Errno::EINTR, IOError, Errno::ETIMEDOUT
           raise Timeout::Error
         end
-        # rubocop:enable Lint/ShadowedException
       end
       Backend::Logger.info(method, host, port, path, response, start_time)
       handle_response(response)
