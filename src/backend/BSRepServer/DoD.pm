@@ -37,6 +37,31 @@ my $maxredirects = 10;
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
+# Adapted from URL::Normalize by Tore Aursand
+sub remove_dot_segments {
+  my $path = shift;
+  my @new_segments = ();
+
+  foreach my $segment ( split('/', $path) ) {
+    if ($segment eq '.' || $segment eq '...') {
+      next;
+    }
+
+    if ($segment eq '..') {
+      pop (@new_segments);
+      next;
+    }
+
+    push(@new_segments, $segment);
+  }
+
+  my $new_path = join( '/', @new_segments );
+  $new_path .= '/' if ( $new_path !~ m,/$, && $path =~ m,/$, );
+  $new_path  = '/' . $new_path unless ( $new_path =~ m,^/, );
+
+  return $new_path;
+}
+
 sub is_wanted_dodbinary {
   my ($pool, $p, $path, $doverify) = @_;
   my $q;
@@ -119,6 +144,8 @@ sub fetchdodbinary {
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
   my $tmp = "$gdst/:full/.dod.$$.$pkgname";
+  # fix url
+  $url = remove_dot_segments $url;
   #print "fetching: $url\n";
   my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
