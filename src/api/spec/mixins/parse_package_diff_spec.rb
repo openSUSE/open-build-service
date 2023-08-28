@@ -119,7 +119,7 @@ RSpec.describe ParsePackageDiff do
       it { expect(subject[issue.label][:tracker]).to eq(issue_tracker.name) }
 
       it { expect(subject[:empty]).to be_nil }
-      it { expect(subject[deleted_issue.label]).to be_nil }
+      it { expect(subject[deleted_issue.label][:name]).to eq(deleted_issue.name) }
     end
   end
 end
