@@ -139,13 +139,13 @@ FactoryBot.define do
       after(:create) do |project, evaluator|
         create(:maintenance_project_attrib, project: project)
         if evaluator.target_project
-          if evaluator.target_project.is_a?(Array)
-            target_projects = evaluator.target_project
-          else
-            target_projects = [evaluator.target_project] 
-          end
+          target_projects = if evaluator.target_project.is_a?(Array)
+                              evaluator.target_project
+                            else
+                              [evaluator.target_project]
+                            end
           CONFIG['global_write_through'] ? project.store : project.save!
-          target_projects.each do |tp| 
+          target_projects.each do |tp|
             create(:maintained_project, project: tp, maintenance_project: project)
           end
         end
