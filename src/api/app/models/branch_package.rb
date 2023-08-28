@@ -434,7 +434,10 @@ class BranchPackage
         end
       end
       tpkg_name ||= params[:package]
-      tpkg_name += ".#{prj.name}" if @extend_names
+      if @extend_names
+        tprj_name = prj.try(:name) || params[:project]
+        tpkg_name += ".#{tprj_name}"
+      end
       if pkg
         # local package
         @packages.push(base_project: prj, link_target_project: prj, package: pkg, rev: params[:rev], target_package: tpkg_name)
