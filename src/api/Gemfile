@@ -97,6 +97,9 @@ gem 'faraday'
 # Asset packaging system that concatenates and serves JavaScript, CoffeeScript, CSS, Sass, and SCSS
 # This cannot be in the assets group since Sprockets is loaded in config/application.rb
 gem 'sprockets-rails'
+# Javascript charts
+# https://github.com/ankane/chartkick
+gem 'chartkick'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083

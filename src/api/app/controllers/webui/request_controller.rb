@@ -6,8 +6,8 @@ class Webui::RequestController < Webui::WebuiController
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
-  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues, :build_results_chart]
+  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues, :build_results_chart],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -297,6 +297,63 @@ class Webui::RequestController < Webui::WebuiController
     @ajax_data = {}
     @ajax_data['project'] = @project if @project
     @ajax_data['package'] = @action[:spkg] if @action[:spkg]
+  end
+
+  def build_results_chart
+    success_data = {}
+    failed_data = {}
+    building_data = {}
+
+    # take all the build results for all the actions (only actions where it makes sense to have a build status)
+    @actions.where(type: [:submit, :maintenance_incident, :maintenance_release]).each do |action|
+      source_project_object = Project.find_by_name(action.source_project)
+      source_package_object = Package.find_by_project_and_name(source_project_object.name, action.source_package)
+
+      # fetch all build results for the source project/package
+      action_build_results_data = LocalBuildResult::ForPackage.new(
+        package: source_package_object,
+        project: source_project_object,
+        show_all: true,
+        lastbuild: false
+      ).results[source_package_object.name]
+
+      next unless action_build_results_data
+
+      # success results
+      action_build_results_data.filter { |r| Buildresult.new(r.code).successful_final_status? }.each do |result_entry|
+        key = result_entry.repository
+        success_data[key] ? success_data.store(key, success_data[key] + 1) : success_data.store(key, 1)
+      end
+      # failed results
+      action_build_results_data.filter { |r| Buildresult.new(r.code).unsuccessful_final_status? }.each do |result_entry|
+        key = result_entry.repository
+        failed_data[key] ? failed_data.store(key, failed_data[key] + 1) : failed_data.store(key, 1)
+      end
+      # in progress results
+      action_build_results_data.filter { |r| Buildresult.new(r.code).in_progress_status? }.each do |result_entry|
+        key = result_entry.repository
+        building_data[key] ? building_data.store(key, building_data[key] + 1) : building_data.store(key, 1)
+      end
+    end
+
+    # prepare the datasets for each type
+    published = {}
+    published['name'] = 'Published'
+    published['data'] = success_data
+    failed = {}
+    failed['name'] = 'Failed'
+    failed['data'] = failed_data
+    building = {}
+    building['name'] = 'Building'
+    building['data'] = building_data
+
+    # collect all the datasets
+    chart_data_array = []
+    chart_data_array.push(published)
+    chart_data_array.push(failed)
+    chart_data_array.push(building)
+
+    render json: chart_data_array
   end
 
   def rpm_lint
