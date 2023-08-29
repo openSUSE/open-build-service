@@ -39,18 +39,57 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:33 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_125
+    uri: http://backend:5352/source/foo_project/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Things Fall Apart</title>
+          <title>Mother Night</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Mother Night</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>Recalled to Life</title>
+          <description>Aliquid atque odit est.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -74,56 +113,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="foo_project">
-          <title>Things Fall Apart</title>
-          <description></description>
-          <person userid="Iggy" role="maintainer"/>
-        </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_126
-    body:
-      encoding: UTF-8
-      string: |
         <package name="bar_package" project="foo_project">
-          <title>Jesting Pilate</title>
-          <description>Doloribus velit illo ducimus.</description>
+          <title>Recalled to Life</title>
+          <description>Aliquid atque odit est.</description>
         </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '153'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package" project="foo_project">
-          <title>Jesting Pilate</title>
-          <description>Doloribus velit illo ducimus.</description>
-        </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Nulla ut eligendi. Voluptas itaque doloribus. Sit mollitia ipsa.
+      string: Dolorem placeat consequatur. Cum maxime neque. Aut consectetur occaecati.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="113" vrev="113">
-          <srcmd5>49e4fd3a9f55cb48301d25696c198a49</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>ef0fa91febed6f8a9f2a18a0001e82f8</srcmd5>
           <version>unknown</version>
-          <time>1673370934</time>
+          <time>1693303640</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sit ut rerum. Quasi odit dolores. Eum autem accusamus.
+      string: Fugiat eum dolores. Laborum perspiciatis eos. Non voluptatum enim.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="114" vrev="114">
-          <srcmd5>06518f148ecb33c81478dce9a09c3740</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>f95035664c793eece75d4a8236d53d67</srcmd5>
           <version>unknown</version>
-          <time>1673370934</time>
+          <time>1693303640</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-123/_meta?user=Iggy
@@ -231,80 +231,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy/_project/_service
-    body:
-      encoding: UTF-8
-      string: |
-        <services>
-          <service name="format_spec_file" mode="localonly"/>
-        </services>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '170'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="15">
-          <srcmd5>58ae26056fd970c7f7c9bad137b6665e</srcmd5>
-          <time>1673370934</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Iggy/_project/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '77'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |
-        <services>
-          <service name="format_spec_file" mode="localonly"/>
-        </services>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-123/_link?user=Iggy
@@ -334,273 +261,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>7973a122757d8a00ddd18929fc5e8d7b</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
           <version>unknown</version>
-          <time>1673370934</time>
+          <time>1693303640</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-123/_branch_request?user=Iggy
-    body:
-      encoding: UTF-8
-      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"reponame"},"sha":"123"}}}'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '204'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>c7a6f2833eb357bacf315a5ec7034084</srcmd5>
-          <version>unknown</version>
-          <time>1673370934</time>
-          <user>Iggy</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-123/_meta?user=Iggy
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package-123" project="home:Iggy">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '112'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package-123" project="home:Iggy">
-          <title></title>
-          <description></description>
-        </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-123
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '564'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="bar_package-123" rev="8" vrev="8" srcmd5="c7a6f2833eb357bacf315a5ec7034084">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="06518f148ecb33c81478dce9a09c3740" xsrcmd5="fa71ac526d7c552d09f2fe98c5944152" lsrcmd5="c7a6f2833eb357bacf315a5ec7034084"/>
-          <serviceinfo code="succeeded" xsrcmd5="f2347a624d4fa46068468131af9e8e4c"/>
-          <entry name="_branch_request" md5="4becc0c108a703b38c26920c45965516" size="89" mtime="1673370931"/>
-          <entry name="_link" md5="858d6500f0ccc27f85ed9dc8c2006d8e" size="51" mtime="1673370931"/>
-        </directory>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-123?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '334'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="bar_package-123" rev="8" vrev="122" srcmd5="e5fdc8e90af819bddbb8482911ecde8c" lsrcmd5="f2347a624d4fa46068468131af9e8e4c" verifymd5="3fc913e914b8de14442ec13cbbceec0f">
-          <error>bad build configuration, no build type defined or detected</error>
-          <linked project="foo_project" package="bar_package"/>
-        </sourceinfo>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-123
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '564'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="bar_package-123" rev="8" vrev="8" srcmd5="c7a6f2833eb357bacf315a5ec7034084">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="06518f148ecb33c81478dce9a09c3740" xsrcmd5="fa71ac526d7c552d09f2fe98c5944152" lsrcmd5="c7a6f2833eb357bacf315a5ec7034084"/>
-          <serviceinfo code="succeeded" xsrcmd5="f2347a624d4fa46068468131af9e8e4c"/>
-          <entry name="_branch_request" md5="4becc0c108a703b38c26920c45965516" size="89" mtime="1673370931"/>
-          <entry name="_link" md5="858d6500f0ccc27f85ed9dc8c2006d8e" size="51" mtime="1673370931"/>
-        </directory>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-123?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '310'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="4859fc149d4998b800061b1678592926">
-          <old project="home:Iggy" package="bar_package-123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-123" rev="8" srcmd5="c7a6f2833eb357bacf315a5ec7034084"/>
-          <files/>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-123?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '370'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="c4ab898550177cbad738651c840272ad">
-          <old project="foo_project" package="bar_package" rev="06518f148ecb33c81478dce9a09c3740" srcmd5="06518f148ecb33c81478dce9a09c3740"/>
-          <new project="home:Iggy" package="bar_package-123" rev="e5fdc8e90af819bddbb8482911ecde8c" srcmd5="e5fdc8e90af819bddbb8482911ecde8c"/>
-          <files/>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Tue, 10 Jan 2023 17:15:34 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:20 GMT
+recorded_with: VCR 6.2.0

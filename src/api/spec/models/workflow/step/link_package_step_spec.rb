@@ -47,22 +47,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError) }
   end
 
-  RSpec.shared_context 'target package already exists' do
-    # Emulates that the target project and package already existed
-    let!(:linked_project) { create(:project, name: final_target_project_name, maintainer: user) }
-    let!(:linked_package) { create(:package_with_file, name: package.name, project: linked_project) }
-
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name,
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(PackageAlreadyExists) }
-  end
-
   RSpec.shared_context 'failed without link permissions' do
     let(:step_instructions) do
       {
@@ -95,11 +79,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-    it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-    it { expect(subject.call.source_file('_branch_request')).to include('123') }
-    it { expect { subject.call.source_file('_link') }.not_to raise_error }
     it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-    it { expect { subject.call.project.source_file('_project/_service') }.not_to raise_error }
   end
 
   RSpec.shared_context 'successful on a new push event' do
@@ -116,11 +96,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
     it { expect(subject.call.project.name).to eq(target_project_name) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-    it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-    it { expect(subject.call.source_file('_branch_request')).to include('123') }
-    it { expect { subject.call.source_file('_link') }.not_to raise_error }
     it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-    it { expect { subject.call.project.source_file('_project/_service') }.not_to raise_error }
   end
 
   RSpec.shared_context 'successful update event when the linked_package already exists' do
@@ -149,19 +125,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
       end
     end
 
-    before do
-      package.save_file({ file: existing_branch_request_file, filename: '_branch_request' })
-    end
-
     it { expect { subject.call }.not_to(change(Package, :count)) }
-    it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-    it { expect { subject.call.source_file('_link') }.not_to raise_error }
     it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-
-    it 'updates _branch_request file including new commit sha' do
-      expect(subject.call.source_file('_branch_request')).to include('456')
-    end
-
     it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
     it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
     it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
@@ -255,7 +220,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'project and package does not exist'
-        it_behaves_like 'target package already exists'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
@@ -274,17 +238,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
                 'source_repository_full_name' => 'reponame', 'target_repository_full_name' => 'openSUSE/open-build-service' }
             end
             let(:commit_sha) { '456' }
-            let(:existing_branch_request_file) do
-              {
-                action: 'synchronize',
-                pull_request: {
-                  head: {
-                    repo: { full_name: 'source_repository_full_name' },
-                    sha: '123'
-                  }
-                }
-              }.to_json
-            end
           end
         end
 
@@ -368,11 +321,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it { expect(subject.call.project.name).to eq(target_project_name) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-        it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
-        it { expect { subject.call.source_file('_link') }.not_to raise_error }
         it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
-        it { expect { subject.call.project.source_file('_project/_service') }.not_to raise_error }
 
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'project and package does not exist'
@@ -421,7 +370,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
         it_behaves_like 'successful new PR or MR event'
         it_behaves_like 'failed when source_package does not exist'
         it_behaves_like 'project and package does not exist'
-        it_behaves_like 'target package already exists'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
@@ -440,11 +388,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, vcr: true do
                 'source_repository_full_name' => 'reponame', 'path_with_namespace' => 'openSUSE/open-build-service' }
             end
             let(:commit_sha) { '456' }
-            let(:existing_branch_request_file) do
-              { object_kind: 'update',
-                project: { http_url: 'http_url' },
-                object_attributes: { source: { default_branch: '123' } } }.to_json
-            end
           end
         end
 

@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_63
+    uri: http://backend:5352/source/foo_project/_meta?user=user_39
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Fear and Trembling</title>
+          <title>The Skull Beneath the Skin</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Fear and Trembling</title>
+          <title>The Skull Beneath the Skin</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_64
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_40
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>To Say Nothing of the Dog</title>
-          <description>Tempora beatae enim debitis.</description>
+          <title>A Many-Splendoured Thing</title>
+          <description>Tempora sed rem odio.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>To Say Nothing of the Dog</title>
-          <description>Tempora beatae enim debitis.</description>
+          <title>A Many-Splendoured Thing</title>
+          <description>Tempora sed rem odio.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Molestiae voluptatem corporis. Molestiae eos qui. Earum libero animi.
+      string: Excepturi reiciendis cum. Quia omnis modi. Debitis maxime repellat.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="43" vrev="43">
-          <srcmd5>bfdbc50e73c5ee287c87f8aceebeff45</srcmd5>
+        <revision rev="39" vrev="39">
+          <srcmd5>6268f07389b0cfe2687b8f5ca665043c</srcmd5>
           <version>unknown</version>
-          <time>1673370912</time>
+          <time>1693303646</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Fugit in unde. Voluptatibus et deserunt. Animi accusamus ut.
+      string: Eum et soluta. Natus magnam blanditiis. Voluptas laborum natus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,13 +185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="44" vrev="44">
-          <srcmd5>2bc3af8e129d58954bd6d05287775327</srcmd5>
+        <revision rev="40" vrev="40">
+          <srcmd5>65d15e89d23842afacf417c7f73fb36e</srcmd5>
           <version>unknown</version>
-          <time>1673370912</time>
+          <time>1693303647</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
+recorded_with: VCR 6.2.0

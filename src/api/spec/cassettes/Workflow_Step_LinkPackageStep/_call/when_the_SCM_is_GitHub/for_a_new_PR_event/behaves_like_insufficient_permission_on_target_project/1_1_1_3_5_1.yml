@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:11 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_57
+    uri: http://backend:5352/source/foo_project/_meta?user=user_41
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Everything is Illuminated</title>
+          <title>Stranger in a Strange Land</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Everything is Illuminated</title>
+          <title>Stranger in a Strange Land</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:11 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_58
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_42
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Moving Finger</title>
-          <description>Eius id blanditiis vel.</description>
+          <title>The Parliament of Man</title>
+          <description>Rerum harum voluptatem voluptates.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Moving Finger</title>
-          <description>Eius id blanditiis vel.</description>
+          <title>The Parliament of Man</title>
+          <description>Rerum harum voluptatem voluptates.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:11 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Ut nisi laborum. Repudiandae dignissimos rerum. Earum est sequi.
+      string: Omnis laudantium voluptas. Qui tempore quisquam. Alias consequatur sint.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="37" vrev="37">
-          <srcmd5>660c424cc687410841edc46644c7a71b</srcmd5>
+        <revision rev="41" vrev="41">
+          <srcmd5>709144551fad85f777effee0aa93aa47</srcmd5>
           <version>unknown</version>
-          <time>1673370911</time>
+          <time>1693303647</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:11 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Ut et voluptatem. Maiores quibusdam corporis. Sequi dolorum et.
+      string: Debitis aut sit. Expedita dolorem inventore. Modi tenetur sit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,15 +185,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="38" vrev="38">
-          <srcmd5>f8527fd1e13dc3328f798d74fd4fb4a7</srcmd5>
+        <revision rev="42" vrev="42">
+          <srcmd5>ed22e37dd23aba575de388a5feb2dc14</srcmd5>
           <version>unknown</version>
-          <time>1673370911</time>
+          <time>1693303647</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:11 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project_no_permission/_meta?user=Iggy
@@ -201,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project_no_permission">
-          <title>The Sun Also Rises</title>
+          <title>Gone with the Wind</title>
           <description/>
         </project>
     headers:
@@ -228,8 +228,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project_no_permission">
-          <title>The Sun Also Rises</title>
+          <title>Gone with the Wind</title>
           <description></description>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:11 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:27 GMT
+recorded_with: VCR 6.2.0
