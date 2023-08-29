@@ -5,6 +5,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
 
   validate :validate_source_project_and_package_name
+  validate :validate_source_project_or_package_are_not_scmsynced
 
   def call
     return unless valid?
@@ -22,8 +23,6 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
 
   def link_package
     create_target_package if webhook_event_for_linking_or_branching?
-
-    set_scmsync_on_target_package if scm_synced?
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
 
@@ -83,5 +82,10 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def link_xml(opts = {})
     # "<link package=\"foo\" project=\"bar\" />"
     Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
+  end
+
+  def validate_source_project_or_package_are_not_scmsynced
+    errors.add(:base, "project '#{step_instructions[:source_project]}' is developed in SCM. Branch it instead.") if scm_synced_project?
+    errors.add(:base, "package '#{step_instructions[:source_package]}' is developed in SCM. Branch it instead.") if scm_synced_package?
   end
 end
