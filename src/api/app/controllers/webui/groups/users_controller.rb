@@ -37,7 +37,7 @@ module Webui
             flash.now[:success] = "Gave maintainer rights to '#{@user}'"
             render 'flash', status: :ok
           else
-            flash.now[:error] = "Couldn't make user '#{user}' maintainer: #{group_maintainer.errors.full_messages.to_sentence}"
+            flash.now[:error] = "Couldn't make user '#{@user}' maintainer: #{group_maintainer.errors.full_messages.to_sentence}"
             render 'flash', status: :bad_request
           end
         else
