@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_65
+    uri: http://backend:5352/source/foo_project/_meta?user=user_69
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>A Catskill Eagle</title>
+          <title>The Mirror Crack'd from Side to Side</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>A Catskill Eagle</title>
+          <title>The Mirror Crack'd from Side to Side</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_66
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_70
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Quo Vadis</title>
-          <description>Modi molestiae ipsam rem.</description>
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Inventore repudiandae minima placeat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Quo Vadis</title>
-          <description>Modi molestiae ipsam rem.</description>
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Inventore repudiandae minima placeat.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Itaque nesciunt et. Aspernatur explicabo molestias. Accusantium maiores
-        culpa.
+      string: Nihil ab ratione. Est perspiciatis occaecati. Rerum quibusdam excepturi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="45" vrev="45">
-          <srcmd5>566a5a396950aa2b35a6727cc875a751</srcmd5>
+        <revision rev="69" vrev="69">
+          <srcmd5>c36e0257c159f6eea5d254b960ea9912</srcmd5>
           <version>unknown</version>
-          <time>1673370912</time>
+          <time>1693303654</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Eos et perspiciatis. Ut et quae. Asperiores quia earum.
+      string: Commodi natus repellat. Animi quos exercitationem. Est sequi reiciendis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,13 +185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="46" vrev="46">
-          <srcmd5>ce6b5fc2a5b3af5b24d00912c52af3cd</srcmd5>
+        <revision rev="70" vrev="70">
+          <srcmd5>398571c89ae56886026c3b6b81248ed5</srcmd5>
           <version>unknown</version>
-          <time>1673370912</time>
+          <time>1693303654</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:12 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:34 GMT
+recorded_with: VCR 6.2.0

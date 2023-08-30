@@ -42,6 +42,10 @@ class SCMWebhook
       (gitea_pull_request? && @payload[:action] == 'reopened')
   end
 
+  def new_commit_event?
+    new_pull_request? || updated_pull_request? || push_event? || tag_push_event?
+  end
+
   def push_event?
     github_push_event? || gitlab_push_event? || gitea_push_event?
   end

@@ -631,19 +631,19 @@ RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
     context 'when add_repositories is enabled' do
       let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'enabled' } }
 
-      it { expect(subject.send(:add_repositories?)).to be_truthy }
+      it { expect(subject.send(:skip_repositories?)).not_to be_truthy }
     end
 
     context 'when add_repositories is disabled' do
       let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'disabled' } }
 
-      it { expect(subject.send(:add_repositories?)).not_to be_truthy }
+      it { expect(subject.send(:skip_repositories?)).to be_truthy }
     end
 
     context 'when add_repositories is blank' do
       let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name } }
 
-      it { expect(subject.send(:add_repositories?)).to be_truthy }
+      it { expect(subject.send(:skip_repositories?)).not_to be_truthy }
     end
   end
 end

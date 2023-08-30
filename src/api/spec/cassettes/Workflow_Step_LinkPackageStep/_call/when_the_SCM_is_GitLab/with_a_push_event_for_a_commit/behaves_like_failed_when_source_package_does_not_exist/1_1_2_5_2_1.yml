@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:46 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_167
+    uri: http://backend:5352/source/foo_project/_meta?user=user_93
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>A Swiftly Tilting Planet</title>
+          <title>For Whom the Bell Tolls</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>A Swiftly Tilting Planet</title>
+          <title>For Whom the Bell Tolls</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:46 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:39 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_168
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_94
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Waste Land</title>
-          <description>Aut quas minus nihil.</description>
+          <title>The Millstone</title>
+          <description>Et dignissimos doloribus est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Waste Land</title>
-          <description>Aut quas minus nihil.</description>
+          <title>The Millstone</title>
+          <description>Et dignissimos doloribus est.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:46 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Quo omnis modi. Velit facere et. Quia et perferendis.
+      string: Et consectetur ut. Maxime qui consequuntur. Aspernatur et aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,26 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="163" vrev="163">
-          <srcmd5>f998c93af390147e863231e148d990d0</srcmd5>
+        <revision rev="93" vrev="93">
+          <srcmd5>9ae1248a28acd431b82bdf3813da6524</srcmd5>
           <version>unknown</version>
-          <time>1673370946</time>
+          <time>1693303659</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:46 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Expedita rerum debitis. Recusandae vero consequatur. Consequuntur aut
-        aut.
+      string: Est quae odit. Neque corrupti quia. Deserunt sequi dolor.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="164" vrev="164">
-          <srcmd5>3dd09929ca0487ede835f81352dce7d7</srcmd5>
+        <revision rev="94" vrev="94">
+          <srcmd5>2f1509cfd86d54ea859bc25d00fe9a43</srcmd5>
           <version>unknown</version>
-          <time>1673370946</time>
+          <time>1693303659</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:46 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:39 GMT
+recorded_with: VCR 6.2.0

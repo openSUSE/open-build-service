@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:47 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_171
+    uri: http://backend:5352/source/foo_project/_meta?user=user_109
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Ring of Bright Water</title>
+          <title>Precious Bane</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Ring of Bright Water</title>
+          <title>Precious Bane</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:47 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_172
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_110
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>In Dubious Battle</title>
-          <description>Eos recusandae rerum voluptatibus.</description>
+          <title>In a Dry Season</title>
+          <description>Sit dolor ab molestias.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>In Dubious Battle</title>
-          <description>Eos recusandae rerum voluptatibus.</description>
+          <title>In a Dry Season</title>
+          <description>Sit dolor ab molestias.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:47 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Quo vitae est. Ducimus aspernatur autem. Ad aut aut.
+      string: Laborum reiciendis exercitationem. Cumque vitae accusamus. Ex nemo nesciunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="167" vrev="167">
-          <srcmd5>dbe8bc28a5e88e2adaa4378512449b50</srcmd5>
+        <revision rev="109" vrev="109">
+          <srcmd5>32f6697ef88f20757b6092318a5a12d6</srcmd5>
           <version>unknown</version>
-          <time>1673370947</time>
+          <time>1693303663</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:47 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Facilis quae est. Omnis similique voluptatem. Dolorum quia a.
+      string: Magni molestiae quibusdam. In error voluptatem. Vel ea id.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,13 +185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="168" vrev="168">
-          <srcmd5>ad6df0a89d4628535396adf20d3ef1b4</srcmd5>
+        <revision rev="110" vrev="110">
+          <srcmd5>3dcb215c66f2fa9f47e0eb13e14fa7fb</srcmd5>
           <version>unknown</version>
-          <time>1673370947</time>
+          <time>1693303663</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:47 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:43 GMT
+recorded_with: VCR 6.2.0

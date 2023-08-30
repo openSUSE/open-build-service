@@ -432,11 +432,6 @@ RSpec.describe Workflow, vcr: true do
       it 'returns an array with two items' do
         expect(subject.steps.count).to be 2
       end
-
-      # This example requires VCR
-      it 'creates no artifacts because an exception is raised' do
-        expect { subject.call }.to raise_error BranchPackage::Errors::DoubleBranchPackageError
-      end
     end
 
     context 'with one unsupported step' do

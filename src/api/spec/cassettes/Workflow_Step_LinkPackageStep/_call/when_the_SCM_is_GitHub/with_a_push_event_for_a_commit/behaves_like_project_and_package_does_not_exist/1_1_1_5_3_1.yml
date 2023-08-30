@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:29 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_115
+    uri: http://backend:5352/source/foo_project/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Lilies of the Field</title>
+          <title>Gone with the Wind</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Lilies of the Field</title>
+          <title>Gone with the Wind</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:29 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_116
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Some Buried Caesar</title>
-          <description>Voluptate atque perferendis temporibus.</description>
+          <title>To a God Unknown</title>
+          <description>Harum commodi quia at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Some Buried Caesar</title>
-          <description>Voluptate atque perferendis temporibus.</description>
+          <title>To a God Unknown</title>
+          <description>Harum commodi quia at.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:29 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Aut consequatur enim. Velit pariatur voluptate. Ut modi dicta.
+      string: Amet quia consequatur. Quas non dolores. Laborum aperiam magnam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="103" vrev="103">
-          <srcmd5>cb65e2fa111519c7ddaf850ef74ac66f</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>ad7f635f0fdbf246abbbde32359a6bc8</srcmd5>
           <version>unknown</version>
-          <time>1673370929</time>
+          <time>1693303641</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:29 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sunt occaecati at. Sequi omnis quia. Ea omnis facere.
+      string: Aut aspernatur sed. Provident voluptatum neque. Temporibus voluptas
+        omnis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +182,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="104" vrev="104">
-          <srcmd5>1519bf1d81bd84cedbd52dfcb5a2e1e1</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>68e88032b41c458f9eea7f4188a43af7</srcmd5>
           <version>unknown</version>
-          <time>1673370929</time>
+          <time>1693303641</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:29 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
+recorded_with: VCR 6.2.0

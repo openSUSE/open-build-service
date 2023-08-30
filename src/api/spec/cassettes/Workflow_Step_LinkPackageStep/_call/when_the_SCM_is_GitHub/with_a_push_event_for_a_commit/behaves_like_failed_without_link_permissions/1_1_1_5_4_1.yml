@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:30 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_117
+    uri: http://backend:5352/source/foo_project/_meta?user=user_19
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Far-Distant Oxus</title>
+          <title>Absalom, Absalom!</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Far-Distant Oxus</title>
+          <title>Absalom, Absalom!</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Tue, 10 Jan 2023 17:15:30 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_118
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Nesciunt inventore aliquid rem.</description>
+          <title>Ah, Wilderness!</title>
+          <description>Voluptate asperiores impedit et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Nesciunt inventore aliquid rem.</description>
+          <title>Ah, Wilderness!</title>
+          <description>Voluptate asperiores impedit et.</description>
         </package>
-  recorded_at: Tue, 10 Jan 2023 17:15:30 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Maiores eum eius. Ad velit et. Cumque quas repellat.
+      string: Optio earum sint. Ducimus laboriosam placeat. Magni itaque mollitia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="105" vrev="105">
-          <srcmd5>e3a0e679b54732f4fc8666e7c8609947</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>23f9cfb324ff8e55ffa99f233f7d3a28</srcmd5>
           <version>unknown</version>
-          <time>1673370930</time>
+          <time>1693303642</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:30 GMT
+  recorded_at: Tue, 29 Aug 2023 10:07:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Porro error qui. Est omnis ut. Rerum repudiandae omnis.
+      string: Vel amet nulla. Aspernatur eum suscipit. Consectetur dolorem dicta.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,17 +181,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="106" vrev="106">
-          <srcmd5>eecd72f18ee20f7b5a636763f7648d6a</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>7ca2a7714a71ae3c404ce8e428df1441</srcmd5>
           <version>unknown</version>
-          <time>1673370930</time>
+          <time>1693303642</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 10 Jan 2023 17:15:30 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 29 Aug 2023 10:07:22 GMT
+recorded_with: VCR 6.2.0

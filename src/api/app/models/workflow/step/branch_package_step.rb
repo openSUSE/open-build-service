@@ -12,12 +12,24 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
       destroy_target_project
     elsif scm_webhook.reopened_pull_request?
       restore_target_project
-    else
-      branch_package
+    elsif scm_webhook.new_commit_event?
+      create_branched_package
+      point_branched_package_to_new_commit
+      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
+
+      target_package
     end
   end
 
   private
+
+  def point_branched_package_to_new_commit
+    if scm_synced?
+      target_package.update(scmsync: parse_scmsync_for_target_package)
+    else
+      add_branch_request_file(package: target_package)
+    end
+  end
 
   def target_project_base_name
     step_instructions[:target_project]
@@ -27,18 +39,10 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     Project.find_by(name: target_project_name)
   end
 
-  def add_repositories?
-    step_instructions[:add_repositories].blank? || step_instructions[:add_repositories] == 'enabled'
-  end
+  def skip_repositories?
+    return false if step_instructions[:add_repositories].blank?
 
-  def branch_package
-    create_branched_package if webhook_event_for_linking_or_branching?
-
-    scm_synced? ? set_scmsync_on_target_package : add_branch_request_file(package: target_package)
-
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
-
-    target_package
+    step_instructions[:add_repositories] != 'enabled'
   end
 
   def check_source_access
@@ -63,26 +67,21 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   def create_branched_package
+    return if target_package.present?
+
     check_source_access
 
-    # If we create target_project, BranchPackage.branch below will not create repositories
-    if !add_repositories? && target_project.nil?
-      project = Project.new(name: target_project_name)
-      Pundit.authorize(@token.executor, project, :create?)
+    # BranchPackage.branch below will skip "copying" repositories from the source project if the target project already exists...
+    create_target_project if skip_repositories?
 
-      project.relationships.build(user: @token.executor,
-                                  role: Role.find_by_title('maintainer'))
-      project.commit_user = User.session
-      project.store
-    end
+    branch_options = { project: source_project_name, package: source_package_name,
+                       target_project: target_project_name, target_package: target_package_name }
 
     begin
       # Service running on package avoids branching it: wait until services finish
       Backend::Api::Sources::Package.wait_service(source_project_name, source_package_name)
 
-      BranchPackage.new({ project: source_project_name, package: source_package_name,
-                          target_project: target_project_name,
-                          target_package: target_package_name }).branch
+      BranchPackage.new(branch_options).branch
     rescue BranchPackage::InvalidArgument, InvalidProjectNameError, ArgumentError => e
       raise BranchPackage::Errors::CanNotBranchPackage, "Package #{source_project_name}/#{source_package_name} could not be branched: #{e.message}"
     rescue Project::WritePermissionError, CreateProjectNoPermission => e
@@ -96,6 +95,18 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                                 user: @token.executor.login)
 
     target_package
+  end
+
+  def create_target_project
+    return if target_project.present?
+
+    project = Project.new(name: target_project_name)
+    Pundit.authorize(@token.executor, project, :create?)
+
+    project.relationships.build(user: @token.executor,
+                                role: Role.find_by_title('maintainer'))
+    project.commit_user = User.session
+    project.store
   end
 
   def add_branch_request_file(package:)
