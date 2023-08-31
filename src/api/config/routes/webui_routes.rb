@@ -304,7 +304,6 @@ OBSApi::Application.routes.draw do
       post 'request/modify_review' => :modify_review
       get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
       get 'request/show/:number/(request_action/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
-      get 'request/show/:number/build_results_chart' => :build_results_chart, as: 'request_build_results_chart', constraints: cons
       get 'request/show/:number/(request_action/:request_action_id)/rpm_lint' => :rpm_lint, as: 'request_rpm_lint', constraints: cons
       get 'request/show/:number/(request_action/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
       get 'request/show/:number/(request_action/:request_action_id)/mentioned_issues' => :mentioned_issues, as: 'request_mentioned_issues', constraints: cons
