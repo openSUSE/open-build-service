@@ -45,7 +45,7 @@ module BackendProxy
   # saves this to a temporary file and sends this file as response.
   def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
-    backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
+    backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'], Backend::Connection.ssl_options)
     backend_http.read_timeout = 1000
 
     # we have to be careful with object life cycle. the actual data is
