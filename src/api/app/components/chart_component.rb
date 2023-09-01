@@ -19,8 +19,8 @@ class ChartComponent < ApplicationComponent
       src_prj_obj = Project.find_by_name(action.source_project)
       src_pkg_obj = Package.find_by_project_and_name(src_prj_obj.name, action.source_package)
 
-      # fetch all build results for the source package
-      action_build_results = src_pkg_obj.buildresult(src_prj_obj, show_all: true).results[src_pkg_obj.name]
+      # fetch all build results for the source package (considering multibuild packages as well)
+      action_build_results = src_pkg_obj.buildresult(src_prj_obj, show_all: true).results.flat_map { |_k, v| v }
 
       next unless action_build_results
 
