@@ -30,6 +30,8 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def create?
+    return false unless record.executor.is_active?
+
     record.executor == user
   end
 
