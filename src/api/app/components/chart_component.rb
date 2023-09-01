@@ -16,8 +16,14 @@ class ChartComponent < ApplicationComponent
 
     # take all the build results for all the actions (only actions where it makes sense to have a build status)
     @actions.where(type: [:submit, :maintenance_incident, :maintenance_release]).each do |action|
-      src_prj_obj = Project.find_by_name(action.source_project)
+      bs_request = BsRequest.find(action.bs_request_id)
+      # consider staging project
+      prj_name = bs_request.staging_project_id.nil? ? action.source_project : bs_request.staging_project.name
+      src_prj_obj = Project.find_by_name(prj_name)
       src_pkg_obj = Package.find_by_project_and_name(src_prj_obj.name, action.source_package)
+
+      # the package might not exist yet in the staging project, for instance
+      next unless src_pkg_obj
 
       # fetch all build results for the source package (considering multibuild packages as well)
       action_build_results = src_pkg_obj.buildresult(src_prj_obj, show_all: true).results.flat_map { |_k, v| v }
