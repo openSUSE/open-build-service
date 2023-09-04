@@ -108,4 +108,49 @@ RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
       end
     end
   end
+
+  # context 'maintenance release request' do
+  #   let(:incident_project_id) { 'openSUSE:Maintenance:0'.split(':').last }
+  #   let(:bs_request_actions) do
+  #     [update_project, another_update_project].flat_map do |target_project|
+  #       [
+  #         create(:bs_request_action_maintenance_release,
+  #                source_project: 'openSUSE:Maintenance:0',
+  #                source_package: "#{package.name}.#{target_project.name.tr(':', '_')}", # i.e. 'cacti.openSUSE_Leap_15.4_Update'
+  #                target_project: target_project.name,
+  #                target_package: "#{package.name}.#{incident_project_id}"),
+  #         create(:bs_request_action_maintenance_release,
+  #                source_project: 'openSUSE:Maintenance:0',
+  #                source_package: 'patchinfo',
+  #                target_project: target_project.name,
+  #                target_package: "patchinfo.#{incident_project_id}")
+  #       ]
+  #     end
+  #   end
+  #
+  #   let(:bs_request_with_maintenance_release_actions) do
+  #     create(:bs_request_with_maintenance_release_actions,
+  #            creator: admin_user,
+  #            description: "Request with #{bs_request_actions.size} release actions",
+  #            bs_request_actions: bs_request_actions)
+  #   end
+  #
+  #   before do
+  #     create(:bs_request_with_maintenance_incident_actions,
+  #            :with_patchinfo,
+  #            :with_last_incident_accepted,
+  #            creator: user,
+  #            description: 'Request with incident actions',
+  #            source_package_names: [package.name],
+  #            target_releaseproject_names: [update_project.name, another_update_project.name],
+  #            source_project_name: update_project_branch.name, # FIXME
+  #            target_project_name: maintenance_project)
+  #
+  #     visit request_show_path(bs_request_with_maintenance_release_actions)
+  #   end
+  #
+  #   it 'displays information on type of request' do
+  #     expect(page).to have_text('This is a Maintenance Release')
+  #   end
+  # end
 end
