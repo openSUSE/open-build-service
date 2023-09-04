@@ -68,7 +68,7 @@ RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
 
   context 'maintenance request with patchinfo' do
     let(:bs_request) do
-      user.run_as { create(:patchinfo, project_name: branched_project.name, package_name: '_patchinfo') }
+      user.run_as { create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo') }
       create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
                                                                              source_package_names: ['cacti'],
                                                                              target_project_name: maintenance_project.name,
