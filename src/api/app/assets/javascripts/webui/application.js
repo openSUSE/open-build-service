@@ -64,3 +64,5 @@
 //= require webui/write_and_preview.js
 //= require webui/badge.js
 //= require webui/add_file.js
+//= require chartkick
+//= require Chart.bundle
