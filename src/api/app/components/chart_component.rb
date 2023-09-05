@@ -7,6 +7,7 @@ class ChartComponent < ApplicationComponent
     @actions = actions
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def build_results_data
     raw_data = []
 
@@ -16,6 +17,10 @@ class ChartComponent < ApplicationComponent
       # consider staging project
       prj_name = bs_request.staging_project_id.nil? ? action.source_project : bs_request.staging_project.name
       src_prj_obj = Project.find_by_name(prj_name)
+
+      # skip if project not found
+      next unless src_prj_obj
+
       src_pkg_obj = Package.find_by_project_and_name(src_prj_obj.name, action.source_package)
 
       # the package might not exist yet in the staging project, for instance
@@ -43,7 +48,6 @@ class ChartComponent < ApplicationComponent
     raw_data.flatten
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def chart_data(raw_data)
     success = {}
     failed = {}
