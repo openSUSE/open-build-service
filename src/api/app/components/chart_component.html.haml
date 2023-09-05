@@ -3,7 +3,7 @@
   .m-4
     %h4
       Build results summary
-    - if distinct_repositories(raw_data).size > 6
+    - if distinct_repositories(raw_data).size > 5 || raw_data.size > 12
       = column_chart( chart_data(raw_data),
                       width: '100%',
                       height: '300px',
@@ -22,9 +22,9 @@
           .row.mt-2
             %b.col-3
               = repo
-            .col-9.d-flex
+            .col-9.d-flex.flex-wrap.gap-1.justify-content-start
               - raw_data.each do |result|
                 - if result[:repository] == repo
-                  %span.ps-2.pe-2.ms-1.align-self-start{ class: status_color(result[:status]),
+                  %span.ps-2.pe-2{ class: status_color(result[:status]),
                                         title: "#{result[:project_name]}/#{result[:package_name]}" }
                     = result[:architecture]
