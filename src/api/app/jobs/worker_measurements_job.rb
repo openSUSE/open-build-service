@@ -54,7 +54,7 @@ class WorkerMeasurementsJob < ApplicationJob
 
   def send_daemon_metrics
     @workerstatus.xpath('//partition/daemon').each do |daemon|
-      partition = daemon.parent.values.first
+      partition = daemon.parent.values.first || 'main'
       type = daemon.attributes['type'].value
       state = daemon.attributes['state'].value
       arch = daemon.attributes['arch']
