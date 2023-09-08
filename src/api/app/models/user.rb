@@ -658,7 +658,7 @@ class User < ApplicationRecord
 
   def mark_as_spammer!
     message = "User account got marked as spammer by #{User.session!}"
-    comments.delete_all
+    comments.destroy_all
     self.adminnote = message
     self.state = 'deleted'
     save!
