@@ -430,6 +430,7 @@ Rails/I18nLocaleTexts:
 
 RSpec/SpecFilePathFormat:
   Exclude:
+    - 'spec/controllers/concerns/rescue_authorization_handler_spec.rb'
     - 'spec/models/project/image_template_spec.rb'
     - 'spec/models/project/maintenance_incidents_spec.rb'
     - 'spec/models/users/requests_spec.rb'
