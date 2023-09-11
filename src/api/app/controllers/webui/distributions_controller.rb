@@ -6,7 +6,7 @@ class Webui::DistributionsController < Webui::WebuiController
   def new
     authorize @project, :update?
 
-    @distributions = Distribution.all.order(remote: :asc).order(version: :desc).group_by(&:vendor)
+    @distributions = Distribution.order(remote: :asc).order(version: :desc).group_by(&:vendor)
     return if @distributions.present?
 
     if User.admin_session?

@@ -211,7 +211,7 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text('Request 1')
         expect(find('span.badge.bg-secondary')).to have_text('review')
         expect(page).to have_text('In state review')
-        expect(Review.all.count).to eq(1)
+        expect(Review.count).to eq(1)
         logout
 
         login reviewer
