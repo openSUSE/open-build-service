@@ -1596,12 +1596,14 @@ sub getbinaries_cache {
 	my $n = $1;
 	my @s = stat("$dir/$r->{'name'}");
 	die unless @s;
-        my $id = Build::queryhdrmd5("$dir/$r->{'name'}");
-	$r->{'hdrmd5'} = $id;
-	my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $id);
-	push @cachenew, [$cacheid, $s[7], "$dir/$r->{'name'}"];
+	my $id = Build::queryhdrmd5("$dir/$r->{'name'}");
+	if ($id) {
+	  $r->{'hdrmd5'} = $id;
+	  my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $id);
+	  push @cachenew, [$cacheid, $s[7], "$dir/$r->{'name'}"];
+	}
 	my $bv = $bv{substr($n, length($binprefix))};
-	if ($bv && $bv->{'evr'} && $bv->{'hdrmd5'} eq $id) {
+	if ($id && $bv && $bv->{'evr'} && $bv->{'hdrmd5'} eq $id) {
 	  $r->{'evr'} = $bv->{'evr'};
 	  $r->{'arch'} = $bv->{'arch'};
 	} else {
