@@ -428,13 +428,15 @@ Rails/I18nLocaleTexts:
 
 ##################### RSpec ##################################
 
-RSpec/FilePath:
-  # False positives
+RSpec/SpecFilePathFormat:
   Exclude:
-    - 'spec/controllers/webui/package_controller/binaries.spec'
     - 'spec/models/project/image_template_spec.rb'
     - 'spec/models/project/maintenance_incidents_spec.rb'
     - 'spec/models/users/requests_spec.rb'
+
+RSpec/SpecFilePathSuffix:
+  Exclude:
+    - 'spec/controllers/webui/package_controller/binaries.spec'
 
 RSpec/LetSetup:
   Enabled: false
