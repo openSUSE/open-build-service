@@ -480,12 +480,17 @@ sub update_project_meta {
   if ($doasync) {
     $param->{'async'} = { %$doasync, '_resume' => \&update_project_meta_resume, '_projid' => $projid, '_changeprp' => $projid };
   }
-  my @args;
+  # withsrcmd5 is needed for the patterns md5sum
+  my @args = ('nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   push @args, "project=$projid";
   eval {
-    # withsrcmd5 is needed for the patterns md5sum
-    $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch", @args);
+    if ($usestorableforprojpack) {
+      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', @args);
+
+    } else {
+      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, @args);
+    }
   };
   if ($@ || !$projpacksin) {
     print $@ if $@;
@@ -1813,7 +1818,7 @@ sub get_remoteproject {
 
   my $myarch = $gctx->{'arch'};
   print "getting data for missing project '$projid' from $BSConfig::srcserver\n";
-  my @args;
+  my @args = ('withconfig', 'withremotemap', 'remotemaponly', "arch=$myarch");
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   push @args, "project=$projid";
   my $param = {
@@ -1825,9 +1830,9 @@ sub get_remoteproject {
   my $projpacksin;
   eval {
     if ($usestorableforprojpack) {
-      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withconfig', 'withremotemap', 'remotemaponly', "arch=$myarch", @args);
+      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', @args);
     } else {
-      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, 'withconfig', 'withremotemap', 'remotemaponly', "arch=$myarch", @args);
+      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, @args);
     }
   };
   return 0 if !$@ && $projpacksin && $param->{'async'};
