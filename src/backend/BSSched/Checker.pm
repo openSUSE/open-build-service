@@ -931,6 +931,49 @@ sub prune_packstatus_finished {
   }
 }
 
+sub handlecycle {
+  my ($ctx, $packid, $cpacks, $cycpass) = @_;
+  my $incycle = 0;
+  my $cychash = $ctx->{'cychash'};
+  return ($packid, 0) unless $cychash->{$packid};
+  $incycle = $cycpass->{$packid} || 0;
+
+  if (!$incycle) {
+    # starting pass 1	(incycle == 1)
+    my @cycp = @{$cychash->{$packid}};
+    unshift @$cpacks, $cycp[0];	# pass3
+    unshift @$cpacks, @cycp;		# pass2
+    unshift @$cpacks, @cycp;		# pass1
+    $packid = shift @$cpacks;
+    $incycle = 1;
+    $cycpass->{$_} = $incycle for @cycp;
+    $cycpass->{$packid} = -1;		# pass1 ended
+  } elsif ($incycle == -1) {
+    # starting pass 2	(incycle will be 2 or 3)
+    my @cycp = @{$cychash->{$packid}};
+    my $building = $ctx->{'building'};
+    $incycle = (grep {$building->{$_}} @cycp) ? 3 : 2;
+    $cycpass->{$_} = $incycle for @cycp;
+    $cycpass->{$packid} = -2;		# pass2 ended
+  } elsif ($incycle == -2) {
+    # starting pass 3	(incycle == 4)
+    my @cycp = @{$cychash->{$packid}};
+    $incycle = 4;
+    $cycpass->{$_} = $incycle for @cycp;
+    # propagate notready/unfinished to all cycle packages
+    my $notready = $ctx->{'notready'};
+    my $pkg2src = $ctx->{'pkg2src'} || {};
+    if (grep {$notready->{$pkg2src->{$_} || $_}} @cycp) {
+      $notready->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
+    }
+    my $unfinished = $ctx->{'unfinished'};
+    if (grep {$unfinished->{$pkg2src->{$_} || $_}} @cycp) {
+      $unfinished->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
+    }
+  }
+  return ($packid, $incycle);
+}
+
 sub checkpkgs {
   my ($ctx) = @_;
 
@@ -1008,41 +1051,7 @@ sub checkpkgs {
     # cycle handling code
     my $incycle = 0;
     if ($cychash{$packid}) {
-      # do every package in the cycle twice:
-      # pass1: only build source changes
-      # pass2: normal build, but block if a pass1 package is building
-      # pass3: ignore
-      $incycle = $cycpass{$packid};
-      if (!$incycle) {
-	# starting pass 1	(incycle == 1)
-	my @cycp = @{$cychash{$packid}};
-	unshift @cpacks, $cycp[0];	# pass3
-	unshift @cpacks, @cycp;		# pass2
-	unshift @cpacks, @cycp;		# pass1
-	$packid = shift @cpacks;
-	$incycle = 1;
-	$cycpass{$_} = $incycle for @cycp;
-	$cycpass{$packid} = -1;		# pass1 ended
-      } elsif ($incycle == -1) {
-	# starting pass 2	(incycle will be 2 or 3)
-	my @cycp = @{$cychash{$packid}};
-	$incycle = (grep {$building{$_}} @cycp) ? 3 : 2;
-	$cycpass{$_} = $incycle for @cycp;
-	$cycpass{$packid} = -2;		# pass2 ended
-      } elsif ($incycle == -2) {
-	# starting pass 3	(incycle == 4)
-	my @cycp = @{$cychash{$packid}};
-	$incycle = 4;
-	$cycpass{$_} = $incycle for @cycp;
-	# propagate notready/unfinished to all cycle packages
-	my $pkg2src = $ctx->{'pkg2src'} || {};
-	if (grep {$notready->{$pkg2src->{$_} || $_}} @cycp) {
-	  $notready->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
-	}
-	if (grep {$unfinished{$pkg2src->{$_} || $_}} @cycp) {
-	  $unfinished{$pkg2src->{$_} || $_} ||= 1 for @cycp;
-	}
-      }
+      ($packid, $incycle) = handlecycle($ctx, $packid, \@cpacks, \%cycpass);
       next if $incycle == 4;	# ignore after pass1/2
       next if $packstatus{$packid} && $packstatus{$packid} ne 'done' && $packstatus{$packid} ne 'succeeded' && $packstatus{$packid} ne 'failed'; # already decided
     }
