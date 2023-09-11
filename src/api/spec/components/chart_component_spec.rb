@@ -35,7 +35,7 @@ RSpec.describe ChartComponent, type: :component do
     let(:raw_data) { subject.build_results_data }
 
     context 'get the raw data build results for all the request actions' do
-      it { expect(raw_data.size).to be == 2 }
+      it { expect(raw_data.size).to eq(2) }
       it { expect(raw_data.pluck(:architecture)).to include('i586') }
     end
 
