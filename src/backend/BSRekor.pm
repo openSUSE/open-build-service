@@ -143,6 +143,7 @@ sub upload_dsse {
     'apiVersion' => '0.0.1',
     'spec' => $spec,
   };
+  return upload_entry($server, $entry);
 }
 
 1;
