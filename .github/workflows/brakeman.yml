@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ruby:3.1.4
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Brakeman
       run: |
         gem install --no-format-executable brakeman -v 5.4.0
