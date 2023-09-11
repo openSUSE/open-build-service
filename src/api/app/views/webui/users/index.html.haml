@@ -23,7 +23,11 @@
       = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create', title: 'Create User')) do
         %i.fas.fa-plus-circle.text-primary
         Create User
-    = render partial: 'webui/users/delete_dialog'
+    - confirmation_text = "Please confirm deletion of '#{content_tag(:span, '', class: 'user-login')}'"
+    = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-modal',
+                                                   method: :delete,
+                                                   options: { modal_title: 'Delete user?', remote: false,
+                                                              confirmation_text: sanitize(confirmation_text, tags: ['span']) })
 
 - content_for :ready_function do
   :plain
