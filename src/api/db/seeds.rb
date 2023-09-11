@@ -71,7 +71,7 @@ puts 'Seeding static_permissions table...'
 end
 
 puts 'Seeding static permissions for admin role in roles_static_permissions table...'
-StaticPermission.all.each do |sp|
+StaticPermission.find_each do |sp|
   admin_role.static_permissions << sp unless admin_role.static_permissions.find_by_id(sp.id)
 end
 

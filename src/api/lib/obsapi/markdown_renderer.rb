@@ -16,7 +16,7 @@ module OBSApi
       fulldoc.gsub!(/([^\w]|^)@(\b[-.\w]+\b)(?:\b|$)/) \
                    { "#{Regexp.last_match(1)}[@#{Regexp.last_match(2)}](#{user_url(Regexp.last_match(2))})" }
       # bnc#12345 links
-      IssueTracker.all.each do |t|
+      IssueTracker.find_each do |t|
         fulldoc = t.get_markdown(fulldoc)
       end
       fulldoc
