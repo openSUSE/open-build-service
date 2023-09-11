@@ -4,7 +4,7 @@ require 'webmock/rspec'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Buildresult, vcr: true do
+RSpec.describe Buildresult, :vcr do
   describe '#status_description' do
     it 'returns a message when a status code is unknown' do
       expect(Buildresult.status_description('unknown_status')).to eq('status explanation not found')

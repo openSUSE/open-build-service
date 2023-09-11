@@ -7,7 +7,7 @@ RSpec.describe BsRequestAction do
     allow(User).to receive(:current).and_return(user)
   end
 
-  context 'encoding of sourcediffs', vcr: true do
+  context 'encoding of sourcediffs', :vcr do
     let(:file_content) { "-{\xA2:\xFA*\xA3q\u0010\xC2X\\\x9D" }
     let(:utf8_encoded_file_content) { file_content.encode('UTF-8', 'binary', invalid: :replace, undef: :replace) }
     let(:project) { user.home_project }
@@ -223,7 +223,7 @@ RSpec.describe BsRequestAction do
       it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
     end
 
-    context 'last patchinfo is not build', vcr: true do
+    context 'last patchinfo is not build', :vcr do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive_messages(files: binary_list, history: build_history)
       end
@@ -288,16 +288,16 @@ RSpec.describe BsRequestAction do
       it { expect { bs_request_action.create_expand_package(['foo']) }.to raise_error(BsRequestAction::RemoteSource) }
     end
 
-    context 'Everything should work', vcr: true do
+    context 'Everything should work', :vcr do
       it { expect { bs_request_action.create_expand_package([source_pkg]) }.not_to raise_error }
     end
 
-    context 'Should return an array', vcr: true do
+    context 'Should return an array', :vcr do
       it { expect(bs_request_action.create_expand_package([source_pkg])).to be_an(Array) }
     end
   end
 
-  describe 'check_expand_errors', vcr: true do
+  describe 'check_expand_errors', :vcr do
     let(:project) { user.home_project }
     let(:attrib_type) { create(:obs_attrib_type, name: 'EnforceRevisionsInRequests') }
     let(:attrib) { create(:attrib, attrib_type: attrib_type, project: project) }

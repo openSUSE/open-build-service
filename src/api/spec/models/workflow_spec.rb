@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Workflow, vcr: true do
+RSpec.describe Workflow, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
   let(:token) { create(:workflow_token, executor: user) }
   let!(:workflow_run) { create(:workflow_run, token: token) }

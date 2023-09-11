@@ -4,7 +4,7 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Webui::SearchController, vcr: true do
+RSpec.describe Webui::SearchController, :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let!(:develuser) { create(:confirmed_user, :with_home, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }

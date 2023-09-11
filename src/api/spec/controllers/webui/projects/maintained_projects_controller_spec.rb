@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::Projects::MaintainedProjectsController, vcr: true do
+RSpec.describe Webui::Projects::MaintainedProjectsController, :vcr do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:opensuse_project) { create(:project, name: 'openSUSE') }

@@ -63,7 +63,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response).to have_http_status(:not_found) }
     end
 
-    context 'with valid and invalid request number', vcr: true do
+    context 'with valid and invalid request number', :vcr do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
@@ -89,7 +89,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
     end
 
-    context 'with valid staging_project', vcr: true do
+    context 'with valid staging_project', :vcr do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
@@ -102,7 +102,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response.body).to have_selector('status[code=ok]') }
     end
 
-    context 'with delete request', vcr: true do
+    context 'with delete request', :vcr do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
@@ -115,7 +115,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response.body).to have_selector('status[code=ok]') }
     end
 
-    context 'with an excluded request', vcr: true do
+    context 'with an excluded request', :vcr do
       subject do
         login user
         post :create, params: params, body: body
@@ -170,7 +170,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
     end
 
-    context 'when providing the remove exclusion parameter', vcr: true do
+    context 'when providing the remove exclusion parameter', :vcr do
       subject do
         login user
         post :create, params: params, body: body
@@ -195,7 +195,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
     end
 
-    context 'when providing two request', vcr: true do
+    context 'when providing two request', :vcr do
       subject do
         login user
         post :create, params: params, body: body
@@ -334,7 +334,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
     end
 
-    context 'with non-existent target package', vcr: true do
+    context 'with non-existent target package', :vcr do
       let(:bs_request) do
         create(:bs_request_with_submit_action,
                state: :review,
@@ -360,7 +360,7 @@ RSpec.describe Staging::StagedRequestsController do
     end
   end
 
-  describe 'DELETE #destroy', vcr: true do
+  describe 'DELETE #destroy', :vcr do
     let!(:package) { create(:package, name: target_package, project: staging_project) }
     let(:review_by_project) { create(:review, by_project: staging_project) }
 

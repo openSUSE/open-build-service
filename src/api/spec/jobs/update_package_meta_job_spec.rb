@@ -5,7 +5,7 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe UpdatePackageMetaJob, vcr: true do
+RSpec.describe UpdatePackageMetaJob, :vcr do
   include ActiveJob::TestHelper
 
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }

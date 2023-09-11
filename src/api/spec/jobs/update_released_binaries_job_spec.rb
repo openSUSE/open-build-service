@@ -3,7 +3,7 @@ require 'rails_helper'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe UpdateReleasedBinariesJob, vcr: true do
+RSpec.describe UpdateReleasedBinariesJob, :vcr do
   describe '#perform' do
     let!(:project) { create(:project, name: 'apache') }
     let!(:repository) { create(:repository, name: 'mod_ssl', project: project, architectures: ['i586']) }

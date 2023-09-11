@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::Requests::SubmissionsController, vcr: true do
+RSpec.describe Webui::Requests::SubmissionsController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package_with_file, name: 'package_with_file', project: source_project) }

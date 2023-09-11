@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Workflow::Step::BranchPackageStep, vcr: true do
+RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }
   let(:target_project_name) { "home:#{user.login}" }

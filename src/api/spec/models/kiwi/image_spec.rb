@@ -5,7 +5,7 @@ require 'webmock/rspec'
 # this line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Kiwi::Image, vcr: true do
+RSpec.describe Kiwi::Image, :vcr do
   include_context 'a kiwi image xml'
   include_context 'an invalid kiwi image xml'
 

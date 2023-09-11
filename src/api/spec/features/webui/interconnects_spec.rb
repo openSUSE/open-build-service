@@ -1,5 +1,5 @@
 require 'browser_helper'
-RSpec.describe 'Interconnects', js: true, vcr: true do
+RSpec.describe 'Interconnects', :js, :vcr do
   let(:admin_user) { create(:admin_user) }
 
   it 'creating openSUSE.org interconnect' do

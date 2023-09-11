@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Request with delete actions', beta: true do
+RSpec.describe 'Request with delete actions', :beta do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'submitter') }
   let(:receiver) { create(:confirmed_user, :with_home, login: 'receiver') }
   let(:target_project) { receiver.home_project }

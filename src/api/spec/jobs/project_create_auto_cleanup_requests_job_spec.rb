@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe ProjectCreateAutoCleanupRequestsJob, vcr: true do
+RSpec.describe ProjectCreateAutoCleanupRequestsJob, :vcr do
   include ActiveJob::TestHelper
 
   describe 'CleanupRequestTemplate' do

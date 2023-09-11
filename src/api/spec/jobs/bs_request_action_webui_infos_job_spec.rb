@@ -4,7 +4,7 @@ require 'webmock/rspec'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequestActionWebuiInfosJob, vcr: true do
+RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
   include ActiveJob::TestHelper
   let(:source_project) { create(:project, name: 'source_project') }
   let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b') }

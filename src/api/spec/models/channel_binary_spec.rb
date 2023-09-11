@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ChannelBinary, vcr: true do
+RSpec.describe ChannelBinary, :vcr do
   let(:user) { create(:confirmed_user, login: 'tux') }
   let(:project) { create(:project, name: 'projectX') }
   let(:repository) { create(:repository, architectures: ['i586'], project: project) }

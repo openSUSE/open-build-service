@@ -54,7 +54,7 @@ RSpec.describe CommentsController do
       it { expect(response.body).to include("<comments request=\"#{object.number}\">") }
     end
 
-    context 'of a bs_request_action (inline comment)', vcr: true do
+    context 'of a bs_request_action (inline comment)', :vcr do
       let(:submit_request) { create(:bs_request_with_submit_action) }
       let(:object) { create(:bs_request_action_submit_with_diff, bs_request: submit_request) }
       let(:comment) { create(:comment, commentable: object, diff_ref: 'diff_0_n1') }

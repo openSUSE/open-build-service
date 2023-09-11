@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'ChangeBugowner', js: true do
+RSpec.describe 'ChangeBugowner', :js do
   let!(:bugowner) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let!(:package) { create(:package, name: 'TestPack', project: project) }
   let(:project) { Project.find_by(name: 'home:Iggy') }

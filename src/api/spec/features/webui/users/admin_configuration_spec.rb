@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Admin user configuration page', js: true do
+RSpec.describe 'Admin user configuration page', :js do
   let!(:user) { create(:confirmed_user, realname: 'John Doe', email: 'john@suse.de') }
   let!(:users) { create_list(:confirmed_user, 3) }
   let(:admin) { create(:admin_user) }

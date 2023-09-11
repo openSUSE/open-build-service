@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe PublicController, vcr: true do
+RSpec.describe PublicController, :vcr do
   let(:project) { create(:project, name: 'public_controller_project', title: 'The Public Controller Project') }
   let(:package) { create(:package_with_file, name: 'public_controller_package', project: project) }
 

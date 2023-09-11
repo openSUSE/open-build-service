@@ -4,7 +4,7 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequestActionDelete, vcr: true do
+RSpec.describe BsRequestActionDelete, :vcr do
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package_with_file, name: 'goal', project_id: target_project.id) }

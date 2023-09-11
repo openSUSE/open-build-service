@@ -12,7 +12,7 @@ RSpec.describe Staging::StagingProjectsController do
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
 
-  describe 'GET #index', vcr: true do
+  describe 'GET #index', :vcr do
     context 'existing staging_workflow' do
       before do
         get :index, params: { staging_workflow_project: staging_workflow.project.name, format: :xml }
@@ -284,7 +284,7 @@ RSpec.describe Staging::StagingProjectsController do
       end
     end
 
-    context 'when project has a request', vcr: true do
+    context 'when project has a request', :vcr do
       let(:staging_owner) { create(:confirmed_user, login: 'staging-hero') }
       let(:staging_project_name) { staging_project.name }
       let(:requester) { create(:confirmed_user, login: 'requester') }

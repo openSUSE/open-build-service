@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'User beta features', js: true do
+RSpec.describe 'User beta features', :js do
   let(:beta_feature) { 'something_cool' }
   let(:rolled_out_beta_feature) { 'rolled_out' }
   let(:enabled_beta_feature) { 'fully_enabled' }
