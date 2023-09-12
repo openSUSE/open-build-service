@@ -229,7 +229,7 @@ sub WRITE {
   if ($rv <= 0) {
     my $code = Net::SSLeay::get_error($sslr->[0], $rv);
     $! = POSIX::EINTR if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
-    return -1;
+    return undef;
   }
   return $rv;
 }

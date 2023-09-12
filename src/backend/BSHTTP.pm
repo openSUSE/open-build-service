@@ -508,7 +508,10 @@ sub swrite {
   $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
   while (length($data)) {
     my $l = syswrite($sock, $data, length($data));
-    die("socket write: $!\n") unless $l;
+    if (!$l) {
+      next if !defined($l) && ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK);
+      die("socket write: $!\n");
+    }
     $data = substr($data, $l);
   }
 }
