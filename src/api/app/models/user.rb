@@ -658,17 +658,6 @@ class User < ApplicationRecord
     true
   end
 
-  def mark_as_spammer!
-    message = "User account got marked as spammer by #{User.session!}"
-    comments.destroy_all
-    self.adminnote = message
-    self.state = 'deleted'
-    save!
-    destroy_home_projects(reason: message)
-
-    true
-  end
-
   def destroy_home_projects(reason:)
     Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
       project.commit_opts = { comment: "#{reason}" }
