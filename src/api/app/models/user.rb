@@ -639,15 +639,17 @@ class User < ApplicationRecord
     false
   end
 
-  def delete!
+  def delete!(adminnote: nil)
     # remove user data as much as possible
     # but we must NOT remove the information that the account did exist
     # or another user could take over the identity which can open security
     # issues (other infrastructur and systems using repositories)
 
+    self.adminnote = adminnote if adminnote.present?
     self.email = ''
     self.realname = ''
     self.state = 'deleted'
+    comments.destroy_all
     save!
 
     # wipe also all home projects
