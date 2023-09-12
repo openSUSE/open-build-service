@@ -783,6 +783,7 @@ sub expandandsort {
     my ($eok, @edeps);
     my $handler = $handlers{$buildtype};
     if ($cross && !$handler) {
+      # set split_hostdeps and make edeps the expanded sysroot
       my $splitdeps;
       ($splitdeps, $eok, @edeps) = BSSched::BuildJob::Package::expand_sysroot($bconf, $subpacks->{$info->{'name'}}, $info);
       $ctx->{'split_hostdeps'}->{$packid} = $splitdeps;
