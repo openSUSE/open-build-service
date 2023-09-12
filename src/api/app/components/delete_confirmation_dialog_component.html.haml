@@ -5,8 +5,9 @@
         %h5.wrap-text.modal-title{ id: "#{modal_id}-label" }= modal_title
       .modal-body
         %p.wrap-text.confirmation-text= confirmation_text
-
         = form_tag(action, method: method, remote: remote) do
+          - if text_area?
+            = text_area
           .modal-footer
             %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
