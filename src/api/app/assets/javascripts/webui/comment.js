@@ -1,11 +1,9 @@
 function resizeTextarea(textarea) { // jshint ignore:line
-  var textLines = textarea.value.split('\n');
-  var neededRows = 1;
-  for (var x = 0; x < textLines.length; x++) {
-    if (textLines[x].length >= textarea.cols) neededRows += Math.floor(textLines[x].length / textarea.cols);
-  }
-  neededRows += textLines.length;
-  if (neededRows > textarea.rows) textarea.rows = neededRows;
+  var heightPerRow = Math.ceil(textarea.clientHeight / textarea.rows);
+  var linesOfText = Math.ceil(textarea.scrollHeight / heightPerRow);
+  var rowsToIncrease = linesOfText - textarea.rows;
+
+  textarea.rows += rowsToIncrease;
 }
 
 function updateCommentCounter(selector, count) {
