@@ -1,8 +1,8 @@
 class MigrateCommentPayload < ActiveRecord::Migration[5.2]
   def up
-    Event::CommentForPackage.all.find_each { |event| convert_payload(event) }
-    Event::CommentForProject.all.find_each { |event| convert_payload(event) }
-    Event::CommentForRequest.all.find_each { |event| convert_payload(event) }
+    Event::CommentForPackage.find_each { |event| convert_payload(event) }
+    Event::CommentForProject.find_each { |event| convert_payload(event) }
+    Event::CommentForRequest.find_each { |event| convert_payload(event) }
   end
 
   def down

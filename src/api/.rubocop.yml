@@ -412,6 +412,10 @@ Rails/Output:
     # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
     - 'app/lib/backend/test.rb'
 
+Rails/RedundantActiveRecordAllMethod:
+  Exclude:
+  - 'spec/queries/workflow_runs_finder_spec.rb'
+
 # Migrations creating unique indexes are sometimes not possible to run...
 # they raise a pretty weird error about some duplicate entries, even though those entries don't exist.
 Rails/UniqueValidationWithoutIndex:

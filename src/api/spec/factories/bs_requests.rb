@@ -76,7 +76,7 @@ FactoryBot.define do
       next unless request.staging_project && evaluator.staging_owner
 
       evaluator.staging_owner.run_as do
-        request.bs_request_actions.where(type: :submit).each do |action|
+        request.bs_request_actions.where(type: :submit).find_each do |action|
           create(:branch_package,
                  project: action.source_project,
                  package: action.source_package,

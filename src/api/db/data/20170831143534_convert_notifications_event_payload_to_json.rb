@@ -1,7 +1,7 @@
 class ConvertNotificationsEventPayloadToJson < ActiveRecord::Migration[5.1]
   def self.up
     Notification20170831143534.transaction do
-      Notification20170831143534.all.find_each do |notification|
+      Notification20170831143534.find_each do |notification|
         json = yaml_to_json(notification.event_payload)
         notification.update!(event_payload: json)
       end

@@ -15,7 +15,7 @@ RSpec.describe MigrateCommentPayload do
 
     before do
       # Create events in the old format
-      Event::Base.all.each do |event|
+      Event::Base.find_each do |event|
         next unless comment_event?(event)
 
         payload = event.payload
@@ -29,7 +29,7 @@ RSpec.describe MigrateCommentPayload do
     subject! { MigrateCommentPayload.new.up }
 
     it 'converts comment events in the old format' do
-      Event::Base.all.each do |event|
+      Event::Base.find_each do |event|
         next unless comment_event?(event)
 
         expect(event.payload['commenter']).to eq(commenter.login)

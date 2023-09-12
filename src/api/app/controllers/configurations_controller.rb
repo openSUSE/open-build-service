@@ -33,7 +33,7 @@ class ConfigurationsController < ApplicationController
     archs = xml['schedulers']['arch'].index_with { |_a| 1 } if xml.dig('schedulers', 'arch').instance_of?(Array)
     archs = params['arch'].index_with { |_a| 1 } if params['arch'].instance_of?(Array)
     if archs
-      Architecture.all.each do |arch|
+      Architecture.find_each do |arch|
         if arch.available != (archs[arch.name] == 1)
           arch.available = (archs[arch.name] == 1)
           arch.save!

@@ -1,6 +1,6 @@
 class MigrateRssNotificationPayload < ActiveRecord::Migration[5.2]
   def up
-    Notification.all.find_each { |notification| convert_payload(notification) }
+    Notification.find_each { |notification| convert_payload(notification) }
   end
 
   def down

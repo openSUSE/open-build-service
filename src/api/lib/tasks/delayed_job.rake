@@ -61,7 +61,7 @@ namespace :jobs do
 
   desc 'Update all changed issues from remote IssueTrackers now'
   task(updateissues: :environment) do
-    IssueTracker.all.each do |t|
+    IssueTracker.find_each do |t|
       next unless t.enable_fetch
 
       t.update_issues
@@ -70,7 +70,7 @@ namespace :jobs do
 
   desc 'Import all issues from remote IssueTrackers now'
   task(enforceissuesupdate: :environment) do
-    IssueTracker.all.each do |t|
+    IssueTracker.find_each do |t|
       next unless t.enable_fetch
 
       t.enforced_update_all_issues

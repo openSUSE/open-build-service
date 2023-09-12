@@ -3657,7 +3657,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
       User.session = nil
     end
     # validate request
-    br = BsRequest.all.last
+    br = BsRequest.last
     assert_equal br.state, :new
     assert_equal br.bs_request_actions.first.type, 'delete'
     assert_equal br.bs_request_actions.first.target_project, 'home:fredlibs:branches:home:Iggy'
@@ -3667,7 +3667,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     travel(12.days) do
       ProjectCreateAutoCleanupRequestsJob.perform_now
     end
-    assert_equal br, BsRequest.all.last
+    assert_equal br, BsRequest.last
 
     # cleanup and try again with defaults
     Configuration.stubs(:allow_user_to_create_home_project).returns(true)

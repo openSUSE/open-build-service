@@ -181,7 +181,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
   def check_user_targets(user, *trues)
     Backend::Test.start
-    BsRequest.all.each do |r|
+    BsRequest.find_each do |r|
       # puts r.render_xml
       expect = trues.include?(r.number)
       assert_equal expect, r.is_target_maintainer?(User.find_by_login(user)),

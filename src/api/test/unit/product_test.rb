@@ -8,7 +8,7 @@ class ProductTest < ActiveSupport::TestCase
     # check that fixtures got indexed
     Backend::Test.start
 
-    assert_equal 1, Product.all.count
+    assert_equal 1, Product.count
     p = Product.find_by_name('fixed')
     assert_equal 'fixed', p.name
     assert_equal 'BaseDistro', p.package.project.name

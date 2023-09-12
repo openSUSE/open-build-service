@@ -216,10 +216,10 @@ until dienow
 end
 
 puts 'Writing config data...'
-Project.all.each do |p|
+Project.find_each do |p|
   Backend::Connection.put("/source/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
-Package.all.each do |p|
+Package.find_each do |p|
   next if p.name.starts_with?('_product:')
 
   Backend::Connection.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
@@ -321,7 +321,7 @@ hri.store
 
 # reindex all sources
 ActiveRecord::Base.transaction(requires_new: true) do
-  Package.all.each(&:sources_changed)
+  Package.find_each(&:sources_changed)
   UpdatePackageMetaJob.new.perform
 end
 
