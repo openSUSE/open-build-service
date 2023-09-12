@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'MaintenanceWorkflow', js: true, vcr: true do
+RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
   let(:admin_user) { create(:admin_user) }
   let(:maintenance_project) do
     create(:maintenance_project,

@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Requests_Submissions', js: true, vcr: true do
+RSpec.describe 'Requests_Submissions', :js, :vcr do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'madam_submitter') }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package_with_file, name: 'Quebec', project: source_project) }
@@ -103,7 +103,7 @@ RSpec.describe 'Requests_Submissions', js: true, vcr: true do
       end
     end
 
-    describe 'when under the beta program', beta: true do
+    describe 'when under the beta program', :beta do
       describe 'submit several packages at once against a factory staging project' do
         let!(:factory) { create(:project, name: 'openSUSE:Factory') }
         let!(:staging_workflow) { create(:staging_workflow, project: factory) }

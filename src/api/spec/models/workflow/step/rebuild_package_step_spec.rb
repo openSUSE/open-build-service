@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Workflow::Step::RebuildPackage, vcr: true do
+RSpec.describe Workflow::Step::RebuildPackage, :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }
   let(:project) { create(:project, name: 'openSUSE:Factory', maintainer: user) }

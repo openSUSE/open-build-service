@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Badge', vcr: true do
+RSpec.describe 'Badge', :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }

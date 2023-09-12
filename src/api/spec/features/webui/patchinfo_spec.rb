@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Patchinfo', js: true, vcr: true do
+RSpec.describe 'Patchinfo', :js, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 

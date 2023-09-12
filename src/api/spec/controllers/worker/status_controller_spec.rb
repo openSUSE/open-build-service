@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Worker::StatusController, vcr: true do
+RSpec.describe Worker::StatusController, :vcr do
   render_views
 
   let(:user) { create(:confirmed_user) }

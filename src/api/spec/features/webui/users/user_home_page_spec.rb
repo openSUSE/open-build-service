@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe "User's home project creation", js: true do
+RSpec.describe "User's home project creation", :js do
   let!(:user) do
     create(:confirmed_user,
            login: 'Jim',

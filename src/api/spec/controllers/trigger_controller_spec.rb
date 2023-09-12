@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe TriggerController, vcr: true do
+RSpec.describe TriggerController, :vcr do
   let(:user) { create(:confirmed_user, login: 'foo') }
   let(:project) { create(:project, name: 'project', maintainer: user) }
   let(:package) { create(:package, name: 'package_trigger', project: project) }

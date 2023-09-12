@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe WorkflowRun, vcr: true do
+RSpec.describe WorkflowRun, :vcr do
   describe '#save_scm_report_success' do
     let(:workflow_run) { create(:workflow_run) }
 

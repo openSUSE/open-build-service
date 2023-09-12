@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ConsistencyCheckJobService::BackendPackageImporter, vcr: true do
+RSpec.describe ConsistencyCheckJobService::BackendPackageImporter, :vcr do
   let(:project) { create(:project_with_package, name: 'super_project', package_name: 'foo') }
   let(:error_message) { "DELETED in backend due to invalid data #{project.name}/foo" }
   let(:backend_package_importer) { described_class.new(project, 'foo') }

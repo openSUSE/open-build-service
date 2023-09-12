@@ -1,7 +1,7 @@
 require 'browser_helper'
 # For expecting the load of the page to finish we use have_current_path (https://github.com/jnicklas/capybara/blob/master/README.md#navigating)
 
-RSpec.describe 'Search', js: true do
+RSpec.describe 'Search', :js do
   let(:apache) { create(:project, name: 'Apache', title: 'Awesome project', description: 'Very awesome project') }
   let(:admin_user) { create(:admin_user) }
 

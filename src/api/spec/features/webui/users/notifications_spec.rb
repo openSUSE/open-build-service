@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'User notifications', js: true do
+RSpec.describe 'User notifications', :js do
   let!(:user) { create(:confirmed_user) }
 
   describe 'when having no notifications' do

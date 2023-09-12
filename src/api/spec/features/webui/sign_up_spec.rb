@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Sign up', js: true, vcr: true do
+RSpec.describe 'Sign up', :js, :vcr do
   let!(:user) { build(:user) }
 
   it 'User' do

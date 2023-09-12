@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe "User's admin edit page", js: true do
+RSpec.describe "User's admin edit page", :js do
   let(:user) { create(:confirmed_user, realname: 'John Doe', email: 'john@suse.de') }
   let(:admin) { create(:admin_user) }
   let(:admin_role_html_id) { "user_role_ids_#{Role.find_by(title: 'Admin').id}" }

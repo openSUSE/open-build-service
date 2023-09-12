@@ -1,7 +1,7 @@
 require 'rails_helper'
 require Rails.root.join('db/data/20200421121610_backfill_notified_projects.rb')
 
-RSpec.describe BackfillNotifiedProjects, type: :migration, vcr: true do
+RSpec.describe BackfillNotifiedProjects, :vcr, type: :migration do
   describe 'up' do
     let(:source_project) { create(:project, name: 'source_project') }
     let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project) }

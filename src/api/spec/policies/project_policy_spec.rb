@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ProjectPolicy, vcr: true do
+RSpec.describe ProjectPolicy, :vcr do
   subject { ProjectPolicy }
 
   context 'staging' do

@@ -4,7 +4,7 @@ require 'rails_helper'
 # this line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Webui::Kiwi::ImagesController, vcr: true do
+RSpec.describe Webui::Kiwi::ImagesController, :vcr do
   let(:project) { create(:project, name: 'fake_project') }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:kiwi_image_with_package_with_kiwi_file) do

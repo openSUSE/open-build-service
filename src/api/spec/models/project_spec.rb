@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'rantly/rspec_extensions'
 # WARNING: If you need to make a Backend call uncomment the following line
 # CONFIG['global_write_through'] = true
-RSpec.describe Project, vcr: true do
+RSpec.describe Project, :vcr do
   let!(:project) { create(:project, name: 'openSUSE_41') }
   let(:remote_project) { create(:remote_project, name: 'openSUSE.org') }
   let(:package) { create(:package, project: project) }

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'rantly/rspec_extensions'
 
-RSpec.describe Project, vcr: true do
+RSpec.describe Project, :vcr do
   let(:maintenance_incident) { create(:maintenance_incident_project) }
   let!(:target_repo_1) { create(:repository_with_release_target, project: maintenance_incident) }
   let!(:target_repo_2) { create(:repository_with_release_target, project: maintenance_incident) }

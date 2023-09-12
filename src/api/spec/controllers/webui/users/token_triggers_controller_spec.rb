@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::Users::TokenTriggersController, vcr: true do
+RSpec.describe Webui::Users::TokenTriggersController, :vcr do
   RSpec.shared_examples 'token got triggered' do
     it 'flashes success and redirects to token_path' do
       expect(flash[:success]).to eq("Token with id #{token.id} successfully triggered!")

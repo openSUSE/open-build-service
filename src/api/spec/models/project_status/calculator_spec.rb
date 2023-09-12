@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ProjectStatus::Calculator, vcr: true do
+RSpec.describe ProjectStatus::Calculator, :vcr do
   let!(:project) do
     create(:project_with_packages,
            name: 'project_used_for_restoration',

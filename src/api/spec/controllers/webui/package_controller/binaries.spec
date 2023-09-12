@@ -57,7 +57,7 @@ RSpec.describe Webui::PackageController do
       end
     end
 
-    context 'when wiping binaries succeeds', vcr: true do
+    context 'when wiping binaries succeeds', :vcr do
       let!(:repository) { create(:repository, name: 'my_repository', project: home_tom, architectures: ['i586']) }
 
       before do

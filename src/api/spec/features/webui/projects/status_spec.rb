@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'ProjectStatus', js: true, vcr: true do
+RSpec.describe 'ProjectStatus', :js, :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
   let(:broken_package_with_error) { create(:package, project: project, name: 'broken_package') }

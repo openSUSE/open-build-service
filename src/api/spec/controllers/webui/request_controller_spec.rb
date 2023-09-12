@@ -4,7 +4,7 @@ require 'rails_helper'
 # for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Webui::RequestController, vcr: true do
+RSpec.describe Webui::RequestController, :vcr do
   let(:submitter_with_group) { create(:user_with_groups, :with_home, login: 'fluffyrabbit') }
   let(:submitter) { create(:confirmed_user, :with_home, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }

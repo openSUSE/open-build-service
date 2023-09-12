@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Kiwi_Images', js: true, vcr: true do
+RSpec.describe 'Kiwi_Images', :js, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:kiwi_image) { create(:kiwi_image_with_package, with_kiwi_file: true, project: project, package_name: 'package_with_kiwi_file') }

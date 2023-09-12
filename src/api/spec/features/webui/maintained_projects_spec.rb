@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'MaintainedProjects', js: true do
+RSpec.describe 'MaintainedProjects', :js do
   let!(:admin_user) { create(:admin_user) }
   let(:opensuse_project) { create(:project, name: 'openSUSE') }
   let(:opensuse_project_update) { create(:project, name: 'openSUSE_Update') }

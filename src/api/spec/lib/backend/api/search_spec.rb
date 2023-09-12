@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Backend::Api::Search, vcr: true do
+RSpec.describe Backend::Api::Search, :vcr do
   describe '.projects' do
     context 'with projects' do
       let(:project_names) { create_list(:project, 2) { |prj, i| prj.name = "foo_#{i}" }.map(&:name) }

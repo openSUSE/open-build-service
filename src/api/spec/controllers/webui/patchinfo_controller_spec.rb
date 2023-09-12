@@ -4,7 +4,7 @@ require 'rails_helper'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe Webui::PatchinfoController, vcr: true do
+RSpec.describe Webui::PatchinfoController, :vcr do
   let(:user) { create(:user, :with_home, login: 'macario') }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'gilberto') }
   let(:other_package) { create(:package_with_file, project: user.home_project, name: 'other_package') }

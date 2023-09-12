@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
+RSpec.describe Webui::Projects::ProjectConfigurationController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:apache_project) { create(:project, name: 'Apache') }
   let(:another_project) { create(:project, name: 'Another_Project') }

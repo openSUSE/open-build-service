@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe SourcediffTabComponent, type: :component, vcr: true do
+RSpec.describe SourcediffTabComponent, :vcr, type: :component do
   let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }

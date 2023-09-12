@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::Cloud::Ec2::UploadJobsController, vcr: true do
+RSpec.describe Webui::Cloud::Ec2::UploadJobsController, :vcr do
   let!(:ec2_configuration) { create(:ec2_configuration) }
   let!(:user_with_ec2_configuration) { create(:confirmed_user, login: 'tom', ec2_configuration: ec2_configuration) }
   let(:project) { create(:project, name: 'EC2Images') }

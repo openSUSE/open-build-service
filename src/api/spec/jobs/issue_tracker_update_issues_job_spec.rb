@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe IssueTrackerUpdateIssuesJob, vcr: true do
+RSpec.describe IssueTrackerUpdateIssuesJob, :vcr do
   include ActiveJob::TestHelper
 
   describe '#perform' do

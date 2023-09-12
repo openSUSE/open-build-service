@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Token::Release, vcr: true do
+RSpec.describe Token::Release, :vcr do
   let(:user) { create(:user, login: 'foo') }
 
   let(:project_staging) { create(:project_with_package, name: 'Bar:Staging', package_name: 'bar_package', maintainer: user) }

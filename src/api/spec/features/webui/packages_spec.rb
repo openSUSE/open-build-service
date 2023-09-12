@@ -2,7 +2,7 @@ require 'browser_helper'
 require 'webmock/rspec'
 require 'code_mirror_helper'
 
-RSpec.describe 'Packages', js: true, vcr: true do
+RSpec.describe 'Packages', :js, :vcr do
   it_behaves_like 'bootstrap user tab' do
     let(:package) do
       create(:package, name: 'group_test_package',

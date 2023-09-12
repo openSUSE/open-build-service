@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe SearchController, vcr: true do
+RSpec.describe SearchController, :vcr do
   render_views
 
   let(:user) { create(:confirmed_user, :with_home, login: 'foo') }

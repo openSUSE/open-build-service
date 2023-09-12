@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ConsistencyCheckJob, vcr: true do
+RSpec.describe ConsistencyCheckJob, :vcr do
   include ActiveJob::TestHelper
 
   describe '#perform' do

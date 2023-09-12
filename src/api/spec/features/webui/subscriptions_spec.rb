@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Subscriptions', js: true do
+RSpec.describe 'Subscriptions', :js do
   RSpec.shared_examples 'updatable' do
     it 'notifications' do
       login user

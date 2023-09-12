@@ -1,7 +1,7 @@
 require 'browser_helper'
 require 'ldap'
 
-RSpec.describe 'Login', js: true do
+RSpec.describe 'Login', :js do
   let!(:user) { create(:confirmed_user, :with_home, login: 'proxy_user') }
   let(:admin) { create(:admin_user) }
 
@@ -29,7 +29,7 @@ RSpec.describe 'Login', js: true do
     expect(page).to have_link('Profile', visible: :all)
   end
 
-  it 'login via widget', vcr: true do
+  it 'login via widget', :vcr do
     visit root_path
     within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')
@@ -44,7 +44,7 @@ RSpec.describe 'Login', js: true do
     expect(page).to have_link('Your Home Project', visible: :all)
   end
 
-  it 'login with wrong data', vcr: true do
+  it 'login with wrong data', :vcr do
     visit root_path
     within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')

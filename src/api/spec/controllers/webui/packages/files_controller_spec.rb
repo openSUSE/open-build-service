@@ -1,7 +1,7 @@
 require 'webmock/rspec'
 require 'rails_helper'
 
-RSpec.describe Webui::Packages::FilesController, vcr: true do
+RSpec.describe Webui::Packages::FilesController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }

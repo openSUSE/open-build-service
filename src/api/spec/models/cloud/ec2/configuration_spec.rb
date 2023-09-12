@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Cloud::Ec2::Configuration, vcr: true do
+RSpec.describe Cloud::Ec2::Configuration, :vcr do
   describe 'validations' do
     it { is_expected.to belong_to(:user).optional }
     it { is_expected.to validate_uniqueness_of(:external_id) }
