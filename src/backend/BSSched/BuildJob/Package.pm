@@ -123,6 +123,7 @@ sub check {
     splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
     return ('blocked', join(', ', @blocked));
   }
+
   # expand host deps
   my $hdeps;
   if ($ctx->{'conf_host'}) {
@@ -358,11 +359,8 @@ sub build {
   my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
 
   if ($ctx->{'conf_host'}) {
+    # add all sysdeps as extrabdeps
     my $dobuildinfo = $ctx->{'dobuildinfo'};
-    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
-    no warnings 'redefine';
-    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
-    use warnings 'redefine';
     my @bdeps;
     for (@$edeps) {
       my $bdep = {'name' => $_, 'sysroot' => 1};
@@ -378,10 +376,22 @@ sub build {
       }
       push @bdeps, $bdep;
     }
+
+    # limit build dependencies to host dependencies
+    my $split_hostdeps = $info->{'split_hostdeps'};
+    $split_hostdeps ||= ($ctx->{'split_hostdeps'} || {})->{$packid} if $packid;
+    return ('broken', 'missing split_hostdeps entry') unless $split_hostdeps;
+    $info = { %$info, 'dep' => [ @{$split_hostdeps->[1]}, @{$split_hostdeps->[2] || []} ] };
+
+    # create the job
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'crossmode' => 1}, ref($ctx);
     $ctx->{'extrabdeps'} = \@bdeps;
     $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
-    my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $hdeps, $reason, $needed);
+    my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $hdeps || [], $reason, $needed);
     delete $info->{'nounchanged'};
     return ($state, $job);
   }
@@ -392,6 +402,7 @@ sub build {
   return ($state, $job);
 }
 
+# split dependencies into (\@sysroot, \@native)
 sub split_hostdeps {
   my ($bconf, $info) = @_;
   my $dep = $info->{'dep'} || [];
