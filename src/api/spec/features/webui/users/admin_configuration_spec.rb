@@ -28,7 +28,7 @@ RSpec.describe 'Admin user configuration page', :js do
       page.find('a[title="Delete User"]').click
     end
     # Accept the confirmation dialog
-    click_button('Delete')
+    click_button('Remove')
     expect(page).to have_css('td', text: 'deleted')
   end
 
