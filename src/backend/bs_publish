@@ -1028,7 +1028,6 @@ Label: $projid
 Architectures: $archs
 Date: $date
 Description: $data->{'repoinfo'}->{'title'}
-MD5Sum:
 EOL
 
   open(OUT, '>', "$extrep/Release") || die("$extrep/Release: $!\n");
@@ -1036,24 +1035,30 @@ EOL
   close(OUT) || die("close: $!\n");
 
   # append checksums
+  my $md5sums = "MD5Sum:\n";
   my $sha1sums = "SHA1:\n";
   my $sha256sums = "SHA256:\n";
-  open(OUT, '>>', "$extrep/Release") || die("$extrep/Release: $!\n");
+  my $non_empty = 0;
   for my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
     my @s = stat("$extrep/$f");
     next unless @s;
+    $non_empty = 1;
     my $fdata = readstr("$extrep/$f");
-    my $md5  = Digest::MD5::md5_hex($fdata);
     my $size = $s[7];
-    print OUT " $md5 $size $f\n";
+    my $md5  = Digest::MD5::md5_hex($fdata);
+    $md5sums .= " $md5 $size $f\n";
     my $sha1  = Digest::SHA::sha1_hex($fdata);
     $sha1sums .= " $sha1 $size $f\n";
     my $sha256  = Digest::SHA::sha256_hex($fdata);
     $sha256sums .= " $sha256 $size $f\n";
   }
-  print OUT $sha1sums;
-  print OUT $sha256sums;
-  close(OUT) || die("close: $!\n");
+  if ($non_empty) {
+    open(OUT, '>>', "$extrep/Release") || die("$extrep/Release: $!\n");
+    print OUT $md5sums;
+    print OUT $sha1sums;
+    print OUT $sha256sums;
+    close(OUT) || die("close: $!\n");
+  }
 
   unlink("$extrep/Release.gpg");
   unlink("$extrep/Release.key");
