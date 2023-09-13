@@ -9,6 +9,8 @@
 class DeleteConfirmationDialogComponent < ApplicationComponent
   attr_accessor :modal_id, :method, :action, :modal_title, :confirmation_text, :remote
 
+  renders_one :text_area
+
   def initialize(modal_id:, method:, options: {})
     super
 

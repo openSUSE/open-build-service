@@ -639,30 +639,21 @@ class User < ApplicationRecord
     false
   end
 
-  def delete!
+  def delete!(adminnote: nil)
     # remove user data as much as possible
     # but we must NOT remove the information that the account did exist
     # or another user could take over the identity which can open security
     # issues (other infrastructur and systems using repositories)
 
+    self.adminnote = adminnote if adminnote.present?
     self.email = ''
     self.realname = ''
     self.state = 'deleted'
+    comments.destroy_all
     save!
 
     # wipe also all home projects
     destroy_home_projects(reason: 'User account got deleted')
-
-    true
-  end
-
-  def mark_as_spammer!
-    message = "User account got marked as spammer by #{User.session!}"
-    comments.destroy_all
-    self.adminnote = message
-    self.state = 'deleted'
-    save!
-    destroy_home_projects(reason: message)
 
     true
   end

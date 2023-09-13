@@ -27,7 +27,10 @@
     = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-modal',
                                                    method: :delete,
                                                    options: { modal_title: 'Delete user?', remote: false,
-                                                              confirmation_text: sanitize(confirmation_text, tags: ['span']) })
+                                                              confirmation_text: sanitize(confirmation_text, tags: ['span']) }) do |component|
+      - component.with_text_area do
+        = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
+        = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
 
 - content_for :ready_function do
   :plain

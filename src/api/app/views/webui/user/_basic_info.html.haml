@@ -3,12 +3,22 @@
            locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
-  - if configuration.accounts_editable?(user) && policy(user).update?
-    .d-flex.flex-row-reverse
+  .d-flex.flex-row-reverse
+    - if User.possibly_nobody.is_admin?
+      = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
+        %i.fas.fa-times-circle.text-danger
+        %span.nav-item-name.text-danger Delete
+      = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-modal', method: :delete,
+                                                     options: { modal_title: 'Delete user?', remote: false,
+                                                                confirmation_text: "Please confirm deletion of '#{user.login}'",
+                                                                action: user_path(user) }) do |component|
+        - component.with_text_area do
+          = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
+          = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
+    - if configuration.accounts_editable?(user) && policy(user).update?
       = link_to('javascript:void(0);', id: 'toggle-in-place-editing', remote: true, title: 'Edit Your Account') do
         %i.fas.fa-user-edit
         %span.nav-item-name Edit
-
   .row.mb-3.mb-md-0
     .col-4.col-sm-2.col-md-12.text-center
       = render(AvatarComponent.new(name: user.name, email: user.email, size: 200))

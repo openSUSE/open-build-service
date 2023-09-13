@@ -92,7 +92,8 @@ class Webui::UsersController < Webui::WebuiController
 
   def destroy
     user = User.find_by(login: params[:login])
-    if user.delete
+
+    if user.delete!(adminnote: params[:adminnote])
       flash[:success] = "Marked user '#{user}' as deleted."
     else
       flash[:error] = "Marking user '#{user}' as deleted failed: #{user.errors.full_messages.to_sentence}"
