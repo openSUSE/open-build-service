@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
   recorded_at: Fri, 29 May 2020 15:37:11 GMT
 - request:
     method: put
@@ -78,6 +77,43 @@ http_interactions:
           <title>The Stars' Tennis Balls</title>
           <description>Similique aut nemo quos.</description>
         </package>
-    http_version: null
   recorded_at: Fri, 29 May 2020 15:37:11 GMT
-recorded_with: VCR 5.1.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Infinite Jest</title>
+          <description>Odio sunt eum voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Infinite Jest</title>
+          <description>Odio sunt eum voluptatem.</description>
+        </package>
+  recorded_at: Thu, 20 Jul 2023 13:30:48 GMT
+recorded_with: VCR 6.2.0

@@ -197,7 +197,7 @@ RSpec.describe Webui::PackageController, :vcr do
 
       context "with a 'rev' parameter with existent revision" do
         before do
-          get :show, params: { project: user.home_project, package: package_with_revisions, rev: 2 }
+          get :show, params: { project: user.home_project, package: package_with_revisions, rev: 2, expand: 1 }
         end
 
         it { expect(assigns(:revision)).to eq('2') }
