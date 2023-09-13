@@ -14,9 +14,9 @@ module Person
     def create
       authorize @user, :update?
 
-      set_package
+      pkg = (Package.get_by_project_and_name(params[:project], params[:package]) if params[:project] || params[:package])
 
-      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token])
+      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user, package: pkg, scm_token: params[:scm_token])
       return if @token.valid?
 
       render_error status: 400,
@@ -40,15 +40,6 @@ module Person
 
     def set_user
       @user = User.find_by(login: params[:login]) || User.find_nobody!
-    end
-
-    def set_package
-      @package = nil
-      return unless (params[:project] || params[:package]) && params[:operation] != 'workflow'
-
-      raise MissingParameterError, 'The package and project parameters must be provided together.' unless params[:project] && params[:package]
-
-      @package = Package.get_by_project_and_name(params[:project], params[:package])
     end
   end
 end
