@@ -1,9 +1,9 @@
 -# haml-lint:disable ViewLength
 :ruby
-  @pagetitle = "Show #{@project} / #{truncate(@package.name, length: 50)}"
+  @pagetitle = "Show #{@project} / #{truncate(@package.try(:name), length: 50)}"
 
-  content_for(:meta_title, @package.title.presence || @package.name)
-  content_for(:meta_description, @package.description)
+  content_for(:meta_title, @package.title.presence || @package.name) if @package.present?
+  content_for(:meta_description, @package.description) if @package.present?
 
   render partial: 'show_actions', locals: { bugowners_mail: @bugowners_mail,
                                             configuration: @configuration,
@@ -21,7 +21,7 @@
   .card-body
     .d-flex.justify-content-between.mb-2
       %h3#package-title
-        = @package.title.presence || @package.name
+        = @package.title.presence || @package.name if @package.present?
       - if User.session
         .d-inline.ms-1#watchlist-icon-wrapper
           = render WatchlistIconComponent.new(user: User.session!,
@@ -36,7 +36,7 @@
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
-        = render partial: 'side_links', locals: { devel_package: @package.develpackage,
+        = render partial: 'side_links', locals: { devel_package: @package.try(:develpackage),
                                                   failures: @failures,
                                                   linkinfo: @linkinfo,
                                                   revision: @revision,
@@ -45,7 +45,7 @@
 
 .overview
   .build-results
-    = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
+    = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name, package: @package.try(:name) }
   .list
     .card
       %h5.card-header
@@ -77,15 +77,16 @@
                                                   revision: @revision,
                                                   srcmd5: @srcmd5,
                                                   spider_bot: @spider_bot }
-  .comments
-    .card#comments-list
-      %h5.card-header.text-word-break-all
-        Comments
-        %span.badge.bg-primary{ id: "comment-counter-package-#{@package.id}" }
-          = @comments.length
-      .card-body#comments
-        = render partial: 'webui/comment/show', locals: { commentable: @package,
-          comment_counter_id: "#comment-counter-package-#{@package.id}" }
+  - if @package.present?
+    .comments
+      .card#comments-list
+        %h5.card-header.text-word-break-all
+          Comments
+          %span.badge.bg-primary{ id: "comment-counter-package-#{@package.id}" }
+            = @comments.length
+        .card-body#comments
+          = render partial: 'webui/comment/show', locals: { commentable: @package,
+            comment_counter_id: "#comment-counter-package-#{@package.id}" }
 - if User.session && User.possibly_nobody.can_modify?(@package)
   = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
 
