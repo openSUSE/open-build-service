@@ -980,6 +980,8 @@ sub createrepo_debian {
   }
   fixup_scanpackages_output("$extrep/Packages.new");
   compress_and_rename("$extrep/Packages.new", "$extrep/Packages");
+  # create an empty Packages file for empty repositories
+  writestr("$extrep/Packages", undef, '') unless -e "$extrep/Packages";
 
   print "    running dpkg-scansources\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
@@ -1028,7 +1030,6 @@ Label: $projid
 Architectures: $archs
 Date: $date
 Description: $data->{'repoinfo'}->{'title'}
-MD5Sum:
 EOL
 
   open(OUT, '>', "$extrep/Release") || die("$extrep/Release: $!\n");
@@ -1036,23 +1037,25 @@ EOL
   close(OUT) || die("close: $!\n");
 
   # append checksums
-  my $sha1sums = "SHA1:\n";
-  my $sha256sums = "SHA256:\n";
+  my $md5sums = '';
+  my $sha1sums = '';
+  my $sha256sums = '';
   open(OUT, '>>', "$extrep/Release") || die("$extrep/Release: $!\n");
   for my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
     my @s = stat("$extrep/$f");
     next unless @s;
     my $fdata = readstr("$extrep/$f");
-    my $md5  = Digest::MD5::md5_hex($fdata);
     my $size = $s[7];
-    print OUT " $md5 $size $f\n";
+    my $md5  = Digest::MD5::md5_hex($fdata);
+    $md5sums .= " $md5 $size $f\n";
     my $sha1  = Digest::SHA::sha1_hex($fdata);
     $sha1sums .= " $sha1 $size $f\n";
     my $sha256  = Digest::SHA::sha256_hex($fdata);
     $sha256sums .= " $sha256 $size $f\n";
   }
-  print OUT $sha1sums;
-  print OUT $sha256sums;
+  print OUT "MD5Sum:\n$md5sums" if $md5sums;
+  print OUT "SHA1:\n$sha1sums" if $sha1sums;
+  print OUT "SHA256:\n$sha256sums" if $sha256sums;
   close(OUT) || die("close: $!\n");
 
   unlink("$extrep/Release.gpg");
