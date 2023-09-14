@@ -53,6 +53,16 @@ class Comment < ApplicationRecord
     parent && parent.user.is_nobody? && parent.children.empty?
   end
 
+  def moderated?
+    !!(moderated_at && moderator)
+  end
+
+  def moderate(state)
+    self.moderated_at = state ? Time.zone.now : nil
+    self.moderator = state ? User.session : nil
+    save!
+  end
+
   private
 
   def create_event
