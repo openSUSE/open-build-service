@@ -1,0 +1,27 @@
+.modal.fade{ id: "#{modal_id}", tabindex: -1, role: 'dialog', aria: { labelledby: "#{modal_id}-label", hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.wrap-text.modal-title{ id: "#{modal_id}-label" }= modal_title
+      .modal-body
+        %p.wrap-text.confirmation-text= confirmation_text
+
+        = form_for(Report.new, url: reports_path, method: :post, remote: true) do |form|
+          = hidden_field_tag :link_id
+          = hidden_field_tag :modal_id, modal_id
+          = form.hidden_field :reportable_id
+          = form.hidden_field :reportable_type
+          .mb-3
+            = form.label('Reason:')
+            = form.text_area(:reason, class: 'form-control')
+            .text-muted
+              Please include any additional information here.
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+              Cancel
+            = submit_tag('Submit', class: 'btn btn-sm btn-primary px-4')
+
+:javascript
+  $(document).ready(function() {
+    collectReportModalsAndSetValues();
+  });
