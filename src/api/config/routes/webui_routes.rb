@@ -428,4 +428,6 @@ OBSApi::Application.routes.draw do
       end
     end
   end
+
+  resources :reports, only: [:create], controller: 'webui/reports'
 end
