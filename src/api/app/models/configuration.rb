@@ -5,6 +5,7 @@ class Configuration < ApplicationRecord
   include CanRenderModel
 
   validates :name, :title, :description, presence: true
+  validates :code_of_conduct, length: { maximum: 65_535 }
 
   # note: do not add defaults here. It must be either the options.yml content or nil
   # rubocop:disable Style/MutableConstant
@@ -150,6 +151,7 @@ end
 #  change_password                      :boolean          default(TRUE)
 #  cleanup_after_days                   :integer
 #  cleanup_empty_projects               :boolean          default(TRUE)
+#  code_of_conduct                      :text(65535)
 #  default_access_disabled              :boolean          default(FALSE)
 #  default_tracker                      :string(255)      default("bnc")
 #  description                          :text(65535)
