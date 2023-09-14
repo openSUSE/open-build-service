@@ -63,6 +63,12 @@ class Comment < ApplicationRecord
     save!
   end
 
+  def body
+    return "*This content was considered problematic and has been moderated at #{moderated_at} by @#{moderator}*" if moderated?
+
+    super
+  end
+
   private
 
   def create_event
