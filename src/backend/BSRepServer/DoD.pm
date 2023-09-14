@@ -37,29 +37,20 @@ my $maxredirects = 10;
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-# Adapted from URL::Normalize by Tore Aursand
 sub remove_dot_segments {
-  my $path = shift;
-  my @new_segments = ();
-
-  foreach my $segment ( split('/', $path) ) {
-    if ($segment eq '.' || $segment eq '...') {
-      next;
-    }
-
-    if ($segment eq '..') {
-      pop (@new_segments);
-      next;
-    }
-
-    push(@new_segments, $segment);
+  my ($url) = @_;
+  return $url unless $url =~ /^([^:\/]+:\/\/[^\/]+\/)(.*$)/;
+  my ($intro, $path) = ($1, $2);
+  my $frag = '';
+  $frag = $1 if $path =~ s/(#[^#]*$)//;
+  my @p;
+  for (split('/', $path)) {
+    next if $_ eq '.' || $_ eq '';
+    pop @p if $_ eq '..';
+    push @p, $_ if $_ ne '..';
   }
-
-  my $new_path = join( '/', @new_segments );
-  $new_path .= '/' if ( $new_path !~ m,/$, && $path =~ m,/$, );
-  $new_path  = '/' . $new_path unless ( $new_path =~ m,^/, );
-
-  return $new_path;
+  $path = join('/', @p);
+  return "$intro$path$frag";
 }
 
 sub is_wanted_dodbinary {
