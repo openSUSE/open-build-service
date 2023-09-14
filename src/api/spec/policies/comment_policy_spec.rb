@@ -144,4 +144,34 @@ RSpec.describe CommentPolicy do
     end
   end
   # rubocop:enable RSpec/RepeatedExample
+
+  # rubocop:disable RSpec/RepeatedExample
+  permissions :moderate? do
+    it 'a not logged-in user cannot moderate comments' do
+      expect(subject).not_to permit(nil, comment)
+    end
+
+    it 'an anonymous user cannot moderate comments' do
+      expect(subject).not_to permit(anonymous_user, comment)
+    end
+
+    it 'a non-admin user cannot moderate comments' do
+      expect(subject).not_to permit(other_user, comment)
+    end
+
+    it 'an admin user can moderate comments' do
+      expect(subject).to permit(admin_user, comment)
+    end
+
+    context 'with a deleted comment' do
+      it 'an admin user is unable to moderate a deleted comment' do
+        expect(subject).not_to permit(admin_user, comment_deleted)
+      end
+
+      it 'an non-admin user is unable to moderate a deleted comment' do
+        expect(subject).not_to permit(other_user, comment_deleted)
+      end
+    end
+  end
+  # rubocop:enable RSpec/RepeatedExample
 end
