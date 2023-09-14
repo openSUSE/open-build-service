@@ -2,7 +2,8 @@
 # environment and review apps to test changes for those features. Rolled-out feature toggles aren't displayed anyway
 # to users in the web UI for beta features.
 ENABLED_FEATURE_TOGGLES = [
-  { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' }
+  { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' },
+  { name: :content_moderation, description: 'Reporting inappropriate content' }
 ].freeze
 
 Flipper.configure do

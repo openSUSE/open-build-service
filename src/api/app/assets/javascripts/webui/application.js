@@ -66,3 +66,4 @@
 //= require webui/add_file.js
 //= require chartkick
 //= require Chart.bundle
+//= require webui/report.js

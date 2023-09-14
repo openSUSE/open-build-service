@@ -4,6 +4,15 @@
 
 .basic-info
   .d-flex.flex-row-reverse
+    - if policy(Report.new(reportable: user)).create?
+      = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
+            data: { 'bs-toggle': 'modal',
+                    'bs-target': '#report-user-modal',
+                    'modal-title': "Report #{user.login}",
+                    'reportable-type': user.class.name,
+                    'reportable-id': user.id }) do
+        %i.fas.fa-regular.fa-flag
+        %span.nav-item-name Report
     - if User.possibly_nobody.is_admin?
       = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
         %i.fas.fa-times-circle.text-danger
@@ -39,6 +48,7 @@
         %i.fas.fa-envelope.me-1
         = user.email
 
+= render ReportComponent.new(modal_id: 'report-user-modal', options: { object_type: 'User', user: User.session })
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {
