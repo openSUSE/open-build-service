@@ -130,3 +130,7 @@ end
 #  index_event_subscriptions_on_user_id          (user_id)
 #  index_event_subscriptions_on_workflow_run_id  (workflow_run_id)
 #
+# Foreign Keys
+#
+#  fk_rails_...  (bs_request_id => bs_requests.id)
+#
