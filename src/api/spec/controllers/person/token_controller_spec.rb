@@ -53,6 +53,32 @@ RSpec.describe Person::TokenController, vcr: false do
       end
     end
 
+    context 'called with only project parameter' do
+      before do
+        login user
+      end
+
+      subject { post :create, params: { login: user.login, project: user.home_project, operation: 'rebuild' }, format: :xml }
+
+      it 'does not create a token' do
+        expect { subject }.not_to(change { user.tokens.count })
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'called with only package parameter' do
+      before do
+        login user
+      end
+
+      subject { post :create, params: { login: user.login, package: 'test', operation: 'create' }, format: :xml }
+
+      it 'does not create a token' do
+        expect { subject }.not_to(change { user.tokens.count })
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
     context 'called with project and package parameter' do
       let!(:package) { create(:package, project: user.home_project) }
 
