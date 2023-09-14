@@ -103,20 +103,24 @@ end
 #  body             :text(65535)
 #  commentable_type :string(255)      indexed => [commentable_id]
 #  diff_ref         :string(255)
+#  moderated_at     :datetime
 #  created_at       :datetime
 #  updated_at       :datetime
 #  commentable_id   :integer          indexed => [commentable_type]
+#  moderator_id     :integer          indexed
 #  parent_id        :integer          indexed
 #  user_id          :integer          not null, indexed
 #
 # Indexes
 #
 #  index_comments_on_commentable_type_and_commentable_id  (commentable_type,commentable_id)
+#  moderated_comments_fk                                  (moderator_id)
 #  parent_id                                              (parent_id)
 #  user_id                                                (user_id)
 #
 # Foreign Keys
 #
-#  comments_ibfk_1  (user_id => users.id)
-#  comments_ibfk_4  (parent_id => comments.id)
+#  comments_ibfk_1        (user_id => users.id)
+#  comments_ibfk_4        (parent_id => comments.id)
+#  moderated_comments_fk  (moderator_id => users.id)
 #
