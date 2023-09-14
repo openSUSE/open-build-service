@@ -64,6 +64,8 @@ class User < ApplicationRecord
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :submitted_reports, class_name: 'Report'
 
+  has_many :moderated_comments, class_name: 'Comment', foreign_key: 'moderator_id'
+
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }

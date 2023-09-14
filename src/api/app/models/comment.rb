@@ -3,6 +3,7 @@ require 'set'
 class Comment < ApplicationRecord
   belongs_to :commentable, polymorphic: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
   belongs_to :user, inverse_of: :comments
+  belongs_to :moderator, class_name: 'User', optional: true
 
   validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
