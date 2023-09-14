@@ -31,4 +31,11 @@ class CommentPolicy < ApplicationPolicy
   def reply?
     !(user.blank? || user.is_nobody? || record.user.is_nobody?)
   end
+
+  # Only logged-in Admins can moderate non-deleted comments
+  def moderate?
+    return true if user.try(:is_admin?) && !record.user.is_nobody?
+
+    false
+  end
 end
