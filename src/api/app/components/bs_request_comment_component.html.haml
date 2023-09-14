@@ -17,6 +17,9 @@
             = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                       class: 'dropdown-item collapsed') do
               Edit
+          - if policy(comment).moderate?
+            = button_to(comment.moderated? ? 'Unmoderate' : 'Moderate', comment_moderate_path(comment),
+                        class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
           - if policy(comment).destroy?
             = link_to('#', data: { 'bs-toggle': 'modal',
                                    'bs-target': '#delete-comment-modal',

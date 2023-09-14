@@ -65,6 +65,18 @@ $(document).ready(function(){
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
+  // This is being used to update the comment with the updated content after a moderation from the legacy request view
+  $('.comments-list').on('ajax:complete', '.moderate-form', function(_, data) {
+    var $commentsList = $(this).closest('.comments-list');
+
+    $commentsList.html(data.responseText);
+  });
+
+  // This is being used to update the comment with the updated content after a moderation from the beta request show view
+  $('.timeline,.diff').on('ajax:complete', '.moderate-form', function(_, data) {
+    $(this).closest('.comments-thread').html(data.responseText);
+  });
+
   // This is used to delete a comment from the legacy request view
   $('.comments-list').on('ajax:complete', '.delete-comment-form', function(_, data) {
     var $this = $(this),
