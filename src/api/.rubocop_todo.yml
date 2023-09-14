@@ -182,6 +182,7 @@ Metrics/ClassLength:
     - 'app/controllers/request_controller.rb'
     - 'app/controllers/search_controller.rb'
     - 'app/controllers/source_controller.rb'
+    - 'app/controllers/webui/comments_controller.rb'
     - 'app/controllers/webui/kiwi/images_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
     - 'app/controllers/webui/patchinfo_controller.rb'
