@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_07_111316) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -853,6 +853,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
     t.index ["target_repository_id"], name: "index_release_targets_on_target_repository_id"
   end
 
+  create_table "reports", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "reportable_type", null: false
+    t.integer "reportable_id", null: false
+    t.text "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
+    t.index ["user_id"], name: "index_reports_on_user_id"
+  end
+
   create_table "repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "db_project_id", null: false
     t.string "name", null: false, collation: "utf8mb4_bin"
@@ -1213,6 +1224,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_27_110437) do
   add_foreign_key "relationships", "users", name: "relationships_ibfk_2"
   add_foreign_key "release_targets", "repositories", column: "target_repository_id", name: "release_targets_ibfk_2"
   add_foreign_key "release_targets", "repositories", name: "release_targets_ibfk_1"
+  add_foreign_key "reports", "users"
   add_foreign_key "repositories", "projects", column: "db_project_id", name: "repositories_ibfk_1"
   add_foreign_key "repositories", "repositories", column: "hostsystem_id", name: "repositories_ibfk_2"
   add_foreign_key "repository_architectures", "architectures", name: "repository_architectures_ibfk_2"

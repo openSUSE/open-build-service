@@ -61,6 +61,8 @@ class User < ApplicationRecord
   has_many :acknowledged_status_messages, through: :status_message_acknowledgements, class_name: 'StatusMessage', source: 'status_message'
 
   has_many :disabled_beta_features, dependent: :destroy
+  has_many :reports, as: :reportable, dependent: :nullify
+  has_many :submitted_reports, class_name: 'Report'
 
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
