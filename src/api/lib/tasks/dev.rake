@@ -235,6 +235,9 @@ namespace :dev do
 
       # Create news
       Rake::Task['dev:news:data'].invoke
+
+      # Create some Reports
+      Rake::Task['dev:reports:data'].invoke
     end
   end
 end
