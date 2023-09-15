@@ -62,7 +62,7 @@
               = yield
 
         .container-fluid.mt-4.mb-2.py-2#footer
-          = render partial: 'layouts/webui/footer', locals: { spider_bot: @spider_bot }
+          = render partial: 'layouts/webui/footer', locals: { configuration: @configuration, spider_bot: @spider_bot }
         .container-fluid.py-2#sponsors
           = render SponsorsComponent.new
         .container-fluid.mt-2.py-2#footer-legal

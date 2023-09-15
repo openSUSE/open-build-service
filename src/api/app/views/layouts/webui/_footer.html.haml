@@ -22,11 +22,13 @@
       %li= link_to('OpenBuildService.org', 'https://openbuildservice.org/')
       %li= link_to('Documentation', 'https://openbuildservice.org/help/manuals/')
       %li= link_to('API Documentation', "#{root_path}apidocs/index")
+      - if configuration.code_of_conduct.present?
+        %li= link_to('Code of Conduct', code_of_conduct_index_path)
 
   %div
     %strong.text-uppercase Contact
     %ul
       %li= link_to('Support', 'https://openbuildservice.org/support/')
       %li= link_to('@OBShq', 'https://fosstodon.org/@obshq', ref: 'me')
-      - if Configuration.tos_url.present?
-        %li= link_to('Terms', Configuration.tos_url)
+      - if configuration.tos_url.present?
+        %li= link_to('Terms', configuration.tos_url)
