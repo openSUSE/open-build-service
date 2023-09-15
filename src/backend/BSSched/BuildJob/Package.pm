@@ -102,7 +102,7 @@ sub check {
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
   # check if cycle builds are in progress
-  if ($incycle && $incycle == 3) {
+  if ($incycle == 3) {
     push @blocked, 'cycle' unless @blocked;
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
@@ -112,10 +112,14 @@ sub check {
     return ('blocked', join(', ', @blocked));
   }
   # prune cycle packages from blocked
-  if ($incycle) {
+  if ($incycle > 1) {
+    my $cyclevel = $ctx->{'cyclevel'};
     my $pkg2src = $ctx->{'pkg2src'} || {};
-    my %cycs = map {($pkg2src->{$_} || $_) => 1} @{$ctx->{'cychash'}->{$packid}};
-    @blocked = grep {!$cycs{$dep2src->{$_}}} @blocked;
+    my $level = $cyclevel->{$packid};
+    if ($level) {
+      my %cycs = map {($pkg2src->{$_} || $_) => ($cyclevel->{$_} || 1)} @{$ctx->{'cychash'}->{$packid}};
+      @blocked = grep {($cycs{$dep2src->{$_}} || 0) < $level} @blocked;
+    }
   }
   if (@blocked) {
     # print "      - $packid ($buildtype)\n";
@@ -202,11 +206,6 @@ sub check {
       goto relsynccheck;
     }
     # more work, check if dep rpm changed
-    if ($incycle == 1) {
-      # print "      - $packid ($buildtype)\n";
-      # print "        in cycle, no source change...\n";
-      return ('done');
-    }
     my $check = substr($mylastcheck, 32, 32);	# metamd5
     my $pool = $ctx->{'pool'};
     my $pool_host = $ctx->{'pool_host'};
@@ -297,6 +296,21 @@ sub check {
       close F;
       chomp @meta;
     }
+    if ($incycle == 1) {
+      # calculate cyclevel
+      my $level;
+      if (defined &BSSolv::diffdepth_meta) {
+	$level = BSSolv::diffdepth_meta(\@new_meta, \@meta);
+      } else {
+        $level = BSBuild::diffdepth(\@new_meta, \@meta);
+      }
+      $ctx->{'cyclevel'}->{$packid} = $level;
+      if ($level > 1) {
+        # print "      - $packid ($buildtype)\n";
+        # print "        in cycle, no source change...\n";
+        return ('done');	# postpone till phase 2
+      }
+    }
     if ($rebuildmethod eq 'direct') {
       @meta = grep {!/\//} @meta;
       @new_meta = grep {!/\//} @new_meta;
@@ -315,10 +329,11 @@ sub check {
     }
     my @diff = BSSched::BuildJob::diffsortedmd5(\@meta, \@new_meta);
     my $reason = BSSched::BuildJob::sortedmd5toreason(@diff);
+    my $levelstr = $ctx->{'cyclevel'}->{$packid} ? " (cyclevel $ctx->{'cyclevel'}->{$packid})" : '';
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
       print "        $_\n" for @diff;
-      print "        meta change, start build\n";
+      print "        meta change, start build$levelstr\n";
     }
     return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => $reason }, $hdeps ] );
   }
