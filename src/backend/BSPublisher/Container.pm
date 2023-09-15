@@ -854,7 +854,8 @@ sub do_remote_uploads {
   my %todo;
   my %todo_p;
   for my $tag (sort keys %$uptags) {
-    my @p = sort(values %{$uptags->{$tag}});
+    my $uptag = $uptags->{$tag};
+    my @p = map {$uptag->{$_}} sort keys %$uptag;
     my $joinp = join('///', @p);
     push @{$todo{$joinp}}, $tag;
     $todo_p{$joinp} = \@p;

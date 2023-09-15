@@ -41,8 +41,8 @@ sub remove_dot_segments {
   my ($url) = @_;
   return $url unless $url =~ /^([^:\/]+:\/\/[^\/]+\/)(.*$)/;
   my ($intro, $path) = ($1, $2);
-  my $frag = '';
-  $frag = $1 if $path =~ s/(#[^#]*$)//;
+  my $trail= '';
+  $trail = $1 if $path =~ s/([#\?].*$)//;
   my @p;
   for (split('/', $path)) {
     next if $_ eq '.' || $_ eq '';
@@ -50,7 +50,7 @@ sub remove_dot_segments {
     push @p, $_ if $_ ne '..';
   }
   $path = join('/', @p);
-  return "$intro$path$frag";
+  return "$intro$path$trail";
 }
 
 sub is_wanted_dodbinary {

@@ -934,45 +934,48 @@ sub prune_packstatus_finished {
 
 sub handlecycle {
   my ($ctx, $packid, $cpacks, $cycpass) = @_;
-  my $incycle = 0;
   my $cychash = $ctx->{'cychash'};
   return ($packid, 0) unless $cychash->{$packid};
-  $incycle = $cycpass->{$packid} || 0;
-
-  if (!$incycle) {
-    # starting pass 1	(incycle == 1)
-    my @cycp = @{$cychash->{$packid}};
-    unshift @$cpacks, $cycp[0];	# pass3
-    unshift @$cpacks, @cycp;		# pass2
-    unshift @$cpacks, @cycp;		# pass1
+  my $incycle = $cycpass->{$packid} || 0;
+  return ($packid, $incycle) if $incycle > 0;	# still in pass
+  my @cycp = @{$cychash->{$packid}};
+  $incycle = -$incycle + 1;			# start next pass
+  $cycpass->{$_} = $incycle for @cycp;
+  if ($incycle == 1) {
+    unshift @$cpacks, $cycp[0];
+    unshift @$cpacks, @cycp;
     $packid = shift @$cpacks;
-    $incycle = 1;
-    $cycpass->{$_} = $incycle for @cycp;
-    $cycpass->{$packid} = -1;		# pass1 ended
-  } elsif ($incycle == -1) {
-    # starting pass 2	(incycle will be 2 or 3)
-    my @cycp = @{$cychash->{$packid}};
-    my $building = $ctx->{'building'};
-    $incycle = (grep {$building->{$_}} @cycp) ? 3 : 2;
-    $cycpass->{$_} = $incycle for @cycp;
-    $cycpass->{$packid} = -2;		# pass2 ended
-  } elsif ($incycle == -2) {
-    # starting pass 3	(incycle == 4)
-    my @cycp = @{$cychash->{$packid}};
-    $incycle = 4;
-    $cycpass->{$_} = $incycle for @cycp;
-    # propagate notready/unfinished to all cycle packages
-    my $notready = $ctx->{'notready'};
-    my $pkg2src = $ctx->{'pkg2src'} || {};
-    if (grep {$notready->{$pkg2src->{$_} || $_}} @cycp) {
-      $notready->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
-    }
-    my $unfinished = $ctx->{'unfinished'};
-    if (grep {$unfinished->{$pkg2src->{$_} || $_}} @cycp) {
-      $unfinished->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
-    }
+    $cycpass->{$packid} = -1;			# set pass1 endmarker
+  } elsif ($incycle == 2) {
+    my $cyclevel = $ctx->{'cyclevel'};
+    unshift @$cpacks, sort {($cyclevel->{$a} || 0) <=> ($cyclevel->{$b} || 0)} @cycp;
+    $packid = shift @$cpacks;
+    $cycpass->{$packid} = -2;			# set pass2 endmarker
+  } elsif ($incycle == 3) {
+    unshift @$cpacks, @cycp;
+    $packid = shift @$cpacks;
   }
   return ($packid, $incycle);
+}
+
+sub cycsort {
+  my ($pkg2dep, $dep2src, $pkg2src, @cyc) = @_;
+  @cyc = BSUtil::unify(sort(@cyc));
+  my %d;
+  my %cdeps;
+  for my $pkg (@cyc) {
+    $d{$dep2src->{$_} || $_}->{$pkg} = 1 for @{$pkg2dep->{$pkg}};
+  }
+  # remove all bi-directional edges
+  my %ign;
+  for my $pkg (@cyc) {
+    $ign{$pkg}->{$_} = 1 for keys %{$d{$pkg2src->{$pkg}} || {}};
+  }
+  for my $pkg (@cyc) {
+    $_ ne $pkg && !$ign{$_}->{$pkg} and push @{$cdeps{$_}}, $pkg for keys %{$d{$pkg2src->{$pkg}} || {}};
+  }
+  @cyc = BSSolv::depsort(\%cdeps, undef, undef, @cyc);
+  return @cyc;
 }
 
 sub checkpkgs {
@@ -1015,12 +1018,13 @@ sub checkpkgs {
   $ctx->{'nharder'} = 0;
   $ctx->{'building'} = \%building;
   $ctx->{'unfinished'} = \%unfinished;
+  $ctx->{'cyclevel'} = {};
 
   # now build cychash mapping packages to all other cycle members
   for my $cyc (@{$ctx->{'sccs'} || $ctx->{'cycles'} || []}) {
     next if @$cyc < 2;	# just in case
     my @c = map {@{$cychash{$_} || [ $_ ]}} @$cyc;
-    @c = BSUtil::unify(sort(@c));
+    @c = cycsort($ctx->{'edeps'}, $ctx->{'dep2src'}, $ctx->{'pkg2src'}, @c);
     $cychash{$_} = \@c for @c;
   }
 
@@ -1053,7 +1057,6 @@ sub checkpkgs {
     my $incycle = 0;
     if ($cychash{$packid}) {
       ($packid, $incycle) = handlecycle($ctx, $packid, \@cpacks, \%cycpass);
-      next if $incycle == 4;	# ignore after pass1/2
       next if $packstatus{$packid} && $packstatus{$packid} ne 'done' && $packstatus{$packid} ne 'succeeded' && $packstatus{$packid} ne 'failed'; # already decided
     }
     $ctx->{'incycle'} = $incycle;
@@ -1204,6 +1207,7 @@ sub checkpkgs {
       $notready->{$pname} = 1 if $useforbuildenabled;
       $unfinished{$pname} = 1;
       $packstatus{$packid} = 'scheduled';
+      # we may also want to set the cyclevel
       next;
     }
 
