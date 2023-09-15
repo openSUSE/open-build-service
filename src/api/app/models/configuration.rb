@@ -5,7 +5,9 @@ class Configuration < ApplicationRecord
   include CanRenderModel
 
   validates :name, :title, :description, presence: true
-  validates :code_of_conduct, length: { maximum: 65_535 }
+  validates :admin_email, :api_url, :bugzilla_url, :default_tracker, :download_url, :http_proxy, :name, :no_proxy, :obs_url, :theme, :title, :tos_url, :unlisted_projects_filter,
+            :unlisted_projects_filter_description, :ymp_url, length: { maximum: 255 }
+  validates :description, :code_of_conduct, length: { maximum: 65_535 }
 
   # note: do not add defaults here. It must be either the options.yml content or nil
   # rubocop:disable Style/MutableConstant
@@ -44,10 +46,8 @@ class Configuration < ApplicationRecord
   }
   # rubocop:enable Style/MutableConstant
 
-  ON_OFF_OPTIONS = [:anonymous, :default_access_disabled,
-                    :allow_user_to_create_home_project, :disallow_group_creation,
-                    :change_password, :hide_private_options, :gravatar,
-                    :download_on_demand, :enforce_project_keys,
+  ON_OFF_OPTIONS = [:anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation,
+                    :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys,
                     :cleanup_empty_projects, :disable_publish_for_branches].freeze
 
   class << self
