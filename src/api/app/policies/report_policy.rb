@@ -1,14 +1,4 @@
 class ReportPolicy < ApplicationPolicy
-  attr_reader :user, :record, :reportable
-
-  def initialize(user, record)
-    super(user, record)
-
-    @user = user
-    @record = record
-    @reportable = record.reportable
-  end
-
   def show?
     user.is_admin? || record.user == user
   end
@@ -17,18 +7,18 @@ class ReportPolicy < ApplicationPolicy
     return false unless Flipper.enabled?(:content_moderation, user)
 
     # We don't want reports twice...
-    return false if user.submitted_reports.where(reportable: reportable).any?
+    return false if user.submitted_reports.where(reportable: record.reportable).any?
 
     # We don't want reports for things you can change yourself...
-    case reportable.class.name
+    case record.reportable_type
     when 'Package'
-      !PackagePolicy.new(user, reportable).update?
+      !PackagePolicy.new(user, record.reportable).update?
     when 'Project'
-      !ProjectPolicy.new(user, reportable).update?
+      !ProjectPolicy.new(user, record.reportable).update?
     when 'Comment'
-      !CommentPolicy.new(user, reportable).update?
+      !CommentPolicy.new(user, record.reportable).update?
     when 'User'
-      !UserPolicy.new(user, reportable).update?
+      !UserPolicy.new(user, record.reportable).update?
     end
   end
 end
