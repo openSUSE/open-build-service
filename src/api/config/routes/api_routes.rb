@@ -387,4 +387,7 @@ OBSApi::Application.routes.draw do
   # :arch can be also a ymp for a pattern :/
   get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
+
+  ### /reports
+  resources :reports, only: [:index, :show, :create, :update, :destroy], constraints: cons
 end

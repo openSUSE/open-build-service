@@ -6,7 +6,11 @@ class ReportPolicy < ApplicationPolicy
 
     @user = user
     @record = record
-    @reportable = record.reportable
+    @reportable = record.try(:reportable)
+  end
+
+  def index?
+    user.is_admin?
   end
 
   def show?
@@ -30,5 +34,11 @@ class ReportPolicy < ApplicationPolicy
     when 'User'
       !UserPolicy.new(user, reportable).update?
     end
+  end
+
+  def destroy?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
+    user.is_admin? || record.user == user
   end
 end
