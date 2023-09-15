@@ -139,9 +139,8 @@ class Webui::CommentsController < Webui::WebuiController
 
   def set_comment
     @comment = Comment.find(params[:id] || params[:comment_id])
-    return if @comment.present?
-
-    flash[:error] = "Comment with id '#{params[:id]}' doesn't exist."
+  rescue ActiveRecord::RecordNotFound => e
+    flash[:error] = e.message
     render partial: 'layouts/webui/flash'
   end
 
