@@ -50,6 +50,14 @@
       .collapse{ id: "reply_form_of_#{comment.id}" }
         = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
          comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })
+      - if policy(Report.new(reportable: comment)).create?
+        = link_to('#', class: 'font-italic small collapsed ps-2', id: "js-comment-#{comment.id}",
+              data: { 'bs-toggle': 'modal',
+                      'bs-target': '#report-comment-modal',
+                      'modal-title': "Report comment from #{comment.user}",
+                      'reportable-type': comment.class.name,
+                      'reportable-id': comment.id }) do
+          Report
 
   - if level <= 3
     - comment.children.includes(:user).each do |children|
