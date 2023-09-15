@@ -86,5 +86,8 @@
                                                               confirmation_text: "Please confirm deletion of the project '#{@project}'",
                                                               action: project_destroy_path(project: @project) })
 
+- if policy(Report.new(reportable: @project)).create?
+  = render ReportComponent.new(modal_id: 'report-project-modal', options: { object_type: 'Project', user: User.session })
+
 - content_for :ready_function do
   initializeDataTable('#inherited-packages-table');
