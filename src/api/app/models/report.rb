@@ -13,10 +13,10 @@ end
 #
 #  id              :bigint           not null, primary key
 #  reason          :text(65535)
-#  reportable_type :string(255)      not null, indexed => [reportable_id]
+#  reportable_type :string(255)      indexed => [reportable_id]
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  reportable_id   :integer          not null, indexed => [reportable_type]
+#  reportable_id   :integer          indexed => [reportable_type]
 #  user_id         :integer          not null, indexed
 #
 # Indexes
