@@ -14,7 +14,7 @@ class ReportComponent < ApplicationComponent
   end
 
   def confirmation_text
-    "Are you sure you want to report this #{@object_type.class.name.downcase}?"
+    "Are you sure you want to report this #{@object_type.downcase}?"
   end
 
   def render?
