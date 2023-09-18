@@ -1686,10 +1686,11 @@ our $prestodelta = [
 our $configuration = [
     'configuration' =>
 	[],
-	'title',        #webui only
-	'tos_url',      #webui only
-	'description',  #webui only
-	'name',         #obsname
+	'title',           #webui only
+	'tos_url',         #webui only
+	'code_of_conduct', #webui only
+	'description',     #webui only
+	'name',            #obsname
 	'anonymous',
 	'registration',
 	'default_access_disabled',

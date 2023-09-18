@@ -39,7 +39,8 @@ class Configuration < ApplicationRecord
     admin_email: nil,
     unlisted_projects_filter: nil,
     unlisted_projects_filter_description: nil,
-    tos_url: nil
+    tos_url: nil,
+    code_of_conduct: nil
   }
   # rubocop:enable Style/MutableConstant
 
@@ -51,10 +52,8 @@ class Configuration < ApplicationRecord
 
   class << self
     def map_value(key, value)
-      if key.in?(ON_OFF_OPTIONS)
-        # make them boolean
-        return value.in?([:on, ':on', 'on', 'true', true])
-      end
+      # make them boolean
+      return value.in?([:on, ':on', 'on', 'true', true]) if key.in?(ON_OFF_OPTIONS)
 
       value
     end

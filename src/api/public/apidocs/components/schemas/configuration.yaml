@@ -60,6 +60,14 @@ properties:
   unlisted_projects_filter_description:
     type: string
     example: home projects
+  code_of_conduct:
+    type: string
+    example: |
+      This is an example of a "Code of Conduct".
+
+      1. First point.
+
+      2. Second point.
   schedulers:
     type: object
     properties:
