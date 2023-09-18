@@ -18,7 +18,7 @@
   - if Flipper.enabled?(:content_moderation, User.session)
     - if policy(comment).moderate?
       %li.list-inline-item
-        = button_to(comment.moderated? ? 'Permit' : 'Moderate', comment_moderate_path(comment),
+        = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
                     class: 'btn btn-outline-secondary', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
   - if policy(Report.new(reportable: comment)).create?
     %li.list-inline-item

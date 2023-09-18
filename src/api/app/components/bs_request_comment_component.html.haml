@@ -19,7 +19,7 @@
               Edit
           - if Flipper.enabled?(:content_moderation, User.session)
             - if policy(comment).moderate?
-              = button_to(comment.moderated? ? 'Permit' : 'Moderate', comment_moderate_path(comment),
+              = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
                           class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
           - if policy(comment).destroy?
             = link_to('#', data: { 'bs-toggle': 'modal',
