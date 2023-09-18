@@ -8,13 +8,15 @@ module NotificationService
                         'Event::CommentForPackage',
                         'Event::CommentForRequest',
                         'Event::RelationshipCreate',
-                        'Event::RelationshipDelete'].freeze
+                        'Event::RelationshipDelete',
+                        'Event::CreateReport'].freeze
     CHANNELS = [:web, :rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
       'Comment' => ::Comment,
       'Project' => ::Project,
-      'Package' => ::Package
+      'Package' => ::Package,
+      'Report' => ::Report
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
@@ -46,6 +48,7 @@ module NotificationService
     def create_notification?(subscriber, channel)
       return false if subscriber.nil? || subscriber.away? || (channel == :rss && !subscriber.try(:rss_token))
       return false unless notifiable_exists?
+      return false unless create_report_notification?(event: @event, subscriber: subscriber)
 
       true
     end
@@ -58,6 +61,15 @@ module NotificationService
 
       notifiable_id = @event.parameters_for_notification[:notifiable_id]
       notifiable_type.exists?(notifiable_id)
+    end
+
+    def create_report_notification?(event:, subscriber:)
+      if event.is_a?(Event::CreateReport)
+        return false unless Flipper.enabled?(:content_moderation, subscriber)
+        return false unless subscriber.is_moderator?
+      end
+
+      true
     end
   end
 end
