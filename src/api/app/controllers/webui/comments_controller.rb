@@ -137,6 +137,7 @@ class Webui::CommentsController < Webui::WebuiController
     params.require(:comment).permit(:body, :parent_id, :diff_ref)
   end
 
+  # FIXME: Use this function for the rest of the actions
   def set_comment
     @comment = Comment.find(params[:id] || params[:comment_id])
   rescue ActiveRecord::RecordNotFound => e
