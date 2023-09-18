@@ -6,6 +6,12 @@
       .modal-body
         %p.wrap-text.confirmation-text= confirmation_text
 
+        - if Configuration.code_of_conduct.present?
+          %p.wrap-text
+            You may want to read the
+            = link_to 'Code of Conduct', code_of_conduct_index_path, target: '_blank'
+            page first.
+
         = form_for(Report.new, url: reports_path, method: :post, remote: true) do |form|
           = hidden_field_tag :link_id
           = hidden_field_tag :modal_id, modal_id
