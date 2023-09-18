@@ -1,6 +1,6 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
   VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted',
-                              'build_failures'].freeze
+                              'build_failures', 'reports'].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth
@@ -38,7 +38,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
         render partial: 'update', locals: {
           notifications: paginated_notifications,
           selected_filter: selected_filter,
-          show_read_all_button: show_read_all_button?
+          show_read_all_button: show_read_all_button?,
+          show_reports: Flipper.enabled?(:content_moderation, User.session) && User.session.is_moderator?
         }
       end
     end

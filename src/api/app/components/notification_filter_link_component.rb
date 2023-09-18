@@ -1,5 +1,5 @@
 class NotificationFilterLinkComponent < ApplicationComponent
-  def initialize(text:, filter_item:, selected_filter:, amount: 0, icon: '')
+  def initialize(text:, filter_item:, selected_filter:, amount: 0, icon: '', show_reports: false)
     super
 
     @text = text
@@ -7,6 +7,13 @@ class NotificationFilterLinkComponent < ApplicationComponent
     @selected_filter = selected_filter
     @amount = ensure_integer_amount(amount)
     @icon = icon
+    @show_reports = show_reports
+  end
+
+  def render?
+    return false if @filter_item[:type] == 'reports' && !@show_reports
+
+    true
   end
 
   def css_for_link

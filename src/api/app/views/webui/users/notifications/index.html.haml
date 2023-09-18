@@ -10,7 +10,8 @@
         Filtered by: #{params[:type]&.humanize || @filtered_project || 'Unread'}
         %i.float-end.mt-1.fa.fa-chevron-down#notifications-dropdown-trigger
       .collapse#filters
-        = render NotificationFilterComponent.new(selected_filter: @selected_filter)
+        = render NotificationFilterComponent.new(selected_filter: @selected_filter,
+                                                 show_reports: Flipper.enabled?(:content_moderation, User.session) && User.session.is_moderator? )
 
   .col-md-8.col-lg-9.px-0.px-md-3#notifications-list
     = render partial: 'notifications_list', locals: { notifications: @notifications,
