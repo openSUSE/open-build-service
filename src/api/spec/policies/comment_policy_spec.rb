@@ -172,6 +172,14 @@ RSpec.describe CommentPolicy do
         expect(subject).not_to permit(other_user, comment_deleted)
       end
     end
+
+    context 'when the moderator is a staff member' do
+      let(:staff_user) { create(:staff_user) }
+
+      it 'an staff member can moderate comments' do
+        expect(subject).to permit(staff_user, comment)
+      end
+    end
   end
   # rubocop:enable RSpec/RepeatedExample
 end
