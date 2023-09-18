@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_18_145812) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_18_161340) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -303,7 +303,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_145812) do
     t.string "commentable_type"
     t.integer "commentable_id"
     t.string "diff_ref"
+    t.datetime "moderated_at"
+    t.integer "moderator_id"
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable_type_and_commentable_id"
+    t.index ["moderator_id"], name: "moderated_comments_fk"
     t.index ["parent_id"], name: "parent_id"
     t.index ["user_id"], name: "user_id"
   end
@@ -1181,6 +1184,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_145812) do
   add_foreign_key "channel_targets", "repositories", name: "channel_targets_ibfk_2"
   add_foreign_key "channels", "packages", name: "channels_ibfk_1"
   add_foreign_key "comments", "comments", column: "parent_id", name: "comments_ibfk_4"
+  add_foreign_key "comments", "users", column: "moderator_id", name: "moderated_comments_fk"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
   add_foreign_key "download_repositories", "repositories", name: "download_repositories_ibfk_1"
   add_foreign_key "event_subscriptions", "bs_requests"

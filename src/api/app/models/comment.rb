@@ -3,6 +3,7 @@ require 'set'
 class Comment < ApplicationRecord
   belongs_to :commentable, polymorphic: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
   belongs_to :user, inverse_of: :comments
+  belongs_to :moderator, class_name: 'User', optional: true
 
   validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
@@ -50,6 +51,22 @@ class Comment < ApplicationRecord
 
   def unused_parent?
     parent && parent.user.is_nobody? && parent.children.empty?
+  end
+
+  def moderated?
+    !!(moderated_at && moderator)
+  end
+
+  def moderate(state)
+    self.moderated_at = state ? Time.zone.now : nil
+    self.moderator = state ? User.session : nil
+    save!
+  end
+
+  def body
+    return "*This content was considered problematic and has been moderated at #{moderated_at} by @#{moderator}*" if moderated?
+
+    super
   end
 
   private
@@ -103,20 +120,24 @@ end
 #  body             :text(65535)
 #  commentable_type :string(255)      indexed => [commentable_id]
 #  diff_ref         :string(255)
+#  moderated_at     :datetime
 #  created_at       :datetime
 #  updated_at       :datetime
 #  commentable_id   :integer          indexed => [commentable_type]
+#  moderator_id     :integer          indexed
 #  parent_id        :integer          indexed
 #  user_id          :integer          not null, indexed
 #
 # Indexes
 #
 #  index_comments_on_commentable_type_and_commentable_id  (commentable_type,commentable_id)
+#  moderated_comments_fk                                  (moderator_id)
 #  parent_id                                              (parent_id)
 #  user_id                                                (user_id)
 #
 # Foreign Keys
 #
-#  comments_ibfk_1  (user_id => users.id)
-#  comments_ibfk_4  (parent_id => comments.id)
+#  comments_ibfk_1        (user_id => users.id)
+#  comments_ibfk_4        (parent_id => comments.id)
+#  moderated_comments_fk  (moderator_id => users.id)
 #

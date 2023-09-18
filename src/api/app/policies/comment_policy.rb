@@ -31,4 +31,12 @@ class CommentPolicy < ApplicationPolicy
   def reply?
     !(user.blank? || user.is_nobody? || record.user.is_nobody?)
   end
+
+  # Only logged-in Admins of Staff members can moderate comments
+  def moderate?
+    return false if record.user.is_nobody? # soft-deleted comments
+    return true if user.try(:is_admin?) || user.try(:is_staff?)
+
+    false
+  end
 end

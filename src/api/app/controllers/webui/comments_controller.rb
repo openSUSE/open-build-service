@@ -1,6 +1,7 @@
 class Webui::CommentsController < Webui::WebuiController
   before_action :require_login
   before_action :set_commented, only: :create
+  before_action :set_comment, only: :moderate
 
   def create
     if @commented.nil?
@@ -105,10 +106,43 @@ class Webui::CommentsController < Webui::WebuiController
     end
   end
 
+  def moderate
+    authorize @comment, :moderate?
+
+    state = ActiveModel::Type::Boolean.new.cast(params[:moderation_state])
+
+    status = if @comment.moderate(state)
+               flash.now[:success] = 'Comment moderated successfully.'
+               :ok
+             else
+               flash.now[:error] = "Failed to moderate comment: #{@comment.errors.full_messages.to_sentence}."
+               :unprocessable_entity
+             end
+
+    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
+      render(partial: 'webui/comment/beta/comments_thread',
+             locals: { comment: @comment.root, commentable: @comment.commentable, level: 1 },
+             status: status)
+    else
+      render(partial: 'webui/comment/comment_list',
+             locals: { commentable: @comment.commentable, diff_ref: @comment.root.diff_ref },
+             status: status,
+             root_comment: @comment.root)
+    end
+  end
+
   private
 
   def permitted_params
     params.require(:comment).permit(:body, :parent_id, :diff_ref)
+  end
+
+  # FIXME: Use this function for the rest of the actions
+  def set_comment
+    @comment = Comment.find(params[:id] || params[:comment_id])
+  rescue ActiveRecord::RecordNotFound => e
+    flash[:error] = e.message
+    render partial: 'layouts/webui/flash'
   end
 
   def set_commented

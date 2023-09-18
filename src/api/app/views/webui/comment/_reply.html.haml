@@ -15,6 +15,11 @@
       = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': "#delete-comment-modal-#{comment.id}" },
                 class: 'delete_link btn btn-outline-danger', title: 'Delete comment') do
         Delete
+  - if Flipper.enabled?(:content_moderation, User.session)
+    - if policy(comment).moderate?
+      %li.list-inline-item
+        = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
+                    class: 'btn btn-outline-secondary', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
   - if policy(Report.new(reportable: comment)).create?
     %li.list-inline-item
       = link_to('#', class: 'btn btn-outline-dark', id: "js-comment-#{comment.id}",

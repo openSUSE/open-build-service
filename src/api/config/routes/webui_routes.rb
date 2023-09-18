@@ -404,6 +404,10 @@ OBSApi::Application.routes.draw do
     end
 
     resources :comments, constraints: cons, only: [:create, :destroy, :update], controller: 'webui/comments' do
+      member do
+        post 'moderate'
+      end
+
       collection do
         post 'preview'
       end
