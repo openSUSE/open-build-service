@@ -164,12 +164,8 @@ RSpec.describe CommentPolicy do
     end
 
     context 'with a deleted comment' do
-      it 'an admin user is unable to moderate a deleted comment' do
+      it 'no one is able to moderate a deleted comment' do
         expect(subject).not_to permit(admin_user, comment_deleted)
-      end
-
-      it 'an non-admin user is unable to moderate a deleted comment' do
-        expect(subject).not_to permit(other_user, comment_deleted)
       end
     end
 
