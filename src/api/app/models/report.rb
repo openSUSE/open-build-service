@@ -4,7 +4,7 @@ class Report < ApplicationRecord
   validates :reportable_type, length: { maximum: 255 }
 
   belongs_to :user, optional: false
-  belongs_to :reportable, polymorphic: true, optional: false
+  belongs_to :reportable, polymorphic: true, optional: true
 end
 
 # == Schema Information
