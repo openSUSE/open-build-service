@@ -31,6 +31,8 @@ module NotificationService
       return unless @event.eventtype.in?(EVENTS_TO_NOTIFY)
 
       CHANNELS.each do |channel|
+        next if channel == :rss && @event.eventtype == 'Event::CreateReport'
+
         @event.subscriptions(channel).each do |subscription|
           create_notification_per_subscription(subscription, channel)
         end
