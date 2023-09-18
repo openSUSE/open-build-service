@@ -252,6 +252,29 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::CreateReport' do
+      let(:admin) { create(:admin_user) }
+      let!(:subscription) { create(:event_subscription_create_report, user: admin) }
+      let(:mail) { EventMailer.with(subscribers: Event::CreateReport.last.subscribers, event: Event::CreateReport.last).notification_email.deliver_now }
+
+      before do
+        create(:report, reason: 'Because reasons')
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include('reported a comment for the following reason:')
+        expect(mail.body.encoded).to include('Because reasons')
+      end
+
+      it 'renders link to the users page' do
+        expect(mail.body.encoded).to include('<a href="https://build.example.com/">https://build.example.com/</a>')
+      end
+    end
+
     context 'when the subscriber has no email' do
       let(:group) { create(:group, email: nil) }
       let(:event) { Event::RequestCreate.first }

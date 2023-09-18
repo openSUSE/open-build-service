@@ -77,5 +77,13 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_create_report do
+      eventtype { 'Event::CreateReport' }
+      receiver_role { 'moderator' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end
