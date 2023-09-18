@@ -277,6 +277,14 @@
             <text/>
           </element>
         </optional>
+        <optional>
+          <element name="code_of_conduct">
+            <a:documentation>
+              Code of Conduct. Text containing the content rules of this server.
+            </a:documentation>
+            <text/>
+          </element>
+        </optional>
         <a:documentation>
           Architectures for which this server can schedule builds.
         </a:documentation>

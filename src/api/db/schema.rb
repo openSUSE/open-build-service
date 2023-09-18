@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_15_162740) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_18_145812) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -351,6 +351,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_15_162740) do
     t.string "unlisted_projects_filter", default: "^home:.+", collation: "utf8mb4_bin"
     t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8mb4_bin"
     t.string "tos_url"
+    t.text "code_of_conduct"
   end
 
   create_table "data_migrations", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|

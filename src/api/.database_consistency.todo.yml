@@ -471,20 +471,11 @@ CommitActivity:
     ForeignKeyChecker:
       enabled: false
 Configuration:
-  admin_email:
-    LengthConstraintChecker:
-      enabled: false
   allow_user_to_create_home_project:
     ThreeStateBooleanChecker:
       enabled: false
   anonymous:
     ThreeStateBooleanChecker:
-      enabled: false
-  api_url:
-    LengthConstraintChecker:
-      enabled: false
-  bugzilla_url:
-    LengthConstraintChecker:
       enabled: false
   change_password:
     ThreeStateBooleanChecker:
@@ -495,13 +486,8 @@ Configuration:
   default_access_disabled:
     ThreeStateBooleanChecker:
       enabled: false
-  default_tracker:
-    LengthConstraintChecker:
-      enabled: false
   description:
     ColumnPresenceChecker:
-      enabled: false
-    LengthConstraintChecker:
       enabled: false
   disable_publish_for_branches:
     ThreeStateBooleanChecker:
@@ -512,9 +498,6 @@ Configuration:
   download_on_demand:
     ThreeStateBooleanChecker:
       enabled: false
-  download_url:
-    LengthConstraintChecker:
-      enabled: false
   enforce_project_keys:
     ThreeStateBooleanChecker:
       enabled: false
@@ -524,42 +507,14 @@ Configuration:
   hide_private_options:
     ThreeStateBooleanChecker:
       enabled: false
-  http_proxy:
-    LengthConstraintChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
   name:
     ColumnPresenceChecker:
       enabled: false
-    LengthConstraintChecker:
-      enabled: false
-  no_proxy:
-    LengthConstraintChecker:
-      enabled: false
-  obs_url:
-    LengthConstraintChecker:
-      enabled: false
-  theme:
-    LengthConstraintChecker:
-      enabled: false
   title:
     ColumnPresenceChecker:
-      enabled: false
-    LengthConstraintChecker:
-      enabled: false
-  tos_url:
-    LengthConstraintChecker:
-      enabled: false
-  unlisted_projects_filter:
-    LengthConstraintChecker:
-      enabled: false
-  unlisted_projects_filter_description:
-    LengthConstraintChecker:
-      enabled: false
-  ymp_url:
-    LengthConstraintChecker:
       enabled: false
 DisabledBetaFeature:
   feature:

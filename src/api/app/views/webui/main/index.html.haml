@@ -8,9 +8,7 @@
       .card-body
         %h2
           Welcome to #{@configuration['title']}
-        -# rubocop:disable Rails/OutputSafety
-        = raw @configuration['description']
-        -# rubocop:enable Rails/OutputSafety
+        = sanitize @configuration['description']
     = render(partial: 'system_status', locals: { busy: @busy,
                                                  building_workers: @building_workers,
                                                  overall_workers: @overall_workers,

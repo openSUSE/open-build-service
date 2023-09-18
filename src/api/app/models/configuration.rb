@@ -5,6 +5,9 @@ class Configuration < ApplicationRecord
   include CanRenderModel
 
   validates :name, :title, :description, presence: true
+  validates :admin_email, :api_url, :bugzilla_url, :default_tracker, :download_url, :http_proxy, :name, :no_proxy, :obs_url, :theme, :title, :tos_url, :unlisted_projects_filter,
+            :unlisted_projects_filter_description, :ymp_url, length: { maximum: 255 }
+  validates :description, :code_of_conduct, length: { maximum: 65_535 }
 
   # note: do not add defaults here. It must be either the options.yml content or nil
   # rubocop:disable Style/MutableConstant
@@ -38,22 +41,19 @@ class Configuration < ApplicationRecord
     admin_email: nil,
     unlisted_projects_filter: nil,
     unlisted_projects_filter_description: nil,
-    tos_url: nil
+    tos_url: nil,
+    code_of_conduct: nil
   }
   # rubocop:enable Style/MutableConstant
 
-  ON_OFF_OPTIONS = [:anonymous, :default_access_disabled,
-                    :allow_user_to_create_home_project, :disallow_group_creation,
-                    :change_password, :hide_private_options, :gravatar,
-                    :download_on_demand, :enforce_project_keys,
+  ON_OFF_OPTIONS = [:anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation,
+                    :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys,
                     :cleanup_empty_projects, :disable_publish_for_branches].freeze
 
   class << self
     def map_value(key, value)
-      if key.in?(ON_OFF_OPTIONS)
-        # make them boolean
-        return value.in?([:on, ':on', 'on', 'true', true])
-      end
+      # make them boolean
+      return value.in?([:on, ':on', 'on', 'true', true]) if key.in?(ON_OFF_OPTIONS)
 
       value
     end
@@ -150,6 +150,7 @@ end
 #  change_password                      :boolean          default(TRUE)
 #  cleanup_after_days                   :integer
 #  cleanup_empty_projects               :boolean          default(TRUE)
+#  code_of_conduct                      :text(65535)
 #  default_access_disabled              :boolean          default(FALSE)
 #  default_tracker                      :string(255)      default("bnc")
 #  description                          :text(65535)
