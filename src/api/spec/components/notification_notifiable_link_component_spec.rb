@@ -98,4 +98,18 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
       expect(rendered_content).to have_link('Comment on Package', href: "/package/show/projet_de_societe/oui?notification_id=#{notification.id}#comments-list")
     end
   end
+
+  context 'for a report notification with the event Event::CreateReport' do
+    let(:notification) { create(:notification, :create_report) }
+    let(:project) { notification.notifiable.reportable.commentable.project }
+    let(:package) { notification.notifiable.reportable.commentable }
+
+    before do
+      render_inline(described_class.new(notification))
+    end
+
+    it 'renders a link to the reported content' do
+      expect(rendered_content).to have_link('Report for a comment created', href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+    end
+  end
 end

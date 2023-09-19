@@ -78,7 +78,7 @@ FactoryBot.define do
       end
 
       after(:build) do |notification, evaluator|
-        notification.event_payload['reportable_type'] ||= notification.notifiable.reportable.class.to_s.downcase
+        notification.event_payload['reportable_type'] ||= notification.notifiable.reportable.class.to_s
         notification.event_payload['reason'] ||= evaluator.reason
       end
     end
