@@ -38,6 +38,7 @@
           = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
       = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
     .comment-bubble-content
+      = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
       = helpers.render_as_markdown(comment)
 
     - if policy(comment).update?

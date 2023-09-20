@@ -1,0 +1,4 @@
+- reports_component = ReportsNoticeComponent.new(reportable: package, user: User.session)
+- if reports_component.render?
+  %li
+    = render reports_component

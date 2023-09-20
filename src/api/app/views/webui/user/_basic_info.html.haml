@@ -4,6 +4,7 @@
 
 .basic-info
   .d-flex.flex-row-reverse
+    = render ReportsNoticeComponent.new(reportable: user, user: User.session)
     - if policy(Report.new(reportable: user)).create?
       = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
             data: { 'bs-toggle': 'modal',
