@@ -55,8 +55,7 @@
   }
 
   .CodeMirror-gutters {
-    // Prevent gutters from being opatique by adding background to foreground colors to create non-opatique version of cap color
-    background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
+    background: $card-cap-bg;
     border-right: $card-border-width solid $card-border-color;
   }
   .CodeMirror-guttermarker { color: $text-muted; }

@@ -7,7 +7,7 @@ span.CodeRay { white-space: pre }
 
 .CodeRay .line-numbers {
   display: inline-block;
-  background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
+  background: $card-cap-bg;
   border-right: $card-border-width solid $card-border-color;
 }
 
