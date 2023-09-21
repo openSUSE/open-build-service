@@ -53,6 +53,10 @@ class Architecture < ApplicationRecord
     name
   end
 
+  def to_param
+    name
+  end
+
   private
 
   def discard_cache
