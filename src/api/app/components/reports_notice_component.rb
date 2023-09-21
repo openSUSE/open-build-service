@@ -8,8 +8,8 @@ class ReportsNoticeComponent < ApplicationComponent
     @user = user
   end
 
-  def by_user
-    !!Report.find_by(user:, reportable:)
+  def by_user?
+    Report.exists?(user:, reportable:)
   end
 
   def reports

@@ -1,6 +1,6 @@
 .text-warning
   %i.fas.fa-flag
-  - if by_user
+  - if by_user?
     You reported this #{reportable.class.name.downcase}.
   - else
     This #{reportable.class.name.downcase} has #{pluralize(reports.count, 'report')}.
