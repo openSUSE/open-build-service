@@ -25,6 +25,10 @@ RSpec.describe NotificationFilterComponent, type: :component do
     it "doesn't display group filters" do
       expect(rendered_content).not_to have_css('h5', text: 'Groups')
     end
+
+    it "doesn't display the Reports filter" do
+      expect(rendered_content).not_to have_link('Reports')
+    end
   end
 
   context 'with projects and groups notifications' do
@@ -52,6 +56,16 @@ RSpec.describe NotificationFilterComponent, type: :component do
     it 'displays group filters' do
       expect(rendered_content).to have_css('h5', text: 'Groups')
       expect(rendered_content).to have_link(group.title)
+    end
+  end
+
+  context 'when show reports is true' do
+    before do
+      render_inline(described_class.new(selected_filter: { type: 'unread' }, show_reports: true))
+    end
+
+    it 'displays the Reports filter' do
+      expect(rendered_content).to have_link('Reports')
     end
   end
 end
