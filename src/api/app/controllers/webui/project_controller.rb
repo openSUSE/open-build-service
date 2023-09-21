@@ -310,12 +310,12 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    unless (buildresult = monitor_buildresult)
+    unless (build_results = monitor_buildresult)
       @buildresult_unavailable = true
       return
     end
 
-    monitor_parse_buildresult(buildresult)
+    monitor_parse_buildresult(build_results)
 
     # extract repos
     repohash = {}
