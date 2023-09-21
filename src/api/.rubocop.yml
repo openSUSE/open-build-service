@@ -242,7 +242,7 @@ Style/StringConcatenation:
     - 'app/controllers/webui/apidocs_controller.rb'
     - 'app/controllers/webui/main_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
+    - 'app/controllers/concerns/webui/project_build_result_parsing.rb'
     - 'app/controllers/webui/projects/maintenance_incident_requests_controller.rb'
     - 'app/controllers/webui/projects/rebuild_times_controller.rb'
     - 'app/controllers/webui/projects/status_controller.rb'
