@@ -12,6 +12,7 @@ ExecStart = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=quick star
 ExecStop  = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=quick stop -i %i
 Type = forking
 PIDFile = @@OBS_API_PREFIX@@/tmp/pids/delayed_job.%i.pid
+Restart=on-failure
 
 [Install]
 WantedBy = obs-api-support.target
