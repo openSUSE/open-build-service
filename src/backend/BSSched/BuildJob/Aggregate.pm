@@ -256,7 +256,7 @@ sub check {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
-  my @new_meta;
+  my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @apackids = @{$aggregate->{'package'} || []};
@@ -284,8 +284,7 @@ sub check {
 	} else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
-	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:$binsufsre)$/} ls($d);
-	  for my $filename (sort @d) {
+	  for my $filename (sort(ls($d))) {
 	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.obsbinlnk$/;
 	    $havecontainer = 1 if $filename =~ /\.obsbinlnk$/;
 	    my @s = stat("$d/$filename");
