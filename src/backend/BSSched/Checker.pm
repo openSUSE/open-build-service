@@ -952,8 +952,12 @@ sub handlecycle {
     $packid = shift @$cpacks;
     $cycpass->{$packid} = -2;			# set pass2 endmarker
   } elsif ($incycle == 3) {
-    unshift @$cpacks, @cycp;
-    $packid = shift @$cpacks;
+    my $notready = $ctx->{'notready'};
+    my $pkg2src = $ctx->{'pkg2src'} || {};
+    if (grep {$notready->{$pkg2src->{$_} || $_}} @cycp) {
+      $notready->{$pkg2src->{$_} || $_} ||= 1 for @cycp;
+    }
+    return (undef, 3);
   }
   return ($packid, $incycle);
 }
@@ -1057,7 +1061,7 @@ sub checkpkgs {
     my $incycle = 0;
     if ($cychash{$packid}) {
       ($packid, $incycle) = handlecycle($ctx, $packid, \@cpacks, \%cycpass);
-      next if $packstatus{$packid} && $packstatus{$packid} ne 'done' && $packstatus{$packid} ne 'succeeded' && $packstatus{$packid} ne 'failed'; # already decided
+      next if !$packid || ($packstatus{$packid} && $packstatus{$packid} ne 'done' && $packstatus{$packid} ne 'succeeded' && $packstatus{$packid} ne 'failed'); # already decided
     }
     $ctx->{'incycle'} = $incycle;
 

@@ -101,16 +101,6 @@ sub check {
   my $incycle = $ctx->{'incycle'};
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
-  # check if cycle builds are in progress
-  if ($incycle == 3) {
-    push @blocked, 'cycle' unless @blocked;
-    if ($ctx->{'verbose'}) {
-      print "      - $packid ($buildtype)\n";
-      print "        blocked by cycle builds ($blocked[0]...)\n";
-    }
-    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
-    return ('blocked', join(', ', @blocked));
-  }
   # prune cycle packages from blocked
   if ($incycle > 1) {
     my $cyclevel = $ctx->{'cyclevel'};
