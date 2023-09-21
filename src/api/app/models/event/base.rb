@@ -128,7 +128,7 @@ module Event
       na = []
       attribs.keys.each { |k| na << k.to_s }
       logger.debug "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')}"
-      raise "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')} # #{attribs.inspect}"
+      raise "Unexpected payload_keys :#{na.sort.join(', :')} (#{attribs.inspect}) provided during '#{self.class.name}' event creation. "
     end
 
     def set_payload(attribs, keys)
