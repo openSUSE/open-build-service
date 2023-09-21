@@ -2,14 +2,14 @@
 # frozen_string_literal: true
 
 class ReportComponent < ApplicationComponent
-  def initialize(options: {})
+  def initialize(reportable:)
     super
 
-    @user = options[:user]
+    @reportable = reportable
   end
 
   def render?
-    Flipper.enabled?(:content_moderation, @user)
+    policy(Report.new(reportable: @reportable)).create?
   end
 end
 # rubocop:enable ViewComponent/MissingPreviewFile

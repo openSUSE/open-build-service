@@ -49,7 +49,7 @@
         %i.fas.fa-envelope.me-1
         = user.email
 
-= render ReportComponent.new(options: { user: User.session })
+= render ReportComponent.new(reportable: user)
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {

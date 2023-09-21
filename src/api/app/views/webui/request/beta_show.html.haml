@@ -109,5 +109,5 @@
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
-  = render ReportComponent.new(options: { user: User.session })
+  = render ReportComponent.new(reportable: @bs_request)
 -# haml-lint:enable ViewLength

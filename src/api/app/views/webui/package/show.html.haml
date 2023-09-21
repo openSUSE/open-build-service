@@ -89,5 +89,5 @@
 - if User.session && User.possibly_nobody.can_modify?(@package)
   = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
 
-= render ReportComponent.new(options: { user: User.session })
+= render ReportComponent.new(reportable: @package)
 -# haml-lint:enable ViewLength
