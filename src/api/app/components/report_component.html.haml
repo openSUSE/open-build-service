@@ -4,7 +4,10 @@
       .modal-header
         %h5.wrap-text.modal-title{ id: 'report-modal-label' }
       .modal-body
-        %p.wrap-text.confirmation-text= confirmation_text
+        %p.wrap-text.confirmation-text
+          Are you sure you want to report this
+          %span.reportable_type
+          ?
 
         - if Configuration.code_of_conduct.present?
           %p.wrap-text

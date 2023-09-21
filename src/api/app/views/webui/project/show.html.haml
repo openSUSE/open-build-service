@@ -87,7 +87,7 @@
                                                               action: project_destroy_path(project: @project) })
 
 - if policy(Report.new(reportable: @project)).create?
-  = render ReportComponent.new(options: { object_type: 'Project', user: User.session })
+  = render ReportComponent.new(options: { user: User.session })
 
 - content_for :ready_function do
   initializeDataTable('#inherited-packages-table');
