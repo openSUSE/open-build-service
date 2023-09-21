@@ -55,6 +55,15 @@
   left: -2px;
 }
 
+.request_link {
+  @extend .d-block;
+  @extend .btn;
+  @extend .btn-link;
+  @extend .border;
+  max-width: 90px;
+  margin: auto;
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;

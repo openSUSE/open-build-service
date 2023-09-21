@@ -14,10 +14,10 @@
           "<%= escape_javascript(new_or_update_request(row)) %>",
           "<%= escape_javascript(row.priority) %>",
           "<%= escape_javascript(link_to(
-            '<span class="fa-stack">
+            '<span class="fa-stack half-font-size me-2">
                <i class="far fa-file fa-stack-2x"></i>
                <i class="fas fa-search fa-stack-1x"></i>
-             </span>'.html_safe,
+             </span><span class="text-nowrap">View</span>'.html_safe,
             request_show_path(row.number),
             { title: "Show request ##{row.number}", class: :request_link })) %>"
         <% end %>
