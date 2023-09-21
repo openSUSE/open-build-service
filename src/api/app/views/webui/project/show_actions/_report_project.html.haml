@@ -1,7 +1,7 @@
 %li.nav-item
   = link_to('#', class: 'nav-link', id: "js-project-#{project.id}",
         data: { 'bs-toggle': 'modal',
-                'bs-target': '#report-project-modal',
+                'bs-target': '#report-modal',
                 'modal-title': "Report #{project.name}",
                 'reportable-type': project.class.name,
                 'reportable-id': project.id }) do

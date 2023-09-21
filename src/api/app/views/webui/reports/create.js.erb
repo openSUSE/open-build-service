@@ -1,4 +1,4 @@
-$("#<%= @modal_id %>").modal('hide');
+$('#report-modal').modal('hide');
 $('#flash').html("<%= escape_javascript(render(partial: 'layouts/webui/flash'))%>")
 
 hideReportButton("#<%= @link_id %>");

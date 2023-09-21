@@ -8,7 +8,6 @@ class Webui::ReportsController < Webui::WebuiController
     authorize report
 
     @link_id = params[:link_id]
-    @modal_id = params[:modal_id]
 
     if report.save
       flash[:success] = "#{report.reportable_type} reported successfully"

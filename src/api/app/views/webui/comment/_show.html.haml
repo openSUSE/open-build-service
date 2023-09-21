@@ -1,4 +1,4 @@
 .comments-list{ data: { comment_counter: local_assigns[:comment_counter_id] } }
   = render partial: 'webui/comment/comment_list', locals: { commentable: commentable }
 
-= render ReportComponent.new(modal_id: 'report-comment-modal', options: { object_type: 'Comment', user: User.session })
+= render ReportComponent.new(options: { object_type: 'Comment', user: User.session })

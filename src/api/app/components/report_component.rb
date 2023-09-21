@@ -2,12 +2,9 @@
 # frozen_string_literal: true
 
 class ReportComponent < ApplicationComponent
-  attr_accessor :modal_id
-
-  def initialize(modal_id:, options: {})
+  def initialize(options: {})
     super
 
-    @modal_id = modal_id
     @object_type = options[:object_type]
     @user = options[:user]
   end
