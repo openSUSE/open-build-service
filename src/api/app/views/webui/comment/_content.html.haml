@@ -17,6 +17,7 @@
           filename = sourcediff['filenames'][file_index.to_i]
         %p
           %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}.
+    = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
     = render_as_markdown(comment)
     - unless comment.commentable.is_a?(BsRequestAction)
       = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
