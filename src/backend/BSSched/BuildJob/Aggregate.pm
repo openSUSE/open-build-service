@@ -20,6 +20,7 @@ use warnings;
 
 use Digest::MD5 ();
 use JSON::XS ();		# for containerinfo reading/writing
+use POSIX;
 
 use BSUtil;
 use BSXML;
@@ -256,7 +257,7 @@ sub check {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
-  my @new_meta;
+  my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @apackids = @{$aggregate->{'package'} || []};
@@ -284,8 +285,7 @@ sub check {
 	} else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
-	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:$binsufsre)$/} ls($d);
-	  for my $filename (sort @d) {
+	  for my $filename (sort(ls($d))) {
 	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.obsbinlnk$/;
 	    $havecontainer = 1 if $filename =~ /\.obsbinlnk$/;
 	    my @s = stat("$d/$filename");
@@ -329,16 +329,20 @@ sub check {
 =cut
 
 sub copy_provenance {
-  my ($jobdatadir, $dirprefix, $filename, $jobbins) = @_;
+  my ($jobdatadir, $dirprefix, $d, $filename, $jobbins) = @_;
+  die unless $d =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
   my $provenance = $filename;
   die unless $provenance =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
-  if (-e "$dirprefix$provenance") {
-    BSUtil::cp("$dirprefix$provenance", "$jobdatadir/$provenance");
+  if (-e $d) {
+    BSUtil::cp($d, "$jobdatadir/$provenance");
     $jobbins->{$provenance} = 1;
+    return $provenance;
   } elsif (-e "${dirprefix}_slsa_provenance.json") {
     BSUtil::cp("${dirprefix}_slsa_provenance.json", "$jobdatadir/$provenance");
     $jobbins->{$provenance} = 1;
+    return $provenance;
   }
+  return undef;
 }
 
 sub build {
@@ -361,6 +365,9 @@ sub build {
   mkdir_p($jobdatadir);
   my %jobbins;
   my $error;
+  my $logfile = '';
+  $logfile .= "scheduler started \"build _aggregate\" at ".POSIX::ctime(time())."\n";
+  $logfile .= "Building $packid for project '$projid' repository '$repoid' arch '$myarch' srcmd5 '$pdata->{'srcmd5'}'\n\n";
   my $modulemd;
   my $have_modulemd_artifacts;
   if ($ctx->{'modularity_label'}) {
@@ -427,6 +434,8 @@ sub build {
 	  $nosource = 1 if -e "$dir/.nosourceaccess";
 	}
 
+        $logfile .= "$aprojid/$arepoid/$myarch/$apackid\n" if @d;
+
 	my $copysources;
 	my @sources;
 	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprojid/$arepoid/$myarch/$apackid/";
@@ -441,6 +450,7 @@ sub build {
 	    next if $jobbins{$filename};  # first one wins
 	    $jobbins{$filename} = 1;
 	    BSUtil::cp($d, "$jobdatadir/$filename");
+	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	    next;
 	  }
           if ($filename =~ /\.obsbinlnk$/) {
@@ -449,6 +459,8 @@ sub build {
 	    next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	    next if $jobbins{$filename};  # first one wins
 	    next unless $r->{'name'} =~ /^container:/;
+
+	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 
 	    my $dir = $d;
 	    $dir =~ s/\/[^\/]*$//;
@@ -463,6 +475,7 @@ sub build {
 		next if $jobbins{"_blob.$blobid"};	# already have that blob
 		link("$dir/${prefix}_blob.$blobid", "$jobdatadir/_blob.$blobid") || die("link $dir/${prefix}_blob.$blobid $jobdatadir/_blob.$blobid: $!\n");
 	        $jobbins{"_blob.$blobid"} = 1;
+	        $logfile .= "      - _blob.$blobid\n";
 	      }
 	    }
 	    my $containerfile = $containerinfo->{'file'};
@@ -471,10 +484,12 @@ sub build {
 	      if (-e "$dir/$prefix$containerfile") {
 	        BSUtil::cp("$dir/$prefix$containerfile", "$jobdatadir/$containerfile");
 	        $jobbins{$containerfile} = 1;
+	        $logfile .= "      - $containerfile\n";
 	      }
 	      if (-e "$dir/$prefix$containerfile.sha256") {
 	        BSUtil::cp("$dir/$prefix$containerfile.sha256", "$jobdatadir/$containerfile.sha256");
 	        $jobbins{"$containerinfofile.sha256"} = 1;
+	        $logfile .= "      - $containerfile.sha256\n";
 	      }
 	    }
 	    # copy extra data like .packages or .basepackages
@@ -484,6 +499,7 @@ sub build {
 	      if (-e "$dir/$prefix$extraprefix$extra") {
 		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
 		$jobbins{"$extraprefix$extra"} = 1;
+	        $logfile .= "      - $extraprefix$extra\n";
 	      }
 	    }
 	    $extraprefix =~ s/\.docker// unless -e "$dir/$prefix$extraprefix.packages";
@@ -491,6 +507,7 @@ sub build {
 	      if (-e "$dir/$prefix$extraprefix$extra") {
 		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
 		$jobbins{"$extraprefix$extra"} = 1;
+	        $logfile .= "      - $extraprefix$extra\n";
 	      }
 	    }
 	    # hack to add a container tag with the attribute
@@ -505,13 +522,16 @@ sub build {
 	    }
 	    writecontainerinfo("$jobdatadir/$containerinfofile", undef, $containerinfo);
 	    $jobbins{$containerinfofile} = 1;
+	    $logfile .= "      - $containerinfofile\n";
 	    $r->{'path'} = "../$packid/$containerfile";
 	    BSUtil::store("$jobdatadir/$filename", undef, $r);
 	    $jobbins{$filename} = 1;
-	    copy_provenance($jobdatadir, $dirprefix, $containerinfofile, \%jobbins);
+	    my $provenance = copy_provenance($jobdatadir, $dirprefix, "$dirprefix$containerinfofile", $containerinfofile, \%jobbins);
+	    $logfile .= "      - $provenance\n" if $provenance;
 	    next;
 	  }
 	  next unless $filename =~ /\.(?:$binsufsre)$/;
+	  my $origfilename = $filename;
 	  $filename =~ s/^::import::.*?:://;
 	  my $r;
 	  eval {
@@ -523,7 +543,7 @@ sub build {
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  if (!$r->{'source'}) {
 	    # this is a source binary
-	    push @sources, [ $d, $r, $filename ];
+	    push @sources, [ $d, $r, $filename, $origfilename ];
 	    next;
 	  }
 	  next unless $r->{'source'};
@@ -537,15 +557,24 @@ sub build {
 	  }
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
+	  if ($filename ne $origfilename) {
+	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]] (from $origfilename)\n";
+	  } else {
+	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
+	  }
 	  $copysources = 1 unless $nosource;
-	  copy_provenance($jobdatadir, $dirprefix, $filename, \%jobbins);
+	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins);
+	  $logfile .= "      - $provenance\n" if $provenance;
 	}
 	@sources = () unless $copysources;
 	for my $d (@sources) {
 	  my $r = $d->[1];
 	  my $filename = $d->[2];
+	  my $origfilename = $d->[3];
 	  $d = $d->[0];
 	  next if $jobbins{$filename};  # first one wins
+	  my @s = stat($d);
+	  next unless @s;
 	  if ($modulemd) {
 	    my $art = add_modulemd_artifact($modulemd, $d);
 	    next unless $art;
@@ -553,7 +582,13 @@ sub build {
 	  }
 	  $jobbins{$filename} = 1;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
-	  copy_provenance($jobdatadir, $dirprefix, $filename, \%jobbins);
+	  if ($filename ne $origfilename) {
+	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]] (from $origfilename)\n";
+	  } else {
+	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
+	  }
+	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins);
+	  $logfile .= "      - $provenance\n" if $provenance;
 	}
 	# delete upload files
 	unlink("$jobdatadir/$_->{'name'}") for @{$cpio || []};
@@ -563,13 +598,28 @@ sub build {
     last if $error;
   }
   if ($error) {
+    $logfile .= "\nError: $error\n";
     print "        $error\n";
+    writestr("$jobdatadir/logfile", undef, $logfile);
+    if (-e "$jobdatadir/logfile") {
+      link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+      my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+      my $dst = "$gdst/$packid";
+      mkdir_p("$gdst/:logfiles.fail");
+      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+      mkdir_p($dst);
+      rename("$jobdatadir/logfile", "$dst/logfile");
+    }
     BSUtil::cleandir($jobdatadir);
     rmdir($jobdatadir);
     return ('failed', $error);
   }
-  write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml") if $modulemd && $have_modulemd_artifacts;
+  if ($modulemd && $have_modulemd_artifacts) {
+    write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml");
+    $logfile .= "  - _modulemd.yaml\n";
+  }
   writestr("$jobdatadir/meta", undef, $new_meta);
+  writestr("$jobdatadir/logfile", undef, $logfile);
   my $needsign;
   $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
   BSSched::BuildJob::fakejobfinished($ctx, $packid, $job, 'succeeded', { 'file' => '_aggregate' }, $needsign);
@@ -609,7 +659,7 @@ sub jobfinished {
     print "  - $job belongs to an unknown package, discard\n";
     return;
   }
-
+  my $code = 'succeeded';
   my $prp = "$projid/$repoid";
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
@@ -627,10 +677,22 @@ sub jobfinished {
   $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   $changed->{$prp} ||= 1;
   unlink("$gdst/:repodone");
-  # no logfile/status for aggregates
   unlink("$gdst/:logfiles.fail/$packid");
-  unlink("$gdst/:logfiles.success/$packid");
-  unlink("$dst/logfile");
+  if (-e "$jobdatadir/logfile") {
+    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+    if ($code eq 'failed') {
+      mkdir_p("$gdst/:logfiles.fail");
+      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+    } else {
+      mkdir_p("$gdst/:logfiles.success");
+      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
+      unlink("$gdst/:logfiles.fail/$packid");
+    }    
+    rename("$jobdatadir/logfile", "$dst/logfile");
+  } else {
+    unlink("$gdst/:logfiles.success/$packid");
+    unlink("$dst/logfile");
+  }
   unlink("$dst/status");
   # update meta
   mkdir_p("$gdst/:meta");
