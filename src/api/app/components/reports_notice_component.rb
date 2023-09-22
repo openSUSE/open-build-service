@@ -7,7 +7,7 @@ class ReportsNoticeComponent < ApplicationComponent
     @reportable = reportable
     @reportable_name = reportable.class.name.downcase
     @user = user
-    @reports = reportable&.reports
+    @reports = reportable&.reports&.without_decision
   end
 
   def by_user?

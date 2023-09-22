@@ -434,6 +434,7 @@ OBSApi::Application.routes.draw do
   end
 
   resources :reports, only: [:create], controller: 'webui/reports'
+  resources :decisions, only: [:create], controller: 'webui/decisions'
 
   resources :code_of_conduct, only: [:index], controller: 'webui/code_of_conduct'
 end
