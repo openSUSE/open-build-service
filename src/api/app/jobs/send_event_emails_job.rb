@@ -6,7 +6,7 @@ class SendEventEmailsJob < ApplicationJob
     # TODO: mails_sent should be renamed to something like processed
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
       # Email channel
-      subscribers = event.subscribers
+      subscribers = event_subscribers(event: event)
       event.update(mails_sent: true) if subscribers.empty?
 
       # Web and RSS channels
@@ -28,5 +28,13 @@ class SendEventEmailsJob < ApplicationJob
     Airbrake.notify(e, event_id: event.id)
   ensure
     event.update(mails_sent: true)
+  end
+
+  def event_subscribers(event:)
+    if event.is_a?(Event::CreateReport)
+      event.subscribers.filter_map { |subscriber| subscriber if Flipper.enabled?(:content_moderation, subscriber) && subscriber.is_moderator? }
+    else
+      event.subscribers
+    end
   end
 end

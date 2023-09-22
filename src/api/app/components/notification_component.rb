@@ -16,6 +16,8 @@ class NotificationComponent < ApplicationComponent
       tag.i(class: ['fas', 'fa-comments'], title: 'Comment notification')
     when 'Package'
       tag.i(class: ['fas', helpers.build_status_icon(:failed)], title: 'Package notification')
+    when 'Report'
+      tag.i(class: ['fas', 'fa-flag'], title: 'Report notification')
     else
       tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
     end

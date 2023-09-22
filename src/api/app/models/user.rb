@@ -408,6 +408,10 @@ class User < ApplicationRecord
     login == NOBODY_LOGIN
   end
 
+  def is_moderator?
+    is_admin? || is_staff?
+  end
+
   def is_active?
     return owner.is_active? if owner
 

@@ -26,6 +26,8 @@ class NotifiedProjects
       @notifiable.project
     when 'Project'
       @notifiable
+    when 'Report'
+      []
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity

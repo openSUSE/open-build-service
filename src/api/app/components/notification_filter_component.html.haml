@@ -19,6 +19,9 @@
                                                filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Build Failures', amount: @count['build_failures'], icon: "fas fa-xmark text-danger",
                                                filter_item: { type: 'build_failures' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Reports', amount: @count['reports'], icon: 'fas fa-flag',
+                                               filter_item: { type: 'reports' }, selected_filter: @selected_filter,
+                                               show_reports: @show_reports)
 
 - unless @projects_for_filter.empty?
   .list-group.list-group-flush.mt-5.mb-2

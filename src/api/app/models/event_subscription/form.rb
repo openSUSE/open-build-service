@@ -8,7 +8,9 @@ class EventSubscription
 
     def subscriptions_by_event
       event_classes = Event::Base.notification_events
-      event_classes.map { |event_class| EventSubscription::ForEventForm.new(event_class, subscriber).call }
+      event_classes.filter_map do |event_class|
+        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_create_report_event?(event_class: event_class, subscriber: subscriber)
+      end
     end
 
     def update!(subscriptions_params)
@@ -39,6 +41,15 @@ class EventSubscription
       end
 
       EventSubscription.find_or_initialize_by(opts)
+    end
+
+    def show_form_for_create_report_event?(event_class:, subscriber:)
+      if event_class.name == 'Event::CreateReport'
+        return false unless subscriber.try(:is_moderator?)
+        return false unless Flipper.enabled?(:content_moderation, subscriber)
+      end
+
+      true
     end
   end
 end

@@ -68,6 +68,20 @@ FactoryBot.define do
       event_type { 'Event::BuildFail' }
       notifiable factory: [:package]
     end
+
+    trait :create_report do
+      event_type { 'Event::CreateReport' }
+      notifiable factory: [:report]
+
+      transient do
+        reason { nil }
+      end
+
+      after(:build) do |notification, evaluator|
+        notification.event_payload['reportable_type'] ||= notification.notifiable.reportable.class.to_s
+        notification.event_payload['reason'] ||= evaluator.reason
+      end
+    end
   end
 
   factory :rss_notification, parent: :notification do

@@ -15,6 +15,8 @@ class NotificationAvatarsComponent < ApplicationComponent
                           commenters
                         when 'Project', 'Package'
                           [User.find_by(login: @notification.event_payload['who'])]
+                        when 'Report'
+                          [User.find(@notification.event_payload['user_id'])]
                         else
                           reviews = @notification.notifiable.reviews
                           reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)

@@ -1,7 +1,8 @@
 class NotificationFilterComponent < ApplicationComponent
-  def initialize(selected_filter:, projects_for_filter: ProjectsForFilterFinder.new.call, groups_for_filter: GroupsForFilterFinder.new.call)
+  def initialize(selected_filter:, show_reports: false, projects_for_filter: ProjectsForFilterFinder.new.call, groups_for_filter: GroupsForFilterFinder.new.call)
     super
 
+    @show_reports = show_reports
     @projects_for_filter = projects_for_filter
     @groups_for_filter = groups_for_filter
     @count = notifications_count
@@ -18,6 +19,7 @@ class NotificationFilterComponent < ApplicationComponent
     counted_notifications['relationships_created'] = finder.for_relationships_created.count
     counted_notifications['relationships_deleted'] = finder.for_relationships_deleted.count
     counted_notifications['build_failures'] = finder.for_failed_builds.count
+    counted_notifications['reports'] = finder.for_reports.count if @show_reports
     counted_notifications.merge!('unread' => User.session.unread_notifications)
   end
 end
