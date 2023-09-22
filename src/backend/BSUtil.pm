@@ -268,7 +268,9 @@ sub cleandir {
   my $ret = 1;
   return 1 unless -d $dir;
   for my $c (ls($dir)) {
-    if (! -l "$dir/$c" && -d _) {
+    my @s = lstat("$dir/$c");
+    if (! -l _ && -d _) {
+      chmod(0700, "$dir/$c") if ($s[2] & 0700) != 0700;	# set dirs to rxw
       cleandir("$dir/$c");
       $ret = undef unless rmdir("$dir/$c");
     } else {
