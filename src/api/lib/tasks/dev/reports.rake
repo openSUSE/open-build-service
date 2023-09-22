@@ -19,5 +19,28 @@ namespace :dev do
         Report.create!(reportable: reportable, user: iggy, reason: 'Watch your language, please')
       end
     end
+
+    # Run `rake dev:reports:decisions` (always after running `rake dev:reports:data`)
+    desc 'Create decisions related to existing reports'
+    task decisions: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      puts 'Taking decisions regarding some reports'
+
+      admin = User.get_default_admin
+
+      Report.find_each do |report|
+        # Reports with even id will be 'cleared' (0). Those with odd id will be 'favor' (1).
+        decision = Decision.create!(reason: "Just because! #{report.id}", moderator: admin, kind: (report.id % 2))
+        decision.reports << report
+      end
+
+      # The same decision applies to more than one report about the same object/reportable.
+      reportable = Decision.first.reports.first.reportable
+      another_user = User.find_by(login: 'Requestor') || create(:confirmed_user, login: 'Requestor')
+      another_report = Report.create!(reportable: reportable, user: another_user, reason: 'Behave properly, please!')
+      Decision.first.reports << another_report
+    end
   end
 end
