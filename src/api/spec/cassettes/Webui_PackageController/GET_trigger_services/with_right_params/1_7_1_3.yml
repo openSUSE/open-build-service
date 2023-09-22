@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 05 Jun 2020 12:13:27 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Stars' Tennis Balls</title>
-          <description>Sed repudiandae eaque quia.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Velit ratione rerum est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -74,16 +74,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>The Stars' Tennis Balls</title>
-          <description>Sed repudiandae eaque quia.</description>
+          <title>When the Green Woods Laugh</title>
+          <description>Velit ratione rerum est.</description>
         </package>
-  recorded_at: Fri, 05 Jun 2020 12:13:27 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_service
     body:
       encoding: UTF-8
-      string: "<services/>"
+      string: |
+        <services>
+          <service name="download_url">
+            <param name="host">openbuildservice.org</param>
+            <param name="protocol">https</param>
+            <param name="path">/images/obs-logo.svg</param>
+          </service>
+        </services>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -107,15 +114,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>62193e85e3c9ef7c3dc904ec07b46c8b</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>bffdfb9d1bd49523f2519aeb79c4e208</srcmd5>
           <version>unknown</version>
-          <time>1591359207</time>
+          <time>1695388008</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 05 Jun 2020 12:13:27 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_service?cmd=runservice&user=tom
@@ -149,5 +156,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 05 Jun 2020 12:13:27 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+recorded_with: VCR 6.2.0

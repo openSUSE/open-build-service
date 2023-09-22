@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:13 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Alone on a Wide, Wide Sea</title>
-          <description>Vel consectetur in et.</description>
+          <title>Many Waters</title>
+          <description>Impedit sed reiciendis id.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Alone on a Wide, Wide Sea</title>
-          <description>Vel consectetur in et.</description>
+          <title>Many Waters</title>
+          <description>Impedit sed reiciendis id.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:13 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/_meta?user=tom
@@ -87,7 +85,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>The Widening Gyre</title>
+          <title>Many Waters</title>
           <description/>
         </project>
     headers:
@@ -109,16 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '103'
+      - '97'
     body:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>The Widening Gyre</title>
+          <title>Many Waters</title>
           <description></description>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:13 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
@@ -126,8 +123,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Antic Hay</title>
-          <description>Odio suscipit enim qui.</description>
+          <title>The Line of Beauty</title>
+          <description>Neque quibusdam fuga qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,16 +145,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '138'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Antic Hay</title>
-          <description>Odio suscipit enim qui.</description>
+          <title>The Line of Beauty</title>
+          <description>Neque quibusdam fuga qui.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:13 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
@@ -165,8 +161,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Antic Hay</title>
-          <description>Odio suscipit enim qui.</description>
+          <title>The Line of Beauty</title>
+          <description>Neque quibusdam fuga qui.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -188,15 +184,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '189'
+      - '200'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Antic Hay</title>
-          <description>Odio suscipit enim qui.</description>
+          <title>The Line of Beauty</title>
+          <description>Neque quibusdam fuga qui.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:13 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+recorded_with: VCR 6.2.0

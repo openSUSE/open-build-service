@@ -191,7 +191,7 @@ FactoryBot.define do
         # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put(Addressable::URI.escape("/source/#{package.project.name}/#{package.name}/_service"),
-                                  '<services/>')
+                                  File.read('spec/fixtures/files/download_url_service.xml'))
         end
       end
     end
