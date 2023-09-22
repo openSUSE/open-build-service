@@ -112,7 +112,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Project'
       Rails.application.routes.url_helpers.project_show_path(reportable, notification_id: @notification.id, anchor: 'comments-list')
     when 'User'
-      Rails.application.routes.url_helpers.user_show_path(reportable, notification_id: @notification.id)
+      Rails.application.routes.url_helpers.user_path(reportable)
     end
   end
 
