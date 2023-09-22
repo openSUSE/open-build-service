@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_18_161340) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_21_133606) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -359,6 +359,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_161340) do
 
   create_table "data_migrations", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "version"
+  end
+
+  create_table "decisions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "moderator_id", null: false
+    t.text "reason", null: false
+    t.integer "kind", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["moderator_id"], name: "index_decisions_on_moderator_id"
   end
 
   create_table "delayed_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -864,6 +873,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_161340) do
     t.text "reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "decision_id"
+    t.index ["decision_id"], name: "index_reports_on_decision_id"
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
     t.index ["user_id"], name: "index_reports_on_user_id"
   end
@@ -1186,6 +1197,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_161340) do
   add_foreign_key "comments", "comments", column: "parent_id", name: "comments_ibfk_4"
   add_foreign_key "comments", "users", column: "moderator_id", name: "moderated_comments_fk"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
+  add_foreign_key "decisions", "users", column: "moderator_id"
   add_foreign_key "download_repositories", "repositories", name: "download_repositories_ibfk_1"
   add_foreign_key "event_subscriptions", "bs_requests"
   add_foreign_key "flags", "architectures", name: "flags_ibfk_3"
@@ -1229,6 +1241,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_161340) do
   add_foreign_key "relationships", "users", name: "relationships_ibfk_2"
   add_foreign_key "release_targets", "repositories", column: "target_repository_id", name: "release_targets_ibfk_2"
   add_foreign_key "release_targets", "repositories", name: "release_targets_ibfk_1"
+  add_foreign_key "reports", "decisions", on_delete: :nullify
   add_foreign_key "reports", "users"
   add_foreign_key "repositories", "projects", column: "db_project_id", name: "repositories_ibfk_1"
   add_foreign_key "repositories", "repositories", column: "hostsystem_id", name: "repositories_ibfk_2"

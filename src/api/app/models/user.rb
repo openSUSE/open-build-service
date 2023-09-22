@@ -65,6 +65,7 @@ class User < ApplicationRecord
   has_many :submitted_reports, class_name: 'Report'
 
   has_many :moderated_comments, class_name: 'Comment', foreign_key: 'moderator_id'
+  has_many :decisions, foreign_key: 'moderator_id'
 
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
