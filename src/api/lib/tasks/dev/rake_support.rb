@@ -50,6 +50,7 @@ module RakeSupport
     create(:event_subscription_comment_for_request, channel: :web, user: user, receiver_role: 'target_maintainer')
     create(:event_subscription_relationship_create, channel: :web, user: user, receiver_role: 'any_role')
     create(:event_subscription_relationship_delete, channel: :web, user: user, receiver_role: 'any_role')
+    create(:event_subscription_create_report, channel: :web, user: user)
 
     user.groups.each do |group|
       create(:event_subscription_request_created, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
