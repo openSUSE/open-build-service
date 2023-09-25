@@ -187,6 +187,20 @@ class RequestController < ApplicationController
       end
     end
 
+    if params[:withdescriptionissues].present?
+      begin
+        data = Backend::Api::IssueTrackers.parse(req.description)
+      rescue Backend::Error
+        return
+      end
+
+      if xml_request
+        xml_request.at_xpath('//request').add_child(Nokogiri::XML(data).root)
+      else
+        diff_text += "Request Description issues:#{data}\n"
+      end
+    end
+
     if xml_request
       xml_request['actions'] = '0'
       render xml: xml_request.to_xml
