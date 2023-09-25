@@ -215,6 +215,9 @@ namespace :dev do
       # Trigger package builds for home:Admin
       home_admin.store
 
+      # Create some Reports
+      Rake::Task['dev:reports:data'].invoke
+
       # Create notifications by running the `dev:notifications:data` task two times
       Rake::Task['dev:notifications:data'].invoke(2)
 
