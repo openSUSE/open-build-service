@@ -310,19 +310,21 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    unless (buildresult = monitor_buildresult)
+    build_results = monitor_buildresult
+
+    if build_results
+      # This method sets a bunch of instance variables used in the view and below...
+      monitor_parse_buildresult(build_results)
+
+      # extract repos
+      repohash = {}
+      @statushash.each do |repo, arch_hash|
+        repohash[repo] = arch_hash.keys.sort!
+      end
+      @repoarray = repohash.sort
+    else
       @buildresult_unavailable = true
-      return
     end
-
-    monitor_parse_buildresult(buildresult)
-
-    # extract repos
-    repohash = {}
-    @statushash.each do |repo, arch_hash|
-      repohash[repo] = arch_hash.keys.sort!
-    end
-    @repoarray = repohash.sort
   end
 
   def clear_failed_comment
