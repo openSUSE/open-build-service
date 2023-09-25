@@ -627,7 +627,7 @@ sub push_containers {
 	if (($containerinfo->{'type'} || '') eq 'helm') {
 	  ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($containerinfo->{'uploadfile'}, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
 	} else {
-	  ($tar, $mtime, $layer_compression) = BSContar::normalize_container($tarfd, 1);
+	  ($tar, $mtime, undef, undef, $layer_compression) = BSContar::normalize_container($tarfd, 1);
 	}
       } else {
 	($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
