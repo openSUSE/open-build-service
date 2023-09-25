@@ -10,6 +10,8 @@ class Report < ApplicationRecord
 
   after_create :create_event
 
+  scope :without_decision, -> { where(decision: nil) }
+
   private
 
   def create_event

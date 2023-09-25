@@ -1,0 +1,24 @@
+.modal.fade{ tabindex: -1, id: "reports-modal-#{reportable_name}-#{reportable.id}" }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %h5.modal-title Reports
+        %button.btn-close{ type: 'button', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' }
+      .modal-body
+        - reports.each do |report|
+          .info
+            = render UserAvatarComponent.new(report.user.login)
+            reported
+            = render TimeComponent.new(time: report.created_at)
+          .ms-4
+            = report.reason
+      = form_for(Decision.new, url: decisions_path, method: :post) do |form|
+        .modal-body
+          %h5 Decision
+          = form.label(:reason)
+          = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
+          = form.select(:kind, Decision.kinds.keys, {}, class: 'form-select')
+        .modal-footer
+          - reports.each do |report|
+            = form.hidden_field(:report_ids, multiple: true, value: report.id)
+          = submit_tag('Submit', class: 'btn btn-primary')
