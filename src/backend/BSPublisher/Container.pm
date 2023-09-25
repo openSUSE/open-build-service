@@ -199,7 +199,7 @@ sub upload_all_containers {
     for my $p (sort keys %$containers) {
       my $containerinfo = $containers->{$p};
       my $arch = $containerinfo->{'arch'};
-      my $goarch = $containerinfo->{'goarch'} || $arch;
+      my $goarch = $containerinfo->{'goarch'} || (($containerinfo->{'type'} || '') eq 'helm' ? 'any' : $arch);
       $goarch .= ":$containerinfo->{'govariant'}" if $containerinfo->{'govariant'};
       $goarch .= "_$containerinfo->{'goos'}" if $containerinfo->{'goos'} && $containerinfo->{'goos'} ne 'linux';
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
