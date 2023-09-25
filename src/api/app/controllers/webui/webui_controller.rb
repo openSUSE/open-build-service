@@ -141,6 +141,7 @@ class Webui::WebuiController < ActionController::Base
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
     end
   end
+  alias set_package require_package
 
   private
 

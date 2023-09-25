@@ -433,15 +433,6 @@ class Webui::RequestController < Webui::WebuiController
     flash[:success] += " and forwarded to #{target_link} (#{request_link})"
   end
 
-  def set_package
-    return unless params.key?(:package_name)
-
-    @package = Package.get_by_project_and_name(params[:project_name], params[:package_name],
-                                               use_source: false, follow_project_links: true, follow_multibuild: true)
-  rescue APIError
-    raise ActiveRecord::RecordNotFound
-  end
-
   # Subcontroller is expected to implement #bs_request_params
   # Strong parameters for BsRequest with nested attributes for its bs_request_actions association
   def bs_request_params

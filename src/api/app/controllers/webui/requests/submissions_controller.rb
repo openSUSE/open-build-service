@@ -3,8 +3,8 @@ module Webui
     class SubmissionsController < Webui::RequestController
       before_action :require_login
       before_action :strip_params, only: [:create]
-      before_action :set_package
       before_action :set_project
+      before_action :set_package
 
       after_action :verify_authorized
       after_action :supersede_requests, only: [:create]
