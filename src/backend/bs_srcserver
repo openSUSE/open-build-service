@@ -6843,6 +6843,18 @@ sub getissuetrackers {
   return ($trackers, $BSXML::issue_trackers);
 }
 
+sub matchissues {
+  my ($cgi) = @_;
+  my $text = BSServer::read_data(100000000);
+  my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
+  $trackers = BSSrcServer::Srcdiff::preparetrackers($trackers->{'issue-tracker'});
+  my %issues;
+  BSSrcServer::Srcdiff::issues($text, $trackers, \%issues);
+  my @issues = map {$issues{$_}} sort keys %issues;
+  BSSrcServer::Srcdiff::finalizeissues(@issues);
+  return ({ 'issue' => \@issues },  $BSXML::issues);
+}
+
 ####################################################################
 
 sub orderkiwirepos_for_prio {
@@ -7748,6 +7760,7 @@ my $dispatches = [
 
   # issue trackers
   'PUT:/issue_trackers' => \&putissuetrackers,
+  'POST:/issue_trackers cmd=issues' => \&matchissues,
   '/issue_trackers' => \&getissuetrackers,
 
   # build calls for binary files

@@ -1330,13 +1330,9 @@ sub issues {
   }
 }
 
-sub issuediff {
-  my ($pold, $old, $pnew, $new, %opts) = @_;
-
-  my $trackers = $opts{'trackers'};
-  return [] unless @{$trackers || []};
-
-  $trackers = [ @$trackers ];
+sub preparetrackers {
+  my ($trackers) = @_;
+  $trackers = [ @{$trackers || []} ];
   for (@$trackers) {
     $_ = { %$_ };
     $_->{'regex'} = "($_->{'regex'})" unless $_->{'regex'} =~ /\(/;
@@ -1349,6 +1345,28 @@ sub issuediff {
       $_->{'regex'} = qr/___this_reGExp_does_NOT_match___/;
     }
   }
+  return $trackers;
+}
+
+sub finalizeissues {
+  for my $issue (@_) {
+    my $tracker = $issue->{'tracker'};
+    my $url = $tracker->{'show-url'};
+    if ($url) {
+      $url =~ s/\@\@\@/$issue->{'name'}/g;
+      $issue->{'url'} = $url;
+    }
+    $issue->{'tracker'} = $tracker->{'name'};
+  }
+}
+
+sub issuediff {
+  my ($pold, $old, $pnew, $new, %opts) = @_;
+
+  my $trackers = $opts{'trackers'};
+  return [] unless @{$trackers || []};
+
+  $trackers = preparetrackers($trackers);
 
   my %oldchanges;
   my %newchanges;
@@ -1389,15 +1407,7 @@ sub issuediff {
     $oldissues{$_}->{'state'} = 'deleted';
     push @deleted , $oldissues{$_};
   }
-  for my $issue (@changed, @added, @deleted) {
-    my $tracker = $issue->{'tracker'};
-    my $url = $tracker->{'show-url'};
-    if ($url) {
-      $url =~ s/\@\@\@/$issue->{'name'}/g;
-      $issue->{'url'} = $url;
-    }
-    $issue->{'tracker'} = $tracker->{'name'};
-  }
+  finalizeissues(@changed, @added, @deleted);
   return [ @changed, @added, @deleted ];
 }
 

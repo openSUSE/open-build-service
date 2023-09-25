@@ -357,13 +357,17 @@ sub xrpc_resume {
 
   # get result of rpc
   my $ret;
+  my $duration = time();
   eval { $ret = BSRPC::rpc($handle) };
   my $error;
   if ($@) {
-    warn $@;
     $error = $@;
     chomp $error;
+    warn("RPC $iw: $error ($handle->{'uri'})\n");
   }
+  $duration = time() - $duration;
+  warn("finishing RPC $iw took $duration seconds ($handle->{'uri'})\n") if $duration > 10;
+
   # run result handler
   die("no _resume set in handler $handle\n") unless $handle->{'_resume'};
   $handle->{'_resume'}->($handle->{'_ctx'}, $handle, $error, $ret);
