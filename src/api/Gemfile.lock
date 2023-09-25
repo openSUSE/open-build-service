@@ -465,7 +465,7 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    strong_migrations (1.6.2)
+    strong_migrations (1.6.3)
       activerecord (>= 5.2)
     strscan (3.0.1)
     sysexits (1.2.0)
