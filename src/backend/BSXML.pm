@@ -1292,6 +1292,17 @@ our $repoinfo_id = [
 	'downloadurl',
 ];
 
+our $issues = [
+    'issues' =>
+	 [[ 'issue' =>
+		'state',
+		'tracker',
+		'name',
+		'label',
+		'url',
+	 ]]
+];
+
 our $sourcediff = [
     'sourcediff' =>
 	'key',
@@ -1330,15 +1341,7 @@ our $sourcediff = [
               ],
          ]],
       ],
-      [ 'issues' =>
-	 [[ 'issue' =>
-		'state',
-		'tracker',
-		'name',
-		'label',
-		'url',
-	 ]]
-      ],
+      $issues,
 ];
 
 our $request = [
