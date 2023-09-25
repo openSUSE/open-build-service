@@ -19,12 +19,12 @@ RSpec.describe BuildResultForArchitectureComponent, type: :component do
       )
     end
 
-    it { expect(rendered_content).to have_selector('.build-result', class: 'border-success') }
-    it { expect(rendered_content).to have_selector('.build-status i', class: 'fa-check text-success') }
-    it { expect(rendered_content).to have_selector('.build-status span', text: 'succeeded') }
-    it { expect(rendered_content).to have_selector('.repository-status i', class: 'fa-lock') }
-    it { expect(rendered_content).to have_selector('.repository-status span', text: 'blocked') }
-    it { expect(rendered_content).not_to have_selector("div[data-bs-content*='Details']") }
+    it { expect(rendered_content).to have_css('.build-result', class: 'border-success') }
+    it { expect(rendered_content).to have_css('.build-status i', class: 'fa-check text-success') }
+    it { expect(rendered_content).to have_css('.build-status span', text: 'succeeded') }
+    it { expect(rendered_content).to have_css('.repository-status i', class: 'fa-lock') }
+    it { expect(rendered_content).to have_css('.repository-status span', text: 'blocked') }
+    it { expect(rendered_content).not_to have_css("div[data-bs-content*='Details']") }
   end
 
   context 'with excluded but visible result' do
@@ -39,11 +39,11 @@ RSpec.describe BuildResultForArchitectureComponent, type: :component do
       )
     end
 
-    it { expect(rendered_content).to have_selector('.build-result', class: 'border-gray-300') }
-    it { expect(rendered_content).to have_selector('.build-status i', class: 'fa-xmark text-gray-500') }
-    it { expect(rendered_content).to have_selector('.build-status span', text: 'excluded') }
-    it { expect(rendered_content).to have_selector('.repository-status i', class: 'fa-truck') }
-    it { expect(rendered_content).to have_selector('.repository-status span', text: 'published') }
-    it { expect(rendered_content).to have_selector("div[data-bs-content*='fake details']") }
+    it { expect(rendered_content).to have_css('.build-result', class: 'border-gray-300') }
+    it { expect(rendered_content).to have_css('.build-status i', class: 'fa-xmark text-gray-500') }
+    it { expect(rendered_content).to have_css('.build-status span', text: 'excluded') }
+    it { expect(rendered_content).to have_css('.repository-status i', class: 'fa-truck') }
+    it { expect(rendered_content).to have_css('.repository-status span', text: 'published') }
+    it { expect(rendered_content).to have_css("div[data-bs-content*='fake details']") }
   end
 end

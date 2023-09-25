@@ -17,11 +17,11 @@ RSpec.describe NotificationAvatarsComponent, type: :component do
     end
 
     it 'renders an extra avatar for other users involved' do
-      expect(rendered_content).to have_selector('li.list-inline-item > span[title="1 more users involved"]')
+      expect(rendered_content).to have_css('li.list-inline-item > span[title="1 more users involved"]')
     end
 
     it 'renders an avatar for each user up to the limit MAXIMUM_DISPLAYED_AVATARS' do
-      expect(rendered_content).to have_selector('li.list-inline-item > img', count: 6)
+      expect(rendered_content).to have_css('li.list-inline-item > img', count: 6)
     end
   end
 
@@ -45,23 +45,23 @@ RSpec.describe NotificationAvatarsComponent, type: :component do
     end
 
     it "renders an avatar for the BsRequest's creator with the avatar title being the creator's real name" do
-      expect(rendered_content).to have_selector('li.list-inline-item > img[title="Johnny Dupuis"]', count: 1)
+      expect(rendered_content).to have_css('li.list-inline-item > img[title="Johnny Dupuis"]', count: 1)
     end
 
     it "renders an avatar for a group review with the avatar title being the group's title" do
-      expect(rendered_content).to have_selector('li.list-inline-item > img[title="Canailles"]', count: 1)
+      expect(rendered_content).to have_css('li.list-inline-item > img[title="Canailles"]', count: 1)
     end
 
     it "renders an avatar for a user review with the avatar title being the user's real name" do
-      expect(rendered_content).to have_selector('li.list-inline-item > img[title="Jane Doe"]', count: 1)
+      expect(rendered_content).to have_css('li.list-inline-item > img[title="Jane Doe"]', count: 1)
     end
 
     it "renders an avatar for a package review with the avatar title being the package's project and name" do
-      expect(rendered_content).to have_selector('li.list-inline-item > span[title="Package project1/package1"]', count: 1)
+      expect(rendered_content).to have_css('li.list-inline-item > span[title="Package project1/package1"]', count: 1)
     end
 
     it "renders an avatar for a project review with the avatar title being the project's name" do
-      expect(rendered_content).to have_selector('li.list-inline-item > span[title="Project project2"]', count: 1)
+      expect(rendered_content).to have_css('li.list-inline-item > span[title="Project project2"]', count: 1)
     end
   end
 end

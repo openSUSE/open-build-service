@@ -9,7 +9,7 @@ RSpec.describe BsRequestCommentComponent, type: :component do
   end
 
   it 'displays a comment icon' do
-    expect(rendered_content).to have_selector('i.fa-comment', count: 1)
+    expect(rendered_content).to have_css('i.fa-comment', count: 1)
   end
 
   it 'displays an avatar' do
@@ -45,11 +45,11 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'is possible to edit the comment' do
-      expect(rendered_content).to have_selector('.dropdown-menu', text: 'Edit')
+      expect(rendered_content).to have_css('.dropdown-menu', text: 'Edit')
     end
 
     it 'is possible to remove the comment' do
-      expect(rendered_content).to have_selector('.dropdown-menu', text: 'Delete')
+      expect(rendered_content).to have_css('.dropdown-menu', text: 'Delete')
     end
   end
 
@@ -64,11 +64,11 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'is not possible to edit the comment' do
-      expect(rendered_content).not_to have_selector('.dropdown-menu', text: 'Edit')
+      expect(rendered_content).not_to have_css('.dropdown-menu', text: 'Edit')
     end
 
     it 'is not possible to remove the comment' do
-      expect(rendered_content).not_to have_selector('.dropdown-menu', text: 'Delete')
+      expect(rendered_content).not_to have_css('.dropdown-menu', text: 'Delete')
     end
   end
 
@@ -88,8 +88,8 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'displays the comments on level 2 in the 2nd level' do
-      expect(rendered_content).to have_selector('.timeline-item-comment > .timeline-item-comment', text: "(#{comment_c.user.login})\nwrote")
-      expect(rendered_content).to have_selector('.timeline-item-comment > .timeline-item-comment  > .timeline-item-comment', text: 'Comment C')
+      expect(rendered_content).to have_css('.timeline-item-comment > .timeline-item-comment', text: "(#{comment_c.user.login})\nwrote")
+      expect(rendered_content).to have_css('.timeline-item-comment > .timeline-item-comment  > .timeline-item-comment', text: 'Comment C')
     end
 
     it 'does not display the comments on level 4 in the 4th one' do

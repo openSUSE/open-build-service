@@ -6,11 +6,11 @@ RSpec.describe BsRequestActivityTimelineComponent, type: :component do
   let!(:comment) { travel_to(1.day.ago) { create(:comment_request, commentable: bs_request) } }
 
   it 'shows the comment first, as it is an older timeline item' do
-    expect(render_inline(described_class.new(bs_request: bs_request))).to have_selector('.timeline-item:first-child', text: 'wrote')
-    expect(render_inline(described_class.new(bs_request: bs_request))).to have_selector('.timeline-item:first-child', text: '1 day ago')
+    expect(render_inline(described_class.new(bs_request: bs_request))).to have_css('.timeline-item:first-child', text: 'wrote')
+    expect(render_inline(described_class.new(bs_request: bs_request))).to have_css('.timeline-item:first-child', text: '1 day ago')
   end
 
   it 'shows the history element in the second position, as it is more recent' do
-    expect(render_inline(described_class.new(bs_request: bs_request))).to have_selector('.timeline-item:last-child', text: 'accepted request')
+    expect(render_inline(described_class.new(bs_request: bs_request))).to have_css('.timeline-item:last-child', text: 'accepted request')
   end
 end

@@ -11,7 +11,7 @@ RSpec.describe 'Watchlists', :js, :vcr do
     login user
 
     visit project_show_path(project: project_a)
-    click_on('Watchlist')
+    click_link('Watchlist')
     expect(page).to have_content('Projects you are watching')
     expect(page).to have_content('There are no projects in the watchlist yet')
     expect(page).to have_content('There are no packages in the watchlist yet')
@@ -27,7 +27,7 @@ RSpec.describe 'Watchlists', :js, :vcr do
 
     # Add another project
     visit project_show_path(project: project_b)
-    click_on('Watchlist')
+    click_link('Watchlist')
     click_link('Watch this project')
     within('.watchlist-collapse') do
       expect(page).to have_content('Remove this project from Watchlist')
@@ -37,7 +37,7 @@ RSpec.describe 'Watchlists', :js, :vcr do
 
     # Add package
     visit package_show_path(project: project_a.name, package: package.name)
-    click_on('Watchlist')
+    click_link('Watchlist')
     click_link('Watch this package')
     within('.watchlist-collapse') do
       expect(page).to have_content('Remove this package from Watchlist')
@@ -48,7 +48,7 @@ RSpec.describe 'Watchlists', :js, :vcr do
 
     # Add request
     visit request_show_path(number: request.number)
-    click_on('Watchlist')
+    click_link('Watchlist')
     click_link('Watch this request')
     within('.watchlist-collapse') do
       expect(page).to have_content('Remove this request from Watchlist')

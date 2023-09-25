@@ -24,7 +24,7 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
     end
 
     it 'displays the element comment' do
-      expect(rendered_content).to have_selector('.timeline-item-comment', text: element.comment)
+      expect(rendered_content).to have_css('.timeline-item-comment', text: element.comment)
     end
   end
 

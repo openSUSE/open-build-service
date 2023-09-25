@@ -17,7 +17,7 @@ RSpec.describe UserAvatarComponent, type: :component do
         end
 
         it 'renders the maintainers of the package' do
-          expect(rendered_content).to have_selector('img[title="Bob"]', count: 1)
+          expect(rendered_content).to have_css('img[title="Bob"]', count: 1)
         end
       end
     end

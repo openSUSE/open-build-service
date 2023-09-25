@@ -399,7 +399,7 @@ RSpec.describe 'Requests', :js, :vcr do
     it 'does not set stage information for submit request' do
       login submitter
       visit request_show_path(bs_request)
-      click_on('Add Reviewer')
+      click_button('Add Reviewer')
       within '#add-reviewer-modal' do
         select 'Project Maintainers', from: 'review_type'
         fill_in 'Project', with: staging_project.name
@@ -426,7 +426,7 @@ RSpec.describe 'Requests', :js, :vcr do
     it 'shows staging request information' do
       login staging_user
       visit request_show_path(staging_request)
-      click_on('Add Reviewer')
+      click_button('Add Reviewer')
       within '#add-reviewer-modal' do
         select 'Project Maintainers', from: 'review_type'
         fill_in 'Project', with: staging_project.name

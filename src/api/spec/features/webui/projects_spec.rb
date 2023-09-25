@@ -23,7 +23,7 @@ RSpec.describe 'Projects', :js, :vcr do
         login user
         visit project_show_path(project: project)
 
-        click_on('Edit')
+        click_link('Edit')
         expect(page).to have_text("Edit Project #{project}")
 
         fill_in 'project_title', with: 'My Title hopefully got changed'
@@ -47,7 +47,7 @@ RSpec.describe 'Projects', :js, :vcr do
         login user
         visit project_show_path(project: project)
 
-        click_on('Edit')
+        click_link('Edit')
         expect(page).to have_text("Edit Project #{project}")
 
         fill_in 'project_title', with: 'My Title hopefully got changed'
