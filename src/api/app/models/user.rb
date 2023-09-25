@@ -409,7 +409,7 @@ class User < ApplicationRecord
   end
 
   def is_moderator?
-    is_admin? || is_staff?
+    roles.exists?(title: 'Moderator')
   end
 
   def is_active?
