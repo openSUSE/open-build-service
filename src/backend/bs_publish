@@ -1860,6 +1860,33 @@ sub mapsleimage {
   return $p;
 }
 
+# HACK: do fancy sle repo renaming
+sub mapslepool {
+  my ($name, $rdir, $rbin, $bin) = @_;
+  $name ||= 'product';
+  my $sbom = '';
+  $sbom = $1 if $bin =~ s/(\.(?:cdx|spdx)\.json$)//;
+  my $p = $bin;
+  if ($name eq 'nobuildid') {
+    $p = "repo/$bin";
+    $p =~ s/-Build[\d\.]+-/-/;
+  } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
+    $p = "$name$1";
+  } elsif ($bin =~ /-Media3$/) {
+    $p = "${name}_debug";
+  } elsif ($bin =~ /-Media2$/) {
+    my $rbin3 = $rbin;
+    $rbin3 =~ s/2$/3/;
+    if (-d "$rdir/$rbin3") {
+      $p = "${name}_source";	# 3 media available, 2 is source
+    } else {
+      $p = "${name}_debug";	# source is on media 1, 2 is debug
+    }
+  }
+  $p .= $sbom;
+  return $p;
+}
+
 sub depgp {
   my ($content) = @_;
   if ($content =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
@@ -2386,9 +2413,13 @@ sub publish {
 	  $p = $bin;
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
-        } elsif ($bin =~ /\.(?:cdx|spdx).json$/) {
+        } elsif ($bin =~ /(.*)\.(?:cdx|spdx).json$/) {
           next unless $config->{'publishflags:withsbom'};
-          $p = $bin;
+	  $p = $bin;
+	  if (-d "$r/$1") {
+            $p = "repo/$bin";
+	    $p = mapslepool($repotype{'slepool'}->[0], $r, $rbin, $bin) if $repotype{'slepool'};
+	  }
         } elsif ($bin =~ /\.packages$/) {
           # FIXME2.11: to be removed
 	  next unless $config->{'publishflags:withreports'};
@@ -2413,25 +2444,7 @@ sub publish {
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
 	  if ($repotype{'slepool'}) {
-	    # HACK: do fancy sle repo renaming
-	    my $name = $repotype{'slepool'}->[0] || 'product';
-	    $p = $bin;
-	    if ($name eq 'nobuildid') {
-	      $p = "repo/$bin";
-	      $p =~ s/-Build[\d\.]+-/-/;
-	    } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
-	      $p = "$name$1";
-	    } elsif ($bin =~ /-Media3$/) {
-	      $p = "${name}_debug";
-	    } elsif ($bin =~ /-Media2$/) {
-	      my $rbin3 = $rbin;
-	      $rbin3 =~ s/2$/3/;
-	      if (-d "$r/$rbin3") {
-	        $p = "${name}_source";	# 3 media available, 2 is source
-	      } else {
-	        $p = "${name}_debug";	# source is on media 1, 2 is debug
-	      }
-	    }
+	    $p = mapslepool($repotype{'slepool'}->[0], $r, $rbin, $bin);
 	    $p = $bin if $kiwimedium{"$arch/$p"};	# what???
 	  }
 	  $kiwimedium = "$arch/$bin";
