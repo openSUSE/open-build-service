@@ -267,7 +267,10 @@ module Event
     end
 
     def moderators
-      User.includes(:roles).where(roles: { title: 'Admin' }).or(User.includes(:roles).where(roles: { title: 'Staff' }))
+      users = User.moderators
+      return users unless users.empty?
+
+      User.admins.or(User.staff)
     end
 
     def _roles(role, project, package = nil)
