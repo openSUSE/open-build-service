@@ -192,7 +192,7 @@ module Webui
       visit opts[:to] if opts[:to]
 
       @current_user = user
-      assert_match(/^#{user}( |$)/, find(:css, '#link-to-user-home').text) if opts[:do_assert] != false
+      assert_match(/^#{user}( |$)/, find_by_id('link-to-user-home').text) if opts[:do_assert] != false
       # login into API to ease test cases
       prepare_request_with_user(user, password)
     end

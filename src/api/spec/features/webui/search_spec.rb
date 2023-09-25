@@ -51,7 +51,7 @@ RSpec.describe 'Search', :js do
       within '#search-results' do
         expect(page).to have_link(apache2.name)
         expect(page).to have_link(apache2_subproject.name)
-        expect(page).to have_selector('.search_result', count: 2)
+        expect(page).to have_css('.search_result', count: 2)
       end
     end
 
@@ -73,7 +73,7 @@ RSpec.describe 'Search', :js do
         expect(page).to have_link(user.home_project_name)
         expect(page).to have_link(package.name)
         expect(page).to have_link(another_package.name)
-        expect(page).to have_selector('.search_result', count: 2)
+        expect(page).to have_css('.search_result', count: 2)
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.describe 'Search', :js do
       within '#search-results' do
         expect(page).to have_link(apache.name)
         expect(page).to have_link(apache2.name)
-        expect(page).to have_selector('.search_result', count: 2)
+        expect(page).to have_css('.search_result', count: 2)
       end
     end
 
@@ -113,7 +113,7 @@ RSpec.describe 'Search', :js do
       within '#search-results' do
         expect(page).to have_link(apache.name)
         expect(page).to have_link(apache2.name)
-        expect(page).to have_selector('.search_result', count: 2)
+        expect(page).to have_css('.search_result', count: 2)
       end
     end
 
@@ -130,7 +130,7 @@ RSpec.describe 'Search', :js do
         expect(page).to have_text('Your search did not return any results.')
       end
 
-      expect(page).to have_selector('#search-results', count: 0)
+      expect(page).to have_css('#search-results', count: 0)
     end
 
     it 'search Russian project in UTF-8' do
@@ -147,7 +147,7 @@ RSpec.describe 'Search', :js do
 
       within '#search-results' do
         expect(page).to have_link(russian_project.name)
-        expect(page).to have_selector('.search_result', count: 1)
+        expect(page).to have_css('.search_result', count: 1)
       end
     end
 
@@ -168,7 +168,7 @@ RSpec.describe 'Search', :js do
           expect(page).to have_text('Your search did not return any results.')
         end
 
-        expect(page).to have_selector('#search-results', count: 0)
+        expect(page).to have_css('#search-results', count: 0)
       end
 
       it 'as admin user' do
@@ -187,7 +187,7 @@ RSpec.describe 'Search', :js do
 
         within '#search-results' do
           expect(page).to have_link(hidden_package.name)
-          expect(page).to have_selector('.search_result', count: 1)
+          expect(page).to have_css('.search_result', count: 1)
         end
       end
     end

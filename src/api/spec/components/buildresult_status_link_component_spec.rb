@@ -18,9 +18,9 @@ RSpec.describe BuildresultStatusLinkComponent, type: :component do
     let(:build_details) { 'Some details about the build' }
 
     it 'renders a span tag with text-warning style and build status scheduled' do
-      expect(rendered_content).to have_selector('span.text-warning.toggle-build-info',
-                                                id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
-                                                text: 'scheduled')
+      expect(rendered_content).to have_css('span.text-warning.toggle-build-info',
+                                           id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
+                                           text: 'scheduled')
     end
   end
 

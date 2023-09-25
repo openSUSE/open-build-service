@@ -21,8 +21,8 @@ RSpec.describe GroupController do
       it { is_expected.to have_http_status(:success) }
 
       it 'returns with the xml representation of that group' do
-        expect(response.body).to have_selector('group > title', text: group.title)
-        expect(response.body).to have_selector('group > email', text: group.email)
+        expect(response.body).to have_css('group > title', text: group.title)
+        expect(response.body).to have_css('group > email', text: group.email)
         expect(response.body).to have_selector("group > maintainer[userid=#{group_maintainer}]")
       end
     end

@@ -21,7 +21,7 @@ RSpec.describe Worker::StatusController, :vcr do
     it { is_expected.to have_http_status(:success) }
 
     it 'finds 2 workers' do
-      expect(response.body).to have_selector('workerstatus[clients=2]')
+      expect(response.body).to have_css('workerstatus[clients=2]')
     end
   end
 end

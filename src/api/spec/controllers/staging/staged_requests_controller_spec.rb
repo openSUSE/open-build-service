@@ -36,7 +36,7 @@ RSpec.describe Staging::StagedRequestsController do
     it { expect(response).to have_http_status(:success) }
 
     it 'returns the staged_requests xml' do
-      expect(response.body).to have_selector('staged_requests > request', count: 1)
+      expect(response.body).to have_css('staged_requests > request', count: 1)
     end
   end
 
@@ -85,7 +85,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response).to have_http_status(:failed_dependency) }
 
       it 'responds with an error' do
-        expect(response.body).to have_selector('status[code=staging_project_not_in_acceptable_state]')
+        expect(response.body).to have_css('status[code=staging_project_not_in_acceptable_state]')
       end
     end
 
@@ -99,7 +99,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response).to have_http_status(:success) }
       it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
       it { expect(staging_project.staged_requests).to include(bs_request) }
-      it { expect(response.body).to have_selector('status[code=ok]') }
+      it { expect(response.body).to have_css('status[code=ok]') }
     end
 
     context 'with delete request', :vcr do
@@ -112,7 +112,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response).to have_http_status(:success) }
       it { expect(staging_project.packages.pluck(:name)).not_to include(target_package.name) }
       it { expect(staging_project.staged_requests).to include(delete_request) }
-      it { expect(response.body).to have_selector('status[code=ok]') }
+      it { expect(response.body).to have_css('status[code=ok]') }
     end
 
     context 'with an excluded request', :vcr do
@@ -166,7 +166,7 @@ RSpec.describe Staging::StagedRequestsController do
         it { expect(response).to have_http_status(:success) }
         it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
         it { expect(staging_project.staged_requests).to include(bs_request) }
-        it { expect(response.body).to have_selector('status[code=ok]') }
+        it { expect(response.body).to have_css('status[code=ok]') }
       end
     end
 
@@ -247,7 +247,7 @@ RSpec.describe Staging::StagedRequestsController do
           it { expect(response).to have_http_status(:success) }
           it { expect(staging_project.staged_requests).to include(bs_request) }
           it { expect(staging_project.staged_requests).to include(another_bs_request) }
-          it { expect(response.body).to have_selector('status[code=ok]') }
+          it { expect(response.body).to have_css('status[code=ok]') }
         end
       end
 
@@ -356,7 +356,7 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response).to have_http_status(:success) }
       it { expect(staging_project.packages.pluck(:name)).to match_array(['new_package']) }
       it { expect(staging_project.staged_requests).to include(bs_request) }
-      it { expect(response.body).to have_selector('status[code=ok]') }
+      it { expect(response.body).to have_css('status[code=ok]') }
     end
   end
 

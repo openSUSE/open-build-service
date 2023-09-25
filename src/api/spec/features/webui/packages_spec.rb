@@ -356,8 +356,8 @@ RSpec.describe 'Packages', :js, :vcr do
 
         expect(page).to have_text("Package 'coolstuff' was created successfully")
         expect(page).to have_current_path(package_show_path(project: user.home_project_name, package: 'coolstuff'))
-        expect(find(:css, '#package-title')).to have_text('cool stuff everyone needs')
-        expect(find(:css, '#description-text')).to have_text(very_long_description)
+        expect(find_by_id('package-title')).to have_text('cool stuff everyone needs')
+        expect(find_by_id('description-text')).to have_text(very_long_description)
       end
     end
 

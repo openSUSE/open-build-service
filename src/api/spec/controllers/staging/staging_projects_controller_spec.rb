@@ -110,13 +110,13 @@ RSpec.describe Staging::StagingProjectsController do
         it { expect(response.body).not_to include("<staging_project name=\"#{staging_project.name}\" state=") }
 
         it 'returns the staging_project default xml' do
-          expect(response.body).to have_selector('staging_project > staged_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > untracked_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > obsolete_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > missing_reviews', count: 0)
-          expect(response.body).to have_selector('staging_project > broken_packages', count: 0)
-          expect(response.body).to have_selector('staging_project > checks', count: 0)
-          expect(response.body).to have_selector('staging_project > history', count: 0)
+          expect(response.body).to have_css('staging_project > staged_requests', count: 0)
+          expect(response.body).to have_css('staging_project > untracked_requests', count: 0)
+          expect(response.body).to have_css('staging_project > obsolete_requests', count: 0)
+          expect(response.body).to have_css('staging_project > missing_reviews', count: 0)
+          expect(response.body).to have_css('staging_project > broken_packages', count: 0)
+          expect(response.body).to have_css('staging_project > checks', count: 0)
+          expect(response.body).to have_css('staging_project > history', count: 0)
         end
       end
 
@@ -131,16 +131,16 @@ RSpec.describe Staging::StagingProjectsController do
         it { expect(response.body).not_to include("<staging_project name=\"#{staging_project.name}\" state=") }
 
         it 'returns the staging_project with requests xml' do
-          expect(response.body).to have_selector('staging_project > staged_requests', count: 1)
-          expect(response.body).to have_selector('staging_project > staged_requests > request', count: 3)
-          expect(response.body).to have_selector('staging_project > untracked_requests', count: 1)
-          expect(response.body).to have_selector('staging_project > untracked_requests > request', count: 1)
-          expect(response.body).to have_selector('staging_project > obsolete_requests', count: 1)
-          expect(response.body).to have_selector('staging_project > missing_reviews', count: 1)
-          expect(response.body).to have_selector('staging_project > missing_reviews > review', count: 1)
-          expect(response.body).to have_selector('staging_project > broken_packages', count: 0)
-          expect(response.body).to have_selector('staging_project > checks', count: 0)
-          expect(response.body).to have_selector('staging_project > history', count: 0)
+          expect(response.body).to have_css('staging_project > staged_requests', count: 1)
+          expect(response.body).to have_css('staging_project > staged_requests > request', count: 3)
+          expect(response.body).to have_css('staging_project > untracked_requests', count: 1)
+          expect(response.body).to have_css('staging_project > untracked_requests > request', count: 1)
+          expect(response.body).to have_css('staging_project > obsolete_requests', count: 1)
+          expect(response.body).to have_css('staging_project > missing_reviews', count: 1)
+          expect(response.body).to have_css('staging_project > missing_reviews > review', count: 1)
+          expect(response.body).to have_css('staging_project > broken_packages', count: 0)
+          expect(response.body).to have_css('staging_project > checks', count: 0)
+          expect(response.body).to have_css('staging_project > history', count: 0)
         end
       end
 
@@ -155,14 +155,14 @@ RSpec.describe Staging::StagingProjectsController do
         it { expect(response.body).to include("<staging_project name=\"#{staging_project.name}\" state=") }
 
         it 'returns the staging_project with status xml' do
-          expect(response.body).to have_selector('staging_project > staged_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > untracked_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > obsolete_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > missing_reviews', count: 0)
-          expect(response.body).to have_selector('staging_project > broken_packages', count: 1)
-          expect(response.body).to have_selector('staging_project > broken_packages > package', count: 2)
-          expect(response.body).to have_selector('staging_project > checks', count: 1)
-          expect(response.body).to have_selector('staging_project > history', count: 0)
+          expect(response.body).to have_css('staging_project > staged_requests', count: 0)
+          expect(response.body).to have_css('staging_project > untracked_requests', count: 0)
+          expect(response.body).to have_css('staging_project > obsolete_requests', count: 0)
+          expect(response.body).to have_css('staging_project > missing_reviews', count: 0)
+          expect(response.body).to have_css('staging_project > broken_packages', count: 1)
+          expect(response.body).to have_css('staging_project > broken_packages > package', count: 2)
+          expect(response.body).to have_css('staging_project > checks', count: 1)
+          expect(response.body).to have_css('staging_project > history', count: 0)
         end
       end
 
@@ -177,12 +177,12 @@ RSpec.describe Staging::StagingProjectsController do
         it { expect(response.body).not_to include("<staging_project name=\"#{staging_project.name}\" state=") }
 
         it 'returns the staging_project with history xml' do
-          expect(response.body).to have_selector('staging_project > staged_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > untracked_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > obsolete_requests', count: 0)
-          expect(response.body).to have_selector('staging_project > missing_reviews', count: 0)
-          expect(response.body).to have_selector('staging_project > broken_packages', count: 0)
-          expect(response.body).to have_selector('staging_project > history', count: 1)
+          expect(response.body).to have_css('staging_project > staged_requests', count: 0)
+          expect(response.body).to have_css('staging_project > untracked_requests', count: 0)
+          expect(response.body).to have_css('staging_project > obsolete_requests', count: 0)
+          expect(response.body).to have_css('staging_project > missing_reviews', count: 0)
+          expect(response.body).to have_css('staging_project > broken_packages', count: 0)
+          expect(response.body).to have_css('staging_project > history', count: 1)
         end
       end
 
@@ -197,16 +197,16 @@ RSpec.describe Staging::StagingProjectsController do
         it { expect(response.body).to include("<staging_project name=\"#{staging_project.name}\" state=") }
 
         it 'returns the staging_project with requests, status and history xml' do
-          expect(response.body).to have_selector('staging_project > staged_requests', count: 1)
-          expect(response.body).to have_selector('staging_project > staged_requests > request', count: 3)
-          expect(response.body).to have_selector('staging_project > untracked_requests', count: 1)
-          expect(response.body).to have_selector('staging_project > untracked_requests > request', count: 1)
-          expect(response.body).to have_selector('staging_project > obsolete_requests', count: 1)
-          expect(response.body).to have_selector('staging_project > missing_reviews', count: 1)
-          expect(response.body).to have_selector('staging_project > missing_reviews > review', count: 1)
-          expect(response.body).to have_selector('staging_project > broken_packages', count: 1)
-          expect(response.body).to have_selector('staging_project > broken_packages > package', count: 2)
-          expect(response.body).to have_selector('staging_project > history', count: 1)
+          expect(response.body).to have_css('staging_project > staged_requests', count: 1)
+          expect(response.body).to have_css('staging_project > staged_requests > request', count: 3)
+          expect(response.body).to have_css('staging_project > untracked_requests', count: 1)
+          expect(response.body).to have_css('staging_project > untracked_requests > request', count: 1)
+          expect(response.body).to have_css('staging_project > obsolete_requests', count: 1)
+          expect(response.body).to have_css('staging_project > missing_reviews', count: 1)
+          expect(response.body).to have_css('staging_project > missing_reviews > review', count: 1)
+          expect(response.body).to have_css('staging_project > broken_packages', count: 1)
+          expect(response.body).to have_css('staging_project > broken_packages > package', count: 2)
+          expect(response.body).to have_css('staging_project > history', count: 1)
         end
       end
     end

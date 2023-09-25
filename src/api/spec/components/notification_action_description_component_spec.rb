@@ -12,7 +12,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing only the target project and package names' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'project_123 / package_123')
+      expect(rendered_content).to have_css('div.smart-overflow', text: 'project_123 / package_123')
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing only the target project' do
-      expect(rendered_content).to have_selector('div.smart-overflow', exact_text: 'project_12345')
+      expect(rendered_content).to have_css('div.smart-overflow', exact_text: 'project_12345')
     end
   end
 
@@ -48,7 +48,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing the source and target project/package names' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'source_project_123 / source_package_123project_123 / package_123')
+      expect(rendered_content).to have_css('div.smart-overflow', text: 'source_project_123 / source_package_123project_123 / package_123')
     end
   end
 
@@ -63,7 +63,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing only the target project and package names' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'project_123 / package_123')
+      expect(rendered_content).to have_css('div.smart-overflow', text: 'project_123 / package_123')
     end
   end
 
@@ -79,7 +79,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing only the target project and package names' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'project_123 / package_123')
+      expect(rendered_content).to have_css('div.smart-overflow', text: 'project_123 / package_123')
     end
   end
 
@@ -93,7 +93,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing the project name' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'my_project')
+      expect(rendered_content).to have_css('div.smart-overflow', text: 'my_project')
     end
   end
 
@@ -108,7 +108,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing the project and package names' do
-      expect(rendered_content).to have_selector('div.smart-overflow', text: 'my_project_2 / my_package_2')
+      expect(rendered_content).to have_css('div.smart-overflow', text: 'my_project_2 / my_package_2')
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it 'renders a div containing who added the recipient and their new role in the project' do
-        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane made you maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane made you maintainer of some_awesome_project')
       end
     end
 
@@ -139,7 +139,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it "renders a div containing who added the recipient's group and their new role in the project" do
-        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane made group_1 maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane made group_1 maintainer of some_awesome_project')
       end
     end
   end
@@ -156,7 +156,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it "renders a div containing who removed the recipient's role in the project" do
-        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane removed you as maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane removed you as maintainer of some_awesome_project')
       end
     end
 
@@ -171,7 +171,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it "renders a div containing who removed the recipient's group role in the project" do
-        expect(rendered_content).to have_selector('div.smart-overflow', text: 'Jane removed group_1 as maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane removed group_1 as maintainer of some_awesome_project')
       end
     end
   end
@@ -185,8 +185,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       before { render_inline(described_class.new(notification)) }
 
       it 'renders a div containing who created a report and for what' do
-        expect(rendered_content).to have_selector('div.smart-overflow',
-                                                  text: "User '#{notification.notifiable.user.login}' created a report for a Comment for the following reason:Because reasons.")
+        expect(rendered_content).to have_css('div.smart-overflow',
+                                             text: "User '#{notification.notifiable.user.login}' created a report for a Comment for the following reason:Because reasons.")
       end
     end
   end
