@@ -8,7 +8,6 @@ module Webui
         @package_name = params[:package_name]
         @package = ::Package.get_by_project_and_name(@project.to_param, params[:package_name],
                                                      use_source: false, follow_project_links: true, follow_multibuild: true)
-        @is_link = @package.is_link? || @package.is_local_link?
       rescue APIError
         raise ActiveRecord::RecordNotFound, 'Not Found'
       end
