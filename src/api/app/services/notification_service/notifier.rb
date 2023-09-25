@@ -61,6 +61,12 @@ module NotificationService
       true
     end
 
+    def create_report_notification?(event:, subscriber:)
+      return false if event.is_a?(Event::CreateReport) && !ReportPolicy.new(subscriber, Report).notify?
+
+      true
+    end
+
     def notifiable_exists?
       # We need this check because the notification is created in a delayed job.
       # So the notifiable object could have been removed in the meantime.
@@ -69,15 +75,6 @@ module NotificationService
 
       notifiable_id = @event.parameters_for_notification[:notifiable_id]
       notifiable_type.exists?(notifiable_id)
-    end
-
-    def create_report_notification?(event:, subscriber:)
-      if event.is_a?(Event::CreateReport)
-        return false unless Flipper.enabled?(:content_moderation, subscriber)
-        return false unless subscriber.is_moderator?
-      end
-
-      true
     end
   end
 end

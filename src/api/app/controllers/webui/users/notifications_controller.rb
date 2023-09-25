@@ -39,7 +39,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           notifications: paginated_notifications,
           selected_filter: selected_filter,
           show_read_all_button: show_read_all_button?,
-          show_reports: Flipper.enabled?(:content_moderation, User.session) && User.session.is_moderator?
+          show_reports: ReportPolicy.new(User.session, Report).notify?
         }
       end
     end

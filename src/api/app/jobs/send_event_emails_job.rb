@@ -32,7 +32,7 @@ class SendEventEmailsJob < ApplicationJob
 
   def event_subscribers(event:)
     if event.is_a?(Event::CreateReport)
-      event.subscribers.filter_map { |subscriber| subscriber if Flipper.enabled?(:content_moderation, subscriber) && subscriber.is_moderator? }
+      event.subscribers.filter_map { |subscriber| subscriber if ReportPolicy.new(subscriber, Report).notify? }
     else
       event.subscribers
     end
