@@ -218,6 +218,9 @@ namespace :dev do
       # Create some Reports
       Rake::Task['dev:reports:data'].invoke
 
+      # Create some Decisions on existing Reports
+      Rake::Task['dev:reports:decisions'].invoke
+
       # Create notifications by running the `dev:notifications:data` task two times
       Rake::Task['dev:notifications:data'].invoke(2)
 
