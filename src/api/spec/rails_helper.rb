@@ -85,3 +85,6 @@ require 'support/rubocop'
 
 # support time helpers
 require 'support/time_helpers'
+
+# support HTTP_REFERER
+require 'support/redirect_back'
