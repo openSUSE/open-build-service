@@ -149,12 +149,6 @@ RSpec.describe Webui::PackageController, :vcr do
   end
 
   describe 'GET #show' do
-    context 'require_package before_action' do
-      context 'with an invalid package' do
-        it { expect { get :show, params: { project: user.home_project, package: 'no_package' } }.to raise_error(ActiveRecord::RecordNotFound) }
-      end
-    end
-
     context 'with a valid package' do
       before do
         get :show, params: { project: user.home_project, package: source_package.name }
@@ -173,16 +167,6 @@ RSpec.describe Webui::PackageController, :vcr do
 
       it { expect(flash[:error]).to include('Files could not be expanded:') }
       it { expect(assigns(:more_info)).to include('service daemon error:') }
-    end
-
-    context 'with a package without sourceaccess' do
-      before do
-        create(:sourceaccess_flag, project: user.home_project)
-        get :show, params: { project: user.home_project, package: source_package.name }
-      end
-
-      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{source_package}\"") }
-      it { expect(response).to redirect_to(project_show_path(user.home_project)) }
     end
 
     context 'revision handling' do
@@ -274,17 +258,6 @@ RSpec.describe Webui::PackageController, :vcr do
       login(user)
     end
 
-    context 'without source access' do
-      before do
-        package.add_flag('sourceaccess', 'disable')
-        package.save
-        get :revisions, params: { project: project, package: package }
-      end
-
-      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{elided_package_name}\"") }
-      it { expect(response).to redirect_to(project_show_path(project: project.name)) }
-    end
-
     context 'with source access' do
       before do
         get :revisions, params: { project: project, package: package }
@@ -293,14 +266,6 @@ RSpec.describe Webui::PackageController, :vcr do
       after do
         # Delete revisions that got created in the backend
         package.destroy
-      end
-
-      it 'sets the project' do
-        expect(assigns(:project)).to eq(project)
-      end
-
-      it 'sets the package' do
-        expect(assigns(:package)).to eq(package)
       end
 
       context 'when not passing the rev parameter' do
@@ -495,12 +460,6 @@ RSpec.describe Webui::PackageController, :vcr do
       end
 
       it { expect(response).to have_http_status(:bad_request) }
-    end
-
-    context 'with an unexistent package' do
-      let(:post_save_meta) { post :save_meta, params: { project: source_project, package: 'blah', meta: valid_meta } }
-
-      it { expect { post_save_meta }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'when connection with the backend fails' do

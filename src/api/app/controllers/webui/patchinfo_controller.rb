@@ -9,6 +9,11 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_action :require_login, except: [:show]
   before_action :set_patchinfo, only: [:show, :edit]
 
+  rescue_from Package::UnknownObjectError do
+    flash[:error] = "Patchinfo '#{elide(params[:package])}' not found in project '#{elide(params[:project])}'"
+    redirect_to project_show_path(project: @project)
+  end
+
   def show
     @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
@@ -147,7 +152,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     return if @package && @package.patchinfo
 
     # FIXME: should work for remote packages
-    flash[:error] = "Patchinfo not found for #{elide(params[:project])}"
+    flash[:error] = "Patchinfo not found for #{@project.name}"
     redirect_to(controller: 'package', action: 'show', project: @project, package: @package)
   end
 
