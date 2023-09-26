@@ -89,11 +89,7 @@ class Project
       if devel
         prj_name = devel['project']
         if prj_name
-          begin
-            develprj = Project.get_by_name(prj_name)
-          rescue UnknownObjectError => e
-            raise UnknownObjectError, "Project with name '#{e.message}' not found"
-          end
+          develprj = Project.get_by_name(prj_name)
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
           raise SaveError, 'Devel project can not point to itself' if develprj == project
 
