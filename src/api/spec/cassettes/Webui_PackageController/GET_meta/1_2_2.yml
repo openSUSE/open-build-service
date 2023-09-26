@@ -39,17 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:10 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_41
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Brandy of the Damned</title>
-          <description>Eum reprehenderit in ducimus.</description>
+          <title>The House of Mirth</title>
+          <description>Eum tempore voluptatem architecto.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Brandy of the Damned</title>
-          <description>Eum reprehenderit in ducimus.</description>
+          <title>The House of Mirth</title>
+          <description>Eum tempore voluptatem architecto.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:10 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 22 Sep 2023 13:06:40 GMT
+recorded_with: VCR 6.2.0

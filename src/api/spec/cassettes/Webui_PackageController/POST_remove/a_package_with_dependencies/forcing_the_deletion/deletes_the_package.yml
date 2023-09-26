@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:13 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Repudiandae delectus molestiae omnis.</description>
+          <title>The Mermaids Singing</title>
+          <description>Eos esse culpa soluta.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Repudiandae delectus molestiae omnis.</description>
+          <title>The Mermaids Singing</title>
+          <description>Eos esse culpa soluta.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/_meta?user=tom
@@ -87,7 +85,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_2">
-          <title>Down to a Sunless Sea</title>
+          <title>The Little Foxes</title>
           <description/>
         </project>
     headers:
@@ -109,16 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '102'
     body:
       encoding: UTF-8
       string: |
         <project name="project_2">
-          <title>Down to a Sunless Sea</title>
+          <title>The Little Foxes</title>
           <description></description>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
@@ -126,8 +123,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>That Good Night</title>
-          <description>Veniam quisquam sunt pariatur.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Sunt dicta animi aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,16 +145,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>That Good Night</title>
-          <description>Veniam quisquam sunt pariatur.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Sunt dicta animi aut.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
@@ -165,8 +161,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>That Good Night</title>
-          <description>Veniam quisquam sunt pariatur.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Sunt dicta animi aut.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -188,20 +184,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '196'
     body:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>That Good Night</title>
-          <description>Veniam quisquam sunt pariatur.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Sunt dicta animi aut.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/home:tom/my_package?comment&user=tom
+    uri: http://backend:5352/source/home:tom/my_package?user=tom
     body:
       encoding: US-ASCII
       string: ''
@@ -230,8 +225,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
@@ -239,8 +233,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>That Good Night</title>
-          <description>Veniam quisquam sunt pariatur.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Sunt dicta animi aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -261,14 +255,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>That Good Night</title>
-          <description>Veniam quisquam sunt pariatur.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Sunt dicta animi aut.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 22 Sep 2023 13:06:49 GMT
+recorded_with: VCR 6.2.0

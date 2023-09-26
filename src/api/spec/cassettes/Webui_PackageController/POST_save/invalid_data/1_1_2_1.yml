@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:36:44 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Handful of Dust</title>
-          <description>Qui excepturi consectetur voluptates.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Temporibus quos ab est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -75,9 +74,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Handful of Dust</title>
-          <description>Qui excepturi consectetur voluptates.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Temporibus quos ab est.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:36:44 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 22 Sep 2023 13:06:37 GMT
+recorded_with: VCR 6.2.0

@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:admin/_meta?user=admin
@@ -80,16 +79,15 @@ http_interactions:
           <description></description>
           <person userid="admin" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=admin
+    uri: http://backend:5352/source/project_4/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>The Man Within</title>
+        <project name="project_4">
+          <title>Beneath the Bleeding</title>
           <description/>
         </project>
     headers:
@@ -111,25 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '100'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>The Man Within</title>
+        <project name="project_4">
+          <title>Beneath the Bleeding</title>
           <description></description>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/forbidden_package/_meta?user=admin
+    uri: http://backend:5352/source/project_4/forbidden_package/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_3">
-          <title>A Farewell to Arms</title>
-          <description>Provident amet voluptas non.</description>
+        <package name="forbidden_package" project="project_4">
+          <title>Sleep the Brave</title>
+          <description>Totam ut voluptas earum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,19 +147,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '153'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_3">
-          <title>A Farewell to Arms</title>
-          <description>Provident amet voluptas non.</description>
+        <package name="forbidden_package" project="project_4">
+          <title>Sleep the Brave</title>
+          <description>Totam ut voluptas earum.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
+  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/project_3/forbidden_package?comment&user=admin
+    uri: http://backend:5352/source/project_4/forbidden_package?user=admin
     body:
       encoding: US-ASCII
       string: ''
@@ -191,6 +187,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:14 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
+recorded_with: VCR 6.2.0
