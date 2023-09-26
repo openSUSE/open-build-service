@@ -273,6 +273,28 @@ module Event
       User.admins.or(User.staff)
     end
 
+    def reporters
+      decision = Decision.find(payload['id'])
+      decision.reports.map(&:user)
+    end
+
+    def offenders
+      decision = Decision.find(payload['id'])
+      reportables = decision.reports.map(&:reportable)
+      reportables.map do |reportable|
+        case reportable
+        when Package, Project
+          reportable.maintainers
+        when User
+          reportable
+        when BsRequest
+          User.find_by(login: reportable.creator)
+        when Comment
+          reportable.user
+        end
+      end
+    end
+
     def _roles(role, project, package = nil)
       return [] unless project
 

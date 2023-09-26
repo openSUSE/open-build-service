@@ -9,6 +9,21 @@ class Decision < ApplicationRecord
     cleared: 0,
     favor: 1
   }
+
+  after_create :create_event
+
+  def create_event
+    case kind
+    when 'cleared'
+      Event::ClearedDecision.create(event_parameters)
+    else
+      Event::FavoredDecision.create(event_parameters)
+    end
+  end
+
+  def event_parameters
+    { id: id, moderator_id: moderator.id, reason: reason }
+  end
 end
 
 # == Schema Information
