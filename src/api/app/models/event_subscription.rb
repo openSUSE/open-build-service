@@ -44,7 +44,7 @@ class EventSubscription < ApplicationRecord
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
          :reviewer, :commenter, :creator, :watcher, :source_watcher, :target_watcher,
          :package_watcher, :target_package_watcher, :source_package_watcher, :request_watcher, :any_role,
-         :moderator]
+         :moderator, :reporter, :offender]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }

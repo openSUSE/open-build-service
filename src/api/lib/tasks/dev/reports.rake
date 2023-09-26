@@ -28,6 +28,11 @@ namespace :dev do
 
       puts 'Taking decisions regarding some reports'
 
+      # This automatically subscribes everyone to the cleared and favored decision events
+      EventSubscription.create!(eventtype: Event::ClearedDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
+      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
+      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :offender, enabled: true)
+
       admin = User.get_default_admin
 
       Report.find_each do |report|

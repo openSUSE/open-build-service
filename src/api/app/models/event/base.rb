@@ -18,7 +18,9 @@ module Event
       'Event::CommentForRequest' => 'Receive notifications of comments created on a request for which you are...',
       'Event::RelationshipCreate' => "Receive notifications when someone adds you or your group to a project or package with any of these roles: #{Role.local_roles.to_sentence}.",
       'Event::RelationshipDelete' => "Receive notifications when someone removes you or your group from a project or package with any of these roles: #{Role.local_roles.to_sentence}.",
-      'Event::CreateReport' => 'Receive notifications for reported content.'
+      'Event::CreateReport' => 'Receive notifications for reported content.',
+      'Event::ClearedDecision' => 'Receive notifications for cleared report decisions.',
+      'Event::FavoredDecision' => 'Receive notifications for favored report decisions.'
     }.freeze
 
     class << self

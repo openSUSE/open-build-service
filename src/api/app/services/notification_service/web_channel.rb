@@ -6,7 +6,8 @@ module NotificationService
       'Comment' => OutdatedNotificationsFinder::Comment,
       'Project' => OutdatedNotificationsFinder::Project,
       'Package' => OutdatedNotificationsFinder::Package,
-      'Report' => OutdatedNotificationsFinder::Report
+      'Report' => OutdatedNotificationsFinder::Report,
+      'Decision' => OutdatedNotificationsFinder::Decision
     }.freeze
 
     def initialize(subscription, event)
