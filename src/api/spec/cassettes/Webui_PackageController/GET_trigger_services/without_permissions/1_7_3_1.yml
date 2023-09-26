@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_19
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_15
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Et voluptate voluptatibus sint.</description>
+          <title>An Evil Cradling</title>
+          <description>Provident omnis qui et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Et voluptate voluptatibus sint.</description>
+          <title>An Evil Cradling</title>
+          <description>Provident omnis qui et.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Voluptatem quam adipisci. Quia quis dignissimos. Natus similique dolorem.
+      string: Ullam qui labore. Est laborum aut. Sit rem sapiente.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,20 +108,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="11" vrev="11">
-          <srcmd5>275d019e8d744e0f9bfb137bea96f470</srcmd5>
+          <srcmd5>f3e99df97e0585218f29044e57a01410</srcmd5>
           <version>unknown</version>
-          <time>1695388007</time>
+          <time>1695738254</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Placeat ex quos. Voluptatem et repudiandae. Accusamus deserunt praesentium.
+      string: Placeat voluptatem est. Sint ut reiciendis. Doloribus architecto ut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,23 +146,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="12" vrev="12">
-          <srcmd5>e5730044e471736ba07a9eeacc469f71</srcmd5>
+          <srcmd5>ff878b69999159340d95ed2712d8b9d9</srcmd5>
           <version>unknown</version>
-          <time>1695388007</time>
+          <time>1695738254</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=user_19
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=user_15
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>All the King's Men</title>
-          <description>Est unde et libero.</description>
+          <title>The Torment of Others</title>
+          <description>Esse voluptates ut dolores.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,15 +183,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>All the King's Men</title>
-          <description>Est unde et libero.</description>
+          <title>The Torment of Others</title>
+          <description>Esse voluptates ut dolores.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_service
@@ -228,13 +228,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>59200753b98fe461b9856c45e786d8f3</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>27aebe4afe389dc60400f8fbe83ce46f</srcmd5>
           <version>unknown</version>
-          <time>1695388007</time>
+          <time>1695738254</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:14 GMT
 recorded_with: VCR 6.2.0

@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:07:07 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Maiores sint sit eaque.</description>
+          <title>Beneath the Bleeding</title>
+          <description>Consequatur ut corporis perspiciatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Maiores sint sit eaque.</description>
+          <title>Beneath the Bleeding</title>
+          <description>Consequatur ut corporis perspiciatis.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:07:07 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:57 GMT
 recorded_with: VCR 6.2.0

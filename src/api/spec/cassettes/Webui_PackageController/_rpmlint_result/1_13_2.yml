@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:45 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_16
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Edna O'Brien</title>
-          <description>Quia qui itaque consequatur.</description>
+          <title>Some Buried Caesar</title>
+          <description>Reiciendis nihil veritatis at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Edna O'Brien</title>
-          <description>Quia qui itaque consequatur.</description>
+          <title>Some Buried Caesar</title>
+          <description>Reiciendis nihil veritatis at.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:45 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:55 GMT
 recorded_with: VCR 6.2.0

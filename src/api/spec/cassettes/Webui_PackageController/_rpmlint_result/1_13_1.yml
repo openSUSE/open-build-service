@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:44 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_12
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Corrupti sunt non officia.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Ad est eos provident.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Corrupti sunt non officia.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Ad est eos provident.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:44 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
 recorded_with: VCR 6.2.0

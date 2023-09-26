@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:36 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Many-Splendoured Thing</title>
-          <description>Tempore ea repudiandae animi.</description>
+          <title>Françoise Sagan</title>
+          <description>Eaque ex minima voluptatum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,10 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '149'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>A Many-Splendoured Thing</title>
-          <description>Tempore ea repudiandae animi.</description>
-        </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:36 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+RWFxdWUgZXggbWluaW1hIHZvbHVwdGF0dW0uPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
+  recorded_at: Tue, 26 Sep 2023 14:24:04 GMT
 recorded_with: VCR 6.2.0

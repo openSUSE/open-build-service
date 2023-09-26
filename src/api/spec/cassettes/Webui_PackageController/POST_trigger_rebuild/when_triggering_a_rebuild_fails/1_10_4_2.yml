@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Consider Phlebas</title>
+          <title>Oh! To be in England</title>
           <description/>
         </project>
     headers:
@@ -29,15 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Consider Phlebas</title>
+          <title>Oh! To be in England</title>
           <description></description>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:07:10 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/package_3/_meta?user=foo
@@ -45,8 +45,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_3" project="foo_project">
-          <title>Those Barren Leaves, Thrones, Dominations</title>
-          <description>Inventore voluptatem et illo.</description>
+          <title>Time of our Darkness</title>
+          <description>At aut odit accusamus.</description>
           <person userid="foo" role="maintainer"/>
         </package>
     headers:
@@ -68,14 +68,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '221'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="package_3" project="foo_project">
-          <title>Those Barren Leaves, Thrones, Dominations</title>
-          <description>Inventore voluptatem et illo.</description>
+          <title>Time of our Darkness</title>
+          <description>At aut odit accusamus.</description>
           <person userid="foo" role="maintainer"/>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:07:10 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:06 GMT
 recorded_with: VCR 6.2.0

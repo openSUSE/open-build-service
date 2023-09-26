@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:51 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Françoise Sagan</title>
-          <description>Odio sapiente explicabo quaerat.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Et similique eum consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -71,10 +71,13 @@ http_interactions:
       Content-Length:
       - '154'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+T2RpbyBzYXBpZW50ZSBleHBsaWNhYm8gcXVhZXJhdC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
-  recorded_at: Fri, 22 Sep 2023 13:06:51 GMT
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The Grapes of Wrath</title>
+          <description>Et similique eum consequatur.</description>
+        </package>
+  recorded_at: Tue, 26 Sep 2023 14:24:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -114,5 +117,5 @@ http_interactions:
           <description>Updated description.</description>
           <url>https://updated.url</url>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:51 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:15 GMT
 recorded_with: VCR 6.2.0

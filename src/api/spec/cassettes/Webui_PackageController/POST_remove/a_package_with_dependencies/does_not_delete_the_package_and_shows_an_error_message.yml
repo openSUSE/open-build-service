@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Many Waters</title>
-          <description>Impedit sed reiciendis id.</description>
+          <title>Eyeless in Gaza</title>
+          <description>Et assumenda molestiae dolor.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Many Waters</title>
-          <description>Impedit sed reiciendis id.</description>
+          <title>Eyeless in Gaza</title>
+          <description>Et assumenda molestiae dolor.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/_meta?user=tom
@@ -85,7 +85,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>Many Waters</title>
+          <title>Surprised by Joy</title>
           <description/>
         </project>
     headers:
@@ -107,15 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '97'
+      - '102'
     body:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>Many Waters</title>
+          <title>Surprised by Joy</title>
           <description></description>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
@@ -123,8 +123,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>The Line of Beauty</title>
-          <description>Neque quibusdam fuga qui.</description>
+          <title>Brandy of the Damned</title>
+          <description>Qui architecto odit quam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,15 +145,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>The Line of Beauty</title>
-          <description>Neque quibusdam fuga qui.</description>
+          <title>Brandy of the Damned</title>
+          <description>Qui architecto odit quam.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
@@ -161,8 +161,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>The Line of Beauty</title>
-          <description>Neque quibusdam fuga qui.</description>
+          <title>Brandy of the Damned</title>
+          <description>Qui architecto odit quam.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -184,14 +184,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '202'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>The Line of Beauty</title>
-          <description>Neque quibusdam fuga qui.</description>
+          <title>Brandy of the Damned</title>
+          <description>Qui architecto odit quam.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 recorded_with: VCR 6.2.0
