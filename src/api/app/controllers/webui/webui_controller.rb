@@ -45,8 +45,9 @@ class Webui::WebuiController < ActionController::Base
 
   def set_project
     # We've started to use project_name for new routes...
-    @project = ::Project.find_by(name: params[:project_name] || params[:project])
-    raise ActiveRecord::RecordNotFound unless @project
+    project_name = params[:project_name] || params[:project]
+    @project = ::Project.find_by(name: project_name)
+    raise Project::Errors::UnknownObjectError, "Project not found: #{project_name}" unless @project
   end
 
   def require_login

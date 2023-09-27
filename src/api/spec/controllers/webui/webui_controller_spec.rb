@@ -101,10 +101,11 @@ RSpec.describe Webui::WebuiController do
 
   describe 'set_project before filter' do
     context 'with invalid project parameter' do
-      it 'raises an ActiveRecord::RecordNotFound exception' do
-        expect do
-          get :edit, params: { id: 1, project: 'invalid' }
-        end.to raise_error(ActiveRecord::RecordNotFound)
+      it 'redirects back' do
+        from projects_path
+        get :edit, params: { id: 1, project: 'invalid' }
+        expect(flash[:error]).to eq('Project not found: invalid')
+        expect(response).to redirect_to projects_url
       end
     end
 
@@ -122,10 +123,11 @@ RSpec.describe Webui::WebuiController do
     let(:project) { create(:project) }
 
     context 'with invalid package parameter' do
-      it 'raises an Package::Errors::UnknownObjectError exception' do
-        expect do
-          get :create, params: { project: project, package: 'invalid' }
-        end.to raise_error(Package::Errors::UnknownObjectError)
+      it 'redirects back' do
+        from project_show_path(project: project)
+        get :create, params: { project: project, package: 'invalid' }
+        expect(flash[:error]).to eq("Package not found: #{project.name}/invalid")
+        expect(response).to redirect_to project_show_url(project: project)
       end
     end
 
