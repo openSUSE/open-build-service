@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:55 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_23
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Ut ratione libero repudiandae.</description>
+          <title>Surprised by Joy</title>
+          <description>Omnis delectus illo voluptatum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Ut ratione libero repudiandae.</description>
+          <title>Surprised by Joy</title>
+          <description>Omnis delectus illo voluptatum.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:55 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -123,5 +123,5 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:55 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:47 GMT
 recorded_with: VCR 6.2.0

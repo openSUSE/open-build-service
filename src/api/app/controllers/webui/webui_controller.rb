@@ -128,27 +128,20 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_package
-    required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
-    @project ||= params[:project]
+    @package_name = params[:package] || params[:package_name]
 
-    return if params[:package].blank?
+    return if @package_name.blank?
 
     begin
-      @package = Package.get_by_project_and_name(@project.to_param, params[:package],
+      @package = Package.get_by_project_and_name(@project, @package_name,
                                                  follow_project_links: true, follow_multibuild: true)
-    rescue APIError => e
-      if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser].include?(e.class)
-        flash[:error] = "You don't have access to the sources of this package: \"#{elide(params[:package])}\""
-        redirect_back(fallback_location: project_show_path(@project))
-        return
-      end
-
-      raise(ActiveRecord::RecordNotFound, 'Not Found') unless request.xhr?
-
-      head :not_found
+    # why it's not found is of no concern
+    rescue APIError
+      raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
     end
   end
+  alias set_package require_package
 
   private
 

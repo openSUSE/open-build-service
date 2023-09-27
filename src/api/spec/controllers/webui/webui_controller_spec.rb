@@ -7,7 +7,8 @@ RSpec.describe Webui::WebuiController do
   controller do
     before_action :require_admin, only: :new
     before_action :require_login, only: :show
-    before_action :set_project, only: :edit
+    before_action :set_project, only: [:edit, :create]
+    before_action :require_package, only: :create
 
     def index
       render plain: 'anonymous controller'
@@ -25,6 +26,10 @@ RSpec.describe Webui::WebuiController do
 
     def edit
       render plain: 'anonymous controller - set_project'
+    end
+
+    def create
+      render plain: 'anonymous controller - require_package'
     end
   end
 
@@ -94,7 +99,7 @@ RSpec.describe Webui::WebuiController do
     end
   end
 
-  describe '#set_project before filter' do
+  describe 'set_project before filter' do
     context 'with invalid project parameter' do
       it 'raises an ActiveRecord::RecordNotFound exception' do
         expect do
@@ -109,6 +114,27 @@ RSpec.describe Webui::WebuiController do
       it 'sets the correct project' do
         get :edit, params: { id: 1, project: project.name }
         expect(assigns(:project)).to eq(project)
+      end
+    end
+  end
+
+  describe 'require_package before filter' do
+    let(:project) { create(:project) }
+
+    context 'with invalid package parameter' do
+      it 'raises an Package::Errors::UnknownObjectError exception' do
+        expect do
+          get :create, params: { project: project, package: 'invalid' }
+        end.to raise_error(Package::Errors::UnknownObjectError)
+      end
+    end
+
+    context 'with valid package parameter' do
+      let(:package) { create(:package, project: project) }
+
+      it 'sets the correct project' do
+        get :create, params: { project: project, package: package }
+        expect(assigns(:package)).to eq(package)
       end
     end
   end

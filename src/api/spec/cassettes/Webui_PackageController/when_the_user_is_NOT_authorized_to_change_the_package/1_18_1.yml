@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:39 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:admin/_meta?user=admin
@@ -79,7 +79,7 @@ http_interactions:
           <description></description>
           <person userid="admin" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:39 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:admin/admins_package/_meta?user=tom
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="admins_package" project="home:admin">
-          <title>Shall not Perish</title>
-          <description>Est deserunt nam dignissimos.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Fugit natus voluptate incidunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,13 +109,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="admins_package" project="home:admin">
-          <title>Shall not Perish</title>
-          <description>Est deserunt nam dignissimos.</description>
+          <title>The Monkey's Raincoat</title>
+          <description>Fugit natus voluptate incidunt.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:39 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
 recorded_with: VCR 6.2.0

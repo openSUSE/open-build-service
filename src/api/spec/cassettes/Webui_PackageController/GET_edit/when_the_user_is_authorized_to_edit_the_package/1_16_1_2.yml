@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:41 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Wives of Bath</title>
-          <description>Ea numquam animi laboriosam.</description>
+          <title>Françoise Sagan</title>
+          <description>In ea odio a.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,10 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '135'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>The Wives of Bath</title>
-          <description>Ea numquam animi laboriosam.</description>
-        </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:41 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+SW4gZWEgb2RpbyBhLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+  recorded_at: Tue, 26 Sep 2023 14:23:58 GMT
 recorded_with: VCR 6.2.0

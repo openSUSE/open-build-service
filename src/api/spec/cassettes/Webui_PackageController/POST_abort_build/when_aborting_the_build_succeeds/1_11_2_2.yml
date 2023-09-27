@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:40 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -85,7 +85,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:40 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -93,8 +93,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Sed deserunt fugiat aliquid.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Aperiam et ea ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -115,15 +115,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '141'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Sed deserunt fugiat aliquid.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Aperiam et ea ut.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:40 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?cmd=abortbuild&package=my_package
@@ -157,5 +157,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 22 Sep 2023 13:06:40 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 recorded_with: VCR 6.2.0

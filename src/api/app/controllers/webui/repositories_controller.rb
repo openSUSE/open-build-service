@@ -2,7 +2,9 @@ class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
   before_action :set_repository, only: [:state]
   before_action :set_architectures, only: [:index, :change_flag]
-  before_action :find_repository_parent, only: [:index, :change_flag]
+  before_action :set_repository, only: [:state]
+  before_action :set_package, only: [:index, :change_flag]
+  before_action :set_main_object, only: [:index, :change_flag]
   before_action :check_ajax, only: :change_flag
   after_action :verify_authorized, except: [:index, :state]
 
@@ -188,16 +190,13 @@ class Webui::RepositoriesController < Webui::WebuiController
     @repository = @project.repositories.find_by!(name: params[:repository])
   end
 
-  def find_repository_parent
-    if params[:package]
-      # FIXME: Handle APIError different, this is just c&p from packages_controller
-      begin
-        @main_object = @package = Package.get_by_project_and_name(@project.to_param, params[:package], use_source: false, follow_project_links: true)
-      rescue APIError
-        raise ActiveRecord::RecordNotFound, 'Not Found'
-      end
-    else
-      @main_object = @project
-    end
+  def set_package
+    return unless params[:package]
+
+    require_package
+  end
+
+  def set_main_object
+    @main_object = @package || @project
   end
 end

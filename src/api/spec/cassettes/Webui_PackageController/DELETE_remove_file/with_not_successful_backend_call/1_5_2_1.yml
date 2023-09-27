@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:07:09 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>All Passion Spent</title>
-          <description>Nam aut reprehenderit dolor.</description>
+          <title>O Pioneers!</title>
+          <description>Maxime quisquam itaque nesciunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>All Passion Spent</title>
-          <description>Nam aut reprehenderit dolor.</description>
+          <title>O Pioneers!</title>
+          <description>Maxime quisquam itaque nesciunt.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:07:09 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
 recorded_with: VCR 6.2.0

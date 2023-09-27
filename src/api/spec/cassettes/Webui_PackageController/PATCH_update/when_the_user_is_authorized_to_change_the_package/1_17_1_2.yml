@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:51 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Pale Kings and Princes</title>
-          <description>Omnis aut autem reiciendis.</description>
+          <title>What's Become of Waring</title>
+          <description>Maxime qui dolores nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Pale Kings and Princes</title>
-          <description>Omnis aut autem reiciendis.</description>
+          <title>What's Become of Waring</title>
+          <description>Maxime qui dolores nihil.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:51 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -117,5 +117,5 @@ http_interactions:
           <description>Updated description.</description>
           <url>https://updated.url</url>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:51 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:15 GMT
 recorded_with: VCR 6.2.0

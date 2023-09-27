@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Quis voluptatem aut laborum.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Et rerum sit qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Quis voluptatem aut laborum.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Et rerum sit qui.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: In omnis aut. Et quidem placeat. Ipsum alias aut.
+      string: Rerum delectus consequatur. Eum error quia. Provident ipsum aliquam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -103,25 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="13" vrev="13">
-          <srcmd5>87127e6a938c060c8ad6309dea1eeedf</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>eb2f2fb6d1788f3be157d9ce5bfdd203</srcmd5>
           <version>unknown</version>
-          <time>1695388013</time>
+          <time>1695738234</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Ex quae eum. Voluptate quia magnam. Quia cupiditate optio.
+      string: Voluptatum aut ut. Consequatur dignissimos id. Nobis ut porro.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -141,19 +141,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="14" vrev="14">
-          <srcmd5>9d13fa0358f53bf6ecb0c4726ef39e0a</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>4569798e62d70d5b8d6c3ad7e6534f97</srcmd5>
           <version>unknown</version>
-          <time>1695388013</time>
+          <time>1695738234</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -179,15 +179,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '304'
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="14" vrev="14" srcmd5="9d13fa0358f53bf6ecb0c4726ef39e0a">
-          <entry name="_config" md5="22c4d545ee89ae87ee798fc7e07ffdfa" size="49" mtime="1695388013"/>
-          <entry name="somefile.txt" md5="b92fd1adb6b8713bc1441889f79e1adf" size="58" mtime="1695388013"/>
+        <directory name="package_with_file" rev="6" vrev="6" srcmd5="4569798e62d70d5b8d6c3ad7e6534f97">
+          <entry name="_config" md5="ea7a9928caddbf140dff398e1931bb30" size="68" mtime="1695738234"/>
+          <entry name="somefile.txt" md5="fbbdeded86febefcf05088f0a562335b" size="62" mtime="1695738234"/>
         </directory>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -213,15 +213,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '304'
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="14" vrev="14" srcmd5="9d13fa0358f53bf6ecb0c4726ef39e0a">
-          <entry name="_config" md5="22c4d545ee89ae87ee798fc7e07ffdfa" size="49" mtime="1695388013"/>
-          <entry name="somefile.txt" md5="b92fd1adb6b8713bc1441889f79e1adf" size="58" mtime="1695388013"/>
+        <directory name="package_with_file" rev="6" vrev="6" srcmd5="4569798e62d70d5b8d6c3ad7e6534f97">
+          <entry name="_config" md5="ea7a9928caddbf140dff398e1931bb30" size="68" mtime="1695738234"/>
+          <entry name="somefile.txt" md5="fbbdeded86febefcf05088f0a562335b" size="62" mtime="1695738234"/>
         </directory>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
@@ -256,7 +256,7 @@ http_interactions:
         <status code="400">
           <summary>revision is empty</summary>
         </status>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
@@ -291,5 +291,5 @@ http_interactions:
         <status code="400">
           <summary>revision is empty</summary>
         </status>
-  recorded_at: Fri, 22 Sep 2023 13:06:53 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 recorded_with: VCR 6.2.0

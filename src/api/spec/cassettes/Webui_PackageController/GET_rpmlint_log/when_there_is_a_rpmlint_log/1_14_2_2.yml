@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:55 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:48 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_22
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Way Through the Woods</title>
-          <description>Corrupti eligendi est eaque.</description>
+          <title>Far From the Madding Crowd</title>
+          <description>Est eligendi ex ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Way Through the Woods</title>
-          <description>Corrupti eligendi est eaque.</description>
+          <title>Far From the Madding Crowd</title>
+          <description>Est eligendi ex ut.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:55 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -123,5 +123,5 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:55 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:48 GMT
 recorded_with: VCR 6.2.0

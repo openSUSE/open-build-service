@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:07:06 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Rerum magni qui magnam.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Iusto dicta qui et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Rerum magni qui magnam.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Iusto dicta qui et.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:07:06 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Dicta corrupti ex. Veritatis modi cumque. Rerum ducimus voluptatibus.
+      string: Ullam ab doloribus. Tempora vitae ut. Voluptas aut id.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -107,21 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>d1bfbd6441e52f8dd15c5aad94c98e7f</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>a1d9f9c0db8834a124e9fdc9335f14fa</srcmd5>
           <version>unknown</version>
-          <time>1695388026</time>
+          <time>1695738260</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:07:06 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Facere velit eaque. Autem recusandae vitae. Velit dolore et.
+      string: Ut omnis sit. Ut atque autem. Ut quod veritatis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,13 +145,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>643d7265d8e39b8d294d9a38caf45940</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>2a21ced0adbbd9e0862b68dae8dc5a8c</srcmd5>
           <version>unknown</version>
-          <time>1695388026</time>
+          <time>1695738260</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:07:06 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:20 GMT
 recorded_with: VCR 6.2.0

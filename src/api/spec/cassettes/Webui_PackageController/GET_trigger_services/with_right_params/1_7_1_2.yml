@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>O Jerusalem!</title>
-          <description>Qui qui sit excepturi.</description>
+          <title>Waiting for the Barbarians</title>
+          <description>Sint et amet quasi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>O Jerusalem!</title>
-          <description>Qui qui sit excepturi.</description>
+          <title>Waiting for the Barbarians</title>
+          <description>Sint et amet quasi.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_service
@@ -114,15 +114,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>bc4111d434e62532b4999d0c867cd630</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>bb2d69df38695ffb37980a861cb97d95</srcmd5>
           <version>unknown</version>
-          <time>1695388007</time>
+          <time>1695738253</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_service?cmd=runservice&user=tom
@@ -156,5 +156,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 22 Sep 2023 13:06:47 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:13 GMT
 recorded_with: VCR 6.2.0

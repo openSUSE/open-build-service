@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:35 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Edna O'Brien</title>
-          <description>Est quasi ratione doloribus.</description>
+          <title>Little Hands Clapping</title>
+          <description>At laudantium libero quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Edna O'Brien</title>
-          <description>Est quasi ratione doloribus.</description>
+          <title>Little Hands Clapping</title>
+          <description>At laudantium libero quisquam.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:35 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:02 GMT
 recorded_with: VCR 6.2.0

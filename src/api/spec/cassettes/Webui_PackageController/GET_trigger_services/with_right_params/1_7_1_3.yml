@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>When the Green Woods Laugh</title>
-          <description>Velit ratione rerum est.</description>
+          <title>Blithe Spirit</title>
+          <description>Reiciendis accusantium dolores sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_service" project="home:tom">
-          <title>When the Green Woods Laugh</title>
-          <description>Velit ratione rerum est.</description>
+          <title>Blithe Spirit</title>
+          <description>Reiciendis accusantium dolores sed.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_service/_service
@@ -114,15 +114,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>bffdfb9d1bd49523f2519aeb79c4e208</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>47f9e75783d36d9869cae1f53cd57be0</srcmd5>
           <version>unknown</version>
-          <time>1695388008</time>
+          <time>1695738252</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:12 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_service?cmd=runservice&user=tom
@@ -156,5 +156,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 22 Sep 2023 13:06:48 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:12 GMT
 recorded_with: VCR 6.2.0

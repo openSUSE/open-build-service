@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:38 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,7 +48,7 @@ http_interactions:
       string: |
         <package name="my_package" project="home:tom">
           <title>Ring of Bright Water</title>
-          <description>Sequi delectus voluptatum iure.</description>
+          <description>Minus nihil nostrum ab.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
           <title>Ring of Bright Water</title>
-          <description>Sequi delectus voluptatum iure.</description>
+          <description>Minus nihil nostrum ab.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:38 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -115,5 +115,5 @@ http_interactions:
           <title>New title for package</title>
           <description>New description for package</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:38 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:54 GMT
 recorded_with: VCR 6.2.0

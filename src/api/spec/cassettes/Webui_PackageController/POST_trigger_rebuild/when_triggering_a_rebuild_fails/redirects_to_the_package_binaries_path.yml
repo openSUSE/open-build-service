@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:07:09 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Many Waters</title>
-          <description>Sit dolor voluptatem adipisci.</description>
+          <title>Blood's a Rover</title>
+          <description>Enim maiores itaque hic.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Many Waters</title>
-          <description>Sit dolor voluptatem adipisci.</description>
+          <title>Blood's a Rover</title>
+          <description>Enim maiores itaque hic.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:07:09 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existant_repository
@@ -112,5 +112,5 @@ http_interactions:
         <status code="400">
           <summary>arch is empty</summary>
         </status>
-  recorded_at: Fri, 22 Sep 2023 13:07:09 GMT
+  recorded_at: Tue, 26 Sep 2023 14:24:05 GMT
 recorded_with: VCR 6.2.0

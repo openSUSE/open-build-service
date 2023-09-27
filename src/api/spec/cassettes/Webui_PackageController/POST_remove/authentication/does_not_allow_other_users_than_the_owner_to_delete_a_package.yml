@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=tom
+    uri: http://backend:5352/source/project_4/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>The Other Side of Silence</title>
+        <project name="project_4">
+          <title>The Stars' Tennis Balls</title>
           <description/>
         </project>
     headers:
@@ -69,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '109'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>The Other Side of Silence</title>
+        <project name="project_4">
+          <title>The Stars' Tennis Balls</title>
           <description></description>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/forbidden_package/_meta?user=tom
+    uri: http://backend:5352/source/project_4/forbidden_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_3">
-          <title>The Cricket on the Hearth</title>
-          <description>Ut deleniti dolores aut.</description>
+        <package name="forbidden_package" project="project_4">
+          <title>Look to Windward</title>
+          <description>Tempore adipisci quis enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,13 +107,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '157'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_3">
-          <title>The Cricket on the Hearth</title>
-          <description>Ut deleniti dolores aut.</description>
+        <package name="forbidden_package" project="project_4">
+          <title>Look to Windward</title>
+          <description>Tempore adipisci quis enim.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:50 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
 recorded_with: VCR 6.2.0

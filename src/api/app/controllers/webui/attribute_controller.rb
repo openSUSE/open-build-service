@@ -1,5 +1,7 @@
 class Webui::AttributeController < Webui::WebuiController
   helper :all
+  before_action :set_project, only: [:index, :new, :edit]
+  before_action :set_package, only: [:index, :new, :edit]
   before_action :set_container, only: [:index, :new, :edit]
   before_action :set_attribute, only: [:update, :destroy]
 
@@ -85,23 +87,14 @@ class Webui::AttributeController < Webui::WebuiController
 
   private
 
+  def set_package
+    return unless params[:package]
+
+    require_package
+  end
+
   def set_container
-    begin
-      @project = Project.get_by_name(params[:project])
-    rescue APIError
-      flash[:error] = "Project not found: #{elide(params[:project])}"
-      redirect_to(controller: 'project') && return
-    end
-    if params[:package]
-      begin
-        @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
-      rescue APIError
-        redirect_to(project_show_path(@project.to_s), error: "Package #{params[:package]} not found") && (return)
-      end
-      @container = @package
-    else
-      @container = @project
-    end
+    @container = @package || @project
   end
 
   def set_attribute

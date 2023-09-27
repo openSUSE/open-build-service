@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 22 Sep 2023 13:06:45 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_15
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>No Country for Old Men</title>
-          <description>Dolorem magnam explicabo voluptatem.</description>
+          <title>Blithe Spirit</title>
+          <description>Ab provident vero exercitationem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>No Country for Old Men</title>
-          <description>Dolorem magnam explicabo voluptatem.</description>
+          <title>Blithe Spirit</title>
+          <description>Ab provident vero exercitationem.</description>
         </package>
-  recorded_at: Fri, 22 Sep 2023 13:06:45 GMT
+  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
 recorded_with: VCR 6.2.0
