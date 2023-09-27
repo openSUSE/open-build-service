@@ -13,6 +13,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/BlockLength
   def call
     tag.div(class: ['smart-overflow']) do
       case @notification.event_type
@@ -34,9 +35,20 @@ class NotificationActionDescriptionComponent < ApplicationComponent
           concat(tag.p("User '#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type']} for the following reason:"))
           concat(tag.p(@notification.event_payload['reason']))
         end
+      when 'Event::ClearedDecision'
+        capture do
+          concat(tag.p("User '#{@notification.notifiable.moderator.login}' cleared a report for #{@notification.notifiable.reports.first.reportable} for the following reason:"))
+          concat(tag.p(@notification.notifiable.reason))
+        end
+      when 'Event::FavoredDecision'
+        capture do
+          concat(tag.p("User '#{@notification.notifiable.moderator.login}' favored a report for #{@notification.notifiable.reports.first.reportable} for the following reason:"))
+          concat(tag.p(@notification.notifiable.reason))
+        end
       end
     end
   end
+  # rubocop:enable Metrics/BlockLength
   # rubocop:enable Metrics/CyclomaticComplexity
 
   private

@@ -45,6 +45,16 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     when 'Event::CreateReport'
       "Report for a #{@notification.event_payload['reportable_type'].downcase} created"
+    when 'Event::ClearedDecision'
+      # All reports should point to the same reportable. We will take care of that here:
+      # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
+      report = @notification.notifiable.reports.first
+      "Cleared #{report.reportable.class.name.downcase} report"
+    when 'Event::FavoredDecision'
+      # All reports should point to the same reportable. We will take care of that here:
+      # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
+      report = @notification.notifiable.reports.first
+      "Favored #{report.reportable.class.name.downcase} report"
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -84,7 +94,11 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
                                                                        repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
     when 'Event::CreateReport'
-      link_for_reportables
+      reportable = @notification.notifiable.reportable
+      link_for_reportables(reportable)
+    when 'Event::ClearedDecision', 'Event::FavoredDecision'
+      reportable = @notification.notifiable.reports.first.reportable
+      link_for_reportables(reportable)
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -99,8 +113,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     end
   end
 
-  def link_for_reportables
-    reportable = @notification.notifiable.reportable
+  def link_for_reportables(reportable)
     case @notification.event_payload['reportable_type']
     when 'Comment'
       link_for_commentables_on_reportables(commentable: reportable.commentable)
