@@ -26,7 +26,7 @@ class NotifiedProjects
       @notifiable.project
     when 'Project'
       @notifiable
-    when 'Report'
+    when 'Report', 'Decision'
       []
     end
   end

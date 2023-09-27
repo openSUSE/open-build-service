@@ -9,19 +9,25 @@ module NotificationService
                         'Event::CommentForRequest',
                         'Event::RelationshipCreate',
                         'Event::RelationshipDelete',
-                        'Event::CreateReport'].freeze
+                        'Event::CreateReport',
+                        'Event::ClearedDecision',
+                        'Event::FavoredDecision'].freeze
     CHANNELS = [:web, :rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
       'Comment' => ::Comment,
       'Project' => ::Project,
       'Package' => ::Package,
-      'Report' => ::Report
+      'Report' => ::Report,
+      'Decision' => ::Decision
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
       rss: NotificationService::RSSChannel
     }.freeze
+    REJECTED_FOR_RSS = ['Event::CreateReport',
+                        'Event::ClearedDecision',
+                        'Event::FavoredDecision'].freeze
 
     def initialize(event)
       @event = event
@@ -31,7 +37,7 @@ module NotificationService
       return unless @event.eventtype.in?(EVENTS_TO_NOTIFY)
 
       CHANNELS.each do |channel|
-        next if channel == :rss && @event.eventtype == 'Event::CreateReport'
+        next if channel == :rss && @event.eventtype.in?(REJECTED_FOR_RSS)
 
         @event.subscriptions(channel).each do |subscription|
           create_notification_per_subscription(subscription, channel)
