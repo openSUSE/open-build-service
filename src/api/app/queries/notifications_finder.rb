@@ -1,6 +1,10 @@
 class NotificationsFinder
   def initialize(relation = Notification.all)
-    @relation = relation.order(created_at: :desc)
+    @relation = if Flipper.enabled?(:content_moderation, User.session)
+                  relation.order(created_at: :desc)
+                else
+                  relation.where.not(event_type: ['Event::CreateReport', 'Event::ClearedDecision', 'Event::FavoredDecision']).order(created_at: :desc)
+                end
   end
 
   def read
@@ -40,7 +44,7 @@ class NotificationsFinder
   end
 
   def for_reports
-    @relation.where(event_type: 'Event::CreateReport', delivered: false)
+    @relation.where(event_type: ['Event::CreateReport', 'Event::ClearedDecision', 'Event::FavoredDecision'], delivered: false)
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
