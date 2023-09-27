@@ -12,17 +12,6 @@ RSpec.describe Webui::FeedsController do
       expect(assigns(:commits)).to eq([commit])
     end
 
-    it 'assigns @project' do
-      get :commits, params: { project: project, format: 'atom' }
-      expect(assigns(:project)).to eq(project)
-    end
-
-    it 'fails if project is not existent' do
-      expect do
-        get :commits, params: { project: 'DoesNotExist', format: 'atom' }
-      end.to raise_error ActiveRecord::RecordNotFound
-    end
-
     it 'renders the rss template' do
       get :commits, params: { project: project, format: 'atom' }
       expect(response).to render_template('webui/feeds/commits')

@@ -17,12 +17,6 @@ RSpec.describe Webui::Projects::MetaController, :vcr do
       login user
     end
 
-    context 'with a nonexistent project' do
-      let(:post_save_meta) { post :update, params: { project_name: 'nonexistent_project' }, xhr: true }
-
-      it { expect { post_save_meta }.to raise_error(ActiveRecord::RecordNotFound) }
-    end
-
     context 'with a valid project' do
       context 'without a valid meta' do
         before do

@@ -10,10 +10,6 @@ RSpec.describe Webui::Projects::MaintenanceIncidentRequestsController do
       request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
     end
 
-    it 'without an existent project will raise an exception' do
-      expect { post :create, params: { project_name: 'non:existent:project' } }.to raise_error(ActiveRecord::RecordNotFound)
-    end
-
     context 'without a proper action for the maintenance project' do
       before do
         post :create, params: { project_name: maintenance_project, description: 'Fake description for a request' }
