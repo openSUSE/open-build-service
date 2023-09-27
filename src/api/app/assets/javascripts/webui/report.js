@@ -28,7 +28,7 @@ function setValuesOnReportDialog(modalId) {
 
     if (typeof(link.data('reportable-type')) !== 'undefined') {
       modal.find('#report_reportable_type').val(link.data('reportable-type'));
-      modal.find('.report_type').text(link.data('reportable-type'));
+      modal.find('.reportable_type').text(link.data('reportable-type'));
     }
 
     modal.find('#link_id').val(link.attr('id'));

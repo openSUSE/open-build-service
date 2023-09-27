@@ -7,9 +7,5 @@ class ReportComponent < ApplicationComponent
 
     @reportable = reportable
   end
-
-  def render?
-    policy(Report.new(reportable: @reportable)).create?
-  end
 end
 # rubocop:enable ViewComponent/MissingPreviewFile
