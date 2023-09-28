@@ -27,8 +27,8 @@ FactoryBot.define do
     end
 
     after(:create) do |project, evaluator|
-      LinkedProject.create(project: project, linked_db_project: evaluator.link_to) if evaluator.link_to.is_a?(Project)
-      LinkedProject.create(project: project, linked_remote_project_name: evaluator.link_to) if evaluator.link_to.is_a?(String)
+      create(:linked_project, project: project, linked_db_project: evaluator.link_to) if evaluator.link_to.is_a?(Project)
+      create(:linked_project, project: project, linked_remote_project_name: evaluator.link_to) if evaluator.link_to.is_a?(String)
 
       project.config.save({ user: 'factory bot' }, evaluator.project_config) if evaluator.project_config
 
