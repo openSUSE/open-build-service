@@ -30,11 +30,11 @@ class NotificationActionDescriptionComponent < ApplicationComponent
       when 'Event::BuildFail'
         "Build was triggered because of #{@notification.event_payload['reason']}"
       when 'Event::CreateReport'
-        "User '#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type']} for the following reason:"
+        "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type']} for the following reason:"
       when 'Event::ClearedDecision'
-        "User '#{@notification.notifiable.moderator.login}' cleared a report for #{@notification.notifiable.reports.first.reportable} for the following reason:"
+        "'#{@notification.notifiable.moderator.login}' cleared a report for #{@notification.notifiable.reports.first.reportable} for the following reason:"
       when 'Event::FavoredDecision'
-        "User '#{@notification.notifiable.moderator.login}' favored a report for #{@notification.notifiable.reports.first.reportable} for the following reason:"
+        "'#{@notification.notifiable.moderator.login}' favored a report for #{@notification.notifiable.reports.first.reportable} for the following reason:"
       end
     end
   end
