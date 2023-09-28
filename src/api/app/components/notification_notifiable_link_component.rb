@@ -44,17 +44,17 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     when 'Event::CreateReport'
-      "Report for a #{@notification.event_payload['reportable_type'].downcase} created"
+      "Report for a #{@notification.event_payload['reportable_type']} Created"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
       report = @notification.notifiable.reports.first
-      "Cleared #{report.reportable.class.name.downcase} report"
+      "Cleared #{report.reportable.class.name} Report"
     when 'Event::FavoredDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
       report = @notification.notifiable.reports.first
-      "Favored #{report.reportable.class.name.downcase} report"
+      "Favored #{report.reportable.class.name} Report"
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
