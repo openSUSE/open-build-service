@@ -4,6 +4,7 @@ module Person
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
     before_action :set_user
+    before_action :validate_operation, only: [:create]
 
     # GET /person/<login>/token
     def index
@@ -51,6 +52,19 @@ module Person
       raise MissingParameterError, 'The package and project parameters must be provided together.' unless params[:project] && params[:package]
 
       @package = Package.get_by_project_and_name(params[:project], params[:package])
+    end
+
+    def validate_operation
+      operation_param = params[:operation]
+      # TODO: align operation parameter allowed values
+      # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
+      # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
+      return if operation_param.nil? ||
+                ['runservice', 'rebuild', 'release', 'workflow'].include?(operation_param) # possible API parameter values
+
+      render_error status: 400,
+                   errorcode: 'invalid_token_type',
+                   message: "'#{operation_param}' is not a valid operation type for a token."
     end
   end
 end
