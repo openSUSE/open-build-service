@@ -205,14 +205,21 @@ class Package < ApplicationRecord
       pkg = prj.packages.find_by_name(package) if pkg.nil?
     end
 
-    # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
-    # linking projects is remote? What if one of the linking projects is local
-    # and the other one remote?
     if pkg.nil? && opts[:follow_project_links]
-      # in case we link to a remote project we need to assume that the
-      # backend may be able to find it even when we don't have the package local
+      # project links can point to remote projects. In that case `p` is a String.
+      # Let's see if the backend knows about this package.
       prj.expand_all_projects.each do |p|
-        return nil unless p.is_a?(Project)
+        next unless p.is_a?(String)
+        next unless exists_on_backend?(package, prj)
+
+        # alright the backend knows this package.
+        # let's setup an in memory, read only object...
+        pkg = prj.packages.new(name: package)
+        # ...with the bare minumum information
+        # remote_attributes = Xmlhash.parse(pkg.meta.content).slice('title', 'description', 'url')
+        # pkg.assign_attributes(remote_attributes)
+        pkg.readonly!
+        break
       end
     end
 
@@ -221,7 +228,7 @@ class Package < ApplicationRecord
 
     pkg.check_source_access! if opts[:use_source]
 
-    Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
+    Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at]) unless pkg.readonly? # don't cache remote packages...
     pkg
   end
 
@@ -971,6 +978,8 @@ class Package < ApplicationRecord
   end
 
   def developed_packages
+    return if new_record?
+
     packages = []
     candidates = Package.where(develpackage_id: self).load
     candidates.each do |candidate|
