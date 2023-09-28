@@ -499,11 +499,11 @@ RSpec.describe Webui::ProjectController, :vcr do
     end
 
     it 'without a repository param' do
-      expect { post :remove_path_from_target, params: { project: user } }.to raise_error ActiveRecord::RecordNotFound
+      expect { post :remove_path_from_target, params: { project: user.home_project } }.to raise_error ActiveRecord::RecordNotFound
     end
 
     it 'with a repository param but without a path param' do
-      expect { post :remove_path_from_target, params: { repository: repo_for_user_home.id, project: user } }.to raise_error ActiveRecord::RecordNotFound
+      expect { post :remove_path_from_target, params: { repository: repo_for_user_home.id, project: user.home_project } }.to raise_error ActiveRecord::RecordNotFound
     end
 
     context 'with a repository and path' do
@@ -773,14 +773,6 @@ RSpec.describe Webui::ProjectController, :vcr do
           end
         end
       end
-    end
-
-    context 'with non existing project' do
-      before do
-        login admin_user
-      end
-
-      it { expect { post :move_path, params: { project: 'non:existent:project' } }.to raise_error ActiveRecord::RecordNotFound }
     end
   end
 

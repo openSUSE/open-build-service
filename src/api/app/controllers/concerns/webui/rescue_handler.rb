@@ -21,11 +21,12 @@ module Webui::RescueHandler
       end
     end
 
-    rescue_from Package::Errors::ScmsyncReadOnly do |exception|
+    rescue_from Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError, Package::Errors::ReadSourceAccessError, Package::Errors::ScmsyncReadOnly do |exception|
+      message = exception.message || exception.default_message
       if request.xhr?
-        render json: { error: exception.default_message }, status: exception.status
+        head :not_found
       else
-        flash[:error] = exception.default_message
+        flash[:error] = message
         redirect_back(fallback_location: root_path)
       end
     end

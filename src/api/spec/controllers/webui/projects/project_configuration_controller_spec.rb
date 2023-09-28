@@ -69,13 +69,5 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, :vcr do
       it { expect(response.status).to eq(302) }
       it { expect(response).to redirect_to(root_path) }
     end
-
-    context 'with a non existing project' do
-      let(:post_update) { post :update, params: { project_name: 'non:existing:project', config: 'save config' } }
-
-      it 'raise a RecordNotFound Exception' do
-        expect { post_update }.to raise_error ActiveRecord::RecordNotFound
-      end
-    end
   end
 end
