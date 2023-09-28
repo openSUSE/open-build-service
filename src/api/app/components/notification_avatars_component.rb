@@ -9,6 +9,7 @@ class NotificationAvatarsComponent < ApplicationComponent
 
   private
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def avatar_objects
     @avatar_objects ||= case @notification.notifiable_type
                         when 'Comment'
@@ -17,11 +18,14 @@ class NotificationAvatarsComponent < ApplicationComponent
                           [User.find_by(login: @notification.event_payload['who'])]
                         when 'Report'
                           [User.find(@notification.event_payload['user_id'])]
+                        when 'Decision'
+                          [User.find(@notification.event_payload['moderator_id'])]
                         else
                           reviews = @notification.notifiable.reviews
                           reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)
                         end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def avatars_to_display
     avatar_objects.first(MAXIMUM_DISPLAYED_AVATARS).reverse
