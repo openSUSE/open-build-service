@@ -14,6 +14,8 @@ class NotificationExcerptComponent < ApplicationComponent
              @notifiable.description.to_s # description can be nil
            when 'Comment'
              helpers.render_without_markdown(@notifiable.body)
+           when 'Report', 'Decision'
+             @notifiable.reason
            else
              ''
            end
