@@ -112,4 +112,30 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
       expect(rendered_content).to have_link('Report for a Comment', href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
     end
   end
+
+  context 'for a decision notification with the event Event::ClearedDecision' do
+    let(:notification) { create(:notification, :cleared_decision) }
+    let(:package) { notification.notifiable.reports.first.reportable.commentable }
+
+    before do
+      render_inline(described_class.new(notification))
+    end
+
+    it 'renders a link to the reportable' do
+      expect(rendered_content).to have_link('Cleared Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+    end
+  end
+
+  context 'for a decision notification with the event Event::FavoredDecision' do
+    let(:notification) { create(:notification, :favored_decision) }
+    let(:package) { notification.notifiable.reports.first.reportable.commentable }
+
+    before do
+      render_inline(described_class.new(notification))
+    end
+
+    it 'renders a link to the reportable' do
+      expect(rendered_content).to have_link('Favored Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+    end
+  end
 end
