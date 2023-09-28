@@ -44,7 +44,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     when 'Event::CreateReport'
-      "Report for a #{@notification.event_payload['reportable_type']} Created"
+      "Report for a #{@notification.event_payload['reportable_type']}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
