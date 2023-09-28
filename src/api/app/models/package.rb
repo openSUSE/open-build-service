@@ -146,11 +146,44 @@ class Package < ApplicationRecord
     Project.get_by_name(project)
   end
 
-  # returns an object of package or raises an exception
-  # should be always used when a project is required
-  # in case you don't access sources or build logs in any way use
-  # use_source: false to skip check for sourceaccess permissions
-  # function returns a nil object in case the package is on remote instance
+  # Our default finder method that handles all our custom Package features (source access, multibuild, links etc.)
+  # Use this method, instead of the default `ActiveRecord::FinderMethods`, if you want to instantiate a Package.
+  #
+  #   > Package.get_by_project_and_name('home:hennevogel:myfirstproject', 'ctris').name
+  #   => "ctris"
+  #
+  # This method will check if User.possibly_nobody can access the sources of the package using our Role system
+  # https://github.com/openSUSE/open-build-service/wiki/Roles
+  #
+  # You can turn off this check by setting in the opts hash:
+  #   use_source: false
+  #
+  # It will try to find the Package by name even if the name contains the multibuild flavor
+  # https://github.com/openSUSE/open-build-service/wiki/Links#multibuild-packages
+  #
+  #   > Package.get_by_project_and_name('home:hennevogel:myfirstproject', 'ctris:hans').name
+  #   Package::Errors::UnknownObjectError: Package not found: home:hennevogel:myfirstproject/ctris:hans
+  #
+  # You can make it handle multibuild flavors (remove everything after the the first occurance of `:`)
+  # in the Package name by setting in the opts hash:
+  #   follow_multibuild: true
+  #
+  #   > Package.get_by_project_and_name('home:hennevogel:myfirstproject', 'ctris:hans', follow_multibuild: true).name
+  #   => "ctris"
+  #
+  # It will "follow" project links and find the Package from the Project the link points to.
+  # https://github.com/openSUSE/open-build-service/wiki/Links#project-links
+  #
+  # You can turn off following project links and only try to find the Package in the Project
+  # you passed in as first argument by setting in the opts hash:
+  #   follow_project_links: false
+  #
+  # It will ignore "maintenance update" Projects and not "follow" this type of project link to find the Package.
+  # https://github.com/openSUSE/open-build-service/wiki/Links#update-instance-project-links
+  #
+  # You can follow this type of project link and try to find the Package from the "maintenance update"
+  # Project by setting in the opts hash:
+  #   check_update_project: true
   def self.get_by_project_and_name(project, package, opts = {})
     opts = { use_source: true, follow_project_links: true,
              follow_multibuild: false, check_update_project: false }.merge(opts)
