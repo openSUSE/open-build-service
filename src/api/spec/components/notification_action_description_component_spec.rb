@@ -186,7 +186,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
 
       it 'renders a div containing who created a report and for what' do
         expect(rendered_content).to have_css('div.smart-overflow',
-                                             text: "User '#{notification.notifiable.user.login}' created a report for a Comment for the following reason:Because reasons.")
+                                             text: "'#{notification.notifiable.user.login}' created a report for a comment. This is the reason:")
       end
     end
   end

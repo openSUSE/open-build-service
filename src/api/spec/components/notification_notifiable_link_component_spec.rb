@@ -109,7 +109,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the reported content' do
-      expect(rendered_content).to have_link('Report for a comment created', href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Report for a Comment', href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
     end
   end
 end
