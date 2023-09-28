@@ -132,7 +132,7 @@ GEM
       rexml
     crass (1.0.6)
     daemons (1.4.1)
-    dalli (3.2.5)
+    dalli (3.2.6)
     data_migrate (9.1.1)
       activerecord (>= 6.0)
       railties (>= 6.0)
