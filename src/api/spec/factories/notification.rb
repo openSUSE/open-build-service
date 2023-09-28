@@ -82,6 +82,24 @@ FactoryBot.define do
         notification.event_payload['reason'] ||= evaluator.reason
       end
     end
+
+    trait :cleared_decision do
+      event_type { 'Event::ClearedDecision' }
+      notifiable { association(:decision, :cleared) }
+
+      after(:build) do |notification|
+        notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
+      end
+    end
+
+    trait :favored_decision do
+      event_type { 'Event::FavoredDecision' }
+      notifiable { association(:decision, :favor) }
+
+      after(:build) do |notification|
+        notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
+      end
+    end
   end
 
   factory :rss_notification, parent: :notification do
