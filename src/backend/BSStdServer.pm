@@ -120,7 +120,8 @@ sub dispatch {
   );
   $req->{'slowrequestlog'} = $req->{'group'} ? $conf->{'slowrequestlog2'} : $conf->{'slowrequestlog'};
   my $requestid = ($req->{'headers'} || {})->{'x-request-id'};
-  if ($requestid && $requestid =~ /^[-_\.a-zA-Z0-9]+\z/s) {
+  undef $requestid unless $requestid && $requestid =~ /^[-_\.a-zA-Z0-9]+\z/s;
+  if ($requestid) {
     $req->{'requestid'} = $requestid;
     if ($isajax) {
       my $jev = $BSServerEvents::gev;
@@ -139,7 +140,11 @@ sub dispatch {
   }
   $msg .= " [$requestid]" if $requestid;
   BSUtil::printlog($msg, undef, $req->{'reqid'});
-  BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain") if $isajax;
+  if ($isajax) {
+    my $autoheaders = $BSServerEvents::gev->{'autoheaders'};
+    BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
+    $BSServerEvents::gev->{'autoheaders'} = [ @$autoheaders ] if @{$autoheaders || []};
+  }
   return BSDispatch::dispatch($conf, $req);
 }
 
