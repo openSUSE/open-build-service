@@ -1318,6 +1318,13 @@ class Package < ApplicationRecord
     PackageBuildReason.new(data)
   end
 
+  def bugowner_emails
+    (develpackage&.relationships&.bugowners_with_email.presence ||
+      relationships.bugowners_with_email.presence ||
+      develpackage&.project&.relationships&.bugowners_with_email.presence ||
+      project.relationships.bugowners_with_email.presence)&.pluck(:email) || []
+  end
+
   def event_parameters
     { project: project.name, package: name }
   end
