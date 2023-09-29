@@ -191,6 +191,7 @@ sub periodic_ajax {
   if (!$conf->{'exiting'}) {
     my @s = stat(BSServer::getserverlock());
     return if $s[3];
+    # somebody removed our lock file. exit the server.
     my $sev = $conf->{'server_ev'};
     close($sev->{'fd'});
     BSEvents::rem($sev);
@@ -198,6 +199,7 @@ sub periodic_ajax {
     $conf->{'exiting'} = 10 + 1;
   }
   my @events = BSEvents::allevents();
+  # there always is the periodic concheck handler, thus we check for <= 1
   if (@events <= 1 || --$conf->{'exiting'} == 0) {
     BSServer::msg("AJAX: $conf->{'name'} goodbye.");
     exit(0);
