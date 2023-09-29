@@ -22,7 +22,7 @@ class Decision < ApplicationRecord
   end
 
   def event_parameters
-    { id: id, moderator_id: moderator.id, reason: reason }
+    { id: id, moderator_id: moderator.id, reason: reason, reportable_type: reports.first.reportable.class.name }
   end
 end
 

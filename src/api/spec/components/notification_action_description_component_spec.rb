@@ -186,8 +186,36 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
 
       it 'renders a div containing who created a report and for what' do
         expect(rendered_content).to have_css('div.smart-overflow',
-                                             text: "User '#{notification.notifiable.user.login}' created a report for a Comment for the following reason:Because reasons.")
+                                             text: "'#{notification.notifiable.user.login}' created a report for a comment. This is the reason:")
       end
+    end
+  end
+
+  context 'when the notification is for an Event::ClearedDecision' do
+    let(:notification) do
+      create(:notification, :cleared_decision)
+    end
+
+    before { render_inline(described_class.new(notification)) }
+
+    it 'renders the information about the cleared decision' do
+      expect(rendered_content).to have_css('div.smart-overflow',
+                                           text: "'#{notification.notifiable.moderator}' decided to clear the report about " \
+                                                 "the #{notification.notifiable.reports.first.reportable.class.name.downcase}. This is the reason:")
+    end
+  end
+
+  context 'when the notification is for an Event::FavoredDecision' do
+    let(:notification) do
+      create(:notification, :favored_decision)
+    end
+
+    before { render_inline(described_class.new(notification)) }
+
+    it 'renders the information about the favored decision' do
+      expect(rendered_content).to have_css('div.smart-overflow',
+                                           text: "'#{notification.notifiable.moderator}' decided to favor the report about " \
+                                                 "the #{notification.notifiable.reports.first.reportable.class.name.downcase}. This is the reason:")
     end
   end
 end

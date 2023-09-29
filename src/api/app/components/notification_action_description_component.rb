@@ -30,10 +30,13 @@ class NotificationActionDescriptionComponent < ApplicationComponent
       when 'Event::BuildFail'
         "Build was triggered because of #{@notification.event_payload['reason']}"
       when 'Event::CreateReport'
-        capture do
-          concat(tag.p("User '#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type']} for the following reason:"))
-          concat(tag.p(@notification.event_payload['reason']))
-        end
+        "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
+      when 'Event::ClearedDecision'
+        class_name = @notification.notifiable.reports.first.reportable.class.name.downcase
+        "'#{@notification.notifiable.moderator.login}' decided to clear the report about the #{class_name}. This is the reason:"
+      when 'Event::FavoredDecision'
+        class_name = @notification.notifiable.reports.first.reportable.class.name.downcase
+        "'#{@notification.notifiable.moderator.login}' decided to favor the report about the #{class_name}. This is the reason:"
       end
     end
   end
