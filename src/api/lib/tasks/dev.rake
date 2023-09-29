@@ -210,7 +210,6 @@ namespace :dev do
       create(:project, name: 'linked_project', link_to: home_admin)
       create(:multibuild_package, project: home_admin, name: 'multibuild_package')
       create(:package_with_link, project: home_admin, name: 'linked_package')
-      create(:package_with_remote_link, project: home_admin, name: 'remotely_linked_package', remote_project_name: 'openSUSE.org:openSUSE:Factory', remote_package_name: 'aaa_base')
 
       # Trigger package builds for home:Admin
       home_admin.store
@@ -241,6 +240,9 @@ namespace :dev do
 
       # Create news
       Rake::Task['dev:news:data'].invoke
+
+      # Create project link setups
+      Rake::Task['dev:project_links:data'].invoke
     end
   end
 end
