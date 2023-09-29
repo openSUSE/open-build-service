@@ -138,13 +138,14 @@ sub dispatch {
     }
     BSServer::setstatus(2, $statusmsg);
   }
-  $msg .= " [$requestid]" if $requestid;
-  BSUtil::printlog($msg, undef, $req->{'reqid'});
   if ($isajax) {
     my $autoheaders = $BSServerEvents::gev->{'autoheaders'};
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
     $BSServerEvents::gev->{'autoheaders'} = [ @$autoheaders ] if @{$autoheaders || []};
+    $req = $BSServerEvents::gev->{'request'};
   }
+  $msg .= " [$requestid]" if $requestid;
+  BSUtil::printlog($msg, undef, $req->{'reqid'});
   return BSDispatch::dispatch($conf, $req);
 }
 
