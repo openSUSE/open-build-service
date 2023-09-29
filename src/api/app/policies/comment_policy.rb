@@ -35,6 +35,7 @@ class CommentPolicy < ApplicationPolicy
   # Only logged-in Admins/Staff members or user with moderator role can moderate comments
   def moderate?
     return false if record.user.is_nobody? # soft-deleted comments
+    return false if user == record.user
     return true if user.try(:is_moderator?) || user.try(:is_admin?) || user.try(:is_staff?)
 
     false
