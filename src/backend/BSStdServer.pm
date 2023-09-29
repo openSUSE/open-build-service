@@ -138,7 +138,7 @@ sub dispatch {
     BSServer::setstatus(2, $statusmsg);
   }
   $msg .= " [$requestid]" if $requestid;
-  BSUtil::printlog($msg);
+  BSUtil::printlog($msg, undef, $req->{'reqid'});
   BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain") if $isajax;
   return BSDispatch::dispatch($conf, $req);
 }
@@ -508,11 +508,13 @@ sub server {
       my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
       $aconf->{'server_ev'} = $sev;	# for periodic_ajax
       BSServer::msg("AJAX: $name started");
-      eval {
-        $aconf->{'run'}->($aconf);
-      };
-      writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
-      BSUtil::diecritical("AJAX died: $@");
+      eval { $aconf->{'run'}->($aconf) };
+      if ($@) {
+        writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
+        BSUtil::diecritical("AJAX died: $@");
+      }
+      BSServer::msg("AJAX: $name goodbye.");
+      exit(0);
     }
   }
   my $rundir = $conf->{'rundir'};

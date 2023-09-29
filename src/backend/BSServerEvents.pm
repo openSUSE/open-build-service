@@ -385,6 +385,7 @@ sub newconnect {
   $request->{'peerip'} = $peerip if $peerip;
   $request->{'peerport'} = $peerport if $peerport;
   my $nev = BSEvents::new('read', \&getrequest);
+  $request->{'reqid'} = $nev->{'id'};
   $nev->{'request'} = $request;
   $nev->{'fd'} = $newfd;
   $nev->{'peer'} = $request->{'peer'};
