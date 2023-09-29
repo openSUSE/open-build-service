@@ -8,7 +8,7 @@
     - if policy(Report.new(reportable: user)).create?
       = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
             data: { 'bs-toggle': 'modal',
-                    'bs-target': '#report-user-modal',
+                    'bs-target': '#report-modal',
                     'modal-title': "Report #{user.login}",
                     'reportable-type': user.class.name,
                     'reportable-id': user.id }) do
@@ -49,7 +49,8 @@
         %i.fas.fa-envelope.me-1
         = user.email
 
-= render ReportComponent.new(modal_id: 'report-user-modal', options: { object_type: 'User', user: User.session })
+- if Flipper.enabled?(:content_moderation, User.possibly_nobody)
+  = render partial: 'webui/shared/report_modal'
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {

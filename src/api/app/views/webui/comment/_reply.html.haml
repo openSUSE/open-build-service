@@ -24,7 +24,7 @@
     %li.list-inline-item
       = link_to('#', class: 'btn btn-outline-dark', id: "js-comment-#{comment.id}",
             data: { 'bs-toggle': 'modal',
-                    'bs-target': '#report-comment-modal',
+                    'bs-target': '#report-modal',
                     'modal-title': "Report comment from #{comment.user}",
                     'reportable-type': comment.class.name,
                     'reportable-id': comment.id }) do
