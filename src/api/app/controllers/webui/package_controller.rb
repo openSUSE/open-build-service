@@ -56,7 +56,7 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
+    @bugowners_mail = bugowners_emails
     @revision = params[:rev]
     @failures = 0
 
@@ -700,5 +700,10 @@ class Webui::PackageController < Webui::WebuiController
       opts[k] = params[k] if params[k].present?
     end
     opts
+  end
+
+  def bugowners_emails
+    @package.develpackage&.bugowner_emails.presence || @package.bugowner_emails.presence ||
+      @package.develpackage&.project&.bugowner_emails.presence || @project.bugowner_emails.presence || []
   end
 end
