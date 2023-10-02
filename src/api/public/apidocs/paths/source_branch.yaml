@@ -41,6 +41,12 @@ post:
       in: query
       schema:
         type: boolean
+    - name: update_project_attribute
+      description: Set a different Update Project attribute.
+      in: query
+      schema:
+        type: string
+      default: OBS:UpdateProject
     - name: noaccess
       description: Create hidden project. The new created project will be read protected
       in: query
