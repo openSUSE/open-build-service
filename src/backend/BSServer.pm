@@ -598,7 +598,8 @@ sub parse_error_string {
 
 sub request_infostr {
   my ($req) = @_;
-  return sprintf("%s: %3ds %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), time() - $req->{'starttime'}, "[$$]",
+  my $id = $req->{'reqid'} || $$;
+  return sprintf("%s: %3ds %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), time() - $req->{'starttime'}, "[$id]",
       "$req->{'action'} ($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
 }
 

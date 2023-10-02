@@ -918,10 +918,11 @@ FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] $message"
 =cut
 
 sub printlog {
-  my ($msg, $level) = @_;
+  my ($msg, $level, $id) = @_;
   return if $level && !($debuglevel && $debuglevel >= $level);
+  $id ||= $$;
   $msg = "[debug $level] $msg" if $level;
-  printf "%s: %-7s %s\n", isotime(time), "[$$]", $msg;
+  printf "%s: %-7s %s\n", isotime(time), "[$id]", $msg;
 }
 
 sub setcritlogger {

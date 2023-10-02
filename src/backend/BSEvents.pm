@@ -119,7 +119,7 @@ sub call_event_handler {
 
 sub schedule {
 
-  while (1) {
+  while (%events) {
     #print "select loop, num events=".(keys %events)."\n";
     my $timeout;
     for my $ev (values %events) {

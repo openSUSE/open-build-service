@@ -120,7 +120,8 @@ sub dispatch {
   );
   $req->{'slowrequestlog'} = $req->{'group'} ? $conf->{'slowrequestlog2'} : $conf->{'slowrequestlog'};
   my $requestid = ($req->{'headers'} || {})->{'x-request-id'};
-  if ($requestid && $requestid =~ /^[-_\.a-zA-Z0-9]+\z/s) {
+  undef $requestid unless $requestid && $requestid =~ /^[-_\.a-zA-Z0-9]+\z/s;
+  if ($requestid) {
     $req->{'requestid'} = $requestid;
     if ($isajax) {
       my $jev = $BSServerEvents::gev;
@@ -137,9 +138,14 @@ sub dispatch {
     }
     BSServer::setstatus(2, $statusmsg);
   }
+  if ($isajax) {
+    my $autoheaders = $BSServerEvents::gev->{'autoheaders'};
+    BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
+    $BSServerEvents::gev->{'autoheaders'} = [ @$autoheaders ] if @{$autoheaders || []};
+    $req = $BSServerEvents::gev->{'request'};
+  }
   $msg .= " [$requestid]" if $requestid;
-  BSUtil::printlog($msg);
-  BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain") if $isajax;
+  BSUtil::printlog($msg, undef, $req->{'reqid'});
   return BSDispatch::dispatch($conf, $req);
 }
 
@@ -191,6 +197,7 @@ sub periodic_ajax {
   if (!$conf->{'exiting'}) {
     my @s = stat(BSServer::getserverlock());
     return if $s[3];
+    # somebody removed our lock file. exit the server.
     my $sev = $conf->{'server_ev'};
     close($sev->{'fd'});
     BSEvents::rem($sev);
@@ -198,6 +205,7 @@ sub periodic_ajax {
     $conf->{'exiting'} = 10 + 1;
   }
   my @events = BSEvents::allevents();
+  # there always is the periodic concheck handler, thus we check for <= 1
   if (@events <= 1 || --$conf->{'exiting'} == 0) {
     BSServer::msg("AJAX: $conf->{'name'} goodbye.");
     exit(0);
@@ -508,11 +516,13 @@ sub server {
       my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
       $aconf->{'server_ev'} = $sev;	# for periodic_ajax
       BSServer::msg("AJAX: $name started");
-      eval {
-        $aconf->{'run'}->($aconf);
-      };
-      writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
-      BSUtil::diecritical("AJAX died: $@");
+      eval { $aconf->{'run'}->($aconf) };
+      if ($@) {
+        writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
+        BSUtil::diecritical("AJAX died: $@");
+      }
+      BSServer::msg("AJAX: $name goodbye.");
+      exit(0);
     }
   }
   my $rundir = $conf->{'rundir'};
