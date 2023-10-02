@@ -15,20 +15,20 @@ function takeOverData(target, source, field) {
   target.data(field, source.data(field));
 }
 
-function prepareFlagPopover() {
+function prepareFlagPopover(element) {
   var option1, option2;
-  if ($(this).data('user-set')) {
-    option1 = '.flag-set-' + $(this).data('status');
-    option2 = '.flag-remove-' + $(this).data('default');
+  if ($(element).data('user-set')) {
+    option1 = '.flag-set-' + $(element).data('status');
+    option2 = '.flag-remove-' + $(element).data('default');
   } else {
     option1 = '.flag-set-disable';
     option2 = '.flag-set-enable';
   }
 
   var clone = $('<div/>');
-  takeOverData(clone, $(this), 'repository');
-  takeOverData(clone, $(this), 'architecture');
-  takeOverData(clone, $(this), 'flag');
+  takeOverData(clone, $(element), 'repository');
+  takeOverData(clone, $(element), 'architecture');
+  takeOverData(clone, $(element), 'flag');
 
   clone.append($(option1).html());
   clone.append('<div class="pt-2"/>');
