@@ -432,6 +432,9 @@ Rails/I18nLocaleTexts:
 
 ##################### RSpec ##################################
 
+RSpec/FilePath:
+  Enabled: false
+
 RSpec/SpecFilePathFormat:
   Exclude:
     - 'spec/controllers/concerns/rescue_authorization_handler_spec.rb'
