@@ -5,6 +5,10 @@ RSpec.describe ReportPolicy, type: :policy do
 
   let(:user) { create(:confirmed_user) }
 
+  before do
+    Flipper.enable(:content_moderation)
+  end
+
   permissions :show? do
     context 'when the current user is the owner of the report' do
       let(:report) { create(:report, user: user) }
@@ -27,10 +31,6 @@ RSpec.describe ReportPolicy, type: :policy do
   end
 
   permissions :create? do
-    before do
-      Flipper.enable(:content_moderation, user)
-    end
-
     context 'when the current user has already reported it' do
       let(:reported_comment) { create(:comment_package) }
       let(:report) { build(:report, user: user, reportable: reported_comment) }
@@ -98,6 +98,37 @@ RSpec.describe ReportPolicy, type: :policy do
         let(:report) { build(:report, user: user, reportable: reported_user) }
 
         it { is_expected.to permit(user, report) }
+      end
+    end
+  end
+
+  permissions :notify? do
+    let(:staff_user) { create(:staff_user) }
+    let(:admin_user) { create(:admin_user) }
+
+    context 'when there is no user with moderator role' do
+      it 'notifies admin users' do
+        expect(subject).to permit(admin_user, Report)
+      end
+
+      it 'notifies staff users' do
+        expect(subject).to permit(staff_user, Report)
+      end
+    end
+
+    context 'when there is a user with moderator role' do
+      let!(:moderator_user) { create(:moderator) }
+
+      it 'does not notify admin users' do
+        expect(subject).not_to(permit(admin_user, Report))
+      end
+
+      it 'does not notify staff users' do
+        expect(subject).not_to(permit(staff_user, Report))
+      end
+
+      it 'notifies the moderator' do
+        expect(subject).to permit(moderator_user, Report)
       end
     end
   end

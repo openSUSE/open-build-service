@@ -45,8 +45,9 @@ class EventSubscription
 
     def show_form_for_create_report_event?(event_class:, subscriber:)
       if event_class.name == 'Event::CreateReport'
-        return false unless subscriber.try(:is_moderator?)
-        return false unless Flipper.enabled?(:content_moderation, subscriber)
+        # There is no subscriber for the global subscription configuration
+        return false if subscriber.blank?
+        return false unless ReportPolicy.new(subscriber, Report).notify?
       end
 
       true

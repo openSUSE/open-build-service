@@ -176,6 +176,14 @@ RSpec.describe CommentPolicy do
         expect(subject).to permit(staff_user, comment)
       end
     end
+
+    context 'when the user has the moderator role assigned' do
+      let(:user_with_moderator_role) { create(:moderator) }
+
+      it 'can moderate comments' do
+        expect(subject).to permit(user_with_moderator_role, comment)
+      end
+    end
   end
   # rubocop:enable RSpec/RepeatedExample
 end

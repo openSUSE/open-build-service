@@ -21,4 +21,12 @@ class ReportPolicy < ApplicationPolicy
       !UserPolicy.new(user, record.reportable).update?
     end
   end
+
+  def notify?
+    return false unless Flipper.enabled?(:content_moderation, user)
+    return true if User.moderators.blank? && (user.is_admin? || user.is_staff?)
+    return true if user.is_moderator?
+
+    false
+  end
 end
