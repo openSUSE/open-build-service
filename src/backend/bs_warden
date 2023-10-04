@@ -109,13 +109,14 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($options, 'warden', "$rundir/$runname");
-BSUtil::printlog("starting build service worker warden");
 
 # get lock
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
 flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker warden is already running!\n");
 utime undef, undef, "$rundir/$runname.lock";
+
+BSUtil::printlog("starting build service worker warden");
 
 my %building;
 my $nextorphan = 0;

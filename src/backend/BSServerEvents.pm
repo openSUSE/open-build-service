@@ -45,7 +45,7 @@ sub request_done {
 sub request_note {
   my ($ev, $msg) = @_;
   my $info = $ev->{'request'} ? BSServer::request_infostr($ev->{'request'}) : $ev->{'peer'};
-  print "$msg for $info\n";
+  print "$msg for $info";
 }
 
 sub replstream_timeout {
