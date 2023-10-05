@@ -39,3 +39,9 @@ function setValuesOnReportDialog(modalId) {
 function hideReportButton(element) {
   $(element).addClass('d-none');
 }
+
+$(document).ready(function(){
+  $('#report-category').on('change', '.form-check-input', function(e) {
+    $('#report-reason').toggleClass('d-none', ( e.target.value !== 'other' ));
+  });
+});
