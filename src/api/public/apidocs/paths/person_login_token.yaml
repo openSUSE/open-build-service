@@ -23,7 +23,7 @@ get:
                 kind: rss
                 triggered_at: '2021-10-28 12:32:18 UTC'
               - id: 25
-                name: Release ghcz
+                description: Release ghcz
                 string: 4T04JGI691
                 kind: release
                 triggered_at: '2021-09-21 11:12:18 UTC'
@@ -60,11 +60,11 @@ post:
   parameters:
     - $ref: '../components/parameters/login.yaml'
     - in: query
-      name: name
+      name: description
       schema:
         type: string
       description: |
-        Token name. It helps to identify a token from the rest of the tokens of a user.
+        Token description. It helps to identify a token from the rest of the tokens of a user.
       example: Rebuild gchz
     - in: query
       name: project

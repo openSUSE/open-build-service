@@ -13,7 +13,7 @@ properties:
           type: string
           xml:
             attribute: true
-        name:
+        description:
           type: string
           xml:
             attribute: true
