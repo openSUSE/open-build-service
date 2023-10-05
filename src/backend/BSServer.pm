@@ -251,6 +251,8 @@ sub serverstatus_str {
       $state = 'F';
     } elsif ($state == 2) {
       $state = 'R';
+    } elsif ($state == 3) {
+      $state = 'K';
     } else {
       $state = '?';
     }
