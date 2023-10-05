@@ -142,9 +142,7 @@ sub createreq {
     @xhdrs = grep {!/^authorization:/i} @xhdrs;
     delete $param->{'authenticator'};
   }
-  if (!$param->{'keepalive'} || ($act ne 'GET' && $act ne 'HEAD')) {
-    unshift @xhdrs, "Connection: close" unless $param->{'noclose'};
-  }
+  unshift @xhdrs, "Connection: close" unless $param->{'noclose'} || $param->{'keepalive'};
   unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
   unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
   if (defined $auth) {
@@ -382,27 +380,34 @@ sub rpc {
 
   # connect to server
   my $keepalive;
-  my $keepalivecookie;
+  my ($keepalivecookie, $keepalivecount, $keepalivestart);
   my $sock;
   my $is_ssl;
   if (exists($param->{'socket'})) {
     $sock = $param->{'socket'};
   } else {
+    die("rpc continuation without socket\n") if $param->{'continuation'};
     my $hostaddr = lookuphost($host, $port, \%hostlookupcache);
     die("unknown host '$host'\n") unless $hostaddr;
     $keepalive = $param->{'keepalive'};
     $keepalivecookie = "$hostaddr/".($proxytunnel || '');
-    if (!$param->{'continuation'} && $keepalive && $keepalive->{'socket'}) {
-      my $request = $param->{'request'} || 'GET';
-      if ($keepalive->{'cookie'} eq $keepalivecookie && ($request eq 'GET' || $request eq 'HEAD')) {
+    if ($keepalive && $keepalive->{'socket'}) {
+      if (($keepalive->{'cookie'} || '') eq $keepalivecookie) {
 	$sock = $keepalive->{'socket'};
+	$keepalivestart = $keepalive->{'start'} || time();
+	$keepalivecount = ($keepalive->{'count'} || 0) + 1;
+	%$keepalive = ();
         verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'} && ($proto eq 'https' || $proxytunnel);
       } else {
 	close($keepalive->{'socket'});
-	%$keepalive = ();
       }
     }
+    %$keepalive = () if $keepalive;	# clean old data in case we die
     if (!$sock) {
+      if ($keepalive) {
+	$keepalivestart = time();
+	$keepalivecount = 1;
+      }
       $sock = opensocket($hostaddr);
       connect($sock, $hostaddr) || die("connect to $host:$port: $!\n");
       if ($proxytunnel) {
@@ -479,7 +484,6 @@ sub rpc {
   BSHTTP::gethead(\%headers, $headers);
 
   # no keepalive if the server says so
-  %$keepalive = () if $keepalive;
   undef $keepalive if lc($headers{'connection'} || '') eq 'close';
   undef $keepalive if !defined($headers{'content-length'}) && lc($headers{'transfer-encoding'} || '') ne 'chunked';
 
@@ -499,7 +503,6 @@ sub rpc {
     #}
     if ($status =~ /^30[27][^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
       close $sock;
-      %$keepalive = () if $keepalive;
       die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
       die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
       die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 1;
@@ -515,7 +518,6 @@ sub rpc {
       my $auth = $param->{'authenticator'}->($param, $headers{'www-authenticate'}, \%headers);
       if ($auth) {
         close $sock;
-        %$keepalive = () if $keepalive;
         my %myparam = %$param;
         delete $myparam{'authenticator'};
         $myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
@@ -525,7 +527,6 @@ sub rpc {
     }
     if (!$param->{'ignorestatus'}) {
       close $sock;
-      %$keepalive = () if $keepalive;
       die("$1 remote error: $2 ($uri)\n") if $status =~ /^(\d+) +(.*?)$/;
       die("remote error: $status\n");
     }
@@ -543,6 +544,9 @@ sub rpc {
     if ($keepalive) {
       $keepalive->{'socket'} = $sock;
       $keepalive->{'cookie'} = $keepalivecookie;
+      $keepalive->{'start'} = $keepalivestart;
+      $keepalive->{'count'} = $keepalivecount;
+      $keepalive->{'last'} = time();
     } else {
       close $sock;
       undef $sock;
@@ -563,6 +567,9 @@ sub rpc {
   if ($keepalive && $sock) {
     $keepalive->{'socket'} = $sock;
     $keepalive->{'cookie'} = $keepalivecookie;
+    $keepalive->{'start'} = $keepalivestart;
+    $keepalive->{'count'} = $keepalivecount;
+    $keepalive->{'last'} = time();
   } else {
     close $sock if $sock;
   }
