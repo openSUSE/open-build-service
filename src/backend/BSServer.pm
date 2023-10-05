@@ -251,6 +251,8 @@ sub serverstatus_str {
       $state = 'F';
     } elsif ($state == 2) {
       $state = 'R';
+    } elsif ($state == 3) {
+      $state = 'K';
     } else {
       $state = '?';
     }
@@ -258,6 +260,13 @@ sub serverstatus_str {
     $str .= sprintf "%s %3d %5d %s\n", $state, $d, $s->{'pid'}, $s->{'data'};
   }
   return $str;
+}
+
+sub serverstatus_close {
+  if ($serverstatus_ok) {
+    close(STA);
+    undef $serverstatus_ok;
+  }
 }
 
 sub maxchildreached {
@@ -294,6 +303,25 @@ sub dump_child_pids {
     my $out = '';
     $out .= " $_:$server->{$n}->{$_}" for sort {$a <=> $b} keys %{$server->{$n} || {}};
     print "  $n:$out\n";
+  }
+}
+
+sub wait_for_request {
+  my ($sock, $timeout) = @_;
+  while (1) {
+    my $t;
+    if (defined($timeout)) {
+      $t = $timeout - time();
+      return undef if $t < 0;
+    }
+    my $rin = '';
+    vec($rin, fileno($sock), 1) = 1;
+    my $r = select($rin, undef, undef, $t);
+    if (!defined($r) || $r == -1) {
+      die("select: $!\n") unless $! == POSIX::EINTR;
+      next;
+    }
+    return 1 if $r;
   }
 }
 
@@ -486,6 +514,8 @@ sub server {
     return $req;
   }
 
+redo_keepalive:
+
   eval {
     do {
       local $SIG{'ALRM'} = sub {print "read request timout for peer $req->{'peer'}\n" ; POSIX::_exit(0);};
@@ -503,11 +533,41 @@ sub server {
     }
   };
   return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'} && !$@;
-  reply_error($conf, $@) if $@;
-  close $clnt;
-  undef $clnt;
-  delete $req->{'__socket'};
+  if ($@) {
+    exit(0) if $req->{'keepalive_count'} && $@ eq "empty query\n";
+    if ($req->{'replying'}) {
+      delete $req->{'allow_keepalive'};
+      delete $req->{'__do_keepalive'};
+    }
+    reply_error($conf, $@);
+  }
+  if (!$req->{'__do_keepalive'}) {
+    close $clnt;
+    undef $clnt;
+    delete $req->{'__socket'};
+  }
   log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
+
+  if ($req->{'__do_keepalive'} && $clnt) {
+    # clean up req
+    if ($serverstatus_ok) {
+      if (defined(sysseek(STA, $BSServer::slot * 256, Fcntl::SEEK_SET))) {
+        syswrite(STA, pack("NNCCnZ244", time(), $$, $group, 0, 3, 'keepalive'), 256);
+      }
+    }
+    # wait for the next request
+    my $keepalive_maxidle = $req->{'keepalive_maxidle'} || 10;
+    my $r = wait_for_request($clnt, time() + $keepalive_maxidle);
+    if ($r) {
+      my %nreq = ( 'peer' => 'unknown', 'conf' => $conf, 'server' => $server, 'starttime' => time(), 'group' => $group, '__socket' => $clnt );
+      exists($req->{$_}) and $nreq{$_} = $req->{$_} for qw{peer peerip peerport keepalive_count keepalive_start};
+      $nreq{'keepalive_count'}++;
+      $nreq{'keepalive_start'} ||= $req->{'starttime'} || time();
+      %$req = %nreq;
+      goto redo_keepalive;
+    }
+  }
+
   exit(0);
 }
 
@@ -523,6 +583,12 @@ sub reply {
   my ($str, @hdrs) = @_;
 
   my $req = $BSServer::request || {};
+  delete $req->{'__do_keepalive'};
+  if ($req->{'allow_keepalive'}) {
+    if ($req->{'headers'} && ($req->{'headers'}->{'connection'} || 'keep-alive') eq 'keep-alive') {
+      $req->{'__do_keepalive'} = 1;
+    }
+  }
   if (@hdrs && $hdrs[0] =~ /^status: ((\d+).*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
@@ -533,7 +599,7 @@ sub reply {
     $req->{'statuscode'} ||= 200;
   }
   push @hdrs, "Cache-Control: no-cache" unless grep {/^cache-control:/i} @hdrs;
-  push @hdrs, "Connection: close";
+  push @hdrs, "Connection: close" unless $req->{'__do_keepalive'};
   push @hdrs, "Content-Length: ".length($str) if defined($str);
   my $data = join("\r\n", @hdrs)."\r\n\r\n";
   $data .= $str if defined($str) && ($req->{'action'} || '') ne 'HEAD';

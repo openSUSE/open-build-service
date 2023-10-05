@@ -6947,28 +6947,22 @@ sub add_redis_notifications {
   BSUtil::ping("$redisdir/.ping") unless $oldsize > 0;
 }
 
-sub redis_multirequest_server {
-  print "entering multirequest mode\n";
-  BSStdServer::stdreply($BSStdServer::return_ok, 'X-Multirequest: true');
-  return undef if xfork();
+sub external_notification_redis_dispatch {
+  my ($conf, $req) = @_;
+  die("redis keepalive process: must be POST:/notify/redis request\n") if "$req->{'action'}:$req->{'path'}" ne 'POST:/notify/redis';
+  return external_notification_redis(BSDispatch::parse_cgi_singles($req));
+}
+
+sub start_redis_keepalive_process {
   my $req = $BSServer::request;
-  my $sock = $req->{'__socket'};
-  while (1) {
-    while (length($req->{'__data'}) < 32) {
-      my $r = sysread($sock, $req->{'__data'}, 8192, length($req->{'__data'}));
-      if (!$r && defined($r)) {
-        print "multirequest process exiting due to eof\n";
-        exit(0);
-      }
-      die("read error\n") if !defined($r) && ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK);
-    }
-    my $hdr = substr($req->{'__data'}, 0, 32, '');
-    die("bad content header: $hdr\n") unless ($hdr =~ /^CL(\d{30})$/s) && $1;
-    $req->{'__cl'} = $1;
-    delete $req->{'__eof'};
-    my $payload = BSUtil::fromstorable(BSServer::read_data());
-    add_redis_notifications($payload);
-    BSHTTP::swrite($sock, "0");
+  # background us
+  print "starting redis keepalive process\n";
+  if (xfork()) {
+    delete $req->{'__do_keepalive'};	# just finish normally
+  } else {
+    BSServer::serverstatus_close();	# no longer using the slot
+    delete $req->{'starttime'};		# don't log twice
+    $req->{'conf'}->{'dispatch'} = \&external_notification_redis_dispatch;	# only allow redist notifications
   }
 }
 
@@ -6977,8 +6971,12 @@ sub external_notification_redis {
   die("need payload for redis notification\n") unless BSServer::have_content();
   my $payload = BSUtil::fromstorable(BSServer::read_data());
   add_redis_notifications($payload);
-  return redis_multirequest_server() if $cgi->{'multirequest'};
-  return $BSStdServer::return_ok;
+  my $req = $BSServer::request;
+  $req->{'allow_keepalive'} = 1 if $cgi->{'keepalive'} && ($req->{'keepalive_count'} || 0) < 20 && ($req->{'keepalive_starttime'} || 0) + 300 < time();
+  $req->{'keepalive_maxidle'} = 300;
+  BSStdServer::stdreply($BSStdServer::return_ok);
+  start_redis_keepalive_process() if $req->{'__do_keepalive'} && !$req->{'keepalive_count'};
+  return undef;
 }
 
 # FIXME improve error handling
