@@ -14,18 +14,18 @@ class NotifiedProjects
     when 'Comment'
       case @notifiable.commentable_type
       when 'Project'
-        @notifiable.commentable
+        [@notifiable.commentable]
       when 'Package'
-        @notifiable.commentable.project
+        [@notifiable.commentable.project]
       when 'BsRequest'
         @notifiable.commentable.target_project_objects.distinct
       when 'BsRequestAction'
         @notifiable.commentable.bs_request.target_project_objects.distinct
       end
     when 'Package'
-      @notifiable.project
+      [@notifiable.project]
     when 'Project'
-      @notifiable
+      [@notifiable]
     when 'Report', 'Decision'
       []
     end
