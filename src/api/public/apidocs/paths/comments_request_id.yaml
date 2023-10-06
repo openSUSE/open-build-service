@@ -29,10 +29,10 @@ get:
             $ref: '../components/schemas/api_response.yaml'
           examples:
             not_found:
-              summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+              summary: Couldn't find Request with number '1234'
               value:
                 code: not_found
-                summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+                summary: Couldn't find Request with number '1234'
   tags:
     - Comments
 
@@ -88,9 +88,9 @@ post:
             $ref: '../components/schemas/api_response.yaml'
           examples:
             not_found:
-              summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+              summary: Couldn't find Request with number '1234'
               value:
                 code: not_found
-                summary: Couldn't find BsRequest with [WHERE `bs_requests`.`number` = ?]
+                summary: Couldn't find Request with number '1234'
   tags:
     - Comments

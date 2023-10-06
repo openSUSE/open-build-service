@@ -31,7 +31,9 @@ class CommentsController < ApplicationController
         @header = { project: @obj.name }
       end
     elsif params[:request_number]
-      @obj = BsRequest.find_by_number!(params[:request_number])
+      @obj = BsRequest.find_by(number: params[:request_number])
+      raise ActiveRecord::RecordNotFound, "Couldn't find Request with number '#{params[:request_number]}'" if @obj.nil?
+
       @header = { request: @obj.number }
     else
       @obj = User.session!
