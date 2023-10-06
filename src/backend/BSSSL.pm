@@ -208,7 +208,7 @@ sub READ {
   my $buf = \$_[1];
   $! = 0;
   my ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
-  if ($rv && $rv < 0) {
+  if ($rv <= 0) {
     my $code = Net::SSLeay::get_error($sslr->[0], $rv);
     return 0 if $code == &Net::SSLeay::ERROR_WANT_READ && ssl_iseof($sslr->[0]);
     $! = POSIX::EINTR if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
@@ -265,12 +265,11 @@ sub DESTROY {
 sub data_available {
   my ($sslr) = @_;
   my ($r, $rv) = Net::SSLeay::peek($sslr->[0], 1);
-  if ($rv && $rv < 0) {
+  if ($rv <= 0) {
     my $code = Net::SSLeay::get_error($sslr->[0], $rv);
     return 0 if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
-    return undef;
   }
-  return defined($r) ? 1 : 0;
+  return defined($r) ? 1 : undef;
 }
 
 sub peerfingerprint {
