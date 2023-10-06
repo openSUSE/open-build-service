@@ -1,5 +1,11 @@
-.modal .modal-header h5 {
+.modal {
+  .modal-header h5 {
     color: $body-color;
     overflow-x: hidden;
     overflow-wrap: break-word;
+  }
+
+  .bg-modal {
+    background-color: var(--bs-modal-bg)
+  }
 }

@@ -1,5 +1,6 @@
 // This stylesheet defines styles for use in the comments and request history merged timeline
 .timeline {
+    --timeline-bg: var(--bs-card-bg);
     $timeline-border-width: 0.125rem;
     $timeline-item-avatar-width: 1.5rem;
     $timeline-item-avatar-height: 1.5rem;
@@ -15,7 +16,7 @@
             height: $timeline-item-avatar-height;
             width: $timeline-item-avatar-width;
             text-align: center;
-            @extend .bg-white;
+            background-color: var(--timeline-bg);
         }
 
         $timeline-item-avatar-margin: 0.5rem;
@@ -36,7 +37,7 @@
             margin-left: 0.66rem;
         }
         i.timeline-break {
-            @extend .bg-white;
+            background-color: var(--timeline-bg);
             @extend .text-dark;
         }
         a:hover i.timeline-break {
