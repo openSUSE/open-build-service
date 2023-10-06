@@ -8,9 +8,23 @@ class Report < ApplicationRecord
 
   belongs_to :decision, optional: true
 
+  enum category: {
+    spam: 10,
+    scam: 20,
+    forbidden_license: 30,
+    illegal_content: 40,
+    other: 99
+  }
+
   after_create :create_event
 
   scope :without_decision, -> { where(decision: nil) }
+
+  def reason
+    return category.humanize if category != 'other'
+
+    super
+  end
 
   private
 
@@ -28,6 +42,7 @@ end
 # Table name: reports
 #
 #  id              :bigint           not null, primary key
+#  category        :integer          default("other")
 #  reason          :text(65535)
 #  reportable_type :string(255)      indexed => [reportable_id]
 #  created_at      :datetime         not null

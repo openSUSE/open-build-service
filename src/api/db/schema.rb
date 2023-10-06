@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_21_133606) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_05_074105) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -874,6 +874,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_21_133606) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "decision_id"
+    t.integer "category", default: 99
     t.index ["decision_id"], name: "index_reports_on_decision_id"
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
     t.index ["user_id"], name: "index_reports_on_user_id"

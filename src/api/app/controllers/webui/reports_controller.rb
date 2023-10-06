@@ -23,6 +23,6 @@ class Webui::ReportsController < Webui::WebuiController
   private
 
   def report_params
-    params.require(:report).permit(:reason, :reportable_id, :reportable_type)
+    params.require(:report).permit(:reason, :reportable_id, :reportable_type, :category)
   end
 end

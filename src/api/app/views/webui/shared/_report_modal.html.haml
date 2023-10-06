@@ -1,8 +1,6 @@
 .modal.fade{ id: 'report-modal', tabindex: -1, role: 'dialog', aria: { labelledby: "report-modal-label", hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
-      .modal-header
-        %h5.wrap-text.modal-title{ id: 'report-modal-label' }
       .modal-body
         %p.wrap-text.confirmation-text
           Are you sure you want to report this
@@ -20,10 +18,16 @@
           = form.hidden_field :reportable_id
           = form.hidden_field :reportable_type
           .mb-3
-            = form.label('Reason:')
-            = form.text_area(:reason, class: 'form-control')
-            .text-muted
-              Please include any additional information here.
+            #report-category
+              = form.collection_radio_buttons(:category, Report.categories.keys, :to_s, :humanize, { checked: 'spam' }) do |radio|
+                .form-check
+                  = radio.radio_button(class: 'form-check-input')
+                  = radio.label(class: 'form-check-label')
+            #report-reason
+              = form.label('Reason:')
+              = form.text_area(:reason, class: 'form-control')
+              .text-muted
+                Please include any additional information here.
           .modal-footer
             %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
