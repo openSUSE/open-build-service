@@ -1,6 +1,9 @@
 class ReportPolicy < ApplicationPolicy
   def show?
-    user.is_admin? || record.user == user
+    return true if user.is_admin? || user.is_moderator? || user.is_staff?
+    return true if record.user == user
+
+    CommentPolicy.new(user, record.reportable).maintainer? if record.reportable_type == 'Comment'
   end
 
   def create?
