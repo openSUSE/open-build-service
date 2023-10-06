@@ -23,7 +23,7 @@
                 .form-check
                   = radio.radio_button(class: 'form-check-input')
                   = radio.label(class: 'form-check-label')
-            .d-none#report-reason
+            #report-reason
               = form.label('Reason:')
               = form.text_area(:reason, class: 'form-control')
               .text-muted

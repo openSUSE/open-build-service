@@ -42,6 +42,6 @@ function hideReportButton(element) {
 
 $(document).ready(function(){
   $('#report-category').on('change', '.form-check-input', function(e) {
-    $('#report-reason').toggleClass('d-none', ( e.target.value !== 'other' ));
+    $('#report-reason textarea').attr('required', (e.target.value !== 'other' ? null : true));
   });
 });
