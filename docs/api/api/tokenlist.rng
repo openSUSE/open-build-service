@@ -47,7 +47,7 @@
       </attribute>
 
       <optional>
-       <attribute name="name">
+       <attribute name="description">
         <a:documentation>
          This attribute can be used to identify a token from the list of tokens
          of a user.
