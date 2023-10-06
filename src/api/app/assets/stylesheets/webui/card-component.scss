@@ -23,4 +23,8 @@
     background-color: $card-bg;
     border-bottom-color: $card-bg;
   }
+
+  .bg-card {
+    background-color: var(--bs-card-bg)
+  }
 }

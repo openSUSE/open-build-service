@@ -29,6 +29,6 @@
     - unless User.session # rubocop:disable ViewComponent/AvoidGlobalState
       .login-separator.text-center
         %hr.my-4
-        %span.bg-white.px-3.text-muted or
+        %span.bg-card.px-3.text-muted or
       .text-center
         = link_to('Log In', new_session_path)
