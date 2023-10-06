@@ -1,6 +1,8 @@
 require 'xmlhash'
 module Person
   class TokenController < ApplicationController
+    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+
     before_action :set_user
 
     # GET /person/<login>/token
@@ -28,15 +30,15 @@ module Person
     def delete
       authorize @user, :update?
 
-      token = @user.tokens.find(params[:id])
-
-      render_error status: 404 && return unless token
-
-      token.destroy
+      @user.tokens.find(params[:id]).destroy
       render_ok
     end
 
     private
+
+    def record_not_found(exception)
+      render_error status: 404, message: "Couldn't find Token with 'id'=#{exception.id}"
+    end
 
     def set_user
       @user = User.find_by(login: params[:login]) || User.find_nobody!
