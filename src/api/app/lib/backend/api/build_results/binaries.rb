@@ -23,6 +23,11 @@ module Backend
                    params: { code: :lastfailures })
         end
 
+        # Returns the file of a package
+        def self.file(project_name, repository_name, architecture_name, package_name, file_name)
+          http_get(['/build/:project/:repository/:architecture/:package/:file', project_name, repository_name, architecture_name, package_name, file_name])
+        end
+
         # Returns the publishedpath for a file of a package
         def self.publishedpath(project_name, repository_name, package_name, architecture_name, file_name)
           http_get(['/build/:project/:repository/:architecture/:package/:file',
