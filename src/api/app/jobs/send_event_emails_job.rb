@@ -31,7 +31,7 @@ class SendEventEmailsJob < ApplicationJob
   end
 
   def event_subscribers(event:)
-    if event.is_a?(Event::CreateReport)
+    if event.is_a?(Event::Report)
       event.subscribers.filter_map { |subscriber| subscriber if ReportPolicy.new(subscriber, Report).notify? }
     else
       event.subscribers

@@ -10,6 +10,7 @@ namespace :dev do
       factory = Project.where(name: 'openSUSE:Factory').first
       admin = User.get_default_admin
       iggy = User.find_by(login: 'Iggy')
+
       [
         factory.comments.create!(user: admin, body: 'This project is crap!'),
         create(:package_with_files, name: 'crappy_package', project: factory),

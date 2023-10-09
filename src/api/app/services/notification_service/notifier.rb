@@ -9,7 +9,10 @@ module NotificationService
                         'Event::CommentForRequest',
                         'Event::RelationshipCreate',
                         'Event::RelationshipDelete',
-                        'Event::CreateReport',
+                        'Event::ReportForProject',
+                        'Event::ReportForPackage',
+                        'Event::ReportForComment',
+                        'Event::ReportForUser',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision'].freeze
     CHANNELS = [:web, :rss].freeze
@@ -25,7 +28,7 @@ module NotificationService
       web: NotificationService::WebChannel,
       rss: NotificationService::RSSChannel
     }.freeze
-    REJECTED_FOR_RSS = ['Event::CreateReport',
+    REJECTED_FOR_RSS = ['Event::Report',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision'].freeze
 
@@ -62,7 +65,7 @@ module NotificationService
     end
 
     def create_report_notification?(event:, subscriber:)
-      return false if event.is_a?(Event::CreateReport) && !ReportPolicy.new(subscriber, Report).notify?
+      return false if event.is_a?(Event::Report) && !ReportPolicy.new(subscriber, Report).notify?
 
       true
     end

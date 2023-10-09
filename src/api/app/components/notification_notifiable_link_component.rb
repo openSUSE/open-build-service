@@ -43,7 +43,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       repository = @notification.event_payload['repository']
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
-    when 'Event::CreateReport'
+    when 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
