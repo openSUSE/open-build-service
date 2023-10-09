@@ -277,6 +277,14 @@ sub verify_sslpeerfingerprint {
   die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
 }
 
+sub probe_keepalive {
+  my ($sock) = $_;
+  my $rin = '';
+  vec($rin, fileno($sock), 1) = 1;
+  my $r = select($rin, undef, undef, 0);
+  return defined($r) && $r == 0 ? 1 : 0;
+}
+
 #
 # handled paramters:
 # timeout
@@ -390,23 +398,19 @@ sub rpc {
     my $hostaddr = lookuphost($host, $port, \%hostlookupcache);
     die("unknown host '$host'\n") unless $hostaddr;
     $keepalive = $param->{'keepalive'};
-    $keepalivecookie = "$hostaddr/".($proxytunnel || '');
+    $keepalivecookie = "$proto://$hostaddr/".($proxytunnel || '');
     if ($keepalive && $keepalive->{'socket'}) {
-      if (($keepalive->{'cookie'} || '') eq $keepalivecookie) {
+      if (($keepalive->{'cookie'} || '') eq $keepalivecookie && probe_keepalive($keepalive->{'socket'})) {
 	$sock = $keepalive->{'socket'};
 	$keepalivestart = $keepalive->{'start'} || time();
 	$keepalivecount = ($keepalive->{'count'} || 0) + 1;
-	%$keepalive = ();
-        verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'} && ($proto eq 'https' || $proxytunnel);
-      } else {
-	close($keepalive->{'socket'});
       }
     }
     %$keepalive = () if $keepalive;	# clean old data in case we die
     if (!$sock) {
       if ($keepalive) {
 	$keepalivestart = time();
-	$keepalivecount = 1;
+	$keepalivecount = 0;
       }
       $sock = opensocket($hostaddr);
       connect($sock, $hostaddr) || die("connect to $host:$port: $!\n");
@@ -417,6 +421,11 @@ sub rpc {
       }
       if ($proto eq 'https' || $proxytunnel) {
 	setup_ssl_client($sock, $param, $host, $tossl);
+	$is_ssl = 1;
+      }
+    } else {
+      if ($proto eq 'https' || $proxytunnel) {
+	verify_sslpeerfingerprint($sock, $param->{'sslpeerfingerprint'}) if $param->{'sslpeerfingerprint'};
 	$is_ssl = 1;
       }
     }
