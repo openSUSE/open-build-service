@@ -30,7 +30,7 @@
           .row
             .card.p-4#description-text
               - if @bs_request.description.present?
-                %h4.list-group.mb-4 Description
+                %h4.mb-4 Description
                 = render partial: 'webui/shared/collapsible_text', locals: { text: @bs_request.description, extra_css_classes: 'full-width' }
               - else
                 %i No description set
