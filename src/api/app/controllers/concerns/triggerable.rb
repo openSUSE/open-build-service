@@ -17,14 +17,6 @@ module Triggerable
     @package ||= Package.get_by_project_and_name(@project,
                                                  @package_name,
                                                  package_find_options)
-    return unless @project.links_to_remote?
-
-    # The token has no package, we did not find a package in the database but the project has a link to remote.
-    # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
-    # In this case, we will try to trigger with the user input, no matter what it is
-    @package ||= @package_name
-    # TODO: This should not happen right? But who knows...
-    raise ActiveRecord::RecordNotFound unless @package
   end
 
   def set_object_to_authorize
@@ -38,6 +30,6 @@ module Triggerable
 
   def package_from_project_link?
     # a remote package is always included via project link
-    !(@package.is_a?(Package) && @package.project == @project)
+    @package.readonly? || (@package.project != @project)
   end
 end
