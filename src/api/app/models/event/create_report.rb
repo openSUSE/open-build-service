@@ -1,3 +1,4 @@
+# TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
 module Event
   class CreateReport < Base
     receiver_roles :moderator

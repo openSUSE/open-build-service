@@ -44,7 +44,7 @@ class EventSubscription
     end
 
     def show_form_for_create_report_event?(event_class:, subscriber:)
-      if event_class.name == 'Event::CreateReport'
+      if event_class.name.in?(['Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'])
         # There is no subscriber for the global subscription configuration
         return false if subscriber.blank?
         return false unless ReportPolicy.new(subscriber, Report).notify?

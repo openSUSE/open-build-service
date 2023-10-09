@@ -1,5 +1,6 @@
 module NotificationService
   class Notifier
+    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     EVENTS_TO_NOTIFY = ['Event::BuildFail',
                         'Event::RequestStatechange',
                         'Event::RequestCreate',
@@ -10,6 +11,10 @@ module NotificationService
                         'Event::RelationshipCreate',
                         'Event::RelationshipDelete',
                         'Event::CreateReport',
+                        'Event::ReportForProject',
+                        'Event::ReportForPackage',
+                        'Event::ReportForComment',
+                        'Event::ReportForUser',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision'].freeze
     CHANNELS = [:web, :rss].freeze
@@ -25,7 +30,12 @@ module NotificationService
       web: NotificationService::WebChannel,
       rss: NotificationService::RSSChannel
     }.freeze
+    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     REJECTED_FOR_RSS = ['Event::CreateReport',
+                        'Event::ReportForProject',
+                        'Event::ReportForPackage',
+                        'Event::ReportForComment',
+                        'Event::ReportForUser',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision'].freeze
 
@@ -62,7 +72,8 @@ module NotificationService
     end
 
     def create_report_notification?(event:, subscriber:)
-      return false if event.is_a?(Event::CreateReport) && !ReportPolicy.new(subscriber, Report).notify?
+      # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
+      return false if (event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)) && !ReportPolicy.new(subscriber, Report).notify?
 
       true
     end

@@ -31,7 +31,16 @@ class Report < ApplicationRecord
   private
 
   def create_event
-    Event::CreateReport.create(event_parameters)
+    case reportable_type
+    when 'Comment'
+      Event::ReportForComment.create(event_parameters)
+    when 'Package'
+      Event::ReportForPackage.create(event_parameters)
+    when 'Project'
+      Event::ReportForProject.create(event_parameters)
+    when 'User'
+      Event::ReportForUser.create(event_parameters)
+    end
   end
 
   def event_parameters
