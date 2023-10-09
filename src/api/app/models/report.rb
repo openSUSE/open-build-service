@@ -20,8 +20,10 @@ class Report < ApplicationRecord
 
   scope :without_decision, -> { where(decision: nil) }
 
+  # TODO: remove the first part of the condition `category.present?`. It's a temprary patch to
+  # avoid problems during deployment.
   def reason
-    return category.humanize if category != 'other'
+    return category.humanize if category.present? && (category != 'other')
 
     super
   end
