@@ -1,5 +1,5 @@
 class Worker::StatusController < ApplicationController
   def index
-    send_data(WorkerStatus.hidden.to_xml)
+    render xml: WorkerStatus.hidden
   end
 end
