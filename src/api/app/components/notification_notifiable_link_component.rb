@@ -1,5 +1,6 @@
-# rubocop:disable Metrics/ClassLength
 class NotificationNotifiableLinkComponent < ApplicationComponent
+  include Webui::ReportablesHelper
+
   def initialize(notification)
     super
 
@@ -95,10 +96,10 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                                        repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
     when 'Event::CreateReport'
       reportable = @notification.notifiable.reportable
-      link_for_reportables(reportable)
+      link_for_reportables(reportable:, notification: @notification)
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
       reportable = @notification.notifiable.reports.first.reportable
-      link_for_reportables(reportable)
+      link_for_reportables(reportable:, notification: @notification)
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -112,38 +113,4 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       @notification.notifiable.commentable
     end
   end
-
-  def link_for_reportables(reportable)
-    case @notification.event_payload['reportable_type']
-    when 'Comment'
-      link_for_commentables_on_reportables(commentable: reportable.commentable)
-    when 'Package'
-      Rails.application.routes.url_helpers.package_show_path(package: reportable,
-                                                             project: reportable.project,
-                                                             notification_id: @notification.id,
-                                                             anchor: 'comments-list')
-    when 'Project'
-      Rails.application.routes.url_helpers.project_show_path(reportable, notification_id: @notification.id, anchor: 'comments-list')
-    when 'User'
-      Rails.application.routes.url_helpers.user_path(reportable)
-    end
-  end
-
-  def link_for_commentables_on_reportables(commentable:)
-    case commentable
-    when BsRequest
-      Rails.application.routes.url_helpers.request_show_path(commentable.number, notification_id: @notification.id, anchor: 'comments-list')
-    when BsRequestAction
-      Rails.application.routes.url_helpers.request_show_path(number: commentable.bs_request.number, request_action_id: commentable.id,
-                                                             notification_id: @notification.id, anchor: 'tab-pane-changes')
-    when Package
-      Rails.application.routes.url_helpers.package_show_path(package: commentable,
-                                                             project: commentable.project,
-                                                             notification_id: @notification.id,
-                                                             anchor: 'comments-list')
-    when Project
-      Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: @notification.id, anchor: 'comments-list')
-    end
-  end
 end
-# rubocop:enable Metrics/ClassLength

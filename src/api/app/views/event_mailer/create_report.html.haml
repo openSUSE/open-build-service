@@ -4,4 +4,4 @@
 %p
   = event['reason']
 %p
-  = link_to_reportables(payload: event, host: @host)
+  = link_to_reportables(reportable: Report.find(event['id']).reportable, host: @host)
