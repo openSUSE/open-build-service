@@ -8,7 +8,7 @@ span.CodeRay { white-space: pre }
 .CodeRay .line-numbers {
   display: inline-block;
   background: $card-cap-bg;
-  border-right: $card-border-width solid $card-border-color;
+  border-right: var(--bs-border-width) solid var(--bs-border-color);
 }
 
 .CodeRay .line-numbers pre {

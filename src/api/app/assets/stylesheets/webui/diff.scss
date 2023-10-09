@@ -19,8 +19,8 @@
     
   }
   overflow: auto;
-  border-bottom-left-radius: calc(#{$card-border-radius} - #{$card-border-width});
-  border-bottom-right-radius: calc(#{$card-border-radius} - #{$card-border-width});
+  border-bottom-left-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
+  border-bottom-right-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
   .diff {
     min-width: 100%;
     width: max-content;
@@ -32,7 +32,7 @@
         display: block;
         position: absolute;
         z-index: 1000;
-        margin-left: calc(2 * (var(--line-index-digits) + 2rem + #{$card-border-width}) + 0.5rem + #{$card-border-width});
+        margin-left: calc(2 * (var(--line-index-digits) + 2rem + var(--bs-border-width)) + 0.5rem + var(--bs-border-width));
         margin-top: -1.75rem;
       }
       .line-comment .fa-comment {
@@ -78,10 +78,10 @@
         .number {
           color: $text-muted;
           font-family: monospace;
-          width: calc(var(--line-index-digits) + 2rem + #{$card-border-width});
+          width: calc(var(--line-index-digits) + 2rem + var(--bs-border-width));
           text-align: right;
           padding: 0 1rem 0 0;
-          border-right: $card-border-width solid $card-border-color;
+          border-right: var(--bs-border-width) solid var(--bs-border-color);
           user-select: none;
         }
       }
@@ -92,16 +92,16 @@
         background-color: rgba($danger, 0.2)
       }
       &.range, &.comment {
-        border-bottom: $card-border-width solid $card-border-color;
-        border-top: $card-border-width solid $card-border-color;
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        border-top: var(--bs-border-width) solid var(--bs-border-color);
         .offset {
           font-family: monospace;
-          padding-left: calc(4rem + (2 * var(--line-index-digits)) + #{$card-border-width});
+          padding-left: calc(4rem + (2 * var(--line-index-digits)) + var(--bs-border-width));
           position: sticky;
           left: 0;
           .text {
             padding-left: 1rem;
-            border-left: $card-border-width solid $card-border-color;
+            border-left: var(--bs-border-width) solid var(--bs-border-color);
           }
         }
       }

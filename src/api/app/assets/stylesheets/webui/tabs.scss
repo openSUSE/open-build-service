@@ -5,7 +5,7 @@
   overflow: auto;
   white-space: nowrap;
   padding: 0.5rem 1rem 0rem 1rem;
-  margin-bottom: -$card-border-width;
+  margin-bottom: calc(-1 * var(--bs-border-width));
 
   a.scrollable-tab-link {
     display: inline-block;
@@ -27,7 +27,7 @@
 ul.scrollable-tabs {
   display: block;
   overflow-y: hidden;
-  margin-bottom: -$card-border-width;
+  margin-bottom: calc(-1 * var(--bs-border-width));
 
   li.scrollable-tab-link {
     display: inline-block;
