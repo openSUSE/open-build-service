@@ -3,12 +3,8 @@ FactoryBot.define do
     sequence(:position) { |n| n }
     project
 
-    trait :local do
-      linked_db_project { association :project }
-    end
+    # linked_db_project: belongs_to association, used to store the local project
 
-    trait :remote do
-      linked_remote_project_name { 'openSUSE.org:home:hennevogel:myfirstproject' }
-    end
+    # linked_remote_project_name: string field, used to store the remote project
   end
 end
