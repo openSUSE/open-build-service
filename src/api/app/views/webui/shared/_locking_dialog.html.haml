@@ -1,0 +1,29 @@
+.modal.fade{ tabindex: -1, id: "#{modal_id}-modal" }
+  .modal-dialog
+    .modal-content
+      - if commentable.comment_lock.blank?
+        .modal-header
+          %h5.modal-title Lock comments
+          %button.btn-close{ type: 'button', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' }
+        = form_for(CommentLock.new, url: comment_lock_path, method: :post) do |form|
+          .modal-body
+            = form.hidden_field :commentable_id, value: commentable.id
+            = form.hidden_field :commentable_type, value: commentable.class
+            .mb-1
+              %strong You are about to disable comments for this #{entity_type}.
+              .mt-2.mb-2= "Consider adding one last comment to explain the reason for it."
+              %div= "As a moderator you can always unlock or add a comment later."
+          .modal-footer
+            = submit_tag('Lock', class: 'btn btn-sm btn-warning px-4')
+      - else
+        .modal-header
+          %h5.modal-title Unlock comments
+          %button.btn-close{ type: 'button', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' }
+        = form_for(commentable.comment_lock, url: comment_unlock_path(commentable.comment_lock), method: :delete) do |form|
+          .modal-body
+            = form.hidden_field :commentable_id, value: commentable.id
+            = form.hidden_field :commentable_type, value: commentable.class
+            .mb-1
+              %strong You are about to enable comments for this #{entity_type}.
+          .modal-footer
+            = submit_tag('Unlock', class: 'btn btn-sm btn-warning px-4')
