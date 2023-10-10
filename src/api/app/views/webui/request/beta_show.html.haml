@@ -30,14 +30,14 @@
           .row
             .card.p-4#description-text
               - if @bs_request.description.present?
-                %h4.list-group.mb-4 Description
+                %h4.mb-4 Description
                 = render partial: 'webui/shared/collapsible_text', locals: { text: @bs_request.description, extra_css_classes: 'full-width' }
               - else
                 %i No description set
 
             #comments-list
               .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
-                %h4.list-group.mb-4.ms-3 Comments & History
+                %h4.list-group.mb-4.ms-3.pt-3 Comments & History
                 .timeline-item
                   .d-inline-flex
                     %i.fas.fa-lg.fa-code-commit.text-dark
