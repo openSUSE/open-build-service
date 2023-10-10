@@ -556,8 +556,14 @@ redo_keepalive:
       }
     }
     # wait for the next request
-    my $keepalive_maxidle = $req->{'keepalive_maxidle'} || 10;
-    my $r = wait_for_request($clnt, time() + $keepalive_maxidle);
+    my $now = time();
+    my $timeout = $now + ($req->{'keepalive_maxidle'} || 10);
+    my $maxage = $req->{'keepalive_maxage'};
+    if ($maxage) {
+      $maxage += $req->{'keepalive_start'} || $req->{'starttime'} || $now;
+      $timeout = $maxage if $timeout > $maxage;
+    }
+    my $r = wait_for_request($clnt, $timeout);
     if ($r) {
       my %nreq = ( 'peer' => 'unknown', 'conf' => $conf, 'server' => $server, 'starttime' => time(), 'group' => $group, '__socket' => $clnt );
       exists($req->{$_}) and $nreq{$_} = $req->{$_} for qw{peer peerip peerport keepalive_count keepalive_start};
@@ -678,7 +684,7 @@ sub log_slow_requests {
   eval { BSUtil::appendstr($log, $msg) };
 }
 
-sub reply_error  {
+sub reply_error {
   my ($conf, $errstr) = @_;
   my ($err, $code, $tag, @hdrs) = parse_error_string($conf, $errstr);
   # send reply through custom function or standard reply
