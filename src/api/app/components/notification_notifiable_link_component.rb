@@ -7,7 +7,13 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   end
 
   def call
-    link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1')
+    case @notification.event_type
+    when 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
+      link_to(notifiable_link_text, link_to_reportables(notification_id: @notification.id, event_payload: @notification.event_payload,
+                                                        event_type: @notification.event_type), class: 'mx-1')
+    else
+      link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1')
+    end
   end
 
   private
@@ -93,12 +99,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
                                                                        repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
-    when 'Event::CreateReport'
-      reportable = @notification.notifiable.reportable
-      link_for_reportables(reportable)
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
-      reportable = @notification.notifiable.reports.first.reportable
-      link_for_reportables(reportable)
+      #reportable = @notification.notifiable.reports.first.reportable
+      #link_for_reportables(reportable)
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -113,36 +116,38 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     end
   end
 
-  def link_for_reportables(reportable)
-    case @notification.event_payload['reportable_type']
-    when 'Comment'
-      link_for_commentables_on_reportables(commentable: reportable.commentable)
-    when 'Package'
-      Rails.application.routes.url_helpers.package_show_path(package: reportable,
-                                                             project: reportable.project,
-                                                             notification_id: @notification.id,
+  def link_to_reportables(notification_id:, event_payload:, event_type:)
+    case event_type
+    when 'Event::ReportForPackage'
+      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'] ,
+                                                             project: event_payload['project_name'],
+                                                             notification_id: notification_id,
                                                              anchor: 'comments-list')
-    when 'Project'
-      Rails.application.routes.url_helpers.project_show_path(reportable, notification_id: @notification.id, anchor: 'comments-list')
-    when 'User'
-      Rails.application.routes.url_helpers.user_path(reportable)
+    when 'Event::ReportForProject'
+      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id, anchor: 'comments-list')
+    when 'Event::ReportForUser'
+      Rails.application.routes.url_helpers.user_path(event_payload['user_login'])
+    when 'Event::ReportForComment'
+      link_to_commentables_on_reports(notification_id: notification_id, event_payload: event_payload)
     end
   end
 
-  def link_for_commentables_on_reportables(commentable:)
-    case commentable
-    when BsRequest
-      Rails.application.routes.url_helpers.request_show_path(commentable.number, notification_id: @notification.id, anchor: 'comments-list')
-    when BsRequestAction
-      Rails.application.routes.url_helpers.request_show_path(number: commentable.bs_request.number, request_action_id: commentable.id,
-                                                             notification_id: @notification.id, anchor: 'tab-pane-changes')
-    when Package
-      Rails.application.routes.url_helpers.package_show_path(package: commentable,
-                                                             project: commentable.project,
-                                                             notification_id: @notification.id,
+  def link_to_commentables_on_reports(notification_id:, event_payload:)
+    case event_payload['commentable_type']
+    when 'BsRequest'
+      Rails.application.routes.url_helpers.request_show_path(event_payload['bs_request_number'],
+                                                             notification_id: notification_id, anchor: 'comments-list')
+    when 'BsRequestAction'
+      Rails.application.routes.url_helpers.request_show_path(number: event_payload['bs_request_number'],
+                                                             request_action_id: event_payload['bs_request_action_id'],
+                                                             notification_id: notification_id, anchor: 'tab-pane-changes')
+    when 'Package'
+      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'],
+                                                             project: event_payload['project_name'],
+                                                             notification_id: notification_id,
                                                              anchor: 'comments-list')
-    when Project
-      Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: @notification.id, anchor: 'comments-list')
+    when 'Project'
+      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id, anchor: 'comments-list')
     end
   end
 end
