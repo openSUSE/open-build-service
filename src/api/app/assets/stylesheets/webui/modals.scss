@@ -1,4 +1,7 @@
 .modal {
+  font-size: var(--bs-body-font-size);
+  color: $body-color;
+
   .modal-header h5 {
     color: $body-color;
     overflow-x: hidden;
