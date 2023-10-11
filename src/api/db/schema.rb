@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_11_091840) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_11_135554) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -292,6 +292,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_11_091840) do
     t.datetime "updated_at", precision: nil, null: false
     t.index ["job_id"], name: "index_cloud_user_upload_jobs_on_job_id", unique: true
     t.index ["user_id"], name: "index_cloud_user_upload_jobs_on_user_id"
+  end
+
+  create_table "comment_locks", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "commentable_type", null: false
+    t.integer "commentable_id", null: false
+    t.integer "moderator_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["commentable_type", "commentable_id"], name: "index_comment_locks_on_commentable_type_and_commentable_id", unique: true
+    t.index ["moderator_id"], name: "fk_rails_238113656b"
   end
 
   create_table "comments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1206,6 +1216,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_11_091840) do
   add_foreign_key "channel_targets", "channels", name: "channel_targets_ibfk_1"
   add_foreign_key "channel_targets", "repositories", name: "channel_targets_ibfk_2"
   add_foreign_key "channels", "packages", name: "channels_ibfk_1"
+  add_foreign_key "comment_locks", "users", column: "moderator_id"
   add_foreign_key "comments", "comments", column: "parent_id", name: "comments_ibfk_4"
   add_foreign_key "comments", "users", column: "moderator_id", name: "moderated_comments_fk"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
