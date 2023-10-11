@@ -413,6 +413,10 @@ OBSApi::Application.routes.draw do
         post 'moderate'
       end
 
+      defaults format: 'js' do
+        get 'history/:version_id' => :history, as: :history
+      end
+
       collection do
         post 'preview'
       end

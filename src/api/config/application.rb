@@ -149,5 +149,8 @@ module OBSApi
     config.view_component.default_preview_layout = 'view_component_previews'
     # Below the preview, display a syntax highlighted source code example of the usage of the view component
     config.view_component.show_previews_source = true
+
+    # Classes required by YAML.safe_load used by paper_trail for loading date and time values
+    config.active_record.yaml_column_permitted_classes = [Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]
   end
 end
