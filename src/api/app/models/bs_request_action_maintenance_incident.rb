@@ -164,7 +164,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         end
       end
       # it is fine to have new packages
-      branch_params[:missingok] = 1 unless Package.exists_by_project_and_name(branch_params[:project], package_name, follow_project_links: true)
+      branch_params[:missingok] = 1 unless Package.exists_by_project_and_name(branch_params[:project], package_name)
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
 

@@ -9,7 +9,7 @@ class Token::Rebuild < Token
   end
 
   def package_find_options
-    { use_source: false, follow_project_links: true, follow_multibuild: true }
+    { use_source: false, follow_multibuild: true }
   end
 end
 

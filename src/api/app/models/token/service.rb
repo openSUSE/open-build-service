@@ -7,7 +7,7 @@ class Token::Service < Token
   end
 
   def package_find_options
-    { use_source: true, follow_project_links: false, follow_multibuild: false }
+    { follow_project_links: false }
   end
 end
 

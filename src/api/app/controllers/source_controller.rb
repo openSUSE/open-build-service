@@ -73,7 +73,7 @@ class SourceController < ApplicationController
     elsif ['_project', '_pattern'].include?(@target_package_name)
       Project.get_by_name(@target_project_name)
     else
-      @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
+      @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name)
     end
 
     show_package_issues && return if params[:view] == 'issues'
@@ -303,7 +303,7 @@ class SourceController < ApplicationController
     if package_name == '_project'
       Project.get_by_name(project_name)
     else
-      pack = Package.get_by_project_and_name(project_name, package_name, use_source: true)
+      pack = Package.get_by_project_and_name(project_name, package_name)
       if pack
         # in case of project links, we need to rewrite the target
         project_name = pack.project.name
@@ -1024,7 +1024,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=release
   def package_command_release
-    pkg = Package.get_by_project_and_name(params[:project], params[:package], use_source: true, follow_project_links: false, follow_multibuild: true)
+    pkg = Package.get_by_project_and_name(params[:project], params[:package], follow_project_links: false, follow_multibuild: true)
     multibuild_container = nil
     multibuild_container = params[:package].gsub(/^.*:/, '') if params[:package].include?(':') && !params[:package].starts_with?('_product:')
 

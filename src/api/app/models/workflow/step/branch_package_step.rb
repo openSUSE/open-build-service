@@ -55,7 +55,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
       return
     end
 
-    options = { use_source: false, follow_project_links: true, follow_multibuild: true }
+    options = { use_source: false, follow_multibuild: true }
 
     begin
       src_package = Package.get_by_project_and_name(source_project_name, source_package_name, options)

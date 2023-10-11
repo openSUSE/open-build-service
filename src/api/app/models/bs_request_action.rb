@@ -737,14 +737,12 @@ class BsRequestAction < ApplicationRecord
 
     return unless Package.exists_by_project_and_name(target_project,
                                                      target_package || source_package,
-                                                     { follow_project_links: true,
-                                                       follow_multibuild: true,
+                                                     { follow_multibuild: true,
                                                        check_update_project: true })
 
     tpkg = Package.get_by_project_and_name(target_project,
                                            target_package || source_package,
-                                           { follow_project_links: true,
-                                             follow_multibuild: true,
+                                           { follow_multibuild: true,
                                              check_update_project: true })
     self.target_project = tpkg.project.update_instance.name
   end
@@ -938,7 +936,7 @@ class BsRequestAction < ApplicationRecord
     end
 
     if source_package
-      spkg = Package.get_by_project_and_name(source_project, source_package, use_source: true, follow_project_links: true)
+      spkg = Package.get_by_project_and_name(source_project, source_package)
       spkg.check_weak_dependencies! if spkg && sourceupdate == 'cleanup'
     end
 

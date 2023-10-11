@@ -94,8 +94,7 @@ class Service
     else
       Backend::Api::Sources::Package.write_file(project.name, package.name, '_service', document.root.to_xml,
                                                 comment: 'Modified via webui', user: User.session!.login)
-      service_package = Package.get_by_project_and_name(project.name, package.name,
-                                                        use_source: true, follow_project_links: false)
+      service_package = Package.get_by_project_and_name(project.name, package.name, follow_project_links: false)
       return false unless User.session!.can_modify?(service_package)
 
       Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session!.login)

@@ -63,7 +63,7 @@ class StatisticsController < ApplicationController
 
   def added_timestamp
     @project = Project.get_by_name(params[:project])
-    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
 
     # is it used at all ?
   end
@@ -85,7 +85,7 @@ class StatisticsController < ApplicationController
 
   def updated_timestamp
     @project = Project.get_by_name(params[:project])
-    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
   end
 
   def global_counters
