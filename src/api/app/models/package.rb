@@ -225,13 +225,6 @@ class Package < ApplicationRecord
     pkg
   end
 
-  def self.get_by_project_and_name!(project, package, opts = {})
-    pkg = get_by_project_and_name(project, package, opts)
-    raise UnknownObjectError, "Package not found: #{project}/#{package}" unless pkg
-
-    pkg
-  end
-
   # to check existens of a project (local or remote)
   def self.exists_by_project_and_name(project, package, opts = {})
     opts = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }.merge(opts)
