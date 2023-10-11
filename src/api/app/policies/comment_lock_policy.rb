@@ -17,4 +17,8 @@ class CommentLockPolicy < ApplicationPolicy
 
     false
   end
+
+  def destroy?
+    create?
+  end
 end
