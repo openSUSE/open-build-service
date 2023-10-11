@@ -1,5 +1,7 @@
 # rubocop:disable Metrics/ClassLength
 class NotificationNotifiableLinkComponent < ApplicationComponent
+  include Webui::ReportablesHelper
+
   def initialize(notification)
     super
 
@@ -9,8 +11,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   def call
     case @notification.event_type
     when 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
-      link_to(notifiable_link_text, link_to_reportables(notification_id: @notification.id, event_payload: @notification.event_payload,
-                                                        event_type: @notification.event_type), class: 'mx-1')
+      link_to(notifiable_link_text, link_to_reportables(event_payload: @notification.event_payload,
+                                                        notification_id: @notification.id), class: 'mx-1')
     else
       link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1')
     end
@@ -113,41 +115,6 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       @notification.notifiable.commentable.bs_request
     else
       @notification.notifiable.commentable
-    end
-  end
-
-  def link_to_reportables(notification_id:, event_payload:, event_type:)
-    case event_type
-    when 'Event::ReportForPackage'
-      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'] ,
-                                                             project: event_payload['project_name'],
-                                                             notification_id: notification_id,
-                                                             anchor: 'comments-list')
-    when 'Event::ReportForProject'
-      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id, anchor: 'comments-list')
-    when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(event_payload['user_login'])
-    when 'Event::ReportForComment'
-      link_to_commentables_on_reports(notification_id: notification_id, event_payload: event_payload)
-    end
-  end
-
-  def link_to_commentables_on_reports(notification_id:, event_payload:)
-    case event_payload['commentable_type']
-    when 'BsRequest'
-      Rails.application.routes.url_helpers.request_show_path(event_payload['bs_request_number'],
-                                                             notification_id: notification_id, anchor: 'comments-list')
-    when 'BsRequestAction'
-      Rails.application.routes.url_helpers.request_show_path(number: event_payload['bs_request_number'],
-                                                             request_action_id: event_payload['bs_request_action_id'],
-                                                             notification_id: notification_id, anchor: 'tab-pane-changes')
-    when 'Package'
-      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'],
-                                                             project: event_payload['project_name'],
-                                                             notification_id: notification_id,
-                                                             anchor: 'comments-list')
-    when 'Project'
-      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id, anchor: 'comments-list')
     end
   end
 end
