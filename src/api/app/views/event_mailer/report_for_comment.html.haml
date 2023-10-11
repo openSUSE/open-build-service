@@ -1,0 +1,19 @@
+%p
+  = User.find(event['user_id']).login
+  reported a #{event['reportable_type'].downcase} for the following reason:
+%p
+  = event['reason']
+%p
+  - case event['commentable_type']
+  - when 'BsRequest'
+    = link_to("Request #{event['bs_request_number']}", request_show_url(event['bs_request_number'],
+                                                                         anchor: 'comments-list', only_path: false, host: @host))
+  - when 'BsRequestAction'
+    = link_to("Request #{event['bs_request_number']}", request_show_url(number: event['bs_request_number'],
+                                                                         request_action_id: event['bs_request_action_id'],
+                                                                         anchor: 'tab-pane-changes', only_path: false, host: @host))
+  - when 'Package'
+    = link_to("#{event['package_name']}", package_show_url(package: event['package_name'], project: event['project_name'],
+                                                            anchor: 'comments-list', only_path: false, host: @host))
+  - when 'Project'
+    = link_to("#{event['project_name']}", project_show_url(event['project_name'], anchor: 'comments-list', only_path: false, host: @host))
