@@ -252,13 +252,16 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    # TODO: Remove this test after all `Event::CreateReport` records are migrated to the STI report classes
     context 'for an event of type Event::CreateReport' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_create_report, user: admin) }
       let(:mail) { EventMailer.with(subscribers: Event::CreateReport.last.subscribers, event: Event::CreateReport.last).notification_email.deliver_now }
 
       before do
-        create(:report, reason: 'Because reasons')
+        report = create(:report, reason: 'Because reasons')
+        Event::CreateReport.create({ id: report.id, user_id: report.user_id, reportable_id: report.reportable_id,
+                                     reportable_type: report.reportable_type, reason: report.reason })
       end
 
       it 'gets delivered' do
