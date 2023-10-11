@@ -186,8 +186,8 @@ class Package < ApplicationRecord
   # Project by setting in the opts hash:
   #   check_update_project: true
   def self.get_by_project_and_name(project, package, opts = {})
-    opts = { use_source: true, follow_project_links: true,
-             follow_multibuild: false, check_update_project: false }.merge(opts)
+    get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
+    opts = get_by_project_and_name_defaults.merge(opts)
 
     package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
 
@@ -228,7 +228,8 @@ class Package < ApplicationRecord
 
   # to check existens of a project (local or remote)
   def self.exists_by_project_and_name(project, package, opts = {})
-    opts = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }.merge(opts)
+    exists_by_project_and_name_defaults = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }
+    opts = exists_by_project_and_name_defaults.merge(opts)
     package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
     begin
       prj = Project.get_by_name(project)
