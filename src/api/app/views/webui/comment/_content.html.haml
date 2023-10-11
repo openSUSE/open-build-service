@@ -3,11 +3,12 @@
   .flex-shrink-0
     = image_tag_for(comment.user, size: 35, custom_class: 'me-3 d-none d-sm-block')
   .comment.flex-grow-1.text-break
-    %p
+    .mb-3
       = link_to(comment.user, user_path(comment.user))
       wrote
       = link_to("#comment-#{comment.id}", title: I18n.l(comment.created_at.utc), name: "comment-#{comment.id}") do
         = render TimeComponent.new(time: comment.created_at)
+      = render CommentHistoryComponent.new(comment)
     - if level == 1 && comment.commentable.is_a?(BsRequestAction)
       - sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true, cacheonly: 1).first[:sourcediff].first
       - unless sourcediff[:error]

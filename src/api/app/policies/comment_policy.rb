@@ -66,4 +66,10 @@ class CommentPolicy < ApplicationPolicy
       record.commentable.comment_lock.present?
     end
   end
+
+  def history?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
+    !(record.moderated? || record.user.is_nobody?) || (user.is_admin? || user.is_staff? || user.is_moderator?)
+  end
 end

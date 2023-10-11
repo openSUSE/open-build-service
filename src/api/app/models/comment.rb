@@ -26,6 +26,8 @@ class Comment < ApplicationRecord
   extend ActsAsTree::TreeWalker
   acts_as_tree order: 'created_at'
 
+  has_paper_trail
+
   scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
 
@@ -35,6 +37,7 @@ class Comment < ApplicationRecord
 
   def blank_or_destroy
     if children.exists?
+      self.paper_trail_event = 'delete'
       self.body = 'This comment has been deleted'
       self.user = User.find_nobody!
       save!
@@ -60,6 +63,7 @@ class Comment < ApplicationRecord
   end
 
   def moderate(state)
+    self.paper_trail_event = state ? 'moderate' : 'release'
     self.moderated_at = state ? Time.zone.now : nil
     self.moderator = state ? User.session : nil
     save!
