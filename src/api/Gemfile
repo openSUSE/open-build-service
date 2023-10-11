@@ -100,6 +100,8 @@ gem 'sprockets-rails'
 # Javascript charts
 # https://github.com/ankane/chartkick
 gem 'chartkick'
+# For tracking changes in models
+gem 'paper_trail'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083

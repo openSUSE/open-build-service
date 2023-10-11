@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_05_074105) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_11_091840) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -1099,6 +1099,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_05_074105) do
     t.index ["in_beta"], name: "index_users_on_in_beta"
     t.index ["in_rollout"], name: "index_users_on_in_rollout"
     t.index ["login"], name: "users_login_index", unique: true, length: 255
+  end
+
+  create_table "versions", charset: "utf8mb4", force: :cascade do |t|
+    t.string "item_type", limit: 191, null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object", size: :long
+    t.datetime "created_at"
+    t.text "object_changes", size: :long
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "watched_items", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
