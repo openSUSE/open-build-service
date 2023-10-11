@@ -1111,7 +1111,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_11_135554) do
     t.index ["login"], name: "users_login_index", unique: true, length: 255
   end
 
-  create_table "versions", charset: "utf8mb4", force: :cascade do |t|
+  create_table "versions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "item_type", limit: 191, null: false
     t.bigint "item_id", null: false
     t.string "event", null: false
