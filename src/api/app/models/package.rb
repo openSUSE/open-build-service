@@ -178,6 +178,13 @@ class Package < ApplicationRecord
   # you passed in as first argument by setting in the opts hash:
   #   follow_project_links: false
   #
+  # It will "follow" project scmsync links and find the Package from the SCM
+  # https://github.com/openSUSE/open-build-service/wiki/Links#scm-bridge-links
+  #
+  # You can turn off following project scmsync links and only try to find the Package in the Project
+  # you passed in as first argument by setting in the opts hash:
+  #   follow_project_scmsync_links: false
+  #
   # It will ignore "maintenance update" Projects and not "follow" this type of project link to find the Package.
   # https://github.com/openSUSE/open-build-service/wiki/Links#update-instance-project-links
   #
@@ -186,7 +193,7 @@ class Package < ApplicationRecord
   #   check_update_project: true
   def self.get_by_project_and_name(project, package, opts = {})
     opts = { use_source: true, follow_project_links: true,
-             follow_multibuild: false, check_update_project: false }.merge(opts)
+             follow_multibuild: false, check_update_project: false, follow_project_scmsync_links: true }.merge(opts)
 
     package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
 
@@ -196,7 +203,14 @@ class Package < ApplicationRecord
     prj = internal_get_project(project)
     return unless prj # remote prjs
 
-    return nil if prj.scmsync.present?
+    if prj.scmsync.present? && opts[:follow_project_scmsync_links]
+      if exists_on_backend?(package, prj)
+        # alright the backend knows this package.
+        # let's setup an in memory, read only object...
+        pkg = prj.packages.new(name: package)
+        pkg.readonly!
+      end
+    end
 
     if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
@@ -215,9 +229,6 @@ class Package < ApplicationRecord
         # alright the backend knows this package.
         # let's setup an in memory, read only object...
         pkg = prj.packages.new(name: package)
-        # ...with the bare minumum information
-        # remote_attributes = Xmlhash.parse(pkg.meta.content).slice('title', 'description', 'url')
-        # pkg.assign_attributes(remote_attributes)
         pkg.readonly!
         break
       end

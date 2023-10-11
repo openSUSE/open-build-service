@@ -35,14 +35,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def show
-    # FIXME: Remove this statement when scmsync is fully supported
-    if @project.scmsync.present?
-      flash[:error] = "Package sources for project #{@project.name} are received through scmsync.
-                       This is not yet fully supported by the OBS frontend"
-      redirect_back(fallback_location: project_show_path(@project))
-      return
-    end
-
     if @spider_bot
       params.delete(:rev)
       params.delete(:srcmd5)
