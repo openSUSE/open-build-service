@@ -73,6 +73,7 @@ class BsRequest < ApplicationRecord
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :destroy
+  has_one :comment_lock, as: :commentable, dependent: :destroy
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy

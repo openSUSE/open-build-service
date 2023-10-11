@@ -451,6 +451,10 @@ Comment:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
+CommentLock:
+  commentable_type:
+    LengthConstraintChecker:
+      enabled: false
 CommitActivity:
   id:
     PrimaryKeyTypeChecker:
