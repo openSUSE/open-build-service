@@ -85,7 +85,7 @@ post:
           value: cmd=addreview&by_group=heroes
         assignreview:
           value: cmd=assignreview&by_group=heroes&reviewer=foo
-        assignreview:
+        "assignreview with revert":
           value: cmd=assignreview&by_group=heroes&reviewer=foo&revert=1
         changestate:
           value: cmd=changestate&newstate=accepted
