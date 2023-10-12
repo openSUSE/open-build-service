@@ -5,7 +5,11 @@ module Build
 
     # GET /build/:project/:repository/:arch/:package/:filename
     def show
-      pass_to_backend(path)
+      if ['_buildenv', '_statistics'].include?(params[:filename])
+        render xml: Backend::Api::BuildResults::Binaries.file(params[:project], params[:repository], params[:arch], params[:package], params[:filename])
+      else
+        pass_to_backend(path)
+      end
     end
 
     # PUT /build/:project/:repository/:arch/:package/:filename
