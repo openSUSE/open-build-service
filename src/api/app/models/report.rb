@@ -17,6 +17,7 @@ class Report < ApplicationRecord
   }
 
   after_create :create_event
+  after_create :track_report
 
   scope :without_decision, -> { where(decision: nil) }
 
@@ -61,6 +62,10 @@ class Report < ApplicationRecord
     when Project
       event_parameters.merge(commentable_type: commentable.class.name, project_name: commentable.name)
     end
+  end
+
+  def track_report
+    RabbitmqBus.send_to_bus('metrics', "report,category=#{category},type=#{reportable_type} sibling_reports=#{ReportsFinder.new(self).siblings},count=1")
   end
 end
 
