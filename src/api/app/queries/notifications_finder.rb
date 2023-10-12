@@ -3,7 +3,11 @@ class NotificationsFinder
     @relation = if Flipper.enabled?(:content_moderation, User.session)
                   relation.order(created_at: :desc)
                 else
-                  relation.where.not(event_type: ['Event::CreateReport', 'Event::ClearedDecision', 'Event::FavoredDecision']).order(created_at: :desc)
+                  # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
+                  relation.where.not(event_type: ['Event::CreateReport',
+                                                  'Event::ReportForProject', 'Event::ReportForPackage',
+                                                  'Event::ReportForComment', 'Event::ReportForUser',
+                                                  'Event::ClearedDecision', 'Event::FavoredDecision']).order(created_at: :desc)
                 end
   end
 
@@ -44,7 +48,10 @@ class NotificationsFinder
   end
 
   def for_reports
-    @relation.where(event_type: ['Event::CreateReport', 'Event::ClearedDecision', 'Event::FavoredDecision'], delivered: false)
+    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
+    @relation.where(event_type: ['Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage',
+                                 'Event::ReportForComment', 'Event::ReportForUser',
+                                 'Event::ClearedDecision', 'Event::FavoredDecision'], delivered: false)
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity

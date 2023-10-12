@@ -43,7 +43,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       repository = @notification.event_payload['repository']
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
-    when 'Event::CreateReport'
+    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
+    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
@@ -93,9 +94,22 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
                                                                        repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
+    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     when 'Event::CreateReport'
       reportable = @notification.notifiable.reportable
       link_for_reportables(reportable)
+    when 'Event::ReportForComment'
+      path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
+    when 'Event::ReportForPackage'
+      Rails.application.routes.url_helpers.package_show_path(package: @notification.event_payload['package_name'],
+                                                             project: @notification.event_payload['project_name'],
+                                                             notification_id: @notification.id,
+                                                             anchor: 'comments-list')
+    when 'Event::ReportForProject'
+      Rails.application.routes.url_helpers.project_show_path(@notification.event_payload['project_name'],
+                                                             notification_id: @notification.id)
+    when 'Event::ReportForUser'
+      Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'])
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
       reportable = @notification.notifiable.reports.first.reportable
       link_for_reportables(reportable)
@@ -113,6 +127,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     end
   end
 
+  # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes.
+  # This method is also used by 'Event::ClearedDecision' and 'Event::FavoredDecision', this need to
+  # be adapted
   def link_for_reportables(reportable)
     case @notification.event_payload['reportable_type']
     when 'Comment'
@@ -143,6 +160,26 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                              anchor: 'comments-list')
     when Project
       Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: @notification.id, anchor: 'comments-list')
+    end
+  end
+
+  def path_to_commentables_on_reports(event_payload:, notification_id:)
+    case event_payload['commentable_type']
+    when 'BsRequest'
+      Rails.application.routes.url_helpers.request_show_path(event_payload['bs_request_number'],
+                                                             notification_id: notification_id, anchor: 'comments-list')
+    when 'BsRequestAction'
+      Rails.application.routes.url_helpers.request_show_path(number: event_payload['bs_request_number'],
+                                                             request_action_id: event_payload['bs_request_action_id'],
+                                                             notification_id: notification_id, anchor: 'tab-pane-changes')
+    when 'Package'
+      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'],
+                                                             project: event_payload['project_name'],
+                                                             notification_id: notification_id,
+                                                             anchor: 'comments-list')
+    when 'Project'
+      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id,
+                                                                                            anchor: 'comments-list')
     end
   end
 end

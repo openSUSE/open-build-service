@@ -1,3 +1,4 @@
+# TODO: Remove this helper after all `Event::CreateReport` records are migrated to the STI report classes
 module Webui::ReportablesHelper
   include Webui::WebuiHelper
 

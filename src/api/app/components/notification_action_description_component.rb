@@ -29,7 +29,8 @@ class NotificationActionDescriptionComponent < ApplicationComponent
         "#{@user} removed #{@recipient} as #{@role} of #{@target_object}"
       when 'Event::BuildFail'
         "Build was triggered because of #{@notification.event_payload['reason']}"
-      when 'Event::CreateReport'
+      # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
+      when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
         "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
       when 'Event::ClearedDecision'
         class_name = @notification.notifiable.reports.first.reportable.class.name.downcase

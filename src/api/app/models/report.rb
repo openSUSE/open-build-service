@@ -31,11 +31,36 @@ class Report < ApplicationRecord
   private
 
   def create_event
-    Event::CreateReport.create(event_parameters)
+    case reportable_type
+    when 'Comment'
+      Event::ReportForComment.create(event_parameters_for_comment(commentable: reportable.commentable))
+    when 'Package'
+      Event::ReportForPackage.create(event_parameters.merge(package_name: reportable.name,
+                                                            project_name: reportable.project.name))
+    when 'Project'
+      Event::ReportForProject.create(event_parameters.merge(project_name: reportable.name))
+    when 'User'
+      Event::ReportForUser.create(event_parameters.merge(user_login: reportable.login))
+    end
   end
 
   def event_parameters
     { id: id, user_id: user_id, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason }
+  end
+
+  def event_parameters_for_comment(commentable:)
+    case commentable
+    when BsRequest
+      event_parameters.merge(commentable_type: commentable.class.name, bs_request_number: commentable.number)
+    when BsRequestAction
+      event_parameters.merge(commentable_type: commentable.class.name, bs_request_number: commentable.bs_request.number,
+                             bs_request_action_id: commentable.id)
+    when Package
+      event_parameters.merge(commentable_type: commentable.class.name, package_name: commentable.name,
+                             project_name: commentable.project.name)
+    when Project
+      event_parameters.merge(commentable_type: commentable.class.name, project_name: commentable.name)
+    end
   end
 end
 

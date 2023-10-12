@@ -18,7 +18,10 @@ module Event
       'Event::CommentForRequest' => 'Receive notifications of comments created on a request for which you are...',
       'Event::RelationshipCreate' => "Receive notifications when someone adds you or your group to a project or package with any of these roles: #{Role.local_roles.to_sentence}.",
       'Event::RelationshipDelete' => "Receive notifications when someone removes you or your group from a project or package with any of these roles: #{Role.local_roles.to_sentence}.",
-      'Event::CreateReport' => 'Receive notifications for reported content.',
+      'Event::ReportForComment' => 'Receive notifications for reported comments.',
+      'Event::ReportForPackage' => 'Receive notifications for reported packages.',
+      'Event::ReportForProject' => 'Receive notifications for reported projects.',
+      'Event::ReportForUser' => 'Receive notifications for reported users.',
       'Event::ClearedDecision' => 'Receive notifications for cleared report decisions.',
       'Event::FavoredDecision' => 'Receive notifications for favored report decisions.'
     }.freeze
@@ -36,7 +39,8 @@ module Event
         ['Event::BuildFail', 'Event::ServiceFail', 'Event::ReviewWanted', 'Event::RequestCreate',
          'Event::RequestStatechange', 'Event::CommentForProject', 'Event::CommentForPackage',
          'Event::CommentForRequest',
-         'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::CreateReport'].map(&:constantize)
+         'Event::RelationshipCreate', 'Event::RelationshipDelete',
+         'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser'].map(&:constantize)
       end
 
       def classnames

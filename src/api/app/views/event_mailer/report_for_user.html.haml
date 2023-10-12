@@ -1,0 +1,7 @@
+%p
+  = User.find(event['user_id']).login
+  reported a #{event['reportable_type'].downcase} for the following reason:
+%p
+  = event['reason']
+%p
+  = link_to("#{event['user_login']}", user_url(event['user_login'], only_path: false, host: @host))
