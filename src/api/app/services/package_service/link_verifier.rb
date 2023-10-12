@@ -30,8 +30,7 @@ module PackageService
     end
 
     def package_exist?
-      Package.exists_by_project_and_name(target_project_name, target_package_name,
-                                         follow_project_links: true, allow_remote_packages: true)
+      Package.exists_by_project_and_name(target_project_name, target_package_name, allow_remote_packages: true)
     end
 
     def missingok_error_message

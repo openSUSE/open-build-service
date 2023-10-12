@@ -29,7 +29,7 @@ class BsRequestAction
           end
         end
 
-        tpkg = Package.get_by_project_and_name(target_project, target_package) if Package.exists_by_project_and_name(target_project, target_package, follow_project_links: true)
+        tpkg = Package.get_by_project_and_name(target_project, target_package) if Package.exists_by_project_and_name(target_project, target_package)
 
         query = {}
 

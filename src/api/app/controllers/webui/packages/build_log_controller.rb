@@ -102,8 +102,7 @@ module Webui
         @package_name = params[:package]
         begin
           @package = Package.get_by_project_and_name(@project, @package_name, use_source: false,
-                                                                              follow_multibuild: true,
-                                                                              follow_project_links: true)
+                                                                              follow_multibuild: true)
         rescue Package::UnknownObjectError
           redirect_to project_show_path(@project.to_param),
                       error: "Couldn't find package '#{params[:package]}' in " \

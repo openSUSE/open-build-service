@@ -31,7 +31,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
   private
 
   def package_find_options
-    { use_source: true, follow_project_links: false, follow_multibuild: false }
+    { follow_project_links: false }
   end
 
   # Examples of comments:

@@ -32,9 +32,7 @@ module Webui
           source_project_name = params[:linked_project]
           source_package_name = params[:linked_package]
         else
-          options = { use_source: false, follow_project_links: true, follow_multibuild: true }
-          source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package], options)
-
+          source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package], use_source: false, follow_multibuild: true)
           source_project_name = source_package.project.name
           source_package_name = source_package.name
           authorize source_package, :create_branch?
