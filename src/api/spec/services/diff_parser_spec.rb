@@ -36,7 +36,9 @@ RSpec.describe DiffParser, type: :service do
         ]
       end
 
-      it 'parses correctly' do expect(subject.lines).to eq(result) end
+      it 'parses correctly' do
+        expect(subject.lines).to eq(result)
+      end
     end
 
     context 'diff with no newline comments' do
@@ -52,7 +54,9 @@ RSpec.describe DiffParser, type: :service do
         ]
       end
 
-      it 'parses correctly' do expect(subject.lines).to eq(result) end
+      it 'parses correctly' do
+        expect(subject.lines).to eq(result)
+      end
     end
   end
 end

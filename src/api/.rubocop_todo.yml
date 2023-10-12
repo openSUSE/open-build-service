@@ -1341,12 +1341,6 @@ Style/RedundantFreeze:
   Exclude:
     - 'lib/pretty_nested_errors/key_and_messages_parser.rb'
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Style/SingleLineDoEndBlock:
-  Exclude:
-    - 'spec/services/diff_parser_spec.rb'
-
 # Offense count: 11
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/SlicingWithRange:
