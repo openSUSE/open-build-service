@@ -29,10 +29,10 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def reply?
-    return false if locked?
     return false if user.blank? || user.is_nobody? || record.user.is_nobody?
+    return true if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
 
-    maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
+    !locked?
   end
 
   # Only logged-in Admins/Staff members or user with moderator role can moderate comments
@@ -45,6 +45,8 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def maintainer?
+    return false unless user
+
     case record.commentable_type
     when 'Package'
       user.has_local_permission?('change_package', record.commentable)
