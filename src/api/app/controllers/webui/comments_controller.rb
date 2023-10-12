@@ -133,6 +133,8 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def history
+    authorize @comment, :history?
+
     @version = @comment.versions.find(params[:version_id])
     respond_to do |format|
       format.js { render 'webui/comment/history' }
