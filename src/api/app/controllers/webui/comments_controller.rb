@@ -10,6 +10,7 @@ class Webui::CommentsController < Webui::WebuiController
     end
 
     comment = @commented.comments.new(permitted_params)
+    authorize comment, :create?
     User.session!.comments << comment
     @commentable = comment.commentable
 

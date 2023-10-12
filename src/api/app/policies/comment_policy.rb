@@ -3,6 +3,12 @@ class CommentPolicy < ApplicationPolicy
     super(user, record, user_optional: true)
   end
 
+  def create?
+    return false if user.blank? || user.is_nobody?
+
+    !CommentLock.exists?(commentable: record.commentable)
+  end
+
   def destroy?
     # Can't destroy comments without being logged in or a comment that was already deleted (ie. Comment#user is nobody)
     return false if user.blank? || record.user.is_nobody?
@@ -22,6 +28,8 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def reply?
+    return false if CommentLock.exists?(commentable: record.commentable)
+
     !(user.blank? || user.is_nobody? || record.user.is_nobody?)
   end
 

@@ -1,6 +1,14 @@
 - if User.session
-  = render(partial: 'webui/comment/comment_field',
-    locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false })
+  - if policy(Comment.new(commentable:)).create?
+    = render(partial: 'webui/comment/comment_field',
+      locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false })
+  - else
+    .alert.alert-warning{ role: 'alert' }
+      Commenting on this is locked.
+      - if commentable.respond_to?(:bugowner_emails) && commentable.bugowner_emails.present? && Configuration.bugzilla_url.present?
+        If you need to report a bug, make use of the
+        - commentable_name = commentable.respond_to?(:project) ? "#{commentable.project}/#{commentable.name}" : commentable.name
+        = link_to('bug tracker', bugzilla_url(commentable.bugowner_emails, "#{commentable_name}: Bug"))
 - else
   .alert.alert-warning{ role: 'alert' }
     Login required, please
