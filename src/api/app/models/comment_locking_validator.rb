@@ -2,7 +2,8 @@ class CommentLockingValidator < ActiveModel::Validator
   def validate(record)
     commentable = record.commentable
     return unless commentable
-    return if commentable.comment_lock.blank?
+
+    return unless CommentPolicy.new(User.session, record).locked?
 
     commentable_name = case commentable
                        when Package, Project

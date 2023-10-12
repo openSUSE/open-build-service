@@ -6,7 +6,7 @@ class CommentPolicy < ApplicationPolicy
   def create?
     return false if user.blank? || user.is_nobody?
 
-    !CommentLock.exists?(commentable: record.commentable)
+    !locked?
   end
 
   def destroy?
@@ -28,7 +28,7 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def reply?
-    return false if CommentLock.exists?(commentable: record.commentable)
+    return false if locked?
 
     !(user.blank? || user.is_nobody? || record.user.is_nobody?)
   end
@@ -50,6 +50,19 @@ class CommentPolicy < ApplicationPolicy
       user.has_local_permission?('change_project', record.commentable)
     when 'BsRequest'
       record.commentable.is_target_maintainer?(user)
+    end
+  end
+
+  def locked?
+    return false if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
+
+    case record.commentable
+    when Package
+      return record.commentable.project.comment_lock.present? || record.commentable.comment_lock.present?
+    when BsRequestAction
+      return record.commentable.bs_request.comment_lock.present? || record.commentable.comment_lock.present?
+    else
+      return record.commentable.comment_lock.present?
     end
   end
 end
