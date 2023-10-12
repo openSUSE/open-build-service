@@ -11,6 +11,8 @@ class CommentLockPolicy < ApplicationPolicy
     # Request receivers (maintainers of target package) can also lock comments
     when BsRequest
       return record.is_target_maintainer?(user)
+    when BsRequestAction
+      return record.bs_request.is_target_maintainer?(user)
     end
 
     false

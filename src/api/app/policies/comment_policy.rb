@@ -5,6 +5,7 @@ class CommentPolicy < ApplicationPolicy
 
   def create?
     return false if user.blank? || user.is_nobody?
+    return true if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
 
     !locked?
   end
@@ -29,8 +30,9 @@ class CommentPolicy < ApplicationPolicy
 
   def reply?
     return false if locked?
+    return false if user.blank? || user.is_nobody? || record.user.is_nobody?
 
-    !(user.blank? || user.is_nobody? || record.user.is_nobody?)
+    maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
   end
 
   # Only logged-in Admins/Staff members or user with moderator role can moderate comments
@@ -54,15 +56,13 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def locked?
-    return false if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
-
     case record.commentable
     when Package
-      return record.commentable.project.comment_lock.present? || record.commentable.comment_lock.present?
+      record.commentable.project.comment_lock.present? || record.commentable.comment_lock.present?
     when BsRequestAction
-      return record.commentable.bs_request.comment_lock.present? || record.commentable.comment_lock.present?
+      record.commentable.bs_request.comment_lock.present? || record.commentable.comment_lock.present?
     else
-      return record.commentable.comment_lock.present?
+      record.commentable.comment_lock.present?
     end
   end
 end
