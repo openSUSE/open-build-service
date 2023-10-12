@@ -14,6 +14,8 @@ class Comment < ApplicationRecord
 
   validate :validate_parent_id
 
+  validates_with CommentLockingValidator
+
   after_create :create_event
   after_destroy :delete_parent_if_unused
 

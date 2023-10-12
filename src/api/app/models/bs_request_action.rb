@@ -13,6 +13,7 @@ class BsRequestAction < ApplicationRecord
   belongs_to :bs_request, touch: true, optional: true
   has_one :bs_request_action_accept_info, dependent: :delete
   has_many :comments, as: :commentable, dependent: :destroy
+  has_one :comment_lock, as: :commentable, dependent: :destroy
 
   belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id', optional: true
   belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id', optional: true

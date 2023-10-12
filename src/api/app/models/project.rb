@@ -64,6 +64,7 @@ class Project < ApplicationRecord
   belongs_to :develproject, class_name: 'Project', optional: true
 
   has_many :comments, as: :commentable, dependent: :destroy
+  has_one :comment_lock, as: :commentable, dependent: :destroy
 
   has_many :project_log_entries, dependent: :delete_all do
     def staging_history
