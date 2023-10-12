@@ -1329,12 +1329,6 @@ Style/OptionalBooleanParameter:
     - 'app/policies/package_policy.rb'
     - 'lib/xpath_engine.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/RedundantFilterChain:
-  Exclude:
-    - 'app/policies/bs_request_policy.rb'
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantFreeze:
