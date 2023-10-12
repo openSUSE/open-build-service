@@ -11,6 +11,9 @@ class Decision < ApplicationRecord
   }
 
   after_create :create_event
+  after_create :track_decision
+
+  private
 
   def create_event
     case kind
@@ -23,6 +26,16 @@ class Decision < ApplicationRecord
 
   def event_parameters
     { id: id, moderator_id: moderator.id, reason: reason, reportable_type: reports.first.reportable.class.name }
+  end
+
+  def track_decision
+    RabbitmqBus.send_to_bus('metrics', "decision,kind=#{kind} hours_before_decision=#{hours_before_decision},count=1")
+  end
+
+  def hours_before_decision
+    first_report_created_at = reports.order(created_at: :asc).first.created_at
+
+    ((created_at - first_report_created_at) / 1.hour).floor
   end
 end
 
