@@ -42,8 +42,20 @@ module RescueHandler
       render_error status: 403, errorcode: 'modify_package_no_permission', message: exception.message
     end
 
-    rescue_from Backend::NotFoundError, ActiveRecord::RecordNotFound do |exception|
-      render_error message: exception.message, status: 404, errorcode: 'not_found'
+    rescue_from ActiveRecord::RecordNotFound do |exception|
+      render_error message: exception.message, status: 404
+    end
+
+    rescue_from Backend::NotFoundError do |exception|
+      parsed_response = Nokogiri::XML(exception.message).xpath('//summary')
+
+      summary = if parsed_response.present?
+                  parsed_response.first.content
+                else
+                  exception.message
+                end
+
+      render_error message: summary, status: 404
     end
   end
 end
