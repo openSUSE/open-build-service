@@ -15,7 +15,7 @@ class BsRequestPolicy < ApplicationPolicy
 
   def add_reviews?
     is_target_maintainer = record.is_target_maintainer?(user)
-    has_open_reviews = record.reviews.where(state: 'new').select { |review| review.matches_user?(user) }.present?
+    has_open_reviews = record.reviews.where(state: 'new').any? { |review| review.matches_user?(user) }
     record.state.in?([:new, :review]) && (author? || is_target_maintainer || has_open_reviews.present?)
   end
 
