@@ -29,10 +29,9 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def reply?
-    return false if user.blank? || user.is_nobody? || record.user.is_nobody?
-    return true if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
+    return false if record.user.is_nobody?
 
-    !locked?
+    create?
   end
 
   # Only logged-in Admins/Staff members or user with moderator role can moderate comments
