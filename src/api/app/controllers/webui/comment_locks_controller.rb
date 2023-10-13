@@ -6,10 +6,12 @@ class Webui::CommentLocksController < Webui::WebuiController
 
     @comment_lock = CommentLock.new(commentable: @commentable, moderator: User.session!)
     if @comment_lock.save
-      flash[:success] = "Comments for #{params[:commentable_type]} locked"
+      flash[:success] = "Comments for #{comment_lock_params[:commentable_type]} locked"
     else
       flash[:error] = @comment_lock.errors.full_messages.to_sentence
     end
+
+    redirect_back(fallback_location: root_path)
   end
 
   def destroy
@@ -17,16 +19,22 @@ class Webui::CommentLocksController < Webui::WebuiController
 
     @comment_lock = CommentLock.find(params[:comment_lock_id])
     if @comment_lock.destroy
-      flash[:success] = "Comments for #{params[:commentable_type]} unlocked"
+      flash[:success] = "Comments for #{comment_lock_params[:commentable_type]} unlocked"
     else
       flash[:error] = @comment_lock.errors.full_messages.to_sentence
     end
+
+    redirect_back(fallback_location: root_path)
   end
 
   private
 
+  def comment_lock_params
+    params.require(:comment_lock).permit(:commentable_type, :commentable_id)
+  end
+
   def set_commentable
-    commentable_type = case params[:commentable_type]
+    commentable_type = case comment_lock_params[:commentable_type]
                        when 'BsRequest'
                          BsRequest
                        when 'Package'
@@ -34,8 +42,8 @@ class Webui::CommentLocksController < Webui::WebuiController
                        when 'Project'
                          Project
                        end
-    raise APIError, "Unknown commentable type '#{params[:commentable_type]}'" if commentable_type.nil?
+    raise APIError, "Unknown commentable type '#{comment_lock_params[:commentable_type]}'" if commentable_type.nil?
 
-    @commentable = commentable_type.find(params[:commentable_id])
+    @commentable = commentable_type.find(comment_lock_params[:commentable_id])
   end
 end
