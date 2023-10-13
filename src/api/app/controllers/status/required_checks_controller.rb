@@ -71,11 +71,7 @@ class Status::RequiredChecksController < ApplicationController
 
     return if @project
 
-    render_error(
-      status: 404,
-      errorcode: 'not_found',
-      message: "Project '#{params[:project_name]}' not found."
-    )
+    render_error status: 404, message: "Project '#{params[:project_name]}' not found."
   end
 
   def set_checkable
@@ -97,11 +93,7 @@ class Status::RequiredChecksController < ApplicationController
     @required_check = @checkable.required_checks.find(params[:id])
     return if @required_check
 
-    render_error(
-      status: 404,
-      errorcode: 'not_found',
-      message: "Unable to find required check with id '#{params[:id]}'"
-    )
+    render_error status: 404, message: "Unable to find required check with id '#{params[:id]}'"
   end
 
   def names
