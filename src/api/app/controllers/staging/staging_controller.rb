@@ -5,22 +5,14 @@ module Staging
     def set_project
       @project = Project.get_by_name(params[:staging_workflow_project])
     rescue Project::UnknownObjectError
-      render_error(
-        status: 404,
-        errorcode: 'not_found',
-        message: "Project '#{params[:staging_workflow_project]}' not found."
-      )
+      render_error status: 404, message: "Project '#{params[:staging_workflow_project]}' not found."
     end
 
     def set_staging_workflow
       @staging_workflow = @project.staging
       return if @staging_workflow
 
-      render_error(
-        status: 404,
-        errorcode: 'not_found',
-        message: "Project #{@project} doesn't have an associated Staging Workflow"
-      )
+      render_error status: 404, message: "Project #{@project} doesn't have an associated Staging Workflow"
     end
 
     def set_xml_hash

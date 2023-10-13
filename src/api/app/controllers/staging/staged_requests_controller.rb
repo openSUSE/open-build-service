@@ -69,11 +69,7 @@ class Staging::StagedRequestsController < Staging::StagingController
     @staging_project = @staging_workflow.staging_projects.find_by(name: params[:staging_project_name])
     return if @staging_project
 
-    render_error(
-      status: 404,
-      errorcode: 'not_found',
-      message: "Staging Project '#{params[:staging_project_name]}' not found in Staging: '#{@staging_workflow.project}'"
-    )
+    render_error status: 404, message: "Staging Project '#{params[:staging_project_name]}' not found in Staging: '#{@staging_workflow.project}'"
   end
 
   def check_overall_state
