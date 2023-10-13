@@ -1392,17 +1392,14 @@ Kiwi::Repository:
     LengthConstraintChecker:
       enabled: false
 LinkedProject:
+  db_project_id+linked_remote_project_name:
+    MissingUniqueIndexChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
   linked_db_project:
     ForeignKeyChecker:
-      enabled: false
-  linked_projects_index:
-    UniqueIndexChecker:
-      enabled: false
-  linked_remote_project_name:
-    LengthConstraintChecker:
       enabled: false
   project:
     ForeignKeyChecker:

@@ -12,7 +12,11 @@ module MetaControllerService
       remove_repositories = @project.get_removed_repositories(@request_data)
       @errors << Project.check_repositories(remove_repositories)[:error]
       @errors << Project.validate_remote_permissions(@request_data)[:error]
-      @errors << Project.validate_link_xml_attribute(@request_data, @project.name)[:error]
+      begin
+        @errors << Project.validate_link_xml_attribute(@request_data, @project.name)[:error]
+      rescue Project::Errors::UnknownObjectError => e
+        @errors << "Link target not found: '#{e.message}'"
+      end
       begin
         @errors << Project.validate_maintenance_xml_attribute(@request_data)[:error]
       rescue Project::Errors::UnknownObjectError => e
