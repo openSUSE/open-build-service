@@ -98,6 +98,7 @@ class Package < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
+  validates :url, length: { maximum: 255 }
   validates :description, length: { maximum: 65_535 }
   validates :project_id, uniqueness: {
     scope: :name,

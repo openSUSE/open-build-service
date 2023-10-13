@@ -1502,9 +1502,6 @@ Package:
   token:
     MissingIndexChecker:
       enabled: false
-  url:
-    LengthConstraintChecker:
-      enabled: false
 PackageIssue:
   id:
     PrimaryKeyTypeChecker:
