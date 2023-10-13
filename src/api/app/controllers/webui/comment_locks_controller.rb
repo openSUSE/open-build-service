@@ -2,7 +2,7 @@ class Webui::CommentLocksController < Webui::WebuiController
   before_action :set_commentable
 
   def create
-    authorize @commentable
+    authorize @commentable, policy_class: CommentLockPolicy
 
     @comment_lock = CommentLock.new(commentable: @commentable, moderator: User.session!)
     if @comment_lock.save
@@ -13,7 +13,7 @@ class Webui::CommentLocksController < Webui::WebuiController
   end
 
   def destroy
-    authorize @commentable
+    authorize @commentable, policy_class: CommentLockPolicy
 
     @comment_lock = CommentLock.find(params[:comment_lock_id])
     if @comment_lock.destroy
