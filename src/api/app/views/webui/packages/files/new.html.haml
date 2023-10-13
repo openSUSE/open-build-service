@@ -18,7 +18,7 @@
             .mb-3.package-add-file
               %label{ for: :file_url }
                 %strong File URL:
-              = text_field_tag :file_url, '', size: 80, maxlength: 200, class: 'form-control', type: :url
+              = text_field_tag :file_url, '', size: 80, maxlength: 2000, class: 'form-control', type: :url
               %small.form-text.text-muted
                 URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
             = submit_tag 'Add File', class: 'btn btn-sm btn-primary', id: :submit_button
