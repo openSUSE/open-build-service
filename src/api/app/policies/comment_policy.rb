@@ -3,6 +3,13 @@ class CommentPolicy < ApplicationPolicy
     super(user, record, user_optional: true)
   end
 
+  def create?
+    return false if user.blank? || user.is_nobody?
+    return true if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
+
+    !locked?
+  end
+
   def destroy?
     # Can't destroy comments without being logged in or a comment that was already deleted (ie. Comment#user is nobody)
     return false if user.blank? || record.user.is_nobody?
@@ -22,7 +29,10 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def reply?
-    !(user.blank? || user.is_nobody? || record.user.is_nobody?)
+    return false if user.blank? || user.is_nobody? || record.user.is_nobody?
+    return true if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
+
+    !locked?
   end
 
   # Only logged-in Admins/Staff members or user with moderator role can moderate comments
@@ -35,6 +45,8 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def maintainer?
+    return false unless user
+
     case record.commentable_type
     when 'Package'
       user.has_local_permission?('change_package', record.commentable)
@@ -42,6 +54,17 @@ class CommentPolicy < ApplicationPolicy
       user.has_local_permission?('change_project', record.commentable)
     when 'BsRequest'
       record.commentable.is_target_maintainer?(user)
+    end
+  end
+
+  def locked?
+    case record.commentable
+    when Package
+      record.commentable.project.comment_lock.present? || record.commentable.comment_lock.present?
+    when BsRequestAction
+      record.commentable.bs_request.comment_lock.present? || record.commentable.comment_lock.present?
+    else
+      record.commentable.comment_lock.present?
     end
   end
 end
