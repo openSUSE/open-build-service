@@ -31,8 +31,7 @@ class SendEventEmailsJob < ApplicationJob
   end
 
   def event_subscribers(event:)
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    if event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)
+    if event.is_a?(Event::Report)
       event.subscribers.filter_map { |subscriber| subscriber if ReportPolicy.new(subscriber, Report).notify? }
     else
       event.subscribers

@@ -1,6 +1,5 @@
 class EventMailer < ActionMailer::Base
   helper 'webui/markdown'
-  helper 'webui/reportables'
   DefaultSender = Struct.new('DefaultSender', :email, :realname)
 
   before_action :set_configuration

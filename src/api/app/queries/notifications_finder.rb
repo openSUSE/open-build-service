@@ -3,9 +3,7 @@ class NotificationsFinder
     @relation = if Flipper.enabled?(:content_moderation, User.session)
                   relation.order(created_at: :desc)
                 else
-                  # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-                  relation.where.not(event_type: ['Event::CreateReport',
-                                                  'Event::ReportForProject', 'Event::ReportForPackage',
+                  relation.where.not(event_type: ['Event::ReportForProject', 'Event::ReportForPackage',
                                                   'Event::ReportForComment', 'Event::ReportForUser',
                                                   'Event::ClearedDecision', 'Event::FavoredDecision']).order(created_at: :desc)
                 end
@@ -48,8 +46,7 @@ class NotificationsFinder
   end
 
   def for_reports
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    @relation.where(event_type: ['Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage',
+    @relation.where(event_type: ['Event::ReportForProject', 'Event::ReportForPackage',
                                  'Event::ReportForComment', 'Event::ReportForUser',
                                  'Event::ClearedDecision', 'Event::FavoredDecision'], delivered: false)
   end
