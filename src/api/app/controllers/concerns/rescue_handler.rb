@@ -6,10 +6,6 @@ module RescueHandler
       render_error status: 400, errorcode: 'invalid_record', message: exception.record.errors.full_messages.join('\n')
     end
 
-    rescue_from Backend::Error do |exception|
-      render_error status: exception.code, errorcode: 'uncaught_exception', message: exception.summary
-    end
-
     rescue_from Timeout::Error do |exception|
       render_error status: 408, errorcode: 'timeout_error', message: exception.message
     end
