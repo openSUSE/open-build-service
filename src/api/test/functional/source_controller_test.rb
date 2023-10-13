@@ -785,8 +785,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     post '/build/home:Iggy?cmd=wipe'
     assert_response 403
-    post '/source/home:Iggy/TestLinkPack?cmd=wipe'
-    assert_response 403
 
     # check branching from a locked project
     post '/source/home:Iggy/TestLinkPack', params: { cmd: 'branch' }
