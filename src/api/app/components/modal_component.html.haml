@@ -1,0 +1,17 @@
+= button
+
+.modal.fade{ id: "#{@modal_id}-modal",
+             tabindex: -1,
+             role: 'dialog',
+             aria: { labelledby: "#{@modal_id}-modal-label", hidden: 'true' }
+           }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      - if header?
+        .modal-header
+          %h5.wrap-text.modal-title{ id: "#{@modal_id}-modal-label" }= header
+      .modal-body
+        = content
+      - if footer?
+        .modal-footer
+          = footer
