@@ -22,6 +22,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :current_announcement
   before_action :fetch_watchlist_items
   after_action :clean_cache
+  before_action :set_paper_trail_whodunnit
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
@@ -197,6 +198,11 @@ class Webui::WebuiController < ActionController::Base
 
   def pundit_user
     User.possibly_nobody
+  end
+
+  # TODO: This wouldn't be required if we used fairly common standard current_user function
+  def user_for_paper_trail
+    User.session&.id
   end
 
   def current_announcement

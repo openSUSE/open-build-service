@@ -1,7 +1,7 @@
 class Webui::CommentsController < Webui::WebuiController
   before_action :require_login
   before_action :set_commented, only: :create
-  before_action :set_comment, only: :moderate
+  before_action :set_comment, only: [:moderate, :history]
 
   def create
     if @commented.nil?
@@ -132,6 +132,15 @@ class Webui::CommentsController < Webui::WebuiController
     end
   end
 
+  def history
+    authorize @comment, :history?
+
+    @version = @comment.versions.find(params[:version_id])
+    respond_to do |format|
+      format.js { render 'webui/comment/history' }
+    end
+  end
+
   private
 
   def permitted_params
@@ -140,7 +149,7 @@ class Webui::CommentsController < Webui::WebuiController
 
   # FIXME: Use this function for the rest of the actions
   def set_comment
-    @comment = Comment.find(params[:id] || params[:comment_id])
+    @comment = Comment.find(params[:comment_id] || params[:id])
   rescue ActiveRecord::RecordNotFound => e
     flash[:error] = e.message
     render partial: 'layouts/webui/flash'

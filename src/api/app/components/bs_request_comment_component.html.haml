@@ -1,11 +1,12 @@
 .d-inline-flex
   %i.fas.fa-lg.fa-comment.text-dark{ title: 'Comment' }
   = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
-  %p
+  .mb-3
     = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
     wrote
     = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
       = render TimeComponent.new(time: comment.created_at)
+    = render CommentHistoryComponent.new(comment)
 .timeline-item-comment.mb-4
   .comment-bubble
     - if policy(comment).update? || policy(comment).destroy?

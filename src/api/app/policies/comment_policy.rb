@@ -66,4 +66,13 @@ class CommentPolicy < ApplicationPolicy
       record.commentable.comment_lock.present?
     end
   end
+
+  def history?
+    return false unless Flipper.enabled?(:content_moderation, user)
+    # Always display the comment history if the user is admin or moderator
+    return true if user.is_admin? || user.is_staff? || user.is_moderator?
+
+    # Don't display history for moderated and soft deleted comments
+    !(record.moderated? || record.user.is_nobody?)
+  end
 end
