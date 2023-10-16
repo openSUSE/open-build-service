@@ -122,7 +122,7 @@ module Event
         nil
       end
                         .compact.map(&:watched_items)
-                        .flatten.map(&:user)
+                                .flatten.map(&:user)
     end
 
     def action_maintainers(prjname, pkgname)

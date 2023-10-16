@@ -75,14 +75,6 @@ Layout/LineEndStringConcatenationIndentation:
   Exclude:
     - 'app/controllers/webui/packages/build_log_controller.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented, indented_relative_to_receiver
-Layout/MultilineMethodCallIndentation:
-  Exclude:
-    - 'app/models/event/request.rb'
-
 # Offense count: 7
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: enums
