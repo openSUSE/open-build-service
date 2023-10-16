@@ -410,8 +410,6 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_updatepatchinfo.yaml'
   /source/{project_name}/{package_name}?cmd=waitservice:
     $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
-  /source/{project_name}/{package_name}?cmd=wipe:
-    $ref: 'paths/source_project_name_package_name_cmd_wipe.yaml'
   /source/{project_name}/{package_name}?view=info:
     $ref: 'paths/source_project_name_package_name_view_info.yaml'
 

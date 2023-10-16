@@ -153,7 +153,7 @@ class SourceController < ApplicationController
                       'remove_flag', 'set_flag', 'undelete', 'runservice', 'waitservice',
                       'mergeservice', 'commit', 'commitfilelist', 'createSpecFileTemplate',
                       'deleteuploadrev', 'linktobranch', 'updatepatchinfo', 'getprojectservices',
-                      'unlock', 'release', 'importchannel', 'wipe', 'rebuild', 'collectbuildenv',
+                      'unlock', 'release', 'importchannel', 'rebuild', 'collectbuildenv',
                       'instantiate', 'addcontainers', 'addchannels', 'enablechannel']
 
     @command = params[:cmd]
