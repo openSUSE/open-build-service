@@ -81,11 +81,18 @@ class Status::RequiredChecksController < ApplicationController
   def checkable
     return @project unless params[:repository_name]
 
-    repo = @project.repositories.find_by!(name: params[:repository_name])
+    repo = @project.repositories.find_by(name: params[:repository_name])
+    raise NotFoundError, "Couldn't find repository '#{params[:repository_name]}'" if repo.nil?
+
     return repo unless params[:architecture_name]
 
-    architecture = Architecture.find_by!(name: params[:architecture_name])
-    repo.repository_architectures.find_by!(architecture: architecture)
+    architecture = Architecture.find_by(name: params[:architecture_name])
+    raise NotFoundError, "Couldn't find architecture '#{params[:architecture_name]}'" if architecture.nil?
+
+    repo_architecture = repo.repository_architectures.find_by(architecture: architecture)
+    raise NotFoundError, "Couldn't find architecture '#{architecture}'" if repo_architecture.nil?
+
+    repo_architecture
   end
 
   # Use callbacks to share common setup or constraints between actions.
