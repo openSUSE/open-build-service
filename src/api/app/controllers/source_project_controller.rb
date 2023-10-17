@@ -33,8 +33,10 @@ class SourceProjectController < SourceController
         return
       when 'issues'
         render_project_issues
-      else
+      when 'info'
         pass_to_backend
+      else
+        raise InvalidParameterError, "'#{params[:view]}' is not a valid 'view' parameter value."
       end
       return
     end
