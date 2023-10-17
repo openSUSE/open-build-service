@@ -1,10 +1,11 @@
 class ButtonComponent < ApplicationComponent
   renders_one :text
 
-  def initialize(type: nil, text: nil, css_custom: '', icon_type: nil, button_data: {})
+  def initialize(type: nil, id: nil, text: nil, css_custom: '', icon_type: nil, button_data: {})
     super
 
     @type = type
+    @id = id
     @text = text
     @css_custom = css_custom
     @icon_type = icon_type
