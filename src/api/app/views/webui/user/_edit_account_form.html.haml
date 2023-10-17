@@ -24,5 +24,8 @@
       You are behind a proxy. You can modify other data related to your profile by
       = link_to(' this link.', account_edit_link)
   .mb-3.text-end
-    = button_tag 'Cancel', id: 'cancel-in-place-editing', class: 'cancel btn btn-outline-danger px-4'
+    = render(ButtonComponent.new( type: 'outline-danger',
+                                  id: 'cancel-in-place-editing',
+                                  css_custom: 'cancel px-4',
+                                  text: 'Cancel'))
     = submit_tag('Update', class: 'btn btn-primary px-4')

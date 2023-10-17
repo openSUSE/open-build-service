@@ -9,10 +9,19 @@
     %p
       Toggle the availability of architectures.
     .mb-3
-      = button_tag('All', type: 'submit', class: 'btn btn-outline-primary filter-button me-1', value: true,
-        data: { remote: true, url: bulk_update_availability_path(archs: { all: true }), method: :patch })
-      = button_tag('None', type: 'submit', class: 'btn btn-outline-primary filter-button me-1', value: false,
-        data: { remote: true, url: bulk_update_availability_path(archs: { all: false }), method: :patch })
+      = render(ButtonComponent.new( type: 'outline-primary',
+                                    css_custom: 'filter-button me-1',
+                                    text: 'All',
+                                    button_data: { remote: true, url: bulk_update_availability_path(archs: { all: true }), method: :patch },
+                                    html_type: 'submit',
+                                    html_value: true))
+
+      = render(ButtonComponent.new( type: 'outline-primary',
+                                    css_custom: 'filter-button me-1',
+                                    text: 'None',
+                                    button_data: { remote: true, url: bulk_update_availability_path(archs: { all: false }), method: :patch },
+                                    html_type: 'submit',
+                                    html_value: false))
       %i.fas.fa-spinner.invisible
     .mb-3.d-flex.flex-wrap
       - @architectures.each do |arch|

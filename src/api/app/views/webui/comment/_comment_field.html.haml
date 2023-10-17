@@ -29,13 +29,10 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
         - when :post
           = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, disabled: true
           - if !comment.parent_id && CommentLockPolicy.new(User.session, commentable).create?
-            = button_tag(type: 'button', class: 'btn btn-warning', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}-modal" }) do
-              - if commentable.comment_lock.blank?
-                %i.fa.fa-lock
-                Lock comments
-              - else
-                %i.fa.fa-unlock
-                Unlock comments
+            = render(ButtonComponent.new(type: 'warning',
+                                         text: commentable.comment_lock.blank? ? 'Lock comments' : 'Unlock comments',
+                                         button_data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}-modal" },
+                                         icon_type: commentable.comment_lock.blank? ? 'lock' : 'unlock'))
         - when :put
           = f.submit 'Update comment', class: 'btn btn-primary me-2', data: { disable_with: 'Updating comment...' }
         - if has_cancel
