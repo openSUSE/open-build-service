@@ -4,12 +4,12 @@ module Webui
       protected
 
       def set_repository
-        repository_name = params[:repository] || params[:repository_name]
-        @repository = @project.repositories.find_by(name: repository_name)
+        @repository_name = params[:repository] || params[:repository_name]
+        @repository = @project.repositories.find_by(name: @repository_name)
         return @repository if @repository
 
-        flash[:error] = "Couldn't find repository '#{repository_name}'."
-        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name, repository_name: repository_name))
+        flash[:error] = "Couldn't find repository '#{@repository_name}'."
+        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name, repository_name: @repository_name))
       end
 
       def set_architecture
@@ -17,7 +17,7 @@ module Webui
         return @architecture if @architecture
 
         flash[:error] = "Couldn't find architecture '#{params[:arch]}'."
-        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name, repository_name: params[:repository]))
+        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name, repository_name: @repository_name))
       end
     end
   end
