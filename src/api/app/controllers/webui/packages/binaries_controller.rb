@@ -14,6 +14,9 @@ module Webui
       before_action :set_package
       before_action :set_repository, only: [:show, :index, :dependency]
       before_action :set_architecture, only: [:show, :dependency]
+      before_action :set_dependant_project, only: :dependency
+      before_action :set_dependant_repository, only: :dependency
+      before_action :set_filename, only: [:show, :dependency]
 
       prepend_before_action :lockout_spiders
 
@@ -47,9 +50,6 @@ module Webui
       end
 
       def show
-        # Ensure it really is just a file name, no '/..', etc.
-        @filename = File.basename(params[:filename])
-
         @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
@@ -77,27 +77,7 @@ module Webui
       end
 
       def dependency
-        dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
-        unless dependant_project
-          flash[:error] = "Project '#{elide(params[:dependant_project])}' is invalid."
-          redirect_back(fallback_location: root_path)
-          return
-        end
-
-        # FIXME: It can't check repositories of remote projects
-        project_repositories = dependant_project.remoteurl.blank? ? dependant_project.repositories.pluck(:name) : []
-        unless project_repositories.include?(params[:dependant_repository])
-          flash[:error] = "Repository '#{params[:dependant_repository]}' is invalid."
-          redirect_back(fallback_location: project_show_path(project: @project.name))
-          return
-        end
-
-        @dependant_repository = params[:dependant_repository]
-        @dependant_project = params[:dependant_project]
-        @package_name = "#{@package}:#{params[:dependant_name]}"
-        # Ensure it really is just a file name, no '/..', etc.
-        @filename = File.basename(params[:binary_filename])
-        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@dependant_project_name, '_repository', @dependant_repository_name,
                                                                       @architecture, params[:dependant_name])
         return if @fileinfo # avoid displaying an error for non-existing packages
 
@@ -106,6 +86,30 @@ module Webui
       end
 
       private
+
+      def set_dependant_project
+        @dependant_project_name = params[:dependant_project]
+        @dependant_project = Project.find_by_name(@dependant_project_name) || Project.find_remote_project(@dependant_project_name).try(:first)
+        return @dependant_project if @dependant_project
+
+        flash[:error] = "Project '#{elide(@dependant_project_name)}' is invalid."
+        redirect_back(fallback_location: root_path)
+      end
+
+      def set_dependant_repository
+        @dependant_repository_name = params[:dependant_repository]
+        # FIXME: It can't check repositories of remote projects
+        @dependant_repository = @dependant_project.repositories.find_by(name: @dependant_repository_name) if @dependant_project.remoteurl.blank?
+        return @dependant_repository if @dependant_repository
+
+        flash[:error] = "Repository '#{@dependant_repository_name}' is invalid."
+        redirect_back(fallback_location: project_show_path(project: @project.name))
+      end
+
+      def set_filename
+        # Ensure it really is just a file name, no '/..', etc.
+        @filename = File.basename(params[:binary_filename] || params[:filename])
+      end
 
       # Get an URL to a binary produced by the build.
       # In the published repo for everyone, in the backend directly only for logged in users.

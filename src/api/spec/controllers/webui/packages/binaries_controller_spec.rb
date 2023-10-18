@@ -209,8 +209,8 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
         }
       end
 
-      it { expect(assigns(:dependant_repository)).to eq(params[:dependant_repository]) }
-      it { expect(assigns(:dependant_project)).to eq(params[:dependant_project]) }
+      it { expect(assigns(:dependant_repository_name)).to eq(params[:dependant_repository]) }
+      it { expect(assigns(:dependant_project_name)).to eq(params[:dependant_project]) }
       it { expect(response).to have_http_status(:success) }
 
       context 'and fileinfo is nil' do
