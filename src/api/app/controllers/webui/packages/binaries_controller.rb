@@ -65,12 +65,12 @@ module Webui
         authorize @package, :update?
 
         opts = params.slice(:arch, :repository)
-        opts[:package] = @package.name
+        opts[:package] = @package_name
         opts[:project] = @project.name
         if @package.wipe_binaries(opts)
-          flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package.name)} successfully."
+          flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package_name)} successfully."
         else
-          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
+          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{@package.errors.full_messages.to_sentence}."
         end
 
         redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository: @repository)
