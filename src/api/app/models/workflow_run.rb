@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/ClassLength
+
 class WorkflowRun < ApplicationRecord
   SOURCE_URL_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'html_url'],
@@ -26,6 +28,8 @@ class WorkflowRun < ApplicationRecord
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
   has_many :scm_status_reports, class_name: 'SCMStatusReport', dependent: :destroy
   has_many :event_subscriptions, dependent: :destroy
+
+  after_save :create_event, if: :status_changed_to_fail?
 
   paginates_per 20
 
@@ -97,6 +101,18 @@ class WorkflowRun < ApplicationRecord
 
   private
 
+  def event_parameters
+    { id: id, token_id: token_id }
+  end
+
+  def create_event
+    Event::WorkflowRunFail.create(event_parameters)
+  end
+
+  def status_changed_to_fail?
+    saved_change_to_status? && status == 'fail'
+  end
+
   def pull_request_message
     case scm_vendor
     when 'github', 'gitea'
@@ -153,3 +169,4 @@ end
 #
 #  index_workflow_runs_on_token_id  (token_id)
 #
+# rubocop:enable Metrics/ClassLength

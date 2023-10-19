@@ -23,7 +23,8 @@ module Event
       'Event::ReportForProject' => 'Receive notifications for reported projects.',
       'Event::ReportForUser' => 'Receive notifications for reported users.',
       'Event::ClearedDecision' => 'Receive notifications for cleared report decisions.',
-      'Event::FavoredDecision' => 'Receive notifications for favored report decisions.'
+      'Event::FavoredDecision' => 'Receive notifications for favored report decisions.',
+      'Event::WorkflowRunFail' => 'Receive notifications for failed workflow runs on SCM/CI integration.'
     }.freeze
 
     class << self
@@ -40,7 +41,8 @@ module Event
          'Event::RequestStatechange', 'Event::CommentForProject', 'Event::CommentForPackage',
          'Event::CommentForRequest',
          'Event::RelationshipCreate', 'Event::RelationshipDelete',
-         'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser'].map(&:constantize)
+         'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser',
+         'Event::WorkflowRunFail'].map(&:constantize)
       end
 
       def classnames
