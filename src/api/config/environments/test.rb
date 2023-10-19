@@ -104,6 +104,12 @@ if ENV['RUNNING_MINITEST']
   CONFIG['source_port'] = '3200'
 end
 
+if ENV['RUNNING_MINITEST_WITH_DOCKER']
+  ENV['BACKEND_STARTED'] = "1"
+  CONFIG['source_host'] = 'backend'
+  CONFIG['source_port'] = '5352'
+end
+
 # some defaults enforced
 CONFIG['apidocs_location'] = File.expand_path('../../docs/api/html/')
 
