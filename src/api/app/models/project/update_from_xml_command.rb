@@ -31,6 +31,12 @@ class Project
       project.remoteproject = xmlhash.value('remoteproject')
       project.scmsync = xmlhash.value('scmsync')
       project.kind = xmlhash.value('kind') if xmlhash.value('kind').present?
+      #--- update flag group ---#
+      project.update_all_flags(xmlhash)
+      if ::Configuration.default_access_disabled == true && new_record
+        # write a default access disable flag by default in this mode for projects if not defined
+        project.flags.new(status: 'disable', flag: 'access') if xmlhash.elements('access').empty?
+      end
       project.save!
 
       update_linked_projects(xmlhash)
@@ -38,13 +44,6 @@ class Project
 
       update_maintained_prjs_from_xml(xmlhash)
       project.update_relationships_from_xml(xmlhash)
-
-      #--- update flag group ---#
-      project.update_all_flags(xmlhash)
-      if ::Configuration.default_access_disabled == true && new_record
-        # write a default access disable flag by default in this mode for projects if not defined
-        project.flags.new(status: 'disable', flag: 'access') if xmlhash.elements('access').empty?
-      end
 
       update_repositories(xmlhash, force)
     end
