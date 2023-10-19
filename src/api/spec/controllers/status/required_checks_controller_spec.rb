@@ -229,6 +229,26 @@ RSpec.describe Status::RequiredChecksController do
       end
     end
 
+    shared_examples 'fails when trying to delete a fake required check' do
+      before do
+        delete :destroy, params: params.merge(name: 'fake check'), format: :xml
+      end
+
+      it 'will not delete any required check' do
+        expect { response }.not_to(
+          change do
+            # we need to to reload because required_checks is a serialized attribute
+            checkable.reload
+            checkable.required_checks.count
+          end
+        )
+      end
+
+      it 'raise a 404 error' do
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     shared_context 'for logged in user' do
       before do
         login(user)
@@ -238,6 +258,7 @@ RSpec.describe Status::RequiredChecksController do
         let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
 
         include_context 'does delete the required check'
+        include_context 'fails when trying to delete a fake required check'
       end
 
       context 'with group permissions' do
@@ -246,6 +267,7 @@ RSpec.describe Status::RequiredChecksController do
         let!(:relationship) { create(:relationship_project_group, group: group_with_user, project: project) }
 
         include_context 'does delete the required check'
+        include_context 'fails when trying to delete a fake required check'
       end
 
       context 'without permissions' do
