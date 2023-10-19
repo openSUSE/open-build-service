@@ -557,34 +557,18 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_cycle_handling
     User.session = users(:king)
+    prj_a = Project.create!(name: 'Project:A')
+    prj_b = Project.create!(name: 'Project:B')
 
-    prj_a = Project.new(name: 'Project:A')
-    prj_a.update_from_xml!(Xmlhash.parse(
-                             "<project name='Project:A'>
-                               <title/>
-                               <description/>
-                             </project>"
-                           ))
-    prj_a.save!
-    prj_b = Project.new(name: 'Project:B')
-    prj_b.update_from_xml!(Xmlhash.parse(
-                             "<project name='Project:B'>
-                               <title/>
-                               <description/>
-                               <link project='Project:A'/>
-                             </project>"
-                           ))
-    prj_b.save!
-    prj_a.update_from_xml!(Xmlhash.parse(
-                             "<project name='Project:A'>
-                               <title/>
-                               <description/>
-                               <link project='Project:B'/>
-                             </project>"
-                           ))
-    prj_a.save!
+    # Link prj_b to prj_a
+    prj_b.linking_to.create!(linked_db_project: prj_a)
+    # Link prj_a to prj_b, an invalid LinkedProject with a link cycle
+    LinkedProject.new(project: prj_a, linked_db_project: prj_b, position: 1).save(validate: false)
+    prj_a = prj_a.reload
 
+    # test the cycle protection in expand_all_packages
     assert_equal [], prj_a.expand_all_packages
+    # test the cycle protection in expand_all_projects
     assert_equal 2,  prj_a.expand_all_projects.length
   end
 
