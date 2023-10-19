@@ -33,6 +33,15 @@ namespace :dev do
     end
   end
 
+  task test_environment: :environment do
+    unless Rails.env.test?
+      puts "You are running this rake task in #{Rails.env} environment."
+      puts 'Please only run this task with RAILS_ENV=test'
+      puts 'otherwise it will destroy your database data.'
+      exit(1)
+    end
+  end
+
   desc 'Bootstrap the application'
   task :bootstrap, [:old_test_suite] => [:prepare, :environment] do |_t, args|
     args.with_defaults(old_test_suite: false)

@@ -34,7 +34,11 @@ Capybara.register_driver :rack_test do |app|
   Capybara::RackTest::Driver.new(app, headers: { 'HTTP_ACCEPT' => 'text/html' })
 end
 
-WebMock.disable_net_connect!(allow_localhost: true)
+if ENV['RUNNING_MINITEST_WITH_DOCKER']
+  WebMock.disable_net_connect!(allow: 'backend:5352')
+else
+  WebMock.disable_net_connect!(allow_localhost: true)
+end
 
 unless File.exist?('/proc')
   print 'ERROR: proc file system not mounted, aborting'
@@ -180,8 +184,6 @@ module Webui
       user = 'king'
       password = 'sunflower'
       opts[:do_assert] = false
-      # no idea why calling it twice would help
-      WebMock.disable_net_connect!(allow_localhost: true)
       visit new_session_path
       within('#loginform') do
         fill_in 'username', with: user
@@ -208,7 +210,11 @@ module Webui
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
       Backend::Test.start
       @starttime = Time.now
-      WebMock.disable_net_connect!(allow_localhost: true)
+      if ENV['RUNNING_MINITEST_WITH_DOCKER']
+        WebMock.disable_net_connect!(allow: 'backend:5352')
+      else
+        WebMock.disable_net_connect!(allow_localhost: true)
+      end
       CONFIG['global_write_through'] = true
     end
 
