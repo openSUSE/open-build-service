@@ -20,6 +20,8 @@ class NotificationComponent < ApplicationComponent
       tag.i(class: ['fas', 'fa-flag'], title: 'Report notification')
     when 'Decision'
       tag.i(class: ['fas', 'fa-clipboard-check'], title: 'Report decision')
+    when 'WorkflowRun'
+      tag.i(class: ['fas', 'fa-book-open'], title: 'Workflow run')
     else
       tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
     end

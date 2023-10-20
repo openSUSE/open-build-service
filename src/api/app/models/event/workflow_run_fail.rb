@@ -9,5 +9,9 @@ module Event
     def token_executors
       [Token.find_by(id: payload['token_id'], type: 'Token::Workflow')&.executor].compact
     end
+
+    def parameters_for_notification
+      super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'])
+    end
   end
 end

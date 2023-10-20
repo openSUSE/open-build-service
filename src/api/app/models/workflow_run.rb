@@ -99,6 +99,26 @@ class WorkflowRun < ApplicationRecord
     [workflow_configuration_url, workflow_configuration_path].filter_map(&:presence).first
   end
 
+  def formatted_event_source_name
+    case hook_event
+    when 'pull_request', 'Merge Request Hook'
+      "##{event_source_name}"
+    else
+      event_source_name
+    end
+  end
+
+  # Examples of summary:
+  #   Pull request #234, opened
+  #   Merge request hook #234, open
+  #   Push 0940857924387654354986745938675645365436
+  #   Tag push hook Unknown source
+  def summary
+    str = "#{hook_event&.humanize || 'unknown'} #{formatted_event_source_name}"
+    str += ", #{hook_action.humanize.downcase}" if hook_action.present?
+    str
+  end
+
   private
 
   def event_parameters

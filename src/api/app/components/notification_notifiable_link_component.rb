@@ -56,6 +56,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
       report = @notification.notifiable.reports.first
       "Favored #{report.reportable.class.name} Report"
+    when 'Event::WorkflowRunFail'
+      'Workflow Run'
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -113,6 +115,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
       reportable = @notification.notifiable.reports.first.reportable
       link_for_reportables(reportable)
+    when 'Event::WorkflowRunFail'
+      Rails.application.routes.url_helpers.token_workflow_run_path(@notification.notifiable.token, @notification.notifiable)
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity

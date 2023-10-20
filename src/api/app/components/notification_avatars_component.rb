@@ -20,6 +20,8 @@ class NotificationAvatarsComponent < ApplicationComponent
                           [User.find(@notification.event_payload['user_id'])]
                         when 'Decision'
                           [User.find(@notification.event_payload['moderator_id'])]
+                        when 'WorkflowRun'
+                          [Token.find(@notification.event_payload['token_id'])&.executor].compact
                         else
                           reviews = @notification.notifiable.reviews
                           reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)

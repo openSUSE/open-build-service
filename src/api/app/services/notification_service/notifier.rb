@@ -16,7 +16,8 @@ module NotificationService
                         'Event::ReportForComment',
                         'Event::ReportForUser',
                         'Event::ClearedDecision',
-                        'Event::FavoredDecision'].freeze
+                        'Event::FavoredDecision',
+                        'Event::WorkflowRunFail'].freeze
     CHANNELS = [:web, :rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -24,7 +25,8 @@ module NotificationService
       'Project' => ::Project,
       'Package' => ::Package,
       'Report' => ::Report,
-      'Decision' => ::Decision
+      'Decision' => ::Decision,
+      'WorkflowRun' => ::WorkflowRun
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
@@ -37,7 +39,8 @@ module NotificationService
                         'Event::ReportForComment',
                         'Event::ReportForUser',
                         'Event::ClearedDecision',
-                        'Event::FavoredDecision'].freeze
+                        'Event::FavoredDecision',
+                        'Event::WorkflowRunFail'].freeze
 
     def initialize(event)
       @event = event

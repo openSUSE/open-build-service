@@ -7,7 +7,8 @@ module NotificationService
       'Project' => OutdatedNotificationsFinder::Project,
       'Package' => OutdatedNotificationsFinder::Package,
       'Report' => OutdatedNotificationsFinder::Report,
-      'Decision' => OutdatedNotificationsFinder::Decision
+      'Decision' => OutdatedNotificationsFinder::Decision,
+      'WorkflowRun' => OutdatedNotificationsFinder::WorkflowRun
     }.freeze
 
     def initialize(subscription, event)

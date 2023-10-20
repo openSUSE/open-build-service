@@ -14,6 +14,8 @@
             = render TimeComponent.new(time: @notification.created_at)
           - if @notification.notifiable_type == 'BsRequest'
             = render BsRequestStateBadgeComponent.new(state: @notification.notifiable.state, css_class: 'ms-1')
+          - if @notification.notifiable_type == 'WorkflowRun'
+            = render WorkflowRunStatusBadgeComponent.new(status: @notification.notifiable.status, css_class: 'ms-1')
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page, @show_more)
       .row.mt-1.ps-sm-4
