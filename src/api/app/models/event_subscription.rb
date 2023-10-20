@@ -17,7 +17,8 @@ class EventSubscription < ApplicationRecord
     source_package_watcher: 'Watching the source package',
     target_package_watcher: 'Watching the target package',
     request_watcher: 'Watching the request',
-    moderator: 'User with moderator role'
+    moderator: 'User with moderator role',
+    token_executor: 'User who runs the workflow'
   }.freeze
 
   enum channel: {
@@ -44,7 +45,7 @@ class EventSubscription < ApplicationRecord
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
          :reviewer, :commenter, :creator, :watcher, :source_watcher, :target_watcher,
          :package_watcher, :target_package_watcher, :source_package_watcher, :request_watcher, :any_role,
-         :moderator, :reporter, :offender]
+         :moderator, :reporter, :offender, :token_executor]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }

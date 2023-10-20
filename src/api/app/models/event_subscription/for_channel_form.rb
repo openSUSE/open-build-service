@@ -2,7 +2,8 @@ class EventSubscription
   class ForChannelForm
     DISABLE_FOR_EVENTS = ['Event::ServiceFail'].freeze
     DISABLE_RSS_FOR_EVENTS = ['Event::ReportForProject', 'Event::ReportForPackage',
-                              'Event::ReportForComment', 'Event::ReportForUser'].freeze
+                              'Event::ReportForComment', 'Event::ReportForUser',
+                              'Event::WorkflowRunFail'].freeze
 
     attr_reader :name, :subscription
 
@@ -21,7 +22,8 @@ class EventSubscription
 
     def disabled_checkbox?
       (DISABLE_FOR_EVENTS.include?(@event.to_s) && (name == 'web' || name == 'rss')) ||
-        (DISABLE_RSS_FOR_EVENTS.include?(@event.to_s) && name == 'rss')
+        (DISABLE_RSS_FOR_EVENTS.include?(@event.to_s) && name == 'rss') ||
+        (@event.to_s == 'Event::WorkflowRunFail' && name == 'instant_email') # TODO: remove as soon as the email channel is implemented
     end
 
     private
