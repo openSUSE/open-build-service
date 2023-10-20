@@ -23,6 +23,15 @@ module ScmWebhookHeadersDataExtractor
     @github_event || @gitlab_event || @gitea_event
   end
 
+  def ignored_event?
+    case scm_vendor
+    when 'github', 'gitea'
+      SCMWebhookEventValidator::ALLOWED_GITHUB_AND_GITEA_EVENTS.exclude?(hook_event)
+    when 'gitlab'
+      SCMWebhookEventValidator::ALLOWED_GITLAB_EVENTS.exclude?(hook_event)
+    end
+  end
+
   def extract_generic_event_type
     # We only have filters for push, tag_push, and pull_request
     if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')

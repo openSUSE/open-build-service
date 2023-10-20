@@ -8,6 +8,7 @@ class TriggerWorkflowController < TriggerController
   before_action :set_scm_event
   before_action :set_scm_extractor
   before_action :extract_scm_webhook
+  before_action :verify_event_and_action
   before_action :create_workflow_run
   before_action :validate_scm_event
 
@@ -40,10 +41,9 @@ class TriggerWorkflowController < TriggerController
 
   def extract_scm_webhook
     @scm_webhook = @scm_extractor.call
+    return @scm_webhook if @scm_webhook && @scm_extractor.valid?
 
-    # There are plenty of different pull/merge request and push events which we don't support.
-    # Those should not cause an error, we simply ignore them.
-    render_ok if @scm_webhook && (@scm_webhook.ignored_pull_request_action? || @scm_webhook.ignored_push_event?)
+    raise Trigger::Errors::MissingExtractor, @scm_extractor.error_message
   end
 
   def create_workflow_run
@@ -61,6 +61,20 @@ class TriggerWorkflowController < TriggerController
                                                 repository_owner: extract_repository_owner,
                                                 event_source_name: extract_event_source_name,
                                                 generic_event_type: extract_generic_event_type)
+  end
+
+  def verify_event_and_action
+    # There are plenty of different pull/merge request and push events which we don't support.
+    # Those should not cause an error, we simply ignore them.
+    return unless @scm_webhook.ignored_pull_request_action? || @scm_webhook.ignored_push_event? || ignored_event?
+
+    action = @scm_webhook.payload[:action]
+
+    info_msg = "Events '#{@scm_webhook.payload[:event]}' "
+    info_msg += "and actions '#{action}' " if action.present?
+    info_msg += 'are unsupported'
+
+    render_ok(data: { info: info_msg })
   end
 
   def validate_scm_event

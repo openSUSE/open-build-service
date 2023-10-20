@@ -5,6 +5,10 @@ module Trigger::Errors
           'No valid token found'
   end
 
+  class MissingExtractor < APIError
+    setup 'bad_request', 400, 'Extractor could not be created.'
+  end
+
   class BadSCMPayload < APIError
     setup 'bad_request',
           400,
