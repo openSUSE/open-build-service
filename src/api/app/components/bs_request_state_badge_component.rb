@@ -1,20 +1,22 @@
 class BsRequestStateBadgeComponent < ApplicationComponent
-  def initialize(bs_request:, css_class: nil)
+  attr_reader :state, :css_class
+
+  def initialize(state:, css_class: nil)
     super
 
-    @bs_request = bs_request
+    @state = state
     @css_class = css_class
   end
 
   def call
     content_tag(
       :span,
-      icon_state_tag.concat(@bs_request.state),
-      class: ['badge', "bg-#{decode_state_color(@bs_request.state)}", @css_class]
+      icon_state_tag.concat(state),
+      class: ['badge', "bg-#{decode_state_color}", css_class]
     )
   end
 
-  def decode_state_color(state)
+  def decode_state_color
     case state
     when :review, :new
       'secondary'
@@ -31,7 +33,9 @@ class BsRequestStateBadgeComponent < ApplicationComponent
     end
   end
 
-  def decode_state_icon(state)
+  private
+
+  def decode_state_icon
     case state
     when :new
       'code-branch'
@@ -47,16 +51,16 @@ class BsRequestStateBadgeComponent < ApplicationComponent
   end
 
   def icon_state_tag
-    if [:declined, :revoked].include?(@bs_request.state)
+    if [:declined, :revoked].include?(state)
       content_tag(
         :span,
-        tag.i(class: "fas fa-#{decode_state_icon(@bs_request.state)}").concat(
+        tag.i(class: "fas fa-#{decode_state_icon}").concat(
           tag.i(class: 'fas fa-slash fa-stack-1x fa-stack-slash top-icon')
         ),
         class: 'position-relative me-1'
       )
     else
-      tag.i(class: "fas fa-#{decode_state_icon(@bs_request.state)} me-1")
+      tag.i(class: "fas fa-#{decode_state_icon} me-1")
     end
   end
 end
