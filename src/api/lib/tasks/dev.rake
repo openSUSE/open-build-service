@@ -230,9 +230,6 @@ namespace :dev do
       # Create some Decisions on existing Reports
       Rake::Task['dev:reports:decisions'].invoke
 
-      # Create notifications by running the `dev:notifications:data` task two times
-      Rake::Task['dev:notifications:data'].invoke(2)
-
       # Create a workflow token, some workflow runs and their related data
       Rake::Task['dev:workflows:create_workflow_runs'].invoke
 
@@ -250,6 +247,9 @@ namespace :dev do
 
       # Create news
       Rake::Task['dev:news:data'].invoke
+
+      # Create notifications by running the `dev:notifications:data` task two times
+      Rake::Task['dev:notifications:data'].invoke(2)
     end
   end
 end
