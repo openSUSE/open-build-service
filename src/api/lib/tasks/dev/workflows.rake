@@ -14,6 +14,9 @@ namespace :dev do
 
       workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token, executor: admin, description: 'Testing token')
 
+      # This automatically subscribes everyone to the workflow run related events
+      EventSubscription.create!(eventtype: Event::WorkflowRunFail.name, channel: :web, receiver_role: :token_executor, enabled: true)
+
       # GitHub
       create(:workflow_run, token: workflow_token)
       create(:workflow_run, :failed, token: workflow_token)
