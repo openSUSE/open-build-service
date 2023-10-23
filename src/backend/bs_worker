@@ -2619,7 +2619,7 @@ sub getkiwimode {
   my $kiwimode;
   $kiwimode = 'image' if $file =~ /\.kiwi$/;
   $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
-  $kiwimode = 'docker' if $file eq 'Dockerfile';
+  $kiwimode = 'docker' if $file =~ /^Dockerfile(?:\.|$)/;
   $kiwimode = 'fissile' if $file eq 'fissile.yml';
   return $kiwimode;
 }
@@ -4738,7 +4738,7 @@ if ($ex == 0) {
   }
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
-  @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile$/;
+  @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile(?:\.|$)/;
   @d = ('FISSILE') if $buildinfo->{'file'} =~ /fissile\.yml$/;
   @d = ('HELM') if $buildinfo->{'file'} =~ /Chart\.yaml$/;
   push @d, 'OTHER';
