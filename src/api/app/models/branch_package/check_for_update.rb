@@ -69,7 +69,7 @@ class BranchPackage::CheckForUpdate
       end
     else
       package_hash[:link_target_project] = update_project unless link_target_project_valid?
-      update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
+      update_pkg = update_project.find_update_instance_package(pkg_name)
 
       if update_pkg
         # We have no package in the update project yet, but sources are reachable via project link

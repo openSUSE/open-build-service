@@ -803,7 +803,7 @@ class Project < ApplicationRecord
   end
 
   # find a package in a project and its linked projects
-  def find_package(package_name, check_update_project = nil, processed = {})
+  def find_package(package_name, processed = {})
     # cycle check in linked projects
     if processed[self]
       str = name
@@ -814,21 +814,24 @@ class Project < ApplicationRecord
     end
     processed[self] = 1
 
-    pkg = update_instance.packages.find_by_name(package_name) if check_update_project
-    pkg ||= packages.find_by_name(package_name)
+    pkg = packages.find_by_name(package_name)
     return pkg if pkg&.check_access?
 
     # search via all linked projects
     linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
-      pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
+      pkg = lp.linked_db_project.find_package(package_name, processed)
       return pkg if pkg&.check_access?
     end
 
     # no package found
     processed.delete(self)
     nil
+  end
+
+  def find_update_instance_package(package_name)
+    update_instance.packages.find_by_name(package_name)
   end
 
   def expand_all_repositories

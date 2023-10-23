@@ -200,12 +200,12 @@ class Package < ApplicationRecord
 
     return nil if prj.scmsync.present?
 
-    if pkg.nil? && opts[:follow_project_links]
-      pkg = prj.find_package(package, opts[:check_update_project])
-    elsif pkg.nil?
-      pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
-      pkg = prj.packages.find_by_name(package) if pkg.nil?
-    end
+    # Find the in the update project link...
+    pkg = prj.find_update_instance_package(package) if opts[:check_update_project]
+    # ... then in prj and all it's project links...
+    pkg ||= prj.find_package(package) if opts[:follow_project_links]
+    # ... then in our package associations
+    pkg ||= prj.packages.find_by(name: package)
 
     # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
     # linking projects is remote? What if one of the linking projects is local
