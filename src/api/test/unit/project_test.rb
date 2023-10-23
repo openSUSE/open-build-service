@@ -113,6 +113,35 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 0, @project.flags.of_type('publish').size
   end
 
+  def test_kind_settings
+    User.session = users(:Iggy)
+
+    # project is given as axml
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy' kind='maintenance_release'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+      </project>"
+    )
+    @project.update_from_xml!(axml)
+    @project.save!
+    @project.reload
+    xml = @project.render_xml
+    assert_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+      </project>"
+    )
+    @project.update_from_xml!(axml)
+    @project.save!
+    @project.reload
+    xml = @project.render_xml
+    assert_xml_tag xml, tag: :project, attributes: { kind: nil }
+  end
+
   def test_store_axml
     User.session = users(:Iggy)
 

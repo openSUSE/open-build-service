@@ -30,7 +30,7 @@ class Project
       project.remoteurl = xmlhash.value('remoteurl')
       project.remoteproject = xmlhash.value('remoteproject')
       project.scmsync = xmlhash.value('scmsync')
-      project.kind = xmlhash.value('kind') if xmlhash.value('kind').present?
+      project.kind = xmlhash.value('kind') || 'standard'
       project.save!
 
       update_linked_projects(xmlhash)
