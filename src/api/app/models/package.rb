@@ -276,6 +276,10 @@ class Package < ApplicationRecord
     true
   end
 
+  def check_access?
+    Project.check_access?(project)
+  end
+
   def check_source_access!
     return if check_source_access?
     # TODO: Use pundit for authorization instead

@@ -4,6 +4,8 @@ class LinkedProject < ApplicationRecord
 
   validate :validate_duplicates
 
+  scope :local, -> { where.not(linked_db_project: nil) }
+
   protected
 
   def validate_duplicates
