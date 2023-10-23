@@ -564,7 +564,7 @@ class SourceController < ApplicationController
   def project_command_release
     params[:user] = User.session!.login
 
-    @project = Project.get_by_name(params[:project], includeallpackages: 1)
+    @project = Project.get_by_name(params[:project], include_all_packages: true)
     verify_release_targets!(@project)
 
     if @project.is_a?(String) # remote project
@@ -663,7 +663,7 @@ class SourceController < ApplicationController
     raise CmdExecutionNoPermission, "no permission to execute command 'copy'" unless (@project && User.session!.can_modify?(@project)) ||
                                                                                      (@project.nil? && User.session!.can_create_project?(project_name))
 
-    oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
+    oprj = Project.get_by_name(params[:oproject], include_all_packages: true)
     if params.key?(:makeolder) || params.key?(:makeoriginolder)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project" unless User.session!.can_modify?(oprj)
     end
