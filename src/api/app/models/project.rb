@@ -814,25 +814,16 @@ class Project < ApplicationRecord
     end
     processed[self] = 1
 
-    # package exists in this project
-    pkg = nil
     pkg = update_instance.packages.find_by_name(package_name) if check_update_project
-    pkg = packages.find_by_name(package_name) if pkg.nil?
-    return pkg if pkg && Package.check_access?(pkg)
+    pkg ||= packages.find_by_name(package_name)
+    return pkg if pkg&.check_access?
 
     # search via all linked projects
-    linking_to.each do |lp|
+    linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
-      pkg = if lp.linked_db_project.nil?
-              # We can't get a package object from a remote instance ... how shall we handle this ?
-              nil
-            else
-              lp.linked_db_project.find_package(package_name, check_update_project, processed)
-            end
-      unless pkg.nil?
-        return pkg if Package.check_access?(pkg)
-      end
+      pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
+      return pkg if pkg&.check_access?
     end
 
     # no package found
