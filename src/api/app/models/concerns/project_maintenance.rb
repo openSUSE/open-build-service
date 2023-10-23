@@ -51,7 +51,7 @@ module ProjectMaintenance
   end
 
   def expand_maintained_projects
-    maintained_projects.collect { |mp| mp.project.expand_all_projects(allow_remote_projects: false) }.flatten
+    maintained_projects.collect { |mp| mp.project.expand_all_projects }.flatten
   end
 
   def is_maintenance_release?

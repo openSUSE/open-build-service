@@ -213,7 +213,7 @@ class Package < ApplicationRecord
     if pkg.nil? && opts[:follow_project_links]
       # in case we link to a remote project we need to assume that the
       # backend may be able to find it even when we don't have the package local
-      prj.expand_all_projects.each do |p|
+      prj.expand_all_projects(allow_remote_projects: true).each do |p|
         return nil unless p.is_a?(Project)
       end
     end
