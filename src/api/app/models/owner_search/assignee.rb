@@ -71,7 +71,7 @@ module OwnerSearch
       return package_owner if package_owner
 
       # no match, loop about projects below with this package container name
-      package.project.expand_all_projects(allow_remote_projects: false).each do |project|
+      package.project.expand_all_projects.each do |project|
         project_package = project.packages.find_by_name(package.name)
         next if project_package.nil? || @already_checked[project_package.id]
 
@@ -114,7 +114,7 @@ module OwnerSearch
     end
 
     def find_assignees(binary_name)
-      projects = @rootproject.expand_all_projects(allow_remote_projects: false)
+      projects = @rootproject.expand_all_projects
 
       # binary search via all projects
       data = Xmlhash.parse(Backend::Api::Search.binary(projects.map(&:name), binary_name))

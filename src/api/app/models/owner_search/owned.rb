@@ -6,7 +6,7 @@ module OwnerSearch
       # search in each marked project
       projects_to_look_at.map do |project|
         @roles = filter(project).map { |f| Role.find_by_title!(f) }
-        @projects = project.expand_all_projects(allow_remote_projects: false)
+        @projects = project.expand_all_projects
         find_projects(project, owner)
         find_packages(project, owner)
       end

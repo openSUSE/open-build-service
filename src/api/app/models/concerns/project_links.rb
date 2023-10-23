@@ -31,10 +31,10 @@ module ProjectLinks
   end
 
   def expand_linking_to
-    expand_all_projects(allow_remote_projects: false).map(&:id)
+    expand_all_projects.map(&:id)
   end
 
-  def expand_all_projects(project_map: {}, allow_remote_projects: true)
+  def expand_all_projects(project_map: {}, allow_remote_projects: false)
     # cycle check
     return [] if project_map[self]
 
