@@ -32,12 +32,8 @@ class NotificationActionDescriptionComponent < ApplicationComponent
       # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
       when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
         "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
-      when 'Event::ClearedDecision'
-        class_name = @notification.notifiable.reports.first.reportable.class.name.downcase
-        "'#{@notification.notifiable.moderator.login}' decided to clear the report about the #{class_name}. This is the reason:"
-      when 'Event::FavoredDecision'
-        class_name = @notification.notifiable.reports.first.reportable.class.name.downcase
-        "'#{@notification.notifiable.moderator.login}' decided to favor the report about the #{class_name}. This is the reason:"
+      when 'Event::ClearedDecision', 'Event::FavoredDecision'
+        event_decision_description
       end
     end
   end
@@ -53,5 +49,10 @@ class NotificationActionDescriptionComponent < ApplicationComponent
                     else
                       @notification.notifiable.commentable
                     end
+  end
+
+  def event_decision_description
+    reportable_class_name = @notification.notifiable.reports.first.reportable.class.name.downcase
+    "'#{@notification.notifiable.moderator.login}' decided to #{@notification.notifiable.kind_text} the report about the #{reportable_class_name}. This is the reason:"
   end
 end

@@ -13,6 +13,10 @@ class Decision < ApplicationRecord
   after_create :create_event
   after_create :track_decision
 
+  def kind_text
+    kind == 'cleared' ? 'clear' : kind
+  end
+
   private
 
   def create_event
