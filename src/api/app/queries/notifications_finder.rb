@@ -54,6 +54,10 @@ class NotificationsFinder
                                  'Event::ClearedDecision', 'Event::FavoredDecision'], delivered: false)
   end
 
+  def for_workflow_runs
+    @relation.where(event_type: 'Event::WorkflowRunFail', delivered: false)
+  end
+
   # rubocop:disable Metrics/CyclomaticComplexity
   # We need to refactor this method, the `case` statement is way too big
   def for_notifiable_type(type = 'unread')
@@ -78,6 +82,8 @@ class NotificationsFinder
       notifications.for_failed_builds
     when 'reports'
       notifications.for_reports
+    when 'workflow_runs'
+      notifications.for_workflow_runs
     else
       notifications.unread
     end

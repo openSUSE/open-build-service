@@ -20,6 +20,7 @@ class NotificationFilterComponent < ApplicationComponent
     counted_notifications['relationships_deleted'] = finder.for_relationships_deleted.count
     counted_notifications['build_failures'] = finder.for_failed_builds.count
     counted_notifications['reports'] = finder.for_reports.count if @show_reports
+    counted_notifications['workflow_runs'] = finder.for_workflow_runs.count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
   end
 end
