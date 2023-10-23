@@ -141,13 +141,6 @@ class Package < ApplicationRecord
     nil
   end
 
-  def self.internal_get_project(project)
-    return project if project.is_a?(Project)
-    return if Project.is_remote_project?(project)
-
-    Project.get_by_name(project)
-  end
-
   # Our default finder method that handles all our custom Package features (source access, multibuild, links etc.)
   # Use this method, instead of the default `ActiveRecord::FinderMethods`, if you want to instantiate a Package.
   #
@@ -186,45 +179,54 @@ class Package < ApplicationRecord
   # You can follow this type of project link and try to find the Package from the "maintenance update"
   # Project by setting in the opts hash:
   #   check_update_project: true
-  def self.get_by_project_and_name(project, package, opts = {})
+  def self.get_by_project_and_name(project_name, package_name, opts = {})
+    # FIXME: project_name and package_name should be named parameters without a default, the rest named parameters with a default.
+    #        Instead of this opts hash parsing and existance check.
     get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
-    package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
+    # ensure we have received something...
+    return unless project_name
+    return unless package_name
 
-    pkg = check_cache(project, package, opts)
-    return pkg if pkg
+    # ensure we use strings and not not objects...
+    project_name = project_name.to_param
+    package_name = package_name.to_param
 
-    prj = internal_get_project(project)
-    return unless prj # remote prjs
+    package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
 
-    return nil if prj.scmsync.present?
+    cached_package = check_cache(project_name, package_name, opts)
+    return cached_package if cached_package
 
-    if pkg.nil? && opts[:follow_project_links]
-      pkg = prj.find_package(package, opts[:check_update_project])
-    elsif pkg.nil?
-      pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
-      pkg = prj.packages.find_by_name(package) if pkg.nil?
-    end
+    # We don't support instantiating packages from remote projects
+    return if Project.is_remote_project?(project_name)
 
-    # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
-    # linking projects is remote? What if one of the linking projects is local
-    # and the other one remote?
-    if pkg.nil? && opts[:follow_project_links]
-      # in case we link to a remote project we need to assume that the
-      # backend may be able to find it even when we don't have the package local
-      prj.expand_all_projects(allow_remote_projects: true).each do |p|
-        return nil unless p.is_a?(Project)
+    project = Project.get_by_name(project_name)
+
+    # We don't support instantiating packages from scmsync'ed projects
+    return if project.scmsync.present?
+
+    # Look into the project we create updates in...
+    package = project.update_instance.packages.find_by_name(package_name) if opts[:check_update_project]
+    # ...then at our own packages...
+    package ||= project.packages.find_by_name(package_name)
+
+    # ...then at all the projects we link to.
+    if package.nil? && opts[:follow_project_links]
+      project.expand_all_projects.each do |linked_project|
+        # FIXME: Why is this returning nil if *any* of the linking projects is remote?
+        # What if the next LinkedProject in the loop is local and has the package?
+        return nil if linked_project.is_a?(String)
       end
     end
 
-    raise UnknownObjectError, "Package not found: #{project}/#{package}" unless pkg
-    raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
+    raise UnknownObjectError, "Package not found: #{project_name}/#{package_name}" unless package
+    raise ReadAccessError, "#{project_name}/#{package_name}" unless check_access?(package)
 
-    pkg.check_source_access! if opts[:use_source]
+    package.check_source_access! if opts[:use_source]
 
-    Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
-    pkg
+    Rails.cache.write(@key, [package.id, package.updated_at, project.updated_at])
+    package
   end
 
   # to check existens of a project (local or remote)
