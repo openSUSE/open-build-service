@@ -1,6 +1,6 @@
 xml.directory(count: @list.length) do |dir|
   @list.each do |token|
-    token_name = token.token_name.gsub('service', 'runservice') # To make token naming consistent: we create the token as runservice
+    token_name = token.token_name.sub('service', 'runservice') # To make token naming consistent: we create the token as runservice
     p = { id: token.id, string: token.string, kind: token_name, description: token.description, triggered_at: token.triggered_at }
     if token.package
       p[:project] = token.package.project.name
