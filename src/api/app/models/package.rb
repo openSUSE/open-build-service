@@ -186,45 +186,45 @@ class Package < ApplicationRecord
   # You can follow this type of project link and try to find the Package from the "maintenance update"
   # Project by setting in the opts hash:
   #   check_update_project: true
-  def self.get_by_project_and_name(project, package, opts = {})
+  def self.get_by_project_and_name(project_name_or_object, package_name, opts = {})
     get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
-    package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
+    package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
 
-    pkg = check_cache(project, package, opts)
-    return pkg if pkg
+    package = check_cache(project_name_or_object, package_name, opts)
+    return package if package
 
-    prj = internal_get_project(project)
-    return unless prj # remote prjs
+    project = internal_get_project(project_name_or_object)
+    return unless project # remote prjs
 
-    return nil if prj.scmsync.present?
+    return nil if project.scmsync.present?
 
-    if pkg.nil? && opts[:follow_project_links]
-      pkg = prj.find_package(package, opts[:check_update_project])
-    elsif pkg.nil?
-      pkg = prj.update_instance_or_self.packages.find_by_name(package) if opts[:check_update_project]
-      pkg = prj.packages.find_by_name(package) if pkg.nil?
+    if package.nil? && opts[:follow_project_links]
+      package = project.find_package(package_name, opts[:check_update_project])
+    elsif package.nil?
+      package = project.update_instance_or_self.packages.find_by_name(package_name) if opts[:check_update_project]
+      package = project.packages.find_by_name(package_name) if package.nil?
     end
 
     # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
     # linking projects is remote? What if one of the linking projects is local
     # and the other one remote?
-    if pkg.nil? && opts[:follow_project_links]
+    if package.nil? && opts[:follow_project_links]
       # in case we link to a remote project we need to assume that the
       # backend may be able to find it even when we don't have the package local
-      prj.expand_all_projects(allow_remote_projects: true).each do |p|
+      project.expand_all_projects(allow_remote_projects: true).each do |p|
         return nil unless p.is_a?(Project)
       end
     end
 
-    raise UnknownObjectError, "Package not found: #{project}/#{package}" unless pkg
-    raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
+    raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
+    raise ReadAccessError, "#{project.name}/#{package.name}" unless check_access?(package)
 
-    pkg.check_source_access! if opts[:use_source]
+    package.check_source_access! if opts[:use_source]
 
-    Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
-    pkg
+    Rails.cache.write(@key, [package.id, package.updated_at, project.updated_at])
+    package
   end
 
   # to check existens of a project (local or remote)
