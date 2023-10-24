@@ -278,7 +278,7 @@ sub verify_sslpeerfingerprint {
 }
 
 sub probe_keepalive {
-  my ($sock) = $_;
+  my ($sock) = @_;
   my $rin = '';
   vec($rin, fileno($sock), 1) = 1;
   my $r = select($rin, undef, undef, 0);
