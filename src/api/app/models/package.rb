@@ -203,7 +203,7 @@ class Package < ApplicationRecord
     if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
     elsif pkg.nil?
-      pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
+      pkg = prj.update_instance_or_self.packages.find_by_name(package) if opts[:check_update_project]
       pkg = prj.packages.find_by_name(package) if pkg.nil?
     end
 
@@ -927,7 +927,7 @@ class Package < ApplicationRecord
     return if opkg.nil?
 
     # Update projects are usually used in _channels
-    project_name = opkg.project.update_instance.name
+    project_name = opkg.project.update_instance_or_self.name
 
     # not my link target, so it does not qualify for my code streastream
     return unless linkinfo && project_name == linkinfo['project']
@@ -963,7 +963,7 @@ class Package < ApplicationRecord
 
   def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
-    project.update_instance(namespace, name).find_package(self.name)
+    project.update_instance_or_self(namespace, name).find_package(self.name)
   end
 
   def developed_packages

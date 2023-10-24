@@ -535,7 +535,7 @@ class Project < ApplicationRecord
     end
   end
 
-  def update_instance(namespace = 'OBS', name = 'UpdateProject')
+  def update_instance_or_self(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
     a = find_attribute(namespace, name)
     if a && a.values[0]
@@ -816,7 +816,7 @@ class Project < ApplicationRecord
 
     # package exists in this project
     pkg = nil
-    pkg = update_instance.packages.find_by_name(package_name) if check_update_project
+    pkg = update_instance_or_self.packages.find_by_name(package_name) if check_update_project
     pkg = packages.find_by_name(package_name) if pkg.nil?
     return pkg if pkg && Package.check_access?(pkg)
 
@@ -872,7 +872,7 @@ class Project < ApplicationRecord
 
   def branch_local_repositories(project, pkg_to_enable, opts = {})
     # shall we use the repositories from a different project?
-    project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
+    project = project.update_instance_or_self('OBS', 'BranchRepositoriesFromProject')
     skip_repos = []
     a = project.find_attribute('OBS', 'BranchSkipRepositories')
     skip_repos = a.values.map(&:value) if a
@@ -910,7 +910,7 @@ class Project < ApplicationRecord
       # or branch from official release project? release to it ...
       target_repos = [repo] if repo.project.is_maintenance_release?
 
-      update_project = repo.project.update_instance
+      update_project = repo.project.update_instance_or_self
       if update_project != repo.project
         # building against gold master projects might happen (kgraft), but release
         # must happen to the right repos in the update project

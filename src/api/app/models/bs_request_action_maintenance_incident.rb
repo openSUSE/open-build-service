@@ -42,7 +42,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     end
 
     # Automatically switch to update project
-    releaseproject = releaseproject.update_instance
+    releaseproject = releaseproject.update_instance_or_self
     unless releaseproject.is_maintenance_release?
       raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains release target ' \
                                         "project #{releaseproject.name} with invalid project " \
@@ -158,7 +158,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
       if defined?(linkprj) && linkprj
-        if linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance || kinds.include?('channel')
+        if linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance_or_self || kinds.include?('channel')
           branch_params[:project] = linkinfo['project']
           branch_params[:ignoredevel] = '1'
         end
