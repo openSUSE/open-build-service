@@ -505,7 +505,7 @@ class BsRequestAction < ApplicationRecord
 
       # re-route (for the kgraft case building against GM or former incident)
       if is_maintenance_release? && tprj
-        tprj = tprj.update_instance
+        tprj = tprj.update_instance_or_self
         if tprj.is_maintenance_incident?
           release_target = nil
           pkg.project.repositories.includes(:release_targets).find_each do |repo|
@@ -710,7 +710,7 @@ class BsRequestAction < ApplicationRecord
 
     if action_type.in?([:release, :maintenance_incident]) && target_releaseproject && source_package
       pkg = Package.get_by_project_and_name(source_project, source_package)
-      prj = Project.get_by_name(target_releaseproject).update_instance
+      prj = Project.get_by_name(target_releaseproject).update_instance_or_self
       self.target_releaseproject = prj.name
       get_releaseproject(pkg, prj) if pkg
       return
@@ -744,7 +744,7 @@ class BsRequestAction < ApplicationRecord
                                            target_package || source_package,
                                            { follow_multibuild: true,
                                              check_update_project: true })
-    self.target_project = tpkg.project.update_instance.name
+    self.target_project = tpkg.project.update_instance_or_self.name
   end
 
   def source_access_check!

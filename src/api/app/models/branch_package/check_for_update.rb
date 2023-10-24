@@ -93,7 +93,7 @@ class BranchPackage::CheckForUpdate
   end
 
   def update_project_for_project(prj)
-    updateprj = prj.update_instance(@update_attribute_namespace, @update_attribute_name)
+    updateprj = prj.update_instance_or_self(@update_attribute_namespace, @update_attribute_name)
     updateprj == prj ? nil : updateprj
   end
 end
