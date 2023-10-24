@@ -105,7 +105,6 @@ sub forwardredis {
     'headers' => [ 'Content-Type: application/octet-stream' ],
     'data' => BSUtil::tostorable($redisdata),
     'keepalive' => $redis_keepalive,
-    'verbose' => 1,
   };
   eval { BSRPC::rpc($param, undef, 'keepalive=1') };
   if ($@) {
@@ -113,7 +112,11 @@ sub forwardredis {
     die($@);
   }
   markdone($markfd, $_) for @$markoffs;
-  print "forwarded ".@$markoffs." redis notifications\n";
+  if ($redis_keepalive->{'count'}) {
+    print "forwarded ".@$markoffs." redis notifications (keepalive count $redis_keepalive->{'count'})\n";
+  } else {
+    print "forwarded ".@$markoffs." redis notifications\n";
+  }
 }
 
 sub forwarddata {

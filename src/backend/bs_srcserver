@@ -6976,7 +6976,7 @@ sub external_notification_redis {
   my $payload = BSUtil::fromstorable(BSServer::read_data());
   add_redis_notifications($payload);
   my $req = $BSServer::request;
-  $req->{'allow_keepalive'} = 1 if $cgi->{'keepalive'} && ($req->{'keepalive_count'} || 0) < 20 && ($req->{'keepalive_starttime'} || 0) + 300 < time();
+  $req->{'allow_keepalive'} = 1 if $BSConfig::srcserver_notification_keepalive_maxcount && $cgi->{'keepalive'} && ($req->{'keepalive_count'} || 0) < $BSConfig::srcserver_notification_keepalive_maxcount && ($req->{'keepalive_starttime'} || 0) + 300 < time();
   $req->{'keepalive_maxidle'} = $req->{'keepalive_maxage'} = 300;
   BSStdServer::stdreply($BSStdServer::return_ok);
   start_redis_keepalive_process() if $req->{'__do_keepalive'} && !$req->{'keepalive_count'};
