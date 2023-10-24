@@ -30,6 +30,10 @@ module RescueHandler
       render_error status: 403, errorcode: 'invalid_token', message: exception.message
     end
 
+    rescue_from Trigger::Errors::MissingExtractor do |exception|
+      render_error status: 400, errorcode: 'bad_request', message: exception.message
+    end
+
     rescue_from Project::WritePermissionError do |exception|
       render_error status: 403, errorcode: 'modify_project_no_permission', message: exception.message
     end

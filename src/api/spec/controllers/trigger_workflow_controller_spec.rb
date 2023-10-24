@@ -164,7 +164,7 @@ RSpec.describe TriggerWorkflowController do
       end
 
       it { expect(response).to have_http_status(:bad_request) }
-      it { expect(WorkflowRun.count).to eq(1) }
+      it { expect(WorkflowRun.count).to eq(0) }
 
       it 'returns an error message in the response body' do
         expect(response.body).to eql("<status code=\"bad_request\">\n  <summary>This SCM event is not supported</summary>\n</status>\n")
