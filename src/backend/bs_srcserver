@@ -937,7 +937,6 @@ sub findfile {
 
   return $files{'_preinstallimage'} if $ext ne 'kiwi' && $ext ne 'docker' && keys(%files) == 1 && $files{'_preinstallimage'};
   return $files{'Chart.yaml'} if $ext eq 'helm';
-  return $files{'Dockerfile'} if $ext eq 'docker';
   return $files{'appimage.yml'} if $ext eq 'appimage';
   return $files{'PKGBUILD'} if $ext eq 'arch';
   return $files{'fissile.yml'} if $ext eq 'fissile';
@@ -948,6 +947,11 @@ sub findfile {
 
   my $packid = $rev->{'package'};
   $packid = $1 if $rev->{'originpackage'} && $rev->{'originpackage'} =~ /:([^:]+)$/;
+  if ($ext eq 'docker') {
+    return $files{"Dockerfile.$packid-$repoid"} if defined($repoid) && $files{"Dockerfile.$packid-$repoid"};
+    return $files{"Dockerfile.$packid"} if $files{"Dockerfile.$packid"};
+    return $files{'Dockerfile'};
+  }
   return $files{"$packid-$repoid.$ext"} if defined($repoid) && $files{"$packid-$repoid.$ext"};
   # 28.4.2009 mls: deleted "&& defined($repoid)"
   return $files{"$packid.$ext"} if $files{"$packid.$ext"};
