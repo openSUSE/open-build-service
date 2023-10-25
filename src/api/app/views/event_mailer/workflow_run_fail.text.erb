@@ -1,0 +1,7 @@
+A workflow run failed for <%= event['summary'] %>
+<% if event['repository_full_name'] %>
+on repository <%= event['repository_full_name'] -%>
+<% end -%>
+.
+
+Check the details about this <%= link_to('Workflow Run', token_workflow_run_url(event['token_id'], event['id'], only_path: false, host: @host)) %>.
