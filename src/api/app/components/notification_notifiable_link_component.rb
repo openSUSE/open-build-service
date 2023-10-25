@@ -43,8 +43,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       repository = @notification.event_payload['repository']
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
+    when 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
@@ -94,10 +93,6 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
                                                                        repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport'
-      reportable = @notification.notifiable.reportable
-      link_for_reportables(reportable)
     when 'Event::ReportForComment'
       path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
     when 'Event::ReportForPackage'

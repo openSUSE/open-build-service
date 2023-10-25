@@ -69,8 +69,8 @@ FactoryBot.define do
       notifiable factory: [:package]
     end
 
-    trait :create_report do
-      event_type { 'Event::CreateReport' }
+    trait :report_for_comment do
+      event_type { 'Event::ReportForComment' }
       notifiable factory: [:report]
 
       transient do
@@ -80,6 +80,9 @@ FactoryBot.define do
       after(:build) do |notification, evaluator|
         notification.event_payload['reportable_type'] ||= notification.notifiable.reportable.class.to_s
         notification.event_payload['reason'] ||= evaluator.reason
+        notification.event_payload['commentable_type'] ||= notification.notifiable.reportable.commentable.class.to_s
+        notification.event_payload['project_name'] ||= notification.notifiable.reportable.commentable.project.name
+        notification.event_payload['package_name'] ||= notification.notifiable.reportable.commentable.name
       end
     end
 

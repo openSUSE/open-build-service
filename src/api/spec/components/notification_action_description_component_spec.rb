@@ -176,10 +176,10 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
   end
 
-  context 'when the notification is for an Event::CreateReport' do
+  context 'when the notification is for an Event::ReportForComment' do
     context 'with the recipient being a user' do
       let(:notification) do
-        create(:notification, :create_report, originator: 'user_1', reason: 'Because reasons.')
+        create(:notification, :report_for_comment, originator: 'user_1', reason: 'Because reasons.')
       end
 
       before { render_inline(described_class.new(notification)) }

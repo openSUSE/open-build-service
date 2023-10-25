@@ -99,8 +99,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
   end
 
-  context 'for a report notification with the event Event::CreateReport' do
-    let(:notification) { create(:notification, :create_report) }
+  context 'for a report notification with the event Event::ReportForComment' do
+    let(:notification) { create(:notification, :report_for_comment) }
     let(:project) { notification.notifiable.reportable.commentable.project }
     let(:package) { notification.notifiable.reportable.commentable }
 
