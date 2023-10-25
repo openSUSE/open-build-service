@@ -548,6 +548,19 @@ class Project < ApplicationRecord
     self
   end
 
+  # Find the project defined in the OBS:UpdateProject attribute
+  def update_project
+    attribute = find_attribute('OBS', 'UpdateProject')
+    return unless attribute
+    return if attribute.values.first.value.empty?
+
+    update_project_name = attribute.values.first.value
+    project = Project.find_by(name: update_project_name)
+    return project if project
+
+    raise Project::Errors::UnknownObjectError, "Update project configured in #{name} but not found: #{update_project_name}"
+  end
+
   def cleanup_linking_repos
     # replace links to this project repositories with links to the "deleted" repository
     find_repos(:linking_repositories) do |linking_repository|
@@ -814,30 +827,27 @@ class Project < ApplicationRecord
     end
     processed[self] = 1
 
-    # package exists in this project
-    pkg = nil
-    pkg = update_instance_or_self.packages.find_by_name(package_name) if check_update_project
-    pkg = packages.find_by_name(package_name) if pkg.nil?
-    return pkg if pkg && Package.check_access?(pkg)
+    pkg = find_package_on_update_project(package_name) if check_update_project
+    pkg ||= packages.find_by(name: package_name)
+    return pkg if pkg&.check_access?
 
     # search via all linked projects
-    linking_to.each do |lp|
+    linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
-      pkg = if lp.linked_db_project.nil?
-              # We can't get a package object from a remote instance ... how shall we handle this ?
-              nil
-            else
-              lp.linked_db_project.find_package(package_name, check_update_project, processed)
-            end
-      unless pkg.nil?
-        return pkg if Package.check_access?(pkg)
-      end
+      pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
+      return pkg if pkg&.check_access?
     end
 
     # no package found
     processed.delete(self)
     nil
+  end
+
+  def find_package_on_update_project(package_name)
+    return unless update_project
+
+    update_project.packages.find_by(name: package_name)
   end
 
   def expand_all_repositories
