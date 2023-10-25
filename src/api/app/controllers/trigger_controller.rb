@@ -70,5 +70,6 @@ class TriggerController < ApplicationController
 
   def set_package_name
     @package_name = params[:package]
+    raise MissingPackage if @package_name.blank? && @token.package_id.nil? && @token.token_name.in?(['rebuild', 'release', 'service'])
   end
 end

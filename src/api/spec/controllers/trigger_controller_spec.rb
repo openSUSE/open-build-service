@@ -40,6 +40,26 @@ RSpec.describe TriggerController, :vcr do
 
       it { expect(response).to have_http_status(:success) }
     end
+
+    context 'when the token is not bound to a package' do
+      context 'without a package passed in the parameters' do
+        let!(:token) { Token::Rebuild.create(executor: user) }
+        let(:expected_response_body) do
+          <<~XML
+            <status code="bad_request">
+              <summary>A package must be provided for the operations rebuild, release and runservice</summary>
+            </status>
+          XML
+        end
+
+        before do
+          post :create, params: { format: :xml, project: project }
+        end
+
+        it { expect(response).to have_http_status(:bad_request) }
+        it { expect(response.body).to include(expected_response_body) }
+      end
+    end
   end
 
   describe '#release' do
@@ -120,6 +140,26 @@ RSpec.describe TriggerController, :vcr do
 
       it { expect(response).to have_http_status(:not_found) }
     end
+
+    context 'when the token is not bound to a package' do
+      context 'without a package passed in the parameters' do
+        let!(:token) { Token::Release.create(executor: user) }
+        let(:expected_response_body) do
+          <<~XML
+            <status code="bad_request">
+              <summary>A package must be provided for the operations rebuild, release and runservice</summary>
+            </status>
+          XML
+        end
+
+        before do
+          post :create, params: { format: :xml, project: project }
+        end
+
+        it { expect(response).to have_http_status(:bad_request) }
+        it { expect(response.body).to include(expected_response_body) }
+      end
+    end
   end
 
   describe '#runservice' do
@@ -131,6 +171,26 @@ RSpec.describe TriggerController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
+
+    context 'when the token is not bound to a package' do
+      context 'without a package passed in the parameters' do
+        let!(:token) { Token::Service.create(executor: user) }
+        let(:expected_response_body) do
+          <<~XML
+            <status code="bad_request">
+              <summary>A package must be provided for the operations rebuild, release and runservice</summary>
+            </status>
+          XML
+        end
+
+        before do
+          post :create, params: { format: :xml, project: project }
+        end
+
+        it { expect(response).to have_http_status(:bad_request) }
+        it { expect(response.body).to include(expected_response_body) }
+      end
+    end
   end
 
   describe '#create' do

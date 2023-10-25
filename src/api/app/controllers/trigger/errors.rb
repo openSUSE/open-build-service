@@ -14,4 +14,8 @@ module Trigger::Errors
           400,
           'Failed to parse the JSON payload of your request'
   end
+
+  class MissingPackage < APIError
+    setup 'bad_request', 400, 'A package must be provided for the operations rebuild, release and runservice'
+  end
 end
