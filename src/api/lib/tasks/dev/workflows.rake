@@ -43,6 +43,7 @@ namespace :dev do
         create(:workflow_artifacts_per_step_link_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
         create(:workflow_artifacts_per_step_rebuild_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
         create(:workflow_artifacts_per_step_config_repositories, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_set_flags, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
       end
     end
 
