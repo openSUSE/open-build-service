@@ -17,7 +17,11 @@ module Webui
         return @architecture if @architecture
 
         flash[:error] = "Couldn't find architecture '#{params[:arch]}'."
-        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name, repository_name: params[:repository]))
+
+        repository_name = params[:repository] || params[:repository_name]
+        redirect_to(project_package_repository_binaries_path(package_name: @package.name,
+                                                             project_name: @project.name,
+                                                             repository_name: repository_name))
       end
     end
   end
