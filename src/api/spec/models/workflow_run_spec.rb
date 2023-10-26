@@ -64,6 +64,8 @@ RSpec.describe WorkflowRun, :vcr do
         subject
         expect(workflow_run.reload.status).to eql('fail')
       end
+
+      it { expect { subject }.to change(Event::WorkflowRunFail, :count).by(1) }
     end
 
     context 'when providing some other keys' do

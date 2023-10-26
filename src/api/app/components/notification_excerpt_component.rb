@@ -16,6 +16,8 @@ class NotificationExcerptComponent < ApplicationComponent
              helpers.render_without_markdown(@notifiable.body)
            when 'Report', 'Decision'
              @notifiable.reason
+           when 'WorkflowRun'
+             "In repository #{@notifiable.repository_full_name}"
            else
              ''
            end

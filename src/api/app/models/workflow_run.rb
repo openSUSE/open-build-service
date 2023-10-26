@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/ClassLength
+
 class WorkflowRun < ApplicationRecord
   SOURCE_URL_PAYLOAD_MAPPING = {
     'pull_request' => ['pull_request', 'html_url'],
@@ -27,6 +29,8 @@ class WorkflowRun < ApplicationRecord
   has_many :scm_status_reports, class_name: 'SCMStatusReport', dependent: :destroy
   has_many :event_subscriptions, dependent: :destroy
 
+  after_save :create_event, if: :status_changed_to_fail?
+
   paginates_per 20
 
   enum status: {
@@ -43,7 +47,7 @@ class WorkflowRun < ApplicationRecord
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
   # Marks the workflow run as failed also.
   def save_scm_report_failure(message, options)
-    update(status: 'fail') # set WorkflowRun status
+    update_as_failed(message)
     scm_status_reports.create(response_body: message,
                               request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)),
                               status: 'fail') # set SCMStatusReport status
@@ -95,7 +99,39 @@ class WorkflowRun < ApplicationRecord
     [workflow_configuration_url, workflow_configuration_path].filter_map(&:presence).first
   end
 
+  def formatted_event_source_name
+    case hook_event
+    when 'pull_request', 'Merge Request Hook'
+      "##{event_source_name}"
+    else
+      event_source_name
+    end
+  end
+
+  # Examples of summary:
+  #   Pull request #234, opened
+  #   Merge request hook #234, open
+  #   Push 0940857924387654354986745938675645365436
+  #   Tag push hook Unknown source
+  def summary
+    str = "#{hook_event&.humanize || 'unknown'} #{formatted_event_source_name}"
+    str += ", #{hook_action.humanize.downcase}" if hook_action.present?
+    str
+  end
+
   private
+
+  def event_parameters
+    { id: id, token_id: token_id }
+  end
+
+  def create_event
+    Event::WorkflowRunFail.create(event_parameters)
+  end
+
+  def status_changed_to_fail?
+    saved_change_to_status? && status == 'fail'
+  end
 
   def pull_request_message
     case scm_vendor
@@ -153,3 +189,4 @@ end
 #
 #  index_workflow_runs_on_token_id  (token_id)
 #
+# rubocop:enable Metrics/ClassLength
