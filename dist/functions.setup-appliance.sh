@@ -143,12 +143,21 @@ function get_hostname {
   else
     TIMEOUT=30
     while [ -z "$FQHOSTNAME" -o "$FQHOSTNAME" = "localhost" ];do
-      FQHOSTNAME=`hostname -f 2>/dev/null`
+      # Try to get the FQHN via hostname
+      HN=`hostname -f 2>/dev/null`
+      if [[ $HN =~ ^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$ ]];then
+        FQHOSTNAME=$HN
+      fi
       TIMEOUT=$(($TIMEOUT-1))
       [ "$TIMEOUT" -le 0 ] && break
       echo "Waiting for FQHOSTNAME ($TIMEOUT)"
       sleep 1
     done
+    if [ -z "$FQHOSTNAME" -o "$FQHOSTNAME" = "localhost" ] && [ -x "$(command -v hostnamectl)" ];then
+      FQHOSTNAME=`hostnamectl --static 2>/dev/null`
+    elif [ -s /etc/hostname ];then
+      FQHOSTNAME=`cat /etc/hostname`
+    fi
   fi
 
   if type -p ec2-public-hostname; then
