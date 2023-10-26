@@ -2,7 +2,7 @@ post:
   summary: Trigger a specific operation.
   description: |
     This endpoint is meant to be used with a token, to make it possible to automate the
-    execution of an OBS operation from an external application, as, for example, GitHub
+    execution of a specific OBS operation from an external application, as, for example, GitHub
     or GitLab.
 
     See the [/person/{login}/token](#/Person/post_person__login__token) endpoint to
@@ -16,10 +16,17 @@ post:
         - `X-OBS-Signature`
         - `X-Hub-Signature-256`
 
-    A token can be bound to a package, or not. For a token not bound to a package, the `project`
-    and `package` parameters can be provided to specify the package.
+    A package may be provided for the operation `runservice`. Alternative is
+    to use a token bound to package.
 
-    A package must be provided for the operations `rebuild`, `release` and `runservice`.
+    The operations `rebuild` and `release` can be used either
+    - with a token specific for package
+    - with a token not specific for package, but a given package via trigger parameters
+    - with a token not specific for package, but a given project via trigger parameters
+
+    The operation is always limited to the registered operation type of the token.
+    To ensure a correct usage, the operation type can be also specified in the api path.
+
   security:
     - GitLab_key_authentication: []
   parameters:
@@ -28,7 +35,6 @@ post:
       schema:
         type: string
         enum: [ rebuild, release, runservice, workflow ]
-      required: yes
     - in: header
       name: X-OBS-Signature
       schema:
@@ -85,9 +91,9 @@ post:
     - in: query
       name: repository
       description: |
-        Repository filter. Only used when the operation is 'rebuild'.
+        Repository filter. Only used when the operation is 'rebuild' or 'release'.
 
-        If it is present, restrict rebuilds of a package to a specific repository.
+        If it is present, restrict the operation to a specific repository.
       schema:
         type: string
       examples:
@@ -101,7 +107,7 @@ post:
     - in: query
       name: arch
       description: |
-        Architecture filter. Only used when the operation is 'rebuild' or 'release'.
+        Scheduler architecture filter. Only used when the operation is 'rebuild' or 'release'.
 
         If it is present, restrict rebuilds of a package to a specific architecture.
       schema:

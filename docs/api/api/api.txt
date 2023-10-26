@@ -1478,20 +1478,63 @@ XmlResult: buildinfo
 
 === Trigger area
 
-POST /trigger/runservice
+POST /trigger
 
-  This call needs a token to identify the user and package which shall be updated
-  via a source service. See the cmd=create in the /person/<userid>/token route.
+  A global route which can be used for any of the routes below. Any operation
+  type is allowed and is defined by the token.
+
+  These calls needs a token to identify the user and operation type which shall be
+  be exectured. See the cmd=create in the /person/<userid>/token route.
 
   The token itself must be delivered as a HTTP header:
     Authorization: Token <TOKEN_STRING>
 
+Parameters:
+  Parameters are operation specific, please read bellow.
+
+XmlResult: status
+
+
+POST /trigger/runservice
+
+  Executes a source service run.
+
 Parameters
-  project: To be used together with "package" to identify the object. Must not be used
-           when the token is bound to a package.
+  project: To be used together with "package" to identify the object. Project global runs
+           are not supported.
   package: see project parameter.
 
 XmlResult: status
+
+
+POST /trigger/rebuild
+
+Rebuilds an entire project or single package.
+
+Parameters
+  project: required for tokens which are not bound to a package
+  package: optional, must not be different with to token specific package
+  repository: optional, just for specified repository
+  arch: optional, just for specified scheduler architecture
+
+XmlResult: status
+
+
+POST /trigger/release
+
+Releases an entire project or single package.
+
+Parameters
+  project: required for tokens which are not bound to a package
+  package: optional, must not be different with to token specific package
+  repository: optional, just for specified repository
+  arch: optional, just for specified scheduler architecture
+  targetproject: optional, filter for target project
+  targetrepository: optional, filter for target repository
+  filter_source_repository: optional, filter for repository defined in origin project
+
+XmlResult: status
+
 
 === Repository Information
 

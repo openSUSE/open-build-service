@@ -33,6 +33,8 @@ class TriggerController < ApplicationController
                targetproject: params[:targetproject], targetrepository: params[:targetrepository],
                filter_source_repository: params[:filter_source_repository] }
       opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
+      raise InvalidToken, 'Invalid token found' unless request.path == '/trigger' || @token.class == Token.token_type(request.path.gsub('/trigger/', ''))
+
       @token.call(opts)
       render_ok
     end
@@ -66,10 +68,12 @@ class TriggerController < ApplicationController
 
   def set_project_name
     @project_name = params[:project]
+    raise InvalidParameterError if @project_name.present? && @token.package && @token.package.project.name != @project_name
   end
 
   def set_package_name
     @package_name = params[:package]
-    raise MissingPackage if @package_name.blank? && @token.package_id.nil? && @token.token_name.in?(['rebuild', 'release', 'service'])
+    raise InvalidParameterError if @package_name.present? && @token.package && @token.package.name != @project_name
+    raise MissingPackage if @package_name.blank? && @token.package_id.nil? && @token.token_name.in?(['service'])
   end
 end

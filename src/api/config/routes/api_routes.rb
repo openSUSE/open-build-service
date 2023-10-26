@@ -68,6 +68,7 @@ OBSApi::Application.routes.draw do
     resources :architectures, only: [:index, :show, :update] # create,delete currently disabled
 
     ### /trigger
+    post 'trigger' => 'trigger#create' # operation is read from the token
     post 'trigger/rebuild' => 'trigger#create'
     post 'trigger/release' => 'trigger#create'
     post 'trigger/runservice' => 'trigger#create'
