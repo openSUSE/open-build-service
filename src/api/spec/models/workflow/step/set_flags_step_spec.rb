@@ -68,6 +68,10 @@ RSpec.describe Workflow::Step::SetFlags do
       end
 
       context 'when one flag is given' do
+        before do
+          login target_project.commit_user
+        end
+
         it 'adds flag to the project' do
           expect { subject.call }.to change(Flag, :count).by(1)
           expect(Flag.all).to match_array([have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build')])
@@ -93,6 +97,10 @@ RSpec.describe Workflow::Step::SetFlags do
                 }
               ]
           }
+        end
+
+        before do
+          login target_project.commit_user
         end
 
         it 'add flags to the project' do
