@@ -61,10 +61,10 @@ class Project
         link = Project.find_by_name(l['project'])
         if link.nil?
           if Project.find_remote_project(l['project'])
-            project.linking_to.create(project: project,
-                                      linked_remote_project_name: l['project'],
-                                      vrevmode: l['vrevmode'],
-                                      position: position)
+            project.linking_to.create!(project: project,
+                                       linked_remote_project_name: l['project'],
+                                       vrevmode: l['vrevmode'],
+                                       position: position)
           else
             raise SaveError, "unable to link against project '#{l['project']}'"
           end
