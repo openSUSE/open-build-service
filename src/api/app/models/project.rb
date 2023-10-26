@@ -17,6 +17,7 @@ class Project < ApplicationRecord
            'maintenance_release'].freeze
 
   after_initialize :init
+  after_initialize :check_access?
   before_destroy :cleanup_before_destroy, prepend: true
   after_destroy_commit :delete_on_backend
 
@@ -203,83 +204,37 @@ class Project < ApplicationRecord
       project
     end
 
-    def is_remote_project?(name, skip_access = false)
-      lpro = find_remote_project(name, skip_access)
+    def is_remote_project?(name)
+      local_project, _remote_name = find_remote_project(name)
 
-      lpro && lpro[0].defines_remote_instance?
+      local_project&.remoteurl.present?
     end
 
-    def check_access?(project)
-      return false if project.nil?
-      # check for 'access' flag
-
-      return true unless Relationship.forbidden_project_ids.include?(project.id)
-
-      # simple check for involvement --> involved users can access project.id, User.session!
-      project.relationships.groups.includes(:group).any? do |grouprel|
-        # check if User.session! belongs to group.
-        User.session!.is_in_group?(grouprel.group) ||
-          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-          (CONFIG['ldap_mode'] == :on &&
-            CONFIG['ldap_group_support'] == :on &&
-            UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id))
-      end
-    end
-
-    # This finder is checking for
-    #   - a Project in the database
-    #   - read authorization of the Project in the database
-    #   - a Project from an interconnect
-    #
     # The return value is either
     #   - an instance of Project
-    #   - a string for a Project from an interconnect
-    #   - UnknownObjectError or ReadAccessError exceptions
-    def get_by_name(name, include_all_packages: false)
-      dbp = find_by_name(name, skip_check_access: true)
-      if dbp.nil?
-        dbp, remote_name = find_remote_project(name)
-        return dbp.name + ':' + remote_name if dbp
+    #   - a String in case the Project might exist on an interconnect
+    #   - UnknownObjectError exceptions
+    def get_by_name(project_name)
+      project = find_by_name(project_name)
+      project ||= find_remote_project(project_name)&.join(':')
 
-        raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
-      end
-      if include_all_packages
-        Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-          raise ReadAccessError, name unless Package.check_access?(pkg)
-        end
-      end
+      raise Project::Errors::UnknownObjectError, "Project not found: #{project_name}" unless project
 
-      raise ReadAccessError, name unless check_access?(dbp)
-
-      dbp
+      project
     end
 
     # check existence of a project (local or remote)
     def exists_by_name(name)
-      local_project = find_by_name(name, skip_check_access: true)
-      if local_project.nil?
-        find_remote_project(name).present?
-      else
-        check_access?(local_project)
-      end
-    end
-
-    # FIXME: to be obsoleted, this function is not throwing exceptions on problems
-    # use get_by_name or exists_by_name instead
-    def find_by_name(name, opts = {})
-      dbp = find_by(name: name)
-
-      return if dbp.nil?
-      return if !opts[:skip_check_access] && !check_access?(dbp)
-
-      dbp
+      project = find_by(name: name)
+      project ||= find_remote_project(name)
+      project.present?
     end
 
     def find_by_attribute_type(attrib_type)
       Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
     end
 
-    def find_remote_project(name, skip_access = false)
+    def find_remote_project(name)
       return unless name
 
       fragments = name.split(':')
@@ -291,7 +246,7 @@ class Project < ApplicationRecord
         logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
 
         project = Project.find_by(name: local_project)
-        if project && (skip_access || check_access?(project)) && project.defines_remote_instance?
+        if project && project.remoteurl.present?
           logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
           return project, remote_project
         end
@@ -537,7 +492,7 @@ class Project < ApplicationRecord
     # check if a newer instance exists in a defined update project
     a = find_attribute(namespace, name)
     if a && a.values[0]
-      update_instance = Project.find_by_name(a.values[0].value)
+      update_instance = Project.find_by(name: a.values[0].value)
       return update_instance if update_instance
 
       raise Project::Errors::UnknownObjectError, "Update project configured in #{name} but not found: #{a.values[0].value}"
@@ -803,14 +758,11 @@ class Project < ApplicationRecord
             # Look for any package with name in all our linked projects
             Package.find_by(project: expand_linking_to, name: name)
           else
-            packages.find_by_name(name)
+            packages.find_by(name: name)
           end
-    if pkg.nil?
-      # local project, but package may be in a linked remote one
-      opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
-    else
-      Package.check_access?(pkg)
-    end
+    return pkg if pkg
+
+    Package.exists_on_backend?(name, self.name) if opts[:allow_remote_packages]
   end
 
   # find a package in a project and its linked projects
@@ -827,14 +779,14 @@ class Project < ApplicationRecord
 
     pkg = find_package_on_update_project(package_name) if check_update_project
     pkg ||= packages.find_by(name: package_name)
-    return pkg if pkg&.check_access?
+    return pkg if pkg
 
     # search via all linked projects
     linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
       pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
-      return pkg if pkg&.check_access?
+      return pkg if pkg
     end
 
     # no package found
@@ -1387,6 +1339,10 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def check_access?
+    raise ActiveRecord::RecordNotFound, "Couldn't instantiate access protected Project with 'id'=#{id}" if Relationship.forbidden_project_ids.include?(id)
+  end
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do

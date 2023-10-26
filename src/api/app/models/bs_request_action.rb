@@ -111,7 +111,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def is_from_remote?
-    Project.unscoped.is_remote_project?(source_project, true)
+    Project.is_remote_project?(source_project)
   end
 
   def store_from_xml(hash)

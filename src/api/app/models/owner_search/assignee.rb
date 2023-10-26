@@ -37,7 +37,7 @@ module OwnerSearch
     end
 
     def extract_maintainer(package)
-      return unless package && Package.check_access?(package)
+      return unless package
 
       owner = create_owner(package)
       # no filter defined, so do not check for roles and just return container

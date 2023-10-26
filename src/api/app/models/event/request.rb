@@ -170,7 +170,7 @@ module Event
     end
 
     def source_from_remote?
-      payload['actions'].any? { |action| Project.unscoped.is_remote_project?(action['sourceproject'], true) }
+      payload['actions'].any? { |action| Project.is_remote_project?(action['sourceproject']) }
     end
 
     def payload_without_target_project?

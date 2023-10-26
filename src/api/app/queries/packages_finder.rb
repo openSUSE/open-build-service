@@ -42,7 +42,7 @@ class PackagesFinder
   private
 
   def find_package(args)
-    Package.find_by_sql(args).keep_if { |p| Package.check_access?(p) }
+    Package.find_by_sql(args)
   end
 
   def base_query

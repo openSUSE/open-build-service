@@ -22,7 +22,7 @@ module ProjectMaintenance
       at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
       maintenance_project = Project.find_by_attribute_type(at).first
 
-      return unless maintenance_project && check_access?(maintenance_project)
+      return unless maintenance_project
 
       maintenance_project
     end
