@@ -24,6 +24,8 @@ namespace :dev do
       create(:workflow_run, :succeeded, :tag_push, token: workflow_token)
       create(:workflow_run, :succeeded, token: workflow_token)
       create(:workflow_run, :succeeded, :pull_request_closed, token: workflow_token)
+      create(:workflow_run, :with_url, token: workflow_token)
+      create(:workflow_run, :without_configuration_data, token: workflow_token)
 
       # GitLab
       create(:workflow_run_gitlab, token: workflow_token)

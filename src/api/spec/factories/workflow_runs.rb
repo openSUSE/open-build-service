@@ -10,6 +10,8 @@ FactoryBot.define do
     repository_name { Faker::Lorem.word }
     repository_owner { Faker::Team.creature }
     response_url { 'https://api.github.com' }
+    workflow_configuration_path { '.obs/workflows.yml' }
+    workflow_configuration_url { nil }
     request_headers do
       <<~END_OF_HEADERS
         HTTP_X_GITHUB_EVENT: pull_request
@@ -20,13 +22,20 @@ FactoryBot.define do
     request_payload do
       File.read('spec/support/files/request_payload_github_pull_request_opened.json')
     end
-
-    trait 'with_configuration_path' do
-      workflow_configuration_path { '.obs/workflows.yml' }
+    workflow_configuration do
+      File.read('spec/support/files/workflows.yml')
     end
 
-    trait 'with_configuration_url' do
+    trait :with_url do
+      workflow_configuration_path { nil }
       workflow_configuration_url { 'http://example.com/workflows.yml' }
+    end
+
+    # Emulating the old workflow runs, before we started to store them
+    trait :without_configuration_data do
+      workflow_configuration_path { nil }
+      workflow_configuration_url { nil }
+      workflow_configuration { nil }
     end
 
     trait :pull_request_closed do
