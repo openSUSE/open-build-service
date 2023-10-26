@@ -30,6 +30,7 @@ class SCMExceptionHandler
   end
 
   rescue_from Gitlab::Error::BadGateway,
+              Gitlab::Error::BadRequest,
               Gitlab::Error::Conflict,
               Gitlab::Error::Forbidden,
               Gitlab::Error::InternalServerError,
@@ -38,7 +39,7 @@ class SCMExceptionHandler
               Gitlab::Error::ServiceUnavailable,
               Gitlab::Error::TooManyRequests,
               Gitlab::Error::Unauthorized,
-              Gitlab::Error::BadRequest do |exception|
+              OpenSSL::SSL::SSLError do |exception|
     log_to_workflow_run(exception, 'GitLab') if @workflow_run.present?
   end
 
