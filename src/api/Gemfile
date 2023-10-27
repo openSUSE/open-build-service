@@ -207,6 +207,8 @@ group :development, :test do
   gem 'puma'
   # to drive headless chrome
   gem 'selenium-webdriver'
+  # for profiling method calls
+  gem 'method_profiler'
 end
 
 group :development do
