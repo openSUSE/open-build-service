@@ -7623,6 +7623,7 @@ sub run {
   my ($conf) = @_;
   BSSrcServer::SQLite::init_publisheddb($extrepodb) if $BSConfig::published_db_sqlite;
   BSSrcServer::SQLite::init_sourcedb($sourcedb) if $BSConfig::source_db_sqlite;
+  BSStdServer::setup_authenticator();
   BSServer::server($conf);
 }
 
