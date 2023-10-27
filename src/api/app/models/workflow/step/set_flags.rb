@@ -31,7 +31,7 @@ class Workflow::Step::SetFlags < Workflow::Step
         next if existing_flag.present?
 
         main_object.add_flag(flag[:type], flag[:status], flag[:repository], flag[:architecture])
-        main_object.save!
+        main_object.store
       end
     end
   end
