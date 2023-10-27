@@ -37,6 +37,7 @@ our $noproxy;
 our $logtimeout;
 our $autoheaders;
 our $dnscachettl = 3600;
+our $authenticator;
 
 our $ssl_keyfile;
 our $ssl_certfile;
@@ -145,11 +146,11 @@ sub createreq {
   unshift @xhdrs, "Connection: close" unless $param->{'noclose'} || $param->{'keepalive'};
   unshift @xhdrs, "User-Agent: $useragent" unless !defined($useragent) || grep {/^user-agent:/si} @xhdrs;
   unshift @xhdrs, "Host: $hostport" unless grep {/^host:/si} @xhdrs;
-  if (defined $auth) {
+  if (defined($auth) && !grep {/^authorization:/si} @xhdrs) {
     $auth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     unshift @xhdrs, "Authorization: Basic ".encode_base64($auth, '');
   }
-  if (defined $proxyauth) {
+  if (defined($proxyauth) && !grep {/^proxy-authorization:/si} @xhdrs) {
     $proxyauth =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     unshift @xhdrs, "Proxy-Authorization: Basic ".encode_base64($proxyauth, '');
   }
@@ -285,6 +286,25 @@ sub probe_keepalive {
   return defined($r) && $r == 0 ? 1 : 0;
 }
 
+sub call_authenticator {
+  my ($param, @args) = @_;
+  my $auth = $param->{'authenticator'} || $authenticator;
+  if (ref($auth eq 'HASH')) {
+    return undef unless $param->{'uri'} =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+    my $authrealm = ($2 ? "$2\@" : '') . $3 . ($4 || '');
+    $auth = $auth->{$authrealm};
+  }
+  if (ref($auth) eq 'ARRAY') {
+    for my $au (@$auth) {
+      my $r = $au->($param, @args);
+      return $r if defined $r;
+    }
+    return undef;
+  }
+  return $auth->($param, @args) if $auth && ref($auth eq 'CODE');
+  return undef;
+}
+
 #
 # handled paramters:
 # timeout
@@ -373,9 +393,9 @@ sub rpc {
 
   push @xhdrs, "Content-Length: ".length($data) if defined($data) && !ref($data) && !$chunked && !grep {/^content-length:/i} @xhdrs;
   push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
-  if ($param->{'authenticator'} && !grep {/^authorization:/i} @xhdrs) {
+  if (($authenticator || $param->{'authenticator'}) && !grep {/^authorization:/i} @xhdrs) {
     # ask authenticator for cached authorization
-    my $auth = $param->{'authenticator'}->($param);
+    my $auth = call_authenticator($param);
     push @xhdrs, "Authorization: $auth" if $auth;
   }
   my $uri = createuri($param, @args);
@@ -522,9 +542,9 @@ sub rpc {
       $myparam{'verbatim_uri'} = 1;
       return rpc(\%myparam, $xmlargs, @args);
     }
-    if ($status =~ /^401[^\d]/ && $param->{'authenticator'} && $headers{'www-authenticate'}) {
+    if ($status =~ /^401[^\d]/ && ($authenticator || $param->{'authenticator'}) && $headers{'www-authenticate'}) {
       # unauthorized, ask callback for authorization
-      my $auth = $param->{'authenticator'}->($param, $headers{'www-authenticate'}, \%headers);
+      my $auth = call_authenticator($param, $headers{'www-authenticate'}, \%headers);
       if ($auth) {
         close $sock;
         my %myparam = %$param;
