@@ -67,6 +67,7 @@ use BSHTTP;
 use BSSched::RPC;
 use BSConfiguration;
 use BSXML;
+use BSSigAuth;
 
 =head2 setup_watches - create watches for all dependencies on remote projects
 
@@ -793,6 +794,13 @@ sub convertpackagebinarylist {
   update_gbininfo_remote_cache($gctx, $prpa, $gbininfo, $bininfocookie);
   update_remotepackstatus_cache($gctx, $prpa, $rpackstatus, $packstatususer);
   return ($gbininfo, $rpackstatus);
+}
+
+sub setup_authenticator {
+  for my $authrealm (sort keys %{$BSConfig::signature_auth_keyfile || {}}) {
+    next unless $authrealm =~ /^(.*?)\@/;
+    $BSRPC::authenticator->{$authrealm} = BSSigAuth::generate_authenticator($1, 'keyfile' => $BSConfig::signature_auth_keyfile->{$authrealm});
+  }
 }
 
 1;

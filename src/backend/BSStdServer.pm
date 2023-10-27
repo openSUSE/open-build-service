@@ -34,6 +34,7 @@ use BSXML;
 use BSRPC;
 use BSUtil;
 use BSConfiguration;
+use BSSigAuth;
 use XML::Structured;
 
 use strict;
@@ -351,6 +352,13 @@ sub critlogger {
   return unless $conf && $conf->{'critlogfile'};
   my $logstr = sprintf "%s: %-7s %s\n", BSUtil::isotime(time), "[$$]", $msg;
   BSUtil::appendstr($conf->{'critlogfile'}, $logstr);
+}
+
+sub setup_authenticator {
+  for my $authrealm (sort keys %{$BSConfig::signature_auth_keyfile || {}}) {
+    next unless $authrealm =~ /^(.*?)\@/;
+    $BSRPC::authenticator->{$authrealm} = BSSigAuth::generate_authenticator($1, 'keyfile' => $BSConfig::signature_auth_keyfile->{$authrealm});
+  }
 }
 
 sub server {
