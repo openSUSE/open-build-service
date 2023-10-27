@@ -42,14 +42,14 @@
       .list-group.list-group-flush
         - status_reports.each do |status_report|
           .list-group-item
-            %h6 Response body
+            %h5 Response Body
             %p
               %span.badge{ class: status_report.status_class }= status_report.status&.humanize
             - if status_report.response_body.present?
               %pre.border.p-2#status-report-response-body
                 = status_report.response_body
             - if status_report.pretty_request_parameters.present?
-              %h6 Request parameters
+              %h5 Request Parameters
               %pre.border.p-2#status-report-request-parameters
                 = status_report.pretty_request_parameters
               %small.text-nowrap{ title: l(status_report.created_at.utc) }
