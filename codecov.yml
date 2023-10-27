@@ -5,6 +5,9 @@ coverage:
         target: auto
         base: auto
         threshold: 1
+        paths:
+        - !src/api/lib/tasks/dev/
+
 comment:
   layout: "reach, diff, flags"
   require_changes: true
