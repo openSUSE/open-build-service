@@ -10,10 +10,9 @@ RSpec.describe TriggerController, :vcr do
   render_views
 
   before do
-    # FIXME: fix the rubocop complain
-    # rubocop:disable RSpec/AnyInstance
-    allow_any_instance_of(TriggerControllerService::TokenExtractor).to receive(:call).and_return(token)
-    # rubocop:enable RSpec/AnyInstance
+    token_extractor = instance_double(TriggerControllerService::TokenExtractor)
+    allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor)
+    allow(token_extractor).to receive(:call).and_return(token)
     package
   end
 
