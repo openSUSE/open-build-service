@@ -28,10 +28,18 @@ class WorkflowRunDetailComponent < ApplicationComponent
   def workflow_configuration_data
     return content_tag(:p, 'This information is not available.') unless workflow_run.configuration_source
 
-    content_tag(:h5, "Workflow Configuration File #{workflow_run.workflow_configuration_url.present? ? 'URL' : 'Path'}").concat(
-      content_tag(:pre,
-                  workflow_run.configuration_source,
-                  class: 'border p-2')
+    output = content_tag(:h5, "Workflow Configuration File #{workflow_run.workflow_configuration_url.present? ? 'URL' : 'Path'}").concat(
+      content_tag(:pre, workflow_run.configuration_source, class: 'border p-2')
     )
+
+    if workflow_run.workflow_configuration
+      output.concat(
+        content_tag(:h5, 'Workflow Configuration').concat(
+          content_tag(:pre, workflow_run.workflow_configuration, class: 'border p-2')
+        )
+      )
+    end
+
+    output
   end
 end
