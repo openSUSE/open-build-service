@@ -13,7 +13,6 @@ RSpec.describe TriggerController, :vcr do
     token_extractor = instance_double(TriggerControllerService::TokenExtractor)
     allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor)
     allow(token_extractor).to receive(:call).and_return(token)
-    package
   end
 
   describe '#rebuild' do
