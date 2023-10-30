@@ -39,91 +39,15 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 09 Sep 2021 21:30:34 GMT
+  recorded_at: Mon, 30 Oct 2023 18:27:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_8
+    uri: http://backend:5352/source/project_3/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
-        <package name="apache2" project="home:tom">
-          <title>The Needle's Eye</title>
-          <description>Et voluptas vero aliquam.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="apache2" project="home:tom">
-          <title>The Needle's Eye</title>
-          <description>Et voluptas vero aliquam.</description>
-        </package>
-  recorded_at: Thu, 09 Sep 2021 21:30:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/apache2/_service
-    body:
-      encoding: UTF-8
-      string: "<services/>"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>38b4279eda14bf0e7fa3dfdffe01f895</srcmd5>
-          <version>unknown</version>
-          <time>1631223034</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Thu, 09 Sep 2021 21:30:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_2/_meta?user=user_9
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="project_2">
-          <title>His Dark Materials</title>
+        <project name="project_3">
+          <title>Things Fall Apart</title>
           <description/>
         </project>
     headers:
@@ -145,24 +69,62 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>His Dark Materials</title>
+        <project name="project_3">
+          <title>Things Fall Apart</title>
           <description></description>
         </project>
-  recorded_at: Thu, 09 Sep 2021 21:30:34 GMT
+  recorded_at: Mon, 30 Oct 2023 18:27:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/package_2/_meta?user=user_10
+    uri: http://backend:5352/source/project_3/package_3/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>The Far-Distant Oxus</title>
-          <description>Corporis rerum quas voluptatem.</description>
+        <package name="package_3" project="project_3">
+          <title>In Dubious Battle</title>
+          <description>Et esse necessitatibus sed.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="project_3">
+          <title>In Dubious Battle</title>
+          <description>Et esse necessitatibus sed.</description>
+        </package>
+  recorded_at: Mon, 30 Oct 2023 18:27:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Eligendi aut inventore ab.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -187,9 +149,54 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>The Far-Distant Oxus</title>
-          <description>Corporis rerum quas voluptatem.</description>
+        <package name="apache2" project="home:tom">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Eligendi aut inventore ab.</description>
         </package>
-  recorded_at: Thu, 09 Sep 2021 21:30:34 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 30 Oct 2023 18:27:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_service
+    body:
+      encoding: UTF-8
+      string: |
+        <services>
+          <service name="download_url">
+            <param name="host">openbuildservice.org</param>
+            <param name="protocol">https</param>
+            <param name="path">/images/obs-logo.svg</param>
+          </service>
+        </services>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="101" vrev="101">
+          <srcmd5>8d514a3319634ab2df991e2f2838639c</srcmd5>
+          <version>unknown</version>
+          <time>1698690461</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 30 Oct 2023 18:27:41 GMT
+recorded_with: VCR 6.2.0
