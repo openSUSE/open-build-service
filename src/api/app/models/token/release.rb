@@ -34,7 +34,6 @@ class Token::Release < Token
     opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
     opts[:filter_architecture] = options[:arch] if options[:arch].present?
 
-
     if package_to_release.present?
       release_package(package_to_release,
                       target_repository,

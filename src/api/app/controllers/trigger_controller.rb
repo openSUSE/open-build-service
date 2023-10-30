@@ -33,7 +33,7 @@ class TriggerController < ApplicationController
                targetproject: params[:targetproject], targetrepository: params[:targetrepository],
                filter_source_repository: params[:filter_source_repository] }
       opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
-      raise InvalidToken, 'Invalid token found' unless request.path == '/trigger' || @token.class == Token.token_type(request.path.gsub('/trigger/', ''))
+      raise InvalidToken, 'Invalid token found' unless request.path == '/trigger' || @token.instance_of?(Token.token_type(request.path.gsub('/trigger/', '')))
 
       @token.call(opts)
       render_ok

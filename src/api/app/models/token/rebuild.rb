@@ -5,8 +5,8 @@ class Token::Rebuild < Token
     package_name += ':' + options[:multibuild_flavor] if options[:multibuild_flavor]
     if package_name.present?
       Backend::Api::Sources::Package.rebuild(options[:project].to_param,
-                                           package_name,
-                                           options.slice(:repository, :arch).compact)
+                                             package_name,
+                                             options.slice(:repository, :arch).compact)
     else
       Backend::Api::Build::Project.rebuild(options[:project].to_param,
                                            options.slice(:repository, :arch).compact)
