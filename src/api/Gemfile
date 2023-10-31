@@ -192,7 +192,7 @@ group :development, :test do
   # for rspec style checks
   gem 'rubocop-rspec', require: false
   # for performance checks
-  gem 'rubocop-performance'
+  gem 'rubocop-performance', require: false
   # integrates with RuboCop to analyse HAML files
   gem 'haml_lint', require: false
   # to generate random long strings
