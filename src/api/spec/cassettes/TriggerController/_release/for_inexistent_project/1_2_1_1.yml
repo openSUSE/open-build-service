@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_1
+    uri: http://backend:5352/source/project/_meta?user=user_46
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Vile Bodies</title>
+          <title>Fame Is the Spur</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '138'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Vile Bodies</title>
+          <title>Fame Is the Spur</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Thu, 09 Sep 2021 21:30:32 GMT
+  recorded_at: Mon, 30 Oct 2023 18:27:48 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_2
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_47
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Similique dolore sequi veniam.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Eos maxime sint culpa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Similique dolore sequi veniam.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Eos maxime sint culpa.</description>
         </package>
-  recorded_at: Thu, 09 Sep 2021 21:30:32 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Mon, 30 Oct 2023 18:27:48 GMT
+recorded_with: VCR 6.2.0

@@ -10,16 +10,14 @@ RSpec.describe TriggerController, :vcr do
   render_views
 
   before do
-    # FIXME: fix the rubocop complain
-    # rubocop:disable RSpec/AnyInstance
-    allow_any_instance_of(TriggerControllerService::TokenExtractor).to receive(:call).and_return(token)
-    # rubocop:enable RSpec/AnyInstance
-    package
+    token_extractor = instance_double(TriggerControllerService::TokenExtractor)
+    allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor)
+    allow(token_extractor).to receive(:call).and_return(token)
   end
 
   describe '#rebuild' do
     context 'authentication token is invalid' do
-      let!(:token) { nil }
+      let(:token) { nil }
 
       before do
         post :create, params: { format: :xml }
@@ -30,7 +28,7 @@ RSpec.describe TriggerController, :vcr do
     end
 
     context 'when token is valid' do
-      let!(:token) { Token::Rebuild.create(executor: user, package: package) }
+      let(:token) { Token::Rebuild.create(executor: user, package: package) }
 
       before do
         allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
@@ -43,7 +41,7 @@ RSpec.describe TriggerController, :vcr do
 
     context 'when the token is not bound to a package' do
       context 'without a package passed in the parameters' do
-        let!(:token) { Token::Rebuild.create(executor: user) }
+        let(:token) { Token::Rebuild.create(executor: user) }
         let(:expected_response_body) do
           <<~XML
             <status code="bad_request">
@@ -143,7 +141,7 @@ RSpec.describe TriggerController, :vcr do
 
     context 'when the token is not bound to a package' do
       context 'without a package passed in the parameters' do
-        let!(:token) { Token::Release.create(executor: user) }
+        let(:token) { Token::Release.create(executor: user) }
         let(:expected_response_body) do
           <<~XML
             <status code="bad_request">
@@ -174,7 +172,7 @@ RSpec.describe TriggerController, :vcr do
 
     context 'when the token is not bound to a package' do
       context 'without a package passed in the parameters' do
-        let!(:token) { Token::Service.create(executor: user) }
+        let(:token) { Token::Service.create(executor: user) }
         let(:expected_response_body) do
           <<~XML
             <status code="bad_request">
