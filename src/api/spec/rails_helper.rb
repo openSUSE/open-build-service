@@ -80,9 +80,6 @@ require 'support/thinking_sphinx'
 # support beta
 require 'support/beta'
 
-# custom matchers to test RuboCop custom cops
-require 'support/rubocop'
-
 # support time helpers
 require 'support/time_helpers'
 

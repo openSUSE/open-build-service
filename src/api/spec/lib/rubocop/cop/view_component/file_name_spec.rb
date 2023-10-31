@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/rubocop'
 require './lib/rubocop/cop/view_component/file_name'
 
 RSpec.describe RuboCop::Cop::ViewComponent::FileName, :config do
