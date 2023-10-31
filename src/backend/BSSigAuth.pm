@@ -37,7 +37,8 @@ sub justone {
 }
 
 sub dosshsign {
-  my ($state, $signdata, $keyfile, $namespace) = @_;
+  my ($state, $signdata, $namespace) = @_;
+  my $keyfile = $state->{'keyfile'};
   die("no key file specified\n") unless $keyfile;
   my $out;
   if (ref($keyfile)) {
@@ -57,7 +58,6 @@ sub authenticator_function {
   my ($state, $param, $wwwauthenticate) = @_;
   return $state->{'auth'} if !$wwwauthenticate;         # return last auth
   delete $state->{'auth'};
-  my $keyid = $state->{'keyid'};
   my %auth = BSHTTP::parseauthenticate($wwwauthenticate);
   my $signature = $auth{'signature'};
   return '' unless $signature;
@@ -76,9 +76,12 @@ sub authenticator_function {
   chop $tosign;
   my $algorithm = $state->{'algorithm'};
   die("Signature authentification: algorithm mismatch $signature->{'algorithm'} - $algorithm\n") if $signature->{'algorithm'} && $signature->{'algorithm'} ne $algorithm;
+  my $keyid = $state->{'keyid'};
+  my $realm = $signature->{'realm'} || '';
+  print "doing signature auth for $realm [$algorithm $keyid]\n" if $state->{'verbose'};
   my $sig;
   if ($algorithm eq 'ssh') {
-    $sig = dosshsign($state, $tosign, $state->{'keyfile'}, $signature->{'realm'} || '');
+    $sig = dosshsign($state, $tosign, $realm);
   } else {
     die("Signature authentification: unsupported algorithm '$algorithm'\n");
   }
