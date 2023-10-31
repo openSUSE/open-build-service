@@ -206,7 +206,7 @@ group :development, :test do
   # Use Puma as the app server
   gem 'puma', require: false
   # to drive headless chrome
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver', require: false
 end
 
 group :development do
