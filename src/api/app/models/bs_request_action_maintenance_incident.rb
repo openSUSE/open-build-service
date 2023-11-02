@@ -84,9 +84,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     source_cleanup if sourceupdate == 'cleanup'
 
     # create a patchinfo if missing and incident has just been created
-    if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
-      Patchinfo.new.create_patchinfo_from_request(incident_project, bs_request)
-    end
+    Patchinfo.new.create_patchinfo_from_request(incident_project, bs_request) if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
 
     save
   end
@@ -100,9 +98,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       maintenance_project = Project.get_maintenance_project!
       self.target_project = maintenance_project.name
     end
-    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
-      raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
-    end
+    raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident' unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
     raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
 
     super(ignore_build_state, ignore_delegate)

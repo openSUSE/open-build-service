@@ -114,9 +114,7 @@ class Configuration < ApplicationRecord
     end
 
     # special for api_url
-    unless CONFIG['frontend_host'].blank? || CONFIG['frontend_port'].blank? || CONFIG['frontend_protocol'].blank?
-      attribs['api_url'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
-    end
+    attribs['api_url'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}" unless CONFIG['frontend_host'].blank? || CONFIG['frontend_port'].blank? || CONFIG['frontend_protocol'].blank?
     update(attribs)
     save!
   end

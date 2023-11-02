@@ -1216,26 +1216,6 @@ Style/IdenticalConditionalBranches:
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
 
-# Offense count: 26
-# This cop supports safe autocorrection (--autocorrect).
-Style/IfUnlessModifier:
-  Exclude:
-    - 'app/controllers/source_attribute_controller.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/source_project_meta_controller.rb'
-    - 'app/controllers/staging/staging_projects_controller.rb'
-    - 'app/models/branch_package.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action_maintenance_incident.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/channel_binary.rb'
-    - 'app/models/configuration.rb'
-    - 'app/models/project.rb'
-    - 'app/policies/token/release_policy.rb'
-    - 'lib/tasks/statistics/github/issues.rake'
-    - 'lib/tasks/statistics/github/pull_requests.rake'
-    - 'script/import_database.rb'
-
 # Offense count: 5
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: InverseMethods, InverseBlocks.

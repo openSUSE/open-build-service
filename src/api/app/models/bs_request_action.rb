@@ -74,9 +74,7 @@ class BsRequestAction < ApplicationRecord
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
       errors.add(:source_package, "should not be empty for #{action_type} requests") if !is_maintenance_incident? && source_package.blank?
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
-        errors.add(:target_package, 'No source changes are allowed, if source and target is identical')
-      end
+      errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
     end
     errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
     errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
@@ -916,9 +914,7 @@ class BsRequestAction < ApplicationRecord
 
     sprj = Project.get_by_name(source_project)
     raise UnknownProject, "Unknown source project #{source_project}" unless sprj
-    unless sprj.instance_of?(Project) || action_type.in?([:submit, :maintenance_incident])
-      raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
-    end
+    raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet." unless sprj.instance_of?(Project) || action_type.in?([:submit, :maintenance_incident])
 
     if source_package
       spkg = Package.get_by_project_and_name(source_project, source_package)
@@ -947,9 +943,7 @@ class BsRequestAction < ApplicationRecord
       end
 
       a = tprj.find_attribute('OBS', 'RejectRequests')
-      if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
-        raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
-      end
+      raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}" if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
     end
     if target_package
       if Package.exists_by_project_and_name(target_project, target_package) ||
