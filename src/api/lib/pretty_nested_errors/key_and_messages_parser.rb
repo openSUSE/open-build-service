@@ -1,7 +1,7 @@
 module PrettyNestedErrors
   class KeyAndMessagesParser
-    NESTED_ERROR_REGEX = /(\w+\[\d+\]\.)+(\w+)/.freeze
-    HAS_ONE_ERROR_REGEX = /(\w+)\.(\w+)/.freeze
+    NESTED_ERROR_REGEX = /(\w+\[\d+\]\.)+(\w+)/
+    HAS_ONE_ERROR_REGEX = /(\w+)\.(\w+)/
 
     def initialize(base_model, key, messages, nested_error_messages, nested_error_groupings)
       @base_model = base_model
