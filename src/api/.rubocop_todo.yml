@@ -51,14 +51,6 @@ Layout/LineContinuationLeadingSpace:
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented
-Layout/LineEndStringConcatenationIndentation:
-  Exclude:
-    - 'app/controllers/webui/packages/build_log_controller.rb'
-
 # Offense count: 7
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: enums
