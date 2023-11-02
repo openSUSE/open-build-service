@@ -105,7 +105,6 @@ Lint/NonLocalExitFromIterator:
 Lint/RedundantCopDisableDirective:
   Exclude:
     - 'app/models/issue_tracker.rb'
-    - 'db/migrate/20210511201658_add_data_migrations_table.rb'
     - 'spec/jobs/consistency_check_job_spec.rb'
 
 # Offense count: 3
