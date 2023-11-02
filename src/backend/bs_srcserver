@@ -7623,7 +7623,6 @@ sub run {
   my ($conf) = @_;
   BSSrcServer::SQLite::init_publisheddb($extrepodb) if $BSConfig::published_db_sqlite;
   BSSrcServer::SQLite::init_sourcedb($sourcedb) if $BSConfig::source_db_sqlite;
-  BSStdServer::setup_authenticator();
   BSServer::server($conf);
 }
 
@@ -7908,4 +7907,5 @@ if (! -e "$projectsdir/_repoid") {
 }
 $datarepoid = readstr("$projectsdir/_repoid");
 
+BSStdServer::setup_authenticator();
 BSStdServer::server('src_server', \@ARGV, $conf, $aconf);

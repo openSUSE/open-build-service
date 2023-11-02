@@ -4427,12 +4427,6 @@ sub hello {
   return "<hello name=\"Package Repository Server\" $part/>\n";
 }
 
-sub run {
-  my ($conf) = @_;
-  BSStdServer::setup_authenticator();
-  BSServer::server($conf);
-}
-
 my $dispatches = [
   '/' => \&hello,
 
@@ -4558,7 +4552,6 @@ my $conf = {
   'maxchild2' => 20,
   'slowrequestthr' => 10,
   'errorreply' => \&BSRegistryServer::errreply,
-  'run' => \&run,
 };
 
 my $aconf = {
@@ -4579,4 +4572,5 @@ if ($BSConfig::workerreposerver) {
 
 # create bsdir before root privileges are dropped
 BSUtil::mkdir_p_chown($BSConfig::bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSStdServer::setup_authenticator();
 BSStdServer::server('rep_server', \@ARGV, $conf, $aconf);
