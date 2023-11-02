@@ -35,7 +35,7 @@ Capybara.app_host = ENV.fetch('SMOKETEST_HOST', "https://#{hostname}")
 
 RSpec.configure do |config|
   config.include Capybara::DSL
-  config.before(:each) do
+  config.before do
     page.driver.add_headers('User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0')
   end
 end

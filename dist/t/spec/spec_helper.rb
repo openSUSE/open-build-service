@@ -10,7 +10,7 @@ RSpec.configure do |config|
     FileUtils.rm_rf(SCREENSHOT_DIR)
     FileUtils.mkdir_p(SCREENSHOT_DIR)
   end
-  config.after(:each) do |example|
+  config.after do |example|
     if example.exception
       take_screenshot(example)
       dump_page(example)

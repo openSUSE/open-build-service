@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe 'Authentication', type: :feature do
-  after(:example) do
+  after do
     logout
   end
 
