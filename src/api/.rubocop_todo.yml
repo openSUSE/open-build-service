@@ -39,14 +39,6 @@ FactoryBot/FactoryAssociationWithStrategy:
     - 'spec/factories/workflow_artifacts_per_step.rb'
     - 'spec/factories/workflow_runs.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
-Layout/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'app/models/branch_package/check_for_update.rb'
-
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
