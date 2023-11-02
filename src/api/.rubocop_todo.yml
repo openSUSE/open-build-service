@@ -484,7 +484,6 @@ Naming/BlockForwarding:
   Exclude:
     - 'app/lib/suse/permission.rb'
     - 'app/models/configuration.rb'
-    - 'db/data/20170831143534_convert_notifications_event_payload_to_json.rb'
 
 # Offense count: 19
 # Configuration parameters: ForbiddenDelimiters.
