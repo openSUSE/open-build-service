@@ -80,6 +80,7 @@ module Webui
           end
         end
       end
+
       private
 
       # Basically backend stores date in /source (package sources) and /build (package
