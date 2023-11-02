@@ -894,13 +894,6 @@ RSpec/RepeatedExampleGroupDescription:
     - 'spec/models/users/requests_spec.rb'
     - 'spec/policies/user_policy_spec.rb'
 
-# Offense count: 4
-# This cop supports safe autocorrection (--autocorrect).
-RSpec/ScatteredSetup:
-  Exclude:
-    - 'spec/controllers/webui/cloud/upload_jobs_controller_spec.rb'
-    - 'spec/jobs/update_released_binaries_job_spec.rb'
-
 # Offense count: 1
 RSpec/SubjectStub:
   Exclude:
