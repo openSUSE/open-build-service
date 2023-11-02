@@ -78,7 +78,7 @@ sub authenticator_function {
   die("Signature authentification: algorithm mismatch $signature->{'algorithm'} - $algorithm\n") if $signature->{'algorithm'} && $signature->{'algorithm'} ne $algorithm;
   my $keyid = $state->{'keyid'};
   my $realm = $signature->{'realm'} || '';
-  print "doing signature auth for $realm [$algorithm $keyid]\n" if $state->{'verbose'};
+  print "doing signature auth for '$realm' [$algorithm $keyid]\n" if $state->{'verbose'};
   my $sig;
   if ($algorithm eq 'ssh') {
     $sig = dosshsign($state, $tosign, $realm);
