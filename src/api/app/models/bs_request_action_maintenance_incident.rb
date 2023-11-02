@@ -157,11 +157,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                         project: target_releaseproject, package: package_name }
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
-      if defined?(linkprj) && linkprj
-        if linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance_or_self || kinds.include?('channel')
-          branch_params[:project] = linkinfo['project']
-          branch_params[:ignoredevel] = '1'
-        end
+      if defined?(linkprj) && linkprj && (linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance_or_self || kinds.include?('channel'))
+        branch_params[:project] = linkinfo['project']
+        branch_params[:ignoredevel] = '1'
       end
       # it is fine to have new packages
       branch_params[:missingok] = 1 unless Package.exists_by_project_and_name(branch_params[:project], package_name)

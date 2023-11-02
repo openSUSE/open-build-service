@@ -72,12 +72,10 @@ class BsRequestAction < ApplicationRecord
   def check_sanity
     if action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release, :change_devel])
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
-      unless is_maintenance_incident?
-        errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
-      end
+      errors.add(:source_package, "should not be empty for #{action_type} requests") if !is_maintenance_incident? && source_package.blank?
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      if source_package == target_package && source_project == target_project
-        errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if sourceupdate || updatelink
+      if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
+        errors.add(:target_package, 'No source changes are allowed, if source and target is identical')
       end
     end
     errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
@@ -321,17 +319,13 @@ class BsRequestAction < ApplicationRecord
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
           spkg = Package.find_by_project_and_name(source_project, source_package)
-          if spkg && !User.session!.can_modify?(spkg)
-            if  !spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
-                !spkg.find_attribute('OBS', 'ApprovedRequestSource')
-              reviews.push(spkg)
-            end
+          if spkg && !User.session!.can_modify?(spkg) && (!spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
+                !spkg.find_attribute('OBS', 'ApprovedRequestSource'))
+            reviews.push(spkg)
           end
         else
           sprj = Project.find_by_name(source_project)
-          if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
-            reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
-          end
+          reviews.push(sprj) if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource') && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
         end
       end
     end
@@ -524,21 +518,19 @@ class BsRequestAction < ApplicationRecord
       end
 
       # Will this be a new package ?
-      unless missing_ok_link
-        # check if the main package container exists in target.
-        # take into account that an additional local link with spec file might got added
-        unless data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
-          if is_maintenance_release? || is_release?
-            pkg.project.repositories.includes(:release_targets).find_each do |repo|
-              repo.release_targets.each do |rt|
-                new_targets << rt.target_repository.project
-              end
+      # check if the main package container exists in target.
+      # take into account that an additional local link with spec file might got added
+      if !missing_ok_link && !(data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false))
+        if is_maintenance_release? || is_release?
+          pkg.project.repositories.includes(:release_targets).find_each do |repo|
+            repo.release_targets.each do |rt|
+              new_targets << rt.target_repository.project
             end
-            new_packages << pkg
-            next
           end
-          raise UnknownTargetPackage if !is_maintenance_incident? && !is_submit?
+          new_packages << pkg
+          next
         end
+        raise UnknownTargetPackage if !is_maintenance_incident? && !is_submit?
       end
       # call dup to work on a copy of self
       new_action = dup
@@ -595,9 +587,7 @@ class BsRequestAction < ApplicationRecord
     new_packages.each do |pkg|
       release_targets = pkg.is_patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
       new_targets.each do |new_target_project|
-        if release_targets.present?
-          next unless release_targets.any? { |rt| rt['project'] == new_target_project.name }
-        end
+        next if release_targets.present? && !release_targets.any? { |rt| rt['project'] == new_target_project.name }
 
         # skip if there is no active maintenance trigger for this package
         next if is_maintenance_release? && !has_matching_target?(pkg.project, new_target_project)
@@ -658,9 +648,7 @@ class BsRequestAction < ApplicationRecord
       # check existence of target
       raise UnknownProject, 'No target project specified' unless tprj
 
-      if action_type == :add_role
-        raise UnknownRole, 'No role specified' unless role
-      end
+      raise UnknownRole, 'No role specified' if action_type == :add_role && !role
     elsif action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident, :release])
       # check existence of source
       unless sprj || skip_source
@@ -684,9 +672,7 @@ class BsRequestAction < ApplicationRecord
       # allow cleanup only, if no devel package reference
       raise NotSupported, "Source project #{source_project} is not a local project. cleanup is not supported." if sourceupdate == 'cleanup' && sprj.class != Project && !skip_source
 
-      if action_type == :change_devel
-        raise UnknownPackage, 'No target package specified' unless target_package
-      end
+      raise UnknownPackage, 'No target package specified' if action_type == :change_devel && !target_package
     end
 
     check_permissions!
@@ -696,13 +682,11 @@ class BsRequestAction < ApplicationRecord
     expand_target_project if action_type == :submit && ignore_delegate.blank? && target_project.present?
 
     # empty submission protection
-    if action_type.in?([:submit, :maintenance_incident])
-      if target_package &&
-         Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
-        raise MissingAction unless contains_change?
+    if action_type.in?([:submit, :maintenance_incident]) && (target_package &&
+         Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false))
+      raise MissingAction unless contains_change?
 
-        return
-      end
+      return
     end
 
     # complete in formation available already?
@@ -798,10 +782,11 @@ class BsRequestAction < ApplicationRecord
       end
 
       if add_revision && !source_rev
-        if action_type == :maintenance_release
+        if action_type == :maintenance_release && dir.elements('entry').any? { |e| e['name'] == '_patchinfo' }
           # patchinfos in release requests get not frozen to allow to modify meta data
-          return if dir.elements('entry').any? { |e| e['name'] == '_patchinfo' }
+          return
         end
+
         self.source_rev = dir['srcmd5']
       end
     rescue Backend::Error
@@ -962,10 +947,8 @@ class BsRequestAction < ApplicationRecord
       end
 
       a = tprj.find_attribute('OBS', 'RejectRequests')
-      if a && a.values.first
-        if a.values.length < 2 || a.values.find_by_value(action_type)
-          raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
-        end
+      if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
+        raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
       end
     end
     if target_package
@@ -981,11 +964,9 @@ class BsRequestAction < ApplicationRecord
         end
 
         a = tpkg.find_attribute('OBS', 'RejectRequests')
-        if a && a.values.first
-          if a.values.length < 2 || a.values.find_by_value(action_type)
-            raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " \
-                                   "requests because: #{a.values.first.value}"
-          end
+        if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
+          raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " \
+                                 "requests because: #{a.values.first.value}"
         end
       end
     end

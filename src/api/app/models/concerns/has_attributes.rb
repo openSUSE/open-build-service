@@ -107,9 +107,8 @@ module HasAttributes
   end
 
   def render?(attr, filter_attrib_type, filter_binary)
-    if filter_attrib_type
-      return false unless attr.attrib_type == filter_attrib_type
-    end
+    return false if filter_attrib_type && !(attr.attrib_type == filter_attrib_type)
+
     matches_binary_filter?(filter_binary, attr.binary)
   end
 

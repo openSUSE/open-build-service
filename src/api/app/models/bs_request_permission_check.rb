@@ -90,8 +90,8 @@ class BsRequestPermissionCheck
     end
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    if req.state.in?([:accepted, :superseded, :revoked])
-      raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if opts[:newstate].in?(['accepted', 'declined', 'superseded', 'revoked'])
+    if req.state.in?([:accepted, :superseded, :revoked]) && opts[:newstate].in?(['accepted', 'declined', 'superseded', 'revoked'])
+      raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed."
     end
 
     raise PostRequestMissingParameter, "Supersed a request requires a 'superseded_by' parameter with the request id." if opts[:newstate] == 'superseded' && !opts[:superseded_by]
@@ -193,11 +193,9 @@ class BsRequestPermissionCheck
       check_maintenance_release_accept(action)
     end
 
-    if action.action_type.in?([:delete, :add_role, :set_bugowner])
-      # target must exist
-      if action.target_package
-        raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist." unless @target_package
-      end
+    # target must exist
+    if action.action_type.in?([:delete, :add_role, :set_bugowner]) && action.target_package && !@target_package
+      raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
     end
 
     check_delete_accept(action, opts) if action.action_type == :delete

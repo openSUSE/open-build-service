@@ -9,9 +9,7 @@ module Webui::WebuiHelper
     return '' if @configuration['bugzilla_url'].blank?
 
     assignee = email_list.first if email_list
-    if email_list.length > 1
-      cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
-    end
+    cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list.length > 1 && email_list
 
     Addressable::URI.escape(
       "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \

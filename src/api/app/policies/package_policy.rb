@@ -16,9 +16,8 @@ class PackagePolicy < ApplicationPolicy
 
   def create_branch?
     # same as Package.check_source_access!
-    if source_access? || project_source_access?
-      return false unless user.can_source_access?(record)
-    end
+    return false if (source_access? || project_source_access?) && !user.can_source_access?(record)
+
     true
   end
 

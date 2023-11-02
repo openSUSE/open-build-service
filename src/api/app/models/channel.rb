@@ -114,11 +114,9 @@ class Channel < ApplicationRecord
       next unless mode == :enable_all || !ct.disabled
 
       # add repositories
-      unless package.project.repositories.find_by_name(repo_name)
-        unless target_package.project.repositories.exists?(name: repo_name)
-          target_repo = target_package.project.repositories.create(name: repo_name)
-          target_package.project.add_repository_targets(target_repo, ct.repository, [ct.repository])
-        end
+      if !package.project.repositories.find_by_name(repo_name) && !target_package.project.repositories.exists?(name: repo_name)
+        target_repo = target_package.project.repositories.create(name: repo_name)
+        target_package.project.add_repository_targets(target_repo, ct.repository, [ct.repository])
       end
       # enable package
       target_package.enable_for_repository(repo_name)
