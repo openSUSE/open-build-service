@@ -9,7 +9,7 @@ RSpec.describe 'Interconnect', type: :feature do
     logout
   end
 
-  it 'should be able to create link' do
+  it 'is able to create link' do
     visit '/interconnects/new'
     within('div[data-interconnect="openSUSE.org"]') do
       click_button('Connect')
