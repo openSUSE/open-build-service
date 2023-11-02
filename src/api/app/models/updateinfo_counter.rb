@@ -1,8 +1,8 @@
 class UpdateinfoCounter < ApplicationRecord
   def self.find_or_create(time, template)
-    year  = time.year  if template =~ /%Y/
-    month = time.month if template =~ /%M/
-    day   = time.day   if template =~ /%D/
+    year  = time.year  if /%Y/.match?(template)
+    month = time.month if /%M/.match?(template)
+    day   = time.day   if /%D/.match?(template)
 
     UpdateinfoCounter.find_or_create_by(year: year, month: month, day: day)
   end

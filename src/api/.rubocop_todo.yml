@@ -39,22 +39,6 @@ FactoryBot/FactoryAssociationWithStrategy:
     - 'spec/factories/workflow_artifacts_per_step.rb'
     - 'spec/factories/workflow_runs.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: around, only_before
-Layout/EmptyLinesAroundAccessModifier:
-  Exclude:
-    - 'app/controllers/webui/packages/build_log_controller.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
-Layout/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'app/models/branch_package/check_for_update.rb'
-
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
@@ -66,14 +50,6 @@ Layout/LineContinuationLeadingSpace:
     - 'db/migrate/20180516074538_explicitly_set_charset.rb'
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'test/functional/source_controller_test.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented
-Layout/LineEndStringConcatenationIndentation:
-  Exclude:
-    - 'app/controllers/webui/packages/build_log_controller.rb'
 
 # Offense count: 7
 # Configuration parameters: AllowedMethods.
@@ -664,21 +640,6 @@ Performance/MapCompact:
     - 'app/services/staging/staging_project_creator.rb'
     - 'app/services/user_service/involved.rb'
 
-# Offense count: 38
-# This cop supports safe autocorrection (--autocorrect).
-Performance/RegexpMatch:
-  Exclude:
-    - 'app/helpers/webui/package_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/lib/backend/test.rb'
-    - 'app/models/kiwi/repository.rb'
-    - 'app/models/package.rb'
-    - 'app/models/project.rb'
-    - 'app/models/updateinfo_counter.rb'
-    - 'test/functional/backend_test.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/functional/zzz_post_consistency_test.rb'
-
 # Offense count: 20
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Performance/StringInclude:
@@ -932,13 +893,6 @@ RSpec/RepeatedExampleGroupDescription:
     - 'spec/models/project_status/pack_info_spec.rb'
     - 'spec/models/users/requests_spec.rb'
     - 'spec/policies/user_policy_spec.rb'
-
-# Offense count: 4
-# This cop supports safe autocorrection (--autocorrect).
-RSpec/ScatteredSetup:
-  Exclude:
-    - 'spec/controllers/webui/cloud/upload_jobs_controller_spec.rb'
-    - 'spec/jobs/update_released_binaries_job_spec.rb'
 
 # Offense count: 1
 RSpec/SubjectStub:

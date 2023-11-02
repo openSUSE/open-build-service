@@ -1,5 +1,4 @@
 class BranchPackage::CheckForUpdate
-
   attr_accessor :package_hash
 
   def initialize(package_hash:, update_attribute_namespace:,

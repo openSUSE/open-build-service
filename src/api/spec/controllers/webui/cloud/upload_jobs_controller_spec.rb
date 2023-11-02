@@ -35,9 +35,6 @@ RSpec.describe Webui::Cloud::UploadJobsController, :vcr do
 
       before do
         login(user)
-      end
-
-      before do
         get :index
       end
 

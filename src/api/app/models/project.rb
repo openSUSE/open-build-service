@@ -113,10 +113,10 @@ class Project < ApplicationRecord
     def valid_name?(name)
       return false unless name.is_a?(String)
       return false if name == '0'
-      return false if name =~ /:[:._]/
-      return false if name =~ /\A[:._]/
+      return false if /:[:._]/.match?(name)
+      return false if /\A[:._]/.match?(name)
       return false if name.end_with?(':')
-      return true  if name =~ /\A[-+\w.:]{1,200}\z/
+      return true  if /\A[-+\w.:]{1,200}\z/.match?(name)
 
       false
     end
@@ -1298,7 +1298,7 @@ class Project < ApplicationRecord
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
     new_configuration = source_file('_config')
-    return if new_configuration =~ /^Type:/
+    return if /^Type:/.match?(new_configuration)
 
     new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
     Backend::Api::Sources::Project.write_configuration(name, new_configuration)

@@ -37,9 +37,6 @@ RSpec.describe UpdateReleasedBinariesJob, :vcr do
       before do
         allow(BinaryRelease).to receive(:update_binary_releases).and_raise(StandardError)
         allow($stdout).to receive(:write) # Needed to avoid the puts of the error method
-      end
-
-      before do
         allow(Airbrake).to receive(:notify)
       end
 

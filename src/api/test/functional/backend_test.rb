@@ -6,7 +6,7 @@ class BackendTests < ActionDispatch::IntegrationTest
     dir = "#{Rails.root}/../../docs/api/api/"
 
     Dir.entries(dir).each do |f|
-      next unless f =~ /.*.xml\z/
+      next unless /.*.xml\z/.match?(f)
 
       schema = f.gsub(/.xml$/, '')
 

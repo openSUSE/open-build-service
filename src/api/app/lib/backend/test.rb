@@ -15,7 +15,7 @@ module Backend
       loop do
         line = @backend.gets
         raise 'Backend died' unless line
-        break if line =~ /DONE NOW/
+        break if /DONE NOW/.match?(line)
 
         Rails.logger.debug line.strip
       end
