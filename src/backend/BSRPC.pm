@@ -301,7 +301,7 @@ sub call_authenticator {
     }
     return undef;
   }
-  return $auth->($param, @args) if $auth && ref($auth eq 'CODE');
+  return $auth->($param, @args) if $auth && ref($auth) eq 'CODE';
   return undef;
 }
 
