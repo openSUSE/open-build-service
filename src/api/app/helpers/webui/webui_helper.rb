@@ -105,7 +105,7 @@ module Webui::WebuiHelper
   def repository_state_class(outdated, status)
     return 'outdated' if outdated
 
-    status =~ /broken|building|finished|publishing|published/ ? status : 'default'
+    /broken|building|finished|publishing|published/.match?(status) ? status : 'default'
   end
 
   def force_utf8_and_transform_nonprintables(text)
@@ -321,7 +321,7 @@ module Webui::WebuiHelper
   end
 
   def valid_xml_id(rawid)
-    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    rawid = "_#{rawid}" unless /^[A-Za-z_]/.match?(rawid) # xs:ID elements have to start with character or '_'
     CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
   end
 end

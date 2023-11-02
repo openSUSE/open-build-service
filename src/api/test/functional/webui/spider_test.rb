@@ -5,14 +5,14 @@ require 'nokogiri'
 
 class Webui::SpiderTest < Webui::IntegrationTest
   def ignore_link?(link)
-    return true if link =~ %r{/mini-profiler-resources}
+    return true if %r{/mini-profiler-resources}.match?(link)
     # that link is just a top ref
-    return true if link =~ %r{/package/rdiff}
+    return true if %r{/package/rdiff}.match?(link)
     # admin can see even the hidden
     return true if link.end_with?('/package/show/HiddenRemoteInstance')
-    return true if link =~ %r{/package/show/SourceprotectedProject}
+    return true if %r{/package/show/SourceprotectedProject}.match?(link)
     # this is crashing (bug)
-    return true if link =~ %r{/package/show/UseRemoteInstance}
+    return true if %r{/package/show/UseRemoteInstance}.match?(link)
     return true if link.end_with?('/project/show/HiddenRemoteInstance')
     return true if link.end_with?('/project/show/RemoteInstance')
     return true if link.end_with?('/package/show/BaseDistro3/pack2')
@@ -21,12 +21,12 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link.end_with?('/package/show/home:Iggy/ToBeDeletedTestPack')
     return true if link.end_with?('/project/show/home:Iggy')
     return true if link.end_with?('/project/show/home:user6')
-    return true if link =~ %r{/live_build_log/BinaryprotectedProject}
-    return true if link =~ %r{/live_build_log/SourceprotectedProject}
-    return true if link =~ %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}
-    return true if link =~ %r{/live_build_log}
+    return true if %r{/live_build_log/BinaryprotectedProject}.match?(link)
+    return true if %r{/live_build_log/SourceprotectedProject}.match?(link)
+    return true if %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}.match?(link)
+    return true if %r{/live_build_log}.match?(link)
     # we do not really serve binary packages in the test environment
-    return true if link =~ %r{/projects/.*/packages/.*/repositories/.*/binaries/.*/.*}
+    return true if %r{/projects/.*/packages/.*/repositories/.*/binaries/.*/.*}.match?(link)
     # apidocs is not configured in test environment
     return true if link.end_with?('/apidocs/index')
 
@@ -36,9 +36,9 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
   def getlinks(baseuri, body)
     # skip some uninteresting projects
-    return if baseuri =~ /project=home%3Afred/
-    return if baseuri =~ /project=home%3Acoolo/
-    return if baseuri =~ /project=deleted/
+    return if /project=home%3Afred/.match?(baseuri)
+    return if /project=home%3Acoolo/.match?(baseuri)
+    return if /project=deleted/.match?(baseuri)
 
     baseuri = URI.parse(baseuri)
 
@@ -75,7 +75,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
   def raiseit(message, url)
     # known issues
-    return if url =~ %r{/source/}
+    return if %r{/source/}.match?(url)
 
     warn "Found #{message} on #{url}, crawling path"
     indent = ' '

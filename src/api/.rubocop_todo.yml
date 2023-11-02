@@ -640,21 +640,6 @@ Performance/MapCompact:
     - 'app/services/staging/staging_project_creator.rb'
     - 'app/services/user_service/involved.rb'
 
-# Offense count: 38
-# This cop supports safe autocorrection (--autocorrect).
-Performance/RegexpMatch:
-  Exclude:
-    - 'app/helpers/webui/package_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/lib/backend/test.rb'
-    - 'app/models/kiwi/repository.rb'
-    - 'app/models/package.rb'
-    - 'app/models/project.rb'
-    - 'app/models/updateinfo_counter.rb'
-    - 'test/functional/backend_test.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/functional/zzz_post_consistency_test.rb'
-
 # Offense count: 20
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Performance/StringInclude:

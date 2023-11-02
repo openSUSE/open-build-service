@@ -308,7 +308,7 @@ class Package < ApplicationRecord
 
   def changes_files
     dir_hash.elements('entry').collect do |e|
-      e['name'] if e['name'] =~ /.changes$/
+      e['name'] if /.changes$/.match?(e['name'])
     end.compact
   end
 
@@ -655,7 +655,7 @@ class Package < ApplicationRecord
       ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
         ret << kind if e['name'] == '_' + kind
       end
-      ret << 'product' if e['name'] =~ /.product$/
+      ret << 'product' if /.product$/.match?(e['name'])
       # further types my be spec, dsc, kiwi in future
     end
     ret.uniq
