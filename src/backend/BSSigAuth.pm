@@ -29,13 +29,6 @@ use MIME::Base64 ();
 
 use strict;
 
-sub justone {
-  my ($signature, $key) = @_;
-  return unless $signature->{$key};
-  die("Signature authentification: more than one value for $key\n") unless @{$signature->{$key}} == 1;
-  $signature->{$key} = $signature->{$key}->[0];
-}
-
 sub dosshsign {
   my ($state, $signdata, $namespace) = @_;
   my $keyfile = $state->{'keyfile'};
@@ -54,14 +47,25 @@ sub dosshsign {
   return $sig;
 }
 
+sub parseauthenticate_scheme {
+  my ($wwwauthenticate, $scheme, @justone) = @_;
+  my %auth = BSHTTP::parseauthenticate($wwwauthenticate);
+  my $data = $auth{$scheme};
+  return undef unless $data;
+  for my $key (@justone) {
+    next unless $data->{$key};
+    die("$scheme authentication: more than one value for $key\n") unless @{$data->{$key}} == 1;
+    $data->{$key} = $data->{$key}->[0];
+  }
+  return $data;
+}
+
 sub authenticator_function {
   my ($state, $param, $wwwauthenticate) = @_;
   return $state->{'auth'} if !$wwwauthenticate;         # return last auth
   delete $state->{'auth'};
-  my %auth = BSHTTP::parseauthenticate($wwwauthenticate);
-  my $signature = $auth{'signature'};
+  my $signature = parseauthenticate_scheme($wwwauthenticate, 'signature', 'headers', 'realm', 'algorithm');
   return '' unless $signature;
-  justone($signature, $_) for 'headers', 'realm', 'algorithm';
   my $headers = $signature->{'headers'} || '(created)';
   my $created = time();
   my $tosign = '';
