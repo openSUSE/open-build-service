@@ -1,11 +1,10 @@
 class RequestDecisionComponent < ApplicationComponent
-  def initialize(bs_request:, action:, is_target_maintainer:, is_author:)
+  def initialize(bs_request:, action:, is_target_maintainer:)
     super
 
     @bs_request = bs_request
     @is_target_maintainer = is_target_maintainer
     @action = action
-    @is_author = is_author
   end
 
   def render?

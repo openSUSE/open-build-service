@@ -534,7 +534,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def prepare_request_data
-    @is_author = @bs_request.creator == User.possibly_nobody.login
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
 
