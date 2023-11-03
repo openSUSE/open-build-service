@@ -437,10 +437,6 @@ RSpec/SpecFilePathFormat:
     - 'spec/models/project/maintenance_incidents_spec.rb'
     - 'spec/models/users/requests_spec.rb'
 
-RSpec/SpecFilePathSuffix:
-  Exclude:
-    - 'spec/controllers/webui/package_controller/binaries.spec'
-
 RSpec/LetSetup:
   Enabled: false
 
