@@ -476,15 +476,6 @@ Naming/AccessorMethodName:
     - 'app/models/user.rb'
     - 'test/functional/search_controller_test.rb'
 
-# Offense count: 8
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, BlockForwardingName.
-# SupportedStyles: anonymous, explicit
-Naming/BlockForwarding:
-  Exclude:
-    - 'app/lib/suse/permission.rb'
-    - 'app/models/configuration.rb'
-
 # Offense count: 19
 # Configuration parameters: ForbiddenDelimiters.
 # ForbiddenDelimiters: (?i-mx:(^|\s)(EO[A-Z]{1}|END)(\s|$))
