@@ -1,4 +1,3 @@
-# rubocop:disable Layout/LineLength
 # rubocop:disable Metrics/MethodLength
 class XpathEngine
   require 'rexml/parsers/xpathparser'
@@ -651,5 +650,4 @@ class XpathEngine
     @conditions << condition
   end
 end
-# rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/MethodLength

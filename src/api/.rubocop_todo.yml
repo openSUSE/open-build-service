@@ -89,21 +89,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/controllers/configurations_controller.rb'
     - 'app/models/patchinfo.rb'
 
-# Offense count: 15
-# This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'db/attribute_descriptions.rb'
-    - 'lib/xpath_engine.rb'
-    - 'spec/controllers/staging/staged_requests_controller_spec.rb'
-    - 'test/functional/backend_test.rb'
-    - 'test/functional/channel_maintenance_test.rb'
-    - 'test/functional/maintenance_test.rb'
-    - 'test/functional/read_permission_test.rb'
-    - 'test/functional/request_controller_test.rb'
-    - 'test/functional/search_controller_test.rb'
-    - 'test/functional/source_controller_test.rb'
-
 # Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Lint/RedundantDirGlobSort:
