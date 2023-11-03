@@ -14,6 +14,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
 
   before_action :validate_xml, only: [:save_meta]
+  before_action :set_globals
 
   before_action :check_ajax, only: [:devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
@@ -34,15 +35,11 @@ class Webui::PackageController < Webui::WebuiController
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
   end
 
-  def show
-    # FIXME: Remove this statement when scmsync is fully supported
-    if @project.scmsync.present?
-      flash[:error] = "Package sources for project #{@project.name} are received through scmsync.
-                       This is not yet fully supported by the OBS frontend"
-      redirect_back(fallback_location: project_show_path(@project))
-      return
-    end
+  def set_globals
+    @package_name = "#{params[:package]}:#{params[:dependant_name]}"
+  end
 
+  def show
     if @spider_bot
       params.delete(:rev)
       params.delete(:srcmd5)
@@ -56,7 +53,7 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
+    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq if @package.present? && @project.present?
     @revision = params[:rev]
     @failures = 0
 
@@ -77,7 +74,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @comments = @package.comments.includes(:user)
+    @comments = @package.comments.includes(:user) if @package.present?
     @comment = Comment.new
 
     if User.session && params[:notification_id]
@@ -87,7 +84,7 @@ class Webui::PackageController < Webui::WebuiController
 
     @services = @files.any? { |file| file[:name] == '_service' }
 
-    @package.cache_revisions(@revision)
+    @package.cache_revisions(@revision) if @package.present?
 
     respond_to do |format|
       format.html
@@ -175,7 +172,6 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @dependant_repository = params[:dependant_repository]
     @dependant_project = params[:dependant_project]
-    @package_name = "#{params[:package]}:#{params[:dependant_name]}"
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
     @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
@@ -189,7 +185,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def statistics
     @repository = params[:repository]
-    @package_name = params[:package]
 
     @statistics = LocalBuildStatistic::ForPackage.new(package: @package_name,
                                                       project: @project.name,
@@ -582,7 +577,7 @@ class Webui::PackageController < Webui::WebuiController
 
     # check source access
     @files = []
-    return false unless @package.check_source_access?
+    return false unless Project.check_access?(@project) && (@package.nil? || @package.check_source_access?)
 
     set_linkinfo
 
@@ -611,6 +606,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def set_linkinfo
+    return if @package.nil?
     return unless @package.is_link?
 
     # FIXME: We have a rails bug here.

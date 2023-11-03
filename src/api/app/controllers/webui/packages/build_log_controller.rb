@@ -111,10 +111,7 @@ module Webui
           return false
         end
 
-        # NOTE: @package is a String for multibuild packages
-        @package = Package.find_by_project_and_name(@project.name, Package.striping_multibuild_suffix(@package_name)) if @package.is_a?(String)
-
-        unless @package.check_source_access?
+        if @package.is_a?(Package) && !@package.check_source_access?
           redirect_to package_show_path(project: @project.name, package: @package_name),
                       error: 'Could not access build log'
           return false
