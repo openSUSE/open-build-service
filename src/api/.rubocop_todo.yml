@@ -90,13 +90,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/models/patchinfo.rb'
 
 # Offense count: 3
-# This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'app/models/issue_tracker.rb'
-    - 'spec/jobs/consistency_check_job_spec.rb'
-
-# Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Lint/RedundantDirGlobSort:
   Exclude:
