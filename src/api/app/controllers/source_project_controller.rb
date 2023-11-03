@@ -20,6 +20,12 @@ class SourceProjectController < SourceController
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, "Project not found: #{project_name}" unless @project
 
+    if params.key?(:expand)
+      # Exanded project listings need to be processed by backend
+      pass_to_backend
+      return
+    end
+
     # we let the backend list the packages after we verified the project is visible
     if params.key?(:view)
       case params[:view]
