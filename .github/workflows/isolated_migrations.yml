@@ -25,9 +25,15 @@ jobs:
               - '.github/workflows/isolated_migrations.yml'
               - 'src/api/.rubocop*.yml'
             migrations:
-              - src/api/db/**
+              - src/api/db/migrate/**
+              - src/api/db/schema.rb
+              - src/api/db/data/**
+              - src/api/db/data_schema.rb
             not_migrations:
-              - '!src/api/db/**'
+              - '!src/api/db/migrate/**'
+              - '!src/api/db/schema.rb'
+              - '!src/api/db/data/**'
+              - '!src/api/db/data_schema.rb'
               - '!.github/workflows/isolated_migrations.yml'
               - '!src/api/.rubocop*.yml'
             schema_migrations:
