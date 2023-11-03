@@ -80,12 +80,10 @@ module MaintenanceHelper
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
     f = source_package.project.flags.find_by_flag_and_status('access', 'disable')
-    if f
-      unless target_project.flags.find_by_flag_and_status('access', 'disable')
-        source_package.project.flags.delete(f)
-        source_package.project.store(comment: 'project becomes public on release action')
-        # patchinfos stay unpublished, it is anyway too late to test them now ...
-      end
+    if f && !target_project.flags.find_by_flag_and_status('access', 'disable')
+      source_package.project.flags.delete(f)
+      source_package.project.store(comment: 'project becomes public on release action')
+      # patchinfos stay unpublished, it is anyway too late to test them now ...
     end
 
     # release the scheduler lock
@@ -162,13 +160,11 @@ module MaintenanceHelper
       withacceptinfo: '1'
     }
     cp_params[:requestid] = action.bs_request.number if action
-    if target_project.is_maintenance_release? && source_package.is_link?
-      # no permission check here on purpose
-      if source_package.linkinfo['project'] == target_project.name &&
-         source_package.linkinfo['package'] == target_package_name.gsub(/\.[^.]*$/, '')
-        # link target is equal to release target. So we freeze our link.
-        cp_params[:freezelink] = 1
-      end
+    # no permission check here on purpose
+    if target_project.is_maintenance_release? && source_package.is_link? && (source_package.linkinfo['project'] == target_project.name &&
+             source_package.linkinfo['package'] == target_package_name.gsub(/\.[^.]*$/, ''))
+      # link target is equal to release target. So we freeze our link.
+      cp_params[:freezelink] = 1
     end
     cp_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject,

@@ -141,7 +141,7 @@ RSpec.describe Staging::StagedRequestsController do
 
         it { expect(response).to have_http_status(:bad_request) }
         it { expect(response.body).to match(/invalid_request/) }
-        it { expect(response.body).to match(/Request #{bs_request.number} currently excluded from project #{staging_workflow.project.name}. Use --remove-exclusion if you want to force this action./) } # rubocop:disable Layout/LineLength
+        it { expect(response.body).to match(/Request #{bs_request.number} currently excluded from project #{staging_workflow.project.name}. Use --remove-exclusion if you want to force this action./) }
       end
 
       context 'when providing the remove exclusion parameter' do

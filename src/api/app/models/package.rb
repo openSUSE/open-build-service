@@ -270,9 +270,8 @@ class Package < ApplicationRecord
   end
 
   def check_source_access?
-    if disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)
-      return false unless User.possibly_nobody.can_source_access?(self)
-    end
+    return false if (disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)) && !User.possibly_nobody.can_source_access?(self)
+
     true
   end
 

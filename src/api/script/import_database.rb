@@ -41,9 +41,7 @@ OptionParser.new do |opts|
 end.parse!
 
 def init
-  unless File.exist?(@options_path) || File.exist?(@database_path)
-    abort('Not possible to locate options.yml or database.yml. Please execute this script in your open-build-service directory.')
-  end
+  abort('Not possible to locate options.yml or database.yml. Please execute this script in your open-build-service directory.') unless File.exist?(@options_path) || File.exist?(@database_path)
 
   # There is only the filename given
   abort('No parameters, use --help') if @params.count == 1

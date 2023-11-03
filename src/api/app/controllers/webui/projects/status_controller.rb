@@ -98,20 +98,17 @@ module Webui
         check_devel_package_status(currentpack, package)
         currentpack.merge!(project_status_set_version(package))
 
-        if package.links_to
-          if currentpack['md5'] != package.links_to.verifymd5
-            currentpack['problems'] << 'diff_against_link'
-            currentpack['lproject'] = package.links_to.project
-            currentpack['lpackage'] = package.links_to.name
-          end
+        if package.links_to && (currentpack['md5'] != package.links_to.verifymd5)
+          currentpack['problems'] << 'diff_against_link'
+          currentpack['lproject'] = package.links_to.project
+          currentpack['lpackage'] = package.links_to.name
         end
 
         return unless currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
                       !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?
 
-        if @limit_to_old
-          return unless currentpack['upstream_version']
-        end
+        return if @limit_to_old && !(currentpack['upstream_version'])
+
         @packages << currentpack
       end
 

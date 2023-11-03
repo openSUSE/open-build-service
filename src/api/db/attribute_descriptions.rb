@@ -1,7 +1,6 @@
 def update_all_attrib_type_descriptions
   ans = AttribNamespace.find_by_name('OBS')
 
-  # rubocop:disable Layout/LineLength
   d = {
     'VeryImportantProject' => 'Mark this project as very important. For instance for the project list in the web interface.',
     'UpdateProject' => 'Mark this project as frozen, updates are handled via the project defined in the value.',
@@ -32,8 +31,6 @@ def update_all_attrib_type_descriptions
     'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person',
     'SkipChannelBranch' => 'Opt-Out creating channels in maintenance incidents'
   }
-  # rubocop:enable Layout/LineLength
-
   d.keys.each do |k|
     at = ans.attrib_types.where(name: k).first
     next unless at # might be called in older migrations

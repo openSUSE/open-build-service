@@ -67,9 +67,7 @@ class Staging::StagingProjectsController < Staging::StagingController
     @acceptable_error = 'has reviews open' unless @staging_project.missing_reviews.empty?
 
     if force
-      unless @staging_project.overall_state.in?(StagingProject::FORCEABLE_STATES)
-        @acceptable_error = "is not in state #{StagingProject::FORCEABLE_STATES.to_sentence(last_word_connector: ' or ')}"
-      end
+      @acceptable_error = "is not in state #{StagingProject::FORCEABLE_STATES.to_sentence(last_word_connector: ' or ')}" unless @staging_project.overall_state.in?(StagingProject::FORCEABLE_STATES)
     else
       @acceptable_error = "#{@staging_project.overall_state} is not an acceptable state" unless @staging_project.overall_state == :acceptable
     end

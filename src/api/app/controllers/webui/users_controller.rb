@@ -65,12 +65,10 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def update
-    unless User.admin_session?
-      if User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
-        flash[:error] = "Can't edit #{@displayed_user.login}"
-        redirect_back(fallback_location: root_path)
-        return
-      end
+    if !User.admin_session? && (User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user))
+      flash[:error] = "Can't edit #{@displayed_user.login}"
+      redirect_back(fallback_location: root_path)
+      return
     end
 
     assign_common_user_attributes if @configuration.accounts_editable?(@displayed_user)
