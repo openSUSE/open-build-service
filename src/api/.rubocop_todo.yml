@@ -47,7 +47,6 @@ Layout/LineContinuationLeadingSpace:
   Exclude:
     - 'app/models/bs_request_action_maintenance_incident.rb'
     - 'app/models/project.rb'
-    - 'db/migrate/20180516074538_explicitly_set_charset.rb'
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'test/functional/source_controller_test.rb'
 
@@ -106,7 +105,6 @@ Lint/NonLocalExitFromIterator:
 Lint/RedundantCopDisableDirective:
   Exclude:
     - 'app/models/issue_tracker.rb'
-    - 'db/migrate/20210511201658_add_data_migrations_table.rb'
     - 'spec/jobs/consistency_check_job_spec.rb'
 
 # Offense count: 3
@@ -486,7 +484,6 @@ Naming/BlockForwarding:
   Exclude:
     - 'app/lib/suse/permission.rb'
     - 'app/models/configuration.rb'
-    - 'db/data/20170831143534_convert_notifications_event_payload_to_json.rb'
 
 # Offense count: 19
 # Configuration parameters: ForbiddenDelimiters.
