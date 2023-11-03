@@ -9,4 +9,8 @@ class ReviewsFinder
       state: [:accepted, :declined]
     )
   end
+
+  def open_reviews_for_user(user)
+    @relation.where(state: 'new').select { |review| review.matches_user?(user) }
+  end
 end
