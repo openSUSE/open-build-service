@@ -289,7 +289,7 @@ sub probe_keepalive {
 sub call_authenticator {
   my ($param, @args) = @_;
   my $auth = $param->{'authenticator'} || $authenticator;
-  if (ref($auth eq 'HASH')) {
+  if (ref($auth) eq 'HASH') {
     return undef unless $param->{'uri'} =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
     my $authrealm = ($2 ? "$2\@" : '') . $3 . ($4 || '');
     $auth = $auth->{$authrealm};
