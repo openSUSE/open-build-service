@@ -560,8 +560,8 @@ RSpec.describe Webui::ProjectController, :vcr do
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
 
         it do
-          expect(flash[:error]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," \
-                                      " because there is a running release request: #{bs_request.id}")
+          expect(flash[:error]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible, " \
+                                      "because there is a running release request: #{bs_request.id}")
         end
       end
     end

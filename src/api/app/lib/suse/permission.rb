@@ -61,7 +61,7 @@ module Suse
       false
     end
 
-    def method_missing(perm, *_args, &_block)
+    def method_missing(perm, *_args, &)
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user
