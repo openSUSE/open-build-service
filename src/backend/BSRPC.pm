@@ -163,26 +163,29 @@ sub createreq {
     $proxytunnel .= shift(@xhdrs)."\r\n" if defined $proxyauth;
     $proxytunnel .= "\r\n";
   }
-  if ($cookiestore && %$cookiestore) {
-    if ($uri =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
-      push @xhdrs, map {"Cookie: $_"} @{$cookiestore->{$1} || []};
-    }
-  }
+  push @xhdrs, map {"Cookie: $_"} getcookies($cookiestore, $uri) if $cookiestore && %$cookiestore;
   my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
   return ($proto, $host, $port, $req, $proxytunnel);
+}
+
+sub getcookies {
+  my ($cookiestore, $uri) = @_;
+  return () unless $uri =~ /^(https?:\/\/(?:[^\/\@]*\@)?[^\/:]+(?::\d+)?)\//;
+  my $domain = lc($1);
+  return  @{$cookiestore->{$domain} || []};
 }
 
 sub updatecookies {
   my ($cookiestore, $uri, $setcookie) = @_;
   return unless $cookiestore && $uri && $setcookie;
+  return unless $uri =~ /^(https?:\/\/(?:[^\/\@]*\@)?[^\/:]+(?::\d+)?)\//;
+  my $domain = lc($1);
   my @cookie = split(',', $setcookie);
-  s/;.*// for @cookie;
-  if ($uri =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
-    my %cookie = map {$_ => 1} @cookie;
-    push @cookie, grep {!$cookie{$_}} @{$cookiestore->{$1} || []};
-    splice(@cookie, 10) if @cookie > 10;
-    $cookiestore->{$1} = \@cookie;
-  }
+  s/;.*// for @cookie;		# XXX: limit to path=/ cookies
+  my %cookie = map {$_ => 1} @cookie;
+  push @cookie, grep {!$cookie{$_}} @{$cookiestore->{$domain} || []};
+  splice(@cookie, 10) if @cookie > 10;
+  $cookiestore->{$domain} = \@cookie;
 }
 
 sub args {
