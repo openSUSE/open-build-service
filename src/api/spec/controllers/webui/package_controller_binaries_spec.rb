@@ -10,32 +10,6 @@ RSpec.describe Webui::PackageController do
     repo
   end
 
-  describe 'GET #binaries' do
-    before do
-      login tom
-    end
-
-    context 'with a failure in the backend' do
-      before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::Error, 'fake message')
-        get :binaries, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name }
-      end
-
-      it { expect(flash[:error]).to eq('fake message') }
-      it { expect(response).to redirect_to(package_show_path(project: home_tom, package: toms_package)) }
-    end
-
-    context 'without build results' do
-      before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
-      end
-
-      let(:get_binaries) { get :binaries, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name } }
-
-      it { expect { get_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
-    end
-  end
-
   describe 'POST #wipe_binaries' do
     before do
       login(tom)
@@ -68,85 +42,6 @@ RSpec.describe Webui::PackageController do
 
       it { expect(flash[:success]).to eq("Triggered wipe binaries for #{home_tom.name}/#{toms_package.name} successfully.") }
       it { expect(response).to redirect_to(package_binaries_path(project: home_tom, package: toms_package, repository: repository.name)) }
-    end
-  end
-
-  describe 'GET #binary' do
-    let(:architecture) { 'x86_64' }
-    let(:package_binaries_page) { package_binaries_path(package: toms_package, project: home_tom, repository: repo_for_home_tom.name) }
-    let(:fake_fileinfo) { { sumary: 'fileinfo', description: 'fake' } }
-
-    before do
-      login(tom)
-    end
-
-    context 'with a failure in the backend' do
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
-      end
-
-      subject do
-        get :binary, params: { package: toms_package,
-                               project: home_tom,
-                               repository: repo_for_home_tom.name,
-                               arch: 'x86_64',
-                               filename: 'filename.txt' }
-      end
-
-      it { expect(response).to have_http_status(:success) }
-
-      it 'shows an error message' do
-        subject
-        expect(flash[:error]).to eq('There has been an internal error. Please try again.')
-      end
-    end
-
-    context 'without file info' do
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
-      end
-
-      subject do
-        get :binary, params: { package: toms_package,
-                               project: home_tom,
-                               repository: repo_for_home_tom.name,
-                               arch: 'x86_64',
-                               filename: 'filename.txt' }
-      end
-
-      it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
-    end
-
-    context 'without a valid architecture' do
-      before do
-        get :binary, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name, arch: 'fake_arch', filename: 'filename.txt' }
-      end
-
-      it { expect(flash[:error]).to eq("Couldn't find architecture 'fake_arch'") }
-      it { is_expected.to redirect_to(package_binaries_page) }
-    end
-
-    context 'with a valid download url' do
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(fake_fileinfo)
-      end
-
-      context 'and normal html request' do
-        before do
-          get :binary, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name, arch: 'x86_64', filename: 'filename.txt', format: :html }
-        end
-
-        it { expect(response).to have_http_status(:success) }
-      end
-
-      context 'and a non html request' do
-        before do
-          get :binary, params: { package: toms_package, project: home_tom, repository: repo_for_home_tom.name, arch: 'x86_64', filename: 'filename.txt' }
-        end
-
-        it { expect(response).to have_http_status(:redirect) }
-        it { is_expected.to redirect_to('http://fake.com/filename.txt') }
-      end
     end
   end
 
