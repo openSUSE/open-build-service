@@ -1156,10 +1156,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/home:tom:projectC/_meta', params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectD/_meta', params: "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'> " \
-                                                   " <path project='home:tom:projectA' repository='repoA' />" \
-                                                   " <path project='home:tom:projectB' repository='repoB' />" \
-                                                   " <path project='home:tom:projectC' repository='repoC' />" \
+    put '/source/home:tom:projectD/_meta', params: "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'>  " \
+                                                   "<path project='home:tom:projectA' repository='repoA' /> " \
+                                                   "<path project='home:tom:projectB' repository='repoB' /> " \
+                                                   "<path project='home:tom:projectC' repository='repoC' />" \
                                                    '</repository> </project>'
     assert_response :success
     # delete a repo
