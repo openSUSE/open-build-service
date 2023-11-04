@@ -278,7 +278,7 @@ GEM
       ruby2_keywords (>= 0.0.5)
     multi_xml (0.6.0)
     mysql2 (0.5.5)
-    net-imap (0.4.3)
+    net-imap (0.4.4)
       date
       net-protocol
     net-pop (0.1.2)
