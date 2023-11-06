@@ -836,11 +836,6 @@ RSpec/Rails/HaveHttpStatus:
     - 'spec/controllers/webui/session_controller_spec.rb'
     - 'spec/controllers/webui/users/notifications_controller_spec.rb'
 
-# Offense count: 2
-RSpec/RepeatedExampleGroupBody:
-  Exclude:
-    - 'spec/controllers/person_controller_spec.rb'
-
 # Offense count: 16
 RSpec/RepeatedExampleGroupDescription:
   Exclude:
