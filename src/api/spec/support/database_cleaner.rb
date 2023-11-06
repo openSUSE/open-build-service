@@ -25,7 +25,6 @@ RSpec.configure do |config|
                                  :transaction
                                end
     DatabaseCleaner.start
-    Configuration.first_or_create(name: 'private', title: 'Open Build Service').update(allow_user_to_create_home_project: false)
   end
 
   config.after do
