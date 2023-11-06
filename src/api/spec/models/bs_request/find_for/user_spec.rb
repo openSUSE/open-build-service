@@ -188,7 +188,6 @@ RSpec.describe BsRequest::FindFor::User do
 
       it { expect(subject).to include(review_request) }
       it { expect(subject).to include(maintainer_request) }
-      it { expect(subject).to include(maintainer_request) }
     end
   end
 end
