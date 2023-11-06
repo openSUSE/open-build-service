@@ -836,11 +836,6 @@ RSpec/Rails/HaveHttpStatus:
     - 'spec/controllers/webui/session_controller_spec.rb'
     - 'spec/controllers/webui/users/notifications_controller_spec.rb'
 
-# Offense count: 2
-RSpec/RepeatedDescription:
-  Exclude:
-    - 'spec/models/kiwi/repository_spec.rb'
-
 # Offense count: 4
 RSpec/RepeatedExample:
   Exclude:
