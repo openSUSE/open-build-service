@@ -551,13 +551,12 @@ sub rpc {
       $myparam{'verbatim_uri'} = 1;
       return rpc(\%myparam, $xmlargs, @args);
     }
-    if ($status =~ /^401[^\d]/ && ($authenticator || $param->{'authenticator'}) && $headers{'www-authenticate'}) {
+    if ($status =~ /^401[^\d]/ && $headers{'www-authenticate'} && !$param->{'authenticator_norecurse'} && ($authenticator || $param->{'authenticator'})) {
       # unauthorized, ask callback for authorization
       my $auth = call_authenticator($param, $headers{'www-authenticate'}, \%headers);
       if ($auth) {
         close $sock;
-        my %myparam = %$param;
-        delete $myparam{'authenticator'};
+        my %myparam = (%$param, 'authenticator_norecurse' => 1);
         $myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
         push @{$myparam{'headers'}}, "Authorization: $auth";
         return rpc(\%myparam, $xmlargs, @args);
