@@ -373,7 +373,7 @@ sub rpc_authenticate {
     eval {
       $auth = BSRPC::call_authenticator($param, $headers->{'www-authenticate'}, $headers);
       if ($auth) {
-        my %myparam = ( %{$ev->{'param'}}, 'authenticator' => undef );
+        my %myparam = ( %{$ev->{'param'}}, 'authenticator_norecurse' => 1);
 	$myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
         push @{$myparam{'headers'}}, "Authorization: $auth";
 	rpc(\%myparam);
@@ -922,7 +922,7 @@ sub rpc_recv_handler {
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
   if ($status =~ /^401[^\d]/ && $headers{'www-authenticate'}) {
-    if ($BSRPC::authenticator || $ev->{'param'}->{'authenticator'}) {
+    if (!$ev->{'param'}->{'authenticator_norecurse'} && ($BSRPC::authenticator || $ev->{'param'}->{'authenticator'})) {
       rpc_authenticate($ev, $status, $ev->{'param'}->{'authenticator'} || $BSRPC::authenticator, \%headers);
       return undef;
     }
@@ -1151,9 +1151,9 @@ sub rpc {
     push @xhdrs, 'Content-Type: application/x-www-form-urlencoded';
     push @xhdrs, "Content-Length: ".length($data);
   }
-  if ($param->{'authenticator'} && !grep {/^authorization:/i} @xhdrs) {
+  if (($BSRPC::authenticator || $param->{'authenticator'}) && !grep {/^authorization:/i} @xhdrs) {
     # ask authenticator for cached authorization
-    my $auth = $param->{'authenticator'}->($param);
+    my $auth = BSRPC::call_authenticator($param);
     push @xhdrs, "Authorization: $auth" if $auth;
   }
   BSRPC::addautoheaders(\@xhdrs, $jev->{'autoheaders'} || []);
