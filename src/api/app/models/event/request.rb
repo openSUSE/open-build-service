@@ -104,15 +104,15 @@ module Event
 
     def source_or_target_project_watchers(project_type:)
       watchers = payload['actions'].pluck(project_type)
-                                   .map { |project_name| Project.find_by_name(project_name) }
-                                   .compact.map(&:watched_items)
+                                   .filter_map { |project_name| Project.find_by_name(project_name) }
+                                   .map(&:watched_items)
                                    .flatten.map(&:user)
       watchers.uniq
     end
 
     def source_or_target_package_watchers(project_type:, package_type:)
       payload['actions'].map { |action| [action[project_type], action[package_type]] }
-                        .map do |project_name, package_name|
+                        .filter_map do |project_name, package_name|
         next if project_name.blank? || package_name.blank?
 
         Package.get_by_project_and_name(project_name,
@@ -121,8 +121,8 @@ module Event
       rescue Package::Errors::UnknownObjectError, Project::Errors::UnknownObjectError
         nil
       end
-                        .compact.map(&:watched_items)
-                                .flatten.map(&:user)
+                        .map(&:watched_items)
+                        .flatten.map(&:user)
     end
 
     def action_maintainers(prjname, pkgname)

@@ -306,9 +306,9 @@ class Package < ApplicationRecord
   end
 
   def changes_files
-    dir_hash.elements('entry').collect do |e|
+    dir_hash.elements('entry').filter_map do |e|
       e['name'] if /.changes$/.match?(e['name'])
-    end.compact
+    end
   end
 
   def commit_message_from_changes_file(target_project, target_package)

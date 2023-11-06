@@ -591,17 +591,6 @@ Performance/CollectionLiteralInLoop:
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
 
-# Offense count: 7
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/MapCompact:
-  Exclude:
-    - 'app/controllers/trigger_workflow_controller.rb'
-    - 'app/helpers/webui/package_helper.rb'
-    - 'app/models/event/request.rb'
-    - 'app/models/package.rb'
-    - 'app/services/staging/staging_project_creator.rb'
-    - 'app/services/user_service/involved.rb'
-
 # Offense count: 20
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Performance/StringInclude:

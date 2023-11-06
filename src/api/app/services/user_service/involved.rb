@@ -52,8 +52,7 @@ module UserService
 
       @involved_items_as_owner.concat(
         OwnerSearch::Owned.new.for(@user)
-                          .map { |owner| owned_item(user: owner, search_text: @filters['search_text']) }
-                          .compact
+                          .filter_map { |owner| owned_item(user: owner, search_text: @filters['search_text']) }
       )
     end
 
