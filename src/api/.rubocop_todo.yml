@@ -591,15 +591,6 @@ Performance/CollectionLiteralInLoop:
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
 
-# Offense count: 20
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/StringInclude:
-  Exclude:
-    - 'app/lib/backend/test.rb'
-    - 'app/models/updateinfo_counter.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/functional/zzz_post_consistency_test.rb'
-
 # Offense count: 57
 RSpec/AnyInstance:
   Exclude:

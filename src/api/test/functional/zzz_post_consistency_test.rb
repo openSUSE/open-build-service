@@ -52,10 +52,10 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         next if /jobs.dispatchprios missing/.match?(line)
         next if /jobs.load missing/.match?(line)
         next if /^check finished/.match?(line)
-        next if /status file without existing job/.match?(line)
+        next if line.include?('status file without existing job')
         # broken rpm and broken signature warning. Travis-ci has more errors here
-        next if /broken rpm/.match?(line)
-        next if /broken signature/.match?(line)
+        next if line.include?('broken rpm')
+        next if line.include?('broken signature')
 
         # unhandled line, dump a failure
         failed = true
