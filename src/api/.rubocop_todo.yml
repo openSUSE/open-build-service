@@ -591,13 +591,6 @@ Performance/CollectionLiteralInLoop:
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/Detect:
-  Exclude:
-    - 'app/controllers/public_controller.rb'
-    - 'app/controllers/webui/kiwi/images_controller.rb'
-
 # Offense count: 7
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Performance/MapCompact:
