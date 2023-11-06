@@ -16,6 +16,7 @@ end
   a.save
 end
 
+puts 'Seeding configurations table...'
 # set default configuration settings if no settings exist
 Configuration.skip_callback(:save, :after, :delayed_write_to_backend)
 Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |conf|
