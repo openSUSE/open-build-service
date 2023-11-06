@@ -180,10 +180,16 @@ sub updatecookies {
   return unless $cookiestore && $uri && $setcookie;
   return unless $uri =~ /^(https?:\/\/(?:[^\/\@]*\@)?[^\/:]+(?::\d+)?)\//;
   my $domain = lc($1);
-  my @cookie = split(',', $setcookie);
-  s/;.*// for @cookie;		# XXX: limit to path=/ cookies
-  my %cookie = map {$_ => 1} @cookie;
-  push @cookie, grep {!$cookie{$_}} @{$cookiestore->{$domain} || []};
+  my %cookienames;
+  my @cookie;
+  for my $cookie (split(',', $setcookie)) {
+    # XXX: limit to path=/ cookies?
+    $cookie =~ s/;.*//;
+    push @cookie, $cookie if $cookie =~ /^(.*?)=/ && !$cookienames{$1}++;
+  }
+  for my $cookie (@{$cookiestore->{$domain} || []}) {
+    push @cookie, $cookie if $cookie =~ /^(.*?)=/ && !$cookienames{$1}++;
+  }
   splice(@cookie, 10) if @cookie > 10;
   $cookiestore->{$domain} = \@cookie;
 }
