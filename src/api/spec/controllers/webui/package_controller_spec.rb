@@ -589,7 +589,7 @@ RSpec.describe Webui::PackageController, :vcr do
       login(user)
     end
 
-    context 'when triggering a rebuild fails' do
+    context 'non existent repository' do
       before do
         post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existant_repository' }
       end
@@ -635,7 +635,7 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(flash[:success]).not_to be_nil }
     end
 
-    context 'when triggering a rebuild fails' do
+    context 'user not being a maintainer of a package' do
       let(:user) { create(:confirmed_user, login: 'foo') }
       let(:other_user) { create(:confirmed_user, login: 'bar') }
       let(:project) { create(:project, name: 'foo_project') }

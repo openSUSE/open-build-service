@@ -827,17 +827,6 @@ RSpec/Rails/HaveHttpStatus:
     - 'spec/controllers/webui/session_controller_spec.rb'
     - 'spec/controllers/webui/users/notifications_controller_spec.rb'
 
-# Offense count: 16
-RSpec/RepeatedExampleGroupDescription:
-  Exclude:
-    - 'spec/controllers/webui/package_controller_spec.rb'
-    - 'spec/controllers/webui/project_controller_spec.rb'
-    - 'spec/helpers/webui/package_helper_spec.rb'
-    - 'spec/models/bs_request/find_for/user_spec.rb'
-    - 'spec/models/project_status/pack_info_spec.rb'
-    - 'spec/models/users/requests_spec.rb'
-    - 'spec/policies/user_policy_spec.rb'
-
 # Offense count: 1
 RSpec/SubjectStub:
   Exclude:

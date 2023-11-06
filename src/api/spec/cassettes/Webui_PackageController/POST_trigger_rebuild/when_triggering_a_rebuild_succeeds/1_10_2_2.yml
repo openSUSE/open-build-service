@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:24:06 GMT
+  recorded_at: Mon, 06 Nov 2023 09:41:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -85,7 +85,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:24:07 GMT
+  recorded_at: Mon, 06 Nov 2023 09:41:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -93,8 +93,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Doloremque deserunt atque aspernatur.</description>
+          <title>That Good Night</title>
+          <description>Rerum reprehenderit iure aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -115,15 +115,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Doloremque deserunt atque aspernatur.</description>
+          <title>That Good Night</title>
+          <description>Rerum reprehenderit iure aut.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:24:07 GMT
+  recorded_at: Mon, 06 Nov 2023 09:41:56 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?arch=i586&cmd=rebuild&package=my_package&repository=openSUSE_Leap_15.1
@@ -157,5 +157,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 26 Sep 2023 14:24:07 GMT
+  recorded_at: Mon, 06 Nov 2023 09:41:56 GMT
 recorded_with: VCR 6.2.0

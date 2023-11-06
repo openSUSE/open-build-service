@@ -102,14 +102,6 @@ RSpec.describe Webui::ProjectController, :vcr do
 
         it { expect(json_response).to include(apache_subproject.name) }
       end
-
-      context 'and searching for parent project' do
-        before do
-          get :autocomplete_projects, params: { term: 'Apache:' }
-        end
-
-        it { expect(json_response).to include(apache_subproject.name) }
-      end
     end
   end
 

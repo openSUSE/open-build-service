@@ -83,14 +83,14 @@ RSpec.describe ProjectStatus::PackInfo do
       end
     end
 
-    context 'with a failure with newer time and different md5' do
+    context 'with a failure with older time and different md5' do
       let(:new_md5) { 'NEWd18db4cc2f85cedef654fccc4aNEW' }
 
       before do
         pack_info.failure(repository, architecture, two_hours_ago, new_md5)
       end
 
-      it 'updates md5 but not time' do
+      it 'updates md5 and time' do
         expect(pack_info.failed).to eq({ standard: [two_hours_ago, architecture, new_md5] }.with_indifferent_access)
       end
     end
