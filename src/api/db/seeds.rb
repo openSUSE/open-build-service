@@ -126,6 +126,8 @@ at = ans.attrib_types.where(name: 'ProjectStatusPackageFailComment').first_or_cr
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'BranchRepositoriesFromProject').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: 'BranchSkipRepositories').first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'AutoCleanup').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
