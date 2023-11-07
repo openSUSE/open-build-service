@@ -4451,6 +4451,7 @@ sub docommand {
   my $param = {
     'uri' => "$reposerver/_command",
     'request' => 'POST',
+    'formurlencode' => 1,
   };
   $res = BSWatcher::rpc($param, undef, @args);
   return $res;
