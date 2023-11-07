@@ -34,6 +34,8 @@ jobs:
               - '!src/api/db/schema.rb'
               - '!src/api/db/data/**'
               - '!src/api/db/data_schema.rb'
+              - '!src/api/db/attribute_descriptions.rb'
+              - '!src/api/db/seeds.rb'
               - '!.github/workflows/isolated_migrations.yml'
               - '!src/api/.rubocop*.yml'
             schema_migrations:
