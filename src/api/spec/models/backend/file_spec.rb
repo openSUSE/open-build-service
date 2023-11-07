@@ -46,13 +46,14 @@ RSpec.describe Backend::File, :vcr do
   end
 
   describe '#file=' do
+    let(:input_stream) { File.open(fake_file.path) }
+
     before do
-      @input_stream = File.open(fake_file.path)
-      subject.file = @input_stream
+      subject.file = input_stream
     end
 
     after do
-      @input_stream.close
+      input_stream.close
     end
 
     it { expect(subject.file.class).to eq(Tempfile) }
@@ -169,37 +170,39 @@ RSpec.describe Backend::File, :vcr do
 
   describe '#reload' do
     context 'with an existing file in the backend' do
+      let!(:previous_content) { subject.content }
+
       before do
         login user
 
-        @previous_content = subject.content
         subject.save({}, 'hello') # Change the content of the file
       end
 
-      it { expect(File.read(subject.reload.path)).not_to eq(@previous_content) }
+      it { expect(File.read(subject.reload.path)).not_to eq(previous_content) }
     end
   end
 
   describe '#save!' do
     context 'with a string as content' do
+      let!(:previous_content) { subject.content }
+
       before do
-        @previous_content = subject.content
         subject.save!({}, 'hello') # Change the content of the file with a string
       end
 
-      it { expect(File.read(subject.file.path)).not_to eq(@previous_content) }
+      it { expect(File.read(subject.file.path)).not_to eq(previous_content) }
       it { expect(File.read(subject.file.path)).to eq('hello') }
     end
 
     context 'with a file as content' do
-      before do
-        @previous_content = subject.content
+      let!(:previous_content) { subject.content }
 
+      before do
         subject.file = File.open(fake_file.path)
         subject.save!
       end
 
-      it { expect(File.read(subject.file.path)).not_to eq(@previous_content) }
+      it { expect(File.read(subject.file.path)).not_to eq(previous_content) }
       it { expect(File.read(subject.file.path)).to eq("hello\n") }
     end
   end

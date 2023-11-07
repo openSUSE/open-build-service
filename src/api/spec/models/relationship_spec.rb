@@ -5,15 +5,6 @@ RSpec.describe Relationship do
   let(:global_role) { create(:role, title: 'global_role', global: true) }
   let(:normal_role) { create(:role, title: 'normal_role', global: false) }
 
-  before do
-    @caching_state = ActionController::Base.perform_caching
-    ActionController::Base.perform_caching = true
-  end
-
-  after do
-    ActionController::Base.perform_caching = @caching_state
-  end
-
   describe '.add_user' do
     let(:role) { normal_role }
     let(:user) { create(:confirmed_user, :with_home, login: 'other_user') }
