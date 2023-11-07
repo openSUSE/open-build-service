@@ -88,6 +88,7 @@ module Webui::ProjectBuildResultParsing
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
     @status_filter = []
+    excluded_status = ['disabled', 'excluded', 'unknown']
     @avail_status_values.each do |s|
       id = s.delete(' ')
       if params.key?(id)
@@ -95,7 +96,7 @@ module Webui::ProjectBuildResultParsing
       else
         next unless defaults
       end
-      next if defaults && ['disabled', 'excluded', 'unknown'].include?(s)
+      next if defaults && excluded_status.include?(s)
 
       @status_filter << s
     end

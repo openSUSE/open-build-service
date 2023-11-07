@@ -580,17 +580,6 @@ Naming/VariableNumber:
     - 'test/functional/source_controller_test.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 11
-# Configuration parameters: MinSize.
-Performance/CollectionLiteralInLoop:
-  Exclude:
-    - 'app/controllers/concerns/webui/project_build_result_parsing.rb'
-    - 'app/models/concerns/has_relationships.rb'
-    - 'lib/memory_debugger.rb'
-    - 'lib/tasks/extract.rake'
-    - 'script/reformat_memprof'
-    - 'test/functional/backend_test.rb'
-
 # Offense count: 57
 RSpec/AnyInstance:
   Exclude:
