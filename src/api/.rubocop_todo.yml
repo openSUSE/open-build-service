@@ -1328,7 +1328,6 @@ ViewComponent/MissingPreviewFile:
     - 'app/components/workflow_run_request_action_filter_component.rb'
     - 'app/components/workflow_run_row_component.rb'
     - 'app/components/workflow_run_status_badge_component.rb'
-    - 'app/components/write_and_preview_component.rb'
 
 # Offense count: 2798
 # This cop supports safe autocorrection (--autocorrect).
