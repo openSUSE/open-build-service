@@ -156,6 +156,11 @@ sub fetchremoteproj {
   my ($proj, $projid, $remotemap) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
+  if ($BSStdServer::isajax) {
+    die("fetchremoteproj: remotemap is not implemented\n") if $remotemap;
+    my $jev = $BSServerEvents::gev;
+    return $jev->{"fetchremoteproj_$projid"} if exists $jev->{"fetchremoteproj_$projid"};
+  }
   my $c;
   if ($remotemap) {
     my $rproj = $remotemap->{$projid};
@@ -171,15 +176,17 @@ sub fetchremoteproj {
     'timeout' => 60,
     'proxy' => $proj->{'remoteproxy'},
   };
-  my $rproj;
-  eval {
-    $rproj = BSRPC::rpc($param, $BSXML::proj);
-  };
+  my $rproj = eval { BSWatcher::rpc($param, $BSXML::proj) };
   $rproj = {'error' => $@, 'proto' => 1} if $@;
+  return undef if $BSStdServer::isajax && !defined($rproj);
   $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject remoteproxy};
   $rproj->{'config'} = $c if defined $c;
   mapprojectdata($rproj, $proj);
   $remotemap->{$projid} = $rproj if $remotemap;
+  if ($BSStdServer::isajax) {
+    my $jev = $BSServerEvents::gev;
+    $jev->{"fetchremoteproj_$projid"} = $rproj;
+  }
   die($rproj->{'error'}) if $rproj->{'error'};
   return $rproj;
 }
@@ -188,6 +195,11 @@ sub fetchremoteconfig {
   my ($proj, $projid, $remotemap) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
+  if ($BSStdServer::isajax) {
+    die("fetchremoteconfig: remotemap is not implemented\n") if $remotemap;
+    my $jev = $BSServerEvents::gev;
+    return $jev->{"fetchremoteconfig_$projid"} if exists $jev->{"fetchremoteconfig_$projid"};
+  }
   if ($remotemap) {
     my $rproj = $remotemap->{$projid};
     if ($rproj) {
@@ -205,13 +217,15 @@ sub fetchremoteconfig {
     'timeout' => 60,
     'proxy' => $proj->{'remoteproxy'},
   };
-  my $c;
-  eval {
-    $c = BSRPC::rpc($param, undef);
-  };
+  my $c = eval { BSWatcher::rpc($param, undef) };
   if ($@) {
     $remotemap->{$projid}->{'error'} = $@ if $remotemap;
     die($@);
+  }
+  if ($BSStdServer::isajax) {
+    return undef unless defined($c);
+    my $jev = $BSServerEvents::gev;
+    $jev->{"fetchremoteconfig_$projid"} = $c;
   }
   $remotemap->{$projid}->{'config'} = $c if $remotemap;
   return $c;
