@@ -85,6 +85,28 @@ module Webui::ProjectBuildResultParsing
     @repostatusdetailshash[repo][arch] = result['details'] if result.key?('details')
   end
 
+  def monitor_set_arch_filter(defaults)
+    repos = @project.repositories
+    @avail_arch_values = repos.joins(:architectures).select('architectures.name').distinct.order('architectures.name').pluck('architectures.name')
+
+    @arch_filter = []
+    @avail_arch_values.each do |s|
+      archid = valid_xml_id("arch_#{s}")
+      @arch_filter << s if defaults || params[archid]
+    end
+  end
+
+  def monitor_set_repo_filter(defaults)
+    repos = @project.repositories
+    @avail_repo_values = repos.select(:name).distinct.order(:name).pluck(:name)
+
+    @repo_filter = []
+    @avail_repo_values.each do |s|
+      repoid = valid_xml_id("repo_#{s}")
+      @repo_filter << s if defaults || params[repoid]
+    end
+  end
+
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
     @status_filter = []
@@ -101,21 +123,8 @@ module Webui::ProjectBuildResultParsing
       @status_filter << s
     end
 
-    repos = @project.repositories
-    @avail_repo_values = repos.select(:name).distinct.order(:name).pluck(:name)
-    @avail_arch_values = repos.joins(:architectures).select('architectures.name').distinct.order('architectures.name').pluck('architectures.name')
-
-    @arch_filter = []
-    @avail_arch_values.each do |s|
-      archid = valid_xml_id("arch_#{s}")
-      @arch_filter << s if defaults || params[archid]
-    end
-
-    @repo_filter = []
-    @avail_repo_values.each do |s|
-      repoid = valid_xml_id("repo_#{s}")
-      @repo_filter << s if defaults || params[repoid]
-    end
+    monitor_set_arch_filter(defaults)
+    monitor_set_repo_filter(defaults)
   end
 
   def filter_matches?(input, filter_string)
