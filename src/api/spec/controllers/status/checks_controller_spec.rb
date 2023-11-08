@@ -25,7 +25,7 @@ RSpec.describe Status::ChecksController do
       XML
     end
 
-    context 'when referencing to non-existant checkable' do
+    context 'when referencing to non-existent checkable' do
       it 'gives 404 for request' do
         expect(post(:update, body: xml, params: { bs_request_number: 1 }, format: :xml)).to have_http_status(:not_found)
         expect(Xmlhash.parse(response.body)['summary']).to match(/Submit request.*not found/)

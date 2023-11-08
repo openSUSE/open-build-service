@@ -591,7 +591,7 @@ RSpec.describe Webui::PackageController, :vcr do
 
     context 'non existent repository' do
       before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existant_repository' }
+        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existent_repository' }
       end
 
       it 'lets the user know there was an error' do
@@ -601,7 +601,7 @@ RSpec.describe Webui::PackageController, :vcr do
       it 'redirects to the package binaries path' do
         expect(response).to redirect_to(project_package_repository_binaries_path(project_name: source_project,
                                                                                  package_name: source_package,
-                                                                                 repository_name: 'non_existant_repository'))
+                                                                                 repository_name: 'non_existent_repository'))
       end
     end
 
