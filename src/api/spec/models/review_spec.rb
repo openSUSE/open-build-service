@@ -344,14 +344,15 @@ RSpec.describe Review do
 
   describe '#update_caches' do
     RSpec.shared_examples "the subject's cache is reset when it's review changes" do
+      let!(:cache_key) { subject.cache_key_with_version }
+
       before do
-        @cache_key = subject.cache_key_with_version
         review.state = :accepted
         review.save
         subject.reload
       end
 
-      it { expect(subject.cache_key_with_version).not_to eq(@cache_key) }
+      it { expect(subject.cache_key_with_version).not_to eq(cache_key) }
     end
 
     context 'by_user' do

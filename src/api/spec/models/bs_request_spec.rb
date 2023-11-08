@@ -41,27 +41,26 @@ RSpec.describe BsRequest, :vcr do
              source_package: source_package)
     end
     let(:doc) { Nokogiri::XML(review_request.to_axml, &:strict) }
+    let(:output) { BsRequest.new_from_xml(doc.to_xml) }
 
     context "'when' attribute provided" do
       let!(:updated_when) { 10.years.ago }
 
       before do
         doc.at_css('state')['when'] = updated_when
-        @output = BsRequest.new_from_xml(doc.to_xml)
       end
 
       # We don't care about milliseconds, therefore we parse to integer
-      it { expect(@output.updated_when.to_i).to eq(updated_when.to_i) }
+      it { expect(output.updated_when.to_i).to eq(updated_when.to_i) }
     end
 
     context "'when' attribute not provided" do
       before do
         doc.xpath('//@when').remove
-        @output = BsRequest.new_from_xml(doc.to_xml)
       end
 
       # We don't care about milliseconds, therefore we parse to integer
-      it { expect(@output.updated_when.to_i).to eq(@output.updated_at.to_i) }
+      it { expect(output.updated_when.to_i).to eq(output.updated_at.to_i) }
     end
   end
 

@@ -16,6 +16,7 @@ RSpec.describe Webui::ProjectController, :vcr do
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
   let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }
   let(:repo_for_user_home) { create(:repository, project: user.home_project) }
+  let(:json_response) { response.parsed_body }
 
   describe 'CSRF protection' do
     before do
@@ -75,22 +76,20 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'without search term' do
       before do
         get :autocomplete_projects
-        @json_response = response.parsed_body
       end
 
-      it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name, opensuse_project.name) }
-      it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
+      it { expect(json_response).to contain_exactly(apache_project.name, apache2_project.name, opensuse_project.name) }
+      it { expect(json_response).not_to include(apache_maintenance_incident_project.name) }
     end
 
     context 'with search term' do
       before do
         get :autocomplete_projects, params: { term: 'Apache' }
-        @json_response = response.parsed_body
       end
 
-      it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name) }
-      it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
-      it { expect(@json_response).not_to include(opensuse_project.name) }
+      it { expect(json_response).to contain_exactly(apache_project.name, apache2_project.name) }
+      it { expect(json_response).not_to include(apache_maintenance_incident_project.name) }
+      it { expect(json_response).not_to include(opensuse_project.name) }
     end
 
     context 'with a subprojects' do
@@ -99,19 +98,17 @@ RSpec.describe Webui::ProjectController, :vcr do
       context 'and searching for parent project' do
         before do
           get :autocomplete_projects, params: { term: 'Apache' }
-          @json_response = response.parsed_body
         end
 
-        it { expect(@json_response).to include(apache_subproject.name) }
+        it { expect(json_response).to include(apache_subproject.name) }
       end
 
       context 'and searching for parent project' do
         before do
           get :autocomplete_projects, params: { term: 'Apache:' }
-          @json_response = response.parsed_body
         end
 
-        it { expect(@json_response).to include(apache_subproject.name) }
+        it { expect(json_response).to include(apache_subproject.name) }
       end
     end
   end
@@ -121,11 +118,10 @@ RSpec.describe Webui::ProjectController, :vcr do
       apache_project
       apache_maintenance_incident_project
       get :autocomplete_incidents, params: { term: 'Apache' }
-      @json_response = response.parsed_body
     end
 
-    it { expect(@json_response).to contain_exactly(apache_maintenance_incident_project.name) }
-    it { expect(@json_response).not_to include(apache_project.name) }
+    it { expect(json_response).to contain_exactly(apache_maintenance_incident_project.name) }
+    it { expect(json_response).not_to include(apache_project.name) }
   end
 
   describe 'GET #autocomplete_packages' do
@@ -138,42 +134,39 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with a nonexistent project' do
       before do
         get :autocomplete_packages, params: { project: 'non:existent:project' }
-        @json_response = response.parsed_body
       end
 
-      it { expect(@json_response).to be_nil }
+      it { expect(json_response).to be_nil }
     end
 
     context 'without search term' do
       before do
         get :autocomplete_packages, params: { project: apache_project }
-        @json_response = response.parsed_body
       end
 
-      it { expect(@json_response).to contain_exactly('Apache_Package', 'Apache2_Package') }
-      it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
+      it { expect(json_response).to contain_exactly('Apache_Package', 'Apache2_Package') }
+      it { expect(json_response).not_to include('Apache_Package_Another_Project') }
     end
 
     context 'with search term' do
       before do
         get :autocomplete_packages, params: { project: apache_project, term: 'Apache2' }
-        @json_response = response.parsed_body
       end
 
-      it { expect(@json_response).to contain_exactly('Apache2_Package') }
-      it { expect(@json_response).not_to include('Apache_Package') }
-      it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
+      it { expect(json_response).to contain_exactly('Apache2_Package') }
+      it { expect(json_response).not_to include('Apache_Package') }
+      it { expect(json_response).not_to include('Apache_Package_Another_Project') }
     end
   end
 
   describe 'GET #autocomplete_repositories' do
+    let!(:repositories) { create_list(:repository, 5, project: apache_project) }
+
     before do
-      @repositories = create_list(:repository, 5, project: apache_project)
       get :autocomplete_repositories, params: { project: apache_project }
-      @json_response = response.parsed_body
     end
 
-    it { expect(@json_response).to match_array(@repositories.map(&:name)) }
+    it { expect(json_response).to match_array(repositories.map(&:name)) }
   end
 
   describe 'GET #users' do

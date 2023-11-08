@@ -207,14 +207,15 @@ RSpec.describe Webui::PatchinfoController, :vcr do
     end
 
     context "when the patchinfo's xml is valid" do
+      let(:patchinfo) { Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed }
+
       before do
         post :create, params: { project: user.home_project } # this creates the patchinfo without summary and description
         do_proper_post_save
-        @patchinfo = Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed
       end
 
-      it { expect(@patchinfo['summary']).to eq('long enough summary is ok') }
-      it { expect(@patchinfo['description']).to eq('long enough description is also ok' * 5) }
+      it { expect(patchinfo['summary']).to eq('long enough summary is ok') }
+      it { expect(patchinfo['description']).to eq('long enough description is also ok' * 5) }
       it { expect(flash[:success]).to eq("Successfully edited #{patchinfo_package.name}") }
       it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
     end
