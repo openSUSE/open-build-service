@@ -25,12 +25,15 @@ class Webui::GroupsController < Webui::WebuiController
     group = Group.new(title: group_params[:title])
     authorize group, :create?
 
-    if group.save && group.replace_members(group_params[:members])
-      flash[:success] = "Group '#{group}' successfully created."
-      redirect_to controller: :groups, action: :index
-    else
-      redirect_back(fallback_location: root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
+    group.transaction do
+      group.save!
+      raise ActiveRecord::RecordInvalid unless group.replace_members(group_params[:members])
     end
+
+    flash[:success] = "Group '#{group}' successfully created."
+    redirect_to controller: :groups, action: :index
+  rescue ActiveRecord::RecordInvalid
+    redirect_back(fallback_location: root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
   end
 
   def autocomplete
