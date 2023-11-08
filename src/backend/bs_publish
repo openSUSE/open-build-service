@@ -637,6 +637,13 @@ sub createrepo_rpmmd {
       last;
     }
   }
+  # createrepo_c 1.0.0 changed the default to zstd. In order to preserve
+  # compatibility with SLE12 and SLE15 GA we need to set gz
+  if ($options{'compression-zstd'}) {
+    push @legacyargs, '--compress-type=zst';
+  } else {
+    push @legacyargs, '--compress-type=gz';
+  }
   my @updateargs;
   # createrepo 0.9.9 defaults to creating the sqlite database.
   # We do disable it since it is time and space consuming.
