@@ -80,7 +80,7 @@ http_interactions:
   recorded_at: Mon, 06 Nov 2023 09:41:55 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existant_repository
+    uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existent_repository
     body:
       encoding: UTF-8
       string: ''

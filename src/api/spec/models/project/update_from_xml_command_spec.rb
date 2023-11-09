@@ -72,13 +72,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
           <<-EOF
             <project name="#{project.name}">
               <repository name="repo_1">
-                <releasetarget project="#{target_project.name}" repository="nonexistant_repo" trigger="manual" />
+                <releasetarget project="#{target_project.name}" repository="nonexistent_repo" trigger="manual" />
               </repository>
             </project>
           EOF
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
-          Project::SaveError, "Unknown target repository 'target_project/nonexistant_repo'"
+          Project::SaveError, "Unknown target repository 'target_project/nonexistent_repo'"
         )
       end
 
@@ -297,18 +297,18 @@ RSpec.describe Project::UpdateFromXmlCommand do
           )
         end
 
-        it 'raises an error for non existant repository links' do
+        it 'raises an error for non existent repository links' do
           xml_hash = Xmlhash.parse(
             <<-EOF
               <project name="#{project.name}">
                 <repository name="repo_1">
-                  <path project="other_project" repository="nonexistant" />
+                  <path project="other_project" repository="nonexistent" />
                 </repository>
               </project>
             EOF
           )
           expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
-            Project::SaveError, "Cannot find repository 'other_project/nonexistant'"
+            Project::SaveError, "Cannot find repository 'other_project/nonexistent'"
           )
         end
       end

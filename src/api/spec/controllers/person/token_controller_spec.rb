@@ -30,7 +30,7 @@ RSpec.describe Person::TokenController, vcr: false do
     context 'called for a user that does not exist' do
       before do
         login user
-        get :index, params: { login: 'non-existant-user' }, format: :xml
+        get :index, params: { login: 'non-existent-user' }, format: :xml
       end
 
       it { expect(response).not_to render_template(:index) }

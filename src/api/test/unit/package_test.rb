@@ -132,7 +132,7 @@ class PackageTest < ActiveSupport::TestCase
                                  "<package name='TestPack' project='home:Iggy'>
                                    <title>My Test package</title>
                                    <description></description>
-                                   <devel project='Notexistant'/>
+                                   <devel project='Notexistent'/>
                                  </package>"
                                ))
     end

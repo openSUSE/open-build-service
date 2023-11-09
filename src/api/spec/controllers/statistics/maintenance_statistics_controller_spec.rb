@@ -70,7 +70,7 @@ RSpec.describe Statistics::MaintenanceStatisticsController do
       before do
         login(user)
 
-        get :index, params: { format: :xml, project: 'NonExistantProject' }
+        get :index, params: { format: :xml, project: 'NonExistentProject' }
       end
 
       it { expect(response).to have_http_status(:not_found) }
