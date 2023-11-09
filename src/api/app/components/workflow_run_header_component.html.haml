@@ -2,7 +2,7 @@
   #{hook_event.humanize} event
 %p
   - if hook_action
-    %span.badge.bg-primary= hook_action.humanize
+    %span.badge.text-bg-primary= hook_action.humanize
   %span.badge{ class: status_class }= status.humanize
 %p Repository: #{link_to(repository_name, repository_url)}
 - case hook_event

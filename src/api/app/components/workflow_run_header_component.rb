@@ -10,7 +10,7 @@ class WorkflowRunHeaderComponent < WorkflowRunRowComponent
     when 'fail'
       'bg-danger'
     when 'success'
-      'bg-primary'
+      'text-bg-primary'
     else
       'bg-warning'
     end

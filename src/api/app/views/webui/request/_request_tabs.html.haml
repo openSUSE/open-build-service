@@ -20,4 +20,4 @@
         = link_to(request_mentioned_issues_path(bs_request.number, actions_count > 1 ? active_action : nil),
                   class: "nav-link text-nowrap #{active_tab == 'mentioned_issues' ? 'active' : ''}") do
           Mentioned Issues
-          %span.badge.bg-primary.align-text-top= issues.size
+          %span.badge.text-bg-primary.align-text-top= issues.size
