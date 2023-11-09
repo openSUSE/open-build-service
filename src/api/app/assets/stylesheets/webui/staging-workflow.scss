@@ -91,7 +91,7 @@ ul .table-list-group-item {
       }
 
       &.state-review {
-        @extend .bg-secondary;
+        @extend .text-bg-secondary;
       }
 
       &.state-empty {

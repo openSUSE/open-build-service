@@ -209,7 +209,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1')
-        expect(find('span.badge.bg-secondary')).to have_text('review')
+        expect(find('span.badge.text-bg-secondary')).to have_text('review')
         expect(page).to have_text('In state review')
         expect(Review.count).to eq(1)
         logout

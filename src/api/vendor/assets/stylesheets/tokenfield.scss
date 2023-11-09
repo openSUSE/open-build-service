@@ -56,12 +56,11 @@
     display: block;
     max-width: 100%;
     word-wrap: break-word;
-    color: #fff;
     padding: 10px 30px 10px 10px;
     margin: 0 5px 5px 0;
     font-size: inherit;
     @extend .badge;
-    @extend .bg-secondary;
+    @extend .text-bg-secondary;
 
     .tag-remove {
       position: absolute;

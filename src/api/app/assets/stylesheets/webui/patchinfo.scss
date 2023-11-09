@@ -22,7 +22,7 @@
       @extend .align-middle;
     }
     &.badge-category {
-      @extend .bg-secondary;
+      @extend .text-bg-secondary;
 
       &.recommended { @extend .bg-success; }
       &.security { @extend .bg-danger; }
