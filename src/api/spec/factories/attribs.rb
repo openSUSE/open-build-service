@@ -42,6 +42,10 @@ FactoryBot.define do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'OwnerRootProject') }
     end
 
+    factory :enforce_revisions_in_requests_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'EnforceRevisionsInRequests') }
+    end
+
     factory :update_project_attrib do
       transient do
         update_project { nil }
