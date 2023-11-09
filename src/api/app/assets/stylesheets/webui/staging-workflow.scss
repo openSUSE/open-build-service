@@ -62,7 +62,7 @@ ul .table-list-group-item {
 
     span.badge {
       &.state-unacceptable {
-        @extend .bg-dark;
+        @extend .text-bg-dark;
       }
 
       &.state-acceptable {

@@ -10,7 +10,7 @@ module Webui::Projects::CategoryHelper
                  when 'Development'
                    'text-bg-info'
                  else
-                   'bg-dark'
+                   'text-bg-dark'
                  end
     tag.span(category, class: "quality-category badge ms-1 #{badge_type}")
   end

@@ -32,7 +32,7 @@
       &.low { @extend .text-bg-success; }
       &.moderate { @extend .text-bg-warning; }
       &.important { @extend .text-bg-danger; }
-      &.critical { @extend .bg-dark; }
+      &.critical { @extend .text-bg-dark; }
     }
     &.badge-blocked { @extend .text-bg-danger; }
   }
