@@ -79,7 +79,7 @@ ul .table-list-group-item {
       }
 
       &.state-building {
-        @extend .bg-warning;
+        @extend .text-bg-warning;
 
         span {
           @extend .text-dark;

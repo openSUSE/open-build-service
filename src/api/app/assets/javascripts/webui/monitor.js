@@ -115,13 +115,13 @@ function processProgressBar(id, item)
 
     if (delta <= 50) {
       ctrl.addClass("text-bg-success");
-      ctrl.removeClass('bg-warning bg-danger');
+      ctrl.removeClass('text-bg-warning bg-danger');
     } else if (delta >= 50 && delta < 80) {
-      ctrl.addClass("bg-warning");
+      ctrl.addClass("text-bg-warning");
       ctrl.removeClass('text-bg-success bg-danger');
     } else {
       ctrl.addClass("bg-danger");
-      ctrl.removeClass('text-bg-success bg-warning');
+      ctrl.removeClass('text-bg-success text-bg-warning');
     }
   }
   else {

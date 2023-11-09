@@ -6,7 +6,7 @@ module Webui::Projects::CategoryHelper
                  when 'Stable'
                    'text-bg-success'
                  when 'Testing'
-                   'bg-warning'
+                   'text-bg-warning'
                  when 'Development'
                    'bg-info'
                  else

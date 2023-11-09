@@ -30,7 +30,7 @@
     }
     &.badge-rating {
       &.low { @extend .text-bg-success; }
-      &.moderate { @extend .bg-warning; }
+      &.moderate { @extend .text-bg-warning; }
       &.important { @extend .bg-danger; }
       &.critical { @extend .bg-dark; }
     }

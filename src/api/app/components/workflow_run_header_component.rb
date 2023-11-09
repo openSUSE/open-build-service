@@ -12,7 +12,7 @@ class WorkflowRunHeaderComponent < WorkflowRunRowComponent
     when 'success'
       'text-bg-primary'
     else
-      'bg-warning'
+      'text-bg-warning'
     end
   end
 end
