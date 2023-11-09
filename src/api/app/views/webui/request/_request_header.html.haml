@@ -27,7 +27,7 @@
     -# superseded
     - if bs_request.superseded_by.present?
       %li
-        %mark.text-nowrap.text-light{ class: "bg-#{badge_state.decode_state_color}" } Superseded
+        %mark.text-nowrap{ class: "text-bg-#{badge_state.decode_state_color}" } Superseded
         by
         = link_to "##{bs_request.superseded_by}", number: bs_request.superseded_by
     -# superseding statement
