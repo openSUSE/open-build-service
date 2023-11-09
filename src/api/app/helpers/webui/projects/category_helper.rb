@@ -4,7 +4,7 @@ module Webui::Projects::CategoryHelper
 
     badge_type = case category
                  when 'Stable'
-                   'bg-success'
+                   'text-bg-success'
                  when 'Testing'
                    'bg-warning'
                  when 'Development'

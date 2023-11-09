@@ -66,7 +66,7 @@ ul .table-list-group-item {
       }
 
       &.state-acceptable {
-        @extend .bg-success;
+        @extend .text-bg-success;
       }
 
       &.state-accepting {

@@ -87,7 +87,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.bg-success')).to have_text('accepted')
+        expect(find('span.badge.text-bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -123,7 +123,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.bg-success')).to have_text('accepted')
+        expect(find('span.badge.text-bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -155,7 +155,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.bg-success')).to have_text('accepted')
+        expect(find('span.badge.text-bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.bg-success')).to have_text('accepted')
+        expect(find('span.badge.text-bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end

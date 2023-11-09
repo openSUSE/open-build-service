@@ -24,12 +24,12 @@
     &.badge-category {
       @extend .text-bg-secondary;
 
-      &.recommended { @extend .bg-success; }
+      &.recommended { @extend .text-bg-success; }
       &.security { @extend .bg-danger; }
       &.optional { @extend .bg-info; }
     }
     &.badge-rating {
-      &.low { @extend .bg-success; }
+      &.low { @extend .text-bg-success; }
       &.moderate { @extend .bg-warning; }
       &.important { @extend .bg-danger; }
       &.critical { @extend .bg-dark; }
