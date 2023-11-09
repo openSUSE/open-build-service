@@ -26,7 +26,7 @@
 
       &.recommended { @extend .text-bg-success; }
       &.security { @extend .text-bg-danger; }
-      &.optional { @extend .bg-info; }
+      &.optional { @extend .text-bg-info; }
     }
     &.badge-rating {
       &.low { @extend .text-bg-success; }

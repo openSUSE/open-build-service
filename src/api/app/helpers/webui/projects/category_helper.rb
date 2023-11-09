@@ -8,7 +8,7 @@ module Webui::Projects::CategoryHelper
                  when 'Testing'
                    'text-bg-warning'
                  when 'Development'
-                   'bg-info'
+                   'text-bg-info'
                  else
                    'bg-dark'
                  end

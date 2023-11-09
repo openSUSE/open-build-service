@@ -75,7 +75,7 @@ ul .table-list-group-item {
       }
 
       &.state-testing {
-        @extend .bg-info;
+        @extend .text-bg-info;
       }
 
       &.state-building {
