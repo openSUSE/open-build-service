@@ -87,7 +87,7 @@ ul .table-list-group-item {
       }
 
       &.state-failed {
-        @extend .bg-danger;
+        @extend .text-bg-danger;
       }
 
       &.state-review {

@@ -24,7 +24,7 @@ class SCMStatusReport < ApplicationRecord
     if success?
       'text-bg-primary'
     else
-      'bg-danger'
+      'text-bg-danger'
     end
   end
 end

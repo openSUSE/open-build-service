@@ -25,16 +25,16 @@
       @extend .text-bg-secondary;
 
       &.recommended { @extend .text-bg-success; }
-      &.security { @extend .bg-danger; }
+      &.security { @extend .text-bg-danger; }
       &.optional { @extend .bg-info; }
     }
     &.badge-rating {
       &.low { @extend .text-bg-success; }
       &.moderate { @extend .text-bg-warning; }
-      &.important { @extend .bg-danger; }
+      &.important { @extend .text-bg-danger; }
       &.critical { @extend .bg-dark; }
     }
-    &.badge-blocked { @extend .bg-danger; }
+    &.badge-blocked { @extend .text-bg-danger; }
   }
   .binaries {
     @extend .h5;
