@@ -3,17 +3,17 @@
     = link_to('#involved-packages', id: 'involved-packages-tab', class: 'scrollable-tab-link active', role: 'tab', aria: { selected: true,
                controls: 'involved-packages' }, data: { 'bs-toggle': 'tab' }) do
       Involved Packages
-      %span.badge.bg-primary
+      %span.badge.text-bg-primary
         = involved_packages.size
     = link_to('#involved-projects', id: 'involved-projects-tab', class: 'scrollable-tab-link', role: 'tab', aria: { selected: false,
                controls: 'involved-projects' }, data: { 'bs-toggle': 'tab' }) do
       Involved Projects
-      %span.badge.bg-primary
+      %span.badge.text-bg-primary
         = involved_projects.size
     = link_to('#owned', id: 'owned-tab', class: 'scrollable-tab-link', role: 'tab', aria: { selected: false,
               controls: 'owned' }, data: { 'bs-toggle': 'tab' }) do
       Owned Projects/Packages
-      %span.badge.bg-primary
+      %span.badge.text-bg-primary
         = owned.size
 
 - content_for :ready_function do

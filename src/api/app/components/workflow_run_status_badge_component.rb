@@ -10,7 +10,7 @@ class WorkflowRunStatusBadgeComponent < ApplicationComponent
     content_tag(
       :span,
       tag.i(class: "fas fa-#{decode_status_icon} me-1").concat(@status),
-      class: ['badge', "bg-#{decode_status_color}", @css_class]
+      class: ['badge', "text-bg-#{decode_status_color}", @css_class]
     )
   end
 

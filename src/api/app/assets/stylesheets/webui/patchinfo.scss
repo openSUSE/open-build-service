@@ -22,19 +22,19 @@
       @extend .align-middle;
     }
     &.badge-category {
-      @extend .bg-secondary;
+      @extend .text-bg-secondary;
 
-      &.recommended { @extend .bg-success; }
-      &.security { @extend .bg-danger; }
-      &.optional { @extend .bg-info; }
+      &.recommended { @extend .text-bg-success; }
+      &.security { @extend .text-bg-danger; }
+      &.optional { @extend .text-bg-info; }
     }
     &.badge-rating {
-      &.low { @extend .bg-success; }
-      &.moderate { @extend .bg-warning; }
-      &.important { @extend .bg-danger; }
-      &.critical { @extend .bg-dark; }
+      &.low { @extend .text-bg-success; }
+      &.moderate { @extend .text-bg-warning; }
+      &.important { @extend .text-bg-danger; }
+      &.critical { @extend .text-bg-dark; }
     }
-    &.badge-blocked { @extend .bg-danger; }
+    &.badge-blocked { @extend .text-bg-danger; }
   }
   .binaries {
     @extend .h5;

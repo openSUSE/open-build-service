@@ -62,11 +62,11 @@ ul .table-list-group-item {
 
     span.badge {
       &.state-unacceptable {
-        @extend .bg-dark;
+        @extend .text-bg-dark;
       }
 
       &.state-acceptable {
-        @extend .bg-success;
+        @extend .text-bg-success;
       }
 
       &.state-accepting {
@@ -75,11 +75,11 @@ ul .table-list-group-item {
       }
 
       &.state-testing {
-        @extend .bg-info;
+        @extend .text-bg-info;
       }
 
       &.state-building {
-        @extend .bg-warning;
+        @extend .text-bg-warning;
 
         span {
           @extend .text-dark;
@@ -87,11 +87,11 @@ ul .table-list-group-item {
       }
 
       &.state-failed {
-        @extend .bg-danger;
+        @extend .text-bg-danger;
       }
 
       &.state-review {
-        @extend .bg-secondary;
+        @extend .text-bg-secondary;
       }
 
       &.state-empty {
@@ -122,7 +122,7 @@ ul .table-list-group-item {
         }
 
         img {
-          @extend .bg-white;
+          @extend .text-bg-light;
           border-radius: 50%;
           height: 20px;
           width: 20px;

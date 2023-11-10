@@ -23,7 +23,7 @@
             %span.caret
             Projects / Packages
             - if projects_packages_selected.positive?
-              %span.badge.bg-secondary.ms-2= projects_packages_selected
+              %span.badge.text-bg-secondary.ms-2= projects_packages_selected
           .dropdown-menu.keep-open
             - projects_packages.each do |project_or_package|
               - involved_html_id = "involved_#{project_or_package}"
@@ -37,7 +37,7 @@
             %span.caret
             Role
             - if roles_selected.positive?
-              %span.badge.bg-secondary.ms-2= roles_selected
+              %span.badge.text-bg-secondary.ms-2= roles_selected
           .dropdown-menu.keep-open
             - if owner_root_project_exists
               .dropdown-item
@@ -75,10 +75,10 @@
                   - else
                     = link_to(involved_item, project_show_path(involved_item), class: 'pe-2')
                 - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
-                  %span.badge.bg-info Owner
+                  %span.badge.text-bg-info Owner
                 - roles.each do |role|
                   - if involved_item.user_has_role?(displayed_user, role)
-                    %span.badge.bg-info= role.title.capitalize
+                    %span.badge.text-bg-info= role.title.capitalize
             .row.mt-1
               .col
                 #involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }

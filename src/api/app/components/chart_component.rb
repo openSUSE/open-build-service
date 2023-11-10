@@ -87,17 +87,17 @@ class ChartComponent < ApplicationComponent
 
   def status_color(status)
     build_result = Buildresult.new(status)
-    return 'bg-success text-light' if build_result.successful_final_status?
-    return 'bg-danger text-light' if build_result.unsuccessful_final_status?
-    return 'bg-warning text-dark' if build_result.in_progress_status?
+    return 'text-bg-success' if build_result.successful_final_status?
+    return 'text-bg-danger' if build_result.unsuccessful_final_status?
+    return 'text-bg-warning' if build_result.in_progress_status?
 
     'bg-light text-dark border border-1' if build_result.refused_status?
   end
 
   def legend
-    content_tag(:div, 'Published', class: 'bg-success text-light ps-2 pe-2 m-1').concat(
-      content_tag(:div, 'Failed', class: 'bg-danger text-light ps-2 pe-2 m-1').concat(
-        content_tag(:div, 'Building', class: 'bg-warning text-dark ps-2 pe-2 m-1').concat(
+    content_tag(:div, 'Published', class: 'text-bg-success ps-2 pe-2 m-1').concat(
+      content_tag(:div, 'Failed', class: 'text-bg-danger ps-2 pe-2 m-1').concat(
+        content_tag(:div, 'Building', class: 'text-bg-warning ps-2 pe-2 m-1').concat(
           content_tag(:div, 'Excluded', class: 'bg-light text-dark border border-1 ps-2 pe-2 m-1')
         )
       )

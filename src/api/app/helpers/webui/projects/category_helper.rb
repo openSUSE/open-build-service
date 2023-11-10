@@ -4,13 +4,13 @@ module Webui::Projects::CategoryHelper
 
     badge_type = case category
                  when 'Stable'
-                   'bg-success'
+                   'text-bg-success'
                  when 'Testing'
-                   'bg-warning'
+                   'text-bg-warning'
                  when 'Development'
-                   'bg-info'
+                   'text-bg-info'
                  else
-                   'bg-dark'
+                   'text-bg-dark'
                  end
     tag.span(category, class: "quality-category badge ms-1 #{badge_type}")
   end

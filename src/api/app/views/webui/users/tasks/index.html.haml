@@ -6,7 +6,7 @@
       - cache "#{User.session!.cache_key_with_version}-reviews-in" do
         %a.nav-link.text-nowrap.active{ href: '#reviews-in', title: "Requests that #{User.session!} has to review" }
           Incoming Reviews
-          %span.badge.bg-primary
+          %span.badge.text-bg-primary
             = User.session!.involved_reviews.count
 
   .card-body
@@ -21,25 +21,25 @@
         %a.nav-link.text-nowrap#requests-in-tab{ href: '#requests-in', title: "Requests that #{User.session!} has to merge",
          'data-bs-toggle': 'tab', 'aria-controls': 'requests-in-tab', 'aria-selected': 'false', role: 'tab' }
           Incoming Requests
-          %span.badge.bg-primary
+          %span.badge.text-bg-primary
             = User.session!.incoming_requests.count
     %li.nav-item
       %a.nav-link.text-nowrap#requests-out-tab{ href: '#requests-out', title: "Requests that #{User.session!} has sent",
         'data-bs-toggle': 'tab', 'aria-controls': 'requests-out-tab', 'aria-selected': 'false', role: 'tab' }
         Outgoing Requests
-        %span.badge.bg-primary
+        %span.badge.text-bg-primary
           = User.session!.outgoing_requests.count
     %li.nav-item
       %a.nav-link.text-nowrap#requests-declined-tab{ href: '#requests-declined', title: "Requests from #{User.session!} that are declined",
         'data-bs-toggle': 'tab', 'aria-controls': 'requests-declined-tab', 'aria-selected': 'false', role: 'tab' }
         Declined Requests
-        %span.badge.bg-primary
+        %span.badge.text-bg-primary
           = User.session!.declined_requests.count
     %li.nav-item
       %a.nav-link.text-nowrap#all-requests-tab{ href: '#all-requests', title: "All Requests from #{User.session!}",
         'data-bs-toggle': 'tab', 'aria-controls': 'all-requests-tab', 'aria-selected': 'false', role: 'tab' }
         All Requests
-        %span.badge.bg-primary
+        %span.badge.text-bg-primary
           = User.session!.requests.count
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
@@ -66,7 +66,7 @@
       %li.nav-item
         %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.session!} has to merge" }
           Maintenance Requests
-          %span.badge.bg-primary
+          %span.badge.text-bg-primary
             = number_of_involved_patchinfos
     .card-body
       .tab-content#patchinfos-in

@@ -3,7 +3,7 @@
 .col.text-start
   = link_to "#{hook_event.humanize} event", token_workflow_run_path(workflow_run.token, workflow_run)
   - if hook_action
-    %span.ms-2.badge.bg-primary= hook_action.humanize
+    %span.ms-2.badge.text-bg-primary= hook_action.humanize
 .col.text-start
   = link_to_if repository_url, repository_name, repository_url
   - if event_source_name
