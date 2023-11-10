@@ -213,6 +213,10 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
+    importmap-rails (1.2.3)
+      actionpack (>= 6.0.0)
+      activesupport (>= 6.0.0)
+      railties (>= 6.0.0)
     influxdb (0.8.1)
     influxdb-rails (1.0.3)
       influxdb (~> 0.6, >= 0.6.4)
@@ -562,6 +566,7 @@ DEPENDENCIES
   haml
   haml-rails
   haml_lint
+  importmap-rails (~> 1.2)
   influxdb-rails
   jquery-datatables
   jquery-rails
