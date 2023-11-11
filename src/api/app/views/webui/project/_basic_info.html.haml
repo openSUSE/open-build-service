@@ -1,17 +1,18 @@
-.basic-info.in-place-editing
-  - if project.categories.any?
-    - project.categories.each do |category|
-      = category_badge(category)
-  - if project.url.present?
-    = link_to(project.url, project.url, class: 'mb-3 d-block')
-  #description-text
-    - if project.description.blank?
-      %i No description set
-    - else
-      = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }
+= turbo_frame_tag("basic-info-project_#{project.id}") do
+  .basic-info.in-place-editing
+    - if project.categories.any?
+      - project.categories.each do |category|
+        = category_badge(category)
+    - if project.url.present?
+      = link_to(project.url, project.url, class: 'mb-3 d-block')
+    #description-text
+      - if project.description.blank?
+        %i No description set
+      - else
+        = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }
 
-  - if policy(project).update?
-    .pt-4
-      = link_to(edit_project_path(project), class: 'ps-0', remote: true, title: 'Edit') do
-        %i.fas.fa-edit.text-secondary
-        %span.nav-item-name Edit
+    - if policy(project).update?
+      .pt-4
+        = link_to(edit_project_path(project), class: 'ps-0', title: 'Edit') do
+          %i.fas.fa-edit.text-secondary
+          %span.nav-item-name Edit
