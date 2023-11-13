@@ -74,7 +74,7 @@ module Webui
         end
         redirect_to action: :edit
       rescue ActiveRecord::RecordInvalid, Timeout::Error
-        @package_groups = @image.package_groups.select(&:kiwi_type_image?).first
+        @package_groups = @image.package_groups.find(&:kiwi_type_image?)
         flash.now[:error] = @image.nested_error_messages.merge(title: 'Cannot update KIWI Image:')
         render action: :edit
       end

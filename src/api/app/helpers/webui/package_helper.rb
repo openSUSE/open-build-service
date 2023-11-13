@@ -63,12 +63,12 @@ module Webui::PackageHelper
   end
 
   def humanize_time(seconds)
-    [[60, :s], [60, :m], [24, :h], [0, :d]].map do |count, name|
+    [[60, :s], [60, :m], [24, :h], [0, :d]].filter_map do |count, name|
       if seconds.positive?
         seconds, n = seconds.divmod(count.positive? ? count : seconds + 1)
         "#{n.to_i}#{name}"
       end
-    end.compact.reverse.join(' ')
+    end.reverse.join(' ')
   end
 
   def expand_diff?(filename, state)

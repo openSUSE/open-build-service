@@ -32,7 +32,7 @@ module Staging
     end
 
     def staging_projects
-      Xmlhash.parse(@request_body).elements('staging_project').collect do |name|
+      Xmlhash.parse(@request_body).elements('staging_project').filter_map do |name|
         project = Project.find_or_initialize_by(name: name)
         project_validator = StagingProjectValidator.new(project).call
 
@@ -43,7 +43,7 @@ module Staging
 
         project.staging_workflow_id = @staging_workflow.id
         project
-      end.compact
+      end
     end
   end
 end

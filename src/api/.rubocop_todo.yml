@@ -591,33 +591,6 @@ Performance/CollectionLiteralInLoop:
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/Detect:
-  Exclude:
-    - 'app/controllers/public_controller.rb'
-    - 'app/controllers/webui/kiwi/images_controller.rb'
-
-# Offense count: 7
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/MapCompact:
-  Exclude:
-    - 'app/controllers/trigger_workflow_controller.rb'
-    - 'app/helpers/webui/package_helper.rb'
-    - 'app/models/event/request.rb'
-    - 'app/models/package.rb'
-    - 'app/services/staging/staging_project_creator.rb'
-    - 'app/services/user_service/involved.rb'
-
-# Offense count: 20
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/StringInclude:
-  Exclude:
-    - 'app/lib/backend/test.rb'
-    - 'app/models/updateinfo_counter.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/functional/zzz_post_consistency_test.rb'
-
 # Offense count: 57
 RSpec/AnyInstance:
   Exclude:
