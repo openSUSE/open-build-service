@@ -59,10 +59,12 @@ class MemoryDebugger
     file.close
     File.delete(file.path)
 
+    array_varmap_hash = ['varmap', 'hash']
+    array_n1_n2_n3_block_scope_shared = ['n1', 'n2', 'n3', 'block', 'scope', 'shared']
     ids.each do |_, d|
       type = d.line['type'] || ''
       if d.line['data']
-        if ['varmap', 'hash'].include?(type)
+        if array_varmap_hash.include?(type)
           d.line['data'].each do |key, value|
             d.add(ids[key])
             d.add(ids[value])
@@ -92,7 +94,7 @@ class MemoryDebugger
           d.add(ids[value])
         end
       end
-      ['n1', 'n2', 'n3', 'block', 'scope', 'shared'].each do |key|
+      array_n1_n2_n3_block_scope_shared.each do |key|
         d.add(ids[d.line[key]]) if d.line.key?(key)
       end
     end

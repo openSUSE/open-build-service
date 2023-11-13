@@ -72,6 +72,16 @@ namespace :db do
       File.open("#{Rails.root}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
         hash = {}
+
+        project_prefixes = ['db_project', 'project', 'develproject', 'maintenance_project']
+        package_prefixes = ['package', 'develpackage', 'links_to']
+        projects_or_architectures = ['projects', 'architectures']
+        various_table_names = ['event_subscriptions', 'package_kinds', 'package_issues',
+                               'linked_db_projects', 'relationships', 'watched_items', 'path_elements',
+                               'groups_users', 'flags', 'taggings', 'bs_request_histories',
+                               'bs_request_actions', 'project_log_entries']
+        static_permissions_or_packages = ['static_permissions', 'packages']
+
         data.each do |record|
           record = force_hash(record)
           id = i.succ!
@@ -105,14 +115,14 @@ namespace :db do
             perm = StaticPermission.find(record.delete('static_permission_id'))
             record['static_permission'] = perm.title
           end
-          ['db_project', 'project', 'develproject', 'maintenance_project'].each do |prefix|
+          project_prefixes.each do |prefix|
             next unless record.key?(prefix + '_id')
 
             p = Project.find(record.delete(prefix + '_id'))
             prefix = 'project' if prefix == 'db_project'
             record[prefix] = p.name.tr(':', '_')
           end
-          ['package', 'develpackage', 'links_to'].each do |prefix|
+          package_prefixes.each do |prefix|
             if record.key?(prefix + '_id')
               p = Package.find(record.delete(prefix + '_id'))
               record[prefix] = p.fixtures_name
@@ -141,16 +151,13 @@ namespace :db do
 
           defaultkey = "#{record['user']}_#{record['role']}" if table_name == 'roles_users'
           defaultkey = "#{record['role']}_#{record['static_permission']}" if table_name == 'roles_static_permissions'
-          if ['projects', 'architectures'].include?(table_name)
+          if projects_or_architectures.include?(table_name)
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
-          key = classname.find(record.delete(primary)).fixtures_name if ['static_permissions', 'packages'].include?(table_name)
+          key = classname.find(record.delete(primary)).fixtures_name if static_permissions_or_packages.include?(table_name)
           defaultkey = record['package'] if table_name == 'backend_packages'
-          if ['event_subscriptions', 'package_kinds', 'package_issues',
-              'linked_db_projects', 'relationships', 'watched_items', 'path_elements',
-              'groups_users', 'flags', 'taggings', 'bs_request_histories',
-              'bs_request_actions', 'project_log_entries'].include?(table_name)
+          if various_table_names.include?(table_name)
 
             record.delete(primary)
             t = record.to_a.sort
