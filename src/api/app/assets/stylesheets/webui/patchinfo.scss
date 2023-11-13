@@ -18,7 +18,6 @@
   .badge {
     &.badge-rating, &.badge-category, &.badge-blocked {
       font-size: 50%;
-      color: $white;
       @extend .align-middle;
     }
     &.badge-category {
