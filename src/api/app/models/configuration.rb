@@ -62,8 +62,7 @@ class Configuration < ApplicationRecord
     # Simple singleton implementation: Try to respond with the
     # the data from the first instance
     def method_missing(method_name, *args, &)
-      Configuration.create(name: 'private', title: 'Open Build Service', description: 'Private OBS Instance') unless first
-      if Configuration.instance_methods.include?(method_name)
+      if Configuration.new.methods.include?(method_name)
         first.send(method_name, *args, &)
       else
         super
