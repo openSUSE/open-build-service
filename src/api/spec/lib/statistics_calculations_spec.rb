@@ -11,7 +11,6 @@ RSpec.describe StatisticsCalculations do
     let!(:project_without_package) { travel_to(59.seconds.ago) { create(:project) } }
 
     before do
-      Configuration.update(allow_user_to_create_home_project: false)
       User.session = user
     end
 
