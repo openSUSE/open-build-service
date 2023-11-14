@@ -60,6 +60,9 @@ properties:
   unlisted_projects_filter_description:
     type: string
     example: home projects
+  default_tracker:
+    type: string
+    example: bnc
   code_of_conduct:
     type: string
     example: |
