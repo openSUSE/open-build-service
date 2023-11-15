@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ReportToSCMJob, vcr: false do
+RSpec.describe ReportToSCMJob do
   let(:user) { create(:confirmed_user, login: 'foolano') }
   let(:token) { Token::Workflow.create(executor: user, scm_token: 'fake_token') }
   let(:project) { create(:project, name: 'project_1', maintainer: user) }

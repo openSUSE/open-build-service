@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ConsistencyCheckJobService::BaseConsistencyChecker, vcr: false do
+RSpec.describe ConsistencyCheckJobService::BaseConsistencyChecker do
   let(:base_consistency_checker) { described_class.new }
 
   describe '#dir_to_array' do
