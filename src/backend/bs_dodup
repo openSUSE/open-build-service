@@ -148,9 +148,11 @@ sub uncompress {
     close F;
     $reffile = $probe && $probe eq "\xFD7zXZ" ? '.xz' : '.gz';
   }
-  if ($reffile =~ /\.(gz|xz)$/) {
+  if ($reffile =~ /\.(gz|xz|zst|zstd)$/) {
     local *F;
-    my $decmp = $1 eq 'gz' ? 'gunzip' : 'xzdec';
+    my $decmp = 'xzdec';
+    $decmp = 'gunzip' if $1 eq 'gz';
+    $decmp = 'zstd' if $1 eq 'zst' || $1 eq 'zstd';
     my $nfile = $appendfile ? $appendfile : "$file.$$";
     my $pid;
     if (!($pid = BSUtil::xfork())) {
@@ -159,7 +161,7 @@ sub uncompress {
       die("$decmp: $!\n");
     }
     waitpid($pid, 0) == $pid || die("waitpid: $!\n");
-    die("gunzip: $?\n") if $?;
+    die("$decmp $?\n") if $?;
     if (!$appendfile) {
       rename($nfile, $file) || die("rename $nfile, $file\n");
     }
