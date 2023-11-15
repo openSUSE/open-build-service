@@ -42,7 +42,8 @@ class Configuration < ApplicationRecord
     unlisted_projects_filter: nil,
     unlisted_projects_filter_description: nil,
     tos_url: nil,
-    code_of_conduct: nil
+    code_of_conduct: nil,
+    default_tracker: nil
   }
   # rubocop:enable Style/MutableConstant
 
