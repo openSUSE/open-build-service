@@ -6,6 +6,9 @@
     = text_field_tag(text.parameterize.underscore, '',
                       class: 'form-control form-control-sm mx-2',
                       placeholder: placeholder, value: selected_input_filter)
-    = button_tag(text.parameterize.underscore, type: 'submit', title: 'Filter!',
-                  class: "btn btn-sm px-3 btn-light border") do
-      %i.fas.fa-magnifying-glass
+    = render(ButtonComponent.new( type: 'light',
+                                  css_custom: 'btn-sm px-3 border',
+                                  text: text.parameterize.underscore,
+                                  icon_type: 'magnifying-glass fas',
+                                  html_type: 'submit',
+                                  title: 'Filter!'))
