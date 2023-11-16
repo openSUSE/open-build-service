@@ -1,5 +1,5 @@
 .d-inline-flex.mb-3
-  %i.fas.fa-lg.fa-comment.text-dark{ title: 'Comment' }
+  %i{ title: 'Comment', class: "fas fa-lg fa-comment text-dark #{ level > 1 ? 'd-none' : '' }" }
   = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
 .timeline-item-comment.mb-4
   .comment-bubble
