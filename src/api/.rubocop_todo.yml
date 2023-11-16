@@ -868,7 +868,6 @@ Rails/FilePath:
 # AllowedMethods: order, limit, select, lock
 Rails/FindEach:
   Exclude:
-    - 'app/components/chart_component.rb'
     - 'app/controllers/public_controller.rb'
     - 'app/controllers/webui/projects/status_controller.rb'
     - 'app/helpers/flag_helper.rb'

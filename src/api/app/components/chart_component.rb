@@ -11,7 +11,7 @@ class ChartComponent < ApplicationComponent
     raw_data = []
 
     # take all the build results for all the actions (only actions where it makes sense to have a build status)
-    @actions.where(type: [:submit, :maintenance_incident, :maintenance_release]).each do |action|
+    @actions.where(type: [:submit, :maintenance_incident, :maintenance_release]).find_each do |action|
       src_prj_obj = project_from_action(action)
 
       # skip if project not found
