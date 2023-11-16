@@ -3,7 +3,7 @@ class TriggerWorkflowController < TriggerController
   include ScmWebhookPayloadDataExtractor
 
   # We don't need to validate that the body of the request is XML. We receive JSON
-  skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
+  skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor, :check_token_class
 
   before_action :set_scm_event
   before_action :set_scm_extractor
