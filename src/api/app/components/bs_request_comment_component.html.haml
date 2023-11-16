@@ -25,7 +25,7 @@
                 Delete
       .px-3.py-2.border-bottom
         = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
-        wrote
+        \-
         = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
           = render TimeComponent.new(time: comment.created_at)
         = render CommentHistoryComponent.new(comment)
