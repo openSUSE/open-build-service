@@ -33,7 +33,7 @@ class BsRequestHistoryElementComponent < ApplicationComponent
   end
 
   def css_for_comment
-    element_with_comment_from_human? ? 'comment-bubble comment-bubble-content' : ''
+    element_with_comment_from_human? ? 'border-start border-3 ps-3 ms-4' : ''
   end
 
   def pending_reviews?
