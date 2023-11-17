@@ -69,5 +69,20 @@ FactoryBot.define do
         }.to_json
       end
     end
+    factory :workflow_artifacts_per_step_set_flags do
+      step { 'Workflow::Step::SetFlags' }
+      before(:create) do |workflow_artifacts_per_step, evaluator|
+        workflow_artifacts_per_step.artifacts = {
+          flags: [
+            type: 'build',
+            status: 'enable',
+            project: evaluator.source_project_name,
+            package: evaluator.source_package_name,
+            repository: 'openSUSE_Tumbleweed',
+            architecture: 'x86_64'
+          ]
+        }.to_json
+      end
+    end
   end
 end

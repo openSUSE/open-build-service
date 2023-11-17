@@ -14,7 +14,7 @@ module Workflows
                       target_project: @step.target_project_name,
                       target_package: @step.target_package_name
                     }
-                  when 'Workflow::Step::RebuildPackage', 'Workflow::Step::TriggerServices'
+                  when 'Workflow::Step::RebuildPackage', 'Workflow::Step::TriggerServices', 'Workflow::Step::SetFlags'
                     @step.step_instructions
                   when 'Workflow::Step::ConfigureRepositories'
                     {

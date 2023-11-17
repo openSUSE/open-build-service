@@ -153,9 +153,7 @@ class NodeMatcher # :nodoc:
     end
 
     # test the name
-    if conditions[:tag]
-      return false unless match_condition(node.node_name, conditions[:tag])
-    end
+    return false if conditions[:tag] && !match_condition(node.node_name, conditions[:tag])
 
     # test attributes
     (conditions[:attributes] || {}).each do |key, value|
@@ -168,9 +166,7 @@ class NodeMatcher # :nodoc:
     end
 
     # test parent
-    if conditions[:parent]
-      return false unless match(node.parent, conditions[:parent])
-    end
+    return false if conditions[:parent] && !match(node.parent, conditions[:parent])
 
     # test children
     if conditions[:child]
@@ -183,14 +179,14 @@ class NodeMatcher # :nodoc:
     end
 
     # test ancestors
-    if conditions[:ancestor]
-      return false unless catch(:found) do
-        p = node.parent
-        while p.is_a?(Nokogiri::XML::Element)
-          throw :found, true if match(p, conditions[:ancestor])
-          p = p.parent
-        end
-      end
+    if conditions[:ancestor] && !catch(:found) do
+         p = node.parent
+         while p.is_a?(Nokogiri::XML::Element)
+           throw :found, true if match(p, conditions[:ancestor])
+           p = p.parent
+         end
+       end
+      return false
     end
 
     # test descendants
@@ -219,22 +215,22 @@ class NodeMatcher # :nodoc:
       end
       raise 'homeless child!' unless self_index >= 0
 
-      if conditions[:sibling]
-        return false unless siblings.detect do |s|
-          s != node && match(s, conditions[:sibling])
-        end
+      if conditions[:sibling] && !siblings.detect do |s|
+           s != node && match(s, conditions[:sibling])
+         end
+        return false
       end
 
-      if conditions[:before]
-        return false unless siblings[self_index + 1..-1].detect do |s|
-          s != node && match(s, conditions[:before])
-        end
+      if conditions[:before] && !siblings[self_index + 1..-1].detect do |s|
+           s != node && match(s, conditions[:before])
+         end
+        return false
       end
 
-      if conditions[:after]
-        return false unless siblings[0, self_index].detect do |s|
-          s != node && match(s, conditions[:after])
-        end
+      if conditions[:after] && !siblings[0, self_index].detect do |s|
+           s != node && match(s, conditions[:after])
+         end
+        return false
       end
     end
 

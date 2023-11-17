@@ -7,14 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 # Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: have_no, not_to
-Capybara/NegationMatcher:
-  Exclude:
-    - 'dist/t/spec/spec_helper.rb'
-
-# Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
@@ -85,27 +77,6 @@ RSpec/ExampleLength:
     - 'dist/t/spec/features/0020_interconnect_spec.rb'
     - 'dist/t/spec/features/0030_project_spec.rb'
     - 'dist/t/spec/features/0040_package_spec.rb'
-
-# Offense count: 10
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: CustomTransform, IgnoredWords, DisallowedExamples.
-# DisallowedExamples: works
-RSpec/ExampleWording:
-  Exclude:
-    - 'dist/t/spec/features/0010_authentication_spec.rb'
-    - 'dist/t/spec/features/0020_interconnect_spec.rb'
-    - 'dist/t/spec/features/0030_project_spec.rb'
-    - 'dist/t/spec/features/0040_package_spec.rb'
-
-# Offense count: 3
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, each, example
-RSpec/HookArgument:
-  Exclude:
-    - 'dist/t/spec/features/0010_authentication_spec.rb'
-    - 'dist/t/spec/spec_helper.rb'
-    - 'dist/t/spec/support/capybara.rb'
 
 # Offense count: 3
 # Configuration parameters: Max.

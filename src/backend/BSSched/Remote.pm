@@ -795,4 +795,14 @@ sub convertpackagebinarylist {
   return ($gbininfo, $rpackstatus);
 }
 
+sub setup_authenticator {
+  require BSSigAuth;
+  for my $authrealm (sort keys %{$BSConfig::signature_auth_keyfile || {}}) {
+    next unless $authrealm =~ /^(.*?)\@/;
+    my $keyfile = $BSConfig::signature_auth_keyfile->{$authrealm};
+    require BSSSHSign if ref $keyfile;
+    $BSRPC::authenticator->{$authrealm} = BSSigAuth::generate_authenticator($1, 'verbose' => 1, 'keyfile' => $keyfile);
+  }
+}
+
 1;

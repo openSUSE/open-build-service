@@ -589,9 +589,9 @@ RSpec.describe Webui::PackageController, :vcr do
       login(user)
     end
 
-    context 'when triggering a rebuild fails' do
+    context 'non existent repository' do
       before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existant_repository' }
+        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existent_repository' }
       end
 
       it 'lets the user know there was an error' do
@@ -601,7 +601,7 @@ RSpec.describe Webui::PackageController, :vcr do
       it 'redirects to the package binaries path' do
         expect(response).to redirect_to(project_package_repository_binaries_path(project_name: source_project,
                                                                                  package_name: source_package,
-                                                                                 repository_name: 'non_existant_repository'))
+                                                                                 repository_name: 'non_existent_repository'))
       end
     end
 
@@ -635,7 +635,7 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(flash[:success]).not_to be_nil }
     end
 
-    context 'when triggering a rebuild fails' do
+    context 'user not being a maintainer of a package' do
       let(:user) { create(:confirmed_user, login: 'foo') }
       let(:other_user) { create(:confirmed_user, login: 'bar') }
       let(:project) { create(:project, name: 'foo_project') }

@@ -14,7 +14,7 @@
         %i.fas.fa-tasks.fa-lg.me-2
         %span.nav-item-name Tasks
         - unless tasks.zero?
-          %span.badge.bg-primary.align-text-top= tasks
+          %span.badge.text-bg-primary.align-text-top= tasks
     %li.nav-item
       - if User.session!.home_project
         = link_to(project_show_path(User.session!.home_project), class: 'nav-link', title: 'Your Home Project') do

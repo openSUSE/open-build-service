@@ -426,6 +426,8 @@ if (!-p "$_myeventdir/.ping") {
 sysopen(PING, "$_myeventdir/.ping", POSIX::O_RDWR) || die("$_myeventdir/.ping: $!");
 fcntl(PING, F_SETFL, POSIX::O_NONBLOCK);
 
+# configure rpc authenticator for interconnect
+BSSched::Remote::setup_authenticator();
 
 # create global context
 my $gctx = {

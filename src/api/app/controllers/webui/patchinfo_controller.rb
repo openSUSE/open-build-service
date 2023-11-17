@@ -29,11 +29,9 @@ class Webui::PatchinfoController < Webui::WebuiController
   def create
     authorize @project, :update?, policy_class: ProjectPolicy
 
-    unless @project.exists_package?('patchinfo')
-      unless Patchinfo.new.create_patchinfo(@project.name, nil)
-        flash[:error] = 'Error creating patchinfo'
-        redirect_to(controller: 'project', action: 'show', project: @project) && return
-      end
+    if !@project.exists_package?('patchinfo') && !Patchinfo.new.create_patchinfo(@project.name, nil)
+      flash[:error] = 'Error creating patchinfo'
+      redirect_to(controller: 'project', action: 'show', project: @project) && return
     end
     @package = @project.packages.find_by_name('patchinfo')
     unless @package.patchinfo

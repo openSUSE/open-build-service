@@ -1,5 +1,4 @@
 class BranchPackage::CheckForUpdate
-
   attr_accessor :package_hash
 
   def initialize(package_hash:, update_attribute_namespace:,
@@ -78,9 +77,7 @@ class BranchPackage::CheckForUpdate
         if update_pkg_via_devel_project.present?
           # nevertheless, check if update project has a devel project which contains an instance
           package_hash[:package] = update_pkg_via_devel_project
-          unless link_target_project_valid?
-            package_hash[:link_target_project] = update_pkg_via_devel_project.project unless @copy_from_devel
-          end
+          package_hash[:link_target_project] = update_pkg_via_devel_project.project if !link_target_project_valid? && !@copy_from_devel
         end
       else
         # The defined update project can't reach the package instance at all.

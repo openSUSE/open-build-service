@@ -193,11 +193,6 @@ Style/MultilineBlockChain:
   Exclude:
     - 'spec/**/*'
 
-# We decided not to modify old migrations
-Style/MultilineWhenThen:
-  Exclude:
-    - 'db/migrate/20140908125426_convert_request_history.rb'
-
 # We disabled this cop because HAML doesn't work well with ActiveSupport::SafeBuffer and the to_s method of it is always returning the same object class
 Style/RedundantInterpolation:
   Enabled: false
@@ -441,10 +436,6 @@ RSpec/SpecFilePathFormat:
     - 'spec/models/project/image_template_spec.rb'
     - 'spec/models/project/maintenance_incidents_spec.rb'
     - 'spec/models/users/requests_spec.rb'
-
-RSpec/SpecFilePathSuffix:
-  Exclude:
-    - 'spec/controllers/webui/package_controller/binaries.spec'
 
 RSpec/LetSetup:
   Enabled: false

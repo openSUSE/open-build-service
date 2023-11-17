@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class WorkflowArtifactsPerStepComponent < ApplicationComponent
   with_collection_parameter :artifacts_per_step
 
@@ -26,6 +27,8 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
       artifacts_for_configure_repositories(parsed_artifacts)
     when 'Workflow::Step::SubmitRequest'
       artifacts_for_submit_request(parsed_artifacts)
+    when 'Workflow::Step::SetFlags'
+      artifacts_for_set_flag(parsed_artifacts)
     end
   rescue JSON::ParserError, ActionController::UrlGenerationError => e
     Airbrake.notify(e, artifacts_per_step_id: artifacts_per_step.id)
@@ -34,12 +37,53 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
 
   private
 
+  def artifacts_for_set_flag(parsed_artifacts)
+    capture do
+      list_of_flags(parsed_artifacts[:flags])
+    end
+  end
+
+  def list_of_flags(flags)
+    flags.each do |flag|
+      concat(flag_step_sentence(flag))
+    end
+  end
+
+  def flag_step_sentence(flag)
+    path_details = package_or_project_path(flag)
+
+    tag.li do
+      concat('Set flag ')
+      concat(tag.b("#{flag[:type]} "))
+      concat("#{flag[:status]}d")
+      concat(' on ')
+      concat(link_to(path_details[:text], path_details[:path]))
+      concat(" for repository #{flag[:repository]}") if flag[:repository]
+      concat(" and architecture #{flag[:architecture]}") if flag[:architecture]
+      concat('.')
+    end
+  end
+
   def artifacts_for_submit_request(parsed_artifacts)
     capture do
       parsed_artifacts[:request_numbers_and_state].each do |key, request_number|
         request_path = helpers.request_show_path(number: request_number)
         concat(tag.li(link_to("Request #{request_number} -> #{key}", request_path)))
       end
+    end
+  end
+
+  def package_or_project_path(flag)
+    if flag[:package]
+      {
+        path: helpers.repositories_path(project: flag[:project], package: flag[:package]),
+        text: "#{flag[:project]}/#{flag[:package]}"
+      }
+    else
+      {
+        path: helpers.project_repositories_path(project: flag[:project]),
+        text: "#{flag[:project]}"
+      }
     end
   end
 
@@ -100,3 +144,4 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
     repository[:paths].map { |path| "#{path[:target_project]}/#{path[:target_repository]}" }.to_sentence
   end
 end
+# rubocop:enable Metrics/ClassLength

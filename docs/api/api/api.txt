@@ -1049,6 +1049,7 @@ Parameters:
   keep_packages_locked: keep packages locked when revoking a maintenance release request
   incident: Specifiy inicdent number for setincident
   time: Specifiy time for setacceptat
+  revert: Revert an assignreview command to assign review back to group
 
 
 == Attribute definition api

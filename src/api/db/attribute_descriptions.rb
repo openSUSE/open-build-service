@@ -1,7 +1,6 @@
 def update_all_attrib_type_descriptions
   ans = AttribNamespace.find_by_name('OBS')
 
-  # rubocop:disable Layout/LineLength
   d = {
     'VeryImportantProject' => 'Mark this project as very important. For instance for the project list in the web interface.',
     'UpdateProject' => 'Mark this project as frozen, updates are handled via the project defined in the value.',
@@ -18,7 +17,7 @@ def update_all_attrib_type_descriptions
     'InitializeDevelPackage' => 'Accepting a new package via a submit request to this project will set the devel project of the new package to the source of the request.',
     'BranchTarget' => 'Branches from this project will not follow any project links for the target link.',
     'BranchRepositoriesFromProject' => 'Use repository definitions from the specified project when creating a branch.',
-    'BranchSkipRepositories' => 'Skip the listed repositories when branching from this projet.',
+    'BranchSkipRepositories' => 'Skip the listed repositories when branching from this project.',
     'AutoCleanup' => 'The object will recieve a delete request at specified time (YYYY-MM-DD HH:MM:SS) in the value',
     'Issues' => 'Use this attribute to reference issues this object has',
     'QualityCategory' => 'Use this attribute to classify the usability of a project. This gets used by the user package search for instance.',
@@ -32,8 +31,6 @@ def update_all_attrib_type_descriptions
     'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person',
     'SkipChannelBranch' => 'Opt-Out creating channels in maintenance incidents'
   }
-  # rubocop:enable Layout/LineLength
-
   d.keys.each do |k|
     at = ans.attrib_types.where(name: k).first
     next unless at # might be called in older migrations

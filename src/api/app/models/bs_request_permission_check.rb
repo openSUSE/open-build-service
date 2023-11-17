@@ -90,9 +90,7 @@ class BsRequestPermissionCheck
     end
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    if req.state.in?([:accepted, :superseded, :revoked])
-      raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if opts[:newstate].in?(['accepted', 'declined', 'superseded', 'revoked'])
-    end
+    raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if req.state.in?([:accepted, :superseded, :revoked]) && opts[:newstate].in?(['accepted', 'declined', 'superseded', 'revoked'])
 
     raise PostRequestMissingParameter, "Supersed a request requires a 'superseded_by' parameter with the request id." if opts[:newstate] == 'superseded' && !opts[:superseded_by]
 
@@ -193,12 +191,8 @@ class BsRequestPermissionCheck
       check_maintenance_release_accept(action)
     end
 
-    if action.action_type.in?([:delete, :add_role, :set_bugowner])
-      # target must exist
-      if action.target_package
-        raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist." unless @target_package
-      end
-    end
+    # target must exist
+    raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist." if action.action_type.in?([:delete, :add_role, :set_bugowner]) && action.target_package && !@target_package
 
     check_delete_accept(action, opts) if action.action_type == :delete
 
@@ -215,9 +209,7 @@ class BsRequestPermissionCheck
   def check_action_target(action)
     return unless action.action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
 
-    if action.action_type == :change_devel && !action.target_package
-      raise PostRequestNoPermission, "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})"
-    end
+    raise PostRequestNoPermission, "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})" if action.action_type == :change_devel && !action.target_package
 
     # full read access checks
     @target_project = Project.get_by_name(action.target_project)
@@ -272,9 +264,7 @@ class BsRequestPermissionCheck
     @source_project.repositories.each do |repo|
       repo.release_targets.each do |releasetarget|
         next unless releasetarget.trigger == 'maintenance'
-        unless User.session!.can_modify?(releasetarget.target_repository.project)
-          raise ReleaseTargetNoPermission, "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
-        end
+        raise ReleaseTargetNoPermission, "Release target project #{releasetarget.target_repository.project.name} is not writable by you" unless User.session!.can_modify?(releasetarget.target_repository.project)
       end
     end
   end

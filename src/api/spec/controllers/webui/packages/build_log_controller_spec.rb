@@ -81,18 +81,18 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
 
-    context 'with a non existant package' do
+    context 'with a non existent package' do
       before do
-        do_request project: source_project, package: 'nonexistant', repository: repo_leap_42_2.name, arch: 'i586'
+        do_request project: source_project, package: 'nonexistent', repository: repo_leap_42_2.name, arch: 'i586'
       end
 
-      it { expect(flash[:error]).to eq("Couldn't find package 'nonexistant' in project '#{source_project}'. Are you sure it exists?") }
+      it { expect(flash[:error]).to eq("Couldn't find package 'nonexistent' in project '#{source_project}'. Are you sure it exists?") }
       it { expect(response).to redirect_to(project_show_path(project: source_project)) }
     end
 
-    context 'with a non existant project' do
+    context 'with a non existent project' do
       before do
-        do_request project: 'home:foo', package: 'nonexistant', repository: repo_leap_42_2.name, arch: 'i586'
+        do_request project: 'home:foo', package: 'nonexistent', repository: repo_leap_42_2.name, arch: 'i586'
       end
 
       it { expect(flash[:error]).to eq("Couldn't find project 'home:foo'. Are you sure it still exists?") }
@@ -107,7 +107,7 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
 
     it_behaves_like 'build log'
 
-    context 'with a nonexistant repository' do
+    context 'with a nonexistent repository' do
       before do
         do_request project: source_project, package: source_package, repository: 'nonrepository', arch: 'i586'
       end
@@ -116,7 +116,7 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
       it { expect(response).to redirect_to(package_show_path(source_project, source_package)) }
     end
 
-    context 'with a nonexistant architecture' do
+    context 'with a nonexistent architecture' do
       before do
         do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i566'
       end
@@ -175,7 +175,7 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
 
     it_behaves_like 'build log'
 
-    context 'with a nonexistant repository' do
+    context 'with a nonexistent repository' do
       before do
         do_request project: source_project, package: source_package, repository: 'nonrepository', arch: 'i586'
       end
@@ -184,7 +184,7 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
       it { expect(response).to have_http_status(:ok) }
     end
 
-    context 'with a nonexistant architecture' do
+    context 'with a nonexistent architecture' do
       before do
         do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i566'
       end

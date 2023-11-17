@@ -71,11 +71,11 @@ RSpec.describe Webui::Requests::DevelProjectChangesController do
                                               bs_request_actions_attributes: { '0': { target_project: project.name,
                                                                                       target_package: package.name,
                                                                                       source_project: new_devel_project.name,
-                                                                                      source_package: 'non-existant',
+                                                                                      source_package: 'non-existent',
                                                                                       type: 'change_devel' } } } }
       end
 
-      it { expect(flash[:error]).to eq("Package not found: #{new_devel_project}/non-existant") }
+      it { expect(flash[:error]).to eq("Package not found: #{new_devel_project}/non-existent") }
       it { expect(response).to redirect_to(package_show_path(project: project, package: package)) }
       it { expect(bs_request).to be_nil }
     end

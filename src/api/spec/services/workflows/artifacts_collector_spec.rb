@@ -368,5 +368,40 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
         expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::ConfigureRepositories')
       end
     end
+
+    context 'for set_flag step' do
+      let(:step) { Workflow::Step::SetFlags.new(step_instructions: step_instructions, scm_webhook: scm_webhook, token: token) }
+      let(:step_instructions) do
+        {
+          flags: [
+            { type: 'build', status: 'enable', project: 'home:Admin' }
+          ]
+        }
+      end
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'pull_request',
+                         pr_number: 1,
+                         target_branch: 'master',
+                         action: 'opened',
+                         source_repository_full_name: 'iggy/hello_world',
+                         target_repository_full_name: 'iggy/hello_world'
+                       })
+      end
+      let(:artifacts) do
+        {
+          flags: step_instructions[:flags]
+        }
+      end
+
+      it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(1) }
+
+      it do
+        subject.call
+        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+        expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::SetFlags')
+      end
+    end
   end
 end

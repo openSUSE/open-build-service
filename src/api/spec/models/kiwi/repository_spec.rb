@@ -31,8 +31,8 @@ RSpec.describe Kiwi::Repository do
         expect(subject).to allow_value('obsrepositories:/').for(:source_path)
       end
 
-      ['dir', 'iso', 'smb', 'this'].each do |protocol|
-        it 'valid' do
+      it 'validates "dir", "iso", "smb", and "this" protocols' do
+        ['dir', 'iso', 'smb', 'this'].each do |protocol|
           property_of do
             protocol + '://' + sized(range(1, 199)) { string(/./) }
           end.check(3) do |string|
@@ -41,8 +41,8 @@ RSpec.describe Kiwi::Repository do
         end
       end
 
-      ['ftp', 'http', 'https', 'plain'].each do |protocol|
-        it 'valid' do
+      it 'validates "ftp", "http", "https" and "plain" protocols' do
+        ['ftp', 'http', 'https', 'plain'].each do |protocol|
           property_of do
             # TODO: improve regular expression to generate the URI
             protocol + '://' + sized(range(1, 199)) { string(/\w/) }

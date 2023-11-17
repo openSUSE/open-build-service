@@ -270,9 +270,8 @@ class Package < ApplicationRecord
   end
 
   def check_source_access?
-    if disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)
-      return false unless User.possibly_nobody.can_source_access?(self)
-    end
+    return false if (disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)) && !User.possibly_nobody.can_source_access?(self)
+
     true
   end
 
@@ -307,9 +306,9 @@ class Package < ApplicationRecord
   end
 
   def changes_files
-    dir_hash.elements('entry').collect do |e|
-      e['name'] if e['name'] =~ /.changes$/
-    end.compact
+    dir_hash.elements('entry').filter_map do |e|
+      e['name'] if /.changes$/.match?(e['name'])
+    end
   end
 
   def commit_message_from_changes_file(target_project, target_package)
@@ -655,7 +654,7 @@ class Package < ApplicationRecord
       ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
         ret << kind if e['name'] == '_' + kind
       end
-      ret << 'product' if e['name'] =~ /.product$/
+      ret << 'product' if /.product$/.match?(e['name'])
       # further types my be spec, dsc, kiwi in future
     end
     ret.uniq

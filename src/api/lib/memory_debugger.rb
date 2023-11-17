@@ -59,10 +59,12 @@ class MemoryDebugger
     file.close
     File.delete(file.path)
 
+    array_varmap_hash = ['varmap', 'hash']
+    array_n1_n2_n3_block_scope_shared = ['n1', 'n2', 'n3', 'block', 'scope', 'shared']
     ids.each do |_, d|
       type = d.line['type'] || ''
       if d.line['data']
-        if ['varmap', 'hash'].include?(type)
+        if array_varmap_hash.include?(type)
           d.line['data'].each do |key, value|
             d.add(ids[key])
             d.add(ids[value])
@@ -74,31 +76,25 @@ class MemoryDebugger
           end
         end
       end
-      if type == 'scope'
-        if d.line['variables']
-          d.line['variables'].each do |key, value|
-            d.add(ids[key])
-            d.add(ids[value])
-          end
+      if type == 'scope' && d.line['variables']
+        d.line['variables'].each do |key, value|
+          d.add(ids[key])
+          d.add(ids[value])
         end
       end
-      if type == 'class'
-        if d.line['methods']
-          d.line['methods'].each do |key, value|
-            d.add(ids[key])
-            d.add(ids[value])
-          end
+      if type == 'class' && d.line['methods']
+        d.line['methods'].each do |key, value|
+          d.add(ids[key])
+          d.add(ids[value])
         end
       end
-      if type == 'object'
-        if d.line['ivars']
-          d.line['ivars'].each do |key, value|
-            d.add(ids[key])
-            d.add(ids[value])
-          end
+      if type == 'object' && d.line['ivars']
+        d.line['ivars'].each do |key, value|
+          d.add(ids[key])
+          d.add(ids[value])
         end
       end
-      ['n1', 'n2', 'n3', 'block', 'scope', 'shared'].each do |key|
+      array_n1_n2_n3_block_scope_shared.each do |key|
         d.add(ids[d.line[key]]) if d.line.key?(key)
       end
     end

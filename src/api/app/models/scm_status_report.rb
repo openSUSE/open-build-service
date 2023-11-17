@@ -22,9 +22,9 @@ class SCMStatusReport < ApplicationRecord
 
   def status_class
     if success?
-      'bg-primary'
+      'text-bg-primary'
     else
-      'bg-danger'
+      'text-bg-danger'
     end
   end
 end

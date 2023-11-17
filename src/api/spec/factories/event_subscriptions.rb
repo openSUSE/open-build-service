@@ -118,5 +118,13 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_workflow_run_fail do
+      eventtype { 'Event::WorkflowRunFail' }
+      receiver_role { 'token_executor' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end

@@ -113,10 +113,10 @@ class Project < ApplicationRecord
     def valid_name?(name)
       return false unless name.is_a?(String)
       return false if name == '0'
-      return false if name =~ /:[:._]/
-      return false if name =~ /\A[:._]/
+      return false if /:[:._]/.match?(name)
+      return false if /\A[:._]/.match?(name)
       return false if name.end_with?(':')
-      return true  if name =~ /\A[-+\w.:]{1,200}\z/
+      return true  if /\A[-+\w.:]{1,200}\z/.match?(name)
 
       false
     end
@@ -356,9 +356,7 @@ class Project < ApplicationRecord
             begin
               target_project = Project.get_by_name(target_project_name)
               # user can access tprj, but backend would refuse to take binaries from there
-              if target_project.instance_of?(Project) && target_project.disabled_for?('access', nil, nil)
-                return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
-              end
+              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) && target_project.disabled_for?('access', nil, nil)
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
             end
@@ -410,9 +408,9 @@ class Project < ApplicationRecord
 
           # try to remove the repository
           # but never remove the special repository named "deleted"
-          unless repo == deleted_repository
+          if !(repo == deleted_repository) && !User.possibly_nobody.can_modify?(project)
             # permission check
-            return { error: "No permission to remove a repository in project '#{project.name}'" } unless User.possibly_nobody.can_modify?(project)
+            return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
         end
 
@@ -676,11 +674,11 @@ class Project < ApplicationRecord
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
       if maintenance_release_requests.exists?
         if with_exception
-          raise OpenReleaseRequest, "Unlock of maintenance incident #{name} is not possible," \
-                                    " because there is a running release request: #{maintenance_release_requests.first.id}"
+          raise OpenReleaseRequest, "Unlock of maintenance incident #{name} is not possible, " \
+                                    "because there is a running release request: #{maintenance_release_requests.first.id}"
         else
-          errors.add(:base, "Unlock of maintenance incident #{name} is not possible," \
-                            " because there is a running release request: #{maintenance_release_requests.first.id}")
+          errors.add(:base, "Unlock of maintenance incident #{name} is not possible, " \
+                            "because there is a running release request: #{maintenance_release_requests.first.id}")
         end
       end
     end
@@ -1298,7 +1296,7 @@ class Project < ApplicationRecord
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
     new_configuration = source_file('_config')
-    return if new_configuration =~ /^Type:/
+    return if /^Type:/.match?(new_configuration)
 
     new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
     Backend::Api::Sources::Project.write_configuration(name, new_configuration)

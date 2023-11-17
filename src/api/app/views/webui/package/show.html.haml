@@ -81,7 +81,7 @@
     .card#comments-list
       %h5.card-header.text-word-break-all
         Comments
-        %span.badge.bg-primary{ id: "comment-counter-package-#{@package.id}" }
+        %span.badge.text-bg-primary{ id: "comment-counter-package-#{@package.id}" }
           = @comments.length
       .card-body#comments
         = render partial: 'webui/comment/show', locals: { commentable: @package,

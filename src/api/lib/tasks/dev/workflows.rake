@@ -24,6 +24,8 @@ namespace :dev do
       create(:workflow_run, :succeeded, :tag_push, token: workflow_token)
       create(:workflow_run, :succeeded, token: workflow_token)
       create(:workflow_run, :succeeded, :pull_request_closed, token: workflow_token)
+      create(:workflow_run, :with_url, token: workflow_token)
+      create(:workflow_run, :without_configuration_data, token: workflow_token)
 
       # GitLab
       create(:workflow_run_gitlab, token: workflow_token)
@@ -43,6 +45,7 @@ namespace :dev do
         create(:workflow_artifacts_per_step_link_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
         create(:workflow_artifacts_per_step_rebuild_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
         create(:workflow_artifacts_per_step_config_repositories, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_set_flags, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
       end
     end
 

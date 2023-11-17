@@ -299,8 +299,7 @@ RSpec.describe BsRequestAction do
 
   describe 'check_expand_errors', :vcr do
     let(:project) { user.home_project }
-    let(:attrib_type) { create(:obs_attrib_type, name: 'EnforceRevisionsInRequests') }
-    let(:attrib) { create(:attrib, attrib_type: attrib_type, project: project) }
+    let(:attrib) { create(:enforce_revisions_in_requests_attrib, project: project) }
 
     let(:target_package) do
       create(:package_with_file, name: 'tpackage', file_content: 'Hallo', project: project)

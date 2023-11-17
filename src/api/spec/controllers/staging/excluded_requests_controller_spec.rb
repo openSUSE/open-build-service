@@ -95,7 +95,7 @@ RSpec.describe Staging::ExcludedRequestsController do
       it { expect(response).to have_http_status(:bad_request) }
     end
 
-    context 'fails: non-existant bs_request number, invalid request exclusion' do
+    context 'fails: non-existent bs_request number, invalid request exclusion' do
       before do
         post :create, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                       body: "<excluded_requests><request id='43_543'/></excluded_requests>"

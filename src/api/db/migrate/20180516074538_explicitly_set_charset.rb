@@ -21,8 +21,8 @@ class ExplicitlySetCharset < ActiveRecord::Migration[5.1]
 
     change_column(:flags, :status, "ENUM('enable','disable') CHARACTER SET utf8 NOT NULL")
     change_column(:flags, :repo, 'varchar(255) CHARACTER SET utf8 DEFAULT NULL')
-    change_column(:flags, :flag, "ENUM('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock')" \
-                                 ' CHARACTER SET utf8 NOT NULL')
+    change_column(:flags, :flag, "ENUM('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') " \
+                                 'CHARACTER SET utf8 NOT NULL')
   end
 
   def down

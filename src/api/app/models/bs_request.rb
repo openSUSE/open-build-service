@@ -502,9 +502,7 @@ class BsRequest < ApplicationRecord
     incident_project = nil # .where(type: 'maintenance_incident')
     bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
-      if action.source_project && action.is_maintenance_release?
-        Project::EmbargoHandler.new(source_project).call if source_project.is_a?(Project)
-      end
+      Project::EmbargoHandler.new(source_project).call if action.source_project && action.is_maintenance_release? && source_project.is_a?(Project)
 
       next unless action.is_maintenance_incident?
 
@@ -1080,9 +1078,7 @@ class BsRequest < ApplicationRecord
                         "Delete #{action[:tprj]}"
                       end
 
-      if action[:tpkg] # API / Backend don't support whole project diff currently
-        action[:sourcediff] = xml.webui_infos if with_diff
-      end
+      action[:sourcediff] = xml.webui_infos if action[:tpkg] && with_diff # API / Backend don't support whole project diff currently
     when :add_role
       action[:name] = 'Add Role'
       action[:role] = xml.role

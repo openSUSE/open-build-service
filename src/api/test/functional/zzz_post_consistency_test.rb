@@ -49,13 +49,13 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         next if line.starts_with?('DBPROGRESS:')
 
         # acceptable during test suite run
-        next if line =~ /jobs.dispatchprios missing/
-        next if line =~ /jobs.load missing/
-        next if line =~ /^check finished/
-        next if line =~ /status file without existing job/
+        next if /jobs.dispatchprios missing/.match?(line)
+        next if /jobs.load missing/.match?(line)
+        next if /^check finished/.match?(line)
+        next if line.include?('status file without existing job')
         # broken rpm and broken signature warning. Travis-ci has more errors here
-        next if line =~ /broken rpm/
-        next if line =~ /broken signature/
+        next if line.include?('broken rpm')
+        next if line.include?('broken signature')
 
         # unhandled line, dump a failure
         failed = true

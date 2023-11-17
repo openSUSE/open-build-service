@@ -59,12 +59,8 @@ class SourceProjectPackageMetaController < SourceController
   private
 
   def change_package_protection_level?(pkg)
-    # rubocop: disable Style/GuardClause
     # TODO: use pundit
-    if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
-      raise ChangePackageProtectionLevelError if FlagHelper.xml_disabled_for?(@request_data, 'sourceaccess') && !User.admin_session?
-    end
-    # rubocop: enable Style/GuardClause
+    raise ChangePackageProtectionLevelError if pkg && !pkg.disabled_for?('sourceaccess', nil, nil) && (FlagHelper.xml_disabled_for?(@request_data, 'sourceaccess') && !User.admin_session?)
   end
 
   def require_package_name

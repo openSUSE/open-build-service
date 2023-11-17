@@ -176,9 +176,7 @@ class SourceController < ApplicationController
     # Check for existence/access of origin package when specified
     @spkg = nil
     Project.get_by_name(origin_project_name) if origin_project_name
-    if origin_package_name && !origin_package_name.in?(['_project', '_pattern']) && !(params[:missingok] && @command.in?(['branch', 'release']))
-      @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
-    end
+    @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(['_project', '_pattern']) && !(params[:missingok] && @command.in?(['branch', 'release']))
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       valid_project_name!(params[:project])
       if @command == 'release' # wipe and rebuild should become supported as well
@@ -188,11 +186,11 @@ class SourceController < ApplicationController
       end
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
-      if PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name,
-                                                                                            @target_package_name,
-                                                                                            follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
+      if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name,
+                                                                                             @target_package_name,
+                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) && (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command))
         # is a local project, which is not scm managed. Or using a command not supported for scm projects.
-        validate_target_for_package_command_exists! if @project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command)
+        validate_target_for_package_command_exists!
       end
     end
 
@@ -223,9 +221,7 @@ class SourceController < ApplicationController
       if @package # for remote package case it's nil
         @project = @package.project
         ignore_lock = @command == 'unlock'
-        unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
-          raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}"
-        end
+        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
       end
     end
 
@@ -664,9 +660,7 @@ class SourceController < ApplicationController
                                                                                      (@project.nil? && User.session!.can_create_project?(project_name))
 
     oprj = Project.get_by_name(params[:oproject], include_all_packages: true)
-    if params.key?(:makeolder) || params.key?(:makeoriginolder)
-      raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project" unless User.session!.can_modify?(oprj)
-    end
+    raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project" if (params.key?(:makeolder) || params.key?(:makeoriginolder)) && !User.session!.can_modify?(oprj)
 
     raise RemoteProjectError, 'The copy from remote projects is currently not supported' if oprj.is_a?(String) # remote project
 
@@ -696,10 +690,10 @@ class SourceController < ApplicationController
             @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
           end
           oprj.linking_to.each do |lp|
-            @project.linking_to.create(linked_db_project_id: lp.linked_db_project_id,
-                                       linked_remote_project_name: lp.linked_remote_project_name,
-                                       vrevmode: lp.vrevmode,
-                                       position: lp.position)
+            @project.linking_to.create!(linked_db_project_id: lp.linked_db_project_id,
+                                        linked_remote_project_name: lp.linked_remote_project_name,
+                                        vrevmode: lp.vrevmode,
+                                        position: lp.position)
           end
           oprj.repositories.each do |repo|
             r = @project.repositories.create(name: repo.name,
@@ -862,14 +856,10 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=undelete
   def package_command_undelete
-    if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
-      raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
-    end
+    raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}" if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
 
     tprj = Project.get_by_name(@target_project_name)
-    unless tprj.is_a?(Project) && Pundit.policy(User.session!, Package.new(project: tprj)).create?
-      raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
-    end
+    raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}" unless tprj.is_a?(Project) && Pundit.policy(User.session!, Package.new(project: tprj)).create?
 
     path = request.path_info
     raise CmdExecutionNoPermission, 'Only administrators are allowed to set the time' unless User.admin_session? || params[:time].blank?
@@ -1033,9 +1023,7 @@ class SourceController < ApplicationController
 
     # specified target
     if params[:target_project]
-      if params[:target_repository].blank? || params[:repository].blank?
-        raise MissingParameterError, 'release action with specified target project needs also "repository" and "target_repository" parameter'
-      end
+      raise MissingParameterError, 'release action with specified target project needs also "repository" and "target_repository" parameter' if params[:target_repository].blank? || params[:repository].blank?
 
       # we do not create it ourself
       Project.get_by_name(params[:target_project])

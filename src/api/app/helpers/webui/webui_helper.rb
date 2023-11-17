@@ -9,9 +9,7 @@ module Webui::WebuiHelper
     return '' if @configuration['bugzilla_url'].blank?
 
     assignee = email_list.first if email_list
-    if email_list.length > 1
-      cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
-    end
+    cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list.length > 1 && email_list
 
     Addressable::URI.escape(
       "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
@@ -105,7 +103,7 @@ module Webui::WebuiHelper
   def repository_state_class(outdated, status)
     return 'outdated' if outdated
 
-    status =~ /broken|building|finished|publishing|published/ ? status : 'default'
+    /broken|building|finished|publishing|published/.match?(status) ? status : 'default'
   end
 
   def force_utf8_and_transform_nonprintables(text)
@@ -321,7 +319,7 @@ module Webui::WebuiHelper
   end
 
   def valid_xml_id(rawid)
-    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    rawid = "_#{rawid}" unless /^[A-Za-z_]/.match?(rawid) # xs:ID elements have to start with character or '_'
     CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
   end
 end

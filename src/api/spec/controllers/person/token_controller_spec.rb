@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Person::TokenController, vcr: false do
+RSpec.describe Person::TokenController do
   let(:user) { create(:user_with_service_token, :with_home) }
   let(:other_user) { create(:confirmed_user) }
 
@@ -30,7 +30,7 @@ RSpec.describe Person::TokenController, vcr: false do
     context 'called for a user that does not exist' do
       before do
         login user
-        get :index, params: { login: 'non-existant-user' }, format: :xml
+        get :index, params: { login: 'non-existent-user' }, format: :xml
       end
 
       it { expect(response).not_to render_template(:index) }

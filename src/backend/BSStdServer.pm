@@ -353,6 +353,16 @@ sub critlogger {
   BSUtil::appendstr($conf->{'critlogfile'}, $logstr);
 }
 
+sub setup_authenticator {
+  require BSSigAuth;
+  for my $authrealm (sort keys %{$BSConfig::signature_auth_keyfile || {}}) {
+    next unless $authrealm =~ /^(.*?)\@/;
+    my $keyfile = $BSConfig::signature_auth_keyfile->{$authrealm};
+    require BSSSHSign if ref $keyfile;
+    $BSRPC::authenticator->{$authrealm} = BSSigAuth::generate_authenticator($1, 'verbose' => 1, 'keyfile' => $keyfile);
+  }
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;

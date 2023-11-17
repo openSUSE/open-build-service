@@ -67,7 +67,7 @@ RSpec.describe BsRequest::FindFor::User do
         end
       end
 
-      context 'to a project with a request' do
+      context 'to a package with a request' do
         it_behaves_like 'has a request' do
           let!(:relationship_package_group) { create(:relationship_package_group, package: target_package, group: group) }
         end
@@ -187,7 +187,6 @@ RSpec.describe BsRequest::FindFor::User do
       subject { klass.new(user: user.login).all }
 
       it { expect(subject).to include(review_request) }
-      it { expect(subject).to include(maintainer_request) }
       it { expect(subject).to include(maintainer_request) }
     end
   end

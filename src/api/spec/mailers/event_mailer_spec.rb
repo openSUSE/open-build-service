@@ -428,5 +428,43 @@ RSpec.describe EventMailer, :vcr do
         end
       end
     end
+
+    context 'for an event of type Event::WorkflowRunFail' do
+      let(:token) { create(:workflow_token, executor: receiver) }
+      let(:workflow_run) { create(:workflow_run, token: token) }
+      let!(:subscription) { create(:event_subscription_workflow_run_fail, user: receiver) }
+      let(:mail) { EventMailer.with(subscribers: Event::WorkflowRunFail.last.subscribers, event: Event::WorkflowRunFail.last).notification_email.deliver_now }
+
+      before do
+        login(receiver)
+      end
+
+      context 'when the workflow run fails' do
+        before do
+          workflow_run.update_as_failed('Failed for whatever reason')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'has a subject' do
+          expect(mail.subject).to eq('Workflow run failed on Pull request')
+        end
+
+        it 'has the right subscribers' do
+          expect(mail.to).to eq(Event::WorkflowRunFail.last.subscribers.map(&:email))
+        end
+
+        it 'renders links absolute' do
+          expect(mail.body.encoded).to include('Check the details about this ' \
+                                               "<a href=\"https://build.example.com/my/tokens/#{token.id}/workflow_runs/#{workflow_run.id}\">Workflow Run</a>")
+        end
+
+        it { expect(mail.text_part.body.to_s).to include('A workflow run failed for Pull request #1, opened') }
+        it { expect(mail.html_part.body.to_s).to include('A workflow run failed for Pull request #1, opened') }
+        it { expect(mail.html_part.body.to_s).to include("on repository #{workflow_run.repository_owner}/#{workflow_run.repository_name}") }
+      end
+    end
   end
 end

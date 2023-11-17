@@ -505,7 +505,7 @@ sub getcommitinfo {
   my $cfile;
   $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
   my $bconf = Build::read_config('noarch', $cfile);
-  for my $type ('spec', 'dsc', 'kiwi', 'docker') {
+  for my $type ('spec', 'dsc', 'kiwi', 'docker', 'obsproduct') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my $file = findfile($rev, undef, $type, $files);
     next unless defined $file;
@@ -935,7 +935,7 @@ sub findfile {
     }
   }
 
-  return $files{'_preinstallimage'} if $ext ne 'kiwi' && $ext ne 'docker' && keys(%files) == 1 && $files{'_preinstallimage'};
+  return $files{'_preinstallimage'} if $ext ne 'kiwi' && $ext ne 'obsproduct' && $ext ne 'docker' && keys(%files) == 1 && $files{'_preinstallimage'};
   return $files{'Chart.yaml'} if $ext eq 'helm';
   return $files{'appimage.yml'} if $ext eq 'appimage';
   return $files{'PKGBUILD'} if $ext eq 'arch';
@@ -1918,12 +1918,16 @@ sub getprojpack {
 	      $rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
 	      $rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
 	    }
+	    if ($type eq 'obsproduct') {
+	      $rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
+	      $rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
+	    }
 	    if ($arch eq 'local' && defined($BSConfig::localarch)) {
 	      # the local arch only builds kiwi products (and the special types above)
 	      $rinfo->{'error'} = 'excluded' unless $type eq 'kiwi' && $imagetype eq 'product';
 	    }
-	    if ($type eq 'kiwi' && $imagetype eq 'product') {
-	      # KIWI Products always build on the first repo arch
+	    if ($type eq 'obsproduct' || ($type eq 'kiwi' && $imagetype eq 'product')) {
+	      # Products always build on the first repo arch
 	      $rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ] if $d->{'exclarch'};
 	    } else {
 	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
@@ -4451,6 +4455,7 @@ sub docommand {
   my $param = {
     'uri' => "$reposerver/_command",
     'request' => 'POST',
+    'formurlencode' => 1,
   };
   $res = BSWatcher::rpc($param, undef, @args);
   return $res;
@@ -6676,7 +6681,7 @@ sub sourceinfo {
   my $file;
   if (!$type || $type eq 'UNDEFINED') {
     undef $type;
-    for my $t ('spec', 'dsc', 'kiwi') {
+    for my $t ('spec', 'dsc', 'kiwi', 'obsproduct') {
       $file = findfile($rev, $cgi->{'repository'}, $t, $files);
       next unless defined $file;
       $type = $t;
@@ -7907,4 +7912,5 @@ if (! -e "$projectsdir/_repoid") {
 }
 $datarepoid = readstr("$projectsdir/_repoid");
 
+BSStdServer::setup_authenticator();
 BSStdServer::server('src_server', \@ARGV, $conf, $aconf);

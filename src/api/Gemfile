@@ -182,9 +182,9 @@ group :development, :test do
   # for mocking the backend
   gem 'vcr'
   # as alternative to the standard IRB shell
-  gem 'pry'
+  gem 'pry', require: false
   # add step-by-step debugging and stack navigation capabilities to pry
-  gem 'pry-byebug'
+  gem 'pry-byebug', require: false
   # for style checks
   gem 'rubocop', require: false
   # for rails style checks
@@ -192,9 +192,9 @@ group :development, :test do
   # for rspec style checks
   gem 'rubocop-rspec', require: false
   # for performance checks
-  gem 'rubocop-performance'
+  gem 'rubocop-performance', require: false
   # integrates with RuboCop to analyse HAML files
-  gem 'haml_lint'
+  gem 'haml_lint', require: false
   # to generate random long strings
   gem 'faker'
   # to launch browser in test
@@ -204,9 +204,9 @@ group :development, :test do
   # to find n+1 queries
   gem 'bullet'
   # Use Puma as the app server
-  gem 'puma'
+  gem 'puma', require: false
   # to drive headless chrome
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver', require: false
 end
 
 group :development do

@@ -38,7 +38,7 @@ RSpec.describe PersonController do
 
     context 'called by an admin' do
       before do
-        login user
+        login admin_user
         get :get_userinfo, params: { login: user.login }
       end
 

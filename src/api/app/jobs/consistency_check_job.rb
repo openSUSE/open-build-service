@@ -70,9 +70,7 @@ class ConsistencyCheckJob < ApplicationJob
     project_meta_checker = ConsistencyCheckJobService::ProjectMetaChecker.new(project)
     project_meta_checker.call
 
-    unless project_meta_checker.errors.empty?
-      project.store(login: User.get_default_admin.login, comment: 'out-of-sync fix') if fix
-    end
+    project.store(login: User.get_default_admin.login, comment: 'out-of-sync fix') if !project_meta_checker.errors.empty? && fix
 
     project_meta_checker.errors
   end

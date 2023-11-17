@@ -10,7 +10,7 @@ RSpec.configure do |config|
     FileUtils.rm_rf(SCREENSHOT_DIR)
     FileUtils.mkdir_p(SCREENSHOT_DIR)
   end
-  config.after(:each) do |example|
+  config.after do |example|
     if example.exception
       take_screenshot(example)
       dump_page(example)
@@ -50,5 +50,5 @@ def logout
   within('#top-navigation-area') do
     click_link('Logout')
   end
-  expect(page).to have_no_link('top-navigation-profile-dropdown')
+  expect(page).not_to have_link('top-navigation-profile-dropdown')
 end

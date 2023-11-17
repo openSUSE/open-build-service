@@ -1,4 +1,3 @@
-# rubocop:disable Layout/LineLength
 # rubocop:disable Metrics/ClassLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
@@ -1156,10 +1155,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/home:tom:projectC/_meta', params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectD/_meta', params: "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'> " \
-                                                   " <path project='home:tom:projectA' repository='repoA' />" \
-                                                   " <path project='home:tom:projectB' repository='repoB' />" \
-                                                   " <path project='home:tom:projectC' repository='repoC' />" \
+    put '/source/home:tom:projectD/_meta', params: "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'>  " \
+                                                   "<path project='home:tom:projectA' repository='repoA' /> " \
+                                                   "<path project='home:tom:projectB' repository='repoB' /> " \
+                                                   "<path project='home:tom:projectC' repository='repoC' />" \
                                                    '</repository> </project>'
     assert_response :success
     # delete a repo
@@ -3831,7 +3830,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
 
     post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
-    assert_response :success # actually I consider forbidding repositories not existant
+    assert_response :success # actually I consider forbidding repositories not existent
 
     get '/source/home:Iggy/TestPack/_meta'
     assert_not_equal original, @response.body
@@ -3869,7 +3868,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/no permission to execute command/, @response.body)
 
     post '/source/home:Iggy?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
-    assert_response :success # actually I consider forbidding repositories not existant
+    assert_response :success # actually I consider forbidding repositories not existent
 
     get '/source/home:Iggy/_meta'
     assert_not_equal original, @response.body
@@ -3927,11 +3926,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPack/_meta'
     assert_not_equal original, @response.body
 
-    # non existant repos should not change anything
+    # non existent repos should not change anything
     original = @response.body
 
     post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo'
-    assert_response :success # actually I consider forbidding repositories not existant
+    assert_response :success # actually I consider forbidding repositories not existent
 
     get '/source/home:Iggy/TestPack/_meta'
     assert_equal original, @response.body
@@ -3971,11 +3970,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_not_equal original, @response.body
 
-    # non existant repos should not change anything
+    # non existent repos should not change anything
     original = @response.body
 
     post '/source/home:Iggy?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo'
-    assert_response :success # actually I consider forbidding repositories not existant
+    assert_response :success # actually I consider forbidding repositories not existent
 
     get '/source/home:Iggy/_meta'
     assert_equal original, @response.body
@@ -4268,5 +4267,4 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
-# rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/ClassLength

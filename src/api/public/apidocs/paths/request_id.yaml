@@ -85,6 +85,8 @@ post:
           value: cmd=addreview&by_group=heroes
         assignreview:
           value: cmd=assignreview&by_group=heroes&reviewer=foo
+        "assignreview with revert":
+          value: cmd=assignreview&by_group=heroes&reviewer=foo&revert=1
         changestate:
           value: cmd=changestate&newstate=accepted
         "changestate (superseded)":
@@ -147,6 +149,11 @@ post:
       schema:
         type: string
       description: Specify the incident number for `setincident`
+    - in: query
+      name: revert
+      schema:
+        type: string
+      description: Revert an assignreview command to assign review back to group
     - in: query
       name: time
       schema:

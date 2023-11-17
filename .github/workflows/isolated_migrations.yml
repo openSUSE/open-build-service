@@ -18,13 +18,26 @@ jobs:
 
       - name: Group files that have changed
         id: changed-files-yaml
-        uses: tj-actions/changed-files@v39
+        uses: tj-actions/changed-files@v40
         with:
           files_yaml: |
+            linters:
+              - '.github/workflows/isolated_migrations.yml'
+              - 'src/api/.rubocop*.yml'
             migrations:
-              - src/api/db/**
+              - src/api/db/migrate/**
+              - src/api/db/schema.rb
+              - src/api/db/data/**
+              - src/api/db/data_schema.rb
             not_migrations:
-              - '!src/api/db/**'
+              - '!src/api/db/migrate/**'
+              - '!src/api/db/schema.rb'
+              - '!src/api/db/data/**'
+              - '!src/api/db/data_schema.rb'
+              - '!src/api/db/attribute_descriptions.rb'
+              - '!src/api/db/seeds.rb'
+              - '!.github/workflows/isolated_migrations.yml'
+              - '!src/api/.rubocop*.yml'
             schema_migrations:
               - src/api/db/migrate/**
             data_migrations:
@@ -33,6 +46,13 @@ jobs:
               - src/api/db/schema.rb
             data_schema:
               - src/api/db/data_schema.rb
+
+      - name: List the files related to linters that this PR changes
+        if: steps.changed-files-yaml.outputs.linters_any_changed == 'true'
+        run: |
+          for file in ${{ steps.changed-files-yaml.outputs.linters_all_changed_files }}; do
+            echo "- $file"
+          done
 
       - name: List the files related to migrations that this PR changes
         if: steps.changed-files-yaml.outputs.migrations_any_changed == 'true'
@@ -55,13 +75,13 @@ jobs:
           exit 1
 
       - name: Missing schema changes
-        if: (steps.changed-files-yaml.outputs.schema_migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.schema_any_changed == 'false')
+        if: (steps.changed-files-yaml.outputs.schema_migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.linters_any_changed == 'false') && (steps.changed-files-yaml.outputs.schema_any_changed == 'false')
         run: |
           echo "You introduced some schema migration, please introduce the schema.rb changes as well"
           exit 1
 
       - name: Missing data schema changes
-        if: (steps.changed-files-yaml.outputs.data_schema_migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.data_schema_any_changed == 'false')
+        if: (steps.changed-files-yaml.outputs.data_schema_migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.linters_any_changed == 'false') && (steps.changed-files-yaml.outputs.data_schema_any_changed == 'false')
         run: |
           echo "You introduced some data migrations, please introduce the data_schema.rb changes as well"
           exit 1

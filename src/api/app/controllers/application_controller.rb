@@ -137,14 +137,12 @@ class ApplicationController < ActionController::Base
                 400
               end
 
-    if @status == 401
-      unless response.headers['WWW-Authenticate']
-        response.headers['WWW-Authenticate'] = if CONFIG['kerberos_mode']
-                                                 'Negotiate'
-                                               else
-                                                 'basic realm="API login"'
-                                               end
-      end
+    if @status == 401 && !response.headers['WWW-Authenticate']
+      response.headers['WWW-Authenticate'] = if CONFIG['kerberos_mode']
+                                               'Negotiate'
+                                             else
+                                               'basic realm="API login"'
+                                             end
     end
     if @status == 404
       @summary ||= 'Not found'

@@ -50,16 +50,19 @@ RSpec.describe Webui::MonitorController do
   end
 
   describe 'GET #update_building' do
+    let(:json_response) { response.parsed_body }
+
     before do
       stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: xml_response)
       get :update_building, xhr: true
-      @json_response = response.parsed_body
     end
 
-    it { expect(@json_response).to have_key('simulated') }
+    it { expect(json_response).to have_key('simulated') }
   end
 
   describe 'GET #events' do
+    let(:json_response) { response.parsed_body }
+
     before do
       # x86_64
       create_list(:status_history, 10, source: 'squeue_high')
@@ -70,14 +73,13 @@ RSpec.describe Webui::MonitorController do
       create_list(:status_history, 5, source: 'squeue_high', architecture: 'i586')
       # the factory creates the events 0..8000 hours ago
       get :events, params: { arch: 'x86_64', range: 8100 }, xhr: true
-      @json_response = response.parsed_body
     end
 
-    it { expect(@json_response['events_max']).to be <= 800 }
-    it { expect(@json_response['jobs_max']).to be <= 84_000 }
-    it { expect(@json_response['squeue_high'].length).to eq(10) }
-    it { expect(@json_response['squeue_med'].length).to eq(20) }
-    it { expect(@json_response['building'].length).to eq(30) }
-    it { expect(@json_response['waiting'].length).to eq(10) }
+    it { expect(json_response['events_max']).to be <= 800 }
+    it { expect(json_response['jobs_max']).to be <= 84_000 }
+    it { expect(json_response['squeue_high'].length).to eq(10) }
+    it { expect(json_response['squeue_med'].length).to eq(20) }
+    it { expect(json_response['building'].length).to eq(30) }
+    it { expect(json_response['waiting'].length).to eq(10) }
   end
 end

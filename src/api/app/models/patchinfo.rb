@@ -66,9 +66,8 @@ class Patchinfo
   def is_repository_matching?(repo, rt)
     return false if repo.project.name != rt['project']
 
-    if rt['repository']
-      return false if repo.name != rt['repository']
-    end
+    return false if rt['repository'] && (repo.name != rt['repository'])
+
     true
   end
 

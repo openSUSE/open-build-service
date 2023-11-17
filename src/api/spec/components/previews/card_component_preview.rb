@@ -3,13 +3,13 @@ class CardComponentPreview < ViewComponent::Preview
     render(CardComponent.new) do |component|
       component.with_header do
         tag.a('openSUSE_Factory', href: '#').concat(
-          tag.span('tag-1', class: 'badge bg-primary ms-1')
+          tag.span('tag-1', class: 'badge text-bg-primary ms-1')
         ).concat(
-          tag.span('tag-2', class: 'badge bg-primary ms-1')
+          tag.span('tag-2', class: 'badge text-bg-primary ms-1')
         ).concat(
-          tag.span('tag-3', class: 'badge bg-primary ms-1')
+          tag.span('tag-3', class: 'badge text-bg-primary ms-1')
         ).concat(
-          tag.span('tag-4', class: 'badge bg-primary ms-1')
+          tag.span('tag-4', class: 'badge text-bg-primary ms-1')
         )
       end
       tag.strong('Repository paths:').concat(

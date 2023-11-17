@@ -80,6 +80,7 @@ module Webui
           end
         end
       end
+
       private
 
       # Basically backend stores date in /source (package sources) and /build (package
@@ -106,7 +107,7 @@ module Webui
         rescue Package::UnknownObjectError
           redirect_to project_show_path(@project.to_param),
                       error: "Couldn't find package '#{params[:package]}' in " \
-                            "project '#{@project.to_param}'. Are you sure it exists?"
+                             "project '#{@project.to_param}'. Are you sure it exists?"
           return false
         end
 

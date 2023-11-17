@@ -16,6 +16,7 @@ end
   a.save
 end
 
+puts 'Seeding configurations table...'
 # set default configuration settings if no settings exist
 Configuration.skip_callback(:save, :after, :delayed_write_to_backend)
 Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |conf|
@@ -126,6 +127,8 @@ at = ans.attrib_types.where(name: 'ProjectStatusPackageFailComment').first_or_cr
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'BranchRepositoriesFromProject').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: 'BranchSkipRepositories').first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'AutoCleanup').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
@@ -163,6 +166,11 @@ at.allowed_values << AttribAllowedValue.new(value: 'BugownerOnly')
 
 at = ans.attrib_types.where(name: 'CreatorCannotAcceptOwnRequests').first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
+
+at = ans.attrib_types.where(name: 'EnforceRevisionsInRequests').first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: 'PlannedReleaseDate').first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
 update_all_attrib_type_descriptions
 
