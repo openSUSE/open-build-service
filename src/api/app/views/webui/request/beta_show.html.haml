@@ -41,7 +41,7 @@
                 .timeline-item
                   .d-inline-flex
                     %i.fas.fa-lg.fa-code-commit.text-dark
-                    %p.ms-2
+                    %p.ms-2.small
                       - creator = User.find_by_login(@bs_request.creator) || User.nobody
                       = link_to(realname_with_login(creator), user_path(creator))
                       created this request

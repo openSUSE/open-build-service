@@ -1,6 +1,6 @@
 .d-inline-flex
   = icon
-  %p.ms-2
+  %p.ms-2.small
     = link_to(helpers.realname_with_login(element.user), user_path(element.user))
     - if element.instance_of?(HistoryElement::RequestSuperseded)
       superseded this request with
