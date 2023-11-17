@@ -1,4 +1,4 @@
-.d-flex
+.d-flex.mt-3
   %i{ title: 'Comment', class: "fas fa-lg fa-comment lh-1 text-dark #{ level > 1 ? 'd-none' : '' }" }
   = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-2.flex-fill
@@ -49,7 +49,7 @@
 
     -# This should be refactored to avoid relying on global state
     - if policy(comment).reply?
-      .d-flex.justify-content-end.mb-3.me-2
+      .d-flex.justify-content-end.me-2
         - if policy(Report.new(reportable: comment)).create?
           = link_to('#', class: 'font-italic small collapsed me-2', id: "js-comment-#{comment.id}",
                 data: { 'bs-toggle': 'modal',
