@@ -1,7 +1,6 @@
 .d-inline-flex
   = icon
-  = render(AvatarComponent.new(name: element.user.name, email: element.user.email, size: 36, shape: :circle, custom_css: 'avatars-counter'))
-  %p
+  %p.ms-2
     = link_to(helpers.realname_with_login(element.user), user_path(element.user))
     - if element.instance_of?(HistoryElement::RequestSuperseded)
       superseded this request with
