@@ -11,12 +11,18 @@
         position: relative;
         left: $timeline-offset; // The avatars of users involved in timeline items will be displayed on the timeline border
 
-        .d-inline-flex i:first-child {
-            padding-top: $timeline-item-avatar-height / 2;
-            height: $timeline-item-avatar-height;
-            width: $timeline-item-avatar-width;
-            text-align: center;
-            background-color: var(--timeline-bg);
+        .d-inline-flex {
+            i:first-child {
+                padding-top: $timeline-item-avatar-height / 2;
+                height: $timeline-item-avatar-height;
+                width: $timeline-item-avatar-width;
+                text-align: center;
+                background-color: var(--timeline-bg);
+            }
+
+            a > i:first-child{
+                background: none;
+            }
         }
 
         $timeline-item-avatar-margin: 0.5rem;

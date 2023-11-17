@@ -27,15 +27,6 @@ class BsRequestHistoryElementComponent < ApplicationComponent
     end
   end
 
-  # While all history elements possibly have a comment, not all of them are from an actual human...
-  def element_with_comment_from_human?
-    ['RequestReviewAdded', 'ReviewAccepted', 'ReviewDeclined', 'RequestAccepted', 'RequestDeclined'].include?(@element.type.demodulize)
-  end
-
-  def css_for_comment
-    element_with_comment_from_human? ? 'border-start border-3 ps-3 ms-1' : ''
-  end
-
   def pending_reviews?
     request_reviews_for_non_staging_projects.any?(&:new?)
   end
