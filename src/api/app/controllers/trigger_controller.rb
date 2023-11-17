@@ -27,17 +27,15 @@ class TriggerController < ApplicationController
 
   def create
     authorize @token, :trigger?
+    raise InvalidToken, 'Invalid token found' unless request.path == '/trigger' || @token.instance_of?(Token.token_type(request.path.gsub('/trigger/', '')))
 
-    @token.executor.run_as do
-      opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
-               targetproject: params[:targetproject], targetrepository: params[:targetrepository],
-               filter_source_repository: params[:filter_source_repository] }
-      opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
-      raise InvalidToken, 'Invalid token found' unless request.path == '/trigger' || @token.instance_of?(Token.token_type(request.path.gsub('/trigger/', '')))
+    opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
+             targetproject: params[:targetproject], targetrepository: params[:targetrepository],
+             filter_source_repository: params[:filter_source_repository] }
+    opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
+    @token.executor.run_as { @token.call(opts) }
 
-      @token.call(opts)
-      render_ok
-    end
+    render_ok
   rescue ArgumentError => e
     render_error status: 400, message: e
   end
