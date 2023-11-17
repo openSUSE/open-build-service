@@ -1,10 +1,9 @@
-- raw_data = build_results_data
 - if raw_data.size.positive?
   .m-4
     %h4
       Build results summary
-    - if distinct_repositories(raw_data).size > 5 || raw_data.size > 12
-      = column_chart( chart_data(raw_data),
+    - if distinct_repositories.size > 5 || raw_data.size > 12
+      = column_chart( chart_data,
                       width: '100%',
                       height: '300px',
                       stacked: true,
@@ -18,7 +17,7 @@
           %b.text-center Legend
           .col-12.d-flex.justify-content-center
             = legend
-        - distinct_repositories(raw_data).each do |repo|
+        - distinct_repositories.each do |repo|
           .row.mt-2
             %b.col-3
               = repo
