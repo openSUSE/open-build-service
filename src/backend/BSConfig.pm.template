@@ -375,4 +375,31 @@ our $local_registry_signatures_extension = 1;
 # network name required for services using a local proxy/cache like gemianbox
 # our $obs_service_network = "obs_services";
 
+if (-e '/etc/sysconfig/proxy') {
+  open my $proxysettings, '<', '/etc/sysconfig/proxy' or die "Unable to open file:$!\n";
+  while (<$proxysettings>) {
+    chomp;                  # no newline
+    s/#.*//;                # no comments
+    s/^\s+//;               # no leading white
+    s/\s+$//;               # no trailing white
+    next unless length;     # anything left?
+    my ($var, $value) = split /=|\s+/;
+    $value =~ s/"//g;       # remove the quotes
+    $proxyhash{$var} = $value;
+  }
+  close $proxysettings;
+  our $proxy = $proxyhash{HTTP_PROXY};
+  our $noproxy = $proxyhash{NO_PROXY};
+}
+
+# When you didn't configure the proxy server via /etc/sysconfig/proxy
+# but you still want to use a proxy server to conect to the internet
+# correct en and enable our $proxy and our $noproxy
+if (not defined $proxy) {
+#  our $proxy = "http://<ip/fqdn>:3128/";
+}
+if (not defined $noproxy) {
+#  our $noproxy = "localhost, 127.0.0.1";
+}
+
 1;
