@@ -60,9 +60,9 @@ RSpec.describe Person::TokenController do
 
       subject { post :create, params: { login: user.login, project: user.home_project, operation: 'rebuild' }, format: :xml }
 
-      it 'does not create a token' do
-        expect { subject }.not_to(change { user.tokens.count })
-        expect(response).to have_http_status(:bad_request)
+      it 'creates a global token' do
+        expect { subject }.to change { user.tokens.count }.by(1)
+        expect(response).to have_http_status(:success)
       end
     end
 
