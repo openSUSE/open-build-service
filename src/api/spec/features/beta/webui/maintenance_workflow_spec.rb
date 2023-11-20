@@ -31,15 +31,30 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     create(:update_project, maintained_project: project, name: "#{project}:Update")
   end
 
-  context 'maintenance request without patchinfo' do
-    let(:bs_request) do
-      create(:bs_request_with_maintenance_incident_actions, source_project_name: branched_project.name, source_package_names: ['cacti'], target_project_name: maintenance_project.name,
-                                                            target_releaseproject_names: [update_project.name, another_update_project.name])
-    end
+  let(:maintenance_request) do
+    create(:bs_request_with_maintenance_incident_actions, source_project_name: branched_project.name, source_package_names: ['cacti'], target_project_name: maintenance_project.name,
+                                                          target_releaseproject_names: [update_project.name, another_update_project.name])
+  end
 
+  let(:maintenance_request_with_patch_info) do
+    user.run_as { create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo') }
+    create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
+                                                                           source_package_names: ['cacti'],
+                                                                           target_project_name: maintenance_project.name,
+                                                                           target_releaseproject_names: [update_project.name, another_update_project.name])
+  end
+
+  let(:release_request) do
+    create(:bs_request_with_maintenance_release_actions, creator: admin_user, description: 'Request with release actions',
+                                                         source_project_name: 'MaintenanceProject:0',
+                                                         package_names: ['cacti.openSUSE_11.4_Update'],
+                                                         target_project_names: [update_project.name])
+  end
+
+  context 'maintenance request without patchinfo' do
     before do
       login(admin_user)
-      visit request_show_path(bs_request)
+      visit request_show_path(maintenance_request)
     end
 
     it 'displays information on type of request' do
@@ -50,34 +65,26 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
       before do
         login(maintenance_coord_user)
 
-        visit request_show_path(bs_request)
+        visit request_show_path(maintenance_request)
         fill_in('reason', with: 'really? ok')
 
         click_button('Accept request')
       end
 
       it 'succeeds' do
-        expect(page).to have_text("Request #{bs_request.number} accepted")
+        expect(page).to have_text("Request #{maintenance_request.number} accepted")
       end
 
       it 'creates maintenance incident project' do
-        expect(bs_request.bs_request_actions.first.target_project).to eq('MaintenanceProject:0')
+        expect(maintenance_request.bs_request_actions.first.target_project).to eq('MaintenanceProject:0')
       end
     end
   end
 
   context 'maintenance request with patchinfo' do
-    let(:bs_request) do
-      user.run_as { create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo') }
-      create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
-                                                                             source_package_names: ['cacti'],
-                                                                             target_project_name: maintenance_project.name,
-                                                                             target_releaseproject_names: [update_project.name, another_update_project.name])
-    end
-
     before do
       login(admin_user)
-      visit request_show_path(bs_request)
+      visit request_show_path(maintenance_request_with_patch_info)
     end
 
     it 'displays information on type of request' do
@@ -93,18 +100,59 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
       before do
         login(maintenance_coord_user)
 
-        visit request_show_path(bs_request)
+        visit request_show_path(maintenance_request_with_patch_info)
         fill_in('reason', with: 'really? ok')
 
         click_button('Accept request')
       end
 
       it 'succeeds' do
-        expect(page).to have_text("Request #{bs_request.number} accepted")
+        expect(page).to have_text("Request #{maintenance_request_with_patch_info.number} accepted")
       end
 
       it 'creates maintenance incident project' do
-        expect(bs_request.bs_request_actions.first.target_project).to eq('MaintenanceProject:0')
+        expect(maintenance_request_with_patch_info.bs_request_actions.first.target_project).to eq('MaintenanceProject:0')
+      end
+    end
+  end
+
+  context 'release request' do
+    before do
+      login(admin_user)
+      visit request_show_path(maintenance_request)
+      fill_in('reason', with: 'really? ok')
+      click_button('Accept request')
+    end
+
+    context 'when visiting the request page' do
+      before do
+        visit request_show_path(release_request)
+      end
+
+      it 'displays information on type of request' do
+        expect(page).to have_text('This is a Maintenance Release request')
+      end
+
+      it 'displays request actions dropdown' do
+        expect(page).to have_text('Release cacti.openSUSE_11.4_Update')
+        expect(page).to have_text('Next')
+      end
+    end
+
+    context 'when accepting the request' do
+      before do
+        login(admin_user)
+        visit request_show_path(release_request)
+        fill_in('reason', with: "Accepting the request #{release_request.number}")
+        click_button('Accept request')
+      end
+
+      it 'shows the confirmation' do
+        expect(page).to have_text("Request #{release_request.number} accepted")
+      end
+
+      it 'stores correct information' do
+        expect(HistoryElement::RequestAccepted.last.comment).to eq("Accepting the request #{release_request.number}")
       end
     end
   end
