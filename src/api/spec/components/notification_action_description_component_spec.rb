@@ -200,8 +200,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
 
     it 'renders the information about the cleared decision' do
       expect(rendered_content).to have_css('div.smart-overflow',
-                                           text: "'#{notification.notifiable.moderator}' decided to clear the report about " \
-                                                 "the #{notification.notifiable.reports.first.reportable.class.name.downcase}. This is the reason:")
+                                           text: "'#{notification.notifiable.moderator}' decided to clear the report. This is the reason:")
     end
   end
 
@@ -214,8 +213,7 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
 
     it 'renders the information about the favored decision' do
       expect(rendered_content).to have_css('div.smart-overflow',
-                                           text: "'#{notification.notifiable.moderator}' decided to favor the report about " \
-                                                 "the #{notification.notifiable.reports.first.reportable.class.name.downcase}. This is the reason:")
+                                           text: "'#{notification.notifiable.moderator}' decided to favor the report. This is the reason:")
     end
   end
 end

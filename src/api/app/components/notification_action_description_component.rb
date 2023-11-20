@@ -48,19 +48,9 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
       "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
     when 'Event::ClearedDecision'
-      reportable = @notification.notifiable.reports.first.reportable
-      if reportable
-        "'#{@notification.notifiable.moderator.login}' decided to clear the report about the #{reportable.class.name.downcase}. This is the reason:"
-      else
-        "'#{@notification.notifiable.moderator.login}' decided to clear the report. This is the reason:"
-      end
+      "'#{@notification.notifiable.moderator.login}' decided to clear the report. This is the reason:"
     when 'Event::FavoredDecision'
-      reportable = @notification.notifiable.reports.first.reportable
-      if reportable
-        "'#{@notification.notifiable.moderator.login}' decided to favor the report about the #{reportable.class.name.downcase}. This is the reason:"
-      else
-        "'#{@notification.notifiable.moderator.login}' decided to favor the report. This is the reason:"
-      end
+      "'#{@notification.notifiable.moderator.login}' decided to favor the report. This is the reason:"
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity

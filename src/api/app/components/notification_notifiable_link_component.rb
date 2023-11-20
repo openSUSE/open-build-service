@@ -50,23 +50,13 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
-      reportable = @notification.notifiable.reports.first.reportable
       # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
-      if reportable
-        "Cleared #{reportable.class.name} Report"
-      else
-        'Cleared Report'
-      end
+      "Cleared #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
     when 'Event::FavoredDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
-      reportable = @notification.notifiable.reports.first.reportable
       # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
-      if reportable
-        "Favored #{reportable.class.name} Report"
-      else
-        'Favored Report'
-      end
+      "Favored #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
     when 'Event::WorkflowRunFail'
       'Workflow Run'
     end
