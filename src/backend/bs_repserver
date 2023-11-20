@@ -2152,7 +2152,7 @@ sub notify_jobresult {
   $ninfo{'previouslyfailed'} = 1 if -e "$reporoot/$prpa/:logfiles.fail/$info->{'package'}";
   # calculate buildtype for the job statistics
   my $buildtype;
-  $buildtype = $1 if $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild|obsproduct)$/;
+  $buildtype = $1 if $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild|productcompose)$/;
   $buildtype ||= Build::recipe2buildtype($info->{'file'}) || 'unknown';
   $buildtype = $info->{'imagetype'} && ($info->{'imagetype'}->[0] || '') eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
   $ninfo{'buildtype'} = $buildtype;

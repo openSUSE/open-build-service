@@ -43,7 +43,7 @@ use BSSched::BuildJob::DeltaRpm;
 use BSSched::BuildJob::Docker;
 use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
-use BSSched::BuildJob::ObsProduct;
+use BSSched::BuildJob::ProductCompose;
 use BSSched::BuildJob::Package;
 use BSSched::BuildJob::Patchinfo;
 use BSSched::BuildJob::PreInstallImage;
@@ -63,7 +63,7 @@ use BSSched::BuildJob::Unknown;
 
 
 my %handlers = (
-  'obsproduct'      => BSSched::BuildJob::ObsProduct->new(),
+  'productcompose'      => BSSched::BuildJob::ProductCompose->new(),
   'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
   'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
   'docker'          => BSSched::BuildJob::Docker->new(),
@@ -718,7 +718,7 @@ sub expandandsort {
       $buildtype = 'modulemd';
     } elsif ($info && $info->{'file'}) {
       # directly implement most common types
-      if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild|obsproduct)$/) {
+      if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild|productcompose)$/) {
         $buildtype = $1;
         if ($buildtype eq 'kiwi') {
           $buildtype = $info->{'imagetype'} && ($info->{'imagetype'}->[0] || '') eq 'product' ? 'kiwi-product' : 'kiwi-image';
