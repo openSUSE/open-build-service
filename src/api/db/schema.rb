@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_11_135554) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_20_182646) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -1105,10 +1105,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_11_135554) do
     t.boolean "in_beta", default: false
     t.boolean "in_rollout", default: true
     t.string "biography", default: ""
+    t.string "rss_secret", limit: 200
     t.index ["deprecated_password"], name: "users_password_index"
     t.index ["in_beta"], name: "index_users_on_in_beta"
     t.index ["in_rollout"], name: "index_users_on_in_rollout"
     t.index ["login"], name: "users_login_index", unique: true, length: 255
+    t.index ["rss_secret"], name: "index_users_on_rss_secret", unique: true
   end
 
   create_table "versions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
