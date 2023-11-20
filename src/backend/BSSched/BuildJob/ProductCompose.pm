@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
 
-package BSSched::BuildJob::ObsProduct;
+package BSSched::BuildJob::ProductCompose;
 
 use strict;
 use warnings;
@@ -32,11 +32,11 @@ my %bininfo_oldok_cache;
 
 =head1 NAME
 
-BSSched::BuildJob::ObsProduct - A Class to handle OBS Product builds
+BSSched::BuildJob::ProductCompose - A Class to handle product composer builds
 
 =head1 SYNOPSIS
 
-my $h = BSSched::BuildJob::ObsProduct->new()
+my $h = BSSched::BuildJob::ProductCompose->new()
 
 $h->check();
 
@@ -100,7 +100,6 @@ sub check {
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   my @archs;
   if (!%imagearch || grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
-     # default is to build just for ourself
      @archs = ( $myarch );
   } else {
      @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
@@ -118,7 +117,7 @@ sub check {
   if ($myarch ne $buildarch && $myarch ne $localbuildarch) {
     if (!grep {$_ eq $myarch} @archs) {
       if ($ctx->{'verbose'}) {
-        print "      - $packid (obsproduct)\n";
+        print "      - $packid (productcompose)\n";
         print "        not mine\n";
       }
       return ('excluded');
@@ -144,9 +143,9 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'};
   my $remoteprojs = $gctx->{'remoteprojs'};
 
-#print "prps: @bprps\n";
-#print "archs: @archs\n";
-#print "deps: @deps\n";
+  #print "prps: @bprps\n";
+  #print "archs: @archs\n";
+  #print "deps: @deps\n";
   my $pool;
   my %dep2pkg;
   if ($myarch eq $buildarch || $myarch eq $localbuildarch) {
@@ -160,7 +159,7 @@ sub check {
       my ($error, $delayed);
       ($pool, $error, $delayed) = BSSched::BuildJob::createextrapool($ctx, $bconf, \@bprps, undef, undef, $localbuildarch);
       if ($error && $ctx->{'verbose'}) {
-        print "      - $packid (obsproduct)\n";
+        print "      - $packid (productcompose)\n";
         print $delayed ? "        $error (delayed)\n" : "        $error\n";
       }
       return (($delayed ? 'delayed' : 'broken'), $error) if $error;
@@ -170,6 +169,16 @@ sub check {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
+    my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'productcompose');
+    if (!$eok) {
+      BSSched::BuildJob::add_expanddebug($ctx, 'productcompose sysdeps expansion', $xp);
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (productcompose)\n";
+        print "        unresolvable for sysbuild:\n";
+        print "          $_\n" for @kdeps;
+      }
+      return ('unresolvable', join(', ', @kdeps));
+    }
     for my $p ($pool->consideredpackages()) {
       $dep2pkg{$pool->pkg2name($p)} = $p;
     }
@@ -177,7 +186,7 @@ sub check {
     for my $aprp (@bprps) {
       if (!$ctx->checkprpaccess($aprp)) {
 	if ($ctx->{'verbose'}) {
-	  print "      - $packid (obsproduct)\n";
+	  print "      - $packid (productcompose)\n";
 	  print "        repository '$aprp' is unavailable\n";
 	}
 	return ('broken', "repository '$aprp' is unavailable");
@@ -214,7 +223,7 @@ sub check {
     if (@blocked) {
       splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
       if ($ctx->{'verbose'}) {
-        print "      - $packid (obsproduct)\n";
+        print "      - $packid (productcompose)\n";
         print "        blocked for sysbuild (@blocked)\n";
       }
       return ('blocked', join(', ', @blocked));
@@ -235,7 +244,7 @@ sub check {
     if ($delayed_errors) {
       substr($delayed_errors, 0, 2, '');
       if ($ctx->{'verbose'}) {
-        print "      - $packid (obsproduct)\n";
+        print "      - $packid (productcompose)\n";
         print "        $delayed_errors (delayed)\n";
       }
       return ('delayed', $delayed_errors);
@@ -280,7 +289,7 @@ sub check {
 	  next;
 	}
 	if ($ctx->{'verbose'}) {
-	  print "      - $packid (obsproduct)\n";
+	  print "      - $packid (productcompose)\n";
 	  print "        $error\n";
 	}
 	return ('broken', $error);
@@ -365,10 +374,10 @@ sub check {
 	$pkgs_checked++;
 
 	# first find out if we need any rpm from this package
-	if (defined &BSSolv::kiwiproductcheck) {
-	  # use fast C version from perl-BSSolv if available
-	  next unless BSSolv::kiwiproductcheck($bininfo, $mode, \%unneeded_na, \%deps, \%seen_fn, \%archs);
-	} else {
+	#if (defined &BSSolv::kiwiproductcheck) {
+	#  # use fast C version from perl-BSSolv if available
+	#  next unless BSSolv::kiwiproductcheck($bininfo, $mode, \%unneeded_na, \%deps, \%seen_fn, \%archs);
+	#} else {
 	  # slow pure-perl version
 	  my $needit;
 	  for my $fn (keys %$bininfo) {
@@ -396,7 +405,7 @@ sub check {
 	    last;
 	  }
 	  next unless $needit;
-	}
+	#}
 
 	$pkgs_taken++;
 
@@ -461,7 +470,7 @@ sub check {
   if ($delayed_errors) {
     substr($delayed_errors, 0, 2, '');
     if ($ctx->{'verbose'}) {
-      print "      - $packid (obsproduct)\n";
+      print "      - $packid (productcompose)\n";
       print "        $delayed_errors (delayed)\n";
     }
     return ('delayed', $delayed_errors);
@@ -482,7 +491,7 @@ sub check {
   if (@blocked) {
     push @blocked, '...' if @blocked > $maxblocked;
     if ($ctx->{'verbose'}) {
-      print "      - $packid (obsproduct)\n";
+      print "      - $packid (productcompose)\n";
       print "        blocked (@blocked)\n";
     }
     return ('blocked', join(', ', @blocked));
@@ -500,7 +509,7 @@ sub check {
       unlink("$markerdir/.waiting_for_$myarch");
       $ctx->{'sendunblockedevents'}->{"$prp/$buildarch"} = 2;
       if ($ctx->{'verbose'}) {
-        print "      - $packid (obsproduct)\n";
+        print "      - $packid (productcompose)\n";
         print "        unblocked\n";
       }
     }
@@ -520,7 +529,7 @@ sub check {
     }
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
-  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'obsproduct', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg, \%rpms_hdrmd5 ]);
+  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'productcompose', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg, \%rpms_hdrmd5 ]);
 }
 
 
@@ -544,7 +553,6 @@ sub build {
 
   my ($bconf, $rpms, $pool, $dep2pkg, $rpms_hdrmd5, $reason) = @$data;
   my $prp = "$projid/$repoid";
-
   my $dobuildinfo = $ctx->{'dobuildinfo'};
   my @bdeps;
   for my $rpm (BSUtil::unify(@{$rpms || []})) {
