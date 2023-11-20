@@ -13,6 +13,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   private
 
   # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   def notifiable_link_text
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
@@ -49,17 +50,28 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
-      report = @notification.notifiable.reports.first
-      "Cleared #{report.reportable.class.name} Report"
+      reportable = @notification.notifiable.reports.first.reportable
+      # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
+      if reportable
+        "Cleared #{reportable.class.name} Report"
+      else
+        'Cleared Report'
+      end
     when 'Event::FavoredDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
-      report = @notification.notifiable.reports.first
-      "Favored #{report.reportable.class.name} Report"
+      reportable = @notification.notifiable.reports.first.reportable
+      # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
+      if reportable
+        "Favored #{reportable.class.name} Report"
+      else
+        'Favored Report'
+      end
     when 'Event::WorkflowRunFail'
       'Workflow Run'
     end
   end
+  # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
 
   # rubocop:disable Metrics/CyclomaticComplexity
@@ -135,6 +147,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   # This method is also used by 'Event::ClearedDecision' and 'Event::FavoredDecision', this need to
   # be adapted
   def link_for_reportables(reportable)
+    return '#' unless reportable
+
     case @notification.event_payload['reportable_type']
     when 'Comment'
       link_for_commentables_on_reportables(commentable: reportable.commentable)
