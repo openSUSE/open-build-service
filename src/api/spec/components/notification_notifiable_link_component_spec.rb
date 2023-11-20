@@ -138,4 +138,18 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
       expect(rendered_content).to have_link('Favored Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
     end
   end
+
+  context 'for a decision notification for a report that does not have reportable' do
+    let(:notification) { create(:notification, :favored_decision) }
+    let(:report) { notification.notifiable.reports.first }
+
+    before do
+      report.update(reportable_type: nil, reportable_id: nil)
+      render_inline(described_class.new(notification))
+    end
+
+    it 'does not crash' do
+      expect(rendered_content).to have_text('Favored Report')
+    end
+  end
 end
