@@ -24,16 +24,13 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def notifications
-    token = Token::Rss.find_by_string(params[:token])
-    if token
-      @configuration = ::Configuration.first
-      @user = token.executor
-      @notifications = token.executor.combined_rss_feed_items
-      @host = ::Configuration.obs_url
-    else
-      flash[:error] = 'Unknown Token for RSS feed'
-      redirect_back(fallback_location: root_path)
-    end
+    @configuration = ::Configuration.first
+    @host = ::Configuration.obs_url
+    @user = User.find_by(rss_secret: params[:secret])
+    @user ||= Token::Rss.find_by_string(params[:secret])&.executor
+    raise ActiveRecord::RecordNotFound unless @user
+
+    @notifications = @user.combined_rss_feed_items
   end
 
   private

@@ -34,7 +34,7 @@ RSpec.describe SendEventEmailsJob do
         expect(email.subject).to include('New comment')
       end
 
-      it "does not create a rss notification if the user doesn't have a rss token" do
+      it "does not create a rss notification if the user doesn't have a rss secret" do
         expect(Notification.find_by(subscriber: user, rss: true)).to be_nil
       end
 
@@ -63,11 +63,11 @@ RSpec.describe SendEventEmailsJob do
       end
     end
 
-    context 'when the user has a rss token' do
+    context 'when the user has a rss secret' do
       let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
 
       before do
-        user.create_rss_token
+        user.regenerate_rss_secret
       end
 
       subject! { SendEventEmailsJob.new.perform }

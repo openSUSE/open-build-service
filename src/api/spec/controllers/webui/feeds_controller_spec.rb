@@ -73,12 +73,12 @@ RSpec.describe Webui::FeedsController do
     end
     let!(:rss_notification) { create(:rss_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
 
-    context 'with a working token' do
+    context 'with an existing rss secret' do
       render_views
       before do
         Configuration.update(obs_url: 'http://localhost')
-        user.create_rss_token(executor: user)
-        get :notifications, params: { token: user.rss_token.string, format: 'rss' }
+        user.regenerate_rss_secret
+        get :notifications, params: { secret: user.rss_secret, format: 'rss' }
       end
 
       after do
@@ -91,13 +91,12 @@ RSpec.describe Webui::FeedsController do
       it { expect(response.body).to match(/#{user.login} wants to be maintainer in project #{project}/) }
     end
 
-    context 'with an invalid token' do
-      before do
-        get :notifications, params: { token: 'faken_token', format: 'rss' }
-      end
+    context 'with an non-existing rss secret' do
+      subject { get :notifications, params: { secret: 'fake_secret', format: 'rss' } }
 
-      it { expect(flash[:error]).to eq('Unknown Token for RSS feed') }
-      it { is_expected.to redirect_to(root_url) }
+      it 'raises an error' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
     end
   end
 end

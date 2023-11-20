@@ -18,7 +18,7 @@ OBSApi::Application.routes.draw do
       get 'main/news' => :news, constraints: ->(req) { req.format == :rss }, as: :news_feed
       get 'main/latest_updates' => :latest_updates, constraints: ->(req) { req.format == :rss }, as: :latest_updates_feed
       get 'project/latest_commits/:project' => :commits, defaults: { format: 'atom' }, constraints: cons, as: 'commits_feed'
-      get 'user/feed/:token' => :notifications, defaults: { format: 'rss' }, as: :user_rss_notifications
+      get 'user/feed/:secret' => :notifications, defaults: { format: 'rss' }, as: :user_rss_notifications
     end
 
     resources :attribs, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/attribute' do
@@ -344,6 +344,7 @@ OBSApi::Application.routes.draw do
       end
       member do
         post 'change_password'
+        post 'rss_secret'
         get 'edit_account'
       end
     end
@@ -371,7 +372,6 @@ OBSApi::Application.routes.draw do
 
       resources :patchinfos, only: [:index], controller: 'webui/users/patchinfos', as: :my_patchinfos
 
-      post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       post 'news_items/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_news_item
 
       resources :tokens, controller: 'webui/users/tokens' do
