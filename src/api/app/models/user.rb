@@ -121,6 +121,7 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
+  validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
@@ -957,6 +958,7 @@ end
 #  login_failure_count           :integer          default(0), not null
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
+#  rss_secret                    :string(255)      indexed
 #  state                         :string           default("unconfirmed")
 #  created_at                    :datetime
 #  updated_at                    :datetime
@@ -966,6 +968,7 @@ end
 #
 #  index_users_on_in_beta     (in_beta)
 #  index_users_on_in_rollout  (in_rollout)
+#  index_users_on_rss_secret  (rss_secret) UNIQUE
 #  users_login_index          (login) UNIQUE
 #  users_password_index       (deprecated_password)
 #
