@@ -9,13 +9,11 @@ RSpec.describe TokenPolicy, type: :policy do
   let(:token_of_unconfirmed_user) { create(:rebuild_token, executor: unconfirmed_user) }
 
   let(:workflow_token) { create(:workflow_token, executor: token_user) }
-  let(:rss_token) { create(:rss_token, executor: token_user) }
 
   subject { described_class }
 
   permissions :show? do
     it { is_expected.not_to permit(other_user, user_token) }
-    it { is_expected.not_to permit(token_user, rss_token) }
 
     it { is_expected.to permit(token_user, user_token) }
   end
@@ -32,8 +30,8 @@ RSpec.describe TokenPolicy, type: :policy do
 
   # Create and update are permitted when the user and the executor are the same
   permissions :create?, :update? do
-    it { is_expected.to permit(token_user, rss_token) }
-    it { is_expected.not_to permit(other_user, rss_token) }
+    it { is_expected.to permit(token_user, user_token) }
+    it { is_expected.not_to permit(other_user, user_token) }
   end
 
   describe TokenPolicy::Scope do
@@ -43,7 +41,6 @@ RSpec.describe TokenPolicy, type: :policy do
       context 'when the user is associated to the token' do
         let!(:token_user) { create(:confirmed_user) }
         let!(:other_user) { create(:confirmed_user) }
-        let!(:rss_token) { create(:rss_token, executor: token_user) }
         let!(:workflow_token) { create(:workflow_token, executor: token_user) }
         let!(:other_users_workflow_token) { create(:workflow_token, executor: other_user) }
         let!(:shared_workflow_token) { create(:workflow_token, executor: other_user) }
@@ -52,10 +49,6 @@ RSpec.describe TokenPolicy, type: :policy do
 
         before do
           token_user.shared_workflow_tokens << shared_workflow_token
-        end
-
-        it 'does not return rss tokens' do
-          expect(subject.resolve).not_to include(rss_token)
         end
 
         it 'returns the workflow token the token_user created' do

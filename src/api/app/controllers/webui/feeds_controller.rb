@@ -24,12 +24,9 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def notifications
-    @configuration = ::Configuration.first
+    @user = User.find_by!(rss_secret: params[:secret])
     @host = ::Configuration.obs_url
-    @user = User.find_by(rss_secret: params[:secret])
-    @user ||= Token::Rss.find_by_string(params[:secret])&.executor
-    raise ActiveRecord::RecordNotFound unless @user
-
+    @configuration = ::Configuration.first
     @notifications = @user.combined_rss_feed_items
   end
 
