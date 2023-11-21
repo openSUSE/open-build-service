@@ -107,7 +107,7 @@ sub fdb_getmatch {
 
   my $isfirst = $lay->[0] eq $field;
   my $edata = $data;
-  $edata =~ s/([\000-\037|=\177-\237])/sprintf("%%%02X", ord($1))/ge;
+  $edata =~ s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge;
   local *F;
   if (ref($fn)) {
     *F = *$fn;
