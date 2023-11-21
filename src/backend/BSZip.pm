@@ -101,7 +101,17 @@ sub list {
   my $zipsize = $s[7];
   my $eocd = readbytes($handle, 22, $zipsize - 22);
   my ($eocd_magic, $eocd_disk, $eocd_cddisk, $eocd_cdcnt, $eocd_tcdcnt, $cd_size, $cd_offset, $eocd_commentsize) = unpack('VvvvvVVv', $eocd);
-  die("not a (commentless) zip archive\n") unless $eocd_magic == 0x06054b50 && $eocd_commentsize == 0;
+  if ($eocd_magic != 0x06054b50 || $eocd_commentsize != 0) {
+    die("not a zip archive\n") unless $zipsize > 256 + 22;
+    $eocd = readbytes($handle, 22 + 256, $zipsize - (22 + 256));
+    die("not a zip archive\n") unless $eocd =~ /\A(.*)PK\005\006/s;
+    $eocd = substr($eocd, length($1));
+    die("not a zip archive\n") unless length($eocd) > 22;
+    my $commentsize = length($eocd) - 22;
+    ($eocd_magic, $eocd_disk, $eocd_cddisk, $eocd_cdcnt, $eocd_tcdcnt, $cd_size, $cd_offset, $eocd_commentsize) = unpack('VvvvvVVv', $eocd);
+    die("not a zip archive\n") unless $eocd_magic == 0x06054b50 && $eocd_commentsize == $commentsize;
+    $zipsize -= $commentsize;
+  }
   if ($eocd_cdcnt == 0xffff || $eocd_tcdcnt == 0xffff || $cd_size == 0xffffffff || $cd_offset == 0xffffffff) {
     my $eocd64l = readbytes($handle, 20, $zipsize - 42);
     my ($eocd64l_magic, $eocd64l_cddisk, $eocd64_offset, $eocd64_offset_hi, $eocd64l_ndisk) = unpack('VVVVV', $eocd64l);
