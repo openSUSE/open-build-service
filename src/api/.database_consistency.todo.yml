@@ -1992,6 +1992,9 @@ User:
   realname:
     LengthConstraintChecker:
       enabled: false
+  rss_secret:
+    MissingUniqueIndexChecker:
+      enabled: false
   rss_token:
     MissingIndexChecker:
       enabled: false
