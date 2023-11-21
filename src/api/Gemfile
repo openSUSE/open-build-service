@@ -184,7 +184,7 @@ group :development, :test do
   # as alternative to the standard IRB shell
   gem 'pry', require: false
   # add step-by-step debugging and stack navigation capabilities to pry
-  gem 'pry-byebug', require: false
+  gem 'pry-byebug'
   # for style checks
   gem 'rubocop', require: false
   # for rails style checks
