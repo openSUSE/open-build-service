@@ -29,15 +29,31 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
       HEREDOC
     end
 
-    subject { described_class.new(actions: actions).call }
-
-    before do
-      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results)
+    let(:fake_empty_results) do
+      <<-HEREDOC
+        <resultlist>
+        </resultlist>
+      HEREDOC
     end
 
+    subject { described_class.new(actions: actions).call }
+
     context 'with build results' do
+      before do
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results)
+      end
+
       it { expect(subject.size).to eq(3) }
       it { expect(subject.pluck(:architecture)).to include('i586') }
+    end
+
+    context 'with no results' do
+      before do
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_empty_results)
+      end
+
+      it { expect(subject.size).to eq(0) }
+      it { expect(subject).to eq([]) }
     end
   end
 end
