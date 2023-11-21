@@ -8,18 +8,23 @@ module ActionBuildResultsService
     end
 
     def call
-      fill_raw_data
+      @actions.where(type: [:submit, :maintenance_incident, :maintenance_release])
+              .map { |action| sources_from_action(action) }
+              .select { |sources| sources[:source_project].present? && sources[:source_package].present? }
+              .each do |sources|
+        package_build_results = package_build_results(sources[:source_package], sources[:source_project])
+
+        add_request_build_results(package_build_results, sources[:source_package], sources[:source_project])
+      end
 
       @raw_data.flatten
     end
 
     private
 
-    def push_build_results_entries(action_build_results, source_package, source_project)
-      return unless action_build_results
-
+    def add_request_build_results(package_build_results, source_package, source_project)
       @raw_data.push(
-        action_build_results.map do |result_entry|
+        package_build_results.map do |result_entry|
           {
             architecture: result_entry.architecture,
             repository: result_entry.repository,
@@ -38,24 +43,14 @@ module ActionBuildResultsService
       Project.find_by_name(project_name)
     end
 
-    def fill_action_build_results(source_package, source_project)
-      source_package.buildresult(source_project, show_all: true).results.flat_map { |_k, v| v }
+    def sources_from_action(action)
+      source_project = project_from_action(action)
+      source_package = source_project.present? ? Package.find_by_project_and_name(source_project.name, action.source_package) : nil
+      { source_project: source_project, source_package: source_package }
     end
 
-    def fill_raw_data
-      @actions.where(type: [:submit, :maintenance_incident, :maintenance_release]).find_each do |action|
-        source_project = project_from_action(action)
-
-        if source_project
-          source_package = Package.find_by_project_and_name(source_project.name, action.source_package)
-          if source_package
-            action_build_results = fill_action_build_results(source_package, source_project)
-
-            # carry over and expose relevant information
-            push_build_results_entries(action_build_results, source_package, source_project)
-          end
-        end
-      end
+    def package_build_results(source_package, source_project)
+      source_package.buildresult(source_project, show_all: true).results.flat_map { |_k, v| v }
     end
   end
 end
