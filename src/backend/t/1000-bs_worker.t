@@ -226,7 +226,7 @@ my $expected_statement = {
 is_deeply($got, $expected_statement, 'generate_slsa_provenance_statement - Return value');
 
 
-# getbinaries_kiwiproduct
+# getbinaries_product
 
 $buildinfo = {
           'rev' => '2',
@@ -348,9 +348,9 @@ $Test::Mock::BSRPC::fixtures_map = {
     => 'data/1000/srcserver/build_openSUSE.org:OBS:Server:Unstable_15.3_x86_64_0product:OBS-Addon-release?view=cpio'
 };
 
-@got = getbinaries_kiwiproduct($buildinfo, $dir, $srcdir, $kiwiorigins);
+@got = getbinaries_product($buildinfo, $dir, $srcdir, $kiwiorigins);
 @expected = ('c0f190787a4711126abe9d9273a1f6bd  openSUSE.org:OBS:Server:Unstable/15.3/x86_64/0product:OBS-Addon-release/OBS-Addon-release.x86_64');
-is_deeply(\@got, \@expected, 'getbinaries_kiwiproduct - Return value');
+is_deeply(\@got, \@expected, 'getbinaries_product - Return value');
 
 BSUtil::cleandir($tmpdir);
 rmdir($tmpdir);
