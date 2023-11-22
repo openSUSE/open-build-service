@@ -2,3 +2,4 @@ app/assets/javascripts/webui/application/cm2
 app/assets/javascripts/webui/cm2
 app/assets/javascripts/webui/*.min.js
 app/assets/javascripts/webui/monitor.js
+app/assets/javascripts/webui/request_show_redesign/chart_build_results.js
