@@ -6,8 +6,9 @@ class Webui::RequestController < Webui::WebuiController
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
-  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint,
+                       :changes, :mentioned_issues, :chart_build_results]
+  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues, :chart_build_results],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
@@ -320,6 +321,10 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.issues
 
     @active_tab = 'mentioned_issues'
+  end
+
+  def chart_build_results
+    render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: set_build_results_data }
   end
 
   private

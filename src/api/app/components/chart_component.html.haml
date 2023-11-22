@@ -1,5 +1,8 @@
 - if raw_data.size.positive?
   .m-4
+    .btn.btn-outline-primary.float-end{ onclick: 'updateChartBuildResults()', accesskey: 'r', title: 'Refresh Chart Build Results' }
+      Refresh
+      %i.fas.fa-sync-alt{ id: 'chart-build-reload' }
     %h4
       Build results summary
     - if distinct_repositories.size > 5 || raw_data.size > 12
