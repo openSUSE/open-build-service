@@ -9,7 +9,7 @@ class Webui::RequestController < Webui::WebuiController
                 only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
   before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_chart_build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action_id, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
@@ -474,8 +474,8 @@ class Webui::RequestController < Webui::WebuiController
     @actions = @bs_request.bs_request_actions
   end
 
-  def set_chart_build_results_data
-    @chart_build_results_data = ActionBuildResultsService::ChartDataExtractor.new(actions: @actions).call
+  def set_build_results_data
+    @build_results_data = ActionBuildResultsService::ChartDataExtractor.new(actions: @actions).call
   end
 
   def set_supported_actions
