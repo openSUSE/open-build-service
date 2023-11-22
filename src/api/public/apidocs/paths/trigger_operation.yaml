@@ -286,6 +286,11 @@ post:
               value:
                 code: unknown_package
                 details: 'Package not found: home:Admin/foo'
+            unknown_token:
+              summary: Not found (Token)
+              value:
+                code: not_found
+                details: 'Token not found'
             non_existent_workflows_file:
               summary: Non existent workflows file
               value:

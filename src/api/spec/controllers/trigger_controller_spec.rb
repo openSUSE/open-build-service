@@ -189,6 +189,25 @@ RSpec.describe TriggerController, :vcr do
         it { expect(response.body).to include(expected_response_body) }
       end
     end
+
+    context 'when the token is of type workflow' do
+      let(:token) { create(:workflow_token, executor: user) }
+      let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
+      let(:expected_response_body) do
+        <<~XML
+          <status code="not_found">
+            <summary>Token not found</summary>
+          </status>
+        XML
+      end
+
+      before do
+        post :create, params: { format: :xml, project: project, package: package }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response.body).to include(expected_response_body) }
+    end
   end
 
   describe '#create' do

@@ -14,6 +14,7 @@ class TriggerController < ApplicationController
 
   before_action :validate_gitlab_event, if: :gitlab_webhook?
   before_action :set_token
+  before_action :check_token_class
   before_action :set_project_name
   before_action :set_package_name
   # From Triggerable
@@ -41,6 +42,11 @@ class TriggerController < ApplicationController
   end
 
   private
+
+  def check_token_class
+    # It make no sense to process Token::Workflows on a runservice request
+    raise ActiveRecord::RecordNotFound, 'Token not found' if @token.instance_of?(Token::Workflow)
+  end
 
   def gitlab_webhook?
     request.env['HTTP_X_GITLAB_EVENT'].present?
