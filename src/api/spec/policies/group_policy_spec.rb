@@ -10,8 +10,6 @@ RSpec.describe GroupPolicy do
 
   subject { GroupPolicy }
 
-  # rubocop:disable RSpec/RepeatedExample
-  # This cop is currently not recognizing the permissions block as separate test
   permissions :create?, :index? do
     it { is_expected.not_to permit(user, group) }
     it { is_expected.not_to permit(group_member, group) }
@@ -33,5 +31,4 @@ RSpec.describe GroupPolicy do
     it { is_expected.to permit(group_maintainer, group) }
     it { is_expected.to permit(admin, group) }
   end
-  # rubocop:enable RSpec/RepeatedExample
 end

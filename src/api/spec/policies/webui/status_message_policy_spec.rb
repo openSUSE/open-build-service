@@ -9,8 +9,6 @@ RSpec.describe Webui::StatusMessagePolicy do
 
   subject { described_class }
 
-  # rubocop:disable RSpec/RepeatedExample
-  # This cop is currently not recognizing the permissions block as separate test
   permissions :acknowledge? do
     it { is_expected.to permit(user, status_message) }
     it { is_expected.to permit(staff_user, status_message) }
@@ -22,7 +20,6 @@ RSpec.describe Webui::StatusMessagePolicy do
     it { is_expected.to permit(staff_user, status_message) }
     it { is_expected.to permit(admin_user, status_message) }
   end
-  # rubocop:enable RSpec/RepeatedExample
 
   it "doesn't permit anonymous user" do
     expect { described_class.new(user_nobody, status_message) }

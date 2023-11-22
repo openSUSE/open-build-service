@@ -535,6 +535,11 @@ RSpec/Rails/AvoidSetupHook:
   Exclude:
     # Don't parse minitests for RSpec cops
     - 'test/**/*'
+RSpec/RepeatedExample:
+  Exclude:
+    # This cop is currently not recognizing the pundit rspec helpers.
+    # https://github.com/varvet/pundit#rspec
+    - 'spec/policies/**/*'
 
 ##################### Bundler ##################################
 
