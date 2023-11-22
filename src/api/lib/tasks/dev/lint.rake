@@ -3,14 +3,21 @@ namespace :dev do
     # Run this task with: rails dev:lint:all
     desc 'Run all linters we use'
     task :all do
-      Rake::Task['dev:lint:haml'].invoke
+      Rake::Task['dev:lint:database_consistency'].invoke
       Rake::Task['dev:lint:rubocop:all'].invoke
+      Rake::Task['dev:lint:haml'].invoke
       Rake::Task['dev:lint:js'].invoke
     end
 
     desc 'Run the haml linter'
+    task :database_consistency do
+      puts "\nRunning database_consistency in src/api...\n"
+      sh 'database_consistency -c .database_consistency.todo.yml'
+    end
+
+    desc 'Run the haml linter'
     task :haml do
-      puts 'Running haml-lint in src/api...'
+      puts "\nRunning haml-lint in src/api..."
       Rake::Task['haml_lint'].invoke('--parallel')
     end
 
