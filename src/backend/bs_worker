@@ -1746,6 +1746,8 @@ sub getbinaries_product {
 	return '_slsa_provenance';
       } elsif ($name =~ /appdata\.xml$/) {
 	return 'appdata'; 
+      } elsif ($name eq 'updateinfo.xml') {
+	return 'updateinfo';
       }
       return undef;
     };
@@ -2047,6 +2049,18 @@ sub getbinaries_product {
 	if ($cn) {
 	  $cn->[2] = "$ddir/modulemd/$packid.$arch.modulemd.yaml";
 	  $cachenew{"$ddir/modulemd/$packid.$arch.modulemd.yaml"} = $cn;
+	}
+      }
+
+      # rename updateinfo.xml file
+      if ($done{'updateinfo/updateinfo.xml'}) {
+	rename("$ddir/updateinfo/updateinfo.xml", "$ddir/updateinfo/$packid.$arch.updateinfo.xml") || die("rename $ddir/updateinfo/updateinfo.xml $ddir/updateinfo/$packid.$arch.updateinfo.xml: $!\n");
+	$kiwiorigins->{"obs://$prp/updateinfo/$packid.$arch.updateinfo.xml"} = $prpap;
+	delete $kiwiorigins->{"obs://$prp/updateinfo/updateinfo.xml"};
+	my $cn = delete $cachenew{"$ddir/updateinfo/updateinfo.xml"};
+	if ($cn) {
+	  $cn->[2] = "$ddir/updateinfo/$packid.$arch.updateinfo.xml";
+	  $cachenew{"$ddir/updateinfo/$packid.$arch.updateinfo.xml"} = $cn;
 	}
       }
 
