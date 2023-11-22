@@ -619,16 +619,15 @@ sub read_bininfo {
   for my $file (ls($dir)) {
     $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
     if ($file !~ /\.(?:$binsufsre)$/) {
-      if ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
-        $bininfo->{'.nouseforbuild'} = {};
-      } elsif ($file =~ /\.obsbinlnk$/) {
+      $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml';
+      if ($file =~ /\.obsbinlnk$/) {
 	my @s = stat("$dir/$file");
 	my $d = BSUtil::retrieve("$dir/$file", 1);
 	next unless @s && $d;
 	my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
 	delete $r->{'path'};
 	$bininfo->{$file} = $r;
-      } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/) {
+      } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/ || $file eq 'updateinfo.xml') {
         local *F;
         open(F, '<', "$dir/$file") || next;
         my @s = stat(F);

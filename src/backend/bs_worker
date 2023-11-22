@@ -1746,6 +1746,8 @@ sub getbinaries_product {
 	return '_slsa_provenance';
       } elsif ($name =~ /appdata\.xml$/) {
 	return 'appdata'; 
+      } elsif ($name eq 'updateinfo.xml') {
+	return 'updateinfo';
       }
       return undef;
     };
@@ -1967,7 +1969,7 @@ sub getbinaries_product {
 	  push @done, $filename;
 	  $knownmd5{$filename} = $bv->{'hdrmd5'} if $bv->{'hdrmd5'};
 	}
-	print "(still ".@todo." misses)";
+	#print "(still ".@todo." misses)";
       }
 
       if ($bvl && !@todo) {
@@ -2047,6 +2049,18 @@ sub getbinaries_product {
 	if ($cn) {
 	  $cn->[2] = "$ddir/modulemd/$packid.$arch.modulemd.yaml";
 	  $cachenew{"$ddir/modulemd/$packid.$arch.modulemd.yaml"} = $cn;
+	}
+      }
+
+      # rename updateinfo.xml file
+      if ($done{'updateinfo/updateinfo.xml'}) {
+	rename("$ddir/updateinfo/updateinfo.xml", "$ddir/updateinfo/$packid.$arch.updateinfo.xml") || die("rename $ddir/updateinfo/updateinfo.xml $ddir/updateinfo/$packid.$arch.updateinfo.xml: $!\n");
+	$kiwiorigins->{"obs://$prp/updateinfo/$packid.$arch.updateinfo.xml"} = $prpap;
+	delete $kiwiorigins->{"obs://$prp/updateinfo/updateinfo.xml"};
+	my $cn = delete $cachenew{"$ddir/updateinfo/updateinfo.xml"};
+	if ($cn) {
+	  $cn->[2] = "$ddir/updateinfo/$packid.$arch.updateinfo.xml";
+	  $cachenew{"$ddir/updateinfo/$packid.$arch.updateinfo.xml"} = $cn;
 	}
       }
 
@@ -3694,7 +3708,7 @@ sub dobuild {
     readbuildenv($buildinfo, $srcdir);
     unlink("$srcdir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}");
     print "packages, ";
-    if (($imagemode || '') eq 'kiwiproduct') {
+    if ($imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose')) {
       getbinaries_product($buildinfo, $pkgdir, $srcdir, {});
       $followupcopy->{$_} = readstr("$srcdir/$_") for grep {$_ eq '_channel' || /\.report$/} ls($srcdir);
     } else {
@@ -3707,7 +3721,7 @@ sub dobuild {
     $imagemode = getimagemode($buildinfo);
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
-    $kiwiorigins = {} if $imagemode;	# always for kiwi
+    $kiwiorigins = {} if $imagemode;	# always for image builds
     my $needpubkey;
     my $needsslcert;
     my $needappxsslcert;
@@ -3937,7 +3951,7 @@ sub dobuild {
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
-  push @args, '--signdummy' if ($imagemode || '') eq 'kiwiproduct' && -e "$statedir/build/signdummy";
+  push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
   push @args, '--vcs', $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
@@ -4026,6 +4040,7 @@ sub dobuild {
     symlink('.', "$buildroot/.build.packages/SRPMS");
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
+    symlink('.', "$buildroot/.build.packages/PRODUCT");
     # convert build statistics into xml
     my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
     updatestatsfromfile($stats, $statsfile) if -e $statsfile;
@@ -4205,6 +4220,13 @@ sub getkiwitreefiles {
   die("kiwitreefile does not work in rpmhdrs_only mode\n") if -e "$kiwitreefile.rpmhdrs_only";
   my @send;
   my %ok;
+  my $kiwidir;
+  if (-d "$buildroot/.build.packages/KIWI") {
+    $kiwidir = "$buildroot/.build.packages/KIWI";
+  } elsif (-d "$buildroot/.build.packages/PRODUCT") {
+    $kiwidir = "$buildroot/.build.packages/PRODUCT";
+  }
+  die("could not determine product build directory\n") unless $kiwidir;
   for my $f (@{$cgi->{'file'} || []}) {
     die("bad file $f\n") if "/$f/" =~ m!//!s;           # no dup slashes
     die("bad file $f\n") if "/$f/" =~ m!/\.\.?/!s;      # no . or ..
@@ -4214,13 +4236,13 @@ sub getkiwitreefiles {
     $f = '';
     for (@f) {
       $f .= $_;
-      die("bad file $f\n") if !$ok{$f} && (-l "$buildroot/.build.packages/KIWI/$f" || ! -d _);
+      die("bad file $f\n") if !$ok{$f} && (-l "$kiwidir/$f" || ! -d _);
       $ok{$f} = 1;
       $f .= '/';
     }
     $f .= $c;
-    die("bad file $f\n") if -l "$buildroot/.build.packages/KIWI/$f" || ! -f _;
-    push @send, { 'name' => $f, 'filename' => "$buildroot/.build.packages/KIWI/$f" };
+    die("bad file $f\n") if -l "$kiwidir/$f" || ! -f _;
+    push @send, { 'name' => $f, 'filename' => "$kiwidir/$f" };
   }
   BSServer::reply_cpio(\@send);
   return undef;
@@ -4744,6 +4766,7 @@ if ($ex == 0) {
   }
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
+  @d = ('PRODUCT') if $buildinfo->{'file'} =~ /\.productcompose$/;
   @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile(?:\.|$)/;
   @d = ('FISSILE') if $buildinfo->{'file'} =~ /fissile\.yml$/;
   @d = ('HELM') if $buildinfo->{'file'} =~ /Chart\.yaml$/;
@@ -4751,7 +4774,7 @@ if ($ex == 0) {
   for my $d ('.', @d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
     @files = grep {$_ ne 'same_result_marker' && $_ ne '.kiwitree'} @files;
-    if ($d eq 'KIWI') {
+    if ($d eq 'KIWI' || $d eq 'PRODUCT') {
       $kiwitree = [ grep {-d "$buildroot/.build.packages/$d/$_"} @files ];
       undef $kiwitree unless @$kiwitree;
       undef $kiwitree if defined($BSConfig::nokiwitree) && $BSConfig::nokiwitree;
@@ -4787,7 +4810,9 @@ if ($ex == 0) {
     my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
     eval {
       die(".kiwitree already exists\n") if -e $kiwitreefile;
-      buildkiwitree($kiwitreefile, map { ("$buildroot/.build.packages/KIWI/$_", "$_/") } @$kiwitree);
+      my $kiwidir = "$buildroot/.build.packages/KIWI";
+      $kiwidir = "$buildroot/.build.packages/PRODUCT" if $buildinfo->{'file'} =~ /\.productcompose$/;
+      buildkiwitree($kiwitreefile, map { ("$kiwidir/$_", "$_/") } @$kiwitree);
       BSUtil::touch("$kiwitreefile.rpmhdrs_only") if $buildinfo->{'rpmhdrs_only'};
       push @send, { name => '.kiwitree', filename => $kiwitreefile };
     };

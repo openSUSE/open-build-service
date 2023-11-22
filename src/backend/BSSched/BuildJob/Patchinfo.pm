@@ -713,6 +713,7 @@ sub build {
   $update->{'pkglist'} = {'collection' => [ $col ] };
   $update->{'patchinforef'} = "$projid/$packid";        # deleted in publisher...
   writexml("$jobdatadir/updateinfo.xml", undef, {'update' => [$update]}, $BSXML::updateinfo);
+  $bininfo->{'updateinfo.xml'} = genbininfo($jobdatadir, 'updateinfo.xml');
   writestr("$jobdatadir/logfile", undef, "update built succeeded ".localtime($now)."\n");
   $updateinfodata = {
     'packages' => \@tocopy,

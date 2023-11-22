@@ -130,6 +130,8 @@ sub read_bininfo {
   # .bininfo not present or old style, generate it
   $bininfo = {};
   for my $file (ls($dir)) {
+    $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
+    $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml';
     if ($file =~ /\.(?:$binsufsre)$/) {
       my @s = stat("$dir/$file");
       my $r = {};
@@ -154,7 +156,7 @@ sub read_bininfo {
       my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
       delete $r->{'path'};
       $bininfo->{$file} = $r;
-    } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/) {
+    } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/ || $file eq 'updateinfo.xml') {
       local *F;
       open(F, '<', "$dir/$file") || next;
       my @s = stat(F);
@@ -163,10 +165,6 @@ sub read_bininfo {
       $ctx->addfile(*F);
       close F;
       $bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
-    } elsif ($file eq '.nosourceaccess') {
-      $bininfo->{'.nosourceaccess'} = {};
-    } elsif ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
-      $bininfo->{'.nouseforbuild'} = {};
     }
   }
   return $bininfo;
