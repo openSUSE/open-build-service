@@ -121,7 +121,8 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
-  validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
+  # TODO: Remove if once migration has been executed. This is to prevent issues whenever a user is validated, but the rss_secret column isn't there yet
+  validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true, if: -> { has_attribute?(:rss_secret) }
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
