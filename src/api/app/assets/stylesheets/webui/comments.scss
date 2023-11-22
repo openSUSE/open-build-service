@@ -23,7 +23,7 @@
 .comment-bubble {
   $comment-bubble-outline: rgba($gray-400, 0.5);
   $comment-bubble-background: $gray-100;
-  @extend .rounded;
+  @extend .rounded-4;
   @extend .mb-2;
   border: 1px solid $comment-bubble-outline;
   position: relative;
@@ -35,9 +35,9 @@
   }
 
   // Arrow on the top left of the comment bubble
-  $comment-bubble-arrow-top-position: 0;
-  $comment-bubble-arrow-left-position: 14px;
-  $comment-bubble-arrow-size: 16px;
+  $comment-bubble-arrow-top-position: 12px;
+  $comment-bubble-arrow-left-position: 0;
+  $comment-bubble-arrow-size: 14px;
   // This creates two triangles.
   // `::before` creates a triangle which matches the color of the comment bubble's outline.
   //
@@ -53,17 +53,17 @@
     width: 0;
     height: 0;
     border: $comment-bubble-arrow-size solid transparent;
-    border-bottom-color: $comment-bubble-outline;
+    border-right-color: $comment-bubble-outline;
     border-top: 0;
     border-left: 0;
-    margin-left: -($comment-bubble-arrow-size / 2);
-    margin-top: -$comment-bubble-arrow-size;
+    margin-top: -($comment-bubble-arrow-size / 4);
+    margin-left: -$comment-bubble-arrow-size;
   }
   &::after {
-    top: $comment-bubble-arrow-top-position + 2px;
-    left: $comment-bubble-arrow-left-position + 1px;
+    top: $comment-bubble-arrow-top-position + 1px;
+    left: $comment-bubble-arrow-left-position + 2px;
     z-index: 1;
-    border-bottom-color: $comment-bubble-background;
+    border-right-color: $comment-bubble-background;
   }
 
   .dropdown {

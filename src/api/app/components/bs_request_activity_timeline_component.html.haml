@@ -1,5 +1,5 @@
 - timeline.each do |comment_or_history_element|
-  .timeline-item
+  .timeline-item.mb-3
     - if comment_or_history_element.is_a?(Comment)
       .comments-thread
         = render BsRequestCommentComponent.new(comment: comment_or_history_element, level: 1, commentable: comment_or_history_element.commentable,

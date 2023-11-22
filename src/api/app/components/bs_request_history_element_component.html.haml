@@ -1,22 +1,28 @@
-.d-inline-flex
+.d-flex.align-items-start
   = icon
-  = render(AvatarComponent.new(name: element.user.name, email: element.user.email, size: 36, shape: :circle, custom_css: 'avatars-counter'))
-  %p
-    = link_to(helpers.realname_with_login(element.user), user_path(element.user))
-    - if element.instance_of?(HistoryElement::RequestSuperseded)
-      superseded this request with
-      = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
-    - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
-      = element.user_action_prefix
-      %strong
-        = element.action_target
-      = element.user_action_suffix
-    - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
-      #{element.user_action} and dismissed pending reviews
-    - else
-      = element.user_action
-    = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
-      = render TimeComponent.new(time: element.created_at)
-
-.timeline-item-comment.mb-4
-  = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment, extra_css_classes: css_for_comment }
+  .ms-2
+    %span.small
+      = link_to(helpers.realname_with_login(element.user), user_path(element.user))
+      - if element.instance_of?(HistoryElement::RequestSuperseded)
+        superseded this request with
+        = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
+      - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
+        = element.user_action_prefix
+        %strong
+          = element.action_target
+        = element.user_action_suffix
+      - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
+        #{element.user_action} and dismissed pending reviews
+      - else
+        = element.user_action
+      = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
+        = render TimeComponent.new(time: element.created_at)
+      - if element.comment.present?
+        = link_to("#collapse-history-element-comment-#{element.id}",
+                    data: { 'bs-toggle': 'collapse' },
+                    aria: { expanded: false, controls: "collapse-history-element-comment" }) do
+          %i.fas.fa-sm.fa-chevron-right.expander.py-0{ title: 'Show details' }>
+          %i.fas.fa-sm.fa-chevron-down.collapser.py-0{ title: 'Hide details' }>
+- if element.comment.present?
+  .timeline-item-comment.collapse{ id: "collapse-history-element-comment-#{element.id}" }
+    %p.m-2.mb-4= element.comment

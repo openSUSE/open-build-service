@@ -11,20 +11,12 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
   context 'for any kind of history elements' do
     let(:element) { travel_to(1.day.ago) { create(:history_element_request_accepted, user: user) } }
 
-    it 'displays an avatar' do
-      expect(rendered_content).to have_selector("img[title='#{user.realname}']", count: 1)
-    end
-
     it 'displays the name of the user involved' do
       expect(rendered_content).to have_text("#{user.realname} (#{user.login})")
     end
 
     it 'displays the time in words' do
       expect(rendered_content).to have_text('1 day ago')
-    end
-
-    it 'displays the element comment' do
-      expect(rendered_content).to have_css('.timeline-item-comment', text: element.comment)
     end
   end
 
