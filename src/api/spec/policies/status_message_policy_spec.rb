@@ -9,8 +9,6 @@ RSpec.describe StatusMessagePolicy do
 
   subject { StatusMessagePolicy }
 
-  # rubocop:disable RSpec/RepeatedExample
-  # This cop is currently not recognizing the permissions block as separate test
   permissions :index?, :show? do
     it { is_expected.to permit(anonymous_user, status_message) }
     it { is_expected.to permit(user, status_message) }
@@ -24,5 +22,4 @@ RSpec.describe StatusMessagePolicy do
     it { is_expected.to permit(staff_user, status_message) }
     it { is_expected.to permit(admin_user, status_message) }
   end
-  # rubocop:enable RSpec/RepeatedExample
 end
