@@ -1,0 +1,69 @@
+.pb-3
+  %h4
+    = link_to(@path) do
+      = @patchinfo['summary']
+    = category
+    = rating
+    = stopped
+    = retracted
+  %p
+    Patch created by
+    - if (packager = User.find_by(login: patchinfo['packager']) || User.find_by(email: Mail::Address.new(patchinfo['packager']).address))
+      = render UserAvatarComponent.new(packager.login)
+    - else
+      = @patchinfo['packager']
+    - if @patchinfo.key?('incident')
+      in the maintenance incident request
+      - if (incident = BsRequest.find_by(number: @patchinfo['incident']))
+        = link_to(request_show_path(incident)) do
+          \##{@patchinfo['incident']}
+      - else
+        \##{@patchinfo['incident']}
+
+  - if @patchinfo['description'].present?
+    %h5 Patch description
+    %p= @patchinfo['description']
+
+  - if @patchinfo['message'].present?
+    %h5 Pop-up message
+    %p= @patchinfo['message']
+
+  - if @patchinfo['releasetarget'].present?
+    %h5 Targeted for release in the following projects
+    %ul
+      - @patchinfo['releasetarget'].each do |releasetarget|
+        %li
+          - if (project = Project.find_by_name(releasetarget['project']))
+            = link_to(project_show_path(project)) do
+              = releasetarget['project']
+          - else
+            = releasetarget['project']
+          - if releasetarget.key?('repository')
+            Repository:
+            = releasetarget['repository']
+
+  - if @patchinfo['binary'].present?
+    %h5 Affected binaries
+    %ul
+      - @patchinfo['binary'].each do |binary|
+        %li= binary
+
+  - if @patchinfo['package'].present?
+    %h5 Affected packages
+    %ul
+      - @patchinfo['package'].each do |package|
+        %li= package
+
+  - if @patchinfo['issue'].present?
+    %h5 Issues related to the patch
+    %ul
+      - @patchinfo['issue'].each do |issue_hash|
+        - if (issue = Issue.find_or_create_by_name_and_tracker(issue_hash['id'], issue_hash['tracker']))
+          %li
+            = link_to(issue.url) do
+              #{issue.label}:
+              = issue.state
+              = issue.summary
+
+  - properties.each do |property|
+    %span.badge.text-bg-info= property
