@@ -1,5 +1,5 @@
-.d-flex.mt-3
-  %i{ title: 'Comment', class: "fas fa-lg fa-comment lh-1 text-dark #{ level > 1 ? 'd-none' : '' }" }
+.d-flex.mt-3.align-items-start
+  %i{ title: 'Comment', class: "fas fa-lg fa-comment text-dark #{ level > 1 ? 'd-none' : '' }" }
   = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-2.flex-fill
     .comment-bubble

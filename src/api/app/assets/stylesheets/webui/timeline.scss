@@ -11,7 +11,7 @@
         position: relative;
         left: $timeline-offset; // The avatars of users involved in timeline items will be displayed on the timeline border
 
-        .d-inline-flex {
+        .d-flex {
             i:first-child {
                 padding-top: $timeline-item-avatar-height / 2;
                 height: $timeline-item-avatar-height;

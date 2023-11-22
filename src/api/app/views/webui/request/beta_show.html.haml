@@ -38,19 +38,20 @@
             #comments-list
               .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
                 %h4.list-group.mb-4.ms-3.pt-3 Comments & History
-                .timeline-item
-                  .d-inline-flex
+                .timeline-item.mb-3
+                  .d-flex.align-items-start
                     %i.fas.fa-lg.fa-code-commit.text-dark
-                    %p.ms-2.small
-                      - creator = User.find_by_login(@bs_request.creator) || User.nobody
-                      = link_to(realname_with_login(creator), user_path(creator))
-                      created this request
-                      = link_to('#request-creation', title: I18n.l(@bs_request.created_at.utc), name: 'request-creation') do
-                        = render TimeComponent.new(time: @bs_request.created_at)
-                      - if @bs_request.superseding.any?
-                        superseding
-                        - @bs_request.superseding.each do |superseded_request|
-                          = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
+                    .ms-2
+                      %span.small
+                        - creator = User.find_by_login(@bs_request.creator) || User.nobody
+                        = link_to(realname_with_login(creator), user_path(creator))
+                        created this request
+                        = link_to('#request-creation', title: I18n.l(@bs_request.created_at.utc), name: 'request-creation') do
+                          = render TimeComponent.new(time: @bs_request.created_at)
+                        - if @bs_request.superseding.any?
+                          superseding
+                          - @bs_request.superseding.each do |superseded_request|
+                            = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
 
                 - @bs_request.superseding.each do |superseding_request|
                   .timeline-item.pb-4
