@@ -1,6 +1,10 @@
 require 'api_error'
 
 module Token::Errors
+  class UnknownOperation < APIError
+    setup 400
+  end
+
   class NoReleaseTargetFound < APIError
     setup 404
   end

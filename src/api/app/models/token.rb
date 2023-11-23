@@ -43,9 +43,10 @@ class Token < ApplicationRecord
       Token::Release
     when 'workflow'
       Token::Workflow
-    else
-      # default is Token::Service
+    when 'service', 'runservice'
       Token::Service
+    else
+      raise Token::Errors::UnknownOperation, "unknown token operation '#{action}'"
     end
   end
 
