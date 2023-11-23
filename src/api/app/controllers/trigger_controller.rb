@@ -1,7 +1,6 @@
 class TriggerController < ApplicationController
   include Triggerable
-
-  ALLOWED_GITLAB_EVENTS = ['Push Hook', 'Tag Push Hook', 'Merge Request Hook'].freeze
+  include Trigger::Errors
 
   # Authentication happens with tokens, so extracting the user is not required
   skip_before_action :extract_user
@@ -10,9 +9,7 @@ class TriggerController < ApplicationController
   # SCMs like GitLab/GitHub send data as parameters which are not strings (e.g.: GitHub - PR number is a integer, GitLab - project is a hash)
   # Other SCMs might also do this, so we're not validating parameters.
   skip_before_action :validate_params
-  after_action :verify_authorized
 
-  before_action :validate_gitlab_event, if: :gitlab_webhook?
   before_action :set_token
   before_action :check_token_class
   before_action :set_project_name
@@ -24,7 +21,7 @@ class TriggerController < ApplicationController
   # set_multibuild_flavor needs to run after the set_object_to_authorize callback
   append_before_action :set_multibuild_flavor
 
-  include Trigger::Errors
+  after_action :verify_authorized
 
   def create
     authorize @token, :trigger?
@@ -46,18 +43,6 @@ class TriggerController < ApplicationController
   def check_token_class
     # It make no sense to process Token::Workflows on a runservice request
     raise ActiveRecord::RecordNotFound, 'Token not found' if @token.instance_of?(Token::Workflow)
-  end
-
-  def gitlab_webhook?
-    request.env['HTTP_X_GITLAB_EVENT'].present?
-  end
-
-  def github_webhook?
-    request.env['HTTP_X_GITHUB_EVENT'].present?
-  end
-
-  def validate_gitlab_event
-    raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
   end
 
   # AUTHENTICATION
