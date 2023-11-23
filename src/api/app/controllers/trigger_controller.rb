@@ -11,7 +11,8 @@ class TriggerController < ApplicationController
   skip_before_action :validate_params
 
   before_action :set_token
-  before_action :check_token_class
+  before_action :validate_parameters_by_token
+  before_action :validate_token_type, only: [:rebuild, :release, :runservice]
   before_action :set_project_name
   before_action :set_package_name
   # From Triggerable
@@ -26,23 +27,53 @@ class TriggerController < ApplicationController
   def create
     authorize @token, :trigger?
 
-    @token.executor.run_as do
-      opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
-               targetproject: params[:targetproject], targetrepository: params[:targetrepository],
-               filter_source_repository: params[:filter_source_repository] }
-      opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
-      @token.call(opts)
-      render_ok
-    end
+    opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
+             targetproject: params[:targetproject], targetrepository: params[:targetrepository],
+             filter_source_repository: params[:filter_source_repository] }
+    opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
+    @token.executor.run_as { @token.call(opts) }
+
+    render_ok
   rescue ArgumentError => e
     render_error status: 400, message: e
   end
 
+  # validate_token_type callback uses the action_name
+  def rebuild
+    create
+  end
+
+  # validate_token_type callback uses the action_name
+  def release
+    create
+  end
+
+  # validate_token_type callback uses the action_name
+  def runservice
+    create
+  end
+
   private
 
-  def check_token_class
-    # It make no sense to process Token::Workflows on a runservice request
-    raise ActiveRecord::RecordNotFound, 'Token not found' if @token.instance_of?(Token::Workflow)
+  def validate_token_type
+    raise InvalidToken, 'Invalid token found' unless @token.instance_of?(Token.token_type(action_name))
+  end
+
+  def validate_parameters_by_token
+    case @token.type
+    when 'Token::Rebuild', 'Token::Release'
+      return if params[:project].present?
+      return if @token.package.present?
+
+      raise MissingParameterError
+    when 'Token::Service'
+      return if params[:project].present? && params[:package].present?
+      return if @token.package.present?
+
+      raise MissingParameterError
+    when 'Token::Workflow'
+      raise InvalidToken, 'Invalid token found'
+    end
   end
 
   # AUTHENTICATION
@@ -61,6 +92,5 @@ class TriggerController < ApplicationController
 
   def set_package_name
     @package_name = params[:package]
-    raise MissingPackage if @package_name.blank? && @token.package_id.nil? && @token.token_name.in?(['rebuild', 'release', 'service'])
   end
 end
