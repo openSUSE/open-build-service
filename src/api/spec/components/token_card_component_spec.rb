@@ -21,7 +21,6 @@ RSpec.describe TokenCardComponent, type: :component do
     it { expect(rendered_content).to have_text("Id: #{token.id}") }
     it { expect(rendered_content).to have_text("Operation: #{token.class.token_name.capitalize}") }
     it { expect(rendered_content).to have_link(href: "/my/tokens/#{token.id}/edit") }
-    it { expect(rendered_content).to have_link(href: "/my/token_triggers/#{token.id}") }
   end
 
   context 'token with a package assigned' do

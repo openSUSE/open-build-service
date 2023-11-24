@@ -31,10 +31,6 @@
     - component.with_action do
       = link_to(edit_token_path(@token), title: 'Edit Token', class: 'nav-link p-1') do
         %i.fas.fa-edit
-  - if policy(@token).webui_trigger?
-    - component.with_action do
-      = link_to(token_trigger_path(@token), title: 'Trigger Token', class: 'nav-link p-1') do
-        %i.fas.fa-project-diagram
   - if @token.type == 'Token::Workflow'
     - component.with_action do
       = link_to(token_users_path(@token.id), title: 'Share Token', class: 'nav-link p-1') do
