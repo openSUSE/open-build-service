@@ -436,4 +436,39 @@ RSpec.describe 'Requests', :js, :vcr do
       expect(page).to have_css('.bg-staging')
     end
   end
+
+  describe 'a request with patchinfo' do
+    let(:maintenance_project) do
+      create(:maintenance_project,
+             name: 'MaintenanceProject',
+             title: 'official maintenance space',
+             target_project: [target_project],
+             maintainer: receiver)
+    end
+    let(:maintenance_request) do
+      create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: source_project.name,
+                                                                             source_package_names: [source_package.name],
+                                                                             target_project_name: maintenance_project.name,
+                                                                             target_releaseproject_names: [target_project.name])
+    end
+
+    before do
+      Flipper.enable(:request_show_redesign)
+      login submitter
+      create(:patchinfo, project_name: source_project.name, package_name: 'patchinfo')
+      visit request_show_path(maintenance_request)
+    end
+
+    it 'shows patch information' do
+      expect(page).to have_css('#patchinfo-details', text: 'Patches')
+    end
+
+    it 'shows category badge' do
+      expect(page).to have_css('#patchinfo-details .badge.text-bg-info', text: 'Recommended')
+    end
+
+    it 'shows rating badge' do
+      expect(page).to have_css('#patchinfo-details .badge.text-bg-secondary', text: 'Low priority')
+    end
+  end
 end
