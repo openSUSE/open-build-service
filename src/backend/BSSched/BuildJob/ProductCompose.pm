@@ -99,11 +99,12 @@ sub check {
 
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   my @archs;
-  if (!%imagearch || grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
+  if (!%imagearch || !grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
      @archs = ( $myarch );
   } else {
      @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   };
+  unshift @archs, 'local' if $BSConfig::localarch && !grep {$_ eq 'local'} @archs;
 
   # sort archs like in bs_worker
   @archs = sort(@archs);
@@ -267,6 +268,7 @@ sub check {
   my $projpacks = $gctx->{'projpacks'};
   my %unneeded_na;
   my %archs = map {$_ => 1} @archs;
+
   for my $aprp (@bprps) {
     my %seen_fn;	# resolve file conflicts in this prp
     my %known;
@@ -348,7 +350,6 @@ sub check {
 
       for my $apackid (BSSched::ProjPacks::orderpackids($aproj, @apackids)) {
 	next if $apackid eq '_volatile';
-	next if ($pdatas->{$apackid} || {})->{'patchinfo'};
 
 	# fast blocked check
 	if ($blocked_cache->{$apackid}) {
@@ -369,7 +370,7 @@ sub check {
 
 	# go through all the rpms in this package
 	my $bininfo = $gbininfo ? $gbininfo->{$apackid} : read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
-	next if !$bininfo || $bininfo->{'.nouseforbuild'};	# skip channels/patchinfos
+	next unless $bininfo;
 
 	$pkgs_checked++;
 
@@ -447,6 +448,16 @@ sub check {
 	  $rpms_meta{$rpm} = "$aprp/$arch/$apackid/$na";
 	  $seen_fn{$fn} = 1;
 	  push @next_unneeded_na, $na unless $ba eq 'src' || $ba eq 'nosrc';
+	}
+
+	# our buildinfo data also includes special files like appdata
+	if ($ctx->{'isreposerver'}) {
+	  for my $fn (@bi) {
+	    next unless ($fn =~ /[-.]appdata\.xml$/) || $fn eq '_modulemd.yaml' || $fn eq 'updateinfo.xml';
+	    next if $seen_fn{$fn};
+	    push @rpms, "$aprp/$arch/$apackid/$fn";
+	    $seen_fn{$fn} = 1 unless $fn eq 'updateinfo.xml' || $fn eq '_modulemd.yaml';	# we expect those to be renamed
+	  }
 	}
 
 	# check if we are blocked
@@ -571,7 +582,7 @@ sub build {
         'package' => $b[3],
         'binary' => $b[4],
       };
-    } elsif ($dobuildinfo && (($b[4] =~  /^(.*)[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml')) {
+    } elsif ($dobuildinfo && (($b[4] =~ /[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml' || $b[4] eq 'updateinfo.xml')) {
       $b = {
         'project' => $b[0],
         'repository' => $b[1],

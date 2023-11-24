@@ -742,8 +742,8 @@ if ($justbuild) {
   my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
   if ($localkiwi) {
     # make sure this is the right job for us
-    die("not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
-    die("not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+    my $imagemode = getimagemode($buildinfo);
+    die("not a product job\n") unless $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'prouctcompose');
   }
   $| = 1;
   dobuild($buildinfo);
@@ -4363,9 +4363,9 @@ sub startbuild {
   }
   if ($localkiwi) {
     # make sure this is the right job for us
+    my $imagemode = getimagemode($buildinfo);
     my $jobname = ($buildinfo->{'arch'} || '<unknown>') . '/' . ($buildinfo->{'job'} || '<unknown>');
-    die("bad job: $jobname: not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
-    die("bad job: $jobname: not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+    die("bad job: $jobname: not a product job\n") unless $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'prouctcompose');
   }
 
   $buildcode = codemd5('build');

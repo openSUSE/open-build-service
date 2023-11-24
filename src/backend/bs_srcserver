@@ -1924,7 +1924,7 @@ sub getprojpack {
 	    }
 	    if ($arch eq 'local' && defined($BSConfig::localarch)) {
 	      # the local arch only builds kiwi products (and the special types above)
-	      $rinfo->{'error'} = 'excluded' unless $type eq 'kiwi' && $imagetype eq 'product';
+	      $rinfo->{'error'} = 'excluded' unless $type eq 'productcompose' || ($type eq 'kiwi' && $imagetype eq 'product');
 	    }
 	    if ($type eq 'productcompose' || ($type eq 'kiwi' && $imagetype eq 'product')) {
 	      # Products always build on the first repo arch

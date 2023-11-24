@@ -1019,7 +1019,7 @@ sub create {
   }
 
   my $kiwimode;
-  $kiwimode = $buildtype if $buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'fissile';
+  $kiwimode = $buildtype if $buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'fissile' || $buildtype eq 'productcompose';
   my $ccache;
 
   my $syspath;
@@ -1340,7 +1340,7 @@ sub metacheck {
     return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
   }
   if (join('\n', @meta) eq join('\n', @$new_meta)) {
-    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker') && $ctx->{'relsynctrigger'}->{$packid}) {
+    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'productcompose') && $ctx->{'relsynctrigger'}->{$packid}) {
       if ($ctx->{'verbose'}) {
         print "      - $packid ($buildtype)\n";
         print "        rebuild counter sync\n";
