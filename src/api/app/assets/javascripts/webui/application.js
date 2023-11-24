@@ -58,6 +58,7 @@
 //= require webui/request_show_redesign/add_review.js
 //= require webui/request_show_redesign/build_results.js
 //= require webui/request_show_redesign/bs_request_actions.js
+//= require webui/request_show_redesign/chart_build_results.js
 //= require webui/request_show_redesign/rpm_lint_results.js
 //= require webui/delete_confirmation_dialog.js
 //= require webui/nav_tabs.js

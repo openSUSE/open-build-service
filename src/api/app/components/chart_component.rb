@@ -1,6 +1,10 @@
 class ChartComponent < ApplicationComponent
   attr_reader :raw_data
 
+  # parameters to decide whether the column_chart will be displayed or the simplified version will
+  MINIMUM_DISTINCT_BUILD_REPOSITORIES = 5
+  MINIMUM_BUILD_RESULTS = 12
+
   def initialize(raw_data:)
     super
 
