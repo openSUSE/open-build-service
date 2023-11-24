@@ -30,8 +30,6 @@ class User < ApplicationRecord
                           dependent: :destroy,
                           inverse_of: :token_workflow
 
-  has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy, foreign_key: :executor_id
-
   has_many :reviews, dependent: :nullify
 
   has_many :event_subscriptions, inverse_of: :user
@@ -121,8 +119,7 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
-  # TODO: Remove if once migration has been executed. This is to prevent issues whenever a user is validated, but the rss_secret column isn't there yet
-  validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true, if: -> { has_attribute?(:rss_secret) }
+  validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
@@ -875,6 +872,13 @@ class User < ApplicationRecord
 
   def watched_projects
     Project.where(id: watched_items.where(watchable_type: 'Project').pluck(:watchable_id)).order('LOWER(name), name')
+  end
+
+  # Can't use ActiveRecord::SecureToken because we don't want User to have
+  # a rss_secret by default. We want to skip creating Notification for the
+  # RSS channel if people don't use it.
+  def regenerate_rss_secret
+    update!(rss_secret: SecureRandom.base58(24))
   end
 
   private

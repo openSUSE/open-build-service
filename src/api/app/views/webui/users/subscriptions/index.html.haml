@@ -38,16 +38,16 @@
 .card.mt-3
   .card-body
     %h4.card-title RSS Feed
-    = form_tag(my_rss_token_path, id: 'generate_rss_token_form', method: :post) do
+    = form_tag(rss_secret_user_path(@user), id: 'generate_rss_token_form', method: :post) do
       %p
-      - if @user.rss_token
+      - if @user.rss_secret.present?
         To access your RSS feeds, use the following url:
-        = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'),
-        user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank', rel: 'noopener')
+        = link_to(user_rss_notifications_url(secret: @user.rss_secret, format: 'rss'),
+        user_rss_notifications_url(secret: @user.rss_secret, format: 'rss'), target: '_blank', rel: 'noopener')
       - else
         No feed url exists for your notifications.
       .card-body
-        = submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}", class: 'btn btn-primary'
+        = submit_tag "#{@user.rss_secret ? 'Regenerate Url' : 'Generate Url'}", class: 'btn btn-primary'
 
 - content_for :ready_function do
   :plain

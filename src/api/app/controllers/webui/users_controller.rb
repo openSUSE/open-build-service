@@ -140,6 +140,17 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
+  def rss_secret
+    user = User.session!
+
+    verb_prefix = user.rss_secret.present? ? 're-' : ''
+
+    user.regenerate_rss_secret
+    respond_to do |format|
+      format.html { redirect_to my_subscriptions_path, notice: "Successfully #{verb_prefix}generated RSS secret" }
+    end
+  end
+
   private
 
   def extract_filter_params
