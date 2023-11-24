@@ -1,5 +1,5 @@
-.pb-3
-  %h4
+.pb-1
+  %h5
     = link_to(@path) do
       = @patchinfo['summary']
     = category
@@ -21,15 +21,15 @@
         \##{@patchinfo['incident']}
 
   - if @patchinfo['description'].present?
-    %h5 Patch description
+    %h6 Patch description
     %p= @patchinfo['description']
 
   - if @patchinfo['message'].present?
-    %h5 Pop-up message
+    %h6 Pop-up message
     %p= @patchinfo['message']
 
   - if @patchinfo['releasetarget'].present?
-    %h5 Targeted for release in the following projects
+    %h6 Targeted for release in the following projects
     %ul
       - @patchinfo['releasetarget'].each do |releasetarget|
         %li
@@ -43,19 +43,19 @@
             = releasetarget['repository']
 
   - if @patchinfo['binary'].present?
-    %h5 Affected binaries
+    %h6 Affected binaries
     %ul
       - @patchinfo['binary'].each do |binary|
         %li= binary
 
   - if @patchinfo['package'].present?
-    %h5 Affected packages
+    %h6 Affected packages
     %ul
       - @patchinfo['package'].each do |package|
         %li= package
 
   - if @patchinfo['issue'].present?
-    %h5 Issues related to the patch
+    %h6 Issues related to the patch
     %ul
       - @patchinfo['issue'].each do |issue_hash|
         - if (issue = Issue.find_or_create_by_name_and_tracker(issue_hash['id'], issue_hash['tracker']))
