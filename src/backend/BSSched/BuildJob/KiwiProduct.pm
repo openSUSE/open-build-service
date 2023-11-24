@@ -483,6 +483,16 @@ sub check {
 	  push @next_unneeded_na, $na unless $ba eq 'src' || $ba eq 'nosrc';
 	}
 
+	# our buildinfo data also includes special files like appdata
+	if ($ctx->{'isreposerver'}) {
+	  for my $fn (@bi) {
+            next unless $fn =~ (/[-.]appdata\.xml$/) || $fn eq '_modulemd.yaml';
+	    next if $seen_fn{$fn};
+	    push @rpms, "$aprp/$arch/$apackid/$fn";
+	    $seen_fn{$fn} = 1 unless $fn eq '_modulemd.yaml';	# we expect the modulemd file to be renamed
+	  }
+	}
+
 	# check if we are blocked
 	if ($blocked_cache->{$apackid}) {
 	  push @blocked, "$aprp/$arch/$apackid";
@@ -606,7 +616,7 @@ sub build {
         'package' => $b[3],
         'binary' => $b[4],
       };
-    } elsif ($dobuildinfo && (($b[4] =~  /^(.*)[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml')) {
+    } elsif ($dobuildinfo && (($b[4] =~ /[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml')) {
       $b = {
         'project' => $b[0],
         'repository' => $b[1],
