@@ -692,6 +692,7 @@ sub read_gbininfo_remote {
       $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
     }
   };
+  return 0 if $@ && $@ =~ /^404/;# accept missing architectures from remote repos as it is done with local repos
   if ($@) {
     warn($@);
     my $error = $@;
@@ -747,6 +748,13 @@ sub convertpackagebinarylist {
     chomp $error;
     warn("$error\n");
     $error ||= 'internal error';
+    if ($error =~ /^404/) {
+      my $gbininfo = {};
+      my $rpackstatus = {};
+      update_gbininfo_remote_cache($gctx, $prpa, $gbininfo);
+      update_remotepackstatus_cache($gctx, $prpa, $rpackstatus, $packstatususer);
+      return ($gbininfo, $rpackstatus);
+    }
     if (BSSched::RPC::is_transient_error($error)) {
       my ($projid, $repoid, $arch) = split('/', $prpa, 3);
       $gctx->{'retryevents'}->addretryevent({'type' => 'scanprjbinaries', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});

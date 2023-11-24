@@ -94,7 +94,8 @@ sub read_gbininfo_remote {
     'timeout' => 200,
     'proxy' => $proxy,
   };
-  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+  my $packagebinarylist = eval { BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions") };
+  return {} if $@ && $@ =~ /^404/; # accept missing architectures from remote repos as it is done with local repos
   my $gbininfo = {};
   for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
    my %bins;
