@@ -99,11 +99,12 @@ sub check {
 
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   my @archs;
-  if (!%imagearch || grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
+  if (!%imagearch || !grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
      @archs = ( $myarch );
   } else {
      @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   };
+  unshift @archs, 'local';
 
   # sort archs like in bs_worker
   @archs = sort(@archs);
@@ -267,6 +268,7 @@ sub check {
   my $projpacks = $gctx->{'projpacks'};
   my %unneeded_na;
   my %archs = map {$_ => 1} @archs;
+
   for my $aprp (@bprps) {
     my %seen_fn;	# resolve file conflicts in this prp
     my %known;
@@ -348,7 +350,6 @@ sub check {
 
       for my $apackid (BSSched::ProjPacks::orderpackids($aproj, @apackids)) {
 	next if $apackid eq '_volatile';
-	next if ($pdatas->{$apackid} || {})->{'patchinfo'};
 
 	# fast blocked check
 	if ($blocked_cache->{$apackid}) {
@@ -369,7 +370,7 @@ sub check {
 
 	# go through all the rpms in this package
 	my $bininfo = $gbininfo ? $gbininfo->{$apackid} : read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
-	next if !$bininfo || $bininfo->{'.nouseforbuild'};	# skip channels/patchinfos
+	next unless $bininfo;
 
 	$pkgs_checked++;
 
@@ -426,7 +427,7 @@ sub check {
 	  next if $fn =~ /^::import::(.*?):/ && $archs{$1};	# we pick it up from the real arch
 	  my $na = "$bn.$ba";
 
-	  if ($seen_binary && ($ba ne 'src' && $ba ne 'nosrc')) {
+	  if ($seen_binary && ($ba ne 'src' && $ba ne 'nosrc') && $fn ne 'updateinfo.xml') {
 	    next if $seen_binary->{$na}++;
 	    # we also add the na to the unneeded_na hash so that we do
 	    # not have to check the seen_binary hash when testing if we
@@ -445,9 +446,19 @@ sub check {
 	  push @rpms, $rpm;
 	  $rpms_hdrmd5{$rpm} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
 	  $rpms_meta{$rpm} = "$aprp/$arch/$apackid/$na";
-	  $seen_fn{$fn} = 1;
+	  $seen_fn{$fn} = 1 unless $fn eq 'updateinfo.xml';
 	  push @next_unneeded_na, $na unless $ba eq 'src' || $ba eq 'nosrc';
 	}
+
+	# our buildinfo data also includes special files like appdata
+        if ($ctx->{'isreposerver'}) {
+          for my $fn (@bi) {
+            next unless ($fn =~ /[-.]appdata\.xml$/) || $fn eq '_modulemd.yaml' || $fn eq 'updateinfo.xml';
+            next if $seen_fn{$fn};
+            push @rpms, "$aprp/$arch/$apackid/$fn";
+            $seen_fn{$fn} = 1 unless $fn eq 'updateinfo.xml';
+          }
+        }
 
 	# check if we are blocked
 	if ($blocked_cache->{$apackid}) {
@@ -503,7 +514,7 @@ sub check {
     print "      - stats for $packid: $pkgs_taken/$pkgs_checked, $nbprps bprps, $narchs archs\n";
   }
 
-  if ($myarch ne $buildarch) {
+  if ($myarch ne $buildarch && $myarch ne 'local') {
     # looks good from our side. tell master arch to check it
     if ($markerdir && -e "$markerdir/.waiting_for_$myarch") {
       unlink("$markerdir/.waiting_for_$myarch");
@@ -571,7 +582,7 @@ sub build {
         'package' => $b[3],
         'binary' => $b[4],
       };
-    } elsif ($dobuildinfo && (($b[4] =~  /^(.*)[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml')) {
+    } elsif ($dobuildinfo && (($b[4] =~  /^(.*)[-.]appdata\.xml$/) || $b[4] eq '_modulemd.yaml' || $b[4] eq 'updateinfo.xml')) {
       $b = {
         'project' => $b[0],
         'repository' => $b[1],

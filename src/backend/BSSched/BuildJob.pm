@@ -1352,7 +1352,7 @@ sub metacheck {
     return ('done');
   }
   my $repo = $ctx->{'repo'};
-  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker') {
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'productcompose') {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local') {
       #print "      - $packid ($buildtype)\n";

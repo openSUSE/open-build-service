@@ -4364,8 +4364,8 @@ sub startbuild {
   if ($localkiwi) {
     # make sure this is the right job for us
     my $jobname = ($buildinfo->{'arch'} || '<unknown>') . '/' . ($buildinfo->{'job'} || '<unknown>');
-    die("bad job: $jobname: not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
-    die("bad job: $jobname: not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+    die("bad job: $jobname: not a product job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/ || $buildinfo->{'file'} =~ /\.productcompose$/;
+    die("bad job: $jobname: not a kiwi product job\n") if $buildinfo->{'file'} =~ /\.kiwi$/ && $buildinfo->{'imagetype'}->[0] ne 'product';
   }
 
   $buildcode = codemd5('build');

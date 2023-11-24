@@ -157,6 +157,7 @@ sub read_bininfo {
       delete $r->{'path'};
       $bininfo->{$file} = $r;
     } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/ || $file eq 'updateinfo.xml') {
+      $bininfo->{'.nouseforbuild'} = {} if $file eq 'updateinfo.xml';
       local *F;
       open(F, '<', "$dir/$file") || next;
       my @s = stat(F);
@@ -165,6 +166,10 @@ sub read_bininfo {
       $ctx->addfile(*F);
       close F;
       $bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+    } elsif ($file eq '.nosourceaccess') {
+      $bininfo->{'.nosourceaccess'} = {};
+    } elsif ($file eq '.channelinfo') {
+      $bininfo->{'.nouseforbuild'} = {};
     }
   }
   return $bininfo;
