@@ -3366,10 +3366,10 @@ sub getbuildinfo_post {
   }
   $info->{'path'} = $d->{'path'} if $d->{'path'};
   $info->{'containerpath'} = $d->{'containerpath'} if $d->{'containerpath'};
-  if ($bconf->{'type'} eq 'kiwi') {
-    $info->{'imagetype'} = $d->{'imagetype'};
+  if ($bconf->{'type'} eq 'kiwi' || $bconf->{'type'} eq 'productcompose') {
+    $info->{'imagetype'} = $d->{'imagetype'} if $d->{'imagetype'};
     $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
-    if (($info->{'imagetype'} || '') eq 'product') {
+    if ($bconf->{'type'} eq 'productcompose' || ($info->{'imagetype'} || '') eq 'product') {
       $info->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
       $info->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
     }

@@ -692,17 +692,9 @@ sub read_gbininfo_remote {
       $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
     }
   };
-  if ($@) {
-    warn($@);
-    my $error = $@;
-    $error =~ s/\n$//s;
-    ($projid, $repoid) = split('/', $ctx->{'prp'}, 2);
-    $gctx->{'retryevents'}->addretryevent({'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if BSSched::RPC::is_transient_error($error);
-    return undef;
-  }
-  return 0 if $packagebinarylist && $param->{'async'};
+  return 0 if !$@ && $packagebinarylist && $param->{'async'};
   my $gbininfo;
-  ($gbininfo, $rpackstatus) = convertpackagebinarylist($gctx, $prpa, $packagebinarylist, undef, undef, $remoteproj->{'partition'} ? 1 : undef);
+  ($gbininfo, $rpackstatus) = convertpackagebinarylist($gctx, $prpa, $packagebinarylist, $@, undef, $remoteproj->{'partition'} ? 1 : undef);
   if ($packstatus && $rpackstatus) {
     $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
     delete $packstatus->{'/users'};
@@ -745,8 +737,15 @@ sub convertpackagebinarylist {
 
   if ($error) {
     chomp $error;
-    warn("$error\n");
     $error ||= 'internal error';
+    warn("$error\n");
+    if ($error =~ /^404/) {
+      my $gbininfo = {};
+      my $rpackstatus = {};
+      update_gbininfo_remote_cache($gctx, $prpa, $gbininfo);
+      update_remotepackstatus_cache($gctx, $prpa, $rpackstatus, $packstatususer);
+      return ($gbininfo, $rpackstatus);
+    }
     if (BSSched::RPC::is_transient_error($error)) {
       my ($projid, $repoid, $arch) = split('/', $prpa, 3);
       $gctx->{'retryevents'}->addretryevent({'type' => 'scanprjbinaries', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});

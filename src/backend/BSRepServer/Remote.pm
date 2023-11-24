@@ -94,7 +94,11 @@ sub read_gbininfo_remote {
     'timeout' => 200,
     'proxy' => $proxy,
   };
-  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+  my $packagebinarylist = eval { BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions") };
+  if ($@) {
+    return {} if $@ =~ /^404/;
+    die($@);
+  }
   my $gbininfo = {};
   for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
    my %bins;
