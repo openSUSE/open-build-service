@@ -1,6 +1,6 @@
 .pb-1
   %p.m-0
-    = @patchinfo['summary']
+    = @patchinfo.summary
     = category
     = rating
     = stopped
@@ -13,57 +13,57 @@
   .collapse{ id: "patchinfo-collapse-#{@path.parameterize}" }
     %p
       Patch created by
-      - if (packager = User.find_by(login: patchinfo['packager']) || User.find_by(email: Mail::Address.new(patchinfo['packager']).address))
+      - if (packager = @patchinfo.packager_object)
         = render UserAvatarComponent.new(packager.login)
       - else
-        = @patchinfo['packager']
-      - if @patchinfo.key?('incident')
+        = @patchinfo.packager
+      - if @patchinfo.incident
         in the maintenance incident request
-        - if (incident = BsRequest.find_by(number: @patchinfo['incident']))
+        - if (incident = BsRequest.find_by(number: @patchinfo.incident))
           = link_to(request_show_path(incident)) do
-            \##{@patchinfo['incident']}
+            \##{@patchinfo.incident}
         - else
-          \##{@patchinfo['incident']}
+          \##{@patchinfo.incident}
 
-    - if @patchinfo['description'].present?
+    - if @patchinfo.description.present?
       %h6 Patch description
-      %p= @patchinfo['description']
+      %p= @patchinfo.description
 
-    - if @patchinfo['message'].present?
+    - if @patchinfo.message.present?
       %h6 Pop-up message
-      %p= @patchinfo['message']
+      %p= @patchinfo.message
 
-    - if @patchinfo['releasetarget'].present?
+    - if @patchinfo.releasetargets.present?
       %h6 Targeted for release in the following projects
       %ul
-        - @patchinfo['releasetarget'].each do |releasetarget|
+        - @patchinfo.releasetargets.each do |releasetarget|
           %li
-            - if (project = Project.find_by_name(releasetarget['project']))
+            - if (project = Project.find_by_name(releasetarget.project))
               = link_to(project_show_path(project)) do
-                = releasetarget['project']
+                = releasetarget.project
             - else
-              = releasetarget['project']
-            - if releasetarget.key?('repository')
+              = releasetarget.project
+            - if releasetarget.repository
               Repository:
-              = releasetarget['repository']
+              = releasetarget.repository
 
-    - if @patchinfo['binary'].present?
+    - if @patchinfo.binaries.present?
       %h6 Affected binaries
       %ul
-        - @patchinfo['binary'].each do |binary|
+        - @patchinfo.binaries.each do |binary|
           %li= binary
 
-    - if @patchinfo['package'].present?
+    - if @patchinfo.packages.present?
       %h6 Affected packages
       %ul
-        - @patchinfo['package'].each do |package|
+        - @patchinfo.packages.each do |package|
           %li= package
 
-    - if @patchinfo['issue'].present?
+    - if @patchinfo.issues.present?
       %h6 Issues related to the patch
       %ul
-        - @patchinfo['issue'].each do |issue_hash|
-          - if (issue = Issue.find_or_create_by_name_and_tracker(issue_hash['id'], issue_hash['tracker']))
+        - @patchinfo.issues.each do |issue_hash|
+          - if (issue = Issue.find_or_create_by_name_and_tracker(issue_hash.id, issue_hash.tracker))
             %li
               = link_to(issue.url) do
                 #{issue.label}:

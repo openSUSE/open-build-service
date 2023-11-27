@@ -293,6 +293,8 @@ GEM
     nokogiri (1.15.5)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    nokogiri-happymapper (0.9.0)
+      nokogiri (~> 1.5)
     octokit (8.0.0)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
@@ -583,6 +585,7 @@ DEPENDENCIES
   net-smtp
   next_rails
   nokogiri
+  nokogiri-happymapper
   octokit
   paper_trail
   pry

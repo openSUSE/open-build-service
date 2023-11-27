@@ -16,33 +16,33 @@ class PatchinfoComponent < ApplicationComponent
 
   def initialize(patchinfo, path)
     super
-    @patchinfo = Xmlhash.parse(patchinfo)
+    @patchinfo = Backend::Xml::Patchinfo.parse(patchinfo)
     @path = path
   end
 
   def category
-    badge(patchinfo['category'], CATEGORY_COLOR[patchinfo['category'].to_sym])
+    badge(@patchinfo.category, CATEGORY_COLOR[@patchinfo.category.to_sym])
   end
 
   def rating
-    badge("#{patchinfo['rating']} priority", RATING_COLOR[patchinfo['rating'].to_sym])
+    badge("#{@patchinfo.rating} priority", RATING_COLOR[@patchinfo.rating.to_sym])
   end
 
   def stopped
-    return '' unless @patchinfo['stopped']
+    return '' unless @patchinfo.stopped
 
     badge('stopped', 'text-bg-danger')
   end
 
   def retracted
-    return '' unless @patchinfo['retracted']
+    return '' unless @patchinfo.retracted
 
     badge('retracted', 'text-bg-danger')
   end
 
   def properties
-    ['reboot_needed', 'relogin_needed', 'zypp_restart_needed'].filter_map do |property|
-      patchinfo.key?(property) ? property : nil
+    [:reboot_needed, :relogin_needed, :zypp_restart_needed].filter_map do |property|
+      patchinfo.send(property) ? property : nil
     end
   end
 
