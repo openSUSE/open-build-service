@@ -978,11 +978,14 @@ sub getbinarylist {
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
   if ($view eq 'cpio') {
     my @files;
-    my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
-    @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
-    @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
-    @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
-    @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
+    my @bins = ls("$reporoot/$prp/$arch/$packid");
+    if (!$cgi->{'copybuild'}) {
+      @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} @bins;
+      @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
+      @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
+      @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+      @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
+    }
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       if (/\.tar$/ && ! -e "$reporoot/$prp/$arch/$packid/$_") {
@@ -999,6 +1002,11 @@ sub getbinarylist {
       my $fd = gensym;
       next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$_");
       push @files, {'name' => $_, 'filename' => $fd};
+    }
+    if ($cgi->{'copybuild'}) {
+      for my $g ('meta', 'logfiles.success', 'logfiles.fail') {
+        push @files, { 'name' => ".global.$g", 'filename' => "$reporoot/$prp/$arch/:$g/$packid" } if -e "$reporoot/$prp/$arch/:$g/$packid";
+      }
     }
     BSWatcher::reply_cpio(\@files);
     return undef;
@@ -2494,7 +2502,7 @@ sub copybuild {
   my $orepoid = defined($cgi->{'orepository'}) ? $cgi->{'orepository'} : $repoid;
   my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   return $BSStdServer::return_ok if $oprojid eq $projid && $orepoid eq $repoid && $opackid eq $packid;
-  return $BSStdServer::return_ok unless -d "$reporoot/$oprojid/$orepoid/$arch/$opackid";
+  return $BSStdServer::return_ok unless $cgi->{'remoteurl'} || -d "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   my $job = "copy-".Digest::MD5::md5_hex("$$/$projid/$repoid/$arch/$packid".time());
   local *F;
   my $jobstatus = {
@@ -2508,6 +2516,24 @@ sub copybuild {
   my $ogdst = "$reporoot/$oprojid/$orepoid/$arch";
   my $odir = "$ogdst/$opackid";
   mkdir_p($dir);
+  if ($cgi->{'remoteurl'}) {
+    $odir = "$dir/.remote";
+    mkdir_p($odir);
+    my $param = {
+      'uri' => "$cgi->{'remoteurl'}/build/$oprojid/$orepoid/$arch/$opackid",
+      'directory' => $odir,
+      'timeout' => 600,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    };
+    BSRPC::rpc($param, undef, 'view=cpio', 'noajax=1', 'copybuild=1');
+    rmdir($odir);
+    if (!-d $odir) {
+      rmdir($dir);
+      unlink("$jobsdir/$arch/$job:status");
+      close(F);
+      return $BSStdServer::return_ok;
+    }
+  }
   my %delayed_linking;
   my $needsign;
   my %renamed;
@@ -2567,7 +2593,11 @@ sub copybuild {
       }
       $renamed{$bin} = $nbin if $bin ne $nbin;
       if (-d "$odir/$bin") {
-        $delayed_linking{"$dir/$nbin"} = "$odir/$bin";
+	if ($cgi->{'remoteurl'}) {
+	  rename("$odir/$bin", "$dir/$bin") || die("rename $odir/$bin $dir/$bin: $!\n");
+	} else {
+	  $delayed_linking{"$dir/$nbin"} = "$odir/$bin";
+	}
       } elsif ($bin =~ /\.containerinfo$/) {
 	# update file path in containerinfo
 	my $containerinfo = readstr("$odir/$bin");
@@ -2618,10 +2648,21 @@ sub copybuild {
     }
   }
   link("$odir/.meta.success", "$dir/.meta.success") if -e "$odir/.meta.success";
-  link("$ogdst/:meta/$opackid", "$dir/meta") if -e "$ogdst/:meta/$opackid";
-  link("$ogdst/:logfiles.success/$opackid", "$dir/.logfile.success");
-  link("$ogdst/:logfiles.fail/$opackid", "$dir/.logfile.fail");
+  if ($cgi->{'remoteurl'}) {
+    link("$odir/.global.meta", "$dir/meta") if -e "$odir/.global.meta";
+    link("$odir/.global.logfiles.success", "$dir/.logfile.success") if -e "$odir/.global.logfiles.success";
+    link("$odir/.global.logfiles.fail", "$dir/.logfile.fail") if -e "$odir/.global.logfiles.fail";
+  } else {
+    link("$ogdst/:meta/$opackid", "$dir/meta") if -e "$ogdst/:meta/$opackid";
+    link("$ogdst/:logfiles.success/$opackid", "$dir/.logfile.success");
+    link("$ogdst/:logfiles.fail/$opackid", "$dir/.logfile.fail");
+  }
   BSUtil::touch("$dir/.preinstallimage") if -e "$odir/.preinstallimage";
+
+  if ($cgi->{'remoteurl'}) {
+    BSUtil::cleandir("$dir/.remote");
+    rmdir("$dir/.remote") || die("rmdir $dir/.remote: $!\n");
+  }
 
   # we run the linking of directory trees in background, since it can take a long time
   # for simple files it happened already
@@ -4442,9 +4483,9 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? remoteurl:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withevr:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withevr:bool? copybuild:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,

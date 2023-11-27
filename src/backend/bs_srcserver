@@ -4764,9 +4764,6 @@ sub copybuild {
   getrev($oprojid, $opackid);
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $oreposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
-  if ($reposerver ne $oreposerver) {
-    die("cannot copy binaries between different reposiory servers yet\n");
-  }
   my %tocopy = ($opackid => $packid);
   if ($cgi->{'multibuild'}) {
     my $mb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid) || {};
@@ -4781,6 +4778,7 @@ sub copybuild {
     push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
     push @args, "setrelease=$cgi->{'setrelease'}" if $cgi->{'setrelease'};
     push @args, 'resign=1' if $cgi->{'resign'};
+    push @args, "remoteurl=$oreposerver" if $reposerver ne $oreposerver;
     my $param = {
       'uri' => "$reposerver/build/$projid/$repoid/$arch/$tocopy{$opackid}",
       'request' => 'POST',
