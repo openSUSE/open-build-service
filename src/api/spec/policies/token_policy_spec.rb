@@ -13,7 +13,7 @@ RSpec.describe TokenPolicy, type: :policy do
 
   subject { described_class }
 
-  permissions :webui_trigger?, :show? do
+  permissions :show? do
     it { is_expected.not_to permit(other_user, user_token) }
     it { is_expected.not_to permit(token_user, rss_token) }
 
@@ -22,11 +22,6 @@ RSpec.describe TokenPolicy, type: :policy do
 
   permissions :show?, :create?, :update? do
     it { is_expected.to permit(token_user, workflow_token) }
-  end
-
-  permissions :webui_trigger? do
-    it { is_expected.not_to permit(token_user, workflow_token) }
-    it { is_expected.not_to permit(unconfirmed_user, token_of_unconfirmed_user) }
   end
 
   # New action is permitted on any kind of token and user

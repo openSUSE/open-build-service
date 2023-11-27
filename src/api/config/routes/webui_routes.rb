@@ -379,7 +379,6 @@ OBSApi::Application.routes.draw do
         resources :users, only: [:index, :create, :destroy], controller: 'webui/users/tokens/users', constraints: cons
         resources :groups, only: [:create, :destroy], controller: 'webui/users/tokens/groups', constraints: cons
       end
-      resources :token_triggers, only: [:show, :update], controller: 'webui/users/token_triggers'
     end
 
     get 'home', to: 'webui/webui#home', as: :home

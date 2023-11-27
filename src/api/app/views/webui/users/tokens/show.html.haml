@@ -99,10 +99,6 @@
             = link_to(edit_token_path(@token), class: 'ps-2', title: 'Edit') do
               %i.fas.fa-edit
               %span.nav-item-name Edit
-          - if policy(@token).webui_trigger?
-            = link_to(token_trigger_path(@token), class: 'ps-2', title: 'Trigger Token') do
-              %i.fas.fa-project-diagram
-              %span.nav-item-name Trigger Token
           - if @token.type == 'Token::Workflow'
             = link_to(token_users_path(@token.id), class: 'ps-2', title: 'Share') do
               %i.fas.fa-users
