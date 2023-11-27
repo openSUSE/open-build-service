@@ -584,6 +584,8 @@ class SourceController < ApplicationController
 
   def _check_single_target!(source_repository, target_repository)
     # checking write access and architectures
+    raise UnknownRepository, 'Invalid source repository' unless source_repository
+    raise UnknownRepository, 'Invalid target repository' unless target_repository
     raise CmdExecutionNoPermission, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
 
     source_repository.check_valid_release_target!(target_repository)
