@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mail'
+
 class PatchinfoComponent < ApplicationComponent
   attr_reader :patchinfo, :path
 
