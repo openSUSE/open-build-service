@@ -28,11 +28,7 @@ class Project
       project.remoteurl = xmlhash.value('remoteurl')
       project.remoteproject = xmlhash.value('remoteproject')
       project.scmsync = xmlhash.value('scmsync')
-      project.kind = if xmlhash.value('kind').present?
-                       xmlhash.value('kind')
-                     else
-                       'standard'
-                     end
+      project.kind = xmlhash.value('kind').presence || 'standard'
 
       #--- update flag group ---#
       project.update_all_flags(xmlhash)
