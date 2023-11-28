@@ -248,9 +248,7 @@ module MaintenanceHelper
     return unless source_package.is_patchinfo?
 
     # check for patch name inside of _patchinfo file
-    xml = Patchinfo.new.read_patchinfo_xmlhash(source_package)
-    e = xml.elements('name')
-    patch_name = e ? e.first : ''
+    patch_name = Backend::Xml::Patchinfo.parse(source_package.source_file('_patchinfo')).name || ''
 
     mi = MaintenanceIncident.find_by_db_project_id(source_package.project_id)
     return unless mi

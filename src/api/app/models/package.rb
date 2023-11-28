@@ -511,10 +511,9 @@ class Package < ApplicationRecord
   def update_issue_list
     current_issues = {}
     if is_patchinfo?
-      xml = Patchinfo.new.read_patchinfo_xmlhash(self)
-      xml.elements('issue') do |i|
+      Backend::Xml::Patchinfo.parse(source_file('_patchinfo')).issues.each do |i|
         current_issues['kept'] ||= []
-        current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
+        current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i.id, i.tracker)
       rescue IssueTracker::NotFoundError => e
         # if the issue is invalid, we ignore it
         Rails.logger.debug e

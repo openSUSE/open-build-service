@@ -17,7 +17,7 @@ module PackageService
       # special checks in their models
       Service.verify_xml!(@content) if service?
       Channel.verify_xml!(@content) if channel?
-      Patchinfo.new.verify_data(@package.project, @content) if patchinfo?
+      Backend::Xml::Patchinfo.parse(@content).verify_project(@package.project) if patchinfo?
     end
 
     private

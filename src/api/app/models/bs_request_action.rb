@@ -583,9 +583,9 @@ class BsRequestAction < ApplicationRecord
     new_targets.uniq!
     new_packages.uniq!
     new_packages.each do |pkg|
-      release_targets = pkg.is_patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
+      release_targets = Backend::Xml::Patchinfo.parse(pkg.source_file('_patchinfo')).releasetargets if pkg.is_patchinfo?
       new_targets.each do |new_target_project|
-        next if release_targets.present? && !release_targets.any? { |rt| rt['project'] == new_target_project.name }
+        next if release_targets.present? && !release_targets.any? { |rt| rt.project == new_target_project.name }
 
         # skip if there is no active maintenance trigger for this package
         next if is_maintenance_release? && !has_matching_target?(pkg.project, new_target_project)

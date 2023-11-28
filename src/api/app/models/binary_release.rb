@@ -88,11 +88,11 @@ class BinaryRelease < ApplicationRecord
         end
         if binary['patchinforef']
           begin
-            patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
+            patchinfo = Backend::Xml::Patchinfo.parse(Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
           rescue Backend::NotFoundError
             # patchinfo disappeared meanwhile
           end
-          hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
+          hash[:binary_maintainer] = patchinfo&.packager
         end
 
         # put a reference to the medium aka container
