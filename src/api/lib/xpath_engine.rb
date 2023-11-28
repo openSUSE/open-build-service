@@ -418,7 +418,7 @@ class XpathEngine
     # logger.debug "-------------- predicate finished ----------"
   end
 
-  def evaluate_expr(expr, root, escape = false)
+  def evaluate_expr(expr, root, escape: false)
     table = @base_table
     a = []
     until expr.empty?
@@ -569,7 +569,7 @@ class XpathEngine
     # logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
 
     hs = evaluate_expr(haystack, root)
-    ne = evaluate_expr(needle, root, true)
+    ne = evaluate_expr(needle, root, escape: true)
 
     condition = if hs.nil? || ne.nil?
                   '0'
@@ -630,7 +630,7 @@ class XpathEngine
     # logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
 
     s1 = evaluate_expr(x, root)
-    s2 = evaluate_expr(y, root, true)
+    s2 = evaluate_expr(y, root, escape: true)
 
     condition = "#{s1} LIKE CONCAT(#{s2},'%')"
     # logger.debug "-- condition: [#{condition}]"
@@ -642,7 +642,7 @@ class XpathEngine
     # logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
 
     s1 = evaluate_expr(x, root)
-    s2 = evaluate_expr(y, root, true)
+    s2 = evaluate_expr(y, root, escape: true)
 
     condition = "#{s1} LIKE CONCAT('%',#{s2})"
     # logger.debug "-- condition: [#{condition}]"
