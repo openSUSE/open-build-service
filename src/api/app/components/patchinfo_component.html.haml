@@ -36,16 +36,16 @@
     - if @patchinfo['releasetarget'].present?
       %h6 Targeted for release in the following projects
       %ul
-        - release_targets.each do |releasetarget|
+        - release_targets.each do |release_target|
           %li
-            - if (project = Project.find_by_name(releasetarget['project']))
+            - if (project = Project.find_by_name(release_target['project']))
               = link_to(project_show_path(project)) do
-                = releasetarget['project']
+                = release_target['project']
             - else
-              = releasetarget['project']
-            - if releasetarget.key?('repository')
+              = release_target['project']
+            - if release_target.key?('repository')
               Repository:
-              = releasetarget['repository']
+              = release_target['repository']
 
     - if @patchinfo['binary'].present?
       %h6 Affected binaries
