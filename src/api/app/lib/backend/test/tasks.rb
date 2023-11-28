@@ -11,15 +11,6 @@ module Backend
         end
       end
 
-      def run_dispatcher
-        Rails.logger.debug 'run dispatcher'
-        perlopts = "-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
-        IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_dispatch --testmode") do |io|
-          # just for waiting until dispatcher finishes
-          io.each { |line| Rails.logger.debug { "dispatcher: #{line.strip.chomp}" } if line.present? }
-        end
-      end
-
       def run_publisher
         Rails.logger.debug 'run publisher'
         perlopts = "-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
