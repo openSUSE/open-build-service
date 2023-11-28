@@ -512,7 +512,6 @@ Naming/MethodParameterName:
     - 'app/models/worker_status.rb'
     - 'app/services/monitor_controller_service/building_information_updater.rb'
     - 'lib/memory_debugger.rb'
-    - 'lib/xpath_engine.rb'
     - 'script/reformat_memprof'
 
 # Offense count: 51

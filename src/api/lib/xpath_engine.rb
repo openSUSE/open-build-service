@@ -471,11 +471,11 @@ class XpathEngine
     str.gsub(/([_%])/, '\\\\\1')
   end
 
-  def xpath_op_eq(root, lv, rv)
-    # logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
+  def xpath_op_eq(root, left_value, right_value)
+    # logger.debug "-- xpath_op_eq(#{left_value.inspect}, #{right_value.inspect}) --"
 
-    lval = evaluate_expr(lv, root)
-    rval = evaluate_expr(rv, root)
+    lval = evaluate_expr(left_value, root)
+    rval = evaluate_expr(right_value, root)
 
     condition = if lval.nil? || rval.nil?
                   '0'
@@ -487,11 +487,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_neq(root, lv, rv)
-    # logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
+  def xpath_op_neq(root, left_value, right_value)
+    # logger.debug "-- xpath_op_neq(#{left_value.inspect}, #{right_value.inspect}) --"
 
-    lval = evaluate_expr(lv, root)
-    rval = evaluate_expr(rv, root)
+    lval = evaluate_expr(left_value, root)
+    rval = evaluate_expr(right_value, root)
 
     condition = if lval.nil? || rval.nil?
                   '1'
@@ -504,39 +504,39 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_gt(root, lv, rv)
-    lval = evaluate_expr(lv, root)
-    rval = evaluate_expr(rv, root)
+  def xpath_op_gt(root, left_value, right_value)
+    lval = evaluate_expr(left_value, root)
+    rval = evaluate_expr(right_value, root)
 
     @conditions << "#{lval} > #{rval}"
   end
 
-  def xpath_op_gteq(root, lv, rv)
-    lval = evaluate_expr(lv, root)
-    rval = evaluate_expr(rv, root)
+  def xpath_op_gteq(root, left_value, right_value)
+    lval = evaluate_expr(left_value, root)
+    rval = evaluate_expr(right_value, root)
 
     @conditions << "#{lval} >= #{rval}"
   end
 
-  def xpath_op_lt(root, lv, rv)
-    lval = evaluate_expr(lv, root)
-    rval = evaluate_expr(rv, root)
+  def xpath_op_lt(root, left_value, right_value)
+    lval = evaluate_expr(left_value, root)
+    rval = evaluate_expr(right_value, root)
 
     @conditions << "#{lval} < #{rval}"
   end
 
-  def xpath_op_lteq(root, lv, rv)
-    lval = evaluate_expr(lv, root)
-    rval = evaluate_expr(rv, root)
+  def xpath_op_lteq(root, left_value, right_value)
+    lval = evaluate_expr(left_value, root)
+    rval = evaluate_expr(right_value, root)
 
     @conditions << "#{lval} <= #{rval}"
   end
 
-  def xpath_op_and(root, lv, rv)
-    # logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
-    parse_predicate(root, lv)
+  def xpath_op_and(root, left_value, right_value)
+    # logger.debug "-- xpath_op_and(#{left_value.inspect}, #{right_value.inspect}) --"
+    parse_predicate(root, left_value)
     lv_cond = @conditions.pop
-    parse_predicate(root, rv)
+    parse_predicate(root, right_value)
     rv_cond = @conditions.pop
 
     condition = "((#{lv_cond}) AND (#{rv_cond}))"
@@ -545,12 +545,12 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_op_or(root, lv, rv)
-    # logger.debug "-- xpath_op_or(#{lv.inspect}, #{rv.inspect}) --"
+  def xpath_op_or(root, left_value, right_value)
+    # logger.debug "-- xpath_op_or(#{left_value.inspect}, #{right_value.inspect}) --"
 
-    parse_predicate(root, lv)
+    parse_predicate(root, left_value)
     lv_cond = @conditions.pop
-    parse_predicate(root, rv)
+    parse_predicate(root, right_value)
     rv_cond = @conditions.pop
 
     condition = if lv_cond == '0'
@@ -626,11 +626,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_func_starts_with(root, x, y)
-    # logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
+  def xpath_func_starts_with(root, left_value, right_value)
+    # logger.debug "-- xpath_func_starts_with(#{left_value.inspect}, #{right_value.inspect}) --"
 
-    s1 = evaluate_expr(x, root)
-    s2 = evaluate_expr(y, root, escape: true)
+    s1 = evaluate_expr(left_value, root)
+    s2 = evaluate_expr(right_value, root, escape: true)
 
     condition = "#{s1} LIKE CONCAT(#{s2},'%')"
     # logger.debug "-- condition: [#{condition}]"
@@ -638,11 +638,11 @@ class XpathEngine
     @conditions << condition
   end
 
-  def xpath_func_ends_with(root, x, y)
-    # logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
+  def xpath_func_ends_with(root, left_value, right_value)
+    # logger.debug "-- xpath_func_ends_with(#{left_value.inspect}, #{right_value.inspect}) --"
 
-    s1 = evaluate_expr(x, root)
-    s2 = evaluate_expr(y, root, escape: true)
+    s1 = evaluate_expr(left_value, root)
+    s2 = evaluate_expr(right_value, root, escape: true)
 
     condition = "#{s1} LIKE CONCAT('%',#{s2})"
     # logger.debug "-- condition: [#{condition}]"
