@@ -43,7 +43,7 @@ module Backend::Xml
       # check the packager field
       User.find_by_login!(packager) if packager
       # valid issues?
-      issues.map { |i| i.object }
+      issues.map(&:object)
       # are releasetargets specified ? validate that this project is actually defining them.
       releasetargets.map { |rt| rt.compare_releasetargers(project) }
     end
