@@ -36,7 +36,7 @@
     - if @patchinfo['releasetarget'].present?
       %h6 Targeted for release in the following projects
       %ul
-        - @patchinfo['releasetarget'].each do |releasetarget|
+        - release_targets.each do |releasetarget|
           %li
             - if (project = Project.find_by_name(releasetarget['project']))
               = link_to(project_show_path(project)) do
@@ -50,19 +50,19 @@
     - if @patchinfo['binary'].present?
       %h6 Affected binaries
       %ul
-        - @patchinfo['binary'].each do |binary|
+        - binaries.each do |binary|
           %li= binary
 
     - if @patchinfo['package'].present?
       %h6 Affected packages
       %ul
-        - @patchinfo['package'].each do |package|
+        - packages.each do |package|
           %li= package
 
     - if @patchinfo['issue'].present?
       %h6 Issues related to the patch
       %ul
-        - @patchinfo['issue'].each do |issue_hash|
+        - issues.each do |issue_hash|
           - if (issue = Issue.find_or_create_by_name_and_tracker(issue_hash['id'], issue_hash['tracker']))
             %li
               = link_to(issue.url) do
