@@ -36,11 +36,10 @@
         }
 
         i.timeline-break, i.timeline-offset {
-            @extend .py-2;
+            @extend .py-1;
             @extend .me-2;
             @extend .fas;
             @extend .fa-ellipsis-vertical;
-            margin-left: 0.66rem;
         }
         i.timeline-break {
             background-color: var(--timeline-bg);
@@ -51,6 +50,7 @@
         }
         i.timeline-offset {
             color: transparent;
+            @extend .ms-3;
         }
     }
 
