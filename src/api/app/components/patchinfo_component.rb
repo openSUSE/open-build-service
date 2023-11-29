@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PatchinfoComponent < ApplicationComponent
-  attr_reader :patchinfo, :path
+  attr_reader :patchinfo, :path, :release_targets, :binaries, :packages, :issues
 
   CATEGORY_COLOR = { ptf: 'text-bg-danger',
                      security: 'text-bg-warning',
@@ -18,6 +18,11 @@ class PatchinfoComponent < ApplicationComponent
     super
     @patchinfo = Xmlhash.parse(patchinfo)
     @path = path
+
+    @release_targets = [@patchinfo['releasetarget']].flatten
+    @binaries = [@patchinfo['binary']].flatten
+    @packages = [@patchinfo['package']].flatten
+    @issues = [@patchinfo['issue']].flatten
   end
 
   def category
