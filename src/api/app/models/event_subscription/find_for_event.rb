@@ -82,6 +82,9 @@ class EventSubscription
     end
 
     def expand_receivers_for_groups(receiver, channel)
+      # RSS subscriptions for groups are not supported
+      return [] if channel == :rss
+
       # We don't split events which come through the web channel, for a group subscriber.
       # They are split in the NotificationService::WebChannel service, if needed.
       return [receiver] if channel == :web || receiver.email.present?
