@@ -88,7 +88,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 end
 
 RSpec.describe EventSubscription::FindForEvent do
-  describe '#subscribers' do
+  describe '#subscriptions' do
     context 'with a request' do
       let!(:watcher) { create(:confirmed_user) }
       let!(:watcher2) { create(:confirmed_user) }
@@ -282,9 +282,10 @@ RSpec.describe EventSubscription::FindForEvent do
       let(:user) { create(:confirmed_user) }
       let(:project) { create(:project_with_package) }
       let(:package) { project.packages.first }
+      let(:channel) { :web }
 
       subject do
-        EventSubscription::FindForEvent.new(event).subscriptions(:web)
+        EventSubscription::FindForEvent.new(event).subscriptions(channel)
       end
 
       context 'when dealing with projects' do
@@ -334,6 +335,26 @@ RSpec.describe EventSubscription::FindForEvent do
 
           it 'includes the target group' do
             expect(subject.map(&:subscriber)).to include(group)
+          end
+        end
+
+        context 'and there is a default subscription for RSS and the receiver is a group' do
+          let(:channel) { :rss }
+          let(:user) { group.users.first }
+          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, project: project.name) }
+          let!(:default_subscription) do
+            create(
+              :event_subscription,
+              eventtype: 'Event::RelationshipCreate',
+              receiver_role: 'any_role',
+              user: nil,
+              group: nil,
+              channel: :rss
+            )
+          end
+
+          it 'does not includes the target group' do
+            expect(subject.map(&:subscriber)).to be_empty
           end
         end
 
