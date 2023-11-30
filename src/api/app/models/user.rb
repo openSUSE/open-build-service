@@ -963,7 +963,7 @@ end
 #  login_failure_count           :integer          default(0), not null
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
-#  rss_secret                    :string(255)      indexed
+#  rss_secret                    :string(200)      indexed
 #  state                         :string           default("unconfirmed")
 #  created_at                    :datetime
 #  updated_at                    :datetime
