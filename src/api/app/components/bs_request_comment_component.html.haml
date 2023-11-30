@@ -1,8 +1,8 @@
 .d-flex.mt-3.align-items-start
   %i{ title: 'Comment', class: "fas fa-lg fa-comment text-dark #{ level > 1 ? 'd-none' : '' }" }
   = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
-  .timeline-item-comment.ms-2.flex-fill.overflow-auto
-    .comment-bubble
+  .timeline-item-comment.ms-0.flex-fill.overflow-auto
+    .comment-bubble.ms-3
       - if policy(comment).update? || policy(comment).destroy?
         .dropdown.dropleft.float-end.mt-3.mx-3
           = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false', class: 'text-dark') do
