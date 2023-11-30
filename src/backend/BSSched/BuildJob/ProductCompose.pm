@@ -127,6 +127,13 @@ sub check {
 
   my @deps = @{$info->{'dep'} || []};   # expanded?
   my %deps = map {$_ => 1} @deps;
+  my $versioned_deps;
+  for (grep {/[<=>]/} @deps) {
+    next unless /^(.*?)\s*([<=>].*)$/;
+    $deps{$1} = $2;
+    delete $deps{$_};
+    $versioned_deps = 1;
+  }
   delete $deps{''};
   delete $deps{"-$_"} for grep {!/^-/} keys %deps;
 
@@ -262,6 +269,7 @@ sub check {
   $mode |= 1 if $nodbgpkgs;
   $mode |= 2 if $nosrcpkgs;
   $mode |= 4 if $allpacks;
+  $mode |= 8 if $versioned_deps;
 
   my $maxblocked = 20;
   my %blockedarch;
@@ -398,9 +406,16 @@ sub check {
 	      next if $archs{$1};		# we pick it up from the real arch
 	      next if $seen_fn{$2};
 	    }
-	    if (!($deps{$bn} || ($allpacks && !$deps{"-$bn"}))) {
+	    my $d = $deps{$bn};
+	    if (!($d || ($allpacks && !$deps{"-$bn"}))) {
 	      $unneeded_na{$na} = 1;	# cache unneeded
 	      next;
+	    }
+	    if ($d && $d ne '1') {
+	      my $bi = $bininfo->{$fn};
+	      my $evr = "$bi->{'version'}-$bi->{'release'}";
+	      $evr = "$bi->{'epoch'}:$evr" if $bi->{'epoch'};
+	      next unless Build::matchsingledep("$bn=$evr", "$bn$d", 'rpm');
 	    }
 	    $needit = 1;
 	    last;
