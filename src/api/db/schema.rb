@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_11_20_182646) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_30_094135) do
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "available", default: false
@@ -220,6 +220,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_20_182646) do
     t.index ["staging_project_id"], name: "index_bs_requests_on_staging_project_id"
     t.index ["state"], name: "index_bs_requests_on_state"
     t.index ["superseded_by"], name: "index_bs_requests_on_superseded_by"
+  end
+
+  create_table "canned_responses", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "title"
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_canned_responses_on_user_id"
   end
 
   create_table "channel_binaries", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1207,6 +1216,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_20_182646) do
   add_foreign_key "binary_releases", "repositories", name: "binary_releases_ibfk_1"
   add_foreign_key "bs_request_action_accept_infos", "bs_request_actions", name: "bs_request_action_accept_infos_ibfk_1"
   add_foreign_key "bs_request_actions", "bs_requests", name: "bs_request_actions_ibfk_1"
+  add_foreign_key "canned_responses", "users"
   add_foreign_key "channel_binaries", "architectures", name: "channel_binaries_ibfk_4"
   add_foreign_key "channel_binaries", "channel_binary_lists", name: "channel_binaries_ibfk_1"
   add_foreign_key "channel_binaries", "projects", name: "channel_binaries_ibfk_2"
