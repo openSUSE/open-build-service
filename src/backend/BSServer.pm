@@ -703,6 +703,7 @@ sub reply_error {
   if ($reply_err) {
     warn("$req->{'peer'} [$$]: $err\n");
     $err = "reply_error: $reply_err";
+    chomp $err;
   }
   die("$req->{'peer'} [$$]: $err\n");
 }

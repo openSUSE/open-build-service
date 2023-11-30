@@ -4036,11 +4036,6 @@ sub dobuild {
       print "final rename failed: $!\n";
       return 1;
     }
-    # XXX: extracted cpio is flat but code below expects those directories...
-    symlink('.', "$buildroot/.build.packages/SRPMS");
-    symlink('.', "$buildroot/.build.packages/DEBS");
-    symlink('.', "$buildroot/.build.packages/KIWI");
-    symlink('.', "$buildroot/.build.packages/PRODUCT");
     # convert build statistics into xml
     my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
     updatestatsfromfile($stats, $statsfile) if -e $statsfile;
