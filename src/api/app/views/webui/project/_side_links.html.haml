@@ -1,4 +1,4 @@
-%ul.list-unstyled
+%ul.side_links.list-unstyled
   - if project.is_maintenance?
     = render partial: 'webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
                                                                                 project: project,

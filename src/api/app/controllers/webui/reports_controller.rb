@@ -3,16 +3,16 @@ class Webui::ReportsController < Webui::WebuiController
   after_action :verify_authorized
 
   def create
-    user = User.session!
-    report = user.submitted_reports.new(report_params)
-    authorize report
+    @user = User.session!
+    @report = @user.submitted_reports.new(report_params)
+    authorize @report
 
     @link_id = params[:link_id]
 
-    if report.save
-      flash[:success] = "#{report.reportable_type} reported successfully"
+    if @report.save
+      flash[:success] = "#{@report.reportable_type} reported successfully"
     else
-      flash[:error] = report.errors.full_messages.to_sentence
+      flash[:error] = @report.errors.full_messages.to_sentence
     end
 
     respond_to do |format|
