@@ -1,0 +1,13 @@
+- @pagetitle = 'Edit Canned Response'
+
+.card
+  .card-body
+    %h4 Edit canned response
+    = form_for(@canned_response) do |f|
+      .mb-3
+        = f.label :title, 'Title:'
+        = f.text_field :title, class: 'form-control'
+      .mb-3
+        = f.label :content, 'Content:'
+        = f.text_area :content, class: 'form-control'
+      = f.submit 'Save', class: 'btn btn-primary'

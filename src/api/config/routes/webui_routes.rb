@@ -379,6 +379,8 @@ OBSApi::Application.routes.draw do
         resources :users, only: [:index, :create, :destroy], controller: 'webui/users/tokens/users', constraints: cons
         resources :groups, only: [:create, :destroy], controller: 'webui/users/tokens/groups', constraints: cons
       end
+
+      resources :canned_responses, controller: 'webui/users/canned_responses', only: [:index, :create, :edit, :update, :destroy], constraints: cons
     end
 
     get 'home', to: 'webui/webui#home', as: :home

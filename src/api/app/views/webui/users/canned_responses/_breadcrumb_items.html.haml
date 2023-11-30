@@ -1,0 +1,12 @@
+%li.breadcrumb-item
+  = link_to('Your Profile', user_path(User.session!))
+
+- case action_name
+- when 'index'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Canned Responses
+- when 'edit'
+  %li.breadcrumb-item
+    = link_to 'Canned Responses', canned_responses_path
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Edit
