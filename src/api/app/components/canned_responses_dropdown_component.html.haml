@@ -1,0 +1,15 @@
+.dropdown
+  %button.btn.btn-link.text-decoration-none.dropdown-toggle{ type: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': false }
+    %i.fas.fa-comment-dots
+    Canned Responses
+  %ul.dropdown-menu.dropdown-menu-end
+    - @canned_responses.each do |canned_response|
+      %li.dropdown-item{ data: { 'canned-response': canned_response.content }, role: 'button' }= canned_response.title
+    %li
+      %hr.dropdown-divider/
+    %li
+      = link_to('Create and modify' , canned_responses_path, class: 'dropdown-item')
+:javascript
+  $(document).ready(function(){
+    setupCannedResponses();
+  });
