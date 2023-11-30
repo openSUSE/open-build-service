@@ -338,11 +338,11 @@ RSpec.describe EventSubscription::FindForEvent do
           end
         end
 
-        context 'and there is a default subscription for RSS and the receiver is a group' do
+        context 'and there is a default subscription for RSS and a group becomes a role for the project' do
           let(:channel) { :rss }
-          let(:user) { group.users.first }
           let(:event) { Event::RelationshipCreate.create(who: owner.login, group: group.title, project: project.name) }
-          let!(:default_subscription) do
+
+          before do
             create(
               :event_subscription,
               eventtype: 'Event::RelationshipCreate',
@@ -353,8 +353,8 @@ RSpec.describe EventSubscription::FindForEvent do
             )
           end
 
-          it 'does not includes the target group' do
-            expect(subject.map(&:subscriber)).to be_empty
+          it 'does not create any subscription' do
+            expect(subject).to be_empty
           end
         end
 
