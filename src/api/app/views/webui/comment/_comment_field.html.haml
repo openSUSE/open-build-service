@@ -18,7 +18,10 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
         = link_to('Preview', "#preview_#{element_suffix}", class: 'nav-link preview-message-tab', data: { 'bs-toggle': 'tab' },
         role: 'tab', aria: { controls: 'preview-message-tab', selected: 'false' })
     .tab-content.px-3
-      .tab-pane.fade.show.active.my-3{ id: "write_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'write-comment-tab' }
+      .tab-pane.fade.show.active.my-3{ id: "write_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'write-comment-tab',
+                                       'data-canned-controller': '' }
+        .d-flex.justify-content-end
+          = render CannedResponsesDropdownComponent.new(policy_scope(CannedResponse))
         ~ f.text_area :body, id: "#{element_suffix}_body", rows: '4',
         placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
         class: 'w-100 form-control comment-field message-field'

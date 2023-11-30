@@ -9,4 +9,8 @@ class ReportsModalComponent < ApplicationComponent
     @user = user
     @reports = reports
   end
+
+  def canned_responses
+    CannedResponsePolicy::Scope.new(user, CannedResponse).resolve
+  end
 end
