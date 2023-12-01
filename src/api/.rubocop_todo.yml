@@ -510,7 +510,6 @@ Naming/MethodParameterName:
     - 'app/models/worker_status.rb'
     - 'app/services/monitor_controller_service/building_information_updater.rb'
     - 'lib/memory_debugger.rb'
-    - 'lib/xpath_engine.rb'
     - 'script/reformat_memprof'
 
 # Offense count: 51
@@ -1178,7 +1177,6 @@ Style/OptionalBooleanParameter:
     - 'app/models/project.rb'
     - 'app/models/user.rb'
     - 'app/policies/package_policy.rb'
-    - 'lib/xpath_engine.rb'
 
 # Offense count: 11
 # This cop supports unsafe autocorrection (--autocorrect-all).
