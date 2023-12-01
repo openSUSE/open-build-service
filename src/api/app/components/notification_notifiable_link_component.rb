@@ -48,9 +48,12 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::CreateReport', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
     when 'Event::ReportForProject'
-      "Report for Project #{@notification.event_payload['project_name']}"
+      deleted_message = ' (already deleted)' unless Project.exists_by_name(@notification.event_payload['project_name'])
+      "Report for Project #{@notification.event_payload['project_name']}#{deleted_message}"
     when 'Event::ReportForPackage'
-      "Report for Package #{@notification.event_payload['project_name']} / #{@notification.event_payload['package_name']}"
+      deleted_message = ' (already deleted)' unless Package.exists_by_project_and_name(@notification.event_payload['project_name'],
+                                                                                       @notification.event_payload['package_name'])
+      "Report for Package #{@notification.event_payload['project_name']} / #{@notification.event_payload['package_name']}#{deleted_message}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
