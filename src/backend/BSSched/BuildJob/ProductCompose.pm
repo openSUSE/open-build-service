@@ -383,10 +383,10 @@ sub check {
 	$pkgs_checked++;
 
 	# first find out if we need any rpm from this package
-	#if (defined &BSSolv::kiwiproductcheck) {
-	#  # use fast C version from perl-BSSolv if available
-	#  next unless BSSolv::kiwiproductcheck($bininfo, $mode, \%unneeded_na, \%deps, \%seen_fn, \%archs);
-	#} else {
+	if (defined &BSSolv::kiwiproductcheck) {
+	  # use fast C version from perl-BSSolv if available
+	  next unless BSSolv::kiwiproductcheck($bininfo, $mode, \%unneeded_na, \%deps, \%seen_fn, \%archs);
+	} else {
 	  # slow pure-perl version
 	  my $needit;
 	  for my $fn (keys %$bininfo) {
@@ -421,7 +421,7 @@ sub check {
 	    last;
 	  }
 	  next unless $needit;
-	#}
+	}
 
 	$pkgs_taken++;
 
