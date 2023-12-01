@@ -45,8 +45,12 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
+    when 'Event::CreateReport', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
+    when 'Event::ReportForProject'
+      "Report for Project #{@notification.event_payload['project_name']}"
+    when 'Event::ReportForPackage'
+      "Report for Package #{@notification.event_payload['project_name']} / #{@notification.event_payload['package_name']}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
