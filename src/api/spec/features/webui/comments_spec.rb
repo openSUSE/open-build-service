@@ -14,6 +14,19 @@ RSpec.describe 'Comments', :js, :vcr do
     expect(page).to have_text('Comment Body')
   end
 
+  it 'can be created using canned responses' do
+    Flipper.enable(:content_moderation)
+    login user
+    create(:canned_response, user: user, title: 'test reply', content: 'This is a canned response')
+    visit project_show_path(user.home_project)
+    fill_in(placeholder: 'Write your comment here... (Markdown markup is supported)', with: 'Reply Body')
+    find_button('Canned Responses').click
+    find('li', text: 'test reply').click
+    find_button('Add comment').click
+
+    expect(page).to have_text('This is a canned response')
+  end
+
   it 'answering comments' do
     login user
     visit project_show_path(user.home_project)

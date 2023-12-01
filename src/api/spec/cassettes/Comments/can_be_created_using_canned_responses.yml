@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - '04985b02-2286-4f39-86ea-4cf6632cde22'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home burdenski' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:burdenski' does not exist</summary>
+          <details>404 project 'home:burdenski' does not exist</details>
+        </status>
+  recorded_at: Fri, 01 Dec 2023 14:19:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - be532945-1f15-4247-9b83-459c1b807903
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home burdenski' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:burdenski' does not exist</summary>
+          <details>404 project 'home:burdenski' does not exist</details>
+        </status>
+  recorded_at: Fri, 01 Dec 2023 14:19:24 GMT
+recorded_with: VCR 6.2.0
