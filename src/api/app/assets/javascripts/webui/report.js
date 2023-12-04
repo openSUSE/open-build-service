@@ -40,6 +40,28 @@ function hideReportButton(element) {
   $(element).addClass('d-none');
 }
 
+/* exported showYouReportedMessage */
+function showYouReportedMessage(reportLinkId, reportableType, reportableId, message) {
+  switch(reportableType) {
+    case 'Comment':
+      // Comments differ depending on where they are, so this is why we have two ways. If an element isn't found, nothing will happen...
+      // For comments on a project/package - In the comment, insert the 'You reported the comment' message after 'User X wrote (...)'
+      $('#comment-' + reportableId + '-user').after(message);
+      // For comments on a request - In the comment, insert the 'You reported the comment' message before the comment body
+      $('#comment-' + reportableId + '-body').prepend(message);
+      break;
+    case 'Project':
+    case 'Package':
+      // The 'You reported the project/package' is displayed in the side links of the project/package
+      $('ul.side_links').append(message);
+      break;
+    case 'User':
+      // The 'You reported the user' message is displayed after the (now) hidden 'Report' link
+      $(reportLinkId).after(message);
+      break;
+  }
+}
+
 $(document).ready(function(){
   $('#report-category').on('change', '.form-check-input', function(e) {
     $('#report-reason textarea').attr('required', (e.target.value !== 'other' ? null : true));
