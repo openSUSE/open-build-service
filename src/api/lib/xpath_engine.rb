@@ -392,7 +392,7 @@ class XpathEngine
             parse_predicate(root, stack[0])
             stack.shift
           elsif qtype.nil? || qtype == :qname
-            # just a plain existens test
+            # just a plain existence test
             xpath_func_boolean(root, stack)
           else
             parse_predicate(root, qtype)
@@ -606,7 +606,7 @@ class XpathEngine
 
     case expr.first
     when :attribute
-      # existens check to an attribute
+      # existence check to an attribute
       # (is defined as opposite of boolean())
       #  https://www.w3.org/TR/xpath-functions-31/#func-not
       cond = evaluate_expr(expr, root)
