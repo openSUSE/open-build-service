@@ -1,0 +1,13 @@
+- @pagetitle = 'Create a new appeal for a decision'
+
+= render partial: 'list_reports', locals: { decision: @decision }
+= render partial: 'list_decision', locals: { decision: @decision }
+
+.card.mt-2
+  .card-body
+    %h3 Appeal the Decision
+    = form_with(model: [@decision, @appeal], method: :post) do |form|
+      = form.label :reason, 'Reason:'
+      = form.text_area :reason, placeholder: 'Please explain why you want to appeal the decision of the moderator',
+                                class: 'form-control', required: true
+      = form.submit 'Submit', class: 'btn btn-primary'

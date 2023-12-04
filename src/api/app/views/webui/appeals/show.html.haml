@@ -1,0 +1,13 @@
+- @pagetitle = "Appeal from user #{@appeal.appellant}"
+
+= render partial: 'list_reports', locals: { decision: @appeal.decision }
+= render partial: 'list_decision', locals: { decision: @appeal.decision }
+
+.card.mt-2
+  .card-body
+    %h3 Appeal
+    %p
+      User
+      = @appeal.appellant
+      appealed the decision for the following reason:
+      = @appeal.reason
