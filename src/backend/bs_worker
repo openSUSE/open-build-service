@@ -743,7 +743,7 @@ if ($justbuild) {
   if ($localkiwi) {
     # make sure this is the right job for us
     my $imagemode = getimagemode($buildinfo);
-    die("not a product job\n") unless $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'prouctcompose');
+    die("not a product job\n") unless $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose');
   }
   $| = 1;
   dobuild($buildinfo);
@@ -4360,7 +4360,7 @@ sub startbuild {
     # make sure this is the right job for us
     my $imagemode = getimagemode($buildinfo);
     my $jobname = ($buildinfo->{'arch'} || '<unknown>') . '/' . ($buildinfo->{'job'} || '<unknown>');
-    die("bad job: $jobname: not a product job\n") unless $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'prouctcompose');
+    die("bad job: $jobname: not a product job\n") unless $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose');
   }
 
   $buildcode = codemd5('build');
