@@ -463,5 +463,75 @@ RSpec.describe EventMailer, :vcr do
         it { expect(mail.html_part.body.to_s).to include("on repository #{workflow_run.repository_owner}/#{workflow_run.repository_name}") }
       end
     end
+
+    context 'for an event of type Event::ClearedDecision' do
+      let(:admin) { create(:admin_user) }
+      let(:reporter) { create(:confirmed_user) }
+      let(:report) { create(:report, user: reporter) }
+      let(:decision) { create(:decision, :cleared, moderator: admin, reason: 'This is NOT spam.') }
+      let!(:subscription) { create(:event_subscription_cleared_decision, user: reporter) }
+      let(:event) { Event::ClearedDecision.last }
+      let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
+
+      before do
+        login(admin)
+        decision.reports << report
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'is sent to the reporter' do
+        expect(mail.to).to contain_exactly(reporter.email)
+      end
+
+      it 'has a subject' do
+        expect(mail.subject).to eq("Cleared #{decision.reports.first.reportable&.class&.name} Report")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("'#{decision.moderator}' decided to clear the report. This is the reason:")
+        expect(mail.body.encoded).to include('This is NOT spam.')
+      end
+    end
+
+    context 'for an event of type Event::FavoredDecision' do
+      let(:admin) { create(:admin_user) }
+      let(:offender) { create(:confirmed_user, login: 'offender') } # user who wrote the offensive comment
+      let(:reporter) { create(:confirmed_user, login: 'reporter') }
+
+      let(:comment) { create(:comment_project, user: offender) }
+      let(:report) { create(:report, user: reporter, reportable: comment) }
+
+      let!(:reporter_subscription) { create(:event_subscription_favored_decision, user: reporter) }
+      let!(:offender_subscription) { create(:event_subscription_favored_decision, user: offender, receiver_role: 'offender') }
+
+      let(:decision) { create(:decision, :favor, moderator: admin, reason: 'This is spam for sure.') }
+      let(:event) { Event::FavoredDecision.last }
+      let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
+
+      before do
+        login(admin)
+        decision.reports << report
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'is sent to the reporter and offender' do
+        expect(mail.to).to contain_exactly(reporter.email, offender.email)
+      end
+
+      it 'has a subject' do
+        expect(mail.subject).to eq("Favored #{decision.reports.first.reportable&.class&.name} Report")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("'#{decision.moderator}' decided to favor the report. This is the reason:")
+        expect(mail.body.encoded).to include('This is spam for sure.')
+      end
+    end
   end
 end
