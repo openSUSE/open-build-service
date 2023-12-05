@@ -29,6 +29,6 @@
         = render partial: 'layouts/webui/top_navigation_nobody'
 
 - if User.possibly_nobody.is_nobody? && !kerberos_mode?
-  - if !proxy_mode? && can_sign_up?
+  - if !::Configuration.proxy_auth_mode_enabled? && can_sign_up?
     = render partial: 'layouts/webui/sign_up_modal'
   = render partial: 'layouts/webui/login_modal'

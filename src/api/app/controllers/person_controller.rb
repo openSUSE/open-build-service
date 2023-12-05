@@ -202,7 +202,7 @@ class PersonController < ApplicationController
     note = xml.elements['/unregisteredperson/note'].text if xml.elements['/unregisteredperson/note']
     status = xml.elements['/unregisteredperson/state'].text if xml.elements['/unregisteredperson/status']
 
-    if authenticator.proxy_mode?
+    if ::Configuration.proxy_auth_mode_enabled?
       raise ErrRegisterSave, 'Missing iChain header' if request.env['HTTP_X_USERNAME'].blank?
 
       login = request.env['HTTP_X_USERNAME']

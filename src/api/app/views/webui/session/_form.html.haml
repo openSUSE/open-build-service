@@ -2,7 +2,7 @@
 - button_css ||= ''
 
 = form_tag(log_in_params[:url], log_in_params[:options]) do
-  - if proxy_mode?
+  - if ::Configuration.proxy_auth_mode_enabled?
     = hidden_field_tag(:context, 'default')
     = hidden_field_tag(:proxypath, 'reserve')
     = hidden_field_tag(:message, 'Please log in')
