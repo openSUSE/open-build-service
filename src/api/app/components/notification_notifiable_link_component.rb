@@ -47,13 +47,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     when 'Event::CreateReport', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
-    when 'Event::ReportForProject'
-      deleted_message = ' (already deleted)' unless Project.exists_by_name(@notification.event_payload['project_name'])
-      "Report for Project #{@notification.event_payload['project_name']}#{deleted_message}"
-    when 'Event::ReportForPackage'
-      deleted_message = ' (already deleted)' unless Package.exists_by_project_and_name(@notification.event_payload['project_name'],
-                                                                                       @notification.event_payload['package_name'])
-      "Report for Package #{@notification.event_payload['project_name']} / #{@notification.event_payload['package_name']}#{deleted_message}"
+    when 'Event::ReportForProject', 'Event::ReportForPackage'
+      @notification.event_type.constantize.notification_link_text(@notification.event_payload)
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
