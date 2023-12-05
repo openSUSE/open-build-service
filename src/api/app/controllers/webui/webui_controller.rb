@@ -172,14 +172,20 @@ class Webui::WebuiController < ActionController::Base
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
-    if User.session
-      false
-    else
-      unless ::Configuration.anonymous
-        flash[:error] = 'No anonymous access. Please log in!'
-        redirect_back(fallback_location: root_path)
-      end
-    end
+    return if User.session.present?
+    return if ::Configuration.anonymous
+
+    login_page = case CONFIG['proxy_auth_mode']
+                 when :mellon
+                   add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')
+                 when :ichain
+                   add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'url')
+                 else
+                   root_path
+                 end
+
+    flash[:error] = 'No anonymous access. Please log in!' unless ::Configuration.proxy_auth_mode_enabled?
+    redirect_to login_page
   end
 
   # After filter to clean up caches
@@ -239,5 +245,16 @@ class Webui::WebuiController < ActionController::Base
       anonymous: !User.session,
       interface: :webui
     }
+  end
+
+  def add_return_to_parameter_to_query(url:, parameter_name:)
+    uri = URI(url)
+    return_to = {}
+    return_to[parameter_name] = request.fullpath
+    query_array = uri.query.to_s.split('&')
+    query_array << return_to.to_query # for URL encoding
+    uri.query = query_array.join('&')
+
+    uri.to_s
   end
 end

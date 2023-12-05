@@ -43,9 +43,14 @@ RSpec.describe Configuration do
     end
 
     context 'external authentication services' do
-      it 'returns false if config option `proxy_auth_mode` is set to :on' do
-        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
-        expect(config.passwords_changable?).to be(false)
+      context 'in proxy auth mode' do
+        before do
+          stub_const('CONFIG', { proxy_auth_mode: :on, proxy_auth_login_page: '/', proxy_auth_logout_page: '/' }.with_indifferent_access)
+        end
+
+        it 'returns false if config option `proxy_auth_mode` is set to :on' do
+          expect(config.passwords_changable?).to be(false)
+        end
       end
 
       context 'in LDAP mode' do
@@ -81,11 +86,8 @@ RSpec.describe Configuration do
     let(:config) { Configuration.first }
 
     context 'proxy_auth_mode is enabled' do
-      before do
-        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
-      end
-
       it 'returns false if proxy_auth_account_page is not present' do
+        stub_const('CONFIG', { proxy_auth_mode: :on, proxy_auth_login_page: '/', proxy_auth_logout_page: '/' }.with_indifferent_access)
         expect(config.accounts_editable?).to be(false)
       end
 

@@ -29,22 +29,47 @@ default: &default
 
   extended_backend_log: false
 
-  ### Proxy Auth Mode configuration
+  ### Public Access Configuration
+  # Configure if this OBS is allowing people to browse it's content anonymously or not.
+  # Disabling this also disables the interconnect feature.
+  # Boolean: true or false
+  # Default: true
+  #
+  # allow_anonymous: false
 
-  # Enable proxy_auth_mode. Can be :off or :on
+  ### Proxy Auth Configuration
+  # Configure if this OBS is behind an Identity And Access Proxy (IAP). A
+  # reverse proxy in front of this OBS that authenticates the user making the
+  # request using an Identity Provider (IDP) and modifies the request headers
+  # to include information about the authenticated user.
+  #
+  # Request Headers used by OBS:
+  # - HTTP_X_USERNAME -> User.login
+  # - HTTP_X_EMAIL -> User.email
+  # - HTTP_X_FIRSTNAME + HTTP_X_LASTNAME -> User.realname
+  #
+  # The mode. Can be:
+  # - :off to disable it
+  # - :on to enable generic mode
+  # - :mellon to enable apache mod_auth_mellon (SAML) mode
+  # - :ichain to enable legacy ichain mode
   proxy_auth_mode: :off
   #
-  # The URL we send people to sign up
-  # proxy_auth_register_page: https://my-idp.example.com/signup
-  #
-  # The URL we send people to log in
+  # The URL we send people to log in.
+  # *This setting is required for proxy auth to work.
   # proxy_auth_login_page: https://my-idp.example.com/login
   #
-  # The URL we send people to view their account
-  # proxy_auth_account_page: https://my-idp.example.com/myaccount
-  #
-  # The URL we send people to log out
+  # The URL we send people to log out.
+  # *This setting is required for proxy auth to work.
   # proxy_auth_logout_page: https://my-idp.example.com/logout
+  #
+  # The URL we send people to sign up.
+  # This setting is optional, if not set sign up is disabled.
+  # proxy_auth_register_page: https://my-idp.example.com/signup
+  #
+  # The URL we send people to view their account.
+  # This setting is optional, if not set account links are not shown.
+  # proxy_auth_account_page: https://my-idp.example.com/myaccount
 
   ### Kerberos configuration
 
