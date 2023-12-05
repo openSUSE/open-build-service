@@ -1,9 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 require 'rantly/rspec_extensions'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
+
 RSpec.describe Package, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_project) { user.home_project }
