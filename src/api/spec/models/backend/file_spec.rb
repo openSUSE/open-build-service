@@ -1,7 +1,4 @@
 require 'rails_helper'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe Backend::File, :vcr do
   let(:user) { create(:user, :with_home, login: 'user') }
