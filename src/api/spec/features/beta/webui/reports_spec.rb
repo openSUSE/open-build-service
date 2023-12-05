@@ -5,6 +5,14 @@ RSpec.describe 'Reports', :js, :vcr do
     Flipper.enable(:content_moderation)
   end
 
+  def fill_and_submit_report_form
+    within('#report-modal') do
+      find_by_id('report_category_other').click
+      fill_in id: 'report_reason', with: 'This is not okay!'
+      click_button('Submit')
+    end
+  end
+
   describe 'after reporting a comment on a project' do
     let(:user) { create(:confirmed_user, login: 'jane_doe') }
     let(:project) { create(:project, name: 'some_random_project') }
@@ -17,7 +25,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
     it 'displays the "You reported this comment." message instantly' do
       click_link('Report', id: "js-comment-#{comment.id}")
-      within('#report-modal') { click_button('Submit') }
+      fill_and_submit_report_form
       expect(page).to have_text('You reported this comment.')
     end
   end
@@ -35,7 +43,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
     it 'displays the "You reported this comment." message instantly' do
       click_link('Report', id: "js-comment-#{comment.id}")
-      within('#report-modal') { click_button('Submit') }
+      fill_and_submit_report_form
       expect(page).to have_text('You reported this comment.')
     end
   end
@@ -53,7 +61,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
     it 'displays the "You reported this comment." message instantly' do
       click_link('Report', id: "js-comment-#{comment.id}")
-      within('#report-modal') { click_button('Submit') }
+      fill_and_submit_report_form
       expect(page).to have_text('You reported this comment.')
     end
   end
@@ -69,7 +77,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
     it 'displays the "You reported this project." message instantly' do
       desktop? ? click_link('Report Project') : click_menu_link('Actions', 'Report Project')
-      within('#report-modal') { click_button('Submit') }
+      fill_and_submit_report_form
       expect(page).to have_text('You reported this project.')
     end
   end
@@ -86,7 +94,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
     it 'displays the "You reported this package." message instantly' do
       desktop? ? click_link('Report Package') : click_menu_link('Actions', 'Report Package')
-      within('#report-modal') { click_button('Submit') }
+      fill_and_submit_report_form
       expect(page).to have_text('You reported this package.')
     end
   end
@@ -102,7 +110,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
     it 'displays the "You reported this user." message instantly' do
       click_link('Report', id: "js-user-#{another_user.id}")
-      within('#report-modal') { click_button('Submit') }
+      fill_and_submit_report_form
       expect(page).to have_text('You reported this user.')
     end
   end
