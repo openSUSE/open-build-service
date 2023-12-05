@@ -3,6 +3,19 @@ class Appeal < ApplicationRecord
   belongs_to :decision, optional: false
 
   validates :reason, presence: true
+  validates :reason, length: { maximum: 65_535 }
+
+  after_create :create_event
+
+  private
+
+  def create_event
+    Event::AppealCreated.create(event_parameters)
+  end
+
+  def event_parameters
+    { id: id, appellant_id: appellant.id, decision_id: decision.id, reason: reason }
+  end
 end
 
 # == Schema Information
