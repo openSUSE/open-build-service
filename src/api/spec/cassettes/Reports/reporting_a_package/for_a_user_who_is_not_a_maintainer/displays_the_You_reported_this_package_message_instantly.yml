@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/some_random_project/_meta?user=user_4
+    uri: http://backend:5352/source/some_random_project/_meta?user=jane_doe
     body:
       encoding: UTF-8
       string: |
         <project name="some_random_project">
-          <title>The Waste Land</title>
+          <title>Pale Kings and Princes</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '118'
     body:
       encoding: UTF-8
       string: |
         <project name="some_random_project">
-          <title>The Waste Land</title>
+          <title>Pale Kings and Princes</title>
           <description></description>
         </project>
-  recorded_at: Fri, 01 Dec 2023 13:00:52 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/some_random_project/some_random_package/_meta?user=user_5
+    uri: http://backend:5352/source/some_random_project/some_random_package/_meta?user=jane_doe
     body:
       encoding: UTF-8
       string: |
         <package name="some_random_package" project="some_random_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Quidem aut beatae distinctio.</description>
+          <title>Cover Her Face</title>
+          <description>Magnam quo maxime reiciendis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,15 +67,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="some_random_package" project="some_random_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Quidem aut beatae distinctio.</description>
+          <title>Cover Her Face</title>
+          <description>Magnam quo maxime reiciendis.</description>
         </package>
-  recorded_at: Fri, 01 Dec 2023 13:00:52 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/some_random_project/some_random_package
@@ -84,7 +84,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 644437c2-ed1f-4084-b5b7-87c863e14ff5
+      - ec771100-e8c4-490d-8d4f-d5840c7d4cec
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,7 +109,7 @@ http_interactions:
       string: |
         <directory name="some_random_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 01 Dec 2023 13:00:53 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/some_random_project/some_random_package?expand=1
@@ -141,7 +141,7 @@ http_interactions:
       string: |
         <directory name="some_random_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 01 Dec 2023 13:00:53 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/some_random_project/some_random_package/_history?deleted=0&meta=0
@@ -150,7 +150,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 644437c2-ed1f-4084-b5b7-87c863e14ff5
+      - ec771100-e8c4-490d-8d4f-d5840c7d4cec
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -175,7 +175,7 @@ http_interactions:
       string: |
         <revisionlist>
         </revisionlist>
-  recorded_at: Fri, 01 Dec 2023 13:00:53 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/build/some_random_project/_result?lastbuild=1&locallink=1&multibuild=1&package=some_random_package&view=status
@@ -184,7 +184,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de0839a3-8939-4a4e-86d7-553f37c820dd
+      - a982201f-d65e-405f-b47b-dd6fe9ee52e5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -209,7 +209,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 01 Dec 2023 13:00:54 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/build/some_random_project/_result?lastbuild=1&locallink=1&multibuild=1&package=some_random_package&view=status
@@ -218,7 +218,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 841a9b7f-1fda-4545-b09d-439323ce55c5
+      - 8b4efadf-e958-47a0-99bd-4288811e16f4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -243,7 +243,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 01 Dec 2023 13:00:54 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 - request:
     method: get
     uri: http://backend:5352/build/some_random_project/_result?package=some_random_package&view=status
@@ -252,7 +252,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 0fac4534-a31c-4594-9a92-f0998b79b1d8
+      - ce249c4d-94b0-4f3b-ac9e-d347faabb620
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -277,5 +277,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 01 Dec 2023 13:00:54 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:29 GMT
 recorded_with: VCR 6.2.0

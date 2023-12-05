@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/some_random_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="some_random_project">
+          <title>Ego Dominus Tuus</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="some_random_project">
+          <title>Ego Dominus Tuus</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 06 Dec 2023 11:07:20 GMT
+recorded_with: VCR 6.2.0
