@@ -3347,6 +3347,28 @@ sub createchannel {
   writestr("$dir/._channel", "$dir/_channel", $c);
 }
 
+# add origin information to the report
+sub annotatereport {
+  my ($buildinfo, $dir, $kiwiorigins) = @_;
+  my @reports = grep {/\.report$/} ls($dir);
+  for my $reportfile (@reports) {
+    my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
+    next unless $report;
+    addreportdata($report, $buildinfo);
+    for my $bin (@{$report->{'binary'} || []}) {
+      # update entries
+      my $prpap = $kiwiorigins->{$bin->{'_content'}};
+      $prpap ||= 'UNKNOWN/UNKNOWN/UNKNOWN/UNKNOWN';
+      my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+      $bin->{'project'} = $projid;
+      $bin->{'repository'} = $repoid;
+      $bin->{'arch'} = $arch;
+      $bin->{'package'} = $packid;
+    }
+    writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
+  }
+}
+
 # create a .report file from a .packages file by adding binary origin information
 sub createreport {
   my ($buildinfo, $dir, $kiwiorigins, $srcdir) = @_;
@@ -4055,13 +4077,13 @@ sub dobuild {
       createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
     } elsif ($imagemode eq 'docker') {
       createreport($buildinfo, "$buildroot/.build.packages/DOCKER", $kiwiorigins, $srcdir);
-    } elsif ($imagemode ne 'kiwiproduct') {
-      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
-    } elsif ($imagemode ne 'productcompose') {
-      createreport($buildinfo, "$buildroot/.build.packages/PRODUCT", $kiwiorigins, $srcdir);
-    } else {
+    } elsif ($imagemode eq 'kiwiproduct') {
       # as a special service we also create a channel file from the report files
       createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
+    } elsif ($imagemode eq 'productcompose') {
+      annotatereport($buildinfo, "$buildroot/.build.packages/PRODUCT", $kiwiorigins);
+    } else {
+      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
     }
   }
 
