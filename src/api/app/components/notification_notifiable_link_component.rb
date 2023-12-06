@@ -7,7 +7,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   end
 
   def call
-    link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1')
+    return link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1') if notifiable_link_path.present?
+
+    tag.span(notifiable_link_text, class: 'fst-italic mx-1')
   end
 
   private
@@ -106,14 +108,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       link_for_reportables(reportable)
     when 'Event::ReportForComment'
       path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
-    when 'Event::ReportForPackage'
-      Rails.application.routes.url_helpers.package_show_path(package: @notification.event_payload['package_name'],
-                                                             project: @notification.event_payload['project_name'],
-                                                             notification_id: @notification.id,
-                                                             anchor: 'comments-list')
-    when 'Event::ReportForProject'
-      Rails.application.routes.url_helpers.project_show_path(@notification.event_payload['project_name'],
-                                                             notification_id: @notification.id)
+    when 'Event::ReportForProject', 'Event::ReportForPackage'
+      @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
       Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'])
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
