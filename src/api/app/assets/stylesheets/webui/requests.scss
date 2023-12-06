@@ -1,16 +1,13 @@
 .badge-added {
-  color: $white;
-  background-color: $green;
+  @extend .text-bg-success;
 }
 
 .badge-deleted {
-  color: $white;
-  background-color: $red;
+  @extend .text-bg-danger;
 }
 
 .badge-changed, .badge-renamed {
-  color: $white;
-  background-color: $cyan;
+  @extend .text-bg-info;
 }
 
 .bg-staging {

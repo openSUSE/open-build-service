@@ -99,32 +99,26 @@
 }
 
 .build-state-succeeded {
-  color: $green;
+  @extend .text-success;
 }
 
 .build-state-building {
-  @extend .text-white;
+  @extend .text-bg-secondary;
   @extend .px-1;
-  background-color: $blue;
 }
 
 .build-state-scheduled {
-  @extend .text-white;
+  @extend .text-bg-info;
   @extend .px-1;
-  background-color: $cyan;
 }
 
 .build-state-signing, .build-state-finished {
-  color: black;
+  @extend .text-bg-warning;
   @extend .px-1;
-  background-color: $yellow;
 }
 
 .build-state-unresolvable, .build-state-broken, .build-state-failed {
-  color: $red;
-  &:hover {
-    color: $red;
-  }
+  @extend .text-danger;
 }
 
 .build-state-disabled {
