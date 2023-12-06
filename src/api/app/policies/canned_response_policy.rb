@@ -15,23 +15,27 @@ class CannedResponsePolicy < ApplicationPolicy
     end
   end
 
-  def index?
-    record.user == user
-  end
-
   def edit?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
     record.user == user
   end
 
   def update?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
     record.user == user
   end
 
   def create?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
     record.user == user
   end
 
   def destroy?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
     record.user == user
   end
 end
