@@ -280,7 +280,7 @@ module Webui::WebuiHelper
   def sign_up_link(css_class: nil)
     return unless can_sign_up?
 
-    if proxy_mode?
+    if ::Configuration.proxy_auth_mode_enabled?
       link_to(sign_up_params[:url], class: css_class) do
         link_content('Sign Up', css_class, 'fa-user-plus')
       end

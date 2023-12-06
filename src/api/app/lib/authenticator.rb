@@ -36,12 +36,8 @@ class Authenticator
     @user_permissions = nil
   end
 
-  def proxy_mode?
-    CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
-  end
-
   def extract_user
-    if proxy_mode?
+    if ::Configuration.proxy_auth_mode_enabled?
       extract_proxy_user
     else
       extract_auth_user

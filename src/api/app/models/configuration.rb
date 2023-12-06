@@ -85,6 +85,10 @@ class Configuration < ApplicationRecord
     CONFIG['ldap_mode'] == :on
   end
 
+  def proxy_auth_mode_enabled?
+    CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
+  end
+
   def amqp_namespace
     CONFIG['amqp_namespace'] || 'opensuse.obs'
   end
