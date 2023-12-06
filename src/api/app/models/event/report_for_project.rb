@@ -2,6 +2,15 @@ module Event
   class ReportForProject < Report
     self.description = 'Report for a project has been created'
     payload_keys :project_name
+
+    def self.notification_link_path(notification)
+      Rails.application.routes.url_helpers.project_show_path(notification.event_payload['project_name'], notification_id: notification.id) if Project.exists_by_name(notification.event_payload['project_name'])
+    end
+
+    def self.notification_link_text(payload)
+      deleted_message = ' (already deleted)' unless Project.exists_by_name(payload['project_name'])
+      "Report for Project #{payload['project_name']}#{deleted_message}"
+    end
   end
 end
 

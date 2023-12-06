@@ -7,7 +7,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   end
 
   def call
-    link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1')
+    return link_to(notifiable_link_text, notifiable_link_path, class: 'mx-1') if notifiable_link_path.present?
+
+    tag.span(notifiable_link_text, class: 'fst-italic mx-1')
   end
 
   private
@@ -45,8 +47,10 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
+    when 'Event::CreateReport', 'Event::ReportForComment', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
+    when 'Event::ReportForProject', 'Event::ReportForPackage'
+      @notification.event_type.constantize.notification_link_text(@notification.event_payload)
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
@@ -104,14 +108,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       link_for_reportables(reportable)
     when 'Event::ReportForComment'
       path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
-    when 'Event::ReportForPackage'
-      Rails.application.routes.url_helpers.package_show_path(package: @notification.event_payload['package_name'],
-                                                             project: @notification.event_payload['project_name'],
-                                                             notification_id: @notification.id,
-                                                             anchor: 'comments-list')
-    when 'Event::ReportForProject'
-      Rails.application.routes.url_helpers.project_show_path(@notification.event_payload['project_name'],
-                                                             notification_id: @notification.id)
+    when 'Event::ReportForProject', 'Event::ReportForPackage'
+      @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
       Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'])
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
