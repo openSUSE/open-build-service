@@ -227,7 +227,7 @@ class Package < ApplicationRecord
     package
   end
 
-  # to check existens of a project (local or remote)
+  # to check existence of a project (local or remote)
   def self.exists_by_project_and_name(project, package, opts = {})
     exists_by_project_and_name_defaults = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }
     opts = exists_by_project_and_name_defaults.merge(opts)

@@ -757,7 +757,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '2' }
 
-    # node existens check does not need a boolean()
+    # node existence check does not need a boolean()
     get '/search/channel/binary?match=updatefor[@project="BaseDistro"+and+@product="fixed"]+and+target/disabled'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '2' }

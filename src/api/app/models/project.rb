@@ -347,7 +347,7 @@ class Project < ApplicationRecord
     end
 
     def validate_repository_xml_attribute(request_data, project_name)
-      # Check used repo pathes for existens and read access permissions
+      # Check used repo pathes for existence and read access permissions
       request_data.elements('repository') do |repository|
         repository.elements('path') do |element|
           # permissions check
