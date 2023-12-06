@@ -19,11 +19,8 @@ function validateForm(e) {
 
 $(document).ready(function(){
   // Disable submit button if textarea is empty and enable otherwise
-  $('.comments-list,.comment_new,.timeline,.diff').on('keyup', '.comment-field', function(e) {
+  $('.comments-list,.comment_new,.timeline,.diff').on('input', '.comment-field', function(e) {
     validateForm(e);
-  });
-
-  $('.comments-list,.comment_new,.timeline,.diff').on('keyup click', '.comment-field', function() {
     resizeTextarea(this);
   });
 
