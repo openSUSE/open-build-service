@@ -8,8 +8,7 @@ module Event
 
       Rails.application.routes.url_helpers.package_show_path(package: notification.event_payload['package_name'],
                                                              project: notification.event_payload['project_name'],
-                                                             notification_id: notification.id,
-                                                             anchor: 'comments-list')
+                                                             notification_id: notification.id)
     end
 
     def self.notification_link_text(payload)
