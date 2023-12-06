@@ -1,28 +1,6 @@
 - @pagetitle = 'Your Canned Responses'
 
 .card
-  - if @canned_responses.present?
-    .accordion.accordion-flush.border-bottom
-      - @canned_responses.each do |canned_response|
-        .accordion-item
-          %h2.accordion-header
-            .accordion-button{ aria: { expanded: false, controls: "#{canned_response.title.parameterize}-collapse" },
-                               data: { 'bs-toggle': 'collapse', 'bs-target': "##{canned_response.title.parameterize}-collapse" } }
-              = canned_response.title
-          .accordion-collapse.collapse{ id: "#{canned_response.title.parameterize}-collapse" }
-            .accordion-body
-              .d-flex.justify-content-between
-                = canned_response.content
-                .d-flex
-                  = link_to(edit_canned_response_path(canned_response), class: 'btn py-0 px-1 btn-link') do
-                    %i.fas.fa-edit
-                    Edit
-                  = button_to(canned_response_path(canned_response), method: :delete, class: 'btn py-0 px-1 text-danger') do
-                    %i.fas.fa-trash
-                    Delete
-  - else
-    %p.m-4 No canned responses yet
-
   .card-body
     %h4 Create a new canned response
     = form_for(@canned_response) do |f|
@@ -33,3 +11,30 @@
         = f.label :content, 'Content:'
         = f.text_area :content, class: 'form-control'
       = f.submit 'Create', class: 'btn btn-primary'
+
+.card.mt-2
+  .card-body
+    %h4 Your canned responses
+    - if @canned_responses.present?
+      .accordion.accordion-flush.border-bottom
+        - @canned_responses.each do |canned_response|
+          .accordion-item
+            %h2.accordion-header
+              = button_tag(class: 'accordion-button collapsed',
+                           data: { 'bs-toggle': 'collapse', 'bs-target': "##{canned_response.title.parameterize}-collapse" },
+                           aria: {  expanded: false, controls: "#{canned_response.title.parameterize}-collapse" }) do
+                = canned_response.title
+            .accordion-collapse.collapse{ id: "#{canned_response.title.parameterize}-collapse" }
+              .accordion-body
+                .d-flex.justify-content-between
+                  = canned_response.content
+                  .d-flex
+                    = link_to(edit_canned_response_path(canned_response), class: 'btn py-0 px-1 btn-link') do
+                      %i.fas.fa-edit
+                      Edit
+                    = button_to(canned_response_path(canned_response), method: :delete, class: 'btn py-0 px-1 text-danger',
+                                'data-confirm': 'Do you really want to delete this canned response?') do
+                      %i.fas.fa-trash
+                      Delete
+    - else
+      %p.m-4 No canned responses yet
