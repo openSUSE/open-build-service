@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/some_random_project/_meta?user=user_1
+    uri: http://backend:5352/source/some_random_project/_meta?user=jane_doe
     body:
       encoding: UTF-8
       string: |
         <project name="some_random_project">
-          <title>Gone with the Wind</title>
+          <title>To Say Nothing of the Dog</title>
           <description/>
         </project>
     headers:
@@ -29,15 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '121'
     body:
       encoding: UTF-8
       string: |
         <project name="some_random_project">
-          <title>Gone with the Wind</title>
+          <title>To Say Nothing of the Dog</title>
           <description></description>
         </project>
-  recorded_at: Fri, 01 Dec 2023 13:00:41 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:33 GMT
 - request:
     method: get
     uri: http://backend:5352/build/some_random_project/_result?code=unresolvable&view=status
@@ -46,7 +46,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 148d6d63-dd8f-468c-81a3-0efce9425965
+      - b204cc0b-2edd-493b-88b2-2aaa3998c3ef
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -71,7 +71,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 01 Dec 2023 13:00:46 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:33 GMT
 - request:
     method: get
     uri: http://backend:5352/build/some_random_project/_result?view=summary
@@ -80,7 +80,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 3d5206ce-64ea-457b-9f19-6044d9fe0e4e
+      - 55d7107d-a2ec-4759-b5bb-ffa13babc486
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -105,5 +105,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 01 Dec 2023 13:00:47 GMT
+  recorded_at: Wed, 06 Dec 2023 11:07:33 GMT
 recorded_with: VCR 6.2.0
