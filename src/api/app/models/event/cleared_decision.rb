@@ -3,7 +3,7 @@ module Event
     receiver_roles :reporter
     self.description = 'Reported content has been cleared'
 
-    payload_keys :id, :reason, :moderator_id, :reportable_type
+    payload_keys :id, :reason, :moderator_id, :report_last_id, :reportable_type
 
     def subject
       decision = Decision.find(payload['id'])

@@ -468,14 +468,15 @@ RSpec.describe EventMailer, :vcr do
       let(:admin) { create(:admin_user) }
       let(:reporter) { create(:confirmed_user) }
       let(:report) { create(:report, user: reporter) }
-      let(:decision) { create(:decision, :cleared, moderator: admin, reason: 'This is NOT spam.') }
+      let(:package) { report.reportable.commentable }
       let!(:subscription) { create(:event_subscription_cleared_decision, user: reporter) }
+      let(:decision) { create(:decision, :cleared, moderator: admin, reason: 'This is NOT spam.', reports: [report]) }
       let(:event) { Event::ClearedDecision.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
 
       before do
         login(admin)
-        decision.reports << report
+        decision
       end
 
       it 'gets delivered' do
@@ -494,6 +495,10 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.body.encoded).to include("'#{decision.moderator}' decided to clear the report. This is the reason:")
         expect(mail.body.encoded).to include('This is NOT spam.')
       end
+
+      it 'renders link to the page of the comment' do
+        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/package/show/#{package.project}/#{package}#comments-list\">#{package}</a>")
+      end
     end
 
     context 'for an event of type Event::FavoredDecision' do
@@ -502,18 +507,19 @@ RSpec.describe EventMailer, :vcr do
       let(:reporter) { create(:confirmed_user, login: 'reporter') }
 
       let(:comment) { create(:comment_project, user: offender) }
+      let(:project) { comment.commentable }
       let(:report) { create(:report, user: reporter, reportable: comment) }
 
       let!(:reporter_subscription) { create(:event_subscription_favored_decision, user: reporter) }
       let!(:offender_subscription) { create(:event_subscription_favored_decision, user: offender, receiver_role: 'offender') }
 
-      let(:decision) { create(:decision, :favor, moderator: admin, reason: 'This is spam for sure.') }
+      let(:decision) { create(:decision, :favor, moderator: admin, reason: 'This is spam for sure.', reports: [report]) }
       let(:event) { Event::FavoredDecision.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
 
       before do
         login(admin)
-        decision.reports << report
+        decision
       end
 
       it 'gets delivered' do
@@ -531,6 +537,10 @@ RSpec.describe EventMailer, :vcr do
       it 'contains the correct text' do
         expect(mail.body.encoded).to include("'#{decision.moderator}' decided to favor the report. This is the reason:")
         expect(mail.body.encoded).to include('This is spam for sure.')
+      end
+
+      it 'renders link to the page of the comment' do
+        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comments-list\">#{project}</a>")
       end
     end
   end
