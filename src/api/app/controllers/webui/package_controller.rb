@@ -428,11 +428,11 @@ class Webui::PackageController < Webui::WebuiController
       # TODO: this is part of the temporary changes done for 'request_show_redesign'.
       request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(:inRequestShowRedesign, false)
 
-      render partial: (request_show_redesign_partial || 'buildstatus'), locals: { buildresults: @buildresults,
-                                                                                  index: @index,
-                                                                                  project: @project,
-                                                                                  collapsed_packages: params.fetch(:collapsedPackages, []),
-                                                                                  collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+      render partial: request_show_redesign_partial || 'buildstatus', locals: { buildresults: @buildresults,
+                                                                                index: @index,
+                                                                                project: @project,
+                                                                                collapsed_packages: params.fetch(:collapsedPackages, []),
+                                                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
       render partial: 'no_repositories', locals: { project: @project }
     end
@@ -464,9 +464,9 @@ class Webui::PackageController < Webui::WebuiController
       # TODO: this is part of the temporary changes done for 'request_show_redesign'.
       request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
 
-      render partial: (request_show_redesign_partial || 'rpmlint_result'), locals: { index: params[:index], project: @project, package: @package,
-                                                                                     repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
-                                                                                     is_staged_request: params[:is_staged_request] }
+      render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                                                   repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
+                                                                                   is_staged_request: params[:is_staged_request] }
     end
   end
 
