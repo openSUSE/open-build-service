@@ -403,7 +403,7 @@ class BranchPackage
       else
         # remote or not existing package
         @packages.push(base_project: prj,
-                       link_target_project: (prj || params[:project]),
+                       link_target_project: prj || params[:project],
                        package: params[:package], rev: params[:rev], target_package: tpkg_name)
       end
     else
