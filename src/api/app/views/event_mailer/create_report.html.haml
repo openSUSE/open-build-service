@@ -5,4 +5,4 @@
 %p
   = event['reason']
 %p
-  = link_to_reportables(payload: event, host: @host)
+  = link_to_reportables(report_id: event['id'], reportable_type: event['reportable_type'], host: @host)
