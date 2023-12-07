@@ -52,7 +52,7 @@ class Webui::SessionController < Webui::WebuiController
   end
 
   def redirect_on_logout
-    if CONFIG['proxy_auth_mode'] == :on
+    if ::Configuration.proxy_auth_mode_enabled?
       redirect_to CONFIG['proxy_auth_logout_page']
     elsif ::Configuration.anonymous
       redirect_back(fallback_location: root_path)

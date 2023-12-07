@@ -63,11 +63,10 @@ module RescueAuthorizationHandler
     def unauthorized_redirect_path(exception)
       case exception.reason
       when :anonymous_user
-        mode = CONFIG['proxy_auth_mode'] || :off
-        if mode == :off
-          new_session_path
-        else
+        if ::Configuration.proxy_auth_mode_enabled?
           root_path
+        else
+          new_session_path
         end
       end
     end

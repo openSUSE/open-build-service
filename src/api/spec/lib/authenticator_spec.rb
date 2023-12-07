@@ -17,7 +17,7 @@ RSpec.describe Authenticator do
 
     context 'in proxy mode' do
       before do
-        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
+        allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
       end
 
       it_behaves_like 'a confirmed user logs in' do
