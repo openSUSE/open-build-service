@@ -3,7 +3,7 @@ class UserLdapStrategy
   @@ldap_search_con = nil
 
   class << self
-    # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
+    # This static method tries to find a group with the given group_title to check whether the group is in the LDAP server.
     def find_group_with_ldap(group)
       result = search_ldap(group)
       if result.nil?
