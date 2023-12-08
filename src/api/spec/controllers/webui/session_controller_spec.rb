@@ -128,8 +128,7 @@ RSpec.describe Webui::SessionController do
     let(:username) { 'new_user' }
 
     before do
-      # Fake proxy mode
-      stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on, 'proxy_auth_logout_page' => '/'))
+      allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
     end
 
     it 'does not log in any user when no header is set' do
@@ -186,6 +185,7 @@ RSpec.describe Webui::SessionController do
 
       before do
         request.headers['HTTP_X_USERNAME'] = unconfirmed_user.login
+        stub_const('CONFIG', { proxy_auth_logout_page: '/' }.with_indifferent_access)
       end
 
       it 'tracks a failure and send message to RabbitMQ', rabbitmq: '#' do

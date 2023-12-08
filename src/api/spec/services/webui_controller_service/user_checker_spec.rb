@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'ostruct'
 
 RSpec.describe WebuiControllerService::UserChecker do
-  let(:user_checker) { described_class.new(http_request: request, config: config) }
+  let(:user_checker) { described_class.new(http_request: request) }
 
   describe '#call' do
     subject { user_checker.call }
@@ -13,10 +13,10 @@ RSpec.describe WebuiControllerService::UserChecker do
                               'HTTP_X_FIRSTNAME' => 'foo', 'HTTP_X_LASTNAME' => 'bar',
                               'HTTP_X_EMAIL' => 'foo@example.org' })
       end
-      let(:config) { { 'proxy_auth_mode' => :off } }
 
       before do
         allow(User).to receive(:find_nobody!)
+        allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(false)
       end
 
       it { is_expected.to be(true) }
@@ -28,7 +28,9 @@ RSpec.describe WebuiControllerService::UserChecker do
     end
 
     context 'when the proxy authentication is enabled' do
-      let(:config) { { 'proxy_auth_mode' => :on } }
+      before do
+        allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
+      end
 
       context 'without a username in the request' do
         let(:request) do

@@ -2,15 +2,14 @@ module WebuiControllerService
   class UserChecker
     attr_reader :user_login, :http_request
 
-    def initialize(http_request:, config:)
+    def initialize(http_request:)
       @http_request = http_request
-      @config = config
       @user_login = extract_user_login_from_http_request
     end
 
     # Returns false if a user with a disabled account is trying to authenticate through the proxy
     def call
-      return true unless proxy_enabled?
+      return true unless ::Configuration.proxy_auth_mode_enabled?
 
       if user_login.blank?
         User.session = User.find_nobody!
@@ -42,10 +41,6 @@ module WebuiControllerService
                                        state: User.default_user_state,
                                        realname: realname)
       end
-    end
-
-    def proxy_enabled?
-      @config['proxy_auth_mode'] == :on
     end
 
     def realname
