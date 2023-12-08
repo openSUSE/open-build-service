@@ -252,10 +252,11 @@ RSpec.describe EventMailer, :vcr do
     context 'for an event of type Event::CreateReport' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_create_report, user: admin) }
+      let(:report) { create(:report, reason: 'Because reasons') }
+      let(:package) { report.reportable.commentable }
       let(:mail) { EventMailer.with(subscribers: Event::CreateReport.last.subscribers, event: Event::CreateReport.last).notification_email.deliver_now }
 
       before do
-        report = create(:report, reason: 'Because reasons')
         Event::CreateReport.create({ id: report.id, user_id: report.user_id, reportable_id: report.reportable_id,
                                      reportable_type: report.reportable_type, reason: report.reason })
       end
@@ -269,8 +270,8 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.body.encoded).to include('Because reasons')
       end
 
-      it 'renders link to the users page' do
-        expect(mail.body.encoded).to include('<a href="https://build.example.com/">https://build.example.com/</a>')
+      it 'renders link to the page of the comment' do
+        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/package/show/#{package.project}/#{package}#comments-list\">#{package}</a>")
       end
     end
 
