@@ -34,7 +34,7 @@ class Report < ApplicationRecord
   def create_event
     case reportable_type
     when 'Comment'
-      Event::ReportForComment.create(event_parameters_for_comment(commentable: reportable.commentable))
+      Event::ReportForComment.create(event_parameters_for_comment(commentable: reportable.commentable).merge(commenter: reportable.user.login))
     when 'Package'
       Event::ReportForPackage.create(event_parameters.merge(package_name: reportable.name,
                                                             project_name: reportable.project.name))

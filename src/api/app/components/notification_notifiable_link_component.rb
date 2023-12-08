@@ -47,8 +47,14 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       arch = @notification.event_payload['arch']
       "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForComment', 'Event::ReportForUser'
+    when 'Event::CreateReport', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
+    when 'Event::ReportForComment'
+      if Comment.exists?(@notification.event_payload['reportable_id'])
+        'Report for a comment'
+      else
+        'Report for a deleted comment'
+      end
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_text(@notification.event_payload)
     when 'Event::ClearedDecision'
@@ -69,6 +75,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   # rubocop:enable Metrics/CyclomaticComplexity
 
   # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   def notifiable_link_path
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
@@ -107,7 +114,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       reportable = @notification.notifiable.reportable
       link_for_reportables(reportable)
     when 'Event::ReportForComment'
-      path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
+      # Do not have a link for deleted comments
+      Comment.exists?(@notification.event_payload['reportable_id']) && path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
@@ -120,6 +128,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/PerceivedComplexity
 
   def bs_request
     return unless @notification.event_type == 'Event::CommentForRequest'
