@@ -8,6 +8,7 @@ module NotificationService
       'Package' => OutdatedNotificationsFinder::Package,
       'Report' => OutdatedNotificationsFinder::Report,
       'Decision' => OutdatedNotificationsFinder::Decision,
+      'Appeal' => OutdatedNotificationsFinder::Appeal,
       'WorkflowRun' => OutdatedNotificationsFinder::WorkflowRun
     }.freeze
 
