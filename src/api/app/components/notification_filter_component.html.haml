@@ -19,11 +19,15 @@
                                                filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Build Failures', amount: @count['build_failures'], icon: "fas fa-xmark text-danger",
                                                filter_item: { type: 'build_failures' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Reports', amount: @count['reports'], icon: 'fas fa-flag',
-                                               filter_item: { type: 'reports' }, selected_filter: @selected_filter,
-                                               show_reports: @show_reports)
+  - if ReportPolicy.new(@user, Report).notify?
+    = render NotificationFilterLinkComponent.new(text: 'Reports', amount: @count['reports'], icon: 'fas fa-flag',
+                                                filter_item: { type: 'reports' }, selected_filter: @selected_filter,
+                                                )
   = render NotificationFilterLinkComponent.new(text: 'Workflow Runs', amount: @count['workflow_runs'], icon: 'fas fa-book-open',
                                                filter_item: { type: 'workflow_runs' }, selected_filter: @selected_filter)
+  - if Flipper.enabled?(:content_moderation, @user)
+    = render NotificationFilterLinkComponent.new(text: 'Appealed Decisions', amount: @count['appealed_decisions'], icon: 'fas fa-hand',
+                                                 filter_item: { type: 'appealed_decisions' }, selected_filter: @selected_filter)
 
 - unless @projects_for_filter.empty?
   .list-group.list-group-flush.mt-5.mb-2
