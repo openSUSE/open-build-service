@@ -1,0 +1,5 @@
+<%- moderator = User.find(event['moderator_id']) %>
+'<%= moderator %>' decided to favor the report. This is the reason:
+<%= event['reason'] %>
+
+<%= link_to_reportables(report_id: event['report_last_id'], reportable_type: event['reportable_type'], host: @host) %>

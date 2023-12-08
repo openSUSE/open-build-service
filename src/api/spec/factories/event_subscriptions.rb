@@ -119,6 +119,22 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_cleared_decision do
+      eventtype { 'Event::ClearedDecision' }
+      receiver_role { 'reporter' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_favored_decision do
+      eventtype { 'Event::FavoredDecision' }
+      receiver_role { 'reporter' } # or 'offender'
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_workflow_run_fail do
       eventtype { 'Event::WorkflowRunFail' }
       receiver_role { 'token_executor' }

@@ -2,9 +2,9 @@
 module Webui::ReportablesHelper
   include Webui::WebuiHelper
 
-  def link_to_reportables(payload:, host:)
-    reportable = Report.find(payload['id']).reportable
-    case payload['reportable_type']
+  def link_to_reportables(report_id:, reportable_type:, host:)
+    reportable = Report.find(report_id).reportable
+    case reportable_type
     when 'Comment'
       link_to_commentables_on_reportables(commentable: reportable.commentable, host: host)
     when 'Package'
