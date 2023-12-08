@@ -1,6 +1,6 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
   VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted',
-                              'build_failures', 'reports', 'workflow_runs'].freeze
+                              'build_failures', 'reports', 'workflow_runs', 'appealed_decisions'].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth
@@ -39,7 +39,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           notifications: paginated_notifications,
           selected_filter: selected_filter,
           show_read_all_button: show_read_all_button?,
-          show_reports: ReportPolicy.new(User.session, Report).notify?
+          user: User.session
         }
       end
     end
