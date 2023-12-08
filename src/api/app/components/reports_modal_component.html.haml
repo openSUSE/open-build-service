@@ -14,9 +14,11 @@
             = report.reason
       - if policy(Decision.new).create?
         = form_for(Decision.new, url: decisions_path, method: :post) do |form|
-          .modal-body
+          .modal-body{ 'data-canned-controller': '' }
             %h5 Decision
-            = form.label(:reason)
+            .d-flex.align-items-center.justify-content-between.mb-1
+              = form.label(:reason)
+              = render CannedResponsesDropdownComponent.new(canned_responses)
             = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
             = form.select(:kind, Decision.kinds.keys, {}, class: 'form-select')
           .modal-footer
