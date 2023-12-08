@@ -1,6 +1,8 @@
 post:
   summary: Sort the repositories inside of a kiwi file according to path relationships.
   description: This API takes kiwi XML file in the request body and sort the repositories based on priority.
+  security:
+    - basic_authentication: []
   requestBody:
     required: true
     content:

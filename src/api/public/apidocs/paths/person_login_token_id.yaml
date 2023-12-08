@@ -1,6 +1,8 @@
 delete:
   summary: Delete a token of a person.
   description: Delete a token of the specified person.
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/login.yaml'
     - in: path
