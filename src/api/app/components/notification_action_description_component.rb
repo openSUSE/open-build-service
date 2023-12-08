@@ -45,8 +45,10 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     when 'Event::BuildFail'
       "Build was triggered because of #{@notification.event_payload['reason']}"
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'
+    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser'
       "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
+    when 'Event::ReportForComment'
+      "'#{@notification.notifiable.user.login}' created a report for a comment from #{@notification.event_payload['commenter']}. This is the reason:"
     when 'Event::ClearedDecision'
       "'#{@notification.notifiable.moderator.login}' decided to clear the report. This is the reason:"
     when 'Event::FavoredDecision'
