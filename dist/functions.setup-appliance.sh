@@ -159,7 +159,7 @@ function get_hostname {
       FQHOSTNAME=`cat /etc/hostname`
     fi
   fi
-
+  echo "FQHOSTNAME : $FQHOSTNAME"
   if type -p ec2-public-hostname; then
     FQHOSTNAME=`ec2-public-hostname`
   fi

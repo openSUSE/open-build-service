@@ -700,6 +700,7 @@ exit 0
 %preun -n obs-api
 %service_del_preun %{obs_api_support_scripts}
 
+
 %post
 %service_add_post obsscheduler.service
 %service_add_post obssrcserver.service
@@ -780,16 +781,14 @@ if [ "$1" == 2 ]; then
   if [ -e /etc/init.d/rc3.d/S50obsapidelayed ];then
     touch %{_rundir}/enable_obs-api-support.target
   fi
-  if systemctl --quiet is-active obsapidelayed.service; then
+
+  active=`systemctl is-active obsapidelayed.service`
+  rc=$?
+  if [ $rc -eq 0 ]; then
     touch %{_rundir}/start_obs-api-support.target
-    systemctl stop    obsapidelayed.service
-    if systemd-detect-virt --chroot; then
-      # If we are in a chroot, we don't know if the service runs or even exists. In that case ignore if disabling fails.
-      systemctl disable obsapidelayed.service || :
-    else
-      systemctl disable obsapidelayed.service
-    fi
   fi
+  # Try to remove obsapidelayed, but do not fail if it no longer exists.
+  /usr/lib/systemd/systemd-update-helper remove-system-units obsapidelayed || :
 fi
 
 %post -n obs-common
