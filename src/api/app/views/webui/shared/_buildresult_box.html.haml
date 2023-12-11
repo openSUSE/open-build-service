@@ -38,7 +38,7 @@
               Refresh
               %i.fas.fa-sync-alt{ id: "build#{index}-reload" }
           - if is_staged_request
-            %p.font-italic
+            %p.fst-italic
               From staging project
               = link_to(project, project_show_path(project))
           .result
@@ -48,7 +48,7 @@
               Refresh
               %i.fas.fa-sync-alt{ id: "rpm#{index}-reload" }
             - if is_staged_request
-              %p.font-italic
+              %p.fst-italic
                 From staging project
                 = link_to(project, project_show_path(project))
             .result

@@ -132,11 +132,11 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def repository_sentence(repository)
-    concat(tag.span("#{repository[:name]}", class: 'font-italic'))
+    concat(tag.span("#{repository[:name]}", class: 'fst-italic'))
     concat(' for architectures ')
-    concat(tag.span("#{repository[:architectures].to_sentence}", class: 'font-italic'))
+    concat(tag.span("#{repository[:architectures].to_sentence}", class: 'fst-italic'))
     concat(' for the paths: ')
-    concat(tag.span("#{paths_sentence(repository)}", class: 'font-italic'))
+    concat(tag.span("#{paths_sentence(repository)}", class: 'fst-italic'))
     concat('.')
   end
 

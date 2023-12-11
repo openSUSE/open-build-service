@@ -66,7 +66,7 @@ class CardComponentPreview < ViewComponent::Preview
   def with_actions
     render(CardComponent.new) do |component|
       component.with_header do
-        content_tag(:a, tag.h5('Run our OBS Workflow', class: 'card-title font-italic'), href: '#')
+        content_tag(:a, tag.h5('Run our OBS Workflow', class: 'card-title fst-italic'), href: '#')
       end
       component.with_action do
         content_tag(:a, tag.i(class: 'fas fa-edit'), href: '#', title: 'Edit Token', class: 'nav-link p-1')

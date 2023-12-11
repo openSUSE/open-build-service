@@ -19,7 +19,7 @@
         %h5.card-title
           = @token.description
       - else
-        %h5.card-title.font-italic No description
+        %h5.card-title.fst-italic No description
 
   - if policy(@token).destroy?
     - component.with_delete_button do

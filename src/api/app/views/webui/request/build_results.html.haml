@@ -24,7 +24,7 @@
               %i.fas.fa-sync-alt{ id: 'build-reload' }
           -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
           - if @staging_project.present?
-            %p.font-italic
+            %p.fst-italic
               From staging project
               = link_to(@project, project_show_path(@project))
           .result
