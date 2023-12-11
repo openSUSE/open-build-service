@@ -55,5 +55,11 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
       it { expect(subject.size).to eq(0) }
       it { expect(subject).to eq([]) }
     end
+
+    context 'with no actions' do
+      let(:actions) { nil }
+
+      it { expect(subject).to eq([]) }
+    end
   end
 end
