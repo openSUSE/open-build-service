@@ -52,7 +52,6 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
         allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_empty_results)
       end
 
-      it { expect(subject.size).to eq(0) }
       it { expect(subject).to eq([]) }
     end
   end
