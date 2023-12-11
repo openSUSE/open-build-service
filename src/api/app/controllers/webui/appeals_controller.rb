@@ -10,6 +10,7 @@ class Webui::AppealsController < Webui::WebuiController
   def new
     @decision = Decision.find(decision_params)
     @appeal = Appeal.new(decision: @decision)
+    @appeal.appellant = User.session!
 
     authorize @appeal
   end
