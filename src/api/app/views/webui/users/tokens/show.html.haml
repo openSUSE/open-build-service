@@ -62,11 +62,11 @@
                 %span
                   - if @token.workflow_configuration_url.present?
                     = link_to(@token.workflow_configuration_url, @token.workflow_configuration_url)
-                    %small.form-text.font-italic
+                    %small.form-text.fst-italic
                       %i.fa.fa-lg.fa-question-circle.text-info
                       The URL is set, the path will be ignored. The URL should be accessible for the OBS instance.
                   - else
-                    %small.font-italic.text-muted
+                    %small.fst-italic.text-muted
                       Nothing
 
           .row

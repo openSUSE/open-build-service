@@ -51,7 +51,7 @@
     - if policy(comment).reply?
       .d-flex.justify-content-end.me-2
         - if policy(Report.new(reportable: comment)).create?
-          = link_to('#', class: 'font-italic small collapsed me-2', id: "js-comment-#{comment.id}",
+          = link_to('#', class: 'fst-italic small collapsed me-2', id: "js-comment-#{comment.id}",
                 data: { 'bs-toggle': 'modal',
                         'bs-target': '#report-modal',
                         'modal-title': "Report comment from #{comment.user}",
@@ -59,7 +59,7 @@
                         'reportable-id': comment.id }) do
             Report
         = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
-                  class: 'font-italic small collapsed') do
+                  class: 'fst-italic small collapsed') do
           Reply
 
       .collapse.ms-4.mb-4{ id: "reply_form_of_#{comment.id}" }
