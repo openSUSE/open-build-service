@@ -6,7 +6,8 @@ get:
     - If `requests` is present, the output includes the staged, untracked and obsolete requests as well as missing reviews.
     - If `status` is present, the output includes the overall state and the status xml (broken packages, missing reviews, checks, etc.)
     - If `history` is present, the output includes the history of the staging project.
-  # Authentication is not required
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - name: requests

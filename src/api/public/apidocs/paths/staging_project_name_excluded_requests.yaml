@@ -1,7 +1,8 @@
 get:
   summary: List the requests excluded from a staging workflow.
   description: List the requests excluded from the staging workflow associated to the specified project.
-  # Authentication is not required
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
   responses:

@@ -1,7 +1,8 @@
 get:
   summary: List all the staged requests of a staging project.
   description: List all the requests that are already associated to a staging project (staged requests).
-  # Authentication is not required
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/staging_project_name.yaml'
