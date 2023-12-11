@@ -633,6 +633,13 @@ sub unpreparepool {
   delete $ctx->{'pool_local'};
 }
 
+sub free_caches {
+  my ($ctx) = @_;
+  delete $ctx->{'gbininfo_cache'};
+  delete $ctx->{'alien_repo_cache'};
+  delete $ctx->{'packstatus_cache'};
+}
+
 # emulate depsort2 with depsort. This is not very fast,
 # please update perl-BSSolv to get depsort2.
 sub emulate_depsort2 {

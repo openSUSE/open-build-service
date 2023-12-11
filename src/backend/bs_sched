@@ -1152,6 +1152,7 @@ eval {
     # free memory
     Build::forgetdeps($bconf);
     $ctx->unpreparepool();
+    $ctx->free_caches();
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
