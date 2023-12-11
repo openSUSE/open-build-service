@@ -1,15 +1,17 @@
 require 'rails_helper'
 
+# FIXME: check the use the beta: true flag
 RSpec.describe NotificationFilterComponent, type: :component do
   let(:user) { create(:user) }
 
   before do
+    Flipper.disable(:content_moderation)
     User.session = user
   end
 
   context 'without projects and groups notifications' do
     before do
-      render_inline(described_class.new(selected_filter: { type: 'unread' }))
+      render_inline(described_class.new(selected_filter: { type: 'unread' }, user: user))
     end
 
     ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests', 'Build Failures'].each do |filter_name|
@@ -39,7 +41,7 @@ RSpec.describe NotificationFilterComponent, type: :component do
     before do
       project.notifications << notification_for_projects_comment
       group.created_notifications << notification_for_projects_comment
-      render_inline(described_class.new(selected_filter: { type: 'unread' }))
+      render_inline(described_class.new(selected_filter: { type: 'unread' }, user: user))
     end
 
     ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests', 'Build Failures'].each do |filter_name|
@@ -59,13 +61,20 @@ RSpec.describe NotificationFilterComponent, type: :component do
     end
   end
 
-  context 'when show reports is true' do
+  context 'when content moderation is true' do
+    let(:user) { create(:moderator) }
+
     before do
-      render_inline(described_class.new(selected_filter: { type: 'unread' }, show_reports: true))
+      Flipper.enable(:content_moderation)
+      render_inline(described_class.new(selected_filter: { type: 'unread' }, user: user))
     end
 
     it 'displays the Reports filter' do
       expect(rendered_content).to have_link('Reports')
+    end
+
+    it 'displays the Appeals filter' do
+      expect(rendered_content).to have_link('Appealed Decisions')
     end
   end
 end
