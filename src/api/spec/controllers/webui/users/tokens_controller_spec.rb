@@ -32,7 +32,6 @@ RSpec.describe Webui::Users::TokensController do
     before do
       create(:service_token, executor: user)
       create(:workflow_token, executor: user)
-      create(:rss_token, executor: user)
       create(:release_token, executor: other_user)
 
       get :index

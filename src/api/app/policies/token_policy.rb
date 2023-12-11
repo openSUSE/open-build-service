@@ -22,7 +22,7 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def edit?
-    update?
+    create?
   end
 
   def update?
@@ -38,6 +38,6 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def show?
-    record.executor == user && !record.type.in?(['Token::Rss'])
+    create?
   end
 end

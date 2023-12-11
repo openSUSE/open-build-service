@@ -9,12 +9,6 @@ FactoryBot.define do
       type { 'Token::Service' }
     end
 
-    factory :rss_token, class: 'Token::Rss' do
-      package
-      object_to_authorize { package }
-      type { 'Token::Rss' }
-    end
-
     factory :rebuild_token, class: 'Token::Rebuild' do
       package
       object_to_authorize { package }
