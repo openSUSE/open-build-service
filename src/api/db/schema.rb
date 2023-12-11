@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_12_04_093136) do
+ActiveRecord::Schema[7.0].define(version: 2023_12_11_120635) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
     t.bigint "decision_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["appellant_id"], name: "fk_rails_bd2c76ec6f"
+    t.index ["decision_id"], name: "fk_rails_5fe229ec9a"
   end
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1203,6 +1205,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_04_093136) do
     t.index ["user_id"], name: "index_workflow_token_users_on_user_id"
   end
 
+  add_foreign_key "appeals", "decisions"
+  add_foreign_key "appeals", "users", column: "appellant_id"
   add_foreign_key "attrib_allowed_values", "attrib_types", name: "attrib_allowed_values_ibfk_1"
   add_foreign_key "attrib_default_values", "attrib_types", name: "attrib_default_values_ibfk_1"
   add_foreign_key "attrib_issues", "attribs", name: "attrib_issues_ibfk_1"
