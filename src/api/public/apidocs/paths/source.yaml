@@ -1,6 +1,8 @@
 get:
   summary: List all the projects.
   description: Get the list of all projects.
+  security:
+    - basic_authentication: []
   parameters:
     - name: deleted
       in: query

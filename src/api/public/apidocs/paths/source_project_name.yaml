@@ -146,6 +146,8 @@ get:
 delete:
   summary: Delete a specified project.
   description: Deletes a specified project and all the packages of this project.
+  security:
+    - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - name: force
