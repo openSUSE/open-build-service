@@ -1,3 +1,11 @@
+- if @notification.notifiable_type == 'Decision' && AppealPolicy.new(@notification.subscriber,
+                                                                     Appeal.new(decision: @notification.notifiable,
+                                                                     appellant: @notification.subscriber)).create?
+  = link_to(new_decision_appeal_path(@notification.notifiable), class: 'btn btn-sm btn-outline-warning px-3 me-2',
+            title: 'Appeal Decision') do
+    %span
+      %i.fas.fa-hand
+      Appeal
 = link_to(update_path, id: helpers.dom_id(@notification, :update),
           method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title,
           data: { remote: true, 'disable-with': tag.i(class: 'fas fa-spinner fa-spin') }) do

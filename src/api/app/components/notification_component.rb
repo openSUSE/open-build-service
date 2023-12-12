@@ -1,4 +1,18 @@
 class NotificationComponent < ApplicationComponent
+  NOTIFICATION_ICON = {
+    'BsRequest' => 'fa-code-pull-request', 'Comment' => 'fa-comments',
+    'Package' => 'fa-xmark text-danger',
+    'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
+    'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open'
+  }.freeze
+
+  NOTIFICATION_TITLE = {
+    'BsRequest' => 'Request notification', 'Comment' => 'Comment notification',
+    'Package' => 'Package notification', 'Report' => 'Report notification',
+    'Decision' => 'Report decision', 'Appeal' => 'Decision appeal',
+    'WorkflowRun' => 'Workflow run'
+  }.freeze
+
   def initialize(notification:, selected_filter:, page:, show_more:)
     super
 
@@ -9,19 +23,8 @@ class NotificationComponent < ApplicationComponent
   end
 
   def notification_icon
-    case @notification.notifiable_type
-    when 'BsRequest'
-      tag.i(class: ['fas', 'fa-code-pull-request'], title: 'Request notification')
-    when 'Comment'
-      tag.i(class: ['fas', 'fa-comments'], title: 'Comment notification')
-    when 'Package'
-      tag.i(class: ['fas', helpers.build_status_icon(:failed)], title: 'Package notification')
-    when 'Report'
-      tag.i(class: ['fas', 'fa-flag'], title: 'Report notification')
-    when 'Decision'
-      tag.i(class: ['fas', 'fa-clipboard-check'], title: 'Report decision')
-    when 'WorkflowRun'
-      tag.i(class: ['fas', 'fa-book-open'], title: 'Workflow run')
+    if NOTIFICATION_ICON[@notification.notifiable_type].present?
+      tag.i(class: ['fas', NOTIFICATION_ICON[@notification.notifiable_type]], title: NOTIFICATION_TITLE[@notification.notifiable_type])
     else
       tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
     end

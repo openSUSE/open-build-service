@@ -17,7 +17,8 @@ module NotificationService
                         'Event::ReportForUser',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
-                        'Event::WorkflowRunFail'].freeze
+                        'Event::WorkflowRunFail',
+                        'Event::AppealCreated'].freeze
     CHANNELS = [:web, :rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -26,7 +27,8 @@ module NotificationService
       'Package' => ::Package,
       'Report' => ::Report,
       'Decision' => ::Decision,
-      'WorkflowRun' => ::WorkflowRun
+      'WorkflowRun' => ::WorkflowRun,
+      'Appeal' => ::Appeal
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
