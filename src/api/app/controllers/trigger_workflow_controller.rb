@@ -1,10 +1,19 @@
-class TriggerWorkflowController < TriggerController
+class TriggerWorkflowController < ApplicationController
   include ScmWebhookHeadersDataExtractor
   include ScmWebhookPayloadDataExtractor
+  include Trigger::Errors
 
-  # We don't need to validate that the body of the request is XML. We receive JSON
-  skip_before_action :validate_xml_request, :set_project_name, :set_package_name, :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor, :check_token_class
+  # Authentication happens with tokens, so extracting the user is not required
+  skip_before_action :extract_user
+  # Authentication happens with tokens, so no login is required
+  skip_before_action :require_login
+  # SCMs like GitLab/GitHub send data as parameters which are not strings (e.g.: GitHub - PR number is a integer, GitLab - project is a hash)
+  # Other SCMs might also do this, so we're not validating parameters.
+  skip_before_action :validate_params
+  # We don't need to validate that the body of the request is valid XML. We receive JSON...
+  skip_before_action :validate_xml_request
 
+  before_action :set_token
   before_action :set_scm_event
   before_action :set_scm_extractor
   before_action :extract_scm_webhook
@@ -34,6 +43,15 @@ class TriggerWorkflowController < TriggerController
   end
 
   private
+
+  def set_token
+    @token = ::TriggerControllerService::TokenExtractor.new(request).call
+    raise InvalidToken, 'No valid token found' unless @token
+  end
+
+  def pundit_user
+    @token.executor
+  end
 
   def set_scm_extractor
     @scm_extractor = TriggerControllerService::SCMExtractor.new(scm_vendor, hook_event, payload)
