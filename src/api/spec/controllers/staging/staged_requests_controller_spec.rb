@@ -29,7 +29,6 @@ RSpec.describe Staging::StagedRequestsController do
       login(user)
       bs_request.staging_project = staging_project
       bs_request.save
-      logout
       get :index, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
     end
 

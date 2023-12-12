@@ -12,6 +12,10 @@ RSpec.describe Staging::StagingProjectsController do
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
 
+  before do
+    login user
+  end
+
   describe 'GET #index', :vcr do
     context 'existing staging_workflow' do
       before do
@@ -92,12 +96,10 @@ RSpec.describe Staging::StagingProjectsController do
       before do
         stub_request(:get, broken_packages_path).and_return(body: broken_packages_backend)
         # staging select
-        login(user)
         bs_request_to_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         bs_request_missing_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
-        logout
       end
 
       context 'without requesting extra information' do
@@ -225,7 +227,6 @@ RSpec.describe Staging::StagingProjectsController do
     end
 
     before do
-      login(user)
       ActiveJob::Base.queue_adapter = :test
     end
 
@@ -247,7 +248,6 @@ RSpec.describe Staging::StagingProjectsController do
     let(:params) { { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name } }
 
     before do
-      login user
       staging_workflow
     end
 
@@ -334,7 +334,6 @@ RSpec.describe Staging::StagingProjectsController do
     let!(:other_project) { create(:project, name: "#{project}:other_project") }
 
     before do
-      login(user)
       staging_workflow
     end
 

@@ -1,7 +1,7 @@
 class Staging::StagingProjectsController < Staging::StagingController
   include Staging::Errors
 
-  before_action :require_login, except: [:index, :show]
+  before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow, only: :create
   before_action :set_options, only: [:index, :show]

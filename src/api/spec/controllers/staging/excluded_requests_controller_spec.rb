@@ -33,6 +33,7 @@ RSpec.describe Staging::ExcludedRequestsController do
     let!(:request_exclusion_2) { create(:request_exclusion, bs_request: bs_request_2, staging_workflow: staging_workflow, description: 'Request 2') }
 
     before do
+      login(user)
       get :index, params: { staging_workflow_project: staging_workflow.project.name, format: :xml }
     end
 
