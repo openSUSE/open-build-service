@@ -155,7 +155,8 @@ function get_hostname {
     done
     if [ -z "$FQHOSTNAME" -o "$FQHOSTNAME" = "localhost" ] && [ -x "$(command -v hostnamectl)" ];then
       FQHOSTNAME=`hostnamectl --static 2>/dev/null`
-    elif [ -s /etc/hostname ];then
+    fi
+    if [ -z "$FQHOSTNAME" -o "$FQHOSTNAME" = "localhost" -a -s /etc/hostname ];then
       FQHOSTNAME=`cat /etc/hostname`
     fi
   fi
