@@ -2622,17 +2622,46 @@ sub concatconfigs {
   return $config;
 }
 
-sub getbuildconfig {
+sub getbuildconfig_ajax {
   my ($cgi, $projid, $repoid) = @_;
+  my $jev = $BSServerEvents::gev;
+  if (defined $jev->{'getbuildconfig_donated_result'}) {
+    print "returning donated result for getbuildconfig $projid/$repoid\n";
+    return ($jev->{'getbuildconfig_donated_result'}, 'Content-Type: text/plain');
+  }
+  $jev->{'getbuildconfig_key'} = "$projid/$repoid";
+  my $serialkey = "getbuildconfig/$projid";
+  my $serial = BSWatcher::serialize($serialkey);
+  return undef unless $serial;
   my @path;
   if ($cgi->{'path'}) {
     @path = @{$cgi->{'path'}};
   } else {
     @path = expandsearchpath($projid, $repoid);
-    return undef if $BSStdServer::isajax && !@path;
+    return undef if !@path;
   }
   my $config = concatconfigs($projid, $repoid, undef, @path);
-  return undef if $BSStdServer::isajax && !defined($config);
+  return undef unless defined $config;
+  my @serial_waiting = BSWatcher::serialize_waiting($serialkey);
+  for my $waiting (reverse(@serial_waiting)) {
+    next if $jev->{'getbuildconfig_key'} ne ($waiting->{'getbuildconfig_key'} || '');
+    $waiting->{'getbuildconfig_donated_result'} = $config;
+    BSWatcher::serlialize_advance($waiting);
+  }
+  BSWatcher::serialize_end($serial);
+  return ($config, 'Content-Type: text/plain');
+}
+
+sub getbuildconfig {
+  my ($cgi, $projid, $repoid) = @_;
+  return getbuildconfig_ajax($cgi, $projid, $repoid) if $BSStdServer::isajax;
+  my @path;
+  if ($cgi->{'path'}) {
+    @path = @{$cgi->{'path'}};
+  } else {
+    @path = expandsearchpath($projid, $repoid);
+  }
+  my $config = concatconfigs($projid, $repoid, undef, @path);
   return ($config, 'Content-Type: text/plain');
 }
 
@@ -7878,7 +7907,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool? withevr:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? now:num? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&worker_getbinaryversions,
-  '/getconfig $project $repository path:prp* workerid?' => \&worker_getbuildconfig,
+  '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig_ajax,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
