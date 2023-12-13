@@ -55,6 +55,22 @@ RSpec.describe AppealPolicy do
       end
     end
 
+    context 'when the decision is on reports for a now-deleted reportable' do
+      let(:report) { create(:report, reportable: nil) }
+      let(:reporter) { report.user }
+      let(:decision) { create(:decision, kind: 'favor', reports: [report]) }
+      let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
+
+      permissions :create? do
+        it { is_expected.not_to permit(anonymous_user, appeal) }
+        it { is_expected.not_to permit(user, appeal) }
+        it { is_expected.not_to permit(reporter, appeal) }
+        it { is_expected.not_to permit(moderator, appeal) }
+        it { is_expected.not_to permit(staff_user, appeal) }
+        it { is_expected.not_to permit(admin_user, appeal) }
+      end
+    end
+
     context 'when the decision favored a report created by the reporter' do
       let(:report) { create(:report) }
       let(:reporter) { report.user }
