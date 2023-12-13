@@ -134,7 +134,7 @@ sub dispatch {
     my $statusmsg = $msg;
     if ($requestid) {
       $statusmsg = ' ['.substr($requestid, 0, 64).']';
-      $statusmsg = substr($msg, 0, 244 - length($statusmsg)).$statusmsg;
+      $statusmsg = substr($msg, 0, 243 - length($statusmsg)).$statusmsg;
     }
     BSServer::setstatus(2, $statusmsg);
   }

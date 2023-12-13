@@ -655,11 +655,32 @@ sub getremotebinarylist {
 sub getremotebinaryversions {
   my ($proj, $projid, $repoid, $arch, $binaries, $modules, $withevr) = @_;
 
-  my $jev = $BSServerEvents::gev;
+  my $jev = $BSStdServer::isajax ? $BSServerEvents::gev : undef;
+
+  if ($jev && $jev->{'binaryversions_donated_result'}) {
+    print "returning donated result for getremotebinaryversions $projid/$repoid\n";
+    return $jev->{'binaryversions_donated_result'};
+  }
+
+  if ($jev && !$jev->{'binaryversions_key'}) {
+    my $key = "$projid/$repoid/$arch";
+    $key .= '//'.join('/', sort(@{$binaries || []}));
+    $key .= '//'.join('/', sort(@{$modules || []}));
+    $key .= "//withevr" if $withevr;
+    $jev->{'binaryversions_key'} = $key;
+  }
+
+  my $serialkey = "getremotebinaryversions/$projid";
+  my $serial;
+  if ($BSStdServer::isajax) {
+    $serial = BSWatcher::serialize($serialkey);
+    return undef unless $serial;
+  }
+
   my $binaryversions;
-  $binaryversions = $jev->{'binaryversions'} if $BSStdServer::isajax;
+  $binaryversions = $jev->{'binaryversions'} if $jev;
   $binaryversions ||= {};
-  $jev->{'binaryversions'} = $binaryversions if $BSStdServer::isajax;
+  $jev->{'binaryversions'} = $binaryversions if $jev;
 
   # fill binaryversions
   my @missing = grep {!exists $binaryversions->{$_}} @$binaries;
@@ -678,7 +699,7 @@ sub getremotebinaryversions {
     my @args = ('view=binaryversions', 'nometa=1');
     push @args, map {"module=$_"} @{$modules || []};
     push @args, map {"binary=$_"} @missing;
-    push @args, 'withevr=1' if $withevr && !$jev->{'binaryversions_withevr_unsupported'};
+    push @args, 'withevr=1' if $withevr && (!$jev || !$jev->{'binaryversions_withevr_unsupported'});
     my $bvl;
     eval { $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args) };
     if ($@) {
@@ -705,6 +726,16 @@ sub getremotebinaryversions {
     }
     @missing = grep {!exists $binaryversions->{$_}} @$binaries;
   }
+  # check if we can donate the result
+  if ($serial) {
+    my @serial_waiting = BSWatcher::serialize_waiting($serialkey);
+    for my $waiting (reverse(@serial_waiting)) {
+      next if $jev->{'binaryversions_key'} ne ($waiting->{'binaryversions_key'} || '');
+      $waiting->{'binaryversions_donated_result'} = $binaryversions;
+      BSWatcher::serlialize_advance($waiting);
+    }
+  }
+  BSWatcher::serialize_end($serial);
   return $binaryversions;
 }
 
@@ -712,11 +743,19 @@ sub getpackagebinaryversionlist {
   my ($proj, $projid, $repoid, $arch, $packages, $view) = @_;
   my $xmldtd = $view eq 'binarychecksums' ? $BSXML::packagebinarychecksums : $BSXML::packagebinaryversionlist;
   my $elname = $view eq 'binarychecksums' ? 'binarychecksums' : 'binaryversionlist';
-  my $jev = $BSServerEvents::gev;
+  my $jev = $BSStdServer::isajax ? $BSServerEvents::gev : undef;
+
+  my $serialkey = "getpackagebinaryversionlist/$projid";
+  my $serial;
+  if ($BSStdServer::isajax) {
+    $serial = BSWatcher::serialize($serialkey);
+    return undef unless $serial;
+  }
+
   my $binaryversionlist;
-  $binaryversionlist = $jev->{'binaryversionlist'} if $BSStdServer::isajax;
+  $binaryversionlist = $jev->{'binaryversionlist'} if $jev;
   $binaryversionlist ||= {};
-  $jev->{'binaryversionlist'} = $binaryversionlist if $BSStdServer::isajax;
+  $jev->{'binaryversionlist'} = $binaryversionlist if $jev;
   my @missing = grep {!exists $binaryversionlist->{$_}} @$packages;
   while (@missing) {
     # chunk it
@@ -740,6 +779,7 @@ sub getpackagebinaryversionlist {
     $binaryversionlist->{$_} ||= undef for @missing;
     @missing = grep {!exists $binaryversionlist->{$_}} @$packages;
   }
+  BSWatcher::serialize_end($serial);
   return { $elname => [ map {$binaryversionlist->{$_}} grep {$binaryversionlist->{$_}} @$packages ] };
 }
 

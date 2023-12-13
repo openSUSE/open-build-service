@@ -251,6 +251,17 @@ sub serialize_deljob {
   }
 }
 
+sub serialize_waiting {
+  my ($file) = @_;
+  return @{$serializations_waiting{$file} || []};
+}
+
+sub serlialize_advance {
+  my ($file, $jev) = @_;
+  return unless $serializations_waiting{$file};
+  my @waiting = grep {$_ != $jev} @{$serializations_waiting{$file}};
+  @{$serializations_waiting{$file}} = ($jev, @waiting) if @waiting != @{$serializations_waiting{$file}};
+}
 
 
 ###########################################################################
