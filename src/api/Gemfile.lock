@@ -167,7 +167,7 @@ GEM
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
     ffi (1.16.3)
-    flipper (1.1.1)
+    flipper (1.1.2)
       concurrent-ruby (< 2)
     flipper-active_record (1.1.1)
       activerecord (>= 4.2, < 8)
