@@ -56,10 +56,14 @@ RSpec.describe AppealPolicy do
     end
 
     context 'when the decision is on reports for a now-deleted reportable' do
-      let(:report) { create(:report, reportable: nil) }
+      let(:report) { create(:report) }
       let(:reporter) { report.user }
       let(:decision) { create(:decision, kind: 'favor', reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
+
+      before do
+        report.update!(reportable: nil)
+      end
 
       permissions :create? do
         it { is_expected.not_to permit(anonymous_user, appeal) }
