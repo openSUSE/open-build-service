@@ -3,7 +3,8 @@ class EventSubscription
     DISABLE_FOR_EVENTS = ['Event::ServiceFail'].freeze
     DISABLE_RSS_FOR_EVENTS = ['Event::ReportForProject', 'Event::ReportForPackage',
                               'Event::ReportForComment', 'Event::ReportForUser',
-                              'Event::WorkflowRunFail'].freeze
+                              'Event::WorkflowRunFail', 'Event::AppealCreated'].freeze
+    DISABLE_EMAIL_FOR_EVENTS = ['Event::AppealCreated'].freeze
 
     attr_reader :name, :subscription
 
@@ -22,7 +23,8 @@ class EventSubscription
 
     def disabled_checkbox?
       (DISABLE_FOR_EVENTS.include?(@event.to_s) && (name == 'web' || name == 'rss')) ||
-        (DISABLE_RSS_FOR_EVENTS.include?(@event.to_s) && name == 'rss')
+        (DISABLE_RSS_FOR_EVENTS.include?(@event.to_s) && name == 'rss') ||
+        (DISABLE_EMAIL_FOR_EVENTS.include?(@event.to_s) && name == 'instant_email')
     end
 
     private
