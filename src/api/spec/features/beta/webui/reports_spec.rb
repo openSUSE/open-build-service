@@ -5,10 +5,11 @@ RSpec.describe 'Reports', :js, :vcr do
     Flipper.enable(:content_moderation)
   end
 
-  def fill_and_submit_report_form
+  def fill_and_submit_report_form(report_comment_author: false)
     within('#report-modal') do
       find_by_id('report_category_other').click
       fill_in id: 'report_reason', with: 'This is not okay!'
+      check('report_comment_author') if report_comment_author
       click_button('Submit')
     end
   end
@@ -29,6 +30,14 @@ RSpec.describe 'Reports', :js, :vcr do
         click_link('Report', id: "js-comment-#{comment.id}")
         fill_and_submit_report_form
         expect(page).to have_text('You reported this comment.')
+        within('#flash') { expect(page).to have_text('Comment reported successfully') }
+      end
+
+      it 'is possible to report both the comment and its author' do
+        click_link('Report', id: "js-comment-#{comment.id}")
+        fill_and_submit_report_form(report_comment_author: true)
+        expect(page).to have_text('You reported this comment.')
+        within('#flash') { expect(page).to have_text('Comment and its author both reported successfully') }
       end
     end
 
@@ -64,6 +73,14 @@ RSpec.describe 'Reports', :js, :vcr do
         click_link('Report', id: "js-comment-#{comment.id}")
         fill_and_submit_report_form
         expect(page).to have_text('You reported this comment.')
+        within('#flash') { expect(page).to have_text('Comment reported successfully') }
+      end
+
+      it 'is possible to report the both the comment and its author' do
+        click_link('Report', id: "js-comment-#{comment.id}")
+        fill_and_submit_report_form(report_comment_author: true)
+        expect(page).to have_text('You reported this comment.')
+        within('#flash') { expect(page).to have_text('Comment and its author both reported successfully') }
       end
     end
 
@@ -99,6 +116,14 @@ RSpec.describe 'Reports', :js, :vcr do
         click_link('Report', id: "js-comment-#{comment.id}")
         fill_and_submit_report_form
         expect(page).to have_text('You reported this comment.')
+        within('#flash') { expect(page).to have_text('Comment reported successfully') }
+      end
+
+      it 'is possible to report the both the comment and its author' do
+        click_link('Report', id: "js-comment-#{comment.id}")
+        fill_and_submit_report_form(report_comment_author: true)
+        expect(page).to have_text('You reported this comment.')
+        within('#flash') { expect(page).to have_text('Comment and its author both reported successfully') }
       end
     end
 
@@ -129,6 +154,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'displays the "You reported this project." message instantly' do
         desktop? ? click_link('Report Project') : click_menu_link('Actions', 'Report Project')
+        expect(page).not_to have_text('Report the author of the comment')
         fill_and_submit_report_form
         expect(page).to have_text('You reported this project.')
       end
@@ -165,6 +191,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'displays the "You reported this package." message instantly' do
         desktop? ? click_link('Report Package') : click_menu_link('Actions', 'Report Package')
+        expect(page).not_to have_text('Report the author of the comment')
         fill_and_submit_report_form
         expect(page).to have_text('You reported this package.')
       end
@@ -199,6 +226,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'displays the "You reported this user." message instantly' do
         click_link('Report', id: "js-user-#{another_user.id}")
+        expect(page).not_to have_text('Report the author of the comment')
         fill_and_submit_report_form
         expect(page).to have_text('You reported this user.')
       end

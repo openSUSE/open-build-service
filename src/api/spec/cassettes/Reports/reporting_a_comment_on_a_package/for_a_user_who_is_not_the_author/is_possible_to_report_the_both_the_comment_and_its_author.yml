@@ -1,0 +1,205 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/some_random_project/some_random_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 5e01c48b-f80a-4c97-b4c2-e1d9a0314c39
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '94'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="some_random_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 13 Dec 2023 16:05:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/some_random_project/some_random_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '94'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="some_random_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 13 Dec 2023 16:05:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/some_random_project/some_random_package/_history?deleted=0&meta=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 5e01c48b-f80a-4c97-b4c2-e1d9a0314c39
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Wed, 13 Dec 2023 16:05:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?lastbuild=1&locallink=1&multibuild=1&package=some_random_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 5fd6330b-fb4c-45c4-9842-1f605aa2ddcd
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 13 Dec 2023 16:05:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?lastbuild=1&locallink=1&multibuild=1&package=some_random_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - e40a8525-36b3-472c-805d-9f6e80c61a4d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 13 Dec 2023 16:05:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?package=some_random_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 9eae69e2-628f-485c-b3ef-827e03cf5984
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 13 Dec 2023 16:05:30 GMT
+recorded_with: VCR 6.2.0
