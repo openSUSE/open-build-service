@@ -15,6 +15,7 @@ module NotificationService
                         'Event::ReportForPackage',
                         'Event::ReportForComment',
                         'Event::ReportForUser',
+                        'Event::ReportForRequest',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
@@ -40,6 +41,7 @@ module NotificationService
                         'Event::ReportForPackage',
                         'Event::ReportForComment',
                         'Event::ReportForUser',
+                        'Event::ReportForRequest',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail'].freeze
