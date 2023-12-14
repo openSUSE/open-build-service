@@ -2,6 +2,7 @@
 class Report < ApplicationRecord
   validates :reason, length: { maximum: 65_535 }
   validates :reportable_type, length: { maximum: 255 }
+  validates :reportable, presence: true, on: :create
 
   belongs_to :user, optional: false
   belongs_to :reportable, polymorphic: true, optional: true
