@@ -43,6 +43,8 @@ class Report < ApplicationRecord
       Event::ReportForProject.create(event_parameters.merge(project_name: reportable.name))
     when 'User'
       Event::ReportForUser.create(event_parameters.merge(user_login: reportable.login))
+    when 'BsRequest'
+      Event::ReportForRequest.create(event_parameters.merge(bs_request_number: reportable.number))
     end
   end
 
