@@ -1,5 +1,7 @@
 post:
   summary: Registers a new person
+  deprecated: true
+  description: This endpoint is exactly the same as `POST /person?cmd=register`, please use that one.
   requestBody:
     description: Data for the person to register.
     required: true
