@@ -45,8 +45,11 @@ class EventSubscription
 
     def show_form_for_create_report_event?(event_class:, subscriber:)
       if event_class.name.in?(['Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'])
-        # There is no subscriber for the global subscription configuration
-        return false if subscriber.blank?
+        # There is no subscriber associated to "global" event subscriptions
+        # which are set through the admin configuration interface.
+        # Admin user should be able to configure all event subscription types,
+        # even if they are not participating in the corresponding beta program
+        return true if subscriber.blank?
         return false unless ReportPolicy.new(subscriber, Report).notify?
       end
 
