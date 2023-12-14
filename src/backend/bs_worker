@@ -3369,6 +3369,19 @@ sub annotatereport {
   }
 }
 
+sub addcontainerinfodata {
+  my ($report, $containerinfofile) = @_;
+  return unless -s $containerinfofile && (-s _) < 1000000;
+  my $cf;
+  if (open($cf, '<', $containerinfofile)) {
+    while (<$cf>) {
+      $report->{'version'} = $1 if /^\s*\"version\"\s*:\s*\"(.*)\"/;
+      $report->{'release'} = $1 if /^\s*\"release\"\s*:\s*\"(.*)\"/;
+    }
+    close $cf;
+  }
+}
+
 # create a .report file from a .packages file by adding binary origin information
 sub createreport {
   my ($buildinfo, $dir, $kiwiorigins, $srcdir) = @_;
@@ -3468,6 +3481,10 @@ sub createreport {
     push @bins, @{$kiwiorigins->{':basecontainers'} || []};
     my $report = { 'binary' => \@bins };
     addreportdata($report, $buildinfo);
+    my $containerinfofile = $file;
+    $containerinfofile =~ s/\.packages$/\.containerinfo/;
+    $containerinfofile =~ s/\.containerinfo$/\.docker\.containerinfo/ unless -e "$dir/$containerinfofile";
+    addcontainerinfodata($report, "$dir/$containerinfofile") if -s "$dir/$containerinfofile";
     my $reportfile = $file;
     $reportfile =~ s/\.packages$/\.report/;
     writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
