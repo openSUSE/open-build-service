@@ -23,6 +23,10 @@ class BsRequestPolicy < ApplicationPolicy
     author? && record.state.in?([:new, :review, :declined])
   end
 
+  def report?
+    ensure_logged_in!(user, {})
+  end
+
   private
 
   def author?

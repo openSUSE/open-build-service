@@ -1,0 +1,9 @@
+%li.nav-item
+  = link_to('#', class: 'nav-link', id: "js-request-#{bs_request.number}",
+        data: { 'bs-toggle': 'modal',
+                'bs-target': '#report-modal',
+                'modal-title': "Report #{bs_request.number}",
+                'reportable-type': bs_request.class.name,
+                'reportable-id': bs_request.number }) do
+    %i.fas.fa-regular.fa-flag.fa-lg.me-2
+    %span.nav-item-name Report Request

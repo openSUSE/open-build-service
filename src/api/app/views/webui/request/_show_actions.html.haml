@@ -1,0 +1,3 @@
+- content_for :actions do
+  - if policy(Report.new(reportable: bs_request)).create?
+    = render partial: 'webui/request/report_request', locals: { bs_request: bs_request }

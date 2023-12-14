@@ -83,6 +83,7 @@ class BsRequest < ApplicationRecord
   has_many :not_accepted_reviews, -> { where.not(state: :accepted) }, class_name: 'Review'
   has_many :notifications, as: :notifiable, dependent: :delete_all
   has_many :watched_items, as: :watchable, dependent: :destroy
+  has_many :reports, as: :reportable, dependent: :nullify
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
