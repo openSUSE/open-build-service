@@ -657,9 +657,9 @@ sub getremotebinaryversions {
 
   my $jev = $BSStdServer::isajax ? $BSServerEvents::gev : undef;
 
-  if ($jev && $jev->{'binaryversions_donated_result'}) {
-    print "returning donated result for getremotebinaryversions $projid/$repoid\n";
-    return $jev->{'binaryversions_donated_result'};
+  if ($jev && $jev->{'binaryversions_shared_result'}) {
+    print "returning shared result for getremotebinaryversions $projid/$repoid\n";
+    return $jev->{'binaryversions_shared_result'};
   }
 
   if ($jev && !$jev->{'binaryversions_key'}) {
@@ -731,7 +731,7 @@ sub getremotebinaryversions {
     my @serial_waiting = BSWatcher::serialize_waiting($serialkey);
     for my $waiting (reverse(@serial_waiting)) {
       next if $jev->{'binaryversions_key'} ne ($waiting->{'binaryversions_key'} || '');
-      $waiting->{'binaryversions_donated_result'} = $binaryversions;
+      $waiting->{'binaryversions_shared_result'} = $binaryversions;
       BSWatcher::serlialize_advance($waiting);
     }
   }

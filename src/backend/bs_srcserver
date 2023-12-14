@@ -2625,9 +2625,9 @@ sub concatconfigs {
 sub getbuildconfig_ajax {
   my ($cgi, $projid, $repoid) = @_;
   my $jev = $BSServerEvents::gev;
-  if (defined $jev->{'getbuildconfig_donated_result'}) {
-    print "returning donated result for getbuildconfig $projid/$repoid\n";
-    return ($jev->{'getbuildconfig_donated_result'}, 'Content-Type: text/plain');
+  if (defined $jev->{'getbuildconfig_shared_result'}) {
+    print "returning shared result for getbuildconfig $projid/$repoid\n";
+    return ($jev->{'getbuildconfig_shared_result'}, 'Content-Type: text/plain');
   }
   $jev->{'getbuildconfig_key'} = "$projid/$repoid";
   my $serialkey = "getbuildconfig/$projid";
@@ -2645,7 +2645,7 @@ sub getbuildconfig_ajax {
   my @serial_waiting = BSWatcher::serialize_waiting($serialkey);
   for my $waiting (reverse(@serial_waiting)) {
     next if $jev->{'getbuildconfig_key'} ne ($waiting->{'getbuildconfig_key'} || '');
-    $waiting->{'getbuildconfig_donated_result'} = $config;
+    $waiting->{'getbuildconfig_shared_result'} = $config;
     BSWatcher::serlialize_advance($waiting);
   }
   BSWatcher::serialize_end($serial);
