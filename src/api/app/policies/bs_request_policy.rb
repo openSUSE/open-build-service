@@ -23,6 +23,11 @@ class BsRequestPolicy < ApplicationPolicy
     author? && record.state.in?([:new, :review, :declined])
   end
 
+  ## TODO: define who can report a request
+  def update?
+    false unless user
+  end
+
   private
 
   def author?

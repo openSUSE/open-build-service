@@ -6,6 +6,7 @@ class ReportPolicy < ApplicationPolicy
     CommentPolicy.new(user, record.reportable).maintainer? if record.reportable_type == 'Comment'
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def create?
     return false unless Flipper.enabled?(:content_moderation, user)
 
@@ -22,8 +23,11 @@ class ReportPolicy < ApplicationPolicy
       !CommentPolicy.new(user, record.reportable).update?
     when 'User'
       !UserPolicy.new(user, record.reportable).update?
+    when 'BsRequest'
+      !BsRequestPolicy.new(user, record.reportable).update?
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def notify?
     return false unless Flipper.enabled?(:content_moderation, user)

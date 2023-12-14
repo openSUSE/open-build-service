@@ -4,6 +4,7 @@
   content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
   @pagetitle = "Request #{@bs_request.number}"
   @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
+  render partial: 'webui/request/show_actions', locals: { bs_request: @bs_request }
 
 - if @not_full_diff && User.session
   = render partial: 'webui/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
