@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::FeedsController do
+RSpec.describe Webui::FeedsController, :vcr do
   let(:project) { create(:project) }
   let(:commit) { create(:project_log_entry, project: project) }
   let(:old_commit) { create(:project_log_entry, project: project, datetime: 'Tue, 09 Feb 2015') }
@@ -61,8 +61,6 @@ RSpec.describe Webui::FeedsController do
     end
   end
 
-  describe 'GET latest_updates'
-
   describe 'GET #notifications' do
     let(:user) { create(:confirmed_user) }
     let(:bs_request) do
@@ -97,6 +95,60 @@ RSpec.describe Webui::FeedsController do
       it 'raises an error' do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
       end
+    end
+
+    context 'when fetching build failed notifications' do
+      let(:user) { create(:user, :with_home) }
+      let(:package) { create(:package, project: user.home_project) }
+      let(:event_payload) do
+        {
+          project: 'project',
+          package: 'package',
+          repository: 'repo',
+          arch: 'arch'
+        }
+      end
+      let!(:notification_build_failure) { create(:rss_notification, event_type: 'Event::BuildFail', subscriber: user, notifiable: package, event_payload: event_payload) }
+
+      render_views
+      before do
+        Configuration.update(obs_url: 'http://localhost')
+        user.regenerate_rss_secret
+        get :notifications, params: { secret: user.rss_secret, format: 'rss' }
+      end
+
+      after do
+        Configuration.update(obs_url: nil)
+      end
+
+      it { is_expected.to render_template('notifications/build_fail') }
+    end
+
+    context 'when fetching relationship create notifications' do
+      let(:user) { create(:user, :with_home) }
+      let(:package) { create(:package, project: user.home_project) }
+      let(:event_payload) do
+        {
+          package: 'package',
+          project: 'project',
+          who: 'who',
+          role: 'role'
+        }
+      end
+      let!(:notification_relationship_create) { create(:rss_notification, event_type: 'Event::RelationshipCreate', subscriber: user, notifiable: package, event_payload: event_payload) }
+
+      render_views
+      before do
+        Configuration.update(obs_url: 'http://localhost')
+        user.regenerate_rss_secret
+        get :notifications, params: { secret: user.rss_secret, format: 'rss' }
+      end
+
+      after do
+        Configuration.update(obs_url: nil)
+      end
+
+      it { is_expected.to render_template('notifications/relationship_create') }
     end
   end
 end
