@@ -57,6 +57,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       end
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_text(@notification.event_payload)
+    when 'Event::ReportForRequest'
+      "Report for Request ##{@notification.notifiable.reportable.number}"
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
@@ -122,6 +124,14 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
       Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'])
+    when 'Event::ReportForRequest'
+      anchor = if @notification.notifiable.reportable.is_a?(BsRequestAction)
+                 'tab-pane-changes'
+               else
+                 'comments-list'
+               end
+      bs_request = @notification.notifiable.reportable
+      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id, anchor: anchor)
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
       reportable = @notification.notifiable.reports.first.reportable
       link_for_reportables(reportable)

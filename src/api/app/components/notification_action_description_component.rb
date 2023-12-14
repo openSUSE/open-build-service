@@ -47,6 +47,8 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser'
       "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
+    when 'Event::ReportForRequest'
+      "'#{@notification.notifiable.user.login}' created a report for a request. This is the reason:"
     when 'Event::ReportForComment'
       "'#{@notification.notifiable.user.login}' created a report for a comment from #{@notification.event_payload['commenter']}. This is the reason:"
     when 'Event::ClearedDecision'
