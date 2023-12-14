@@ -27,8 +27,13 @@ function setValuesOnReportDialog(modalId) {
     }
 
     if (typeof(link.data('reportable-type')) !== 'undefined') {
-      modal.find('#report_reportable_type').val(link.data('reportable-type'));
-      modal.find('.reportable_type').text(link.data('reportable-type'));
+      var reportableType = link.data('reportable-type');
+      var reportableIsComment = reportableType === 'Comment';
+
+      modal.find('#report_reportable_type').val(reportableType);
+      modal.find('.reportable_type').text(reportableType);
+      modal.find('#report-comment-author-container').toggle(reportableIsComment);
+      modal.find('#report_comment_author').prop('disabled', !reportableIsComment);
     }
 
     modal.find('#link_id').val(link.attr('id'));

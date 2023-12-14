@@ -10,7 +10,14 @@ class Webui::ReportsController < Webui::WebuiController
     @link_id = params[:link_id]
 
     if @report.save
-      flash[:success] = "#{@report.reportable_type} reported successfully"
+      if @report.reportable_type == 'Comment' && params[:report_comment_author].present?
+        @user.submitted_reports.create!(report_params.merge(reportable_id: @report.reportable.user_id,
+                                                            reportable_type: 'User',
+                                                            reason: "This user has been reported together with a comment they wrote. Report reason for the comment: #{@report.reason}"))
+        flash[:success] = 'Comment and its author both reported successfully'
+      else
+        flash[:success] = "#{@report.reportable_type} reported successfully"
+      end
     else
       flash[:error] = @report.errors.full_messages.to_sentence
     end

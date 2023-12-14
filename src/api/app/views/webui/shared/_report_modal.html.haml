@@ -28,6 +28,9 @@
               = form.text_area(:reason, class: 'form-control')
               .text-muted
                 Please include any additional information here.
+          .form-check#report-comment-author-container
+            = check_box_tag(:report_comment_author, '1', false, class: 'form-check-input')
+            = label_tag(:report_comment_author, 'Report the author of the comment', class: 'form-check-label')
           .modal-footer
             %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
               Cancel
