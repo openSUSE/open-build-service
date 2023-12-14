@@ -4,7 +4,7 @@ class NotificationsFinder
                   relation.order(created_at: :desc)
                 else
                   # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-                  relation.where.not(event_type: ['Event::CreateReport',
+                  relation.where.not(event_type: ['Event::CreateReport', 'Event::ReportForRequest',
                                                   'Event::ReportForProject', 'Event::ReportForPackage',
                                                   'Event::ReportForComment', 'Event::ReportForUser',
                                                   'Event::ClearedDecision', 'Event::FavoredDecision',
@@ -51,8 +51,8 @@ class NotificationsFinder
   def for_reports
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     @relation.where(event_type: ['Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage',
-                                 'Event::ReportForComment', 'Event::ReportForUser',
-                                 'Event::ClearedDecision', 'Event::FavoredDecision'], delivered: false)
+                                 'Event::ReportForComment', 'Event::ReportForUser', 'Event::ReportForRequest',
+                                 'Event::ClearedDecision', 'Event::FavoredDecision', 'Event::AppealCreated'], delivered: false)
   end
 
   def for_workflow_runs
