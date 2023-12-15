@@ -1047,6 +1047,7 @@ our $ajaxjob = [
 	'peer',
 	'request',
 	'state',
+	'requestid',
 ];
 
 our $ajaxstatus = [

@@ -1244,6 +1244,7 @@ sub jobstatus {
     $j->{'starttime'} = $req->{'starttime'} if $req->{'starttime'};
     $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
     $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 1024) if $req->{'action'};
+    $j->{'requestid'} = $req->{'requestid'} if $req->{'requestid'};
   }
   return $j;
 }
@@ -1253,7 +1254,8 @@ sub getstatus {
   my $jev = $BSServerEvents::gev;
   $ret->{'ev'} = $jev->{'id'};
   my $req = $jev->{'request'};
-  $ret->{'starttime'} = $req->{'server'}->{'starttime'};
+  my $server = $req->{'server'};
+  $ret->{'starttime'} = $server->{'starttime'};
   $ret->{'pid'} = $$;
   for my $filename (sort keys %filewatchers) {
     my $fw = {'filename' => $filename, 'state' => $filewatchers_s{$filename}};
@@ -1280,7 +1282,7 @@ sub getstatus {
     }
     push @{$ret->{'serialize'}}, $sz;
   }
-  for my $jev (BSServerEvents::getrequestevents($req->{'server'})) {
+  for my $jev (BSServerEvents::getrequestevents($server)) {
     push @{$ret->{'joblist'}->{'job'}}, jobstatus($jev);
   }
   return $ret;
