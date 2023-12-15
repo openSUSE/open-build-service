@@ -85,8 +85,6 @@ ENV['BACKEND_STARTED'] = '1'
 
 # for generating test coverage
 require 'simplecov'
-# to clean old unused cassettes
-require 'cassette_rewinder' if ENV['CLEAN_UNUSED_CASSETTES']
 
 ### Our own spec extensions
 # support logging
