@@ -20,6 +20,8 @@ class Report < ApplicationRecord
   after_create :create_event
   after_create :track_report
 
+  validate :reports_pointing_to_same_reportable
+
   scope :without_decision, -> { where(decision: nil) }
 
   # TODO: remove the first part of the condition `category.present?`. It's a temprary patch to
@@ -69,6 +71,12 @@ class Report < ApplicationRecord
 
   def track_report
     RabbitmqBus.send_to_bus('metrics', "report,category=#{category},type=#{reportable_type} sibling_reports=#{ReportsFinder.new(self).siblings},count=1")
+  end
+
+  def reports_pointing_to_same_reportable
+    return unless decision && decision.reports.where.not(reportable: reportable).present?
+
+    errors.add(:base, :decision_with_different_reportables, message: 'Decision has reports pointing to a different reportable. All decision reports should point to same reportable.')
   end
 end
 
