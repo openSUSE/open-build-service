@@ -3,7 +3,8 @@ class EventSubscription
     DISABLE_FOR_EVENTS = ['Event::ServiceFail'].freeze
     DISABLE_RSS_FOR_EVENTS = ['Event::ReportForProject', 'Event::ReportForPackage',
                               'Event::ReportForComment', 'Event::ReportForUser',
-                              'Event::WorkflowRunFail', 'Event::AppealCreated'].freeze
+                              'Event::WorkflowRunFail', 'Event::AppealCreated',
+                              'Event::FavoredDecision', 'Event::ClearedDecision'].freeze
     DISABLE_EMAIL_FOR_EVENTS = ['Event::AppealCreated'].freeze
 
     attr_reader :name, :subscription

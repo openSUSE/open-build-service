@@ -18,7 +18,9 @@ class EventSubscription < ApplicationRecord
     target_package_watcher: 'Watching the target package',
     request_watcher: 'Watching the request',
     moderator: 'User with moderator role',
-    token_executor: 'User who runs the workflow'
+    token_executor: 'User who runs the workflow',
+    reporter: 'Reporter',
+    offender: 'Offender'
   }.freeze
 
   enum channel: {

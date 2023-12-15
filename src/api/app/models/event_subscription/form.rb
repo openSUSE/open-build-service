@@ -3,6 +3,7 @@ class EventSubscription
     EVENTS_FOR_CONTENT_MODERATORS = ['Event::ReportForProject', 'Event::ReportForPackage',
                                      'Event::ReportForComment', 'Event::ReportForUser',
                                      'Event::AppealCreated'].freeze
+    EVENTS_IN_CONTENT_MODERATION_BETA = ['Event::FavoredDecision', 'Event::ClearedDecision'].freeze
 
     attr_reader :subscriber
 
@@ -53,8 +54,8 @@ class EventSubscription
       # Admin user should be able to configure all event subscription types,
       # even if they are not participating in the corresponding beta program
       return true if subscriber.blank?
-
       return false if EVENTS_FOR_CONTENT_MODERATORS.include?(event_class.name) && !ReportPolicy.new(subscriber, Report).notify?
+      return false if EVENTS_IN_CONTENT_MODERATION_BETA.include?(event_class.name) && !Flipper.enabled?(:content_moderation, subscriber)
 
       true
     end
