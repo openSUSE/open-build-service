@@ -6,6 +6,9 @@
     -# state badge
     %small
       = render badge_state
+      %span.ms-2
+        = render ReportsNoticeComponent.new(reportable: bs_request, user: User.session)
+
   -# watch button
   - if User.session
     .d-inline.align-bottom.ms-1#watchlist-icon-wrapper

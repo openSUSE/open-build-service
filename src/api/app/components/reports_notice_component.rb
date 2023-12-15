@@ -5,7 +5,11 @@ class ReportsNoticeComponent < ApplicationComponent
     super
 
     @reportable = reportable
-    @reportable_name = reportable.class.name.downcase
+    @reportable_name = if reportable.instance_of?(::BsRequest)
+                         'request'
+                       else
+                         reportable.class.name.downcase
+                       end
     @user = user
     @reports = reportable&.reports&.without_decision
   end
