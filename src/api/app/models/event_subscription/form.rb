@@ -1,5 +1,9 @@
 class EventSubscription
   class Form
+    EVENTS_FOR_CONTENT_MODERATORS = ['Event::ReportForProject', 'Event::ReportForPackage',
+                                     'Event::ReportForComment', 'Event::ReportForUser',
+                                     'Event::AppealCreated'].freeze
+
     attr_reader :subscriber
 
     def initialize(subscriber = nil)
@@ -9,7 +13,7 @@ class EventSubscription
     def subscriptions_by_event
       event_classes = Event::Base.notification_events
       event_classes.filter_map do |event_class|
-        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_create_report_event?(event_class: event_class, subscriber: subscriber)
+        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_content_moderation_events?(event_class: event_class, subscriber: subscriber)
       end
     end
 
@@ -43,15 +47,14 @@ class EventSubscription
       EventSubscription.find_or_initialize_by(opts)
     end
 
-    def show_form_for_create_report_event?(event_class:, subscriber:)
-      if event_class.name.in?(['Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment', 'Event::ReportForUser'])
-        # There is no subscriber associated to "global" event subscriptions
-        # which are set through the admin configuration interface.
-        # Admin user should be able to configure all event subscription types,
-        # even if they are not participating in the corresponding beta program
-        return true if subscriber.blank?
-        return false unless ReportPolicy.new(subscriber, Report).notify?
-      end
+    def show_form_for_content_moderation_events?(event_class:, subscriber:)
+      # There is no subscriber associated to "global" event subscriptions
+      # which are set through the admin configuration interface.
+      # Admin user should be able to configure all event subscription types,
+      # even if they are not participating in the corresponding beta program
+      return true if subscriber.blank?
+
+      return false if EVENTS_FOR_CONTENT_MODERATORS.include?(event_class.name) && !ReportPolicy.new(subscriber, Report).notify?
 
       true
     end
