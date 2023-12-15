@@ -14,9 +14,16 @@ namespace :dev do
         factory.comments.create!(user: admin, body: 'This project is crap!'),
         create(:package_with_files, name: 'crappy_package', project: factory),
         create(:project, name: 'some_crappy_project_name', commit_user: admin),
-        create(:confirmed_user, login: 'crapboy')
+        create(:confirmed_user, login: 'crapboy'),
       ].each do |reportable|
         Report.create!(reportable: reportable, user: iggy, reason: 'Watch your language, please')
+      end
+
+      user_1 = User.find_by(login: 'user_1')
+      [
+        create(:bs_request_with_submit_action, creator: user_1, description: 'Hey! Visit my new site $$$!')
+      ].each do |reportable|
+        Report.create!(reportable: reportable, user: user_1, reason: 'This is a scam')
       end
     end
 
