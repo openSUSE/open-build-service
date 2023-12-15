@@ -31,7 +31,7 @@ function setValuesOnReportDialog(modalId) {
       var reportableIsComment = reportableType === 'Comment';
 
       modal.find('#report_reportable_type').val(reportableType);
-      modal.find('.reportable_type').text(reportableType);
+      modal.find('.reportable_type').text(reportableType === "BsRequest" ? 'Request' : reportableType);
       modal.find('#report-comment-author-container').toggle(reportableIsComment);
       modal.find('#report_comment_author').prop('disabled', !reportableIsComment);
     }
