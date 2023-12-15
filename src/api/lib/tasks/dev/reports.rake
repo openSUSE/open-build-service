@@ -18,6 +18,13 @@ namespace :dev do
       ].each do |reportable|
         Report.create!(reportable: reportable, user: iggy, reason: 'Watch your language, please')
       end
+
+      user1 = User.find_by(login: 'user_1')
+      [
+        create(:bs_request_with_submit_action, creator: user1, description: 'Hey! Visit my new site $$$!')
+      ].each do |reportable|
+        Report.create!(reportable: reportable, user: user1, reason: 'This is a scam')
+      end
     end
 
     # Run `rake dev:reports:decisions` (always after running `rake dev:reports:data`)
