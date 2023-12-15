@@ -3,12 +3,7 @@ require 'rails_helper'
 RSpec.describe Backend::File, :vcr do
   let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
-  let(:fake_file) do
-    File.open(Rails.root.join('spec/support/files/hello.txt').expand_path) { |file| file }
-  end
-  let(:fake_file_without_extension) do
-    File.open(Rails.root.join('spec/support/files/hello_world').expand_path) { |file| file }
-  end
+  let(:fake_file) { file_fixture('hello.txt') }
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
 
   # Needed because full_path is only defined in subclasses of Backend::File
@@ -43,7 +38,7 @@ RSpec.describe Backend::File, :vcr do
   end
 
   describe '#file=' do
-    let(:input_stream) { File.open(fake_file.path) }
+    let(:input_stream) { fake_file.open }
 
     before do
       subject.file = input_stream
@@ -60,7 +55,7 @@ RSpec.describe Backend::File, :vcr do
   describe '#file_from_path' do
     context 'with a well formed filename' do
       before do
-        subject.file_from_path(fake_file.path)
+        subject.file_from_path(fake_file.to_s)
       end
 
       it { expect(subject.file.class).to eq(File) }
@@ -72,7 +67,7 @@ RSpec.describe Backend::File, :vcr do
 
     context 'with a file without extension' do
       before do
-        subject.file_from_path(fake_file_without_extension.path)
+        subject.file_from_path(file_fixture('hello_world').to_s)
       end
 
       it { expect(subject.file.class).to eq(File) }
@@ -86,7 +81,7 @@ RSpec.describe Backend::File, :vcr do
   describe '#file' do
     context 'with a file already loaded' do
       before do
-        subject.file_from_path(fake_file.path)
+        subject.file_from_path(fake_file.to_s)
       end
 
       it { expect(subject.file.class).to eq(File) }
@@ -195,7 +190,7 @@ RSpec.describe Backend::File, :vcr do
       let!(:previous_content) { subject.content }
 
       before do
-        subject.file = File.open(fake_file.path)
+        subject.file = fake_file.open
         subject.save!
       end
 

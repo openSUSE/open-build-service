@@ -160,7 +160,7 @@ FactoryBot.define do
     factory :package_with_binary do
       transient do
         target_file_name { 'bigfile_archive.tar.gz' }
-        file_name { 'spec/support/files/bigfile_archive.tar.gz' }
+        file_name { 'spec/fixtures/files/bigfile_archive.tar.gz' }
       end
 
       after(:create) do |package, evaluator|
@@ -175,12 +175,12 @@ FactoryBot.define do
       after(:create) do |package|
         if CONFIG['global_write_through']
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
-                                  File.read('spec/support/files/bigfile_archive.tar.gz'))
+                                  File.read('spec/fixtures/files/bigfile_archive.tar.gz'))
 
           # this is required to generate a diff - the backend treats binary files a bit different and only shows a diff if the
           # file has been changed.
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
-                                  File.read('spec/support/files/bigfile_archive_2.tar.gz'))
+                                  File.read('spec/fixtures/files/bigfile_archive_2.tar.gz'))
         end
       end
     end

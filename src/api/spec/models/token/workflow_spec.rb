@@ -70,7 +70,7 @@ RSpec.describe Token::Workflow do
       let(:scm_extractor) { TriggerControllerService::SCMExtractor.new(scm, event, github_payload) }
       let(:scm_webhook) { SCMWebhook.new(payload: github_extractor_payload) }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
-      let(:yaml_file) { Rails.root.join('spec/support/files/workflows.yml').expand_path }
+      let(:yaml_file) { file_fixture('workflows.yml') }
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token, workflow_run: workflow_run) }
       let(:workflow) do
         Workflow.new(scm_webhook: scm_webhook, token: workflow_token,
@@ -137,7 +137,7 @@ RSpec.describe Token::Workflow do
       let(:scm_extractor) { TriggerControllerService::SCMExtractor.new(scm, event, github_payload) }
       let(:scm_webhook) { SCMWebhook.new(payload: github_extractor_payload) }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(scm_webhook.payload, token: workflow_token) }
-      let(:yaml_file) { Rails.root.join('spec/support/files/workflows.yml').expand_path }
+      let(:yaml_file) { file_fixture('workflows.yml') }
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: scm_webhook, token: workflow_token, workflow_run: workflow_run) }
       let(:workflows) { [Workflow.new(scm_webhook: scm_webhook, token: workflow_token, workflow_instructions: {})] }
 

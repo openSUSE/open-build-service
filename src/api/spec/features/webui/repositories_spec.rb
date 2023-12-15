@@ -121,11 +121,10 @@ RSpec.describe 'Repositories', :js do
     end
 
     it 'add DoD repositories via meta editor' do
-      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml')
-                         .gsub('user5', admin_user.login)
+      project_with_dod_xml = file_fixture('project_with_dod.xml').read.gsub('user5', admin_user.login)
 
       visit(project_meta_path(project_name: admin_user.home_project_name))
-      page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
+      page.evaluate_script("editors[0].setValue(\"#{project_with_dod_xml.gsub("\n", '\n')}\");")
       click_button('Save')
       expect(page).to have_css('#flash', text: 'Config successfully saved!')
 
@@ -156,7 +155,7 @@ RSpec.describe 'Repositories', :js do
     before do
       login admin_user
 
-      fake_distribution_body = Rails.root.join('test/fixtures/backend/distributions.xml').read
+      fake_distribution_body = file_fixture('distributions.xml').read
 
       stub_request(:get, 'https://api.opensuse.org/public/distributions.xml')
         .to_return(status: 200, body: fake_distribution_body, headers: {})
