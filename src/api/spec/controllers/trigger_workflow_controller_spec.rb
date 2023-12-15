@@ -247,7 +247,7 @@ RSpec.describe TriggerWorkflowController do
     context 'no validation errors' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
-      let(:github_payload) { File.read('spec/support/files/request_payload_github_pull_request_opened.json') }
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       before do
         allow(token).to receive(:call).and_return([])

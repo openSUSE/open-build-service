@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe DiffParser, type: :service do
-  let(:content) { Rails.root.join("spec/support/files/#{file}").expand_path }
+  let(:content) { file_fixture("#{file}") }
   let(:parser) { described_class.new(content: content) }
 
   let(:result) { result_array.map { |line| DiffParser::Line.new(content: line[0], state: line[1], index: line[2], original_index: line[3], changed_index: line[4]) } }

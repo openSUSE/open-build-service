@@ -119,8 +119,7 @@ RSpec.describe Webui::RequestController, :vcr do
             create(:package_with_binary, name: 'test-package-binary', project: target_project)
           end
           let(:source_package) do
-            create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
-                                         file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+            create(:package_with_binary, name: 'test-source-package-binary', project: source_project)
           end
 
           it_behaves_like 'a full diff not requested for', 'bigfile_archive.tar.gz/bigfile.txt'
@@ -152,8 +151,7 @@ RSpec.describe Webui::RequestController, :vcr do
           let(:expected_diff_size) { archive_content_diff_size + diff_header_size }
           let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
           let(:source_package) do
-            create(:package_with_binary, name: 'test-source-package-binary',
-                                         project: source_project, file_name: 'spec/support/files/bigfile_archive_2.tar.gz')
+            create(:package_with_binary, name: 'test-source-package-binary', project: source_project, file_name: 'bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff requested for'

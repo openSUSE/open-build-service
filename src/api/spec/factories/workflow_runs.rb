@@ -20,10 +20,10 @@ FactoryBot.define do
       END_OF_HEADERS
     end
     request_payload do
-      File.read('spec/support/files/request_payload_github_pull_request_opened.json')
+      File.read('spec/fixtures/files/request_payload_github_pull_request_opened.json')
     end
     workflow_configuration do
-      File.read('spec/support/files/workflows.yml')
+      File.read('spec/fixtures/files/workflows.yml')
     end
 
     trait :with_url do
@@ -41,7 +41,7 @@ FactoryBot.define do
     trait :pull_request_closed do
       hook_action { 'closed' }
       request_payload do
-        File.read('spec/support/files/request_payload_github_pull_request_closed.json')
+        File.read('spec/fixtures/files/request_payload_github_pull_request_closed.json')
       end
     end
 
@@ -56,7 +56,7 @@ FactoryBot.define do
         END_OF_HEADERS
       end
       request_payload do
-        File.read('spec/support/files/request_payload_github_push.json')
+        File.read('spec/fixtures/files/request_payload_github_push.json')
       end
     end
 
@@ -71,7 +71,7 @@ FactoryBot.define do
         END_OF_HEADERS
       end
       request_payload do
-        File.read('spec/support/files/request_payload_github_tag_push.json')
+        File.read('spec/fixtures/files/request_payload_github_tag_push.json')
       end
     end
 
@@ -141,20 +141,20 @@ FactoryBot.define do
       END_OF_HEADERS
     end
     request_payload do
-      File.read('spec/support/files/request_payload_gitlab_pull_request_opened.json')
+      File.read('spec/fixtures/files/request_payload_gitlab_pull_request_opened.json')
     end
 
     trait :pull_request_closed do
       hook_action { 'close' }
       request_payload do
-        File.read('spec/support/files/request_payload_gitlab_pull_request_closed.json')
+        File.read('spec/fixtures/files/request_payload_gitlab_pull_request_closed.json')
       end
     end
 
     trait :pull_request_merged do
       hook_action { 'merge' }
       request_payload do
-        File.read('spec/support/files/request_payload_gitlab_pull_request_merged.json')
+        File.read('spec/fixtures/files/request_payload_gitlab_pull_request_merged.json')
       end
     end
 
@@ -169,7 +169,7 @@ FactoryBot.define do
         END_OF_HEADERS
       end
       request_payload do
-        File.read('spec/support/files/request_payload_gitlab_push.json')
+        File.read('spec/fixtures/files/request_payload_gitlab_push.json')
       end
     end
 
@@ -184,7 +184,7 @@ FactoryBot.define do
         END_OF_HEADERS
       end
       request_payload do
-        File.read('spec/support/files/request_payload_gitlab_tag_push.json')
+        File.read('spec/fixtures/files/request_payload_gitlab_tag_push.json')
       end
     end
   end
