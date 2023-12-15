@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Users::BsRequestsController do
   describe 'GET #index' do
     include_context 'a set of bs requests'

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ModalComponent, type: :component do
   describe '#modal_object' do
     context 'creating a modal header, footer and button slots content' do

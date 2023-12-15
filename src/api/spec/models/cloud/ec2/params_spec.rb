@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Cloud::Ec2::Params, :vcr do
   describe 'validations' do
     it { is_expected.to validate_presence_of :region }

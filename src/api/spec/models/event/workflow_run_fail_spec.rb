@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Event::WorkflowRunFail do
   describe '#token_executor' do
     let(:token) { create(:workflow_token) }

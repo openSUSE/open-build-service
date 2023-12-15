@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe MetaControllerService::ProjectUpdater do
   let(:project) { create(:project, name: 'openSUSE_41') }
   let(:admin_user) { create(:admin_user, login: 'Admin') }

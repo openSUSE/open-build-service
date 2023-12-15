@@ -1,5 +1,4 @@
 require 'webmock/rspec'
-require 'rails_helper'
 require 'statistics_calculations'
 
 RSpec.describe StatisticsCalculations do

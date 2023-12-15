@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe SCMStatusReporter, type: :service do
   let(:scm_status_reporter) { SCMStatusReporter.new(event_payload, event_subscription_payload, token, workflow_run, event_type) }
 

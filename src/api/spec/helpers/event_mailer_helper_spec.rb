@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe EventMailerHelper do
   let(:project) { create(:project_with_package, name: 'MyProject', package_name: 'MyPackage') }
   let(:package) { project.packages.first }

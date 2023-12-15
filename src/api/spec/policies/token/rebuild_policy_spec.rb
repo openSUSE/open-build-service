@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token::RebuildPolicy do
   subject { described_class }
 

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Users::TokensController do
   RSpec.shared_examples 'check for flashing an error' do
     it "doesn't flash a success" do

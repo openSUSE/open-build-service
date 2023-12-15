@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Attrib do
   let(:user) { create(:confirmed_user) }
   let(:project) { create(:project) }

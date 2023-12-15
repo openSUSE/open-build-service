@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestOverviewAvatarsComponent, type: :component do
   describe '#package_avatar_objects' do
     let(:user) { create(:user, login: 'King') }

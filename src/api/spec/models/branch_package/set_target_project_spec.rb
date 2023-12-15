@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BranchPackage::SetTargetProject, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_project) { user.home_project }

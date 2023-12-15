@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe Webui::Cloud::Ec2::UploadJobsController, :vcr do

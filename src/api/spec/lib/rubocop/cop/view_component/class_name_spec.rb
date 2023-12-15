@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'support/rubocop'
 require './lib/rubocop/cop/view_component/class_name'
 

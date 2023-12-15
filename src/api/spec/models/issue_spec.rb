@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Issue do
   describe '#fetch_issues' do
     let!(:issue_tracker) { create(:issue_tracker) }

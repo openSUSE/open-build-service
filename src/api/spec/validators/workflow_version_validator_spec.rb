@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowVersionValidator do
   let(:fake_model) do
     Struct.new(:workflow_version_number) do

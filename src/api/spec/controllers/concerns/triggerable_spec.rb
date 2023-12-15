@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Triggerable do
   # NOTE: this concern is not only used from controllers, also from models
   let(:fake_controller) do

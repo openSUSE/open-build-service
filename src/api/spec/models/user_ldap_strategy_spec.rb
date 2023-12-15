@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UserLdapStrategy do
   let(:dn_string_no_uid)   { 'cn=jsmith,ou=Promotions,dc=noam,dc=com' }
   let(:dn_string_no_dc)    { 'cn=jsmith,ou=Promotions,uid=dister' }

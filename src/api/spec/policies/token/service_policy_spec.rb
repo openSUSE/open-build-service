@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token::ServicePolicy do
   subject { described_class }
 

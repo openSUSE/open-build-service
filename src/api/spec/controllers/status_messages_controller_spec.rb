@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe StatusMessagesController do
   render_views
 

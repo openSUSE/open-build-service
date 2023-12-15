@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Event::RepoBuildFinished do
   describe 'UpdateNotificationEvents' do
     let(:path) { "#{CONFIG['source_url']}/lastnotifications?block=1&start=1" }

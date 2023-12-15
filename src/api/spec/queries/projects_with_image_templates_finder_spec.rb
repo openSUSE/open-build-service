@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ProjectsWithImageTemplatesFinder do
   let(:project) { create(:project, name: 'project_with_image') }
   let!(:template_attrib) { create(:template_attrib, project: project) }

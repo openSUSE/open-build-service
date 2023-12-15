@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::NotificationHelper do
   describe '#mark_as_read_or_unread_button' do
     let(:link) { mark_as_read_or_unread_button(notification) }

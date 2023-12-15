@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Backend::ConnectionHelper do
   let(:backend_api_fake_class) do
     extended_class = double('Fake Class with ParsePackageDiff')

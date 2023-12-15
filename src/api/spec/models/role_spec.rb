@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Role do
   let(:role) { create(:role) }
 

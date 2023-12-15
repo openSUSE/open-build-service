@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Groups::UsersController do
   let(:group) { create(:group) }
   let(:user) { create(:confirmed_user) }

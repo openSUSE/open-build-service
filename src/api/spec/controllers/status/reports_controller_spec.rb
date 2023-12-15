@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Status::ReportsController do
   render_views
 

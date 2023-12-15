@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Staging::WorkflowsController do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:managers_group) { create(:group) }

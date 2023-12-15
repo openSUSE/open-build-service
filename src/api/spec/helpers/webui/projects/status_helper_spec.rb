@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Projects::StatusHelper do
   describe '.parse_status' do
     let(:problems) do

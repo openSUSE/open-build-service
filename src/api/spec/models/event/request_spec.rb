@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Event::Request do
   describe '#source_package_watcher' do
     let(:bs_request) { create(:bs_request_with_submit_action) }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowStepsValidator do
   let(:fake_model) do
     Struct.new(:steps, :workflow_steps) do

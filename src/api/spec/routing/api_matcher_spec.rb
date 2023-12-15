@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe 'RoutesHelper::APIMatcher' do
   it { expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
 

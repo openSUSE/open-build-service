@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe EventSubscription::FormPolicy do
   let(:user) { create(:user_with_groups) }
   let(:other_user) { create(:user_with_groups) }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe EventMailer, :vcr do
   # Needed for X-OBS-URL
   before do

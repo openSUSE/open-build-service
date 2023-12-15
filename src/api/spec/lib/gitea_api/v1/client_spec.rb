@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe GiteaAPI::V1::Client do
   let(:client) { described_class.new(api_endpoint: 'https://gitea.opensuse.org', token: '12345') }
   let(:faraday) { instance_double(Faraday::Connection) }

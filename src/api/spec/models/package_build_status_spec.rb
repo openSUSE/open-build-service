@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe PackageBuildStatus, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'foo') }
   let!(:package) { create(:package, name: 'foo', project: user.home_project, commit_user: user) }

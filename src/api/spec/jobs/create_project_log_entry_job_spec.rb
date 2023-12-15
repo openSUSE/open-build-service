@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe CreateProjectLogEntryJob do
   describe '#perform' do
     let!(:user1) { create(:confirmed_user) }

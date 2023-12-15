@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Flag::SpecifiedFlags do
   let(:project) { create(:project_with_repository) }
   let(:package) { create(:package, project: project) }

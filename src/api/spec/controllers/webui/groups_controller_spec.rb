@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::GroupsController do
   let(:group) { create(:group) }
 

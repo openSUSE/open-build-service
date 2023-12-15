@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe SponsorsComponent, type: :component do
   context 'with sponsors' do
     let(:sponsor) do

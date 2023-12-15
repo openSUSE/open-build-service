@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe SignUpComponent, type: :component do
   context 'proxy auth mode enabled' do
     context 'with register page set up' do

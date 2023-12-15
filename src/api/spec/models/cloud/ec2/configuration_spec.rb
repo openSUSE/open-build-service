@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Cloud::Ec2::Configuration, :vcr do
   describe 'validations' do
     it { is_expected.to belong_to(:user).optional }

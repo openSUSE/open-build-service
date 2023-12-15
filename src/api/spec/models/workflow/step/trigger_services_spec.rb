@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Workflow::Step::TriggerServices do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }

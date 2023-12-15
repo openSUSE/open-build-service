@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe SCMWebhookEventValidator do
   let(:fake_model) do
     Struct.new(:payload) do

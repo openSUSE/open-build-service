@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BuildResultForArchitectureComponent, type: :component do
   let(:project) { 'fake_project' }
   let(:package) { 'fake_package' }

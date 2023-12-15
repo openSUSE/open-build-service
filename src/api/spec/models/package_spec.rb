@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'webmock/rspec'
 require 'rantly/rspec_extensions'
 

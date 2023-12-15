@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ConsistencyCheckJobService::ProjectConsistencyChecker, :vcr do
   let(:project) { create(:project, name: 'super_bacana') }
   let(:project_consistency_checker) { described_class.new }

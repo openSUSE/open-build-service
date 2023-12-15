@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe IssueTracker::IssueSummary do
   let(:issue_tracker) { create(:issue_tracker) }
   let(:issue_tracker_instance) { IssueTracker::IssueSummary.new(issue_tracker.name, issue_id) }

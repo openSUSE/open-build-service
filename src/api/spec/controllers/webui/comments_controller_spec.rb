@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::CommentsController do
   let(:user) { create(:confirmed_user, login: 'luck') }
 

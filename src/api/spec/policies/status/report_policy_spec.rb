@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Status::ReportPolicy do
   let(:anonymous_user) { create(:user_nobody) }
 

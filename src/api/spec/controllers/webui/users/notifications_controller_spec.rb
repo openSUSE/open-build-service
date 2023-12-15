@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Users::NotificationsController do
   let(:username) { 'reynoldsm' }
   let!(:user) { create(:confirmed_user, login: username) }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowVersionMatcher do
   let(:dummy_instance) do
     dummy_obj = Object.new

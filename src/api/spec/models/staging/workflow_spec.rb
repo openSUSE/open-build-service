@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::Workflow do
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:project) { create(:project_with_package, name: 'MyProject') }

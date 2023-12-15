@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe TimeComponent, type: :component do
   context 'time is in the past' do
     let(:time) { 2.days.ago }

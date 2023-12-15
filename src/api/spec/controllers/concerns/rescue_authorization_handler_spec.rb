@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 class FakeObject; end # rubocop:disable Lint/EmptyClass
 
 class FakePolicy < ApplicationPolicy

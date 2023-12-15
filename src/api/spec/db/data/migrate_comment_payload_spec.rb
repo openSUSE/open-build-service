@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20190228170655_migrate_comment_payload.rb')
 
 RSpec.describe MigrateCommentPayload do

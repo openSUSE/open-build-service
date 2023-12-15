@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe StatusMessagePolicy do
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }

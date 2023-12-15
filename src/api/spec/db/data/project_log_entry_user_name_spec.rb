@@ -1,4 +1,3 @@
-require 'rails_helper'
 require_relative '../../../db/data/20180214132015_project_log_entry_user_name'
 
 RSpec.describe ProjectLogEntryUserName, type: :model do

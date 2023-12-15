@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 # rubocop:disable RSpec/DescribeClass
 RSpec.describe 'workflows' do
   # rubocop:enable RSpec/DescribeClass

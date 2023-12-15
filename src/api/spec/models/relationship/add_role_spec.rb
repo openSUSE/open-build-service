@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Relationship::AddRole do
   let(:user) { create(:confirmed_user) }
   let(:role) { create(:role) }

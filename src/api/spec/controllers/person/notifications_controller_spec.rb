@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Person::NotificationsController do
   let(:user) { create(:confirmed_user, :with_home, :in_beta) }
 

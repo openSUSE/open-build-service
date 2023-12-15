@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::AttributeController do
   let!(:user) { create(:confirmed_user, :with_home) }
 

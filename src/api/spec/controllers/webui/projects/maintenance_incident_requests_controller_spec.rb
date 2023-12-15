@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Projects::MaintenanceIncidentRequestsController do
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }

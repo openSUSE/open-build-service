@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe TokenPolicy, type: :policy do
   let(:token_user) { create(:confirmed_user) }
   let(:user_token) { create(:rebuild_token, executor: token_user) }

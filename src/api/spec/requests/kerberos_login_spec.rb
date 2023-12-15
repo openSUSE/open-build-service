@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'gssapi'
 
 RSpec.describe 'Kerberos login' do

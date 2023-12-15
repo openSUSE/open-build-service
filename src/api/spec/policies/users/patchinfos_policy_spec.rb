@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Users::PatchinfosPolicy do
   let(:user) { create(:user) }
   let(:user_nobody) { build(:user_nobody) }

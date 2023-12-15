@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Projects::MaintenanceIncidentsController do
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:apache_project) { create(:project, name: 'Apache') }

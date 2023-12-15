@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'tasks/user_admin_rights'
 
 RSpec.describe UserAdminRights do

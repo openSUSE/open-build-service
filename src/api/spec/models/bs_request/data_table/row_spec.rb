@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequest::DataTable::Row do
   let!(:user) { create(:confirmed_user, login: 'moi') }
   let(:request) { create(:set_bugowner_request) }

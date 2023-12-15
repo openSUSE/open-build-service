@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationFilterLinkComponent, type: :component do
   context 'the filter item matches the selected filter and the amount is greater than 0' do
     let(:link_selector) { 'a.active[href="/my/notifications?type=comments"]' }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowRunDetailComponent, type: :component do
   context 'with a workflow run with configuration data path' do
     let(:workflow_run_with_path) { create(:workflow_run) }

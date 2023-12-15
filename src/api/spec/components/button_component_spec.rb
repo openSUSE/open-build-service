@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ButtonComponent, type: :component do
   describe '#button_object' do
     context 'creating a button with text' do

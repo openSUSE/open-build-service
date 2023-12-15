@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequest::FindFor::User do
   describe '#all' do
     let(:klass) { BsRequest::FindFor::User }

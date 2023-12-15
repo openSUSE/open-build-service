@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationFilterComponent, type: :component do
   let(:user) { create(:user) }
 

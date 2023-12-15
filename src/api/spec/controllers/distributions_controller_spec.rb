@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe DistributionsController do
   let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user) }

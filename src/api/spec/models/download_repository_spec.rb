@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe DownloadRepository do
   describe 'validations' do
     subject(:download_repository) { create(:download_repository) }

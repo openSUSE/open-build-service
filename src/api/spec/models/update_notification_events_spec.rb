@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UpdateNotificationEvents do
   let!(:admin) { create(:admin_user, login: 'Admin') }
   let(:notifications) do

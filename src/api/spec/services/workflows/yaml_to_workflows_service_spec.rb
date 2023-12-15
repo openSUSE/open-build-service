@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
   let(:github_extractor_payload) do
     {

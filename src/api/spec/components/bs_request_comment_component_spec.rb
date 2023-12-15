@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestCommentComponent, type: :component do
   let(:commentable) { create(:bs_request_with_submit_action) }
   let(:comment_a) { travel_to(1.day.ago) { create(:comment_request, commentable: commentable, body: 'Comment A') } }

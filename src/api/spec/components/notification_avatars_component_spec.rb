@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationAvatarsComponent, type: :component do
   context 'when a notification has more avatars to display than defined in MAXIMUM_DISPLAYED_AVATARS' do
     let(:project) { create(:project) }

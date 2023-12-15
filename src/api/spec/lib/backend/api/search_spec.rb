@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Backend::Api::Search, :vcr do
   describe '.projects' do
     context 'with projects' do

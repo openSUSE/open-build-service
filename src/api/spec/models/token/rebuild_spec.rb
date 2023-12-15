@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token::Rebuild do
   let(:user) { create(:user, login: 'foo') }
   let(:token) { create(:rebuild_token, executor: user) }

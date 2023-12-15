@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, :with_home, login: 'eisendieter') }

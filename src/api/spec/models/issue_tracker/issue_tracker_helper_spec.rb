@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe IssueTracker::IssueTrackerHelper do
   context 'cve' do
     let(:issue) { IssueTracker::IssueTrackerHelper.new('CVE-2010-31337') }

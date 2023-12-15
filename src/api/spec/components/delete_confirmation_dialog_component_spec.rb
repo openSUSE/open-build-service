@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe DeleteConfirmationDialogComponent, type: :component do
   it 'fails when modal_id is not passed' do
     expect { render_inline(described_class.new(method: :put)) }.to raise_error(ArgumentError, 'missing keyword: :modal_id')

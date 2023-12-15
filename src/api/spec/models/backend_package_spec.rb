@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BackendPackage, :vcr do
   describe '.refresh_dirty' do
     let!(:project) { create(:project, name: 'apache') }

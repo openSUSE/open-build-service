@@ -1,4 +1,3 @@
-require 'rails_helper'
 # WARNING: Some tests require real backend answers, so make sure you uncomment
 # this line and start a test backend.
 # CONFIG['global_write_through'] = true

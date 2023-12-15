@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::DistributionsController do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:admin_user) { create(:admin_user, login: 'admin') }

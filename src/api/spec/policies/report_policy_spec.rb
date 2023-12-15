@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ReportPolicy, type: :policy do
   subject { ReportPolicy }
 

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Package, '#get_by_project_and_name' do
   # follow_multibuild is tested in spec/models/concerns/multibuild_package_spec.rb
   # use_source is tested in spec/models/user_has_local_permission_spec.rb

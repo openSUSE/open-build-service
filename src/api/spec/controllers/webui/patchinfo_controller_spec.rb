@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::PatchinfoController, :vcr do
   let(:user) { create(:user, :with_home, login: 'macario') }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'gilberto') }

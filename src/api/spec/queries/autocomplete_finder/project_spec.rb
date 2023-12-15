@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe AutocompleteFinder::Project, :vcr do
   describe '#call' do
     before do

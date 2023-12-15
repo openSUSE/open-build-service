@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe StatusMessage do
   let(:admin_user) { create(:admin_user, login: 'admin') }
 

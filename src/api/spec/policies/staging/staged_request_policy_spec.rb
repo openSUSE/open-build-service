@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::StagedRequestPolicy do
   let(:admin) { create(:admin_user) }
   let(:authorized_user) { create(:confirmed_user, login: 'Tom') }

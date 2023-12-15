@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe PackageControllerService::RebuildTrigger do
   let(:project) { OpenStruct.new(name: 'bar') }
   let(:package) { OpenStruct.new(name: 'foo', project: project) }

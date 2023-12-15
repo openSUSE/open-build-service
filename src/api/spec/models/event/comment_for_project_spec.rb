@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Event::CommentForProject do
   describe 'payload is shortened' do
     let(:project) { create(:project) }

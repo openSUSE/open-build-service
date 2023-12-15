@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe 'Project::EmbargoHandler' do
   let(:user) { create(:confirmed_user, login: 'bar') }
   let(:project) { create(:project, name: 'foo', maintainer: user) }

@@ -1,5 +1,4 @@
 require 'webmock/rspec'
-require 'rails_helper'
 
 RSpec.describe Webui::PackageController, :vcr do
   let(:tom) { create(:confirmed_user, :with_home, login: 'tom') }

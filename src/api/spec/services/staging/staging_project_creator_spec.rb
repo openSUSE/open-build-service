@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::StagingProjectCreator do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }

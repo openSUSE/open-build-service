@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::ConfigurationController do
   let(:confirmed_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }

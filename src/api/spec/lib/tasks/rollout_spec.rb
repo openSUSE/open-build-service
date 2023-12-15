@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 # rubocop:disable RSpec/DescribeClass
 RSpec.describe 'rollout' do
   # rubocop:enable RSpec/DescribeClass

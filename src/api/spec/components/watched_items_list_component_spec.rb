@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WatchedItemsListComponent, type: :component do
   let(:user) { create(:confirmed_user) }
   let(:current_object) { create(:package) }

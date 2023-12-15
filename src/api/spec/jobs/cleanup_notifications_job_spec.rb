@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe CleanupNotificationsJob do
   include ActiveJob::TestHelper
 

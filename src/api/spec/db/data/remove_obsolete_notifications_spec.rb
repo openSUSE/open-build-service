@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20200326170855_remove_obsolete_notifications.rb')
 
 RSpec.describe RemoveObsoleteNotifications, type: :migration do

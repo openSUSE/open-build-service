@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe AttribPolicy do
   let(:anonymous_user) { create(:user_nobody) }
   let(:user_in_a_group) { create(:groups_user, user: create(:confirmed_user, :with_home)).user }

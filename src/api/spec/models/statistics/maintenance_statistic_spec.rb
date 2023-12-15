@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Statistics::MaintenanceStatistic do
   describe '.find_by_project' do
     context 'with a review assigned by a user' do

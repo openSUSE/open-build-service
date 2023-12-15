@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token::ReleasePolicy do
   subject { described_class }
 

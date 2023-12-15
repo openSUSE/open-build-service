@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UpdatePackagesIfDirtyJob, :vcr do
   include ActiveJob::TestHelper
 

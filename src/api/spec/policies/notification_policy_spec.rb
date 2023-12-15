@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationPolicy do
   describe NotificationPolicy::Scope do
     let(:user_nobody) { build(:user_nobody) }

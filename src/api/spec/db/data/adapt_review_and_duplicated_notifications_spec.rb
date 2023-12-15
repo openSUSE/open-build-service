@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20200702145811_adapt_review_and_duplicated_notifications.rb')
 
 RSpec.describe AdaptReviewAndDuplicatedNotifications, type: :migration do

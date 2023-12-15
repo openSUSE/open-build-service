@@ -1,5 +1,4 @@
 require 'webmock/rspec'
-require 'rails_helper'
 
 RSpec.describe BuildLogSupport do
   let(:instance_with_build_log_support) do

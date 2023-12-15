@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe SendEventEmailsJob do
   include ActiveJob::TestHelper
 

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestHistoryElementComponent, type: :component do
   let(:user) { create(:confirmed_user) }
   let(:reviews) { [] }

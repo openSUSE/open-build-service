@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token::Workflow do
   describe '#call' do
     let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowFiltersValidator do
   let(:fake_model) do
     Struct.new(:workflow_instructions, :scm_webhook) do

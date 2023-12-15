@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe CommentComponent, type: :component do
   let(:builder) { Builder::XmlMarkup.new }
 

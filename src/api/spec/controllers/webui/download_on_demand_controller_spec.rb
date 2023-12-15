@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::DownloadOnDemandController do
   let(:admin_user) { create(:admin_user) }
   let(:repository) { create(:repository) }

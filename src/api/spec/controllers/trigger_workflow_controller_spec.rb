@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe TriggerWorkflowController do
   render_views
 

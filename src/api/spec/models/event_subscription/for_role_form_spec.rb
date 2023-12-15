@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe EventSubscription::ForRoleForm do
   describe '#call' do
     include_context 'a user and subscriptions'

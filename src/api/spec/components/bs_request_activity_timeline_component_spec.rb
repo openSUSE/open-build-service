@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestActivityTimelineComponent, type: :component do
   let(:bs_request) { create(:bs_request_with_submit_action) }
   let!(:history_element) { create(:history_element_request_accepted, op_object_id: bs_request.id) }

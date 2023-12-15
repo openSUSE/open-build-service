@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'ostruct'
 
 RSpec.describe WebuiControllerService::UserChecker do

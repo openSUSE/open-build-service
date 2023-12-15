@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::WebuiController do
   # The webui controller is an abstract controller
   # therefore we need an anoynmous rspec controller

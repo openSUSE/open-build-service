@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Backend::RememberLocation do
   let(:with_remember_location_class) do
     Class.new do

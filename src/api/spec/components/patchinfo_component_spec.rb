@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe PatchinfoComponent, type: :component do
   let!(:user) { create(:user, :with_home, login: 'tom') }
 

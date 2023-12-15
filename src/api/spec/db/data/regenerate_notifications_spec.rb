@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20200326221616_regenerate_notifications.rb')
 
 RSpec.describe RegenerateNotifications, type: :migration do

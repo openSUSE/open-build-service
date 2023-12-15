@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationActionBarComponent, type: :component do
   context 'for unread notifications' do
     before do

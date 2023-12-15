@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ChartComponent, type: :component do
   let(:fake_raw_data) do
     [
