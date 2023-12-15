@@ -1,5 +1,5 @@
 # as our base helper
-require 'rails_helper'
+require 'spec_helper'
 
 # for capybara rspec support
 require 'support/capybara'

@@ -30,12 +30,19 @@ Capybara.register_driver :mobile do |app|
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
 end
 
-# Automatically save the page a test fails
 RSpec.configure do |config|
+  # CAPYBARA_DRIVER => choose one of existing drivers: ['desktop', 'mobile']
+  # If you want to run the feature tests for mobile, you need to specify the driver
+  # environment variable. By default it is :desktop.
+  config.define_derived_metadata(file_path: %r{/spec/features/}) do |metadata|
+    metadata[:driver] = ENV.fetch('CAPYBARA_DRIVER', 'desktop').to_sym
+  end
+
   config.before(:suite) do
     FileUtils.rm_rf(File.join(Capybara.save_path, '.'), secure: true)
   end
 
+  # Automatically save the HTML page and a screenshot if an example fails
   config.after(:each, type: :feature) do
     if RSpec.current_example.exception.present?
       example_filename = RSpec.current_example.full_description

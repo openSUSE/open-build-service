@@ -1,15 +1,17 @@
 # OBS spec helper. See README.md in this directory for details.
 #
-# WARNING: Given that it is always loaded, you are strongly encouraged to keep
-# this file as light-weight as possible!
-# Requiring heavyweight dependencies from this file will add to the boot time of
-# the test suite on EVERY test run, even for an individual file that may not need
-# all of that loaded. Instead, consider making a separate helper file that requires
-# the additional dependencies and performs the additional setup, and require it from
-# the spec files that actually need it. Exactly this is done in the `rails_helper`
-# which loads the complete rails app.
-#
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+ENV['RAILS_ENV'] ||= 'test'
+require File.expand_path('../config/environment', __dir__)
+# Prevent database truncation if the environment is production
+abort('The Rails environment is running in production mode!') if Rails.env.production?
+
+# for rails
+require 'rspec/rails'
+# for pundit policy
+require 'pundit/rspec'
+
 RSpec.configure do |config|
   # rspec-expectations config goes here.
   config.expect_with :rspec do |expectations|
@@ -24,8 +26,6 @@ RSpec.configure do |config|
     # to disable deprecated should syntax
     expectations.syntax = :expect
   end
-
-  # rspec-mocks config goes here.
 
   # Allows RSpec to persist some state between runs in order to support
   # the `--only-failures` and `--next-failure` CLI options. We recommend
@@ -59,14 +59,7 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   config.order = :random
 
-  # CAPYBARA_DRIVER => choose one of existing drivers: ['desktop', 'mobile']
-  # If you want to run the feature tests for mobile, you need to specify the driver
-  # environment variable. By default it is :desktop.
-  config.define_derived_metadata(file_path: %r{/spec/features/}) do |metadata|
-    metadata[:driver] = ENV.fetch('CAPYBARA_DRIVER', 'desktop').to_sym
-  end
-
-  # Tag all groups and examples in the spec/features directory with
+  # Tag all groups and examples in the spec/features/beta directory with
   # :beta => :true
   config.define_derived_metadata(file_path: %r{/spec/features/beta/}) do |metadata|
     metadata[:beta] = true
@@ -77,19 +70,80 @@ RSpec.configure do |config|
   # test failures related to randomization by passing the same `--seed` value
   # as the one that triggered the failure.
   Kernel.srand(config.seed)
+
+  # set spec type based on their file location
+  config.infer_spec_type_from_file_location!
+
+  # filter lines from Rails gems in backtraces.
+  config.filter_rails_from_backtrace!
+  # arbitrary gems may also be filtered via:
+  # config.filter_gems_from_backtrace("gem name")
 end
 
-# We never want the backend to autostart itself...
+# We never want the OBS backend to autostart itself...
 ENV['BACKEND_STARTED'] = '1'
 
-# Generate 30 tests for every property test
-ENV['RANTLY_COUNT'] = '30'
+# for generating test coverage
+require 'simplecov'
+# to clean old unused cassettes
+require 'cassette_rewinder' if ENV['CLEAN_UNUSED_CASSETTES']
 
-# To have quiet output from Rantly, it is not needed
-ENV['RANTLY_VERBOSE'] = '0'
-
+### Our own spec extensions
 # support logging
 require 'support/logging'
 
+require 'support/view_component'
+
+# support fixtures
+require 'support/factory_bot'
+
+# support database cleanup
+require 'support/database_cleaner'
+
+# support Suse::backend
+require 'support/backend'
+
+# support shoulda matcher
+require 'support/shoulda_matchers'
+
+# helper methods for authentication
+require 'support/controllers/controllers_authentication'
+require 'support/models/models_authentication'
+
+# support Delayed Jobs
+require 'support/delayed_job'
+
+# Cache reset
+require 'support/cache'
+
+# silence migration tests
+require 'support/migration'
+
+# support rabbitmq
+require 'support/rabbitmq'
+
+# support thinking_sphinx
+require 'support/thinking_sphinx'
+
+# support beta
+require 'support/beta'
+
+# support time helpers
+require 'support/time_helpers'
+
+# support HTTP_REFERER
+require 'support/redirect_back'
+
+# support bullet
+require 'support/bullet'
+
+# support haml
+require 'support/haml'
+
 Dir['./spec/support/shared_contexts/*.rb'].sort.each { |file| require file }
 Dir['./spec/support/shared_examples/*.rb'].sort.each { |file| require file }
+
+# Generate 30 tests for every property test
+ENV['RANTLY_COUNT'] = '30'
+# To have quiet output from Rantly, it is not needed
+ENV['RANTLY_VERBOSE'] = '0'
