@@ -43,7 +43,7 @@ module Event
          'Event::CommentForRequest',
          'Event::RelationshipCreate', 'Event::RelationshipDelete',
          'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser',
-         'Event::WorkflowRunFail', 'Event::AppealCreated'].map(&:constantize)
+         'Event::WorkflowRunFail', 'Event::AppealCreated', 'Event::ClearedDecision', 'Event::FavoredDecision'].map(&:constantize)
       end
 
       def classnames
