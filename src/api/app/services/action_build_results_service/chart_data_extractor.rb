@@ -7,8 +7,6 @@ module ActionBuildResultsService
     end
 
     def call
-      return [] if @actions.blank?
-
       @actions.where(type: [:submit, :maintenance_incident, :maintenance_release])
               .map { |action| sources_from_action(action) }
               .select { |sources| sources[:source_project].present? && sources[:source_package].present? }

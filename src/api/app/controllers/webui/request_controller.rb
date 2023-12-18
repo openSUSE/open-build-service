@@ -324,6 +324,8 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def chart_build_results
+    return unless Flipper.enabled?(:request_show_redesign, User.session)
+
     render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: build_results_data }
   end
 
