@@ -166,7 +166,7 @@ module FlagHelper
     FlagHelper.flag_types.each do |flag_name|
       next unless flags_sorted.key?(flag_name)
 
-      xml.send("#{flag_name}_") do # avoid class with 'build' function
+      xml.send(:"#{flag_name}_") do # avoid class with 'build' function
         flags_sorted[flag_name].each { |flag| flag.to_xml(xml) }
       end
     end

@@ -107,7 +107,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def matches_package?(source_or_target, pkg)
-    send("#{source_or_target}_project") == pkg.project.name && send("#{source_or_target}_package") == pkg.name
+    send(:"#{source_or_target}_project") == pkg.project.name && send(:"#{source_or_target}_package") == pkg.name
   end
 
   def is_from_remote?
@@ -178,9 +178,9 @@ class BsRequestAction < ApplicationRecord
 
   def xml_package_attributes(source_or_target)
     attributes = {}
-    value = send("#{source_or_target}_project")
+    value = send(:"#{source_or_target}_project")
     attributes[:project] = value if value.present?
-    value = send("#{source_or_target}_package")
+    value = send(:"#{source_or_target}_package")
     attributes[:package] = value if value.present?
     attributes
   end
