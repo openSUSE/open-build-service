@@ -514,14 +514,14 @@ RSpec/MultipleExpectations:
     - 'spec/requests/package_undelete_spec.rb'
     - 'spec/routing/api_matcher_spec.rb'
     - 'spec/services/notification_creator_spec.rb'
-    - 'spec/support/shared_examples/a_bs_requests_data_table_controller.rb'
-    - 'spec/support/shared_examples/a_bs_requests_data_table_controller_with_state_and_type_options.rb'
-    - 'spec/support/shared_examples/a_project_status_controller.rb'
-    - 'spec/support/shared_examples/a_subscriptions_form_for_subscriber.rb'
-    - 'spec/support/shared_examples/features/beta/user_tab.rb'
-    - 'spec/support/shared_examples/features/boostrap_flag_tables.rb'
-    - 'spec/support/shared_examples/features/bootstrap_user_tab.rb'
-    - 'spec/support/shared_examples/features/flags_tables.rb'
+    - 'spec/shared/examples/a_bs_requests_data_table_controller.rb'
+    - 'spec/shared/examples/a_bs_requests_data_table_controller_with_state_and_type_options.rb'
+    - 'spec/shared/examples/a_project_status_controller.rb'
+    - 'spec/shared/examples/a_subscriptions_form_for_subscriber.rb'
+    - 'spec/shared/examples/features/beta/user_tab.rb'
+    - 'spec/shared/examples/features/boostrap_flag_tables.rb'
+    - 'spec/shared/examples/features/bootstrap_user_tab.rb'
+    - 'spec/shared/examples/features/flags_tables.rb'
 
 # We disabled this cop because named subject isn't a better construction than
 # using let

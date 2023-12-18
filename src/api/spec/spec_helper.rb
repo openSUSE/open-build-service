@@ -138,8 +138,8 @@ require 'support/bullet'
 # support haml
 require 'support/haml'
 
-Dir['./spec/support/shared_contexts/*.rb'].sort.each { |file| require file }
-Dir['./spec/support/shared_examples/*.rb'].sort.each { |file| require file }
+Dir['./spec/shared/contexts/*.rb'].sort.each { |file| require file }
+Dir['./spec/shared/examples/*.rb'].sort.each { |file| require file }
 
 # Generate 30 tests for every property test
 ENV['RANTLY_COUNT'] = '30'
