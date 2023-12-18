@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::MarkdownHelper do
   describe '#render_as_markdown' do
     it 'renders markdown links to html links' do

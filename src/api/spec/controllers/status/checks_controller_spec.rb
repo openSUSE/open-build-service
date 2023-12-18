@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Status::ChecksController do
   render_views
 

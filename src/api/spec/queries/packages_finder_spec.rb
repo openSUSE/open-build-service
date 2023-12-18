@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe PackagesFinder, :vcr do
   describe '#by_package_and_project' do
     let(:project) { create(:project, name: 'foo') }

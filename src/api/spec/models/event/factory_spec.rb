@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Event::Factory do
   describe '.new_from_type' do
     subject { described_class.new_from_type(type, params) }

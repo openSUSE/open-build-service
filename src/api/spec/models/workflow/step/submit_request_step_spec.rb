@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Workflow::Step::SubmitRequest, :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'Foo') }

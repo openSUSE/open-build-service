@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UserPolicy do
   let(:user) { create(:confirmed_user) }
   let(:other_user) { create(:confirmed_user) }

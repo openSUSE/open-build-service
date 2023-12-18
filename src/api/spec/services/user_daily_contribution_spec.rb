@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UserDailyContribution, type: :service do
   let(:user) { create(:user_with_groups) }
   let(:date) { Time.zone.now.to_date }

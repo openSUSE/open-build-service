@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe SearchFinder do
   describe 'validation' do
     context 'valid' do

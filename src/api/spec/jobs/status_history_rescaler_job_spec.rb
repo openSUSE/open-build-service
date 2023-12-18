@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe StatusHistoryRescalerJob do
   include ActiveJob::TestHelper
 

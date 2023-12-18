@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UpdateReleasedBinariesJob, :vcr do
   describe '#perform' do
     let!(:project) { create(:project, name: 'apache') }

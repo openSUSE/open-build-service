@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Cloud::Azure::ConfigurationPolicy do
   let(:user) { create(:user) }
   let(:other_user) { build(:user) }

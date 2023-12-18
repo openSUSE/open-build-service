@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ProjectStatus::Calculator, :vcr do
   let!(:project) do
     create(:project_with_packages,

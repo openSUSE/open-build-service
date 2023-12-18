@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe StatusProjectController, :vcr do
   render_views
 

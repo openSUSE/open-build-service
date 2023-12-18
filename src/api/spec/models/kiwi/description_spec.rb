@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Kiwi::Description do
   let(:kiwi_description) { create(:kiwi_description) }
 

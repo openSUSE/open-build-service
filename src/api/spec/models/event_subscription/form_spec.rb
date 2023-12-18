@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe EventSubscription::Form do
   describe '#update!' do
     include_context 'a user and subscriptions with defaults'

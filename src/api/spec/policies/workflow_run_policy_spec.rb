@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowRunPolicy do
   let(:token_user) { create(:confirmed_user, login: 'foo') }
   let(:workflow_token) { create(:workflow_token, executor: token_user) }

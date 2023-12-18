@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'rantly/rspec_extensions'
 
 RSpec.describe Webui::Packages::BinariesHelper do

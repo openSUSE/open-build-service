@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Workflows::ArtifactsCollector, type: :service do
   let(:user) { create(:confirmed_user) }
   let(:token) { create(:workflow_token, executor: user) }

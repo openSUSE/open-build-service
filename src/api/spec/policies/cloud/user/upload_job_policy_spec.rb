@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Cloud::User::UploadJobPolicy do
   let(:uploader) { create(:confirmed_user) }
   let(:user) { create(:confirmed_user) }

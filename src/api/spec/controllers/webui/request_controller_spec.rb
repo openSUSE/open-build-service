@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::RequestController, :vcr do
   let(:submitter_with_group) { create(:user_with_groups, :with_home, login: 'fluffyrabbit') }
   let(:submitter) { create(:confirmed_user, :with_home, login: 'kugelblitz') }

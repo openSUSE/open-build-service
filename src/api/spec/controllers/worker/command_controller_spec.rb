@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Worker::CommandController do
   let(:user) { create(:confirmed_user) }
 

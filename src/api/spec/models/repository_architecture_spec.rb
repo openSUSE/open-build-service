@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe RepositoryArchitecture do
   describe '.build_id' do
     let(:repository_architecture) { create(:repository_architecture) }

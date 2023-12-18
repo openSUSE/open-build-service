@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20200424080753_generate_web_notifications.rb')
 
 RSpec.describe GenerateWebNotifications, type: :migration do

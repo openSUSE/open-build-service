@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Flipper do
   subject { Flipper.enabled?(feature, user) }
 

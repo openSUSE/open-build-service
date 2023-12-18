@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Users::TaskPolicy do
   let(:user) { create(:user) }
   let(:user_nobody) { build(:user_nobody) }

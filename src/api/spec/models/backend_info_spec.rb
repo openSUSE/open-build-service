@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BackendInfo do
   describe '.getter' do
     context 'key does not exist' do

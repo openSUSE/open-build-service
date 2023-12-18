@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::WorkflowsController do
   let(:other_user) { create(:confirmed_user, :with_home, login: 'unpermitted_user') }
   let(:user) { create(:confirmed_user, :with_home, login: 'permitted_user') }

@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'ostruct'
 
 RSpec.describe StagingProjectLinkComponent, type: :component do

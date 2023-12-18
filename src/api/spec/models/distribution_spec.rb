@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Distribution do
   let(:admin) { create(:admin_user) }
   let(:distribution) { create(:distribution) }

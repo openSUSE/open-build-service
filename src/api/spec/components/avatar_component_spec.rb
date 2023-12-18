@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe AvatarComponent, type: :component do
   let(:user) { create(:user, login: 'King') }
   let(:group) { create(:group) }

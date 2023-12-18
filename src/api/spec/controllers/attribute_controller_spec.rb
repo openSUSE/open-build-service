@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe AttributeController do
   render_views
 

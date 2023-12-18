@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::StagedRequestsController do
   render_views
 

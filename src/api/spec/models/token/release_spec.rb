@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token::Release, :vcr do
   let(:user) { create(:user, login: 'foo') }
 

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::WatchedItemsController do
   describe '#toggle_watched_item' do
     context 'when the package is not already watched' do

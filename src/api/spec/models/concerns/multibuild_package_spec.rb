@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 # Test class
 class TestMultibuildPackage
   include MultibuildPackage

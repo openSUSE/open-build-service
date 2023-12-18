@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
   describe '#build' do
     context 'with xsrcmd5 and oxsrcmd5' do

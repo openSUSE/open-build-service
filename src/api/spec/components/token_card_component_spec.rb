@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe TokenCardComponent, type: :component do
   let(:user) { build_stubbed(:confirmed_user) }
 

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Users::BetaFeaturesController do
   describe 'when the user is anonymous' do
     before do

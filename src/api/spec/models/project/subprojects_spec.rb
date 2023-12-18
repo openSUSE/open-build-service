@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Project do
   describe '#parent' do
     let!(:project_a) { create(:project, name: 'A') }

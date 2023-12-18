@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe DiffParser, type: :service do
   let(:content) { file_fixture("#{file}") }
   let(:parser) { described_class.new(content: content) }

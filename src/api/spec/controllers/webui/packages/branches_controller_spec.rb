@@ -1,5 +1,4 @@
 require 'webmock/rspec'
-require 'rails_helper'
 
 RSpec.describe Webui::Packages::BranchesController, :vcr do
   let(:admin) { create(:admin_user, login: 'admin') }

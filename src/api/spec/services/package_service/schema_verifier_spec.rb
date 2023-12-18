@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe PackageService::SchemaVerifier do
   let!(:package) { create(:package, name: 'chromium') }
   let(:schema_verifier) { described_class.new(file_name: file_name, package: package, content: content) }

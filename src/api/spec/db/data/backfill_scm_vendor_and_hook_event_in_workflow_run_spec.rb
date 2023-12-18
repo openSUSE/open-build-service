@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20230620110143_backfill_scm_vendor_and_hook_event_in_workflow_run.rb')
 
 RSpec.describe BackfillScmVendorAndHookEventInWorkflowRun, type: :migration do

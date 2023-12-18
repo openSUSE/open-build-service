@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Project::UpdateFromXmlCommand do
   let!(:project) { create(:project) }
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }

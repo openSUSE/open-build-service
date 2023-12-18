@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe RoutesHelper::RoleMatcher do
   describe '.matches?' do
     subject { described_class.matches?(request) }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::StagingProjectsController do
   render_views
 

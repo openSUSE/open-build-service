@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ConsistencyCheckJobService::BackendProjectImporter, :vcr do
   let(:project) { create(:project, name: 'super_project') }
   let(:backend_project_importer) { described_class.new(project.name) }

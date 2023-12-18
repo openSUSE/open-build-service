@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationNotifiableLinkComponent, type: :component do
   context 'for a BsRequest notification with multiple actions' do
     let(:bs_request) { create(:bs_request_with_submit_action, number: 456_345) }

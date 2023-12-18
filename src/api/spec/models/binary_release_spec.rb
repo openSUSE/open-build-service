@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BinaryRelease do
   let(:binary_hash) do
     {

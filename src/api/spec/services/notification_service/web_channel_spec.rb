@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationService::WebChannel do
   describe '#call' do
     let(:owner) { create(:confirmed_user, login: 'bob') }

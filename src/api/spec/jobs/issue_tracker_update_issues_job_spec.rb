@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe IssueTrackerUpdateIssuesJob, :vcr do
   include ActiveJob::TestHelper
 

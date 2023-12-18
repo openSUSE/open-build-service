@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Project do
   describe '.maintained_namespace' do
     let(:maintenance_project) { create(:project, name: 'openSUSE:Maintenance') }

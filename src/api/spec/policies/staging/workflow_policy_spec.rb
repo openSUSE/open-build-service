@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::WorkflowPolicy do
   let(:admin) { create(:admin_user) }
   let(:user_nobody) { build(:user_nobody) }

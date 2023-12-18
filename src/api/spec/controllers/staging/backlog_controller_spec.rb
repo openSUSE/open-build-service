@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Staging::BacklogController do
   render_views
 

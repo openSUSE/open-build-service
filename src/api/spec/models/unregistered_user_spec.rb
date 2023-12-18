@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UnregisteredUser do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, login: 'eisendieter') }

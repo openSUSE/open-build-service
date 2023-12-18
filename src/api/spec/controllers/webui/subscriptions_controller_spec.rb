@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::SubscriptionsController do
   describe 'GET #index' do
     let!(:admin) { create(:admin_user) }

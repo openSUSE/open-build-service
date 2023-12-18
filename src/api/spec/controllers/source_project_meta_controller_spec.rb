@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 # CONFIG['global_write_through'] = true
 
 RSpec.describe SourceProjectMetaController, :vcr do

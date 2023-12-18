@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestAction do
   let(:user) { create(:confirmed_user, :with_home, login: 'request_user') }
 

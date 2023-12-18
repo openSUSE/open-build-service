@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Report do
   describe '#reports_pointing_to_same_reportable' do
     context 'when different reportables' do

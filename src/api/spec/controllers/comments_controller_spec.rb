@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe CommentsController do
   render_views
   describe 'GET #show' do

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ProjectStatus::PackInfo do
   let(:package) { create(:package) }
   let(:pack_info) { ProjectStatus::PackInfo.new(package) }

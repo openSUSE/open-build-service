@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'gssapi'
 
 RSpec.describe Webui::SessionController do

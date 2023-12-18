@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::WebuiHelper do
   let(:input) { 'Rocking the Open Build Service' }
 

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UserYearlyContribution, type: :service do
   let(:user) { create(:user_with_groups) }
   let(:date_for_comment) { Time.zone.now.to_date }

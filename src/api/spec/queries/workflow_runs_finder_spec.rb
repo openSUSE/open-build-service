@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkflowRunsFinder do
   let(:workflow_token) { create(:workflow_token) }
   # GitHub

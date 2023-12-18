@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Workflows::YAMLDownloader, type: :service do
   let(:workflow_token) { build(:workflow_token) }
   let(:yaml_downloader) { described_class.new(payload, token: workflow_token) }

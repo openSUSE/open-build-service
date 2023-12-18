@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BuildresultStatusLinkComponent, type: :component do
   let(:project_name) { 'home:foo' }
   let(:package_name) { 'hello_world' }

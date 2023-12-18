@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::UserActivityHelper do
   describe '#contributions_percentiles' do
     subject { contributions_percentiles(contributions_array) }

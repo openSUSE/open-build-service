@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe HistoryElement do
   describe 'HistoryElement::RequestDeleted' do
     it 'has the correct color' do

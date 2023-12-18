@@ -1,5 +1,4 @@
 require 'webmock/rspec'
-require 'rails_helper'
 RSpec.describe Webui::Packages::BuildLogController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }

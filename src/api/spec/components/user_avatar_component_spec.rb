@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe UserAvatarComponent, type: :component do
   describe '#avatar_object' do
     let(:user) { create(:user, login: 'King') }

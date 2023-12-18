@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe GroupController do
   let(:admin_user) { create(:admin_user) }
 

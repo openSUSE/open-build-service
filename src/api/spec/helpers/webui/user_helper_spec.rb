@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::UserHelper do
   let!(:creator) { create(:confirmed_user, login: 'Adrian') }
   let(:date) { Time.zone.now.to_date }

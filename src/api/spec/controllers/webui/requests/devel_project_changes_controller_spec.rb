@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::Requests::DevelProjectChangesController do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'kugelblitz') }
   let(:devel_project) { create(:project, name: 'devel:project') }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Relationship do
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:global_role) { create(:role, title: 'global_role', global: true) }

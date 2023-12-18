@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::StatusMessagePolicy do
   let(:user_nobody) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }

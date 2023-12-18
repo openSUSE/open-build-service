@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ProjectPolicy, :vcr do
   subject { ProjectPolicy }
 

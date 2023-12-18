@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe StatusMessageComponent, type: :component do
   context 'for anonymous user' do
     let(:status_message) { build(:status_message, message: 'Everything is fine', created_at: Time.zone.now) }

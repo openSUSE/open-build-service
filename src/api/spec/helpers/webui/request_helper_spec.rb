@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::RequestHelper do
   let(:target_package) { create(:package) }
   let(:target_project) { target_package.project }

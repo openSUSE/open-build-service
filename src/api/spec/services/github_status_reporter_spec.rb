@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe GithubStatusReporter, type: :service do
   let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
 

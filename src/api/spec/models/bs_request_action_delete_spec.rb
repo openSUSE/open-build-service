@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe BsRequestActionDelete, :vcr do
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }

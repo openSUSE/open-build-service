@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ReviewsFinder do
   describe '#completed_by_review' do
     let(:user) { create(:confirmed_user) }

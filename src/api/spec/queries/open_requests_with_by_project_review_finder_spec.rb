@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe OpenRequestsWithByProjectReviewFinder do
   let(:project) { create(:project, name: 'foo') }
   let(:user) { create(:confirmed_user, login: 'foo') }

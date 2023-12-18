@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe APIError do
   let(:api_error_class) do
     Class.new(described_class) do

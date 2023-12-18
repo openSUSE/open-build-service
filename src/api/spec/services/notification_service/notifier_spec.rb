@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationService::Notifier do
   let(:user_bob) { create(:confirmed_user, login: 'bob') }
   let(:user_kim) { create(:confirmed_user, login: 'kim') }

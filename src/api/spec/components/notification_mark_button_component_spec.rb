@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe NotificationMarkButtonComponent, type: :component do
   context 'when the notification is read' do
     let(:notification) { create(:notification, delivered: true) }

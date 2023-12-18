@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe CommentPolicy do
   let(:anonymous_user) { create(:user_nobody) }
   let(:comment_author) { create(:confirmed_user, login: 'burdenski') }

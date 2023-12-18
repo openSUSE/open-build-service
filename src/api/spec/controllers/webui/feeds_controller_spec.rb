@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::FeedsController, :vcr do
   let(:project) { create(:project) }
   let(:commit) { create(:project_log_entry, project: project) }

@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe MonitorControllerService::BuildingInformationUpdater do
   let(:bi_information) { MonitorControllerService::BuildingInformationUpdater.new }
   let(:xml_response) do

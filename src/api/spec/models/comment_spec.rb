@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Comment do
   let(:comment_package) { create(:comment_package) }
   let(:comment_package_with_parent) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }

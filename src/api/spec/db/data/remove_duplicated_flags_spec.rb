@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20181214100207_remove_duplicated_flags.rb')
 
 RSpec.describe RemoveDuplicatedFlags, type: :migration do

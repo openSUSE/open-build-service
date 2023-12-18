@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe OwnerSearch do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let!(:develuser) { create(:confirmed_user, :with_home, login: 'DevelIggy') }

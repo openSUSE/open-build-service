@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ProjectsWithVeryImportantAttributeFinder do
   let(:project) { create(:project, name: 'project_with_image') }
   let!(:very_important_project_attrib) { create(:very_important_project_attrib, project: project) }

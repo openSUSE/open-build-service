@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe WorkerStatus do
   before do
     Rails.cache.write('workerstatus', xml_response)

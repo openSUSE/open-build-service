@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ActionBuildResultsService::ChartDataExtractor do
   describe '#call' do
     let(:source_project) { create(:project, name: 'source_project') }

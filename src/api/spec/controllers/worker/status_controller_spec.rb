@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Worker::StatusController, :vcr do
   render_views
 

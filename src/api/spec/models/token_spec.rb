@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Token do
   describe 'validations' do
     let(:release_token) { create(:release_token) }

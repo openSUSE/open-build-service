@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe GroupsUserPolicy do
   subject { described_class }
 

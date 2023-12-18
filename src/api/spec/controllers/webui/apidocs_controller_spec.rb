@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Webui::ApidocsController do
   describe 'GET #index' do
     context 'correct setup' do

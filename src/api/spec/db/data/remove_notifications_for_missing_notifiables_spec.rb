@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20210205131609_remove_notifications_for_missing_notifiables.rb')
 RSpec.describe RemoveNotificationsForMissingNotifiables, type: :migration do
   describe 'up' do

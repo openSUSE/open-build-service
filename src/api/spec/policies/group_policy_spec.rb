@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe GroupPolicy do
   let(:group) { create(:group) }
   let(:anonymous_user) { create(:user_nobody) }

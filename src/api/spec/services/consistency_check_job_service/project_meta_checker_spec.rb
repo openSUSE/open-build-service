@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ConsistencyCheckJobService::ProjectMetaChecker, :vcr do
   let!(:project) { create(:project, name: 'super_bacana') }
 

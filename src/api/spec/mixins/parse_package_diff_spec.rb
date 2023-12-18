@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ParsePackageDiff do
   let(:instance_with_parse_package_diff_support) do
     fake_instance = double('Fake Instance with ParsePackageDiff')

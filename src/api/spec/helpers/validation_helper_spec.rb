@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ValidationHelper do
   describe '#valid_project_name!' do
     it 'raises an exception if a project name is invalid' do

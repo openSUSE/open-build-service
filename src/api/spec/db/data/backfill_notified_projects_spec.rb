@@ -1,4 +1,3 @@
-require 'rails_helper'
 require Rails.root.join('db/data/20200421121610_backfill_notified_projects.rb')
 
 RSpec.describe BackfillNotifiedProjects, :vcr, type: :migration do

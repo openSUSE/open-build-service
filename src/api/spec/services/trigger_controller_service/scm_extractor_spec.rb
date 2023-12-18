@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe TriggerControllerService::SCMExtractor do
   describe '#call' do
     subject(:scm_webhook) do

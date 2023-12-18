@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Backend::File, :vcr do
   let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }

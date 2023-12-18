@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe AuthenticationProtocolHelper do
   describe '#can_register?' do
     context 'current user is admin' do

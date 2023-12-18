@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe RabbitmqBus, rabbitmq: '#' do
   it 'publishes messages' do
     RabbitmqBus.send_to_bus('metrics', 'hallo')

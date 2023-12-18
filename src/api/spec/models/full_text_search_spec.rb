@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe FullTextSearch do
   let!(:project) { create(:project, name: 'test_project', title: '', description: '') }
   let(:another_project) { create(:project, name: 'test2', title: '', description: '') }

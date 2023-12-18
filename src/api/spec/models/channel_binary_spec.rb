@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe ChannelBinary, :vcr do
   let(:user) { create(:confirmed_user, login: 'tux') }
   let(:project) { create(:project, name: 'projectX') }

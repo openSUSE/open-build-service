@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec::Matchers.define :be_like_subscription do |expected_subscription|
   match do |actual_subscription|
     actual_subscription.eventtype == expected_subscription.eventtype &&
