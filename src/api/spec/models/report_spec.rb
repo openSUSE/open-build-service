@@ -14,7 +14,7 @@ RSpec.describe Report do
       it { expect(report.errors.full_messages).to eq(['Decision has reports pointing to a different reportable. All decision reports should point to same reportable.']) }
     end
 
-    context 'when reports are pointing to same trportable' do
+    context 'when reports are pointing to same reportable' do
       let(:report) { create(:report) }
       let(:decision) { create(:decision, reports: [report]) }
       let(:new_report) { build(:report, reportable: report.reportable, decision: decision) }
