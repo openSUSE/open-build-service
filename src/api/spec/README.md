@@ -27,7 +27,7 @@ bundle exec rspec spec/models/user_spec.rb:33
 - To extend the suite with custom configuration or custom methods we use ruby modules in `spec/support`
 - To configure how it's run by default we use an [.rspec](https://github.com/openSUSE/open-build-service/blob/master/src/api/.rspec) file.
 
-## What to test and how
+## What to Test and How
 
 You *can* test a lot of different things in a Ruby on Rails test suite. From behavior of units (as in methods of a Ruby object), to interactions between different units end-to-end (as in plugging different Ruby objects together to provide a feature. Like testing that `ActionDispatch`+`ActionController`+`ActiveRecord`+`ActionView` behave in a certain way from a browser) to accessibility testing or even more esoteric things like visual testing.
 
@@ -37,24 +37,24 @@ But as we all know, too many cooks spoil the broth! That is why we are trying re
 - limit the amount of times we test the same code
 - limit the specs to "custom" logic we wrote ourselves
 
-First and formost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you developer have, to work on something.
+First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you developer have, to work on something.
 
-### Limit the amount of code involved in running the test
+### Limit the Amount of Code Involved in Running the Test
 
 Please use the type of spec with the least amount if computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
 This will remove the need to run all of `ActionDispatch` every time you run the spec.
 
-### Limit the amount of times the same code is tested
+### Limit the Amount of Times the Same Code Is Tested
 
 Please test your code *once*. If you wrote a custom validation with complex logic and an awesome model spec for it, please do not test the results of this validation logic again from a controller spec and then again by clicking in a browser through the feature that you built upon this model. No need to make the CI jump through the same hoop three times or worse have a fellow developer adapt all three specs because they changed your logic.
 
-### Limit the specs to "custom" logic we wrote ourselves
+### Limit the Specs to “Custom” Logic We Wrote Ourselves
 
 Please avoid testing code that is a scaffold or that consists of very simple Ruby / Ruby on Rails "standard" logic. No need to test a simple `case`, a variable assignment or `Array.count`. The Ruby test suite does this and if any of those things do not work anymore our test suite will not even reach the spec you write. Because Ruby is broken and *everything* around you will be on fire 🔥🔥🔥.
 
 Same reason to not test a standard ActiveRecord presence validation, a resourceful route or even a scaffolded controller action. The Ruby on Rails test suite does this and if those features are broken in Ruby on Rails, you'll be in panic because GitHub will be offline 💥💥💥.
 
-## Unit specs
+## Unit Specs
 
 Unit specs are limited in scope and only test a single "unit"/"object" without testing interactions between different "units". Their purpose is to test each unit's functionality in isolation before integrating them into the larger system.
 
@@ -70,7 +70,7 @@ Unit specs:
 - disable HTTP requests
 - automatically mock the responses from the OBS backend with [VCR](https://github.com/vcr/vcr)
 
-## Feature specs
+## Feature Specs
 
 Feature specs test user workflows (features) end-to-end through our web user interface by operating the UI with a browser.
 
@@ -109,7 +109,7 @@ To DRY our specs we use in rare situations [shared examples](https://rspec.info/
 - shared examples are in `spec/shared/examples`
 - shared contexts are in `spec/shared/contexts`
 
-## Rescources
+## Resources
 
 - [BetterSpecs.org](http://betterspecs.org/)
 - [RSpec Styleguide](https://rspec.rubystyle.guide/) (we lint this with rubocop)
