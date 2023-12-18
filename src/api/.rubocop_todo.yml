@@ -577,14 +577,6 @@ Naming/VariableNumber:
     - 'test/functional/source_controller_test.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 6
-# This cop supports safe autocorrection (--autocorrect).
-Performance/StringIdentifierArgument:
-  Exclude:
-    - 'app/helpers/flag_helper.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/event_subscription/find_for_event.rb'
-
 # Offense count: 57
 RSpec/AnyInstance:
   Exclude:

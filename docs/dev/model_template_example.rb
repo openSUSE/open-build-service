@@ -95,6 +95,6 @@ class Dog < ApplicationRecord
   private
 
   def reset_attribute(attribute)
-    send("#{attribute}=", 0)
+    send(:"#{attribute}=", 0)
   end
 end
