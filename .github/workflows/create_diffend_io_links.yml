@@ -40,7 +40,7 @@ jobs:
           echo "$COMMENT_TEXT" > ./artifacts/comment_text.txt
           echo ${{ github.event.number }} > ./artifacts/pr_number.txt
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: comment_text_and_pr_number
           path: artifacts/
