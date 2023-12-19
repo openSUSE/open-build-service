@@ -1,4 +1,20 @@
 class NotificationsFinder
+  NOTIFIABLE_TYPE_MAP = {
+    'read' => ->(notifications) { notifications.read },
+    'comments' => ->(notifications) { notifications.unread.where(notifiable_type: 'Comment') },
+    'requests' => ->(notifications) { notifications.unread.where(notifiable_type: 'BsRequest') },
+    'incoming_requests' => ->(notifications) { notifications.for_incoming_requests },
+    'outgoing_requests' => ->(notifications) { notifications.for_outgoing_requests },
+    'relationships_created' => ->(notifications) { notifications.for_relationships_created },
+    'relationships_deleted' => ->(notifications) { notifications.for_relationships_deleted },
+    'build_failures' => ->(notifications) { notifications.for_failed_builds },
+    'reports' => ->(notifications) { notifications.for_reports },
+    'workflow_runs' => ->(notifications) { notifications.for_workflow_runs },
+    'appealed_decisions' => ->(notifications) { notifications.for_appealed_decisions },
+    'unread' => ->(notifications) { notifications.unread },
+    nil => ->(notifications) { notifications.unread }
+  }.freeze
+
   def initialize(relation = Notification.all)
     @relation = if Flipper.enabled?(:content_moderation, User.session)
                   relation.order(created_at: :desc)
@@ -63,36 +79,8 @@ class NotificationsFinder
     @relation.where(event_type: 'Event::AppealCreated', delivered: false)
   end
 
-  # We need to refactor this method, the `case` statement is way too big
   def for_notifiable_type(type = 'unread')
-    notifications = self.class.new(with_notifiable)
-
-    case type
-    when 'read'
-      notifications.read
-    when 'comments'
-      notifications.unread.where(notifiable_type: 'Comment')
-    when 'requests'
-      notifications.unread.where(notifiable_type: 'BsRequest')
-    when 'incoming_requests'
-      notifications.for_incoming_requests
-    when 'outgoing_requests'
-      notifications.for_outgoing_requests
-    when 'relationships_created'
-      notifications.for_relationships_created
-    when 'relationships_deleted'
-      notifications.for_relationships_deleted
-    when 'build_failures'
-      notifications.for_failed_builds
-    when 'reports'
-      notifications.for_reports
-    when 'workflow_runs'
-      notifications.for_workflow_runs
-    when 'appealed_decisions'
-      notifications.for_appealed_decisions
-    else
-      notifications.unread
-    end
+    NOTIFIABLE_TYPE_MAP[type].call(notifications)
   end
 
   def for_project_name(project_name)
@@ -111,5 +99,9 @@ class NotificationsFinder
 
   def notifications_lifetime
     CONFIG['notifications_lifetime'] ||= 365
+  end
+
+  def notifications
+    @notifications ||= self.class.new(with_notifiable)
   end
 end
