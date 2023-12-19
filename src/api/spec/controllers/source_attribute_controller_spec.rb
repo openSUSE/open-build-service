@@ -1,5 +1,3 @@
-# CONFIG['global_write_through'] = true
-
 RSpec.describe SourceAttributeController, :vcr do
   render_views
 

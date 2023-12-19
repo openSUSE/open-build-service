@@ -1,7 +1,3 @@
-# WARNING: Some tests require real backend answers, so make sure you uncomment
-# this line and start a test backend.
-# CONFIG['global_write_through'] = true
-
 RSpec.describe Webui::Kiwi::ImagesController, :vcr do
   let(:project) { create(:project, name: 'fake_project') }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
