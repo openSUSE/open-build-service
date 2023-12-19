@@ -1,5 +1,3 @@
-# CONFIG['global_write_through'] = true
-
 RSpec.describe SourceProjectConfigController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }

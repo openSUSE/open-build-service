@@ -45,8 +45,6 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
           Backend::Connection.put(
@@ -68,8 +66,6 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put(
             "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.file_name}", evaluator.file_content
@@ -91,8 +87,6 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.changes_file_name}"
           Backend::Connection.put(Addressable::URI.escape(full_path), evaluator.changes_file_content)
@@ -106,9 +100,6 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-
         flavor_xml = evaluator.flavors.map { |flavor| "<flavor>#{flavor}</flavor>" }.join
         flavor_xml = "<multibuild>#{flavor_xml}</multibuild>"
         if CONFIG['global_write_through']
@@ -127,8 +118,6 @@ FactoryBot.define do
 
         file_content = "<link package=\"#{target_package}\" project=\"#{target_package.project}\" />"
 
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put(
             "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_link", file_content
@@ -147,8 +136,6 @@ FactoryBot.define do
         PackageKind.create(package_id: package.id, kind: 'link')
         file_content = "<link package=\"#{evaluator.remote_package_name}\" project=\"#{remote_project.name}\" />"
 
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put(
             "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_link", file_content
@@ -187,8 +174,6 @@ FactoryBot.define do
 
     factory :package_with_service do
       after(:create) do |package|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put(Addressable::URI.escape("/source/#{package.project.name}/#{package.name}/_service"),
                                   File.read('spec/fixtures/files/download_url_service.xml'))
@@ -198,8 +183,6 @@ FactoryBot.define do
 
     factory :package_with_broken_service do
       after(:create) do |package|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           Backend::Connection.put(Addressable::URI.escape("/source/#{package.project.name}/#{package.name}/_service"),
                                   '<service>broken</service>')
@@ -227,8 +210,6 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
         if CONFIG['global_write_through']
           full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.kiwi_file_name}"
           Backend::Connection.put(Addressable::URI.escape(full_path), evaluator.kiwi_file_content)
