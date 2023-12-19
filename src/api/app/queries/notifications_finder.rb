@@ -63,7 +63,6 @@ class NotificationsFinder
     @relation.where(event_type: 'Event::AppealCreated', delivered: false)
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   # We need to refactor this method, the `case` statement is way too big
   def for_notifiable_type(type = 'unread')
     notifications = self.class.new(with_notifiable)
@@ -95,7 +94,6 @@ class NotificationsFinder
       notifications.unread
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def for_project_name(project_name)
     unread.joins(:projects).where(projects: { name: project_name })

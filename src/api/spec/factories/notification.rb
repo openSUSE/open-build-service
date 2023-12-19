@@ -100,6 +100,16 @@ FactoryBot.define do
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
       end
     end
+
+    trait :workflow_run do
+      event_type { 'Event::WorkflowRunFail' }
+      notifiable factory: [:workflow_run]
+    end
+
+    trait :appealed_decision do
+      event_type { 'Event::AppealCreated' }
+      notifiable factory: [:appeal]
+    end
   end
 
   factory :rss_notification, parent: :notification do
