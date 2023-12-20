@@ -541,5 +541,49 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comments-list\">#{project}</a>")
       end
     end
+
+    context 'for an event of type Event::AppealCreated' do
+      let(:moderator) { create(:admin_user) }
+      let(:offender) { create(:confirmed_user, login: 'offender') } # user who wrote the offensive comment
+      let(:reporter) { create(:confirmed_user, login: 'reporter') }
+      let(:appellant) { create(:confirmed_user, login: 'appellant') }
+
+      let(:comment) { create(:comment_project, user: offender) }
+      let(:project) { comment.commentable }
+      let(:report) { create(:report, user: reporter, reportable: comment) }
+
+      let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
+
+      let(:decision) { create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
+      let(:appeal) { create(:appeal, appellant: appellant, decision: decision, reason: 'I strongly disagree!') }
+      let(:event) { Event::AppealCreated.last }
+      let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
+
+      before do
+        login(moderator)
+        appeal
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'is sent to the moderator' do
+        expect(mail.to).to contain_exactly(decision.moderator.email)
+      end
+
+      it 'has a subject' do
+        expect(mail.subject).to eq("Appeal to #{decision.reports.first.reportable&.class&.name} decision")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("'#{appellant}' decided to appeal to the decision '#{decision.reason}'. This is the reason:")
+        expect(mail.body.encoded).to include('I strongly disagree!')
+      end
+
+      it 'renders link to the page of the comment' do
+        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comments-list\">#{project}</a>")
+      end
+    end
   end
 end

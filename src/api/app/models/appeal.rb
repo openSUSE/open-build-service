@@ -14,7 +14,8 @@ class Appeal < ApplicationRecord
   end
 
   def event_parameters
-    { id: id, appellant_id: appellant.id, decision_id: decision.id, reason: reason }
+    { id: id, appellant_id: appellant.id, decision_id: decision.id, reason: reason,
+      report_last_id: decision.reports.last.id, reportable_type: decision.reports.first.reportable.class.name }
   end
 end
 
