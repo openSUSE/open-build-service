@@ -102,23 +102,6 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  # before_action for show_package, delete_package and package_command
-  def require_package
-    # init and validation
-    #--------------------
-    @deleted_package = params.key?(:deleted)
-
-    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
-    if params[:cmd].in?(['branch', 'release'])
-      @target_package_name = params[:package]
-      @target_project_name = params[:target_project] # might be nil
-      @target_package_name = params[:target_package] if params[:target_package]
-    else
-      @target_project_name = params[:project]
-      @target_package_name = params[:package]
-    end
-  end
-
   def verify_can_modify_target_package!
     return if User.session!.can_modify?(@package)
 
@@ -429,6 +412,23 @@ class SourceController < ApplicationController
   end
 
   private
+
+  # before_action for show_package, delete_package and package_command
+  def require_package
+    # init and validation
+    #--------------------
+    @deleted_package = params.key?(:deleted)
+
+    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
+    if params[:cmd].in?(['branch', 'release'])
+      @target_package_name = params[:package]
+      @target_project_name = params[:target_project] # might be nil
+      @target_package_name = params[:target_package] if params[:target_package]
+    else
+      @target_project_name = params[:project]
+      @target_package_name = params[:package]
+    end
+  end
 
   # GET /source/:project/:package?view=issues
   # called from show_package
