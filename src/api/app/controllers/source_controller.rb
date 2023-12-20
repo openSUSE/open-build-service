@@ -158,28 +158,6 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  def validate_target_for_package_command_exists!
-    @project = nil
-    @package = nil
-
-    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
-
-    unless @target_package_name.in?(['_project', '_pattern'])
-      use_source = true
-      use_source = false if @command == 'showlinked'
-      @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
-                                                 use_source: use_source, follow_project_links: follow_project_links)
-      if @package # for remote package case it's nil
-        @project = @package.project
-        ignore_lock = @command == 'unlock'
-        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
-      end
-    end
-
-    # check read access rights when the package does not exist anymore
-    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
-  end
-
   def check_and_remove_repositories!(repositories, opts)
     result = Project.check_repositories(repositories) unless opts[:force]
     raise RepoDependency, result[:error] if !opts[:force] && result[:error]
@@ -567,6 +545,28 @@ class SourceController < ApplicationController
     end
   end
 
+  def validate_target_for_package_command_exists!
+    @project = nil
+    @package = nil
+
+    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
+
+    unless @target_package_name.in?(['_project', '_pattern'])
+      use_source = true
+      use_source = false if @command == 'showlinked'
+      @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
+                                                 use_source: use_source, follow_project_links: follow_project_links)
+      if @package # for remote package case it's nil
+        @project = @package.project
+        ignore_lock = @command == 'unlock'
+        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
+      end
+    end
+
+    # check read access rights when the package does not exist anymore
+    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
+  end
+
   def _check_single_target!(source_repository, target_repository)
     # checking write access and architectures
     raise UnknownRepository, 'Invalid source repository' unless source_repository
@@ -575,7 +575,6 @@ class SourceController < ApplicationController
 
     source_repository.check_valid_release_target!(target_repository)
   end
-  private :_check_single_target!
 
   def verify_release_targets!(pro)
     repo_matches = nil
