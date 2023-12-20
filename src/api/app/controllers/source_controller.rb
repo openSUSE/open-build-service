@@ -158,12 +158,6 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  def pubkey_path
-    # check for project
-    @prj = Project.get_by_name(params[:project])
-    request.path_info + build_query_from_hash(params, [:user, :comment, :meta, :rev])
-  end
-
   # GET /source/:project/_pubkey and /_sslcert
   def show_project_pubkey
     # assemble path for backend
@@ -398,6 +392,12 @@ class SourceController < ApplicationController
     set_issues_defaults
     @tpkg.update_if_dirty
     render partial: 'package_issues'
+  end
+
+  def pubkey_path
+    # check for project
+    @prj = Project.get_by_name(params[:project])
+    request.path_info + build_query_from_hash(params, [:user, :comment, :meta, :rev])
   end
 
   def actually_create_incident(project)
