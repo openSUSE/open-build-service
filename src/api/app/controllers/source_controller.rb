@@ -17,9 +17,6 @@ class SourceController < ApplicationController
                                'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
 
   validate_action index: { method: :get, response: :directory }
-  validate_action projectlist: { method: :get, response: :directory }
-  validate_action packagelist: { method: :get, response: :directory }
-  validate_action filelist: { method: :get, response: :directory }
 
   skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
   skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
@@ -49,13 +46,9 @@ class SourceController < ApplicationController
 
       pass_to_backend
     else
-      projectlist
+      @project_names = Project.order(:name).pluck(:name)
+      render formats: [:xml]
     end
-  end
-
-  def projectlist
-    @project_names = Project.order(:name).pluck(:name)
-    render formats: [:xml]
   end
 
   def set_issues_default
