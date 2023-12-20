@@ -1,4 +1,6 @@
 class SourceProjectController < SourceController
+  include CheckAndRemoveRepositories
+
   # GET /source/:project
   def show
     project_name = params[:project]

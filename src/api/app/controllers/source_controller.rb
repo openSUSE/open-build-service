@@ -158,14 +158,6 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  def check_and_remove_repositories!(repositories, opts)
-    result = Project.check_repositories(repositories) unless opts[:force]
-    raise RepoDependency, result[:error] if !opts[:force] && result[:error]
-
-    result = Project.remove_repositories(repositories, opts)
-    raise ChangeProjectNoPermission, result[:error] if !opts[:force] && result[:error]
-  end
-
   def pubkey_path
     # check for project
     @prj = Project.get_by_name(params[:project])

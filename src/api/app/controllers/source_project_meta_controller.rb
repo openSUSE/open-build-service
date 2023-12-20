@@ -1,4 +1,6 @@
 class SourceProjectMetaController < SourceController
+  include CheckAndRemoveRepositories
+
   validate_action update: { request: :project, response: :status }
   validate_action show: { response: :project }
 
