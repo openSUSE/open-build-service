@@ -6,6 +6,16 @@ require 'builder/xchar'
 class SourceController < ApplicationController
   include Source::Errors
 
+  SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
+                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices'].freeze
+  # list of cammands which create the target package
+  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
+  # list of commands which are allowed even when the project has the package only via a project link
+  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
+  # commands which are fine to operate on external scm managed projects
+  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
+                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
+
   validate_action index: { method: :get, response: :directory }
   validate_action projectlist: { method: :get, response: :directory }
   validate_action packagelist: { method: :get, response: :directory }
@@ -196,16 +206,6 @@ class SourceController < ApplicationController
 
     dispatch_command(:package_command, @command)
   end
-
-  SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
-                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices'].freeze
-  # list of cammands which create the target package
-  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
-  # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
-  # commands which are fine to operate on external scm managed projects
-  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
-                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
 
   def validate_target_for_package_command_exists!
     @project = nil
