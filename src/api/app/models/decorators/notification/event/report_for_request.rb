@@ -6,4 +6,9 @@ class Decorators::Notification::Event::ReportForRequest < Decorators::Notificati
   def notifiable_link_text(_helpers)
     "Report for Request ##{@notification.notifiable.reportable.number}"
   end
+
+  def notifiable_link_path
+    bs_request = notification.notifiable.reportable
+    Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: notification.id)
+  end
 end

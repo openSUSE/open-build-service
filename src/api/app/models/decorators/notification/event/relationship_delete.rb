@@ -17,4 +17,13 @@ class Decorators::Notification::Event::RelationshipDelete
       "Removed as #{role} of a project"
     end
   end
+
+  def notifiable_link_path
+    if notification.event_payload['package']
+      Rails.application.routes.url_helpers.package_users_path(notification.event_payload['project'],
+                                                              notification.event_payload['package'])
+    else
+      Rails.application.routes.url_helpers.project_users_path(notification.event_payload['project'])
+    end
+  end
 end

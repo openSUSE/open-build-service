@@ -6,4 +6,8 @@ class Decorators::Notification::Event::AppealCreated < Decorators::Notification:
   def notifiable_link_text(_helpers)
     "Appealed the decision for a report of #{notification.notifiable.decision.moderator.login}"
   end
+
+  def notifiable_link_path
+    Rails.application.routes.url_helpers.appeal_path(notification.notifiable)
+  end
 end

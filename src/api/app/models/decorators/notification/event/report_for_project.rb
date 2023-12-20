@@ -6,4 +6,8 @@ class Decorators::Notification::Event::ReportForProject < Decorators::Notificati
   def notifiable_link_text(_helpers)
     notification.event_type.constantize.notification_link_text(notification.event_payload)
   end
+
+  def notifiable_link_path
+    notification.event_type.constantize.notification_link_path(notification)
+  end
 end
