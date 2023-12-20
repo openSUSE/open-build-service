@@ -14,69 +14,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
 
   private
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def notifiable_link_text
-    case @notification.event_type
-    when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
-    when 'Event::CommentForRequest'
-      "Comment on #{helpers.request_type_of_action(bs_request)} Request ##{bs_request.number}"
-    when 'Event::CommentForProject'
-      'Comment on Project'
-    when 'Event::CommentForPackage'
-      'Comment on Package'
-    when 'Event::RelationshipCreate'
-      role = @notification.event_payload['role']
-      if @notification.event_payload['package']
-        "Added as #{role} of a package"
-      else
-        "Added as #{role} of a project"
-      end
-    when 'Event::RelationshipDelete'
-      role = @notification.event_payload['role']
-      if @notification.event_payload['package']
-        "Removed as #{role} of a package"
-      else
-        "Removed as #{role} of a project"
-      end
-    when 'Event::BuildFail'
-      project = @notification.event_payload['project']
-      package = @notification.event_payload['package']
-      repository = @notification.event_payload['repository']
-      arch = @notification.event_payload['arch']
-      "Package #{package} on #{project} project failed to build against #{repository} / #{arch}"
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForUser'
-      "Report for a #{@notification.event_payload['reportable_type']}"
-    when 'Event::ReportForComment'
-      if Comment.exists?(@notification.event_payload['reportable_id'])
-        'Report for a comment'
-      else
-        'Report for a deleted comment'
-      end
-    when 'Event::ReportForProject', 'Event::ReportForPackage'
-      @notification.event_type.constantize.notification_link_text(@notification.event_payload)
-    when 'Event::ReportForRequest'
-      "Report for Request ##{@notification.notifiable.reportable.number}"
-    when 'Event::ClearedDecision'
-      # All reports should point to the same reportable. We will take care of that here:
-      # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
-      # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
-      "Cleared #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
-    when 'Event::FavoredDecision'
-      # All reports should point to the same reportable. We will take care of that here:
-      # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
-      # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
-      "Favored #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
-    when 'Event::AppealCreated'
-      "Appealed the decision for a report of #{@notification.notifiable.decision.moderator.login}"
-    when 'Event::WorkflowRunFail'
-      'Workflow Run'
-    end
+    @notification.decorator.notifiable_link_text(helpers)
   end
-  # rubocop:enable Metrics/PerceivedComplexity
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity

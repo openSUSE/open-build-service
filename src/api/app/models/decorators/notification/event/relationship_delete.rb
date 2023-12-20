@@ -8,4 +8,13 @@ class Decorators::Notification::Event::RelationshipDelete
     target_object = [project, package].compact.join(' / ')
     "#{user} removed #{recipient} as #{role} of #{target_object}"
   end
+
+  def notifiable_link_text(_helpers)
+    role = notification.event_payload['role']
+    if notification.event_payload['package']
+      "Removed as #{role} of a package"
+    else
+      "Removed as #{role} of a project"
+    end
+  end
 end

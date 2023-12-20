@@ -8,4 +8,13 @@ class Decorators::Notification::Event::RelationshipCreate < Decorators::Notifica
     target_object = [project, package].compact.join(' / ')
     "#{user} made #{recipient} #{role} of #{target_object}"
   end
+
+  def notifiable_link_text(_helpers)
+    role = notification.event_payload['role']
+    if notification.event_payload['package']
+      "Added as #{role} of a package"
+    else
+      "Added as #{role} of a project"
+    end
+  end
 end
