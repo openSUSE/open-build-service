@@ -22,6 +22,8 @@ class SourceController < ApplicationController
 
   before_action :require_scmsync_host_check, only: [:global_command_triggerscmsync]
 
+  before_action :require_package, only: [:show_package, :delete_package, :package_command]
+
   # GET /source
   #########
   def index
@@ -60,8 +62,6 @@ class SourceController < ApplicationController
     @tpkg.update_if_dirty
     render partial: 'package_issues'
   end
-
-  before_action :require_package, only: [:show_package, :delete_package, :package_command]
 
   # GET /source/:project/:package
   def show_package
