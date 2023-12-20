@@ -51,21 +51,6 @@ class SourceController < ApplicationController
     end
   end
 
-  def set_issues_default
-    @filter_changes = @states = nil
-    @filter_changes = params[:changes].split(',') if params[:changes]
-    @states = params[:states].split(',') if params[:states]
-    @login = params[:login]
-  end
-
-  def show_package_issues
-    raise NoLocalPackage, 'Issues can only be shown for local packages' unless @tpkg
-
-    set_issues_default
-    @tpkg.update_if_dirty
-    render partial: 'package_issues'
-  end
-
   # GET /source/:project/:package
   def show_package
     if @deleted_package
@@ -436,7 +421,24 @@ class SourceController < ApplicationController
     pass_to_backend('/source' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch, :isdefaultbranch]))
   end
 
+  def set_issues_defaults
+    @filter_changes = @states = nil
+    @filter_changes = params[:changes].split(',') if params[:changes]
+    @states = params[:states].split(',') if params[:states]
+    @login = params[:login]
+  end
+
   private
+
+  # GET /source/:project/:package?view=issues
+  # called from show_package
+  def show_package_issues
+    raise NoLocalPackage, 'Issues can only be shown for local packages' unless @tpkg
+
+    set_issues_defaults
+    @tpkg.update_if_dirty
+    render partial: 'package_issues'
+  end
 
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session!.can_modify?(project)

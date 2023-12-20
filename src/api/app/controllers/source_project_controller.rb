@@ -45,7 +45,7 @@ class SourceProjectController < SourceController
   end
 
   def render_project_issues
-    set_issues_default
+    set_issues_defaults
     render partial: 'source/project_issues'
   end
 
