@@ -227,42 +227,6 @@ class SourceController < ApplicationController
     pass_to_backend(path)
   end
 
-  def check_permissions_for_file
-    @project_name = params[:project]
-    @package_name = params[:package]
-    @file = params[:filename]
-    @path = Package.source_path(@project_name, @package_name, @file)
-
-    # authenticate
-    params[:user] = User.session!.login
-
-    @prj = Project.get_by_name(@project_name)
-    @pack = nil
-    @allowed = false
-
-    if @package_name == '_project' || @package_name == '_pattern'
-      @allowed = permissions.project_change?(@prj)
-
-      raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}" if @file == '_attribute' && @package_name == '_project'
-      raise WrongRouteForStagingWorkflow if @file == '_staging_workflow' && @package_name == '_project'
-    else
-      # we need a local package here in any case for modifications
-      @pack = Package.get_by_project_and_name(@project_name, @package_name)
-      # no modification or deletion of scmsynced projects and packages allowed
-      check_for_scmsynced_package_and_project(project: @prj, package: @pack)
-      @allowed = permissions.package_change?(@pack)
-    end
-  end
-
-  def check_for_scmsynced_package_and_project(project:, package:)
-    return unless package.try(:scmsync).present? || project.try(:scmsync).present?
-
-    scmsync_url = project.try(:scmsync)
-    scmsync_url ||= package.try(:scmsync)
-
-    raise ScmsyncReadOnly, "Can not change files in SCM bridged packages and projects: #{scmsync_url}"
-  end
-
   # PUT /source/:project/:package/:filename
   def update_file
     check_permissions_for_file
@@ -398,6 +362,42 @@ class SourceController < ApplicationController
     # check for project
     @prj = Project.get_by_name(params[:project])
     request.path_info + build_query_from_hash(params, [:user, :comment, :meta, :rev])
+  end
+
+  def check_permissions_for_file
+    @project_name = params[:project]
+    @package_name = params[:package]
+    @file = params[:filename]
+    @path = Package.source_path(@project_name, @package_name, @file)
+
+    # authenticate
+    params[:user] = User.session!.login
+
+    @prj = Project.get_by_name(@project_name)
+    @pack = nil
+    @allowed = false
+
+    if @package_name == '_project' || @package_name == '_pattern'
+      @allowed = permissions.project_change?(@prj)
+
+      raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}" if @file == '_attribute' && @package_name == '_project'
+      raise WrongRouteForStagingWorkflow if @file == '_staging_workflow' && @package_name == '_project'
+    else
+      # we need a local package here in any case for modifications
+      @pack = Package.get_by_project_and_name(@project_name, @package_name)
+      # no modification or deletion of scmsynced projects and packages allowed
+      check_for_scmsynced_package_and_project(project: @prj, package: @pack)
+      @allowed = permissions.package_change?(@pack)
+    end
+  end
+
+  def check_for_scmsynced_package_and_project(project:, package:)
+    return unless package.try(:scmsync).present? || project.try(:scmsync).present?
+
+    scmsync_url = project.try(:scmsync)
+    scmsync_url ||= package.try(:scmsync)
+
+    raise ScmsyncReadOnly, "Can not change files in SCM bridged packages and projects: #{scmsync_url}"
   end
 
   def actually_create_incident(project)
