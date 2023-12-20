@@ -135,6 +135,14 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_appeal_created do
+      eventtype { 'Event::AppealCreated' }
+      receiver_role { 'moderator' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_workflow_run_fail do
       eventtype { 'Event::WorkflowRunFail' }
       receiver_role { 'token_executor' }

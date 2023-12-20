@@ -4,7 +4,12 @@ module Event
 
     self.description = 'A user has appealed the decision of a moderator'
 
-    payload_keys :id, :appellant_id, :decision_id, :reason
+    payload_keys :id, :appellant_id, :decision_id, :reason, :report_last_id, :reportable_type
+
+    def subject
+      appeal = Appeal.find(payload['id'])
+      "Appeal to #{appeal.decision.reports.first.reportable&.class&.name} decision".squish
+    end
   end
 end
 
