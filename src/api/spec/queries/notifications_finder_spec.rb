@@ -1,5 +1,5 @@
 RSpec.describe NotificationsFinder do
-  describe '#for_notificable_type' do
+  describe '#for_notifiable_type' do
     let(:user) { create(:confirmed_user) }
 
     subject { described_class.new }
