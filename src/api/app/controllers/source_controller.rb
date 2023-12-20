@@ -76,6 +76,7 @@ class SourceController < ApplicationController
     pass_to_backend(path)
   end
 
+  # DELETE /source/:project/:package
   def delete_package
     # checks
     raise DeletePackageNoPermission, '_project package can not be deleted.' if @target_package_name == '_project'
@@ -100,17 +101,6 @@ class SourceController < ApplicationController
     end
 
     render_ok
-  end
-
-  def verify_can_modify_target_package!
-    return if User.session!.can_modify?(@package)
-
-    unless @package.instance_of?(Package)
-      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                      'for unspecified package'
-    end
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                    "for package #{@package.name} in project #{@package.project.name}"
   end
 
   # POST /source/:project/:package
@@ -1144,6 +1134,17 @@ class SourceController < ApplicationController
     end
   end
 
+  def verify_can_modify_target_package!
+    return if User.session!.can_modify?(@package)
+
+    unless @package.instance_of?(Package)
+      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
+                                      'for unspecified package'
+    end
+    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
+                                    "for package #{@package.name} in project #{@package.project.name}"
+  end
+
   def private_branch_command
     ret = BranchPackage.new(params).branch
     if ret[:text]
@@ -1157,7 +1158,6 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
-
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 
