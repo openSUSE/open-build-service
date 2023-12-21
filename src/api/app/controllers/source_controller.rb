@@ -6,10 +6,17 @@ require 'builder/xchar'
 class SourceController < ApplicationController
   include Source::Errors
 
+  SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
+                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices'].freeze
+  # list of cammands which create the target package
+  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
+  # list of commands which are allowed even when the project has the package only via a project link
+  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
+  # commands which are fine to operate on external scm managed projects
+  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
+                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
+
   validate_action index: { method: :get, response: :directory }
-  validate_action projectlist: { method: :get, response: :directory }
-  validate_action packagelist: { method: :get, response: :directory }
-  validate_action filelist: { method: :get, response: :directory }
 
   skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
   skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
@@ -21,6 +28,8 @@ class SourceController < ApplicationController
                                                       :global_command_triggerscmsync, :global_command_createmaintenanceincident]
 
   before_action :require_scmsync_host_check, only: [:global_command_triggerscmsync]
+
+  before_action :require_package, only: [:show_package, :delete_package, :package_command]
 
   # GET /source
   #########
@@ -37,31 +46,10 @@ class SourceController < ApplicationController
 
       pass_to_backend
     else
-      projectlist
+      @project_names = Project.order(:name).pluck(:name)
+      render formats: [:xml]
     end
   end
-
-  def projectlist
-    @project_names = Project.order(:name).pluck(:name)
-    render formats: [:xml]
-  end
-
-  def set_issues_default
-    @filter_changes = @states = nil
-    @filter_changes = params[:changes].split(',') if params[:changes]
-    @states = params[:states].split(',') if params[:states]
-    @login = params[:login]
-  end
-
-  def show_package_issues
-    raise NoLocalPackage, 'Issues can only be shown for local packages' unless @tpkg
-
-    set_issues_default
-    @tpkg.update_if_dirty
-    render partial: 'package_issues'
-  end
-
-  before_action :require_package, only: [:show_package, :delete_package, :package_command]
 
   # GET /source/:project/:package
   def show_package
@@ -88,6 +76,7 @@ class SourceController < ApplicationController
     pass_to_backend(path)
   end
 
+  # DELETE /source/:project/:package
   def delete_package
     # checks
     raise DeletePackageNoPermission, '_project package can not be deleted.' if @target_package_name == '_project'
@@ -112,34 +101,6 @@ class SourceController < ApplicationController
     end
 
     render_ok
-  end
-
-  # before_action for show_package, delete_package and package_command
-  def require_package
-    # init and validation
-    #--------------------
-    @deleted_package = params.key?(:deleted)
-
-    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
-    if params[:cmd].in?(['branch', 'release'])
-      @target_package_name = params[:package]
-      @target_project_name = params[:target_project] # might be nil
-      @target_package_name = params[:target_package] if params[:target_package]
-    else
-      @target_project_name = params[:project]
-      @target_package_name = params[:package]
-    end
-  end
-
-  def verify_can_modify_target_package!
-    return if User.session!.can_modify?(@package)
-
-    unless @package.instance_of?(Package)
-      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                      'for unspecified package'
-    end
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                    "for package #{@package.name} in project #{@package.project.name}"
   end
 
   # POST /source/:project/:package
@@ -195,52 +156,6 @@ class SourceController < ApplicationController
     end
 
     dispatch_command(:package_command, @command)
-  end
-
-  SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
-                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices'].freeze
-  # list of cammands which create the target package
-  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
-  # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
-  # commands which are fine to operate on external scm managed projects
-  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
-                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
-
-  def validate_target_for_package_command_exists!
-    @project = nil
-    @package = nil
-
-    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
-
-    unless @target_package_name.in?(['_project', '_pattern'])
-      use_source = true
-      use_source = false if @command == 'showlinked'
-      @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
-                                                 use_source: use_source, follow_project_links: follow_project_links)
-      if @package # for remote package case it's nil
-        @project = @package.project
-        ignore_lock = @command == 'unlock'
-        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
-      end
-    end
-
-    # check read access rights when the package does not exist anymore
-    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
-  end
-
-  def check_and_remove_repositories!(repositories, opts)
-    result = Project.check_repositories(repositories) unless opts[:force]
-    raise RepoDependency, result[:error] if !opts[:force] && result[:error]
-
-    result = Project.remove_repositories(repositories, opts)
-    raise ChangeProjectNoPermission, result[:error] if !opts[:force] && result[:error]
-  end
-
-  def pubkey_path
-    # check for project
-    @prj = Project.get_by_name(params[:project])
-    request.path_info + build_query_from_hash(params, [:user, :comment, :meta, :rev])
   end
 
   # GET /source/:project/_pubkey and /_sslcert
@@ -310,42 +225,6 @@ class SourceController < ApplicationController
     path = Package.source_path(project_name, package_name, file)
     path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand, :view])
     pass_to_backend(path)
-  end
-
-  def check_permissions_for_file
-    @project_name = params[:project]
-    @package_name = params[:package]
-    @file = params[:filename]
-    @path = Package.source_path(@project_name, @package_name, @file)
-
-    # authenticate
-    params[:user] = User.session!.login
-
-    @prj = Project.get_by_name(@project_name)
-    @pack = nil
-    @allowed = false
-
-    if @package_name == '_project' || @package_name == '_pattern'
-      @allowed = permissions.project_change?(@prj)
-
-      raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}" if @file == '_attribute' && @package_name == '_project'
-      raise WrongRouteForStagingWorkflow if @file == '_staging_workflow' && @package_name == '_project'
-    else
-      # we need a local package here in any case for modifications
-      @pack = Package.get_by_project_and_name(@project_name, @package_name)
-      # no modification or deletion of scmsynced projects and packages allowed
-      check_for_scmsynced_package_and_project(project: @prj, package: @pack)
-      @allowed = permissions.package_change?(@pack)
-    end
-  end
-
-  def check_for_scmsynced_package_and_project(project:, package:)
-    return unless package.try(:scmsync).present? || project.try(:scmsync).present?
-
-    scmsync_url = project.try(:scmsync)
-    scmsync_url ||= package.try(:scmsync)
-
-    raise ScmsyncReadOnly, "Can not change files in SCM bridged packages and projects: #{scmsync_url}"
   end
 
   # PUT /source/:project/:package/:filename
@@ -443,7 +322,83 @@ class SourceController < ApplicationController
     pass_to_backend('/source' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch, :isdefaultbranch]))
   end
 
+  def set_issues_defaults
+    @filter_changes = @states = nil
+    @filter_changes = params[:changes].split(',') if params[:changes]
+    @states = params[:states].split(',') if params[:states]
+    @login = params[:login]
+  end
+
   private
+
+  # before_action for show_package, delete_package and package_command
+  def require_package
+    # init and validation
+    #--------------------
+    @deleted_package = params.key?(:deleted)
+
+    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
+    if params[:cmd].in?(['branch', 'release'])
+      @target_package_name = params[:package]
+      @target_project_name = params[:target_project] # might be nil
+      @target_package_name = params[:target_package] if params[:target_package]
+    else
+      @target_project_name = params[:project]
+      @target_package_name = params[:package]
+    end
+  end
+
+  # GET /source/:project/:package?view=issues
+  # called from show_package
+  def show_package_issues
+    raise NoLocalPackage, 'Issues can only be shown for local packages' unless @tpkg
+
+    set_issues_defaults
+    @tpkg.update_if_dirty
+    render partial: 'package_issues'
+  end
+
+  def pubkey_path
+    # check for project
+    @prj = Project.get_by_name(params[:project])
+    request.path_info + build_query_from_hash(params, [:user, :comment, :meta, :rev])
+  end
+
+  def check_permissions_for_file
+    @project_name = params[:project]
+    @package_name = params[:package]
+    @file = params[:filename]
+    @path = Package.source_path(@project_name, @package_name, @file)
+
+    # authenticate
+    params[:user] = User.session!.login
+
+    @prj = Project.get_by_name(@project_name)
+    @pack = nil
+    @allowed = false
+
+    if @package_name == '_project' || @package_name == '_pattern'
+      @allowed = permissions.project_change?(@prj)
+
+      raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}" if @file == '_attribute' && @package_name == '_project'
+      raise WrongRouteForStagingWorkflow if @file == '_staging_workflow' && @package_name == '_project'
+    else
+      # we need a local package here in any case for modifications
+      @pack = Package.get_by_project_and_name(@project_name, @package_name)
+      # no modification or deletion of scmsynced projects and packages allowed
+      check_for_scmsynced_package_and_project(project: @prj, package: @pack)
+      @allowed = permissions.package_change?(@pack)
+    end
+  end
+
+  def check_for_scmsynced_package_and_project(project:, package:)
+    return unless package.try(:scmsync).present? || project.try(:scmsync).present?
+
+    scmsync_url = project.try(:scmsync)
+    scmsync_url ||= package.try(:scmsync)
+
+    raise ScmsyncReadOnly, "Can not change files in SCM bridged packages and projects: #{scmsync_url}"
+  end
 
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session!.can_modify?(project)
@@ -582,6 +537,28 @@ class SourceController < ApplicationController
     end
   end
 
+  def validate_target_for_package_command_exists!
+    @project = nil
+    @package = nil
+
+    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
+
+    unless @target_package_name.in?(['_project', '_pattern'])
+      use_source = true
+      use_source = false if @command == 'showlinked'
+      @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
+                                                 use_source: use_source, follow_project_links: follow_project_links)
+      if @package # for remote package case it's nil
+        @project = @package.project
+        ignore_lock = @command == 'unlock'
+        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
+      end
+    end
+
+    # check read access rights when the package does not exist anymore
+    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
+  end
+
   def _check_single_target!(source_repository, target_repository)
     # checking write access and architectures
     raise UnknownRepository, 'Invalid source repository' unless source_repository
@@ -590,7 +567,6 @@ class SourceController < ApplicationController
 
     source_repository.check_valid_release_target!(target_repository)
   end
-  private :_check_single_target!
 
   def verify_release_targets!(pro)
     repo_matches = nil
@@ -1149,6 +1125,17 @@ class SourceController < ApplicationController
     end
   end
 
+  def verify_can_modify_target_package!
+    return if User.session!.can_modify?(@package)
+
+    unless @package.instance_of?(Package)
+      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
+                                      'for unspecified package'
+    end
+    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
+                                    "for package #{@package.name} in project #{@package.project.name}"
+  end
+
   def private_branch_command
     ret = BranchPackage.new(params).branch
     if ret[:text]
@@ -1162,7 +1149,6 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
-
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 

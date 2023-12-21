@@ -1,4 +1,6 @@
 class SourceProjectController < SourceController
+  include CheckAndRemoveRepositories
+
   # GET /source/:project
   def show
     project_name = params[:project]
@@ -45,7 +47,7 @@ class SourceProjectController < SourceController
   end
 
   def render_project_issues
-    set_issues_default
+    set_issues_defaults
     render partial: 'source/project_issues'
   end
 
