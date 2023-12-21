@@ -251,7 +251,6 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/source_controller.rb'
     - 'app/controllers/source_project_controller.rb'
     - 'app/controllers/source_project_meta_controller.rb'
-    - 'app/controllers/trigger_controller.rb'
     - 'app/controllers/webui/monitor_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
     - 'app/controllers/webui/packages/branches_controller.rb'

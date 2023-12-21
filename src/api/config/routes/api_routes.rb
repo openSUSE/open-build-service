@@ -68,11 +68,10 @@ OBSApi::Application.routes.draw do
     resources :architectures, only: [:index, :show, :update] # create,delete currently disabled
 
     ### /trigger
-    post 'trigger' => 'trigger#create'
+    post 'trigger/rebuild' => 'trigger#create'
+    post 'trigger/release' => 'trigger#create'
+    post 'trigger/runservice' => 'trigger#create'
     post 'trigger/webhook' => 'trigger#create'
-    post 'trigger/rebuild' => 'trigger#rebuild'
-    post 'trigger/release' => 'trigger#release'
-    post 'trigger/runservice' => 'trigger#runservice'
     post 'trigger/workflow' => 'trigger_workflow#create'
 
     ### /issue_trackers

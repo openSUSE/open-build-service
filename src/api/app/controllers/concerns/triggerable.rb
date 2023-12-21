@@ -14,11 +14,9 @@ module Triggerable
     # By default we operate on the package association
     @package = @token.package
     # If the token has no package, let's find one from the parameters
-    if @package_name.present?
-      @package ||= Package.get_by_project_and_name(@project,
-                                                   @package_name,
-                                                   package_find_options)
-    end
+    @package ||= Package.get_by_project_and_name(@project,
+                                                 @package_name,
+                                                 package_find_options)
     return unless @project.links_to_remote?
 
     # The token has no package, we did not find a package in the database but the project has a link to remote.
