@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_35
+    uri: http://backend:5352/source/project/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Dying of the Light</title>
+          <title>Have His Carcase</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,64 +30,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Dying of the Light</title>
+          <title>Have His Carcase</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 30 Oct 2023 18:27:46 GMT
+  recorded_at: Thu, 23 Nov 2023 16:03:52 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_36
+    uri: http://backend:5352/source/project/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="project">
-          <title>Fear and Trembling</title>
-          <description>Ut quae laboriosam voluptates.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="project">
-          <title>Fear and Trembling</title>
-          <description>Ut quae laboriosam voluptates.</description>
-        </package>
-  recorded_at: Mon, 30 Oct 2023 18:27:46 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_37
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>The Man Within</title>
+        <project name="project">
+          <title>Have His Carcase</title>
           <description/>
           <person userid="foo" role="maintainer"/>
+          <repository name="repository_3">
+            <arch>i586</arch>
+          </repository>
         </project>
     headers:
       Accept-Encoding:
@@ -108,14 +73,51 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '216'
     body:
       encoding: UTF-8
       string: |
-        <project name="target_project">
-          <title>The Man Within</title>
+        <project name="project">
+          <title>Have His Carcase</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
+          <repository name="repository_3">
+            <arch>i586</arch>
+          </repository>
         </project>
-  recorded_at: Mon, 30 Oct 2023 18:27:46 GMT
+  recorded_at: Thu, 23 Nov 2023 16:03:52 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project?cmd=rebuild
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Thu, 23 Nov 2023 16:03:52 GMT
 recorded_with: VCR 6.2.0
