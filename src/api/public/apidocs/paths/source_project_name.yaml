@@ -9,7 +9,7 @@ get:
       in: query
       schema:
         type: string
-      description: Set to `1` to list the deleted packages of a project.
+      description: Set to `1` to list the packages of a deleted project.
       example: 1
     - in: query
       name: expand
