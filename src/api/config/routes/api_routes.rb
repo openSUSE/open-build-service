@@ -251,11 +251,6 @@ OBSApi::Application.routes.draw do
     get 'source/:project/_keyinfo' => :show, constraints: cons
   end
 
-  controller :source do
-    # package level
-    get '/source/:project/_project/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
-  end
-
   controller :source_project_package_meta do
     get 'source/:project/:package/_meta' => :show, constraints: cons
     put 'source/:project/:package/_meta' => :update, constraints: cons
