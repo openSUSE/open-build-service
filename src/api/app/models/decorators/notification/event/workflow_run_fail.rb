@@ -10,4 +10,8 @@ class Decorators::Notification::Event::WorkflowRunFail < Decorators::Notificatio
   def notifiable_link_path
     Rails.application.routes.url_helpers.token_workflow_run_path(notification.notifiable.token, notification.notifiable)
   end
+
+  def avatar_objects
+    [Token.find(notification.event_payload['token_id'])&.executor].compact
+  end
 end

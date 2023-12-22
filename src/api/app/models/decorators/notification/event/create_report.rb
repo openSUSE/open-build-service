@@ -14,6 +14,10 @@ class Decorators::Notification::Event::CreateReport < Decorators::Notification::
     link_for_reportables(reportable)
   end
 
+  def avatar_objects
+    [User.find(notification.event_payload['user_id'])]
+  end
+
   private
 
   # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes. This method is also used by 'Event::ClearedDecision' and 'Event::FavoredDecision', this need to

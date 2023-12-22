@@ -11,4 +11,8 @@ class Decorators::Notification::Event::ReportForRequest < Decorators::Notificati
     bs_request = notification.notifiable.reportable
     Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: notification.id)
   end
+
+  def avatar_objects
+    [User.find(notification.event_payload['user_id'])]
+  end
 end

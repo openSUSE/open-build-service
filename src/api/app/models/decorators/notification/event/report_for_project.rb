@@ -10,4 +10,8 @@ class Decorators::Notification::Event::ReportForProject < Decorators::Notificati
   def notifiable_link_path
     notification.event_type.constantize.notification_link_path(notification)
   end
+
+  def avatar_objects
+    [User.find(notification.event_payload['user_id'])]
+  end
 end

@@ -15,4 +15,9 @@ class Decorators::Notification::Event::BuildFail < Decorators::Notification::Com
     Rails.application.routes.url_helpers.package_live_build_log_path(package: notification.event_payload['package'], project: @notification.event_payload['project'],
                                                                      repository: notification.event_payload['repository'], arch: @notification.event_payload['arch'])
   end
+
+  def avatar_objects
+    reviews = notification.notifiable.reviews
+    reviews.select(&:new?).map(&:reviewed_by) + User.where(login: notification.notifiable.creator)
+  end
 end

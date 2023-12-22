@@ -17,4 +17,15 @@ class Decorators::Notification::Event::CommentForPackage < Decorators::Notificat
                                                            notification_id: notification.id,
                                                            anchor: 'comments-list')
   end
+
+  def avatar_objects
+    commenters
+  end
+
+  private
+
+  def commenters
+    comments = notification.notifiable.commentable.comments
+    comments.select { |comment| comment.updated_at >= notification.unread_date }.map(&:user).uniq
+  end
 end

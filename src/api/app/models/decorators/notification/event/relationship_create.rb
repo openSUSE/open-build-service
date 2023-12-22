@@ -26,4 +26,8 @@ class Decorators::Notification::Event::RelationshipCreate < Decorators::Notifica
       Rails.application.routes.url_helpers.project_users_path(notification.event_payload['project'])
     end
   end
+
+  def avatar_objects
+    [User.find_by(login: notification.event_payload['who'])]
+  end
 end

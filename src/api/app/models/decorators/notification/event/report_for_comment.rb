@@ -18,6 +18,10 @@ class Decorators::Notification::Event::ReportForComment < Decorators::Notificati
                                       notification_id: notification.id)
   end
 
+  def avatar_objects
+    [User.find(notification.event_payload['user_id'])]
+  end
+
   private
 
   def path_to_commentables_on_reports(event_payload:, notification_id:)

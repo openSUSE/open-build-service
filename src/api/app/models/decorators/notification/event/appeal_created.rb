@@ -10,4 +10,8 @@ class Decorators::Notification::Event::AppealCreated < Decorators::Notification:
   def notifiable_link_path
     Rails.application.routes.url_helpers.appeal_path(notification.notifiable)
   end
+
+  def avatar_objects
+    [User.find(notification.event_payload['appellant_id'])]
+  end
 end

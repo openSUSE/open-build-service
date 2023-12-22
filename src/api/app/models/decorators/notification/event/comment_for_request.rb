@@ -18,4 +18,15 @@ class Decorators::Notification::Event::CommentForRequest < Decorators::Notificat
              end
     Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: notification.id, anchor: anchor)
   end
+
+  def avatar_objects
+    commenters
+  end
+
+  private
+
+  def commenters
+    comments = notification.notifiable.commentable.comments
+    comments.select { |comment| comment.updated_at >= notification.unread_date }.map(&:user).uniq
+  end
 end

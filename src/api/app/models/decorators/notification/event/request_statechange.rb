@@ -11,4 +11,9 @@ class Decorators::Notification::Event::RequestStatechange < Decorators::Notifica
   def notifiable_link_path
     Rails.application.routes.url_helpers.request_show_path(notification.notifiable.number, notification_id: notification.id)
   end
+
+  def avatar_objects
+    reviews = notification.notifiable.reviews
+    reviews.select(&:new?).map(&:reviewed_by) + User.where(login: notification.notifiable.creator)
+  end
 end

@@ -18,6 +18,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
 
   private
 
+  # FIXME: Remove this, it's not needed
   def bs_request
     @bs_request ||= if @notification.notifiable_type == 'BsRequest'
                       @notification.notifiable

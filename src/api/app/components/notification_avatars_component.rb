@@ -9,27 +9,9 @@ class NotificationAvatarsComponent < ApplicationComponent
 
   private
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def avatar_objects
-    @avatar_objects ||= case @notification.notifiable_type
-                        when 'Comment'
-                          commenters
-                        when 'Project', 'Package'
-                          [User.find_by(login: @notification.event_payload['who'])]
-                        when 'Report'
-                          [User.find(@notification.event_payload['user_id'])]
-                        when 'Decision'
-                          [User.find(@notification.event_payload['moderator_id'])]
-                        when 'Appeal'
-                          [User.find(@notification.event_payload['appellant_id'])]
-                        when 'WorkflowRun'
-                          [Token.find(@notification.event_payload['token_id'])&.executor].compact
-                        else
-                          reviews = @notification.notifiable.reviews
-                          reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)
-                        end
+    @notification.decorator.avatar_objects
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def avatars_to_display
     avatar_objects.first(MAXIMUM_DISPLAYED_AVATARS).reverse

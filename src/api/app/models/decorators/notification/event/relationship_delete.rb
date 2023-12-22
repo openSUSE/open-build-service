@@ -1,4 +1,4 @@
-class Decorators::Notification::Event::RelationshipDelete
+class Decorators::Notification::Event::RelationshipDelete < Decorators::Notification::Common
   def description_text
     role = notification.event_payload['role']
     user = notification.event_payload['who']
@@ -25,5 +25,9 @@ class Decorators::Notification::Event::RelationshipDelete
     else
       Rails.application.routes.url_helpers.project_users_path(notification.event_payload['project'])
     end
+  end
+
+  def avatar_objects
+    [User.find_by(login: notification.event_payload['who'])]
   end
 end
