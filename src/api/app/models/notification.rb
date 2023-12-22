@@ -47,6 +47,11 @@ class Notification < ApplicationRecord
     last_seen_at || created_at
   end
 
+  def decorator
+    decoration = "Decorators::Notification::Event::#{event_type.split('::').last}".constantize
+    decoration.new(self)
+  end
+
   private
 
   def track_notification_creation
