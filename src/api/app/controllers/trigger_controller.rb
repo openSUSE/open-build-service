@@ -56,7 +56,7 @@ class TriggerController < ApplicationController
   private
 
   def validate_token_type
-    raise InvalidToken, 'Invalid token found' unless @token.instance_of?(Token.token_type(action_name))
+    raise InvalidToken, "The token can not perform an '#{action_name}' operation" unless @token.instance_of?(Token.token_type(action_name))
   end
 
   def validate_parameters_by_token
