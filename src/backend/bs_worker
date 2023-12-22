@@ -2248,6 +2248,7 @@ sub getpreinstallimage {
     $nometa = 1 if $buildinfo->{'crossarch'};	# preinstallimage is always native
     my $callers_time = time();
     my @args;
+    push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
     push @args, "arch=$arch";
@@ -2491,6 +2492,7 @@ sub getbinaries_buildenv {
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $callers_time = time();
       my @args;
+      push @args, "workerid=$workerid" if defined $workerid;
       push @args, "project=$repo->{'project'}";
       push @args, "repository=$repo->{'repository'}";
       push @args, "arch=$arch";
