@@ -61,19 +61,17 @@ class TriggerController < ApplicationController
 
   def validate_parameters_by_token
     case @token.type
-    when 'Token::Rebuild', 'Token::Release'
-      return if params[:project].present?
-      return if @token.package.present?
-
-      raise MissingParameterError
-    when 'Token::Service'
-      return if params[:project].present? && params[:package].present?
-      return if @token.package.present?
-
-      raise MissingParameterError
     when 'Token::Workflow'
       raise InvalidToken, 'Invalid token found'
+    when 'Token::Rebuild', 'Token::Release'
+      return if params[:project].present?
+    when 'Token::Service'
+      return if params[:project].present? && params[:package].present?
     end
+
+    return if @token.package.present?
+
+    raise MissingParameterError
   end
 
   # AUTHENTICATION
