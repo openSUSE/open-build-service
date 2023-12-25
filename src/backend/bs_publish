@@ -923,6 +923,7 @@ ARCH.armv6l arm armel armv4l armv5l armv5tel armv6l armv6vl armv6hl noarch
 ARCH.armv7l arm armel armv4l armv5l armv5tel armv6l armv6vl armv7l armv7hl noarch
 ARCH.i686 i686 i586 i486 i386 noarch
 ARCH.i586 i586 i486 i386 noarch
+ARCH.loongarch64 loongarch64 noarch
 DEFAULTBASE i586
 DESCRDIR descr
 DATADIR .
