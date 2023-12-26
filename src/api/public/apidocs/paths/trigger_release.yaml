@@ -1,0 +1,9 @@
+post:
+  summary: Trigger a Project/Package release
+  description: |
+    This endpoint behaves exactly as the [/trigger](#/Trigger/post_trigger) endpoint but
+    only allows API tokens the the operation 'release' to be triggered.
+  security:
+    - GitLab_key_authentication: []
+  tags:
+    - Trigger

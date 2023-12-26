@@ -47,9 +47,7 @@ module Person
 
     def set_package
       @package = nil
-      return unless params[:project] || params[:package]
-
-      raise MissingParameterError, 'The package and project parameters must be provided together.' unless params[:project] && params[:package]
+      return unless params[:project] && params[:package]
 
       @package = Package.get_by_project_and_name(params[:project], params[:package])
     end
