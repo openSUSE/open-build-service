@@ -1,4 +1,4 @@
 %span.input-group{ 'data-controller': 'copy-to-clipboard' }
-  = text_field_tag(nil, @input_text, readonly: true, 'data-copy-to-clipboard-target': 'readonly', class: 'form-control')
+  = text_field_tag(nil, @input_text, readonly: true, 'data-copy-to-clipboard-target': 'readonly', class: 'form-control', **@html)
   %button.input-group-text{ type: 'button', data: { action: 'copy-to-clipboard#copy', 'copy-to-clipboard-target': 'button' } }
     %i.fas.fa-clipboard

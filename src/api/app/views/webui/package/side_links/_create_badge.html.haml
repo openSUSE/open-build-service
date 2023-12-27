@@ -5,7 +5,10 @@
     Create Badge
 
 
-  .modal.fade#badge-modal{ tabindex: -1, role: 'dialog', 'aria-labelledby': 'badge-modal-label', 'aria-hidden': 'true' }
+  .modal.fade#badge-modal{ tabindex: -1, role: 'dialog', 'aria-labelledby': 'badge-modal-label', 'aria-hidden': 'true',
+                           data: { controller: 'badge',
+                                   'badge-package-url-value': package_show_url(project, package),
+                                   'badge-url-value': project_package_badge_url(project, package, format: 'svg') } }
     .modal-dialog{ role: 'document' }
       .modal-content
         .modal-header
@@ -19,22 +22,12 @@
             your website, and enjoy it refresh automatically whenever the
             build result changes.
           .label{ for: 'badge-style-selector' } Select Style
-          %select.form-select#badge-style-selector
+          %select.form-select{ 'data-action': 'badge#url' }
             %option{ value: 'default', selected: 'selected' } Default
             %option{ value: 'percent' } Percent
           .d-flex
-            = image_tag(project_package_badge_url(project, package, format: 'svg'), id: 'badge-preview', class: 'mt-3 mx-auto')
+            = image_tag(project_package_badge_url(project, package, format: 'svg'), class: 'mt-3 mx-auto', 'data-badge-target': 'preview')
         .modal-footer
           .input-group.w-100
-            = render CopyToClipboardInputComponent.new(input_text: project_package_badge_url(project, package, format: 'svg'))
-:javascript
-  const BASE_BADGE_URL = "#{project_package_badge_url(project, package, format: 'svg')}";
-  const BASE_PACKAGE_URL = "#{package_show_url(project, package)}";
-
-  $('#badge-style-selector').change(function() {
-    badgeTextCopy();
-  });
-
-  // Despite setting defaults, the browser may preselect different option
-  // on page load
-  badgeTextCopy();
+            = render CopyToClipboardInputComponent.new(input_text: project_package_badge_url(project, package, format: 'svg'),
+                                                       html: { 'data-badge-target': 'input' })
