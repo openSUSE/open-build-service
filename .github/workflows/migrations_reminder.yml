@@ -1,0 +1,46 @@
+# GitHub action that checks if the PR contains changes related to migrations an add reminder comment to the PR.
+# Based on https://github.com/marketplace/actions/changed-files
+
+name: Migrations Reminder
+
+on:
+  pull_request
+
+jobs:
+  check_changed_files:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Group files that have changed
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@v41
+        with:
+          files_yaml: |
+            migrations:
+              - src/api/db/migrate/**
+              - src/api/db/schema.rb
+              - src/api/db/data/**
+              - src/api/db/data_schema.rb
+            not_migrations:
+              - '!src/api/db/migrate/**'
+              - '!src/api/db/schema.rb'
+              - '!src/api/db/data/**'
+              - '!src/api/db/data_schema.rb'
+              - '!src/api/db/attribute_descriptions.rb'
+              - '!src/api/db/seeds.rb'
+              - '!.github/workflows/isolated_migrations.yml'
+              - '!src/api/.rubocop*.yml'
+      
+      - name: Comment Pull Request
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: 2 == 2 # (steps.changed-files-yaml.outputs.migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.not_migrations_all_changed_files_count > 0)
+        with:
+          message: |
+            :warning: This pull request contains migrations. Migrations and code changes should be shipped independently.
+
