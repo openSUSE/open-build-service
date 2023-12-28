@@ -4,7 +4,7 @@
       = form_tag(action: 'add_reviewer') do
         .modal-header
           %h5.modal-title#add-reviewer-modal-label Add a reviewer to request #{params['number']}
-        .modal-body
+        .modal-body{ data: { controller: 'package-autocomplete' } }
           = hidden_field_tag(:number, params['number'])
           .mb-3
             = label_tag(:review_type, 'Request review from:')
@@ -20,13 +20,16 @@
           .hideable.review-group.d-none
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_group', label: 'Group:', required: true,
                                                                      data: { source: autocomplete_groups_path } }
-          .hideable.review-project.review-package.d-none
+          .hideable.review-project.review-package.d-none{ 'data-action': 'autocomplete:setInput->package-autocomplete#setProject \
+                                                                          autocomplete:search->package-autocomplete#emptyPackage' }
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_project', label: 'Project:', required: true,
-                                                                     data: { source: autocomplete_projects_path } }
+                                                                     data: { source: autocomplete_projects_path,
+                                                                             'package-autocomplete-target': 'projectInput' } }
 
           .hideable.review-package.d-none
             = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_package', label: 'Package:', required: true,
-                                                                     data: { source: autocomplete_packages_path } }
+                                                                     data: { source: autocomplete_packages_path,
+                                                                             'package-autocomplete-target': 'packageInput' } }
 
           .mb-3
             = label_tag(:review_comment, 'Comment for reviewer:')

@@ -28,13 +28,15 @@
                 .form-text.text-muted
                   Optional: provide a description to your token.
 
-          .row#package-project-form
-            .col-sm
+          .row#package-project-form{ data: { controller: 'package-autocomplete' } }
+            .col-sm{ 'data-action': 'autocomplete:setInput->package-autocomplete#setProject autocomplete:search->package-autocomplete#emptyPackage' }
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_name', label: 'Project name', required: false,
-                                                                       data: { source: autocomplete_projects_path(local: true) } }
+                                                                       data: { source: autocomplete_projects_path(local: true),
+                                                                               'package-autocomplete-target': 'projectInput' } }
             .col-sm
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_name', label: 'Package name', required: false,
-                                                                       data: { source: autocomplete_packages_path }, disabled: true }
+                                                                       data: { source: autocomplete_packages_path,
+                                                                               'package-autocomplete-target': 'packageInput' }, disabled: true }
             .col-12
               .mb-3.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.

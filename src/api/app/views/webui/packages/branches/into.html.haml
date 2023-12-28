@@ -21,12 +21,15 @@
                 - @remote_projects.each do |_id, name, title|
                   %li.list-inline-item
                     = link_to("#{name}: #{title}", project_show_path(project: name))
-          .col-12.col-md-9.col-lg-6
+          .col-12.col-md-9.col-lg-6{ data: { controller: 'package-autocomplete' } }
             = form_tag(packages_branches_path) do
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
-                                                                       data: { source: autocomplete_projects_path } }
+              %span{ 'data-action': 'autocomplete:setInput->package-autocomplete#setProject autocomplete:search->package-autocomplete#emptyPackage' }
+                = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
+                                                                         data: { source: autocomplete_projects_path,
+                                                                                 'package-autocomplete-target': 'projectInput' } }
               = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name', disabled: true,
-                                                                       data: { source: autocomplete_packages_path } }
+                                                                       data: { source: autocomplete_packages_path,
+                                                                               'package-autocomplete-target': 'packageInput' } }
               = hidden_field_tag 'target_project', @project
               = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: false, target_project: @project,
                                                                               package: nil, revision: nil }
