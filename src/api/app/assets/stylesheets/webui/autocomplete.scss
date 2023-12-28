@@ -1,9 +1,19 @@
-ul.ui-autocomplete {
+.autocomplete {
+  --autocomplete-icon-width: 2.5rem;
+
   @extend .dropdown-menu;
 
-  li { @extend .dropdown-item; }
-}
+  top: 100%;
+  left: var(--autocomplete-icon-width);
+  width: calc(100% - var(--autocomplete-icon-width));
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 
-.ui-helper-hidden-accessible{
-  display:none !important;
+  .autocomplete-item {
+    @extend .dropdown-item;
+  }
+
+  .autocomplete-item-text {
+    @extend .dropdown-item-text;
+  }
 }

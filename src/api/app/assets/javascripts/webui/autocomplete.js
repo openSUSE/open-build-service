@@ -1,24 +1,4 @@
-function setupAutocomplete() {
-  $('.obs-autocomplete').each(function() {
-    $(this).autocomplete({
-      // Note: 'append' is optional and only needed when there is no element with class ui-front
-      appendTo:  $(this).data('append'),
-      source:    $(this).data('source'),
-      minLength: 2,
-      search: function() {
-        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
-      },
-      response: function() {
-        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
-      }
-    });
-  });
-}
-
 $(document).ready(function() {
-
-  setupAutocomplete();
-
   $('.repository-autocomplete').on('autocompleteselect autocompletechange', function(event, ui) {
     var projectName,
         dropdown        = $(this).find('.repository-dropdown'),
@@ -55,26 +35,5 @@ $(document).ready(function() {
         }
       }
     });
-  });
-
-  $('#linked_project, #review_project, #project_name, #project').on('autocompletechange', function() {
-    var projectName = $(this).val(),
-        packageInput = $('#linked_package, #review_package, #package_name, #package');
-
-    if (!packageInput.is(':visible')) return;
-
-    if (!projectName) {
-      packageInput.val('').attr('disabled', true);
-      return;
-    }
-
-    if (packageInput.attr('disabled')) { packageInput.removeAttr('disabled').focus(); }
-
-    var source = packageInput.autocomplete('option', 'source');
-
-    // Ensure old parameters got removed
-    source = source.replace(/\?.+/, '') + '?project=' + projectName;
-    // Update the source target of the package autocomplete
-    packageInput.autocomplete('option', { source: source });
   });
 });
