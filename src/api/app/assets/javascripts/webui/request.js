@@ -49,7 +49,7 @@ function setupSubmitPackagePage(url) { // jshint ignore:line
     $('[id$="target_project"]').attr('value', $('#devel-project-name').html());
   });
 
-  $('[id$="target_project"].obs-autocomplete').on('autocompleteselect autocompletechange', function() {
+  $('[id$="target_project"]').closest('[data-controller]').on('autocomplete:setInput autocomplete:search', function() {
     updateSupersedeAndDevelPackageDisplay();
   });
 
