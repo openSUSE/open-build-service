@@ -23,12 +23,14 @@ module Triggerable
                                                    @package_name,
                                                    package_find_options)
     end
+    return if @package
     return unless project_links_to_remote?
 
-    # The token has no package, we did not find a package in the database but the project has a link to remote.
-    # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
-    # In this case, we will try to trigger with the user input, no matter what it is
-    @package ||= @package_name
+    # In remote or scmsync case we have no database object, but the package
+    # may still be there. It will get validated by the backend.
+    # Strip multibuild part as the code will add it later again in the model
+    @package ||= @package_name.gsub(/:.*/, '')
+
     # TODO: This should not happen right? But who knows...
     raise ActiveRecord::RecordNotFound unless @package
   end
