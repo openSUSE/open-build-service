@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_5
+    uri: http://backend:5352/source/project/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Have His Carcase</title>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,27 +30,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '176'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Have His Carcase</title>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Nov 2023 16:03:52 GMT
+  recorded_at: Wed, 03 Jan 2024 15:43:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_5
+    uri: http://backend:5352/source/project/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Have His Carcase</title>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
           <description/>
           <person userid="foo" role="maintainer"/>
-          <repository name="repository_3">
+          <repository name="repository_6">
             <arch>i586</arch>
           </repository>
         </project>
@@ -73,51 +73,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '216'
+      - '249'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Have His Carcase</title>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
-          <repository name="repository_3">
+          <repository name="repository_6">
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Nov 2023 16:03:52 GMT
-- request:
-    method: post
-    uri: http://backend:5352/build/project?cmd=rebuild
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Thu, 23 Nov 2023 16:03:52 GMT
+  recorded_at: Wed, 03 Jan 2024 15:43:58 GMT
 recorded_with: VCR 6.2.0
