@@ -83,17 +83,12 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         let(:configured_architectures) { configured_repositories.first.architectures }
 
         it 'configures the repository with the right attributes' do
-          expect(configured_repositories).to match_array([
-                                                           have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id)
-                                                         ])
+          expect(configured_repositories).to contain_exactly(have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id))
         end
 
         it 'configures the path elements with the right attributes' do
-          expect(configured_path_elements).to match_array([
-                                                            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1,
-                                                                            kind: 'standard'),
-                                                            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard')
-                                                          ])
+          expect(configured_path_elements).to contain_exactly(have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1,
+                                                                              kind: 'standard'), have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard'))
         end
 
         it 'overwrites previously configured architectures with those in the step instructions' do

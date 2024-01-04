@@ -47,7 +47,7 @@ RSpec.describe Webui::RepositoriesController, :vcr do
       end
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([['armv7l', false], ['i586', false], ['x86_64', false]]) }
+      it { expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', false], ['x86_64', false]) }
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
@@ -63,9 +63,9 @@ RSpec.describe Webui::RepositoriesController, :vcr do
         expect(foo.count).to eq(foo.distinct.count)
       end
 
-      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
-      it { expect(Architecture.available.pluck(:name)).to match_array(['armv7l', 'i586', 'x86_64']) }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([['armv7l', false], ['i586', true], ['x86_64', true]]) }
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to contain_exactly('i586', 'x86_64') }
+      it { expect(Architecture.available.pluck(:name)).to contain_exactly('armv7l', 'i586', 'x86_64') }
+      it { expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', true], ['x86_64', true]) }
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end

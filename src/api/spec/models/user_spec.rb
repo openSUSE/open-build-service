@@ -555,9 +555,9 @@ RSpec.describe User do
     let!(:locked_user) { create(:locked_user) }
 
     describe '#autocomplete_login' do
-      it { expect(User.autocomplete_login('foo')).to match_array(['foobar']) }
+      it { expect(User.autocomplete_login('foo')).to contain_exactly('foobar') }
       it { expect(User.autocomplete_login('bar')).to be_empty }
-      it { expect(User.autocomplete_login(nil)).to match_array(['foobar', 'fobaz']) }
+      it { expect(User.autocomplete_login(nil)).to contain_exactly('foobar', 'fobaz') }
       it { expect(User.autocomplete_login(deleted_user.login)).to be_empty }
       it { expect(User.autocomplete_login(locked_user.login)).to be_empty }
     end
@@ -565,7 +565,7 @@ RSpec.describe User do
     describe '#autocomplete_token' do
       subject { User.autocomplete_token('foo') }
 
-      it { expect(subject).to match_array([{ name: 'foobar' }]) }
+      it { expect(subject).to contain_exactly({ name: 'foobar' }) }
     end
   end
 

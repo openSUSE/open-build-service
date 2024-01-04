@@ -26,7 +26,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       it 'create a new staging project' do
         subject.reload
-        expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:My:Projects'])
+        expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:My:Projects')
       end
 
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
@@ -49,7 +49,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
-      it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
+      it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:success]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).to have_been_enqueued }
@@ -68,7 +68,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(3) }
-      it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
+      it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B') }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
@@ -172,7 +172,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       it 'destroy a staging project' do
         subject.reload
-        expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:B'])
+        expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:B')
       end
 
       it { expect(assigns[:staging_workflow]).to eq(project.staging) }
