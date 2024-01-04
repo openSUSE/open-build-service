@@ -8,7 +8,7 @@ RSpec.describe AvatarComponent, type: :component do
     end
 
     it 'displays avatar with user name in the title' do
-      expect(rendered_content).to have_selector("img[title='#{user.name}']", count: 1)
+      expect(rendered_content).to have_css("img[title='#{user.name}']", count: 1)
     end
 
     it 'displays avatar without circle' do
@@ -22,7 +22,7 @@ RSpec.describe AvatarComponent, type: :component do
     end
 
     it 'displays avatar with group name in the title' do
-      expect(rendered_content).to have_selector("img[title='#{group.name}']", count: 1)
+      expect(rendered_content).to have_css("img[title='#{group.name}']", count: 1)
     end
 
     it 'displays avatar inside a circle' do

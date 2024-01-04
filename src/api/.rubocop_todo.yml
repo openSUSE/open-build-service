@@ -91,19 +91,6 @@ Capybara/NegationMatcher:
     - 'spec/shared/examples/features/bootstrap_user_tab.rb'
     - 'spec/support/features/features_authentication.rb'
 
-# Offense count: 22
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: DefaultSelector.
-Capybara/RSpec/HaveSelector:
-  Exclude:
-    - 'spec/components/avatar_component_spec.rb'
-    - 'spec/components/bs_request_comment_component_spec.rb'
-    - 'spec/components/buildresult_status_link_component_spec.rb'
-    - 'spec/components/notification_mark_button_component_spec.rb'
-    - 'spec/controllers/group_controller_spec.rb'
-    - 'spec/controllers/staging/excluded_requests_controller_spec.rb'
-    - 'spec/features/webui/image_templates_spec.rb'
-
 # Offense count: 3
 Capybara/SpecificMatcher:
   Exclude:

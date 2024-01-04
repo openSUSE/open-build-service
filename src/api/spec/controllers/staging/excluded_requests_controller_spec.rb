@@ -40,10 +40,10 @@ RSpec.describe Staging::ExcludedRequestsController do
     it 'returns the excluded_requests xml' do
       expect(response.body).to have_css('excluded_requests', count: 1)
       expect(response.body).to have_css('excluded_requests > request', count: 2)
-      expect(response.body).to have_selector("excluded_requests > request[id='#{bs_request.number}']")
-      expect(response.body).to have_selector("excluded_requests > request[id='#{bs_request_2.number}']")
-      expect(response.body).to have_selector("excluded_requests > request[package='#{bs_request.first_target_package}']")
-      expect(response.body).to have_selector("excluded_requests > request[package='#{bs_request_2.first_target_package}']")
+      expect(response.body).to have_css("excluded_requests > request[id='#{bs_request.number}']")
+      expect(response.body).to have_css("excluded_requests > request[id='#{bs_request_2.number}']")
+      expect(response.body).to have_css("excluded_requests > request[package='#{bs_request.first_target_package}']")
+      expect(response.body).to have_css("excluded_requests > request[package='#{bs_request_2.first_target_package}']")
       expect(response.body).to have_css("excluded_requests > request[description='Request 1']")
       expect(response.body).to have_css("excluded_requests > request[description='Request 2']")
     end

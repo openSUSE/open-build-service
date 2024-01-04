@@ -21,7 +21,7 @@ RSpec.describe GroupController do
       it 'returns with the xml representation of that group' do
         expect(response.body).to have_css('group > title', text: group.title)
         expect(response.body).to have_css('group > email', text: group.email)
-        expect(response.body).to have_selector("group > maintainer[userid=#{group_maintainer}]")
+        expect(response.body).to have_css("group > maintainer[userid=#{group_maintainer}]")
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe GroupController do
 
     it 'returns with the group xml representation' do
       groups.each do |group|
-        expect(response.body).to have_selector("directory[count=#{groups.count}] > entry[name=#{group.title}]")
+        expect(response.body).to have_css("directory[count=#{groups.count}] > entry[name=#{group.title}]")
       end
     end
   end

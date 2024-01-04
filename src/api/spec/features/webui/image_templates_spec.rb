@@ -28,10 +28,10 @@ RSpec.describe 'ImageTemplates', :js, :vcr do
       desktop? ? click_link('New Image') : click_menu_link('Actions', 'New Image')
 
       expect(page).to have_text(package1.title)
-      expect(page).to have_selector("input[data-package='#{package1}']:checked")
-      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)")
-      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)")
-      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)")
+      expect(page).to have_css("input[data-package='#{package1}']:checked")
+      expect(page).to have_css("input[data-package='#{package2}']:not(:checked)")
+      expect(page).to have_css("input[data-package='#{package3}']:not(:checked)")
+      expect(page).to have_css("input[data-package='#{kiwi_package}']:not(:checked)")
 
       expect(page).to have_field('target_package', with: package1)
       within :xpath, "//input[@data-package='#{package2}']/../label" do
@@ -58,10 +58,10 @@ RSpec.describe 'ImageTemplates', :js, :vcr do
       click_link('New Image')
 
       expect(page).to have_text(package1.title)
-      expect(page).to have_selector("input[data-package='#{package1}']:checked")
-      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)")
-      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)")
-      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)")
+      expect(page).to have_css("input[data-package='#{package1}']:checked")
+      expect(page).to have_css("input[data-package='#{package2}']:not(:checked)")
+      expect(page).to have_css("input[data-package='#{package3}']:not(:checked)")
+      expect(page).to have_css("input[data-package='#{kiwi_package}']:not(:checked)")
 
       expect(page).to have_field('target_package', with: package1)
       within :xpath, "//input[@data-package='#{kiwi_package}']/../label" do
