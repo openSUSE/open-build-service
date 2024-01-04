@@ -419,7 +419,7 @@ RSpec.describe EventMailer, :vcr do
         let(:faillog) { nil }
 
         it 'renders the body, but does not have a build log' do
-          expect(mail.body.encoded).not_to have_text('Last lines of build log:')
+          expect(mail.body.encoded).to have_no_text('Last lines of build log:')
         end
       end
     end

@@ -26,7 +26,7 @@ RSpec.describe 'CommentLocks' do
 
         it 'checks comments are unlocked' do
           find_button('Lock comments')
-          expect(page).not_to have_text('Commenting on this is locked. You can remove the lock by clicking on the button below.')
+          expect(page).to have_no_text('Commenting on this is locked. You can remove the lock by clicking on the button below.')
         end
 
         it 'locks comments' do
@@ -43,11 +43,11 @@ RSpec.describe 'CommentLocks' do
         end
 
         it 'cannot lock comments' do
-          expect(page).not_to have_button('Lock comments')
+          expect(page).to have_no_button('Lock comments')
         end
 
         it 'can comment' do
-          expect(page).not_to have_text('Commenting on this is locked')
+          expect(page).to have_no_text('Commenting on this is locked')
           fill_in 'new_comment_body', with: 'Comment Body'
           find_button('Add comment')
         end
@@ -72,7 +72,7 @@ RSpec.describe 'CommentLocks' do
         it 'unlocks comments' do
           find_button('Unlock comments').click
           find_button('Unlock').click
-          expect(page).not_to have_text('Commenting on this is locked. You can remove the lock by clicking on the button below.')
+          expect(page).to have_no_text('Commenting on this is locked. You can remove the lock by clicking on the button below.')
         end
       end
 
@@ -83,13 +83,13 @@ RSpec.describe 'CommentLocks' do
         end
 
         it 'cannot unlock comments' do
-          expect(page).not_to have_button('Unlock comments')
-          expect(page).not_to have_text('You can remove the lock by clicking on the button below.')
+          expect(page).to have_no_button('Unlock comments')
+          expect(page).to have_no_text('You can remove the lock by clicking on the button below.')
         end
 
         it 'cannot comment' do
           expect(page).to have_text('Commenting on this is locked')
-          expect(page).not_to have_button('Add comment')
+          expect(page).to have_no_button('Add comment')
         end
       end
     end

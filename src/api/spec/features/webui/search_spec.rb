@@ -282,7 +282,7 @@ RSpec.describe 'Search', :js do
       fill_in 'search_input', with: apache_package.name
       click_button 'Search'
 
-      expect(page).not_to have_css('#serach-results')
+      expect(page).to have_no_css('#serach-results')
     end
   end
 end

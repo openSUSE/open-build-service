@@ -207,7 +207,7 @@ RSpec.describe 'Packages', :js, :vcr do
     expect(page).to have_text("Error while creating inv/alid files: 'inv/alid' is not a valid filename.")
 
     click_link(package.name)
-    expect(page).not_to have_link('inv/alid')
+    expect(page).to have_no_link('inv/alid')
   end
 
   describe 'branching a package from another users project' do
@@ -324,7 +324,7 @@ RSpec.describe 'Packages', :js, :vcr do
       it 'can not edit' do
         visit package_meta_path(package.project, package)
         within('.card-body') do
-          expect(page).not_to have_css('.toolbar')
+          expect(page).to have_no_css('.toolbar')
         end
       end
     end

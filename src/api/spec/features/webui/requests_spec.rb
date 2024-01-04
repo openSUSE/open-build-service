@@ -16,7 +16,7 @@ RSpec.describe 'Requests', :js, :vcr do
         find('.show-content').click
         expect(page).to have_css('div.expanded')
         find('.show-content').click
-        expect(page).not_to have_css('div.expanded')
+        expect(page).to have_no_css('div.expanded')
       end
     end
   end
@@ -29,10 +29,10 @@ RSpec.describe 'Requests', :js, :vcr do
     it 'show request comments' do
       visit request_show_path(bs_request)
       expect(page).to have_text(comment_1.body)
-      expect(page).not_to have_text(comment_2.body)
+      expect(page).to have_no_text(comment_2.body)
       find('a', text: "Comments for request #{superseded_bs_request.number}").click
       expect(page).to have_text(comment_2.body)
-      expect(page).not_to have_text(comment_1.body)
+      expect(page).to have_no_text(comment_1.body)
     end
 
     describe 'request description field' do
@@ -299,7 +299,7 @@ RSpec.describe 'Requests', :js, :vcr do
         it 'does not show any request reason' do
           login reviewer
           visit request_show_path(bs_request)
-          expect(find_by_id('review-0')).not_to have_text('requested:')
+          expect(find_by_id('review-0')).to have_no_text('requested:')
         end
       end
 
@@ -359,12 +359,12 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'a delete request does not show the Changes Tab' do
       visit request_show_path(delete_bs_request)
-      expect(page).not_to have_text('Changes')
+      expect(page).to have_no_text('Changes')
     end
 
     it 'a delete request does not show the Issues Tab' do
       visit request_show_path(delete_bs_request)
-      expect(page).not_to have_text('Issues')
+      expect(page).to have_no_text('Issues')
     end
   end
 
@@ -381,7 +381,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'does not show the project maintainers' do
       visit request_show_path(delete_bs_request)
-      expect(page).not_to have_text('Project Maintainers')
+      expect(page).to have_no_text('Project Maintainers')
     end
   end
 
@@ -405,8 +405,8 @@ RSpec.describe 'Requests', :js, :vcr do
         fill_in 'Project', with: staging_project.name
         click_button('Accept')
       end
-      expect(page).not_to have_text('Staged in')
-      expect(page).not_to have_css('.bg-staging')
+      expect(page).to have_no_text('Staged in')
+      expect(page).to have_no_css('.bg-staging')
     end
   end
 

@@ -28,7 +28,7 @@ RSpec.describe BsRequestCommentComponent, type: :component do
 
   context 'when the user is not logged in' do
     it 'is not possible to reply a comment' do
-      expect(rendered_content).not_to have_text('Reply')
+      expect(rendered_content).to have_no_text('Reply')
     end
   end
 
@@ -62,11 +62,11 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'is not possible to edit the comment' do
-      expect(rendered_content).not_to have_css('.dropdown-menu', text: 'Edit')
+      expect(rendered_content).to have_no_css('.dropdown-menu', text: 'Edit')
     end
 
     it 'is not possible to remove the comment' do
-      expect(rendered_content).not_to have_css('.dropdown-menu', text: 'Delete')
+      expect(rendered_content).to have_no_css('.dropdown-menu', text: 'Delete')
     end
   end
 
@@ -91,7 +91,7 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'does not display the fourth child comment on the fourth children level' do
-      expect(rendered_content).not_to have_css("#{(['.d-flex > .timeline-item-comment'] * 5).join(' > ')} > .comment-bubble", text: 'Comment E')
+      expect(rendered_content).to have_no_css("#{(['.d-flex > .timeline-item-comment'] * 5).join(' > ')} > .comment-bubble", text: 'Comment E')
     end
 
     it 'does not display the fourth child comment on the third children level' do

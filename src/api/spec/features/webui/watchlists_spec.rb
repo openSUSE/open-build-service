@@ -20,7 +20,7 @@ RSpec.describe 'Watchlists', :js, :vcr do
     # Add project
     click_link('Watch this project')
     within('.watchlist-collapse') do
-      expect(page).not_to have_content('There are no projects in the watchlist yet')
+      expect(page).to have_no_content('There are no projects in the watchlist yet')
       expect(page).to have_content('Remove this project from Watchlist')
       expect(page).to have_content(project_a.name)
     end
@@ -67,7 +67,7 @@ RSpec.describe 'Watchlists', :js, :vcr do
       expect(page).to have_content(project_a.name)
       expect(page).to have_content(project_b.name)
       expect(page).to have_content(package.name)
-      expect(page).not_to have_content("##{request.number} Submit")
+      expect(page).to have_no_content("##{request.number} Submit")
     end
   end
 end

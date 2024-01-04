@@ -49,48 +49,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'spec/support/features/features_responsive.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 95
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: have_no, not_to
-Capybara/NegationMatcher:
-  Exclude:
-    - 'spec/components/avatar_component_spec.rb'
-    - 'spec/components/bs_request_comment_component_spec.rb'
-    - 'spec/components/build_result_for_architecture_component_spec.rb'
-    - 'spec/components/notification_filter_component_spec.rb'
-    - 'spec/components/notification_filter_link_component_spec.rb'
-    - 'spec/components/patchinfo_component_spec.rb'
-    - 'spec/components/sponsors_component_spec.rb'
-    - 'spec/components/watched_items_list_component_spec.rb'
-    - 'spec/components/watchlist_component_spec.rb'
-    - 'spec/components/watchlist_icon_component_spec.rb'
-    - 'spec/components/workflow_run_detail_component_spec.rb'
-    - 'spec/controllers/webui/comments_controller_spec.rb'
-    - 'spec/features/beta/webui/reports_spec.rb'
-    - 'spec/features/webui/attributes_spec.rb'
-    - 'spec/features/webui/canned_responses_spec.rb'
-    - 'spec/features/webui/change_bugowner_spec.rb'
-    - 'spec/features/webui/comment_locks_spec.rb'
-    - 'spec/features/webui/comments_spec.rb'
-    - 'spec/features/webui/login_spec.rb'
-    - 'spec/features/webui/main_page_spec.rb'
-    - 'spec/features/webui/maintained_projects_spec.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'spec/features/webui/projects_spec.rb'
-    - 'spec/features/webui/repositories_spec.rb'
-    - 'spec/features/webui/requests/change_devel_actions_spec.rb'
-    - 'spec/features/webui/requests_spec.rb'
-    - 'spec/features/webui/search_spec.rb'
-    - 'spec/features/webui/sign_up_spec.rb'
-    - 'spec/features/webui/users/notifications_spec.rb'
-    - 'spec/features/webui/users/user_contributions_spec.rb'
-    - 'spec/features/webui/users/user_home_page_spec.rb'
-    - 'spec/features/webui/watchlists_spec.rb'
-    - 'spec/mailers/event_mailer_spec.rb'
-    - 'spec/shared/examples/features/bootstrap_user_tab.rb'
-    - 'spec/support/features/features_authentication.rb'
-
 # Offense count: 3
 Capybara/SpecificMatcher:
   Exclude:

@@ -43,7 +43,7 @@ RSpec.describe 'Sign up', :js, :vcr do
 
     visit root_path
     expect(page).to have_link('Log In')
-    expect(page).not_to have_link('Sign Up')
+    expect(page).to have_no_link('Sign Up')
 
     visit new_user_path
     expect(page).to have_text('Sorry, sign up is disabled')

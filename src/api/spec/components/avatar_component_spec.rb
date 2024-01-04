@@ -12,7 +12,7 @@ RSpec.describe AvatarComponent, type: :component do
     end
 
     it 'displays avatar without circle' do
-      expect(rendered_content).not_to have_css('img.rounded-circle', count: 1)
+      expect(rendered_content).to have_no_css('img.rounded-circle', count: 1)
     end
   end
 
