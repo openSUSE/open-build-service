@@ -57,7 +57,7 @@ RSpec.describe 'Groups', :js do
   it 'remove a member from a group' do
     visit group_path(group_1)
 
-    within(find('#group-users > .card', text: admin.login)) do
+    within('#group-users > .card', text: admin.login) do
       click_link('Remove member from group')
     end
 
@@ -69,7 +69,7 @@ RSpec.describe 'Groups', :js do
   it 'give maintainer rights to a group member' do
     visit group_path(group_1)
 
-    within(find('#group-users > .card', text: admin.login)) do
+    within('#group-users > .card', text: admin.login) do
       check('Maintainer')
     end
 

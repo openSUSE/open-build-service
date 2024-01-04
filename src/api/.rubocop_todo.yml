@@ -104,12 +104,6 @@ Capybara/RSpec/HaveSelector:
     - 'spec/controllers/staging/excluded_requests_controller_spec.rb'
     - 'spec/features/webui/image_templates_spec.rb'
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Capybara/RedundantWithinFind:
-  Exclude:
-    - 'spec/features/webui/groups_spec.rb'
-
 # Offense count: 3
 Capybara/SpecificMatcher:
   Exclude:
