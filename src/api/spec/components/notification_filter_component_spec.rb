@@ -18,15 +18,15 @@ RSpec.describe NotificationFilterComponent, type: :component do
     end
 
     it "doesn't display project filters" do
-      expect(rendered_content).not_to have_css('h5', text: 'Projects')
+      expect(rendered_content).to have_no_css('h5', text: 'Projects')
     end
 
     it "doesn't display group filters" do
-      expect(rendered_content).not_to have_css('h5', text: 'Groups')
+      expect(rendered_content).to have_no_css('h5', text: 'Groups')
     end
 
     it "doesn't display the Reports filter" do
-      expect(rendered_content).not_to have_link('Reports')
+      expect(rendered_content).to have_no_link('Reports')
     end
   end
 

@@ -25,7 +25,7 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
     it 'displays a link with the active class, but without the amount of the type' do
       expect(rendered_content).to have_css(link_selector, text: 'home:Admin')
 
-      expect(rendered_content).not_to have_css("#{link_selector} span", text: 0)
+      expect(rendered_content).to have_no_css("#{link_selector} span", text: 0)
     end
   end
 
@@ -55,7 +55,7 @@ RSpec.describe NotificationFilterLinkComponent, type: :component do
     it 'displays a link without the active class and the amount counter' do
       expect(rendered_content).to have_css(link_selector, text: 'iron_maiden')
 
-      expect(rendered_content).not_to have_css("#{link_selector} span", text: 0)
+      expect(rendered_content).to have_no_css("#{link_selector} span", text: 0)
     end
   end
 end

@@ -100,7 +100,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       click_button('Remove')
 
       expect(page).to have_text('Removed user reader_user')
-      expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
+      expect(page).to have_no_css('a', text: "#{reader.realname} (reader_user)")
     end
 
     it 'Add role to user' do

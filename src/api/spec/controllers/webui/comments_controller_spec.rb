@@ -179,7 +179,7 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'renders the replies below' do
-            expect(response.body).not_to have_text('This is a root comment')
+            expect(response.body).to have_no_text('This is a root comment')
             expect(response.body).to have_text('This is a reply')
           end
         end
@@ -199,7 +199,7 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'removes the reply from the view' do
-            expect(response.body).not_to have_text('This is a leaf')
+            expect(response.body).to have_no_text('This is a leaf')
           end
         end
 
@@ -236,12 +236,12 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'removes the leaf' do
-            expect(response.body).not_to have_text('This is a leaf comment')
+            expect(response.body).to have_no_text('This is a leaf comment')
           end
 
           it 'removes the root comment' do
-            expect(response.body).not_to have_text('This is a root comment')
-            expect(response.body).not_to have_text('This comment has been deleted')
+            expect(response.body).to have_no_text('This is a root comment')
+            expect(response.body).to have_no_text('This comment has been deleted')
           end
         end
 
@@ -258,19 +258,19 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'removes the root comment' do
-            expect(response.body).not_to have_text('This is a root comment')
+            expect(response.body).to have_no_text('This is a root comment')
           end
 
           it 'removes the reply comment' do
-            expect(response.body).not_to have_text('This is a reply comment')
+            expect(response.body).to have_no_text('This is a reply comment')
           end
 
           it 'removes the leaf comment' do
-            expect(response.body).not_to have_text('This is a leaf comment')
+            expect(response.body).to have_no_text('This is a leaf comment')
           end
 
           it 'does not render the deleted comments' do
-            expect(response.body).not_to have_text('This comment has been deleted')
+            expect(response.body).to have_no_text('This comment has been deleted')
           end
         end
       end

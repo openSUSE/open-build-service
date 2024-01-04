@@ -129,19 +129,19 @@ RSpec.describe PatchinfoComponent, type: :component do
     end
 
     it do
-      expect(rendered_content).not_to have_text('Affected binaries')
+      expect(rendered_content).to have_no_text('Affected binaries')
     end
 
     it do
-      expect(rendered_content).not_to have_text('Affected packages')
+      expect(rendered_content).to have_no_text('Affected packages')
     end
 
     it do
-      expect(rendered_content).not_to have_text('Issues related to the patch')
+      expect(rendered_content).to have_no_text('Issues related to the patch')
     end
 
     it do
-      expect(rendered_content).not_to have_text('Targeted for release in the following projects')
+      expect(rendered_content).to have_no_text('Targeted for release in the following projects')
     end
   end
 end

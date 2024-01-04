@@ -22,7 +22,7 @@ RSpec.describe BuildResultForArchitectureComponent, type: :component do
     it { expect(rendered_content).to have_css('.build-status span', text: 'succeeded') }
     it { expect(rendered_content).to have_css('.repository-status i', class: 'fa-lock') }
     it { expect(rendered_content).to have_css('.repository-status span', text: 'blocked') }
-    it { expect(rendered_content).not_to have_css("div[data-bs-content*='Details']") }
+    it { expect(rendered_content).to have_no_css("div[data-bs-content*='Details']") }
   end
 
   context 'with excluded but visible result' do

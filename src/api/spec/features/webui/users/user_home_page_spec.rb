@@ -15,10 +15,10 @@ RSpec.describe "User's home project creation", :js do
 
     it 'view home page of another user' do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
-      expect(page).not_to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
+      expect(page).to have_no_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
-      expect(page).not_to have_link('Edit Your Account')
-      expect(page).not_to have_link('Change Your Password')
+      expect(page).to have_no_link('Edit Your Account')
+      expect(page).to have_no_link('Change Your Password')
 
       if mobile?
         expect(page).to have_text('Involved Projects and Packages')
@@ -59,7 +59,7 @@ RSpec.describe "User's home project creation", :js do
       expect(page).to have_link('Declined Requests')
       expect(page).to have_link('All Requests')
 
-      expect(page).not_to have_link('Maintenance Requests')
+      expect(page).to have_no_link('Maintenance Requests')
     end
 
     it 'edit account information' do

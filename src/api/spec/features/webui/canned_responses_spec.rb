@@ -46,7 +46,7 @@ RSpec.describe 'Canned responses', :js do
         click_button('Delete')
       end
 
-      expect(page).not_to have_text('wow')
+      expect(page).to have_no_text('wow')
     end
   end
 end

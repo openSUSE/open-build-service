@@ -28,8 +28,8 @@ RSpec.describe WorkflowRunDetailComponent, type: :component do
       render_inline(described_class.new(workflow_run: workflow_run_without_data))
     end
 
-    it { expect(rendered_content).not_to have_text('Workflow Configuration File Path') }
-    it { expect(rendered_content).not_to have_text('Workflow Configuration File URL') }
+    it { expect(rendered_content).to have_no_text('Workflow Configuration File Path') }
+    it { expect(rendered_content).to have_no_text('Workflow Configuration File URL') }
     it { expect(rendered_content).to have_text('This information is not available.') }
   end
 end

@@ -105,7 +105,7 @@ RSpec.describe 'User notifications', :js do
     end
 
     context 'when having less notifications than the maximum per page' do
-      it { expect(page).not_to have_text("Mark all as 'Read'") }
+      it { expect(page).to have_no_text("Mark all as 'Read'") }
     end
 
     context 'when having more notifications than the maximum per page' do

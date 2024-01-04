@@ -71,7 +71,7 @@ RSpec.describe 'Login', :js do
       click_menu_link('Places', 'Logout')
     end
 
-    expect(page).not_to have_css('a#link-to-user-home')
+    expect(page).to have_no_css('a#link-to-user-home')
     expect(page).to have_link('Log')
   end
 

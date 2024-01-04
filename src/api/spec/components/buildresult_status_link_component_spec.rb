@@ -26,9 +26,9 @@ RSpec.describe BuildresultStatusLinkComponent, type: :component do
     let(:build_status) { 'blocked' }
 
     it 'renders a span tag with the correct id and class' do
-      expect(rendered_content).to have_selector("span.build-state-#{build_status}.toggle-build-info",
-                                                id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
-                                                text: "#{build_status}")
+      expect(rendered_content).to have_css("span.build-state-#{build_status}.toggle-build-info",
+                                           id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
+                                           text: "#{build_status}")
     end
   end
 

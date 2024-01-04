@@ -13,7 +13,7 @@ module FeaturesAuthentication
 
   def logout
     visit session_path(method: :delete)
-    expect(page).not_to have_link('link-to-user-home')
+    expect(page).to have_no_link('link-to-user-home')
     User.session = nil
   end
 end
