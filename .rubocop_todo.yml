@@ -18,14 +18,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'dist/t/spec/spec_helper.rb'
 
 # Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: have_no, not_to
-Capybara/NegationMatcher:
-  Exclude:
-    - 'dist/t/spec/spec_helper.rb'
-
-# Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
