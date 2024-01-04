@@ -12,7 +12,6 @@ class TriggerController < ApplicationController
 
   before_action :set_token
   before_action :validate_parameters_by_token
-  before_action :validate_token_type, only: [:rebuild, :release, :runservice]
   before_action :set_project_name
   before_action :set_package_name
   # From Triggerable
@@ -54,10 +53,6 @@ class TriggerController < ApplicationController
   end
 
   private
-
-  def validate_token_type
-    raise InvalidToken, "The token can not perform an '#{action_name}' operation" unless @token.instance_of?(Token.token_type(action_name))
-  end
 
   def validate_parameters_by_token
     case @token.type

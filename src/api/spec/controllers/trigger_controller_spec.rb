@@ -11,14 +11,6 @@ RSpec.describe TriggerController do
     allow(token_extractor).to receive(:call).and_return(token)
   end
 
-  describe '.verify_token_type' do
-    let(:token) { create(:service_token, executor: user) }
-
-    subject { post :rebuild, format: :xml }
-
-    it { expect(Xmlhash.parse(subject.body)['code']).to eq('invalid_token') }
-  end
-
   describe '#rebuild', :vcr do
     let(:token) { create(:rebuild_token, executor: user, package: nil) }
     let(:project) { create(:project_with_repository, name: 'project', maintainer: user) }
