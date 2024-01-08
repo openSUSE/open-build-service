@@ -99,7 +99,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_user, user: user, package: package)
       create(:relationship_package_user, user: other_user, package: package)
 
-      expect(package.maintainers).to match_array([other_user, user])
+      expect(package.maintainers).to contain_exactly(other_user, user)
     end
 
     it 'resolves groups properly' do
@@ -115,7 +115,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_group_as_bugowner, group: group_bugowner, package: package)
       create(:relationship_package_group, group: group, package: package)
 
-      expect(package.maintainers).to match_array([other_user, other_user2])
+      expect(package.maintainers).to contain_exactly(other_user, other_user2)
     end
 
     it 'makes sure that no user is listed more than one time' do
@@ -126,7 +126,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_group, group: group_bugowner, package: package)
       create(:relationship_package_user, user: user, package: package)
 
-      expect(package.maintainers).to match_array([user])
+      expect(package.maintainers).to contain_exactly(user)
     end
 
     it 'returns users and the users of resolved groups' do
@@ -137,7 +137,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_group, group: group_bugowner, package: package)
       create(:relationship_package_user, user: other_user2, package: package)
 
-      expect(package.maintainers).to match_array([user, other_user, other_user2])
+      expect(package.maintainers).to contain_exactly(user, other_user, other_user2)
     end
   end
 

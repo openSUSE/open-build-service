@@ -51,7 +51,7 @@ RSpec.describe Review do
 
     subject { Review.assigned }
 
-    it { is_expected.to match_array([review_assigned1, review_assigned2]) }
+    it { is_expected.to contain_exactly(review_assigned1, review_assigned2) }
   end
 
   describe '.unassigned' do
@@ -59,7 +59,7 @@ RSpec.describe Review do
 
     subject { Review.unassigned }
 
-    it { is_expected.to match_array([review_unassigned1, review_unassigned2]) }
+    it { is_expected.to contain_exactly(review_unassigned1, review_unassigned2) }
   end
 
   describe '.set_associations' do

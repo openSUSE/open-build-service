@@ -772,33 +772,6 @@ RSpec/IteratedExpectation:
 RSpec/LeadingSubject:
   Enabled: false
 
-# Offense count: 68
-# This cop supports safe autocorrection (--autocorrect).
-RSpec/MatchArray:
-  Exclude:
-    - 'spec/controllers/source_attribute_controller_spec.rb'
-    - 'spec/controllers/staging/staged_requests_controller_spec.rb'
-    - 'spec/controllers/webui/feeds_controller_spec.rb'
-    - 'spec/controllers/webui/project_controller_spec.rb'
-    - 'spec/controllers/webui/projects/rebuild_times_controller_spec.rb'
-    - 'spec/controllers/webui/repositories_controller_spec.rb'
-    - 'spec/controllers/webui/staging/projects_controller_spec.rb'
-    - 'spec/controllers/webui/staging/workflows_controller_spec.rb'
-    - 'spec/controllers/webui/users_controller_spec.rb'
-    - 'spec/jobs/send_event_emails_job_spec.rb'
-    - 'spec/models/attrib_spec.rb'
-    - 'spec/models/backend/file_spec.rb'
-    - 'spec/models/bs_request_action/differ/source_package_finder_spec.rb'
-    - 'spec/models/full_text_search_spec.rb'
-    - 'spec/models/kiwi/image_spec.rb'
-    - 'spec/models/package_spec.rb'
-    - 'spec/models/review_spec.rb'
-    - 'spec/models/status_message_spec.rb'
-    - 'spec/models/user_spec.rb'
-    - 'spec/models/workflow/step/configure_repositories_spec.rb'
-    - 'spec/models/workflow/step/set_flags_step_spec.rb'
-    - 'spec/services/notification_service/notifier_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: have_received, receive

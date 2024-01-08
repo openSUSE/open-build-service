@@ -281,7 +281,7 @@ RSpec.describe Webui::ProjectController, :vcr do
         get :show, params: { project: apache_project }
       end
 
-      it { expect(assigns(:bugowners_mail)).to match_array([user.email]) }
+      it { expect(assigns(:bugowners_mail)).to contain_exactly(user.email) }
     end
 
     context 'without bugowners' do

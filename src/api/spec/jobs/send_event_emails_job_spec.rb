@@ -28,7 +28,7 @@ RSpec.describe SendEventEmailsJob do
       it 'sends an email to the subscribers' do
         email = ActionMailer::Base.deliveries.first
 
-        expect(email.to).to match_array([user.email, group1.email])
+        expect(email.to).to contain_exactly(user.email, group1.email)
         expect(email.subject).to include('New comment')
       end
 
