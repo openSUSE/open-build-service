@@ -1,3 +1,4 @@
 $("#diff-item-<%= file_name.parameterize %>").html("<%= escape_javascript(render(DiffComponent.new(diff: diff, 
                                               file_index: file_index, commentable: commentable,
                                               commented_lines: commented_lines, file_name: file_name))) %>");
+collectDeleteConfirmationModalsAndSetValues();

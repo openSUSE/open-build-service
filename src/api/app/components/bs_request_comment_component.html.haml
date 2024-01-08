@@ -20,7 +20,7 @@
               = link_to('#', data: { 'bs-toggle': 'modal',
                                     'bs-target': '#delete-comment-modal',
                                     confirmation_text: 'Please confirm deletion of comment',
-                                    action: comment_path(comment) },
+                                    action: comment_path(comment), file_name: file_name },
                             class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
       .px-3.py-2.border-bottom

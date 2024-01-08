@@ -78,19 +78,7 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-      # if we're a root comment with no replies there is no need to re-render anything
-      return head(:ok) if comment.root? && comment.leaf?
-
-      # If we're a reply of an already deleted parent comment, we don't re-render anything
-      return head(:ok) if comment.root == comment.parent && comment.unused_parent?
-
-      # If all ancestors are already deleted we don't re-render anything
-      return head(:ok) if !comment.root? && comment.ancestors.all?(&:destroyed?)
-
-      # if we're a reply or a comment with replies we should re-render the updated thread
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: comment.root, commentable: @commentable, level: 1 },
-             status: status)
+      render_diff
     else
       render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: comment.root.diff_ref }, status: status)
     end
