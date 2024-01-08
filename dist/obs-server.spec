@@ -1069,6 +1069,7 @@ usermod -a -G docker obsservicerun
 %{__obs_api_prefix}/config/routes.rb
 %{__obs_api_prefix}/config/routes
 %{__obs_api_prefix}/config/environments/development.rb
+%{__obs_api_prefix}/config/importmap.rb
 %attr(0640,root,%apache_group) %config(noreplace) %verify(md5) %{__obs_api_prefix}/config/database.yml
 %attr(0640,root,%apache_group) %{__obs_api_prefix}/config/database.yml.example
 %attr(0644,root,root) %config(noreplace) %verify(md5) %{__obs_api_prefix}/config/options.yml

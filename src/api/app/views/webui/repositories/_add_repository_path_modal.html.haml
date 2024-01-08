@@ -1,10 +1,13 @@
-.modal.fade{ id: "add-repository-path-#{repository.id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'add_repository_path', hidden: 'true' } }
+.modal.fade{ id: "add-repository-path-#{repository.id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'add_repository_path', hidden: 'true' },
+             data: { controller: 'repository-autocomplete',
+                     'repository-autocomplete-url-value': autocomplete_repositories_path } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
       = form_tag(action: :create, project: project) do
         .modal-header
           %h5.modal-title Add additional path to #{repository}
-        .modal-body.repository-autocomplete
+        .modal-body.repository-autocomplete{ 'data-action': 'autocomplete:setInput->repository-autocomplete#setRepositories \
+                                                             autocomplete:search->repository-autocomplete#emptySelect' }
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
                                                                    data: { source: autocomplete_projects_path } }
           .mb-3
@@ -13,7 +16,7 @@
             = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                   disabled: true,
                                                                   class: 'repository-dropdown form-select',
-                                                                  data: { source: autocomplete_repositories_path }
+                                                                  data: { 'repository-autocomplete-target': 'select' }
           = hidden_field_tag :repository, repository
 
         .modal-footer

@@ -5,12 +5,13 @@
   data = local_assigns.fetch(:data, {})
   html_name = local_assigns.fetch(:html_name, html_id)
 
-.mb-3.ui-front
+.mb-3{ data: { controller: 'autocomplete', 'autocomplete-url-value': data[:source] } }
   = label_tag(html_id, label)
   - if required
     %abbr.text-danger{ title: 'required' } *
   .input-group
     %span.input-group-text
-      %i.fas.fa-search
+      %i.fas.fa-search{ 'data-autocomplete-target': 'icon' }
     = text_field_tag(html_id, value, required: required, disabled: disabled, placeholder: 'Type to autocomplete...',
-                     class: 'obs-autocomplete form-control', data: data, name: html_name)
+                     class: 'form-control', data: data, name: html_name, 'data-autocomplete-target': 'input',
+                     'data-action': 'autocomplete#search focus->autocomplete#showResults blur->autocomplete#hideResults')
