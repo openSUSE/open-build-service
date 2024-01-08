@@ -10,3 +10,6 @@
       - else
         %h3= @pagetitle
         = render partial: 'form', locals: { with_sign_up: true, with_redirect: true }
+        = form_tag('/auth/developer', method: 'post', data: { turbo: false }) do
+          %button{class: 'btn btn-primary', type: 'submit'}
+            Login with Developer Strategy
