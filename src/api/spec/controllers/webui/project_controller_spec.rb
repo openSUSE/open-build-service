@@ -26,7 +26,7 @@ RSpec.describe Webui::ProjectController, :vcr do
       ActionController::Base.allow_forgery_protection = false
     end
 
-    it 'will protect forms without authenticity token' do
+    it 'protects forms without authenticity token' do
       expect { post :save_person, params: { project: user.home_project } }.to raise_error ActionController::InvalidAuthenticityToken
     end
   end

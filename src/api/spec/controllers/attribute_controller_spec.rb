@@ -14,7 +14,7 @@ RSpec.describe AttributeController do
       </definition>"
     end
 
-    it 'will create attribute on POST' do
+    it 'creates attribute on POST' do
       login admin
       post :update, body: xml_count_2, format: :xml, params: { namespace: attribute_namespace.name, name: attribute.name }
       expect(response.status).to eq(200)
@@ -24,7 +24,7 @@ RSpec.describe AttributeController do
       expect(attrib.namespace).to eq(attribute_namespace.name)
     end
 
-    it 'will update on POST' do
+    it 'updates on POST' do
       login admin
 
       attribute.save!
