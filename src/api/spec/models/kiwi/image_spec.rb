@@ -349,7 +349,7 @@ RSpec.describe Kiwi::Image, :vcr do
     context 'without a package' do
       it { expect(kiwi_image.write_to_backend).to be(false) }
 
-      it 'will not call save! method' do
+      it 'does not call save! method' do
         expect(kiwi_image).not_to receive(:save!)
         kiwi_image.write_to_backend
       end

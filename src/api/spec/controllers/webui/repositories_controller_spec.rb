@@ -34,7 +34,7 @@ RSpec.describe Webui::RepositoriesController, :vcr do
     end
 
     context 'updating non existent repository' do
-      it 'will raise a NoMethodError' do
+      it 'raises a NoMethodError' do
         expect do
           post :update, params: { project: user.home_project, repo: 'standard' }
         end.to raise_error(NoMethodError)

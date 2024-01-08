@@ -64,7 +64,7 @@ RSpec.describe Status::RequiredChecksController do
     shared_examples 'does create a required check' do
       subject { post :create, body: required_check_xml, params: params, format: :xml }
 
-      it 'will create a required check' do
+      it 'creates a required check' do
         expect { subject }.to change {
           # we need to to reload because required_checks is a serialized attribute
           checkable.reload
@@ -76,7 +76,7 @@ RSpec.describe Status::RequiredChecksController do
     end
 
     shared_examples 'does not create a required check' do
-      it 'will not create a required check' do
+      it 'does not create a required check' do
         expect do
           post :create, body: required_check_xml, params: params, format: :xml
         end.not_to(
@@ -190,7 +190,7 @@ RSpec.describe Status::RequiredChecksController do
         delete :destroy, params: params.merge(name: 'first check'), format: :xml
       end
 
-      it 'will delete the required check' do
+      it 'deletes the required check' do
         expect { subject }.to change {
           # we need to to reload because required_checks is a serialized attribute
           checkable.reload
@@ -202,7 +202,7 @@ RSpec.describe Status::RequiredChecksController do
     end
 
     shared_examples 'does not delete the required check' do
-      it 'will not delete the required check' do
+      it 'does not delete the required check' do
         expect do
           delete :destroy, params: params.merge(name: 'first check'), format: :xml
         end.not_to(
@@ -232,7 +232,7 @@ RSpec.describe Status::RequiredChecksController do
         delete :destroy, params: params.merge(name: 'fake check'), format: :xml
       end
 
-      it 'will not delete any required check' do
+      it 'does not delete any required check' do
         expect { response }.not_to(
           change do
             # we need to to reload because required_checks is a serialized attribute

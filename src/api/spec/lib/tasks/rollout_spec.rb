@@ -26,7 +26,7 @@ RSpec.describe 'rollout' do
   describe 'all_on' do
     let(:task) { 'rollout:all_on' }
 
-    it 'will move all the users to Rollout Program' do
+    it 'moves all the users to Rollout Program' do
       expect { rake_task.invoke }.to change(User.where(in_rollout: true), :count).from(3).to(7)
     end
   end
@@ -34,7 +34,7 @@ RSpec.describe 'rollout' do
   describe 'all_off' do
     let(:task) { 'rollout:all_off' }
 
-    it 'will move all the users out of Rollout Program' do
+    it 'moves all the users out of Rollout Program' do
       expect { rake_task.invoke }.to change(User.where(in_rollout: false), :count).from(4).to(7)
     end
   end
@@ -43,7 +43,7 @@ RSpec.describe 'rollout' do
     let(:task) { 'rollout:from_beta' }
     let(:users) { User.where(in_beta: true) }
 
-    it 'will move all the users in Beta Program to Rollout Program' do
+    it 'moves all the users in Beta Program to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(2)
     end
 
@@ -54,7 +54,7 @@ RSpec.describe 'rollout' do
     let(:task) { 'rollout:recently_logged_users' }
     let(:users) { User.where(last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today) }
 
-    it 'will move all recently logged users to Rollout Program' do
+    it 'moves all recently logged users to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(3).to(6)
     end
 
@@ -65,7 +65,7 @@ RSpec.describe 'rollout' do
     let(:task) { 'rollout:non_recently_logged_users' }
     let(:users) { User.where.not(last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today) }
 
-    it 'will move all non-recently-logged users to Rollout Program' do
+    it 'moves all non-recently-logged users to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(0).to(1)
     end
 
@@ -76,7 +76,7 @@ RSpec.describe 'rollout' do
     let(:task) { 'rollout:from_groups' }
     let(:users) { User.joins(:groups_users).distinct }
 
-    it 'will move all the users from groups to Rollout Program' do
+    it 'moves all the users from groups to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(2)
     end
 
@@ -92,7 +92,7 @@ RSpec.describe 'rollout' do
     describe 'staff_on' do
       let(:task) { 'rollout:staff_on' }
 
-      it 'will move all Staff users to Rollout Program' do
+      it 'moves all Staff users to Rollout Program' do
         expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(3)
       end
 
@@ -102,7 +102,7 @@ RSpec.describe 'rollout' do
     describe 'staff_off' do
       let(:task) { 'rollout:staff_off' }
 
-      it 'will move all Staff users out of Rollout Program' do
+      it 'moves all Staff users out of Rollout Program' do
         expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(0)
       end
 
@@ -115,7 +115,7 @@ RSpec.describe 'rollout' do
       let!(:anonymous_user) { create(:user_nobody, in_rollout: false) }
       let(:task) { 'rollout:anonymous_on' }
 
-      it 'will move the anonymous user to Rollout Program' do
+      it 'moves the anonymous user to Rollout Program' do
         expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4)
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe 'rollout' do
       let!(:anonymous_user) { create(:user_nobody, in_rollout: true) }
       let(:task) { 'rollout:anonymous_off' }
 
-      it 'will move anonymous user out of Rollout Program' do
+      it 'moves anonymous user out of Rollout Program' do
         expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(3)
       end
     end
