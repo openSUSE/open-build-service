@@ -5,7 +5,7 @@
         Refresh
         %i.fas.fa-sync-alt{ id: 'chart-build-reload' }
       %h4
-        Build results summary
+        Build Results Summary
     - if distinct_repositories.size > ChartComponent::MINIMUM_DISTINCT_BUILD_REPOSITORIES || raw_data.size > ChartComponent::MINIMUM_BUILD_RESULTS
       = column_chart( chart_data,
                       width: '100%',
