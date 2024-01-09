@@ -1,10 +1,11 @@
 - if raw_data.size.positive?
   .m-4
-    .btn.btn-outline-primary.float-end{ onclick: 'updateChartBuildResults()', accesskey: 'r', title: 'Refresh Chart Build Results' }
-      Refresh
-      %i.fas.fa-sync-alt{ id: 'chart-build-reload' }
-    %h4
-      Build results summary
+    .mb-4
+      .btn.btn-outline-primary.float-end{ onclick: 'updateChartBuildResults()', accesskey: 'r', title: 'Refresh Chart Build Results' }
+        Refresh
+        %i.fas.fa-sync-alt{ id: 'chart-build-reload' }
+      %h4
+        Build Results Summary
     - if distinct_repositories.size > ChartComponent::MINIMUM_DISTINCT_BUILD_REPOSITORIES || raw_data.size > ChartComponent::MINIMUM_BUILD_RESULTS
       = column_chart( chart_data,
                       width: '100%',
@@ -15,14 +16,18 @@
                       library: { scales: { y: { ticks: { stepSize: 1 }}}},
                     )
     - else
-      .ms-2.me-2
-        .row.mb-4.small
-          %b.text-center Legend
+      %div
+        .row.align-items-center.mb-2
           .col-12.d-flex.justify-content-center
-            = legend
+            .border.d-flex.flex-wrap.gap-1.p-2.small
+              %b.me-2= 'Build status legend:'
+              = legend
+        .row.p-2.ps-1
+          %b.col-3= Repository
+          %b.col-9= Architecture
         - distinct_repositories.each do |repo|
-          .row.mt-2
-            %b.col-3
+          .row.p-1.align-items-center
+            .col-3
               = repo
             .col-9.d-flex.flex-wrap.gap-1.justify-content-start
               - raw_data.each do |result|
