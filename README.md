@@ -30,7 +30,7 @@ The OBS source code repository is hosted on [Github](https://github.com/opensuse
 ## Installation
 To run the OBS in production, we recommend using our [appliance](https://openbuildservice.org/download/) which is the whole package: A recent and stable Linux Operating System ([openSUSE](https://www.opensuse.org)) bundled and pre-configured with all the server and OBS components you need to get going.
 
-If that is not for you because you have some special needs for your setup (e.g. different partition schema, SLES as base system, etc.), you can also install our packages and run a setup wizard. The docker-compose setup is meant only for development.
+If that is not for you because you have some special needs for your setup (e.g. different partition schema, SLES as base system, etc.), you can also install our packages and run a setup wizard. The docker compose setup is meant only for development.
 
 After finishing the installation of your base system, follow these steps:
 
