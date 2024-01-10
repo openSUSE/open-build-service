@@ -7,8 +7,8 @@ class Webui::RequestController < Webui::WebuiController
   before_action :lockout_spiders
   before_action :require_request,
                 only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint,
-                       :changes, :mentioned_issues, :chart_build_results]
-  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues, :chart_build_results],
+                       :changes, :mentioned_issues, :chart_build_results, :complete_build_results]
+  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues, :chart_build_results, :complete_build_results],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
@@ -325,6 +325,10 @@ class Webui::RequestController < Webui::WebuiController
 
   def chart_build_results
     render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: build_results_data }
+  end
+
+  def complete_build_results
+    render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data }
   end
 
   private

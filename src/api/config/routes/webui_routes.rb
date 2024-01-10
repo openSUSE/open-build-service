@@ -321,6 +321,7 @@ OBSApi::Application.routes.draw do
       get 'request/:number/request_action/:id/changes' => :request_action_changes, as: 'request_action_changes'
       get 'request/:number/request_action/:request_action_id/inline_comment/:line' => :inline_comment, constraints: cons, as: 'request_inline_comment'
       get 'request/:number/chart_build_results' => :chart_build_results, as: 'request_chart_build_results', constraints: cons
+      get 'request/:number/complete_build_results' => :complete_build_results, as: 'request_complete_build_results', constraints: cons
     end
 
     resources :requests, only: [], param: :number, controller: 'webui/bs_requests' do
