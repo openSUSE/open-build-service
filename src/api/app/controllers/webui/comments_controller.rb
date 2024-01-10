@@ -4,58 +4,52 @@ class Webui::CommentsController < Webui::WebuiController
   before_action :set_comment, only: [:moderate, :history]
 
   def create
-    if @commented.nil?
-      flash.now[:error] = "Failed to create comment: This #{@commentable_type.name.downcase} does not exist anymore."
-      render partial: 'layouts/webui/flash' and return
-    end
+    return commented_unavailable if @commented.nil?
 
-    comment = @commented.comments.new(permitted_params)
-    authorize comment, :create?
-    User.session!.comments << comment
-    @commentable = comment.commentable
+    @comment = @commented.comments.new(permitted_params)
+    authorize @comment, :create?
+    User.session!.comments << @comment
+    @commentable = @comment.commentable
 
-    status = if comment.save
+    status = if @comment.save
                flash.now[:success] = 'Comment created successfully.'
                :ok
              else
-               flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
+               flash.now[:error] = "Failed to create comment: #{@comment.errors.full_messages.to_sentence}."
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: comment.root, commentable: @commentable, level: 1 },
-             status: status)
+    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
+      render_timeline
     else
       render(partial: 'webui/comment/comment_list',
-             locals: { commentable: @commentable, diff_ref: comment.root.diff_ref },
+             locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref },
              status: status,
-             root_comment: comment.root)
+             root_comment: @comment.root)
     end
   end
 
   def update
-    comment = Comment.find(params[:id])
-    authorize comment, :update?
-    comment.assign_attributes(permitted_params)
+    @comment = Comment.find(params[:id])
+    authorize @comment, :update?
+    @comment.assign_attributes(permitted_params)
 
-    status = if comment.save
+    status = if @comment.save
                flash.now[:success] = 'Comment updated successfully.'
                :ok
              else
-               flash.now[:error] = "Failed to update comment: #{comment.errors.full_messages.to_sentence}."
+               flash.now[:error] = "Failed to update comment: #{@comment.errors.full_messages.to_sentence}."
                :unprocessable_entity
              end
 
-    respond_to do |format|
-      format.html do
-        if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-          render(partial: 'webui/comment/beta/comments_thread',
-                 locals: { comment: comment.root, commentable: comment.commentable, level: 1 },
-                 status: status)
-        else
+   
+    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
+      render_timeline
+    else
+      respond_to do |format|
+        format.html do
           render(partial: 'webui/comment/comment_list',
-                 locals: { commentable: comment.commentable, diff_ref: comment.root.diff_ref },
+                 locals: { commentable: @comment.commentable, diff_ref: @comment.root.diff_ref },
                  status: status)
         end
       end
@@ -67,34 +61,22 @@ class Webui::CommentsController < Webui::WebuiController
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def destroy
-    comment = Comment.find(params[:id])
-    authorize comment, :destroy?
-    @commentable = comment.commentable
+    @comment = Comment.find(params[:id])
+    authorize @comment, :destroy?
+    @commentable = @comment.commentable
 
-    status = if comment.blank_or_destroy
+    status = if @comment.blank_or_destroy
                flash.now[:success] = 'Comment deleted successfully.'
                :ok
              else
-               flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
+               flash.now[:error] = "Failed to delete comment: #{@comment.errors.full_messages.to_sentence}."
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-      # if we're a root comment with no replies there is no need to re-render anything
-      return head(:ok) if comment.root? && comment.leaf?
-
-      # If we're a reply of an already deleted parent comment, we don't re-render anything
-      return head(:ok) if comment.root == comment.parent && comment.unused_parent?
-
-      # If all ancestors are already deleted we don't re-render anything
-      return head(:ok) if !comment.root? && comment.ancestors.all?(&:destroyed?)
-
-      # if we're a reply or a comment with replies we should re-render the updated thread
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: comment.root, commentable: @commentable, level: 1 },
-             status: status)
+    if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
+      render_timeline
     else
-      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: comment.root.diff_ref }, status: status)
+      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref }, status: status)
     end
   end
   # rubocop:enable Metrics/PerceivedComplexity
@@ -121,9 +103,7 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @comment.commentable, level: 1 },
-             status: status)
+      render_timeline
     else
       render(partial: 'webui/comment/comment_list',
              locals: { commentable: @comment.commentable, diff_ref: @comment.root.diff_ref },
@@ -139,6 +119,13 @@ class Webui::CommentsController < Webui::WebuiController
     respond_to do |format|
       format.js { render 'webui/comment/history' }
     end
+  end
+
+  def render_timeline
+    bs_request = @comment.commentable_type == 'BsRequestAction' ? @comment.commentable.bs_request : @comment.commentable
+    target_project = Project.find_by_name(bs_request.target_project_name)
+    request_reviews = bs_request.reviews.for_non_staging_projects(target_project)
+    render(partial: 'webui/comment/render_timeline', locals: {bs_request: bs_request, request_reviews: request_reviews})
   end
 
   private
@@ -161,6 +148,11 @@ class Webui::CommentsController < Webui::WebuiController
     return if @commentable_type.present?
 
     flash[:error] = "Invalid commentable #{params[:commentable_type]} supplied."
+    render partial: 'layouts/webui/flash'
+  end
+
+  def commented_unavailable
+    flash.now[:error] = "Failed to create comment: This #{@commentable_type.name.downcase} does not exist anymore."
     render partial: 'layouts/webui/flash'
   end
 end

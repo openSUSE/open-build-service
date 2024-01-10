@@ -80,7 +80,8 @@
                     = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
                                                                     request_reviews_for_non_staging_projects: @request_reviews)
 
-                = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
+                #comments-thread
+                  = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
 
               .comment_new
