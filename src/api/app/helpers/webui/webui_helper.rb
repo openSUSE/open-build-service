@@ -283,6 +283,10 @@ module Webui::WebuiHelper
     params
   end
 
+  def top_nav_background
+    feature_enabled?("dark_theme") ? "bg-black" : "bg-gray-800"
+  end
+
   def sign_up_link(css_class: nil)
     return unless can_sign_up?
 
