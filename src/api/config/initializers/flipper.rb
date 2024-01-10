@@ -3,7 +3,8 @@
 # to users in the web UI for beta features.
 ENABLED_FEATURE_TOGGLES = [
   { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' },
-  { name: :content_moderation, description: 'Reporting inappropriate content' }
+  { name: :content_moderation, description: 'Reporting inappropriate content' },
+  { name: :dark_theme, description: 'Use the dark theme' }
 ].freeze
 
 Flipper.configure do

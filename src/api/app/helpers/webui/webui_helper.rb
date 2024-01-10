@@ -277,6 +277,12 @@ module Webui::WebuiHelper
     css_classes.join(' ')
   end
 
+  def body_params
+    params = { class: feature_css_class }
+    params["data-bs-theme"] = feature_enabled?("dark_theme") ? "dark" : "light"
+    params
+  end
+
   def sign_up_link(css_class: nil)
     return unless can_sign_up?
 
