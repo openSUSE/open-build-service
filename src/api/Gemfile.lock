@@ -92,7 +92,7 @@ GEM
     autoprefixer-rails (10.4.16.0)
       execjs (~> 2)
     awesome_print (1.9.2)
-    base64 (0.1.1)
+    base64 (0.2.0)
     bcrypt (3.1.20)
     bigdecimal (3.1.5)
     bootstrap (5.3.2)
@@ -161,11 +161,10 @@ GEM
       railties (>= 5.0.0)
     faker (3.2.2)
       i18n (>= 1.8.11, < 2)
-    faraday (2.8.1)
-      base64
-      faraday-net_http (>= 2.0, < 3.1)
-      ruby2_keywords (>= 0.0.4)
-    faraday-net_http (3.0.2)
+    faraday (2.9.0)
+      faraday-net_http (>= 2.0, < 3.2)
+    faraday-net_http (3.1.0)
+      net-http
     ffi (1.16.3)
     flipper (1.1.2)
       concurrent-ruby (< 2)
@@ -276,6 +275,8 @@ GEM
       ruby2_keywords (>= 0.0.5)
     multi_xml (0.6.0)
     mysql2 (0.5.5)
+    net-http (0.4.1)
+      uri
     net-imap (0.4.9.1)
       date
       net-protocol
@@ -491,6 +492,7 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.5.0)
     uniform_notifier (1.16.0)
+    uri (0.13.0)
     vcr (6.2.0)
     view_component (3.9.0)
       activesupport (>= 5.2.0, < 8.0)
