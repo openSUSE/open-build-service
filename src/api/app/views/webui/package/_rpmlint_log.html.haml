@@ -1,4 +1,2 @@
--# haml-lint:disable InstanceVariables
-- @log.lines.each do |line|
-  -# haml-lint:enable InstanceVariables
+- rpmlint_log_file.lines.each do |line|
   = colorize_line(line)
