@@ -101,4 +101,45 @@ RSpec.describe CommentsController do
       it { expect(response.body).to include("<comments user=\"#{user.login}\">") }
     end
   end
+
+  describe 'POST #create' do
+    let(:user) { create(:confirmed_user) }
+
+    before do
+      login user
+    end
+
+    context 'when commenting on a BsRequest' do
+      let(:bs_request) { create(:set_bugowner_request) }
+
+      before do
+        post :create, format: :xml, params: { request_number: bs_request.number, body: 'Something' }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when replying to a comment on a BsRequest' do
+      let(:bs_request) { create(:set_bugowner_request) }
+      let(:parent_comment) { create(:comment_request, commentable: bs_request) }
+
+      before do
+        post :create, format: :xml, params: { request_number: bs_request.number, body: 'Something', parent_id: parent_comment.id }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when replying to a comment on a BsRequestAction' do
+      let(:bs_request) { create(:set_bugowner_request) }
+      let(:bs_request_action) { bs_request.bs_request_actions.first }
+      let(:parent_comment) { create(:comment_request, commentable: bs_request_action) }
+
+      before do
+        post :create, format: :xml, params: { request_number: bs_request.number, body: 'Something', parent_id: parent_comment.id }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
 end
