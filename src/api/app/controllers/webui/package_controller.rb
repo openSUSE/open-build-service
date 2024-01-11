@@ -472,7 +472,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def rpmlint_log
     @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-    @log.encode!(xml: :text)
     render partial: 'rpmlint_log'
   rescue Backend::NotFoundError
     render plain: 'No rpmlint log'
