@@ -8,17 +8,17 @@ class BuildStatusBadgeComponent < ApplicationComponent
 
   ICON = {
     succeeded: 'fa-check',
-    failed: 'fa-xmark',
-    unresolvable: 'fa-xmark',
-    broken: 'fa-xmark',
+    failed: 'fa-circle-exclamation',
+    unresolvable: 'fa-circle-exclamation',
+    broken: 'fa-circle-exclamation',
     blocked: 'fa-shield',
     scheduled: 'fa-hourglass-half',
     dispatching: 'fa-plane-departure',
     building: 'fa-gear',
     signing: 'fa-signature',
     finished: 'fa-check',
-    disabled: 'fa-xmark',
-    excluded: 'fa-xmark',
+    disabled: 'fa-ban',
+    excluded: 'fa-ban',
     locked: 'fa-lock',
     deleting: 'fa-eraser',
     unknown: 'fa-question'
