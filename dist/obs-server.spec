@@ -770,23 +770,16 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 %service_del_postun -r obsclouduploadserver.service
 
 %pre -n obs-api
-getent passwd obsapidelayed >/dev/null || \
-  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d %{__obs_api_prefix} -g %{apache_group} obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
 # On upgrade keep the values for the %post script
 if [ "$1" == 2 ]; then
-  # Cannot use "sytemctl is-enabled obsapidelayed.service" here
-  # as it throws an error like "Can't determine current runlevel"
-  if [ -e /etc/init.d/rc3.d/S50obsapidelayed ];then
+  [ -e /etc/init.d/rc3.d/S50obsapidelayed ] && \
     touch %{_rundir}/enable_obs-api-support.target
-  fi
 
-  active=`systemctl is-active obsapidelayed.service`
-  rc=$?
-  if [ $rc -eq 0 ]; then
-    touch %{_rundir}/start_obs-api-support.target
-  fi
+  systemctl is-active obsapidelayed.service &&
+    touch %{_rundir}/enable_obs-api-support.target
+
   # Try to remove obsapidelayed, but do not fail if it no longer exists.
   /usr/lib/systemd/systemd-update-helper remove-system-units obsapidelayed || :
 fi
@@ -828,14 +821,10 @@ touch %{__obs_api_prefix}/last_deploy || true
 
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
 # This must be done after %%service_add_post. Otherwise the distribution preset is
-# take, which is disabled in case of obs-api-support.target
+# taken, which is disabled in case of obs-api-support.target
 if [ -e %{_rundir}/enable_obs-api-support.target ];then
-  systemctl enable obs-api-support.target
+  systemctl enable --now obs-api-support.target
   rm %{_rundir}/enable_obs-api-support.target
-fi
-if [ -e %{_rundir}/start_obs-api-support.target ];then
-  systemctl start  obs-api-support.target
-  rm %{_rundir}/start_obs-api-support.target
 fi
 
 %postun -n obs-api
