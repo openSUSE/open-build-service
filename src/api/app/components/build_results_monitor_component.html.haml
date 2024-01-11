@@ -14,7 +14,12 @@
       .list-group.list-group-flush
         - repository_names.each do |repository_name|
           .list-group-item.d-flex.justify-content-between
-            = repository_name
+            = link_to(helpers.word_break(repository_name, 22),
+                      project_package_repository_binaries_path(project_name: project_name, package_name: package_name, repository_name: repository_name),
+                      title: "Binaries for #{repository_name}")
             %span.text-end
               - results_per_package_and_repository(package_name, repository_name).each do |result|
-                = render BuildStatusBadgeComponent.new(status: result[:status], text: result[:architecture])
+                - url = live_build_log_url(result[:status], project_name, package_name, repository_name, result[:architecture])
+                = render BuildStatusBadgeComponent.new(status: result[:status],
+                                                       text: result[:architecture],
+                                                       url: live_build_log_url(result[:status], project_name, package_name, repository_name, result[:architecture]))

@@ -1,9 +1,10 @@
 class BuildStatusBadgeComponent < ApplicationComponent
-  def initialize(status:, text:)
+  def initialize(status:, text:, url: nil)
     super
 
     @status = status
     @text = text
+    @url = url
   end
 
   ICON = {
@@ -43,7 +44,11 @@ class BuildStatusBadgeComponent < ApplicationComponent
   }.with_indifferent_access.freeze
 
   def badge
-    tag.span(icon.concat(@text), class: ['badge', BADGE_COLOR[@status]])
+    if @url
+      link_to(icon.concat(@text), @url, class: ['badge', BADGE_COLOR[@status]],  title: 'Live build log')
+    else
+      tag.span(icon.concat(@text), class: ['badge', BADGE_COLOR[@status]])
+    end
   end
 
   def icon

@@ -13,6 +13,10 @@ class BuildResultsMonitorComponent < ApplicationComponent
     raw_data.pluck(:package_name).uniq
   end
 
+  def project_name
+    raw_data.pluck(:project_name).uniq
+  end
+
   def repository_names
     raw_data.pluck(:repository).uniq
   end
@@ -27,5 +31,14 @@ class BuildResultsMonitorComponent < ApplicationComponent
 
   def results_per_package_and_repository(package, repository)
     results_per_package(package).select { |result| result[:repository] == repository }
+  end
+
+  def live_build_log_url(status, project, package, repository, architecture)
+    return if ['unresolvable', 'blocked', 'excluded', 'scheduled'].include?(status)
+
+    package_live_build_log_path(project: project,
+                                package: package,
+                                repository: repository,
+                                arch: architecture)
   end
 end
