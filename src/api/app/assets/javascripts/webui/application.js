@@ -16,6 +16,7 @@
 // FIXME remove jquery-ui file when we upgrade jquery-ui gem
 //= require webui/jquery-ui.min.js
 //= require bootstrap
+//= require webui/color_themes.js
 //= require cocoon
 //= require jquery.flot
 //= require jquery.flot.resize

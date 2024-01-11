@@ -179,7 +179,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def assign_common_user_attributes
-    @displayed_user.assign_attributes(params[:user].slice(:biography).permit!)
+    @displayed_user.assign_attributes(params[:user].slice(:biography, :color_theme).permit!)
     @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!) unless @account_edit_link
     @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
   end

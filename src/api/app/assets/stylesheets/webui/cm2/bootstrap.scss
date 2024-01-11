@@ -3,7 +3,7 @@
   &.CodeMirror {
     font-family: $font-family-monospace, monospace;
     background: $card-bg;
-    color: $body-color;
+    color: var(--bs-body-color);
     line-height: 1.2;
   }
 
@@ -71,3 +71,7 @@
 }
 
 .editable .cm-s-bootstrap .CodeMirror-cursor { border-left: 1px solid $body-color; }
+
+.editor-bg {
+  background-color: var(--bs-secondary-bg);
+}

@@ -1,6 +1,6 @@
 - i = 0
 - subscriptions_form.subscriptions_by_event.each do |subscription|
-  .card.bg-light.mb-2
+  .card.subscriptions-card-bg.mb-2
     .card-body
       %h5.card-title= subscription.event_class.description
       %p.card-text= Event::Base::EXPLANATION_FOR_NOTIFICATIONS[subscription.event_class.to_s]
