@@ -1,11 +1,7 @@
 // TODO: rename without "Beta" after the rollout of 'request_show_redesign'.
 function updateBuildResultBeta() { // jshint ignore:line
   var ajaxDataShow = $('.build-results-content').data();
-  // show_all comes from the buildstatus partial
-  ajaxDataShow.show_all = $('#show_all').is(':checked'); // jshint ignore:line
-  ajaxDataShow.inRequestShowRedesign = true;
-
-  var buildResultsUrl = $('.build-results-content .build-refresh').data('build-results-url');
+  var buildResultsUrl = $('.build-results-content .result').data('build-results-url');
 
   $('#build-reload').addClass('fa-spin');
   $.ajax({

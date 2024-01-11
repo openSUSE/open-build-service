@@ -16,18 +16,12 @@
     .container.p-4
       - if @buildable
         .build-results-content{ data: @ajax_data }
-          .d-flex.justify-content-end
-            .btn.btn-outline-primary.build-refresh{ onclick: 'updateBuildResultBeta()',
-                                                    accesskey: 'r', title: 'Refresh Build Results',
-                                                    data: { build_results_url: request_complete_build_results_path } }
-              Refresh
-              %i.fas.fa-sync-alt{ id: 'build-reload' }
           -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
           - if @staging_project.present?
             %p.fst-italic
               From staging project
               = link_to(@project, project_show_path(@project))
-          .result
+          .result{ data: { build_results_url: request_complete_build_results_path } }
             // The content of this div is set by JavaScript which calls the partial ../_build_status.html.haml
         :javascript
           updateBuildResultBeta();
