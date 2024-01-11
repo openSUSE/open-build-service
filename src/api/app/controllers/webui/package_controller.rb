@@ -477,7 +477,8 @@ class Webui::PackageController < Webui::WebuiController
     rpmlint_log_file = RpmlintLogExtractor.new(rpmlint_log_params).call
     render plain: 'No rpmlint log' and return if rpmlint_log_file.blank?
 
-    render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file }
+    parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call
+    render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, parsed_messages: parsed_messages }
   end
 
   def meta
