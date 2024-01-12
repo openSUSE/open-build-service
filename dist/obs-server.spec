@@ -780,10 +780,14 @@ if [ "$1" == 2 ]; then
 
   # skip checking because "systemctl is-active" will always return 
   # true if running in chroot,
-  systemd-detect-virt --chroot ||\
-    systemctl is-active obsapidelayed.service &&\
-      touch %{_rundir}/enable_obs-api-support.target
-
+  S=0
+  systemd-detect-virt --chroot || S=$?
+  if [ $S -gt 0 ]
+  then
+    systemctl is-active obsapidelayed.service && touch %{_rundir}/enable_obs-api-support.target
+  else
+    echo "Running in chroot - skipping check for obsapidelayed.service"
+  fi
   # Try to remove obsapidelayed, but do not fail if it no longer exists.
   /usr/lib/systemd/systemd-update-helper remove-system-units obsapidelayed || :
 fi
