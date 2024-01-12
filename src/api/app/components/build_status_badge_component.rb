@@ -45,7 +45,7 @@ class BuildStatusBadgeComponent < ApplicationComponent
 
   def badge
     if @url
-      link_to(icon.concat(@text), @url, class: ['badge', BADGE_COLOR[@status], 'clickable'],  title: 'Live build log')
+      link_to(icon.concat(@text), @url, class: ['badge', BADGE_COLOR[@status], 'clickable'], title: 'Live build log')
     else
       tag.span(icon.concat(@text), class: ['badge', BADGE_COLOR[@status]])
     end

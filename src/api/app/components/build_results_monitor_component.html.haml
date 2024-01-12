@@ -2,7 +2,10 @@
   - package_names.each do |package_name|
     .accordion-item
       .accordion-header
-        .accordion-button.p-3.collapsed{"aria-controls" => "collapse-#{package_name.gsub(':', '_')}", "aria-expanded" => "false", "data-bs-target" => "#collapse-#{package_name.gsub(':', '_')}", "data-bs-toggle" => "collapse", type: "button"}
+        .accordion-button.p-3.collapsed{ "aria-controls" => "collapse-#{package_name.gsub(':', '_')}",
+                                         "aria-expanded" => "false", "data-bs-target" => "#collapse-#{package_name.gsub(':', '_')}",
+                                         "data-bs-toggle" => "collapse",
+                                         type: "button" }
           .w-100.d-flex.justify-content-between.pe-3
             = package_name
             %span.text-end
@@ -10,16 +13,22 @@
                 - result_count_per_status = results_per_package_and_status(package_name, status).count
                 - if result_count_per_status > 0
                   = render BuildStatusBadgeComponent.new(status: status, text: "#{result_count_per_status}")
-    .accordion-collapse.border.p-4.pt-1.collapse{id: "collapse-#{package_name.gsub(':', '_')}"}
+    .accordion-collapse.border.p-4.pt-1.collapse{ id: "collapse-#{package_name.gsub(':', '_')}" }
       .list-group.list-group-flush
         - repository_names.each do |repository_name|
           .list-group-item.d-flex.justify-content-between
             = link_to(helpers.word_break(repository_name, 22),
-                      project_package_repository_binaries_path(project_name: project_name, package_name: package_name, repository_name: repository_name),
+                      project_package_repository_binaries_path(project_name: project_name,
+                                                               package_name: package_name,
+                                                               repository_name: repository_name),
                       title: "Binaries for #{repository_name}")
             %span.text-end
               - results_per_package_and_repository(package_name, repository_name).each do |result|
                 - url = live_build_log_url(result[:status], project_name, package_name, repository_name, result[:architecture])
                 = render BuildStatusBadgeComponent.new(status: result[:status],
                                                        text: "#{result[:architecture]} : #{repository_status(result)}" ,
-                                                       url: live_build_log_url(result[:status], project_name, package_name, repository_name, result[:architecture]))
+                                                       url: live_build_log_url(result[:status],
+                                                                               project_name,
+                                                                               package_name,
+                                                                               repository_name,
+                                                                               result[:architecture]))
