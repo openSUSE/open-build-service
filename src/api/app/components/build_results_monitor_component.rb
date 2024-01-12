@@ -41,4 +41,10 @@ class BuildResultsMonitorComponent < ApplicationComponent
                                 repository: repository,
                                 arch: architecture)
   end
+
+  def repository_status(result)
+    return 'Outdated' unless result[:is_repository_in_db]
+
+    result[:repository_status].humanize
+  end
 end

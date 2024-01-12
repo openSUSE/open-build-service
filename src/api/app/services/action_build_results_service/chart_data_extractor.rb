@@ -29,7 +29,9 @@ module ActionBuildResultsService
           repository: result_entry.repository,
           status: result_entry.code,
           package_name: source_package.name,
-          project_name: source_project.name
+          project_name: source_project.name,
+          repository_status: result_entry.state,
+          is_repository_in_db: result_entry.is_repository_in_db
         }
       end
     end
