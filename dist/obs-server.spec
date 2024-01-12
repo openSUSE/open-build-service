@@ -777,8 +777,11 @@ if [ "$1" == 2 ]; then
   [ -e /etc/init.d/rc3.d/S50obsapidelayed ] && \
     touch %{_rundir}/enable_obs-api-support.target
 
-  systemctl is-active obsapidelayed.service &&
-    touch %{_rundir}/enable_obs-api-support.target
+  # skip checking because "systemctl is-active" will always return 
+  # true if running in chroot,
+  systemd-detect-virt --chroot ||\
+    systemctl is-active obsapidelayed.service &&\
+      touch %{_rundir}/enable_obs-api-support.target
 
   # Try to remove obsapidelayed, but do not fail if it no longer exists.
   /usr/lib/systemd/systemd-update-helper remove-system-units obsapidelayed || :
