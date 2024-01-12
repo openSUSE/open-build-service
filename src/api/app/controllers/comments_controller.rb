@@ -31,13 +31,27 @@ class CommentsController < ApplicationController
         @header = { project: @obj.name }
       end
     elsif params[:request_number]
-      @obj = BsRequest.find_by(number: params[:request_number])
-      raise ActiveRecord::RecordNotFound, "Couldn't find Request with number '#{params[:request_number]}'" if @obj.nil?
-
-      @header = { request: @obj.number }
+      find_request_or_action
     else
       @obj = User.session!
       @header = { user: @obj.login }
     end
+  end
+
+  def find_request_or_action
+    @obj = BsRequest.find_by!(number: params[:request_number])
+    @header = { request: @obj.number }
+    return unless params.key?(:parent_id)
+
+    parent_comment = Comment.find_by(id: params[:parent_id])
+    raise ActiveRecord::RecordNotFound, "Couldn't find the parent comment with ID #{params[:parent_id]}" if parent_comment.nil?
+
+    # We don't want users to have to know if a parent comment is on a BsRequestAction or a BsRequest.
+    # They can simply pass the BsRequest number and we handle this.
+    parent_commentable = parent_comment.commentable
+    return unless parent_commentable.is_a?(BsRequestAction) && @obj.id == parent_commentable.bs_request_id
+
+    # We want to stick to the same commentable type as the parent comment for the new comment
+    @obj = parent_commentable
   end
 end
