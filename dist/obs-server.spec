@@ -774,6 +774,7 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 
 # On upgrade keep the values for the %post script
 if [ "$1" == 2 ]; then
+  set -x
   [ -e /etc/init.d/rc3.d/S50obsapidelayed ] && \
     touch %{_rundir}/enable_obs-api-support.target
 
@@ -825,6 +826,7 @@ touch %{__obs_api_prefix}/last_deploy || true
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
 # This must be done after %%service_add_post. Otherwise the distribution preset is
 # taken, which is disabled in case of obs-api-support.target
+set -x
 if [ -e %{_rundir}/enable_obs-api-support.target ];then
   systemctl enable --now obs-api-support.target
   rm %{_rundir}/enable_obs-api-support.target
