@@ -20,7 +20,10 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
-      render_timeline
+      respond_to do |format|
+        format.js { render_timeline }
+        format.html { redirect_to "#{request.referer}#comment-#{@comment.id}" }
+      end
     else
       render(partial: 'webui/comment/comment_list',
              locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref },
@@ -42,7 +45,6 @@ class Webui::CommentsController < Webui::WebuiController
                :unprocessable_entity
              end
 
-   
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
       render_timeline
     else
@@ -58,8 +60,6 @@ class Webui::CommentsController < Webui::WebuiController
 
   # TODO: Once we ship this and we remove the flipper check, this methods will
   # get simpler, so I'll just shut rubocop up for now.
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def destroy
     @comment = Comment.find(params[:id])
     authorize @comment, :destroy?
@@ -79,8 +79,6 @@ class Webui::CommentsController < Webui::WebuiController
       render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref }, status: status)
     end
   end
-  # rubocop:enable Metrics/PerceivedComplexity
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def preview
     markdown = helpers.render_as_markdown(permitted_params[:body])
@@ -122,10 +120,25 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def render_timeline
-    bs_request = @comment.commentable_type == 'BsRequestAction' ? @comment.commentable.bs_request : @comment.commentable
-    target_project = Project.find_by_name(bs_request.target_project_name)
-    request_reviews = bs_request.reviews.for_non_staging_projects(target_project)
-    render(partial: 'webui/comment/render_timeline', locals: {bs_request: bs_request, request_reviews: request_reviews})
+    @commentable ||= @comment.commentable
+    bs_request = @comment.commentable_type == 'BsRequestAction' ? @commentable.bs_request : @commentable
+    if params[:file_name].present?
+      action = bs_request.webui_actions(diffs: true, action_id: @commentable.id, cacheonly: 1).first
+      sourcediff = action[:sourcediff].first
+      file_name = params[:file_name]
+      file_index = sourcediff['filenames'].index(file_name)
+      file_info = sourcediff['files'][file_name]
+      commented_lines = @commentable.comments.where('diff_ref LIKE ?', "diff_#{file_index}%").select(:diff_ref).distinct.pluck(:diff_ref)
+
+      render partial: 'webui/comment/render_timeline', locals: {
+        diff: file_info.dig('diff', '_content'), file_index: file_index,
+        commentable: @commentable, commented_lines: commented_lines, file_name: file_name
+      }
+    else
+      target_project = Project.find_by_name(bs_request.target_project_name)
+      request_reviews = bs_request.reviews.for_non_staging_projects(target_project)
+      render(partial: 'webui/comment/render_timeline', locals: { bs_request: bs_request, request_reviews: request_reviews, file_name: nil })
+    end
   end
 
   private

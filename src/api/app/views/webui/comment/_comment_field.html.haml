@@ -1,11 +1,16 @@
-- entity_type = commentable.class.name == 'BsRequest' ? 'request' : commentable.class.name.downcase
-- modal_id = "lock-#{entity_type}-#{commentable.id}-#{element_suffix}"
+:ruby
+  entity_type = commentable.class.name == 'BsRequest' ? 'request' : commentable.class.name.downcase
+  modal_id = "lock-#{entity_type}-#{commentable.id}-#{element_suffix}"
+  remote = true if remote != false
+  file_name ||= nil
 
-= form_for(comment, method: form_method, remote: true, html: { id: "#{element_suffix}_form",
+= form_for(comment, method: form_method, remote: remote, html: { id: "#{element_suffix}_form",
 class: "#{form_method}-comment-form write-and-preview" },
 data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do |f|
   = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
+  - if file_name.present?
+    = hidden_field_tag :file_name, file_name
   - if defined?(line)
     = f.hidden_field :diff_ref, value: line, id: "#{element_suffix}_diff_ref"
   = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"

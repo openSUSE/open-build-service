@@ -17,12 +17,16 @@ function validateForm(e) {
   submitButton.prop('disabled', !$(e.target).val());
 }
 
-$(document).ready(function(){
+function commentFieldToggle(){
   // Disable submit button if textarea is empty and enable otherwise
   $('.comments-list,.comment_new,.timeline,.diff').on('input', '.comment-field', function(e) {
     validateForm(e);
     resizeTextarea(this);
   });
+}
+
+$(document).ready(function(){
+  commentFieldToggle();
 
   // This is being used by the legacy request view comment form to capture the rendered template
   // from the controller and replace the whole .comments-list with it

@@ -85,7 +85,7 @@
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
 
               .comment_new
-                = render partial: 'webui/comment/new', locals: { commentable: @bs_request }
+                = render partial: 'webui/comment/new', locals: { commentable: @bs_request, file_name: nil, remote: false }
               %hr
 
               - if @bs_request.accept_at.present?

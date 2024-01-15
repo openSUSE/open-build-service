@@ -3,15 +3,16 @@
 # It is used in the beta view of the request show page, under the Overview tab,
 # merged with the BsRequestHistoryElementComponent.
 class BsRequestCommentComponent < ApplicationComponent
-  attr_reader :comment, :commentable, :level, :diff
+  attr_reader :comment, :commentable, :level, :diff, :file_name
 
-  def initialize(comment:, commentable:, level:, diff: nil)
+  def initialize(comment:, commentable:, level:, diff: nil, file_name: nil)
     super
 
     @comment = comment
     @commentable = commentable
     @level = level
     @diff = diff
+    @file_name = file_name
   end
 
   def range

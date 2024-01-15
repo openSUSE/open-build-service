@@ -5,7 +5,7 @@
   = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 
 .comment_new.mt-3
-  = render partial: 'webui/comment/new', locals: { commentable: commentable }
+  = render partial: 'webui/comment/new', locals: { commentable: commentable, file_name: nil, remote: nil }
 
 :javascript
   $(document).ready(function() {

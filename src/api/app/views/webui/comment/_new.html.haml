@@ -10,7 +10,8 @@
         = link_to('bug tracker', bugzilla_url(commentable.bugowner_emails, "#{commentable_name}: Bug"))
   - if policy(Comment.new(commentable:)).create?
     = render(partial: 'webui/comment/comment_field',
-      locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false })
+      locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false,
+                file_name: file_name, remote: remote })
 - else
   .alert.alert-warning{ role: 'alert' }
     Login required, please

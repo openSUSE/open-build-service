@@ -43,12 +43,12 @@
             - if commented_lines.include?(id)
               - commentable.comments.where(diff_ref: id).each do |comment|
                 .comments-thread.p-3
-                  = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
+                  = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable, file_name: file_name)
             - else
               .diff-comments
                 -# rubocop:disable ViewComponent/AvoidGlobalState
                 - if User.session
-                  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id),
+                  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id, file_name: file_name),
                             class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
                     %i.fas.fa-comment-medical
                     .visually-hidden

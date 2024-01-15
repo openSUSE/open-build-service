@@ -15,7 +15,8 @@
             - if Flipper.enabled?(:content_moderation, User.session)
               - if policy(comment).moderate?
                 = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
-                            class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
+                            class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated?,
+                            file_name: file_name })
             - if policy(comment).destroy?
               = link_to('#', data: { 'bs-toggle': 'modal',
                                     'bs-target': '#delete-comment-modal',
@@ -45,7 +46,7 @@
       - if policy(comment).update?
         .collapse.start-0{ id: "edit_form_of_#{comment.id}" }
           = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
-          comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
+          comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true, file_name: file_name })
 
     -# This should be refactored to avoid relying on global state
     - if policy(comment).reply?
@@ -61,15 +62,15 @@
         = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                   class: 'fst-italic small collapsed') do
           Reply
-
       .collapse.ms-4.mb-4{ id: "reply_form_of_#{comment.id}" }
         = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
-          comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })
+          comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true,
+          file_name: file_name })
 
     - if level <= 3
       - comment.children.includes(:user).each do |children|
-        = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable)
+        = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable, file_name: file_name)
 
 - if level > 3
   - comment.children.includes(:user).each do |children|
-    = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable)
+    = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable, file_name: file_name)
