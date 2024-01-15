@@ -9,10 +9,9 @@
           .w-100.d-flex.justify-content-between.pe-3
             = package_name
             %span.text-end
-              - Buildresult.avail_status_values.each do |status|
-                - result_count_per_status = results_per_package_and_status(package_name, status).count
-                - if result_count_per_status > 0
-                  = render BuildStatusBadgeComponent.new(status: status, text: "#{result_count_per_status}")
+              - results_count_per_package_and_category(package_name).each do |key, value|
+                = render BuildStatusCountBadgeComponent.new(category: key, count: value)
+
     .accordion-collapse.border.p-4.pt-1.collapse{ id: "collapse-#{package_name.gsub(':', '_')}" }
       .list-group.list-group-flush
         - repository_names.each do |repository_name|

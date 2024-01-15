@@ -25,8 +25,13 @@ class BuildResultsMonitorComponent < ApplicationComponent
     raw_data.select { |result| result[:package_name] == package_name }
   end
 
-  def results_per_package_and_status(package, status)
-    results_per_package(package).select { |result| result[:status] == status }
+  def results_count_per_package_and_category(package)
+    categories_count = Hash.new(0)
+    Buildresult::BUILD_STATUS_CATEGORIES.each do |category|
+      current_count = results_per_package(package).count { |result| Buildresult::BUILD_STATUS_CATEGORIES_MAP[result[:status]] == category }
+      categories_count[category] = current_count if current_count.positive?
+    end
+    categories_count
   end
 
   def results_per_package_and_repository(package, repository)

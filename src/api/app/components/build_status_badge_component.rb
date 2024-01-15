@@ -5,6 +5,7 @@ class BuildStatusBadgeComponent < ApplicationComponent
     @status = status
     @text = text
     @url = url
+    @category = Buildresult::BUILD_STATUS_CATEGORIES_MAP[status]
   end
 
   ICON = {
@@ -25,29 +26,12 @@ class BuildStatusBadgeComponent < ApplicationComponent
     unknown: 'fa-question'
   }.with_indifferent_access.freeze
 
-  BADGE_COLOR = {
-    succeeded: 'text-bg-success',
-    failed: 'text-bg-danger',
-    unresolvable: 'text-bg-danger',
-    broken: 'text-bg-danger',
-    blocked: 'text-bg-warning',
-    scheduled: 'text-bg-warning',
-    dispatching: 'text-bg-warning',
-    building: 'text-bg-warning',
-    signing: 'text-bg-warning',
-    finished: 'text-bg-warning',
-    disabled: 'text-bg-light border',
-    excluded: 'text-bg-light border',
-    locked: 'text-bg-warning',
-    deleting: 'text-bg-warning',
-    unknown: 'text-bg-warning'
-  }.with_indifferent_access.freeze
-
   def badge
+    badge_color = BuildStatusCountBadgeComponent::CATEGORY_BADGE_COLOR[@category]
     if @url
-      link_to(icon.concat(@text), @url, class: ['badge', BADGE_COLOR[@status], 'clickable'], title: 'Live build log')
+      link_to(icon.concat(@text), @url, class: ['badge', badge_color, 'clickable'], title: 'Live build log')
     else
-      tag.span(icon.concat(@text), class: ['badge', BADGE_COLOR[@status]])
+      tag.span(icon.concat(@text), class: ['badge', badge_color])
     end
   end
 
