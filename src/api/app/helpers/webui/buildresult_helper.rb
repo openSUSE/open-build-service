@@ -40,11 +40,11 @@ module Webui::BuildresultHelper
   def colorize_line(line)
     case line
     when /\w+(?:\.\w+)+: W: /
-      tag.span(line.strip, style: 'color: olive;')
+      tag.span(line, style: 'color: olive;')
     when /\w+(?:\.\w+)+: E: /
-      tag.span(line.strip, style: 'color: red;')
+      tag.span(line, style: 'color: red;')
     else
-      line.strip
+      line
     end
   end
 

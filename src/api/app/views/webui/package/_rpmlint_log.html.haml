@@ -1,2 +1,2 @@
-- rpmlint_log_file.lines.each do |line|
+- rpmlint_log_file.each_line(chomp: true) do |line|
   = colorize_line(line)
