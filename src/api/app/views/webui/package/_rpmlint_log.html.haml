@@ -1,2 +1,8 @@
-- rpmlint_log_file.each_line(chomp: true) do |line|
+- raw_data = { badness:  parsed_messages.badness,
+               errors:   parsed_messages.errors,
+               warnings: parsed_messages.warnings,
+               info:     parsed_messages.info}
+= render(RpmLintComponent.new(raw_data: raw_data))
+
+- rpmlint_log_file.lines.each do |line|
   = colorize_line(line)
