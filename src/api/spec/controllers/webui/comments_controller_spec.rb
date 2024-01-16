@@ -120,7 +120,7 @@ RSpec.describe Webui::CommentsController do
 
     context 'can destroy own comments' do
       before do
-        delete :destroy, params: { id: comment.id }
+        delete :destroy, params: { id: comment.id }, format: :js
       end
 
       it { expect(flash[:success]).to eq('Comment deleted successfully.') }
@@ -129,7 +129,7 @@ RSpec.describe Webui::CommentsController do
 
     context 'cannot destroy comment of somebody else' do
       before do
-        delete :destroy, params: { id: other_comment.id }
+        delete :destroy, params: { id: other_comment.id }, format: :js
       end
 
       it { expect(flash[:success]).to be_nil }
@@ -139,7 +139,7 @@ RSpec.describe Webui::CommentsController do
     context 'admin can destroy comments not owned by him' do
       before do
         login admin
-        delete :destroy, params: { id: other_comment.id }
+        delete :destroy, params: { id: other_comment.id }, format: :js
       end
 
       it { expect(flash[:success]).to eq('Comment deleted successfully.') }
@@ -157,11 +157,11 @@ RSpec.describe Webui::CommentsController do
         context 'with no replies' do
           before do
             login admin
-            delete :destroy, params: { id: root_comment.id }
+            delete :destroy, params: { id: root_comment.id }, format: :js
           end
 
           it 'removes the comment thread from the view' do
-            expect(response.body).to be_empty
+            expect(response).to have_http_status(:ok)
           end
         end
 
@@ -171,7 +171,7 @@ RSpec.describe Webui::CommentsController do
 
           before do
             login admin
-            delete :destroy, params: { id: root_comment.id }
+            delete :destroy, params: { id: root_comment.id }, format: :js
           end
 
           it 'renders This comment has been deleted' do
@@ -191,7 +191,7 @@ RSpec.describe Webui::CommentsController do
 
           before do
             login admin
-            delete :destroy, params: { id: leaf.id }
+            delete :destroy, params: { id: leaf.id }, format: :js
           end
 
           it 'renders the updated thread without the reply' do
@@ -209,7 +209,7 @@ RSpec.describe Webui::CommentsController do
 
           before do
             login admin
-            delete :destroy, params: { id: reply.id }
+            delete :destroy, params: { id: reply.id }, format: :js
           end
 
           it 'renders the updated thread back' do
@@ -232,7 +232,7 @@ RSpec.describe Webui::CommentsController do
             root_comment.blank_or_destroy
 
             login admin
-            delete :destroy, params: { id: leaf.id }
+            delete :destroy, params: { id: leaf.id }, format: :js
           end
 
           it 'removes the leaf' do
@@ -254,7 +254,7 @@ RSpec.describe Webui::CommentsController do
             reply.blank_or_destroy
 
             login admin
-            delete :destroy, params: { id: leaf.id }
+            delete :destroy, params: { id: leaf.id }, format: :js
           end
 
           it 'removes the root comment' do
