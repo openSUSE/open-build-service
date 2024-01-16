@@ -36,6 +36,6 @@ class BuildStatusBadgeComponent < ApplicationComponent
   end
 
   def icon
-    tag.i(class: ['fa', ICON[@status], 'me-2'])
+    tag.i(class: ['fa', ICON[@status], 'me-2'], title: @status.humanize)
   end
 end
