@@ -12,7 +12,7 @@
               - results_count_per_package_and_category(package_name).each do |key, value|
                 = render BuildStatusCountBadgeComponent.new(category: key, count: value)
 
-    .accordion-collapse.border.p-4.pt-1.collapse{ id: "collapse-#{package_name.gsub(':', '_')}" }
+    .accordion-collapse.border.p-4.pt-1.collapse{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
       .list-group.list-group-flush
         - repository_names.each do |repository_name|
           .list-group-item.d-flex.justify-content-between

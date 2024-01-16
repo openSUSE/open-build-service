@@ -52,4 +52,8 @@ class BuildResultsMonitorComponent < ApplicationComponent
 
     result[:repository_status].humanize
   end
+
+  def show
+    'show' if package_names.count == 1
+  end
 end
