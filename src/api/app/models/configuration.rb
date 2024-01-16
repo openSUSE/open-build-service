@@ -20,9 +20,9 @@ class Configuration < ApplicationRecord
 
     # Simple singleton implementation: Try to respond with the
     # the data from the first instance
-    def method_missing(method_name, *args, &)
+    def method_missing(method_name, ...)
       if Configuration.new.methods.include?(method_name)
-        first.send(method_name, *args, &)
+        first.send(method_name, ...)
       else
         super
       end
