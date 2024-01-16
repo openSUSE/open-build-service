@@ -36,6 +36,10 @@ AllCops:
 
 #################### Style ###########################
 
+Style/ArgumentsForwarding:
+  Exclude:
+    - 'db/data/20170831143534_convert_notifications_event_payload_to_json.rb'
+
 Style/CommentAnnotation:
   # Default keywords were TODO, FIXME, OPTIMIZE, HACK, REVIEW.
   # We never use the last three and they can sometime trigger false positives,
