@@ -769,8 +769,6 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 %service_del_postun -r obsclouduploadserver.service
 
 %pre -n obs-api
-getent passwd obsapidelayed >/dev/null || \
-  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d %{__obs_api_prefix} -g %{apache_group} obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
 # On upgrade keep the values for the %post script
