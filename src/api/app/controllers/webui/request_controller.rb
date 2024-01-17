@@ -295,10 +295,6 @@ class Webui::RequestController < Webui::WebuiController
     @active_tab = 'build_results'
     @project = @staging_project || @action[:sprj]
     @buildable = @action[:spkg] || @project
-
-    @ajax_data = {}
-    @ajax_data['project'] = @project if @project
-    @ajax_data['package'] = @action[:spkg] if @action[:spkg]
   end
 
   def rpm_lint
@@ -328,7 +324,8 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def complete_build_results
-    render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data }
+    filters = params.keys.reject! { |key, _| key.in?(['controller', 'action', 'number']) }
+    render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
   end
 
   private

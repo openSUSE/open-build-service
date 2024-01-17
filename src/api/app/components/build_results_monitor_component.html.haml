@@ -1,5 +1,12 @@
+= render BuildResultsFilterComponent.new(package_names:package_names,
+                                         repository_names: repository_names,
+                                         architecture_names: architecture_names,
+                                         status_names: status_names,
+                                         filter_url: filter_url,
+                                         filters: filters)
+
 .accordion#build-results-monitor
-  - package_names.each do |package_name|
+  - filtered_package_names.each do |package_name|
     .accordion-item
       .accordion-header
         .accordion-button.p-3.collapsed{ "aria-controls" => "collapse-#{package_name.gsub(':', '_')}",
@@ -14,7 +21,7 @@
 
     .accordion-collapse.border.p-4.pt-1.collapse{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
       .list-group.list-group-flush
-        - repository_names.each do |repository_name|
+        - filtered_repository_names.each do |repository_name|
           .list-group-item.d-flex.justify-content-between
             = link_to(helpers.word_break(repository_name, 22),
                       project_package_repository_binaries_path(project_name: project_name,

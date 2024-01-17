@@ -1,0 +1,77 @@
+.row.mb-3
+  .col-md-12
+    = form_tag(filter_url, method: :get) do
+      %span.dropdown#project-monitor-package-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
+          %span.caret
+          Package Name
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - package_names.each do |package_name|
+            .dropdown-item
+              .form-check
+                = check_box_tag "package_#{package_name}", 1, checked = @filters.include?("package_#{package_name}"), class: 'form-check-input'
+                %label.form-check-label{ for: "package_#{package_name}" }
+                  = package_name
+      %span.dropdown#project-monitor-repositories-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
+          %span.caret
+          Repository
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - repository_names.each do |repository|
+            .dropdown-item
+              .form-check
+                = check_box_tag "repo_#{repository}", 1, checked = @filters.include?("repo_#{repository}"), class: 'form-check-input'
+                %label.form-check-label{ for: "repo_#{repository}" }
+                  = repository
+      %span.dropdown#project-monitor-architectures-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
+          %span.caret
+          Architecture
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - architecture_names.each do |architecture|
+            .dropdown-item
+              .form-check
+                = check_box_tag "arch_#{architecture}", 1, checked = @filters.include?("arch_#{architecture}"), class: 'form-check-input'
+                %label.form-check-label{ for: "arch_#{architecture}" }
+                  = architecture
+      %span.dropdown#project-monitor-status-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
+          %span.caret
+          Status
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - status_names.each do |status|
+            .dropdown-item
+              .form-check
+                = check_box_tag "status_#{status}", 1, checked = @filters.include?("status_#{status}"), class: 'form-check-input'
+                %label.form-check-label{ for: "status_#{status}" }
+                  = status
+      %button.btn.btn-primary#filter-button{ type: :submit }
+        Apply Filter
+
+      %button.btn.btn-outline-secondary.float-end{ type: :button,
+      data: { 'bs-toggle': 'modal', 'bs-target': '#build-monitor-legend' }, title: 'Build status legend' }
+        Legend
+
+.modal.fade#build-monitor-legend{ tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Build status legend
+      .modal-body
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+        .modal-footer
+          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+            Cancel
