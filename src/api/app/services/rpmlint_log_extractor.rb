@@ -20,18 +20,10 @@ class RpmlintLogExtractor
     # Case of removed project, package, repository or architecture:
     return unless e.summary.include?('rpmlint.log: No such file or directory')
 
-    # Case of debian builds:
-    return unless rpms_exist?
-
     retrieve_rpmlint_log_from_log
   end
 
   private
-
-  def rpms_exist?
-    binaries = Backend::Api::BuildResults::Binaries.files(project, repository, architecture, package)
-    binaries.match?(/<binary filename="\S+\.rpm"/)
-  end
 
   def retrieve_rpmlint_log_from_log
     log_content = Backend::Api::BuildResults::Binaries.file(project, repository, architecture, package, '_log')
