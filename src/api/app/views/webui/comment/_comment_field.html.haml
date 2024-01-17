@@ -6,6 +6,7 @@ class: "#{form_method}-comment-form write-and-preview" },
 data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do |f|
   = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
+  = hidden_field_tag :file_name, file_name
   - if defined?(line)
     = f.hidden_field :diff_ref, value: line, id: "#{element_suffix}_diff_ref"
   = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"
@@ -31,7 +32,7 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
       .comment-controls.mb-3
         - case form_method
         - when :post
-          = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, disabled: true
+          = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }
           - if !comment.parent_id && CommentLockPolicy.new(User.session, commentable).create?
             = button_tag(type: 'button', class: 'btn btn-warning me-2', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}-modal" }) do
               - if commentable.comment_lock.blank?

@@ -38,19 +38,12 @@
                 = line.content[0]
               %span.content><
                 = line.content[1..]
-        - if commentable
+        - if commented_lines.include?(id)
           .line-comment{ id: "comment#{id}" }
-            - if commented_lines.include?(id)
-              - commentable.comments.where(diff_ref: id).each do |comment|
-                .comments-thread.p-3
-                  = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
-            - else
-              .diff-comments
-                -# rubocop:disable ViewComponent/AvoidGlobalState
-                - if User.session
-                  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id),
-                            class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
-                    %i.fas.fa-comment-medical
-                    .visually-hidden
-                      Add comment
-                -# rubocop:enable ViewComponent/AvoidGlobalState
+            - commentable.comments.where(diff_ref: id).each do |comment|
+              .comments-thread.p-3
+                = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable, file_name: file_name)
+        - else
+          .btn.btn-sm.btn-primary.line-new-comment{ data: { id: id, 'request-number': commentable.bs_request.number, 'action-id': commentable.id, 'file-name': file_name } }
+            %i.fas.fa-comment-medical
+          .line-comment{ id: "comment#{id}" }

@@ -284,6 +284,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def inline_comment
     @line = params[:line]
+    @file_name = params[:file_name]
     respond_to do |format|
       format.js
     end
@@ -325,6 +326,16 @@ class Webui::RequestController < Webui::WebuiController
 
   def chart_build_results
     render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: build_results_data }
+  end
+
+  def render_diff
+    action = @bs_request.webui_actions(diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
+    sourcediff = action[:sourcediff].first
+    file_name = params[:file_name]
+    file_index = sourcediff['filenames'].index(file_name)
+    diff = sourcediff['files'][file_name]
+    commentable = BsRequestAction.find(@action_id)
+    commented_lines = commentable.comments.where.where('diff_ref LIKE ?', "diff_#{file_index}%").select(:diff_ref).distinct.pluck(:diff_ref)
   end
 
   private
@@ -544,6 +555,7 @@ class Webui::RequestController < Webui::WebuiController
     @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
                                         diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
     active_action_index = @supported_actions.index(@active_action)
+
     if active_action_index
       @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
       @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length

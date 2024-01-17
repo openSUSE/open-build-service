@@ -36,5 +36,9 @@ function setValuesOnDeleteConfirmationDialog(modalId) {
     if (typeof(link.data('remote')) !== 'undefined') {
       modal.find('form').attr('action', link.data('remote'));
     }
+
+    if (typeof(link.data('file-name')) !== 'undefined') {
+      modal.find('#file_name').val(link.data('file-name'));
+    }
   });
 }

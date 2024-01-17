@@ -6,6 +6,7 @@
       .modal-body
         %p.wrap-text.confirmation-text= confirmation_text
         = form_tag(action, method: method, remote: remote) do
+          = hidden_field_tag('file_name')
           - if text_area?
             = text_area
           .modal-footer

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class DiffComponent < ApplicationComponent
-  attr_reader :diff, :file_index, :commentable, :commented_lines, :range, :source_file, :target_file
+  attr_reader :diff, :file_index, :commentable, :commented_lines, :range, :source_file, :target_file, :file_name
 
-  def initialize(diff:, file_index: nil, commentable: nil, commented_lines: [], range: (0..), source_file: nil, target_file: nil)
+  def initialize(diff:, file_name:, file_index: nil, commentable: nil, commented_lines: [], range: (0..), source_file: nil, target_file: nil)
     super
     @diff = parse_diff(diff)
     @file_index = file_index
@@ -12,6 +12,7 @@ class DiffComponent < ApplicationComponent
     @range = range
     @source_file = source_file
     @target_file = target_file
+    @file_name = file_name
   end
 
   def render?

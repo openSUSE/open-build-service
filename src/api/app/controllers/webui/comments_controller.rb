@@ -23,9 +23,7 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: comment.root, commentable: @commentable, level: 1 },
-             status: status)
+      render_diff
     else
       render(partial: 'webui/comment/comment_list',
              locals: { commentable: @commentable, diff_ref: comment.root.diff_ref },
@@ -80,19 +78,7 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(comment.commentable_type)
-      # if we're a root comment with no replies there is no need to re-render anything
-      return head(:ok) if comment.root? && comment.leaf?
-
-      # If we're a reply of an already deleted parent comment, we don't re-render anything
-      return head(:ok) if comment.root == comment.parent && comment.unused_parent?
-
-      # If all ancestors are already deleted we don't re-render anything
-      return head(:ok) if !comment.root? && comment.ancestors.all?(&:destroyed?)
-
-      # if we're a reply or a comment with replies we should re-render the updated thread
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: comment.root, commentable: @commentable, level: 1 },
-             status: status)
+      render_diff
     else
       render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: comment.root.diff_ref }, status: status)
     end
@@ -139,6 +125,21 @@ class Webui::CommentsController < Webui::WebuiController
     respond_to do |format|
       format.js { render 'webui/comment/history' }
     end
+  end
+
+  def render_diff
+    bs_request = @commentable.bs_request
+    action = bs_request.webui_actions(diffs: true, action_id: @commentable.id, cacheonly: 1).first
+    sourcediff = action[:sourcediff].first
+    file_name = params[:file_name]
+    file_index = sourcediff['filenames'].index(file_name)
+    file_info = sourcediff['files'][file_name]
+    commented_lines = @commentable.comments.where('diff_ref LIKE ?', "diff_#{file_index}%").select(:diff_ref).distinct.pluck(:diff_ref)
+
+    render partial: 'webui/comment/render_diff', locals: { 
+      diff: file_info.dig('diff', '_content'), file_index: file_index,
+      commentable: @commentable, commented_lines: commented_lines, file_name: file_name 
+    }
   end
 
   private
