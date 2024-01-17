@@ -21,7 +21,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @commentable, level: 1 },
+             locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
              status: status)
     else
       render(partial: 'webui/comment/comment_list',
@@ -48,7 +48,7 @@ class Webui::CommentsController < Webui::WebuiController
       format.html do
         if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
           render(partial: 'webui/comment/beta/comments_thread',
-                 locals: { comment: @comment.root, commentable: @comment.commentable, level: 1 },
+                 locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff },
                  status: status)
         else
           render(partial: 'webui/comment/comment_list',
@@ -88,7 +88,7 @@ class Webui::CommentsController < Webui::WebuiController
 
       # if we're a reply or a comment with replies we should re-render the updated thread
       render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @commentable, level: 1 },
+             locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
              status: status)
     else
       render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref }, status: status)
@@ -119,7 +119,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @comment.commentable, level: 1 },
+             locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff },
              status: status)
     else
       render(partial: 'webui/comment/comment_list',
@@ -164,5 +164,16 @@ class Webui::CommentsController < Webui::WebuiController
   def commented_unavailable
     flash.now[:error] = "Failed to create comment: This #{@commentable_type.name.downcase} does not exist anymore."
     render partial: 'layouts/webui/flash'
+  end
+
+  def diff
+    return unless @comment.root.commentable_type == 'BsRequestAction' && @comment.root.diff_ref
+    return unless (ref = @comment.root.diff_ref&.match(/diff_([0-9]+)/))
+
+    diffs = @comment.root.commentable.bs_request.webui_actions(action_id: @comment.root.commentable_id, diffs: true, cacheonly: 1).first
+    file_index = ref.captures.first
+    sourcediff = diffs[:sourcediff].first
+    filename = sourcediff.dig('filenames', file_index.to_i)
+    sourcediff.dig('files', filename)
   end
 end
