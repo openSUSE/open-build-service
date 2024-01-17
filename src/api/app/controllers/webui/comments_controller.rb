@@ -4,10 +4,7 @@ class Webui::CommentsController < Webui::WebuiController
   before_action :set_comment, only: [:moderate, :history]
 
   def create
-    if @commented.nil?
-      flash.now[:error] = "Failed to create comment: This #{@commentable_type.name.downcase} does not exist anymore."
-      render partial: 'layouts/webui/flash' and return
-    end
+    return commented_unavailable if @commented.nil?
 
     @comment = @commented.comments.new(permitted_params)
     authorize @comment, :create?
@@ -161,6 +158,11 @@ class Webui::CommentsController < Webui::WebuiController
     return if @commentable_type.present?
 
     flash[:error] = "Invalid commentable #{params[:commentable_type]} supplied."
+    render partial: 'layouts/webui/flash'
+  end
+
+  def commented_unavailable
+    flash.now[:error] = "Failed to create comment: This #{@commentable_type.name.downcase} does not exist anymore."
     render partial: 'layouts/webui/flash'
   end
 end
