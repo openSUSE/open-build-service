@@ -77,6 +77,11 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && ['BsRequest', 'BsRequestAction'].include?(@comment.commentable_type)
+      if @comment.commentable_type == 'BsRequestAction' && Comment.where(commentable: @comment.commentable, diff_ref: @comment.root.diff_ref).count.zero?
+        return render(partial: 'webui/request/add_inline_comment',
+                      locals: { commentable: @comment.root.commentable, diff_ref: @comment.root.diff_ref },
+                      status: status)
+      end
       # if we're a root comment with no replies there is no need to re-render anything
       return head(:ok) if @comment.root? && @comment.leaf?
 
