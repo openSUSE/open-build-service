@@ -328,8 +328,9 @@ module Webui::WebuiHelper
   end
 
   def theme_from_user
-    return "light" unless feature_enabled?("color_themes")
-    User.session&.color_theme || "system"
+    return 'light' unless feature_enabled?('color_themes')
+
+    User.session&.color_theme || 'system'
   end
 end
 
