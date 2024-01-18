@@ -1,6 +1,6 @@
 get:
   summary: List the content of the directory tree where the binaries are published at the level project/repository/architecture.
-  description: >
+  description: |
     Get a list of binaries and other files present at the level project/repository/architecture of the directory
     tree as a result of successful building and publishing processes.
   security:

@@ -1,6 +1,6 @@
 get:
   summary: Return the binary file itself.
-  description: >
+  description: |
     Allow to download the binary file that was published and stored under the directory
     given by project/repository/architecture/.
 
