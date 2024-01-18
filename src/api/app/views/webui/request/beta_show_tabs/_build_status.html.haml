@@ -1,5 +1,5 @@
 - unless buildresults.excluded_counter.zero? && !buildresults.show_all
-  .mt-3.form-check
+  .mt-3.mb-3.form-check
     = check_box_tag('show_all', true, buildresults.show_all, class: 'form-check-input d-none',
                     onchange: 'updateBuildResultBeta()')
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
