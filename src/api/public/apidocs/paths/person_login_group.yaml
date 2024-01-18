@@ -7,7 +7,7 @@ get:
     - $ref: '../components/parameters/login.yaml'
   responses:
     '200':
-      description: >
+      description: |
         OK. The request has succeeded.
 
         XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)

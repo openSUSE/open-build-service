@@ -1,6 +1,6 @@
 get:
   summary: List all known architectures.
-  description: >
+  description: |
     Get a list of all known architectures known to OBS in general.
     This is not the list of architectures provided by this instance. Check the
     schedulers element from the `/configuration` route for this.
