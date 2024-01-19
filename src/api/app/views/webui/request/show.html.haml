@@ -30,7 +30,7 @@
         = render partial: 'actions'
 
 .card.mb-3
-  .bg-light
+  .card-header.p-0
     %ul.nav.nav-tabs.bs-request-actions.disable-link-generation{ role: 'tablist' }
       - @actions.each_with_index do |action, index|
         %li.nav-item.mw-100

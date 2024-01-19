@@ -1,4 +1,4 @@
-.notification-toolbar.sticky-top.navbar.navbar-light.bg-light.border-bottom.border-gray-400
+.notification-toolbar.sticky-top.navbar.bg-body-secondary.border-bottom
   .container-fluid
     - if request_action
       = link_to(request_show_path(number: request_action.bs_request.number, request_action_id: request_action.id, notification_id: notification),

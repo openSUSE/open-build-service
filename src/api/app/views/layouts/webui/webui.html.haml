@@ -49,7 +49,7 @@
         - if @current_notification || @current_request_action
           = render partial: 'layouts/webui/notification_toolbar', locals: { notification: @current_notification,
                                                                             request_action: @current_request_action }
-        .container-xxl.flex-grow-1.pb-3.border-bottom.border-gray-400
+        .container-xxl.flex-grow-1.pb-3.border-bottom
           .sticky-top.flash-and-announcement.text-break
             = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
             #flash= render partial: 'layouts/webui/flash', object: flash

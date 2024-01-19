@@ -32,7 +32,7 @@ class AvatarComponent < ApplicationComponent
 
   def css
     css_classes = ['img-fluid']
-    css_classes << 'rounded-circle bg-light border border-gray-400' if shape == :circle
+    css_classes << 'rounded-circle bg-body-secondary border' if shape == :circle
     css_classes << custom_css
     css_classes.join(' ')
   end

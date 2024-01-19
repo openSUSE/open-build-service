@@ -39,7 +39,7 @@
         .failed.py-2.text-bg-danger
           %i.fa.fa-times-circle
           Build failed
-      %pre.p-4.bg-light.text-pre-wrap#log-space
+      %pre.p-4.bg-body-secondary.text-pre-wrap#log-space
     - unless @workerid
       = render partial: 'live_build_log_controls',
                locals: { can_modify: @can_modify, package_name: @package_name, project: @project, arch: @arch, repo: @repo }
