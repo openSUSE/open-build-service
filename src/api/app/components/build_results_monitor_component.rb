@@ -48,8 +48,8 @@ class BuildResultsMonitorComponent < ApplicationComponent
 
   def results_count_per_package_and_category(package)
     categories_count = Hash.new(0)
-    Buildresult::BUILD_STATUS_CATEGORIES.each do |category|
-      current_count = results_per_package(package).count { |result| Buildresult::BUILD_STATUS_CATEGORIES_MAP[result[:status]] == category }
+    Buildresult::STATUS_CATEGORIES.each do |category|
+      current_count = results_per_package(package).count { |result| Buildresult::STATUS_CATEGORIES_MAP[result[:status]] == category }
       categories_count[category] = current_count if current_count.positive?
     end
     categories_count
