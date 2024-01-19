@@ -257,18 +257,20 @@ sub upload_all_containers {
   # postprocessing: write readme, create links
   my %allrefs_pp;
   my %allrefs_pp_lastp;
+  my %helm_pp;
   for my $p (sort keys %$containers) {
     my $containerinfo = $containers->{$p};
     my $pp = $p;
     $pp =~ s/.*?\/// if $data->{'multiarch'};
     $allrefs_pp_lastp{$pp} = $p;	# for link creation
     push @{$allrefs_pp{$pp}}, @{$allrefs{$p} || []};	# collect all archs for the link
+    $helm_pp{$pp} = 1 if ($containerinfo->{'type'} || '') eq 'helm';
   }
   for my $pp (sort keys %allrefs_pp_lastp) {
     mkdir_p($extrep);
     unlink("$extrep/$pp.registry.txt");
     if (@{$allrefs_pp{$pp} || []}) {
-      unlink("$extrep/$pp");
+      unlink("$extrep/$pp") unless $helm_pp{$pp};
       # write readme file where to find the container
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$pp}}));
       my $readme = "This container can be pulled via:\n";
