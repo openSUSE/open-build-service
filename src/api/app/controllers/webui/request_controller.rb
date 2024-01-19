@@ -324,7 +324,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def complete_build_results
-    filters = params.keys.reject! { |key, _| key.in?(['controller', 'action', 'number']) }
+    filters = params.keys - ['controller', 'action', 'number']
     render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
   end
 
