@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_01_11_231639) do
+ActiveRecord::Schema[7.0].define(version: 2024_01_19_114738) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -478,7 +478,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_11_231639) do
 
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "eventtype", null: false
-    t.text "payload"
+    t.text "payload", size: :medium
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
     t.integer "undone_jobs", default: 0
