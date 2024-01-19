@@ -10,6 +10,8 @@ class User < ApplicationRecord
   NOBODY_LOGIN = '_nobody_'.freeze
   MAX_BIOGRAPHY_LENGTH_ALLOWED = 250
 
+  enum :color_theme, ['system', 'light', 'dark']
+
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
   has_secure_password validations: false
@@ -121,6 +123,7 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
   validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
+  validates :color_theme, inclusion: { in: color_themes.keys }, if: -> { Flipper.enabled?('color_themes') }
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
@@ -952,6 +955,7 @@ end
 #  id                            :integer          not null, primary key
 #  adminnote                     :text(65535)
 #  biography                     :string(255)      default("")
+#  color_theme                   :integer          default("system"), not null
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)

@@ -18,6 +18,7 @@
 @import 'bootstrap_variables/sizes';
 @import 'bootstrap_variables/options';
 @import 'bootstrap';
+@import 'colors';
 @import 'bootstrap-modal';
 @import 'font-awesome';
 @import 'tokenfield';
@@ -73,7 +74,7 @@
 @import 'request_show_redesign/build_results';
 @import 'accordion-reviews-component';
 @import 'tokens';
-@import 'colors';
+@import 'subscriptions';
 
 html {
     overflow-y: scroll !important;
