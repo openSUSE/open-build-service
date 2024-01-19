@@ -1,9 +1,11 @@
-= render BuildResultsFilterComponent.new(package_names:package_names,
-                                         repository_names: repository_names,
-                                         architecture_names: architecture_names,
-                                         status_names: status_names,
-                                         filter_url: filter_url,
-                                         filters: filters)
+.row.mb-4.mt-2
+  .col-md-12
+    = render partial: 'webui/request/build_results_filters', locals: { package_names:package_names,
+                                                                       repository_names: repository_names,
+                                                                       architecture_names: architecture_names,
+                                                                       status_names: status_names,
+                                                                       filter_url: filter_url,
+                                                                       filters: filters }
 
 .accordion#build-results-monitor
   - filtered_package_names.each do |package_name|
