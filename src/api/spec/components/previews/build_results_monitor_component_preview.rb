@@ -10,10 +10,10 @@ class BuildResultsMonitorComponentPreview < ViewComponent::Preview
   ].freeze
 
   def monitor_page
-    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filters: {}))
+    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filter_url: '', filters: {}))
   end
 
   def monitor_page_with_filters
-    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filters: { repository_names: ['openSUSE_Tumbleweed'] }))
+    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filter_url: '', filters: ['repo_openSUSE_Tumbleweed', 'status_unresolvable', 'arch_i586']))
   end
 end
