@@ -30,7 +30,7 @@ class RpmlintLogExtractor
 
     time_delta = (Time.now.to_f - time_start).round(3)
     metrics = "rpmlint_log_file_found=#{@rpmlint_log_file_found},parse_internal_log_file=#{@parse_internal_log_file},mark_found=#{@mark_found}"
-    RabbitmqBus.send_to_bus('rpmlint_log', "extractor,#{metrics} value=#{time_delta}")
+    RabbitmqBus.send_to_bus('metrics', "rpmlint_log_extractor,#{metrics} value=#{time_delta}")
 
     content
   end
