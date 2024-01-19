@@ -3,6 +3,7 @@
   "eqeqeq"    : true, // true: Require triple equals (===) for comparison
   "undef"     : true, // true: Require all non-global variables to be declared (prevents global leaks)
   "unused"    : true, // Unused variables: true : all variables, last function parameter
+  "esversion" : 6,
 
   "globals" : {
     "$" :        false,
