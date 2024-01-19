@@ -7,7 +7,7 @@
 
     pre {
       @extend .p-2;
-      @extend .bg-light;
+      @extend .bg-body-secondary;
       @extend .text-pre-wrap;
     }
     code { line-height: 1.5rem; }
