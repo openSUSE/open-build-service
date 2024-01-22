@@ -1,0 +1,37 @@
+ruby2.5-rubygem-bigdecimal.x86_64: I: polkit-cant-acquire-privilege org.blueman.bluez.config (??:no:auth_admin_keep)
+Usability can be improved by allowing users to acquire privileges via
+authentication. Use e.g. 'auth_admin' instead of 'no' and make sure to define
+'allow_any'. This is an issue only if the privilege is not listed in
+/etc/polkit-default-privs.*
+
+ruby2.5-rubygem-bigdecimal.x86_64: I: polkit-untracked-privilege org.blueman.bluez.config (??:no:auth_admin_keep)
+The privilege is not listed in /etc/polkit-default-privs.* which makes it
+harder for admins to find. If the package is intended for inclusion in any
+SUSE product please open a bug report to request review of the package by the
+security team
+
+ruby2.5-rubygem-bigdecimal.x86_64: W: empty-%post
+ruby2.5-rubygem-bigdecimal.x86_64: W: empty-%postun
+ruby2.5-rubygem-bigdecimal.x86_64: W: invalid-desktopfile /usr/share/applications/blueman-adapters.desktop No valid Unicode
+ruby2.5-rubygem-bigdecimal.x86_64: W: invalid-desktopfile /usr/share/applications/blueman-manager.desktop No valid Unicode
+.desktop file is not valid, check with desktop-file-validate
+
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-adapters /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-applet /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-assistant /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-browse /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-manager /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-report /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-sendto /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-services /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/lib/blueman-mechanism /usr/bin/env python3
+ruby2.5-rubygem-bigdecimal.x86_64: E: env-script-interpreter (Badness: 9) /usr/lib/blueman-rfcomm-watcher /usr/bin/env python3
+This script uses 'env' as an interpreter. For the rpm runtime dependency
+detection to work, the shebang #!/usr/bin/env python  needs to be patched into
+#!/usr/bin/python  otherwise the package dependency generator merely adds a
+dependency on /usr/bin/env rather than the actual interpreter /usr/bin/python.
+Alternatively, if the file should not be executed, then ensure that it is not
+marked as executable or don't install it in a path that is reserved for
+executables.
+
+4 packages and 0 specfiles checked; 10 errors, 4 warnings.
