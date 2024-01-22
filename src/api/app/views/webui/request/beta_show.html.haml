@@ -49,7 +49,7 @@
                 %h4.list-group.mb-4.ms-3.pt-3 Comments & History
                 .timeline-item.mb-3
                   .d-flex.align-items-start
-                    %i.fas.fa-lg.fa-code-commit.text-dark
+                    %i.fas.fa-lg.fa-code-commit
                     .ms-2
                       %span.small
                         - creator = User.find_by_login(@bs_request.creator) || User.nobody
