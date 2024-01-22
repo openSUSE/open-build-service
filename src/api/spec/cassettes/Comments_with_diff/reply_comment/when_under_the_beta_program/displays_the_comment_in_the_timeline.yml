@@ -1,0 +1,889 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Parliament of Man</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Parliament of Man</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>I Sing the Body Electric</title>
+          <description>Hic omnis eum quia.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>I Sing the Body Electric</title>
+          <description>Hic omnis eum quia.</description>
+        </package>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>The Skull Beneath the Skin</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>The Skull Beneath the Skin</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10">
+          <srcmd5>edb75f38f012b08609b1ff7ebef360d9</srcmd5>
+          <time>1705913136</time>
+          <user>user_8</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/package_a/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_a" project="source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Excepturi nihil quo autem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_a" project="source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Excepturi nihil quo autem.</description>
+        </package>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/package_a/README.txt
+    body:
+      encoding: UTF-8
+      string: Autem et quam. Officiis tempora architecto. Ad ut aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="13" vrev="13">
+          <srcmd5>534800fd551d06b2ed010a5d59cb0d67</srcmd5>
+          <version>1</version>
+          <time>1705913136</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/package_a/package_a.spec
+    body:
+      encoding: UTF-8
+      string: |
+        Name:       package_a
+        Version:    1
+        Release:    1
+        Summary:    Most simple RPM package
+        License:    CC0-1.0
+
+        %description
+        This is my first RPM package, which does nothing.
+
+        %prep
+        # we have no source, so nothing here
+
+        %build
+        cat > package_a.sh <<EOF
+        #!/usr/bin/bash
+        echo Hello world, from package_a.
+        EOF
+
+        %install
+        mkdir -p %{buildroot}/usr/bin/
+        install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+
+        %files
+        /usr/bin/package_a.sh
+
+        %changelog
+        # let skip this for now
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14" vrev="14">
+          <srcmd5>534800fd551d06b2ed010a5d59cb0d67</srcmd5>
+          <version>1</version>
+          <time>1705913136</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/package_a/package_a.changes
+    body:
+      encoding: UTF-8
+      string: "- Fixes ------"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>534800fd551d06b2ed010a5d59cb0d67</srcmd5>
+          <version>1</version>
+          <time>1705913136</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 22 Jan 2024 08:45:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '406'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="15" vrev="15" srcmd5="534800fd551d06b2ed010a5d59cb0d67">
+          <entry name="README.txt" md5="36a8511f55fc8ab8f8976c067e129586" size="54" mtime="1705913136"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1705913127"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1682586865"/>
+        </directory>
+  recorded_at: Mon, 22 Jan 2024 08:45:37 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1929'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a3b2dda59067518eda527a6b0dfd0ec0">
+          <old project="target_project" package="target_package" rev="2" srcmd5="06ff8f4beb356a9778a98001ed9f5b54"/>
+          <new project="source_project" package="package_a" rev="15" srcmd5="534800fd551d06b2ed010a5d59cb0d67"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="36a8511f55fc8ab8f8976c067e129586" size="54"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Autem et quam. Officiis tempora architecto. Ad ut aut.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes ------
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="_config" md5="e71bd273ed6552ff9f918a59455764c9" size="56"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Autem sunt et. Rem laborum quibusdam. Et autem delectus.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -# This will be replaced
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Jan 2024 08:45:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 Jan 2024 08:45:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '406'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="15" vrev="15" srcmd5="534800fd551d06b2ed010a5d59cb0d67">
+          <entry name="README.txt" md5="36a8511f55fc8ab8f8976c067e129586" size="54" mtime="1705913136"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1705913127"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1682586865"/>
+        </directory>
+  recorded_at: Mon, 22 Jan 2024 08:45:38 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1929'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a3b2dda59067518eda527a6b0dfd0ec0">
+          <old project="target_project" package="target_package" rev="2" srcmd5="06ff8f4beb356a9778a98001ed9f5b54"/>
+          <new project="source_project" package="package_a" rev="15" srcmd5="534800fd551d06b2ed010a5d59cb0d67"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="36a8511f55fc8ab8f8976c067e129586" size="54"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Autem et quam. Officiis tempora architecto. Ad ut aut.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes ------
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="_config" md5="e71bd273ed6552ff9f918a59455764c9" size="56"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Autem sunt et. Rem laborum quibusdam. Et autem delectus.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -# This will be replaced
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Jan 2024 08:45:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="2" vrev="2" srcmd5="06ff8f4beb356a9778a98001ed9f5b54">
+          <entry name="_config" md5="e71bd273ed6552ff9f918a59455764c9" size="56" mtime="1705909899"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1705909899"/>
+        </directory>
+  recorded_at: Mon, 22 Jan 2024 08:45:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '406'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="15" vrev="15" srcmd5="534800fd551d06b2ed010a5d59cb0d67">
+          <entry name="README.txt" md5="36a8511f55fc8ab8f8976c067e129586" size="54" mtime="1705913136"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1705913127"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1682586865"/>
+        </directory>
+  recorded_at: Mon, 22 Jan 2024 08:45:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1929'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a3b2dda59067518eda527a6b0dfd0ec0">
+          <old project="target_project" package="target_package" rev="2" srcmd5="06ff8f4beb356a9778a98001ed9f5b54"/>
+          <new project="source_project" package="package_a" rev="15" srcmd5="534800fd551d06b2ed010a5d59cb0d67"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="36a8511f55fc8ab8f8976c067e129586" size="54"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Autem et quam. Officiis tempora architecto. Ad ut aut.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes ------
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="_config" md5="e71bd273ed6552ff9f918a59455764c9" size="56"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Autem sunt et. Rem laborum quibusdam. Et autem delectus.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -# This will be replaced
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 22 Jan 2024 08:45:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 54deb279-0627-462c-8101-98b8dfd0ab7e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="2" vrev="2" srcmd5="06ff8f4beb356a9778a98001ed9f5b54">
+          <entry name="_config" md5="e71bd273ed6552ff9f918a59455764c9" size="56" mtime="1705909899"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1705909899"/>
+        </directory>
+  recorded_at: Mon, 22 Jan 2024 08:45:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - '0508489b-42c4-4269-a84d-ed5dac92d06e'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 Jan 2024 08:45:39 GMT
+recorded_with: VCR 6.2.0
