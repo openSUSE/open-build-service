@@ -52,6 +52,7 @@
         }
         @extend .px-3;
       }
+      .line-comment .comment-diff { display: none; }
       &:target {
         .number {
           background-color: rgba($warning, 0.5)!important
