@@ -175,6 +175,17 @@
   @extend .text-success;
 }
 
+#build-results-monitor {
+  .accordion-button:not(.collapsed) {
+    @extend .text-bg-selected;
+    color: var(--bs-accordion-active-color);
+  }
+
+  .accordion-button:hover {
+    @extend .text-bg-hover;
+  }
+}
+
 @include media-breakpoint-up(md) {
   .build-info .triangle.left { left: .25rem; }
 }
