@@ -177,8 +177,7 @@
 
 #build-results-monitor {
   .accordion-button:not(.collapsed) {
-    @extend .text-bg-selected;
-    color: var(--bs-accordion-active-color);
+    --bs-accordion-active-bg: var(--bs-secondary-bg);
   }
 
   .accordion-button:hover {
