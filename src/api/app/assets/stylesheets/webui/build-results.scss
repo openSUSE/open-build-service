@@ -195,3 +195,62 @@
     &.left { left: .5rem; }
   }
 }
+
+.build-result-table {
+  .build-result-legend {
+    display: none;
+  }
+
+  .build-result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 1rem;
+    flex-wrap: wrap;
+  }
+
+  .build-result-architectures {
+    display: flex;
+    margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: end;
+  }
+
+  .build-result-architectures .badge {
+    margin-left: 0.25rem;
+  }
+
+  .build-result-row:not(:last-of-type) {
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+  }
+
+  @include media-breakpoint-up(xl) {
+    display: grid;
+    grid-auto-flow: row;
+    row-gap: 1px;
+    background-color: var(--bs-border-color);
+
+    .build-result-architectures, .build-result-row, .build-result-legend {
+      display: contents;
+    }
+  
+    @for $i from 1 to 20 {
+      &.build-result-table-#{$i} {
+        grid-template-columns: [name] 10fr repeat(#{$i}, [arch] 1fr);
+      }
+    }
+
+    .build-result-name {
+      grid-column-start: name;
+      padding: 0.25rem 1rem;
+      background-color: var(--bs-body-bg);
+    }
+
+    .build-result-architecture {
+      grid-column-start: [arch];
+      padding: 0.25rem 1rem;
+      background-color: var(--bs-body-bg);
+      text-align: end;
+      .architecture { display: none }
+    }
+  }
+}
