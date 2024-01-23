@@ -1,7 +1,6 @@
 get:
   summary: Get project meta file
-  description: |
-    Get project meta file
+  description: Get project meta file
   security:
     - basic_authentication: []
   parameters:
@@ -53,8 +52,7 @@ get:
 
 put:
   summary: Write project meta file
-  description: |
-    Write project's meta file. Create the project if it doesn't exist.
+  description: Write project's meta file. Create the project if it doesn't exist.
   security:
     - basic_authentication: []
   parameters:
@@ -93,8 +91,7 @@ put:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
-      description: |
-        The user does not have permission to change the project.
+      description: The user does not have permission to change the project.
       content:
         application/xml; charset=utf-8:
           schema:

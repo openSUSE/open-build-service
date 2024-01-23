@@ -1,7 +1,6 @@
 post:
   summary: Unlock a locked package.
-  description: |
-    Unlock a locked package (`<lock><enable/></lock>` flag present in the package `_meta` file).
+  description: Unlock a locked package (`<lock><enable/></lock>` flag present in the package `_meta` file).
   security:
     - basic_authentication: []
   parameters:

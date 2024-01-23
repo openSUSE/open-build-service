@@ -1,7 +1,6 @@
 get:
   summary: List all people.
-  description: |
-    List all people.
+  description: List all people.
   security:
     - basic_authentication: []
   parameters:

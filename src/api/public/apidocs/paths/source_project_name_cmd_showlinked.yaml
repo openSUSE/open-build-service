@@ -1,7 +1,6 @@
 post:
   summary: List projects linking to the provided project.
-  description: |
-    Return a list of projects linking to the provided project. This command doesn't perform any action.
+  description: Return a list of projects linking to the provided project. This command doesn't perform any action.
   security:
     - basic_authentication: []
   parameters:

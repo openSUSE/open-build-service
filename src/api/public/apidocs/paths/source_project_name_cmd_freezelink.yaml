@@ -1,7 +1,6 @@
 post:
   summary: Freeze a project link.
-  description: |
-    Freeze a project link, either creating the freeze or updating it.
+  description: Freeze a project link, either creating the freeze or updating it.
   security:
     - basic_authentication: []
   parameters:

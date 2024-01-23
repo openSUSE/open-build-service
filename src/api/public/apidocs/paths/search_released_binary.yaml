@@ -129,7 +129,6 @@ get:
 post:
   deprecated: true
   summary: List released binaries that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/released/binary`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/released/binary`, please use that one.
   tags:
     - Search

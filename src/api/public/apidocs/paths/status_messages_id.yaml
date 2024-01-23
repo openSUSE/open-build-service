@@ -1,7 +1,6 @@
 get:
   summary: Get a status message
-  description: |
-    Find a status message with id
+  description: Find a status message with id
   security:
     - basic_authentication: []
   parameters:
@@ -33,8 +32,7 @@ get:
 
 delete:
   summary: Delete a status message
-  description: |
-    Delete a status message with id
+  description: Delete a status message with id
   security:
     - basic_authentication: []
   parameters:

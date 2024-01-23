@@ -84,7 +84,6 @@ get:
 post:
   deprecated: true
   summary: List issues that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/issue`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/issue`, please use that one.
   tags:
     - Search
