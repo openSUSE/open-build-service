@@ -15,8 +15,9 @@
                                          "aria-expanded" => "false", "data-bs-target" => "#collapse-#{package_name.gsub(':', '_')}",
                                          "data-bs-toggle" => "collapse",
                                          type: "button" }
-          .w-100.d-flex.justify-content-between.pe-3
-            = package_name
+          .w-100.d-flex.flex-wrap.justify-content-between.pe-3
+            %span.text-break.me-2
+              = package_name
             %span.text-end
               - results_count_per_package_and_category(package_name).each do |key, value|
                 = render partial: 'webui/shared/build_status_count_badge', locals: { category: key, count: value.to_s }
