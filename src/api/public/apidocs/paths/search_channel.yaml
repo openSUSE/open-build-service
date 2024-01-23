@@ -1,7 +1,6 @@
 get:
   summary: List channel objects that match a XPath condition.
-  description: |
-    Return a collection of channel objects with release informations that match a XPath condition.
+  description: Return a collection of channel objects with release informations that match a XPath condition.
   security:
     - basic_authentication: []
   parameters:
@@ -79,7 +78,6 @@ get:
 post:
   deprecated: true
   summary: List channel objects that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/channel`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/channel`, please use that one.
   tags:
     - Search

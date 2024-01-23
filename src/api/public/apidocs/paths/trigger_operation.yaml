@@ -43,15 +43,13 @@ post:
       example: 123458568938927827827
     - in: header
       name: X-GitLab-Token
-      description: |
-        The API token secret.
+      description: The API token secret.
       schema:
         type: string
       example: THE_TOKEN_SECRET
     - in: header
       name: Authorization
-      description: |
-        The API token secret in the Token realm.
+      description: The API token secret in the Token realm.
       schema:
         type: string
       example: Token THE_TOKEN_SECRET

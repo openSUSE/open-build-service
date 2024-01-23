@@ -1,7 +1,6 @@
 get:
   summary: Get a projects signing keys
-  description: |
-    Read information about the signing keys for the specified project
+  description: Read information about the signing keys for the specified project
   security:
     - basic_authentication: []
   parameters:

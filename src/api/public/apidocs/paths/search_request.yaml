@@ -242,7 +242,6 @@ get:
 post:
   deprecated: true
   summary: List requests objects that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/request`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/request`, please use that one.
   tags:
     - Search

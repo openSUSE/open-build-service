@@ -1,7 +1,6 @@
 get:
   summary: Get package's attribute
-  description: |
-    Get the specified attribute of the package
+  description: Get the specified attribute of the package
   security:
     - basic_authentication: []
   parameters:
@@ -85,8 +84,7 @@ get:
 
 post:
   summary: Create or update an attribute of a package
-  description: |
-    Create or update the specified attribute of the package
+  description: Create or update the specified attribute of the package
   security:
     - basic_authentication: []
   parameters:

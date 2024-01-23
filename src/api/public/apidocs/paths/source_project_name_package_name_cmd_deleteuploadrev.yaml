@@ -1,7 +1,6 @@
 post:
   summary: Delete all uploaded sources which are not committed yet.
-  description: |
-    Removes all changes made to the upload revision and reverts to last committed revision
+  description: Removes all changes made to the upload revision and reverts to last committed revision
   security:
     - basic_authentication: []
   parameters:

@@ -46,8 +46,7 @@ get:
 
 delete:
   summary: Removes the current gpg key
-  description: |
-    Removes the current gpg key if it exists
+  description: Removes the current gpg key if it exists
   security:
     - basic_authentication: []
   parameters:

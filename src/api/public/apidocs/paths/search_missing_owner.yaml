@@ -64,7 +64,6 @@ post:
   summary: |
     Search for packages that miss the definition for a by default
     responsible person or group.
-  description: |
-    This endpoint is exactly the same as `GET /search/missing_owner`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/missing_owner`, please use that one.
   tags:
     - Search
