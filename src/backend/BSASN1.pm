@@ -171,8 +171,11 @@ sub pack_octet_string {
 
 sub pack_string {
   my ($s, $tag) = @_;
+  $tag ||= $UTF8STRING;
+  return pack_raw($BMPSTRING, Encode::encode('UCS-2BE', $s)) if $tag == $BMPSTRING;
+  return pack_raw($UNIVERSALSTRING, Encode::encode('UCS-4BE', $s)) if $tag == $UNIVERSALSTRING;
   Encode::_utf8_off($s);	# hope for the best
-  return pack_raw($tag || $UTF8STRING, $s);
+  return pack_raw($tag, $s);
 }
 
 sub pack_bytes {
