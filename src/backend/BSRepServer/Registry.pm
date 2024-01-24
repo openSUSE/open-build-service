@@ -125,7 +125,7 @@ sub download_blobs {
     next if blobstore_get("_blob.$blob", $dir);
     my $tmp = "$dir/._blob.$blob.$$";
     my $authenticator = $registry_authenticators{"$url$regrepo"};
-    $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc) unless $authenticator;
+    $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc, 'proxy' => $proxy) unless $authenticator;
     my $bloburl = "${url}v2/$regrepo/blobs/$blob";
     # print "fetching: $bloburl\n";
     my $param = {'uri' => $bloburl, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
