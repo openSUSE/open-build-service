@@ -32,6 +32,8 @@ class Webui::UsersController < Webui::WebuiController
     @date = params[:date]
     @activities_per_day = UserDailyContribution.new(@displayed_user, @date).call
     handle_notification
+
+    @comments = paged_comments
   end
 
   def new
@@ -195,5 +197,11 @@ class Webui::UsersController < Webui::WebuiController
 
     @current_notification = Notification.find(params[:notification_id])
     authorize @current_notification, :update?, policy_class: NotificationPolicy
+  end
+
+  def paged_comments
+    comments = @displayed_user.comments.newest_first
+    params[:page] = comments.page(params[:page]).total_pages if comments.page(params[:page]).out_of_range?
+    comments.page(params[:page])
   end
 end
