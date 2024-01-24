@@ -363,6 +363,7 @@ sub keydata2pubkey {
   my ($algoparams, $bits);
   if ($algo eq 'rsa') {
     $bits = BSASN1::pack_sequence(BSASN1::pack_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::pack_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
+    $algoparams = BSASN1::pack_null();	# compat
   } elsif ($algo eq 'dsa') {
     my @mpis = @{$keydata->{'mpis'} || []};
     $bits = BSASN1::pack_integer_mpi((pop @mpis)->{'data'});
