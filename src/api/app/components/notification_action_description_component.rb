@@ -18,6 +18,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
 
   private
 
+  # FIXME: Remove this, it's not needed
   def bs_request
     @bs_request ||= if @notification.notifiable_type == 'BsRequest'
                       @notification.notifiable
@@ -28,36 +29,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
                     end
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def description_text
-    case @notification.event_type
-    when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted', 'Event::CommentForRequest'
-      BsRequestActionSourceAndTargetComponent.new(bs_request).call
-    when 'Event::CommentForProject'
-      "#{@notification.notifiable.commentable.name}"
-    when 'Event::CommentForPackage'
-      commentable = @notification.notifiable.commentable
-      "#{commentable.project.name} / #{commentable.name}"
-    when 'Event::RelationshipCreate'
-      "#{@user} made #{@recipient} #{@role} of #{@target_object}"
-    when 'Event::RelationshipDelete'
-      "#{@user} removed #{@recipient} as #{@role} of #{@target_object}"
-    when 'Event::BuildFail'
-      "Build was triggered because of #{@notification.event_payload['reason']}"
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser'
-      "'#{@notification.notifiable.user.login}' created a report for a #{@notification.event_payload['reportable_type'].downcase}. This is the reason:"
-    when 'Event::ReportForRequest'
-      "'#{@notification.notifiable.user.login}' created a report for a request. This is the reason:"
-    when 'Event::ReportForComment'
-      "'#{@notification.notifiable.user.login}' created a report for a comment from #{@notification.event_payload['commenter']}. This is the reason:"
-    when 'Event::ClearedDecision'
-      "'#{@notification.notifiable.moderator.login}' decided to clear the report. This is the reason:"
-    when 'Event::FavoredDecision'
-      "'#{@notification.notifiable.moderator.login}' decided to favor the report. This is the reason:"
-    when 'Event::AppealCreated'
-      "'#{@notification.notifiable.appellant.login}' appealled the decision for the following reason:"
-    end
+    @notification.decorator.description_text
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 end
