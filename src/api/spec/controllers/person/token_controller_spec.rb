@@ -88,7 +88,7 @@ RSpec.describe Person::TokenController do
       it { expect(response).to have_http_status(:success) }
       it { expect(response).to render_template(:create) }
       it { expect(user.tokens.where(package: package)).to exist }
-      it { expect(assigns(:token)).to eq(package.token) }
+      it { expect(assigns(:token)).to eq(package.tokens.first) }
     end
 
     context 'operation is workflow' do
