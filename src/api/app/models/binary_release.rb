@@ -117,21 +117,11 @@ class BinaryRelease < ApplicationRecord
   end
 
   def self.hashkey_db(binary)
-    binary['binary_name'] + '|' +
-     (binary['binary_version'] || '0') + '|' +
-     (binary['binary_release'] || '0') + '|' +
-     (binary['binary_epoch'] || '0') + '|' +
-     (binary['binary_arch'] || '') + '|' +
-     (binary['medium'] || '')
+    "#{binary['binary_name']}|#{binary['binary_version'] || '0'}|#{binary['binary_release'] || '0'}|#{binary['binary_epoch'] || '0'}|#{binary['binary_arch'] || ''}|#{binary['medium'] || ''}"
   end
 
   def self.hashkey_json(binary, medium)
-    binary['name'] + '|' +
-     (binary['version'] || '0') + '|' +
-     (binary['release'] || '0') + '|' +
-     (binary['epoch'] || '0') + '|' +
-     (binary['binaryarch'] || '') + '|' +
-     (medium || '')
+    "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{medium || ''}"
   end
 
   def render_xml
