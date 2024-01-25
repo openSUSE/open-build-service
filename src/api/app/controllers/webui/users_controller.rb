@@ -31,6 +31,7 @@ class Webui::UsersController < Webui::WebuiController
     @activities_per_year = UserYearlyContribution.new(@displayed_user, @first_day).call
     @date = params[:date]
     @activities_per_day = UserDailyContribution.new(@displayed_user, @date).call
+    handle_notification
   end
 
   def new
@@ -187,5 +188,12 @@ class Webui::UsersController < Webui::WebuiController
   def assign_admin_attributes
     @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
     @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
+  end
+
+  def handle_notification
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
   end
 end
