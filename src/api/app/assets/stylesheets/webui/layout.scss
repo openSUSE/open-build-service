@@ -119,6 +119,7 @@
 
 #footer {
   strong { color: var(--bs-secondary-color); }
+  ul { @extend .list-unstyled; }
   li { @extend .my-2; }
 }
 
