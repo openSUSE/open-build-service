@@ -386,6 +386,10 @@ sub getpackagelist_build {
   die "must specify view\n" unless $view;
   return getrepositorystatus($cgi, $projid, $repoid, $arch) if $view eq 'status';
   return getbinarychecksums($cgi, $projid, $repoid, $arch) if $view eq 'binarychecksums' || $view eq 'rawbinarychecksums';
+  if ($view eq 'binaryversionscookie') {
+    my $cookie = calc_bininfocookie("$projid/$repoid/$arch");
+    return { 'cookie' => $cookie }, $BSXML::packagebinaryversionlist;
+  }
   $cgi->{'withcode'} = 1 if $view  eq 'binaryversionscode' || $view  eq 'gbininfocode';
   return getgbininfo($cgi, $projid, $repoid, $arch) if $view eq 'gbininfo' || $view eq 'gbininfocode';
   return getpackstatus($cgi, $projid, $repoid, $arch) if $view eq 'packstatus';

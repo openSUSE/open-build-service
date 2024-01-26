@@ -831,6 +831,7 @@ our $binaryversionlist = [
 
 our $packagebinaryversionlist = [
     'packagebinaryversionlist' =>
+	'cookie',
      [[ 'binaryversionlist' =>
 	    'package',
 	    'code',
