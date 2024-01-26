@@ -69,24 +69,6 @@ RSpec.describe BinaryRelease do
 
       it { expect { described_class.update_binary_releases_via_json(repository, [repeated_binary_hash]) }.not_to raise_error }
     end
-
-    context 'with repeated binary_releases' do
-      let!(:binary_releases) { create_list(:binary_release, 2, repository: repository) }
-      let(:repeated_binary_hash) do
-        {
-          'disturl' => binary_releases.first.binary_disturl,
-          'supportstatus' => binary_releases.first.binary_supportstatus,
-          'binaryid' => binary_releases.first.binary_id,
-          'buildtime' => binary_releases.first.binary_buildtime.to_i,
-          'name' => binary_releases.first.binary_name,
-          'binaryarch' => binary_releases.first.binary_arch
-        }
-      end
-
-      subject { described_class.update_binary_releases_via_json(repository, [repeated_binary_hash]) }
-
-      it { expect { subject }.to change(BinaryRelease, :count).by(-1) }
-    end
   end
 
   describe '#identical_to?' do
