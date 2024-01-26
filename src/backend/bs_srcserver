@@ -4578,7 +4578,8 @@ sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $view = $cgi->{'view'};
   if ($view) {
-    die("unknown view '$view'\n") unless $view eq 'binaryversions' || $view eq 'binaryversionscode' || $view eq 'status' || $view eq 'binarychecksums';
+    die("unknown view '$view'\n") unless $view eq 'binaryversions' || $view eq 'binaryversionscode' || $view eq 'status' || $view eq 'binarychecksums' || $view eq 'binaryversionscookie';
+    die("package filtering is not supported for this $view\n") if $cgi->{'package'} && $view eq 'binaryversionscookie';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
     my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my @args = BSRPC::args($cgi, 'view', 'package');
