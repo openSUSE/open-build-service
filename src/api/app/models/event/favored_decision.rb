@@ -7,7 +7,7 @@ module Event
 
     def subject
       decision = Decision.find(payload['id'])
-      "Favored #{decision.reports.first.reportable&.class&.name} Report".squish
+      "Favored #{decision.reports.first.reportable&.class&.name || decision.reports.first.reportable_type} Report".squish
     end
 
     def parameters_for_notification
