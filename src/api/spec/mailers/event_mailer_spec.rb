@@ -618,7 +618,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'has a subject' do
-        expect(mail.subject).to eq("Appeal to #{decision.reports.first.reportable&.class&.name.downcase} decision")
+        expect(mail.subject).to eq("Appeal to #{decision.reports.first.reportable&.class&.name} decision")
       end
 
       it 'contains the correct text' do
