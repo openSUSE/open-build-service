@@ -1,0 +1,63 @@
+.comment-bubble.ms-3
+  - if policy(comment).update? || policy(comment).destroy?
+    .dropdown.dropleft.float-end.mt-3.mx-3
+      = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false') do
+        %i.fas.fa-ellipsis
+      .dropdown-menu
+        - if policy(comment).update?
+          = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
+                    class: 'dropdown-item collapsed') do
+            Edit
+        - if Flipper.enabled?(:content_moderation, User.session)
+          - if policy(comment).moderate?
+            = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
+                        class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
+        - if policy(comment).destroy?
+          = link_to('#', data: { 'bs-toggle': 'modal',
+                                'bs-target': '#delete-comment-modal',
+                                confirmation_text: 'Please confirm deletion of comment',
+                                action: comment_path(comment) },
+                        class: 'dropdown-item delete_link', title: 'Delete comment') do
+            Delete
+  .px-3.py-2.border-bottom
+    - unless hideusername
+      = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
+      \-
+    = link_to_comment(comment)
+    = render CommentHistoryComponent.new(comment)
+  - if comment.diff_ref && diff
+    - action = comment.commentable
+    .comment-diff
+      .px-3.pt-3.pb-2
+        = link_to request_show_path(number: action.bs_request, request_action_id: action) do
+          = action.uniq_key
+          >
+          = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor: comment.diff_ref) do
+            = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
+      = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
+  .comment-bubble-content{ id: "comment-#{comment.id}-body" }
+    = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
+    = helpers.render_as_markdown(comment)
+
+  - if policy(comment).update?
+    .collapse{ id: "edit_form_of_#{comment.id}" }
+      = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
+      comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
+
+- if policy(comment).reply?
+  .d-flex.justify-content-end.me-2
+    - if policy(Report.new(reportable: comment)).create?
+      = link_to('#', class: 'fst-italic small collapsed me-2', id: "js-comment-#{comment.id}",
+            data: { 'bs-toggle': 'modal',
+                    'bs-target': '#report-modal',
+                    'modal-title': "Report comment from #{comment.user}",
+                    'reportable-type': comment.class.name,
+                    'reportable-id': comment.id }) do
+        Report
+    = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
+              class: 'fst-italic small collapsed') do
+      Reply
+
+  .collapse.ms-4.mb-4{ id: "reply_form_of_#{comment.id}" }
+    = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
+      comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })
