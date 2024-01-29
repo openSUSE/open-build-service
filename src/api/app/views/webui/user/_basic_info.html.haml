@@ -35,7 +35,7 @@
     .col-8.col-sm-10.col-md-12.ps-0.p-md-3
       %h4#home-realname
         = user.realname
-      %h5.text-muted#home-login
+      %h5.text-reset#home-login
         = user.login
       - if User.possibly_nobody.is_admin?
         .text-reset
