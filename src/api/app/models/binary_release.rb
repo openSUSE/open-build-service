@@ -19,14 +19,19 @@ class BinaryRelease < ApplicationRecord
   end
 
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
-    oldlist = where(repository: repository, obsolete_time: nil, modify_time: nil)
-    # we can not just remove it from relation, delete would affect the object.
-    processed_item = {}
-
-    # when we have a medium providing further entries
-    medium_hash = {}
-
+    # building a hash to avoid single SQL select calls slowing us down too much
+    oldhash = {}
     BinaryRelease.transaction do
+      where(repository: repository, obsolete_time: nil).each do |binary|
+        key = hashkey_db(binary.as_json)
+        oldhash[key] = binary
+      end
+
+      processed_item = {}
+
+      # when we have a medium providing further entries
+      medium_hash = {}
+
       json.each do |binary|
         # identifier
         hash = { binary_name: binary['name'],
@@ -38,21 +43,13 @@ class BinaryRelease < ApplicationRecord
                  on_medium: medium_hash[binary['medium']],
                  obsolete_time: nil,
                  modify_time: nil }
-        # check for existing entry
-        matching_binaries = oldlist.where(hash)
-        if matching_binaries.count > 1
-          Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}"
-          # double definition means broken DB entries
-          matching_binaries.offset(1).destroy_all
-        end
 
-        # compare with existing entry
-        entry = matching_binaries.first
-
+        # getting activerecord object from hash, dup to unfreeze it
+        entry = oldhash[hashkey_json(binary, binary['medium'])]
         if entry
+          # still exists, do not touch obsolete time
+          processed_item[entry.id] = true
           if entry.identical_to?(binary)
-            # same binary, don't touch
-            processed_item[entry.id] = true
             # but collect the media
             medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
             next
@@ -60,7 +57,6 @@ class BinaryRelease < ApplicationRecord
           # same binary name and location, but updated content or meta data
           entry.modify_time = time
           entry.save!
-          processed_item[entry.id] = true
           hash[:operation] = 'modified' # new entry will get "modified" instead of "added"
         end
 
@@ -76,7 +72,7 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo] = binary['updateinfoid']
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
-        if binary['package'].present?
+        if binary['project'].present? && binary['package'].present?
           # the package may be missing if the binary comes via DoD
           source_package = Package.striping_multibuild_suffix(binary['package'])
           rp = Package.find_by_project_and_name(binary['project'], source_package)
@@ -107,12 +103,7 @@ class BinaryRelease < ApplicationRecord
       end
 
       # and mark all not processed binaries as removed
-      oldlist.each do |e|
-        next if processed_item[e.id]
-
-        e.obsolete_time = time
-        e.save!
-      end
+      where(repository: repository, obsolete_time: nil, modify_time: nil).where.not(id: processed_item.keys).update_all(obsolete_time: time)
     end
   end
 
@@ -123,6 +114,14 @@ class BinaryRelease < ApplicationRecord
   # esp. for docker/appliance/python-venv-rpms and friends
   def medium_container
     on_medium.try(:release_package)
+  end
+
+  def self.hashkey_db(binary)
+    "#{binary['binary_name']}|#{binary['binary_version'] || '0'}|#{binary['binary_release'] || '0'}|#{binary['binary_epoch'] || '0'}|#{binary['binary_arch'] || ''}|#{binary['medium'] || ''}"
+  end
+
+  def self.hashkey_json(binary, medium)
+    "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{medium || ''}"
   end
 
   def render_xml
