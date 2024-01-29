@@ -14,7 +14,7 @@
                     'reportable-id': user.id }) do
         %i.fas.fa-regular.fa-flag
         %span.nav-item-name Report
-    - if User.possibly_nobody.is_admin?
+    - if User.possibly_nobody.is_admin? && user.state != 'deleted'
       = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
         %i.fas.fa-times-circle.text-danger
         %span.nav-item-name.text-danger Delete
