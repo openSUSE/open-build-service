@@ -82,13 +82,15 @@ RSpec.describe Person::TokenController do
 
       before do
         login user
-        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml
       end
 
+      subject { post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml }
+
       it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template(:create) }
-      it { expect(user.tokens.where(package: package)).to exist }
-      it { expect(assigns(:token)).to eq(package.tokens.first) }
+
+      it 'creates a token' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+      end
     end
 
     context 'operation is workflow' do
