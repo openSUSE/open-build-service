@@ -109,7 +109,7 @@ class Package < ApplicationRecord
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package # rubocop:disable Rails/RedundantForeignKey
-  has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :package
+  has_many :tokens, dependent: :destroy
 
   def self.check_access?(package)
     return false if package.nil?
