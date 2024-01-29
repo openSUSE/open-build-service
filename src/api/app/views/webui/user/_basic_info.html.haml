@@ -37,6 +37,10 @@
         = user.realname
       %h5.text-muted#home-login
         = user.login
+      - if User.possibly_nobody.is_admin?
+        .text-reset
+          State:
+          = user.state
 
   - role_titles.each do |title|
     %span.badge.text-bg-secondary
