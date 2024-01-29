@@ -19,8 +19,8 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_anonymous
   before_action :set_influxdb_data
   before_action :require_configuration
-  before_action :current_announcement, unless: -> { request.xhr? }
-  before_action :fetch_watchlist_items, unless: -> { request.xhr? }
+  before_action :current_announcement
+  before_action :fetch_watchlist_items
   after_action :clean_cache
   before_action :set_paper_trail_whodunnit
 
