@@ -1,7 +1,7 @@
 require 'browser_helper'
 
-RSpec.describe 'CommentLocks' do
-  let!(:moderator_user) { create(:moderator) }
+RSpec.describe 'CommentLocks', :vcr do
+  let!(:moderator_user) { create(:moderator, login: 'moderator') }
 
   before do
     Flipper.enable(:content_moderation)
@@ -90,6 +90,21 @@ RSpec.describe 'CommentLocks' do
         it 'cannot comment' do
           expect(page).to have_text('Commenting on this is locked')
           expect(page).to have_no_button('Add comment')
+        end
+      end
+
+      context 'lock alert for package' do
+        let!(:comment_lock_project) { create(:comment_lock, commentable: user.home_project, moderator: moderator_user) }
+        let(:package) { create(:package, project: user.home_project, name: 'test_package') }
+
+        before do
+          login moderator_user
+          visit package_show_path(package.project, package)
+        end
+
+        it 'shows comment lock alert' do
+          alert = "You can remove the lock by visiting #{package.project.name}"
+          expect(page).to have_text(alert)
         end
       end
     end
