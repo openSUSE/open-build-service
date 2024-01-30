@@ -1,4 +1,4 @@
-%span.dropdown
+%span.dropdown.ms-1
   (edited
   = link_to('#', role: 'button', data: { 'bs-toggle': 'dropdown' }, 'aria-expanded': false, class: 'dropdown-toggle') do
     = render TimeComponent.new(time: @comment.versions.last.created_at)
