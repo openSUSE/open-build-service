@@ -2664,7 +2664,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                 <updatelink>true</updatelink>
               </options>
             </action>
-            <description>SUBMIT</description>
+            <description>SUBMIT bso#123</description>
             <state who='Iggy' name='new'/>
           </request>"
     post '/request?cmd=create', params: req
@@ -2678,6 +2678,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=diff&view=xml"
     assert_response :success
     assert_xml_tag(parent: { tag: 'file', attributes: { state: 'changed' } }, tag: 'old', attributes: { name: '_link' })
+
+    # Validate also the issue parsing of the description
+    post "/request/#{id}?cmd=diff&view=xml&withdescriptionissues=1"
+    assert_response :success
+    assert_xml_tag(parent: { tag: 'issues' }, tag: 'issue', attributes: { tracker: 'bso', name: '123' })
 
     # accept the request
     login_king

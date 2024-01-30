@@ -13,6 +13,10 @@ module Backend
       def self.list
         http_get('/issue_trackers')
       end
+
+      def self.parse(content)
+        http_post('/issue_trackers', params: { cmd: :issues }, data: content)
+      end
     end
   end
 end

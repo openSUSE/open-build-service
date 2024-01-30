@@ -1392,6 +1392,7 @@ our $request = [
           ],
           [ $sourcediff ],
      ]],
+     $issues,                # issues of request description
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
 		'project',
